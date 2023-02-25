@@ -100,3 +100,55 @@ a, .btn-link {
         content: var(--blazor-load-percentage-text, "Loading");
     }
 
+/* Color Theme Swatches in Hex */
+.gcom-1-amarillo {
+    color: #EBBF1A;
+}
+
+.gcom-2-amarillo-dark {
+    color: #F2A71D;
+}
+
+.gcom-3-naranja-dark {
+    color: #DB7A25;
+}
+
+.gcom-4-naranja {
+    color: #F2541D;
+}
+
+.gcom-5-rojo {
+    color: #BA1C15;
+}
+
+.gcom-6-rojo-dark {
+    color: #A90B04;
+}
+
+.gcom-bg-amarillo {
+    background-color: #EBBF1A;
+}
+
+.gcom-bg-amarillo-dark {
+    background-color: #F2A71D;
+}
+
+.gcom-bg-naranja-dark {
+    background-color: #DB7A25;
+}
+
+.gcom-bg-naranja {
+    background-color: #F2541D;
+}
+
+.gcom-bg-rojo {
+    background-color: #BA1C15;
+}
+
+.gcom-bg-rojo-dark {
+    background-color: #A90B04;
+}
+
+.gcom-bg-blanco {
+    background-color: #F0F0F0;
+}
