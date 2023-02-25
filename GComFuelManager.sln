@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1705.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GComFuelManager.Server", "GComFuelManager\Server\GComFuelManager.Server.csproj", "{7BA1757C-F05B-493F-9B5A-B3A5AC0D1AA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Server", "GComFuelManager\Server\GComFuelManager.Server.csproj", "{7BA1757C-F05B-493F-9B5A-B3A5AC0D1AA8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GComFuelManager.Client", "GComFuelManager\Client\GComFuelManager.Client.csproj", "{01E792F9-E945-41B5-A967-F21FEDC4B56C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Client", "GComFuelManager\Client\GComFuelManager.Client.csproj", "{01E792F9-E945-41B5-A967-F21FEDC4B56C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GComFuelManager.Shared", "GComFuelManager\Shared\GComFuelManager.Shared.csproj", "{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Shared", "GComFuelManager\Shared\GComFuelManager.Shared.csproj", "{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
