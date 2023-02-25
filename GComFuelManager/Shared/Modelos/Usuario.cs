@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
     public class Usuario
     {
         [JsonProperty("cod")]
-        public int Cod { get; set; } = 0;
+        public int Cod { get; set; } 
         [JsonProperty("den")]
         public string Den { get; set; } = string.Empty;
         [JsonProperty("usu")]
