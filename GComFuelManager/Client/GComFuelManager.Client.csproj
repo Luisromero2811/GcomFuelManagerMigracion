@@ -45,7 +45,6 @@
     <Folder Include="Pages\Actualizaciones\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Pages\Formularios\Pedidos\" />
     <Folder Include="Repositorios\" />
   </ItemGroup>
 </Project>

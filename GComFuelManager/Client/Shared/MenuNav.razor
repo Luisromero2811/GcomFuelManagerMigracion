@@ -1,0 +1,32 @@
+﻿<div class="col-12 py-2 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") d-flex">
+    <div class="col">
+        @if (close)
+        {
+            <div class="col-4 mx-4" style="cursor:pointer" @onclick="CloseMenuLateral">
+                <img src="img/bar-de-hamburguesas(1).png" style="width:32px;" class="img-fluid"/>
+            </div>
+        }
+        else
+        {
+            <div class="col-4 mx-2" style="cursor:pointer" @onclick="CloseMenuLateral">
+                <img src="img/bar-de-hamburguesas.png" style="width:32px;" class="img-fluid" />
+            </div>
+        }
+    </div>
+    <div class="col-11 d-flex justify-content-end">
+        <div class="col-2 text-center my-auto">
+            <b>Cerrar sesion</b>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public bool close { get; set; } = false;
+    [Parameter] public EventCallback closeMenu { get; set; }
+
+    private void CloseMenuLateral()
+    {
+        closeMenu.InvokeAsync();
+    }
+}
