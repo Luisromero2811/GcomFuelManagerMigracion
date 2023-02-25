@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -25,6 +25,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,9 +35,17 @@
   <ItemGroup>
     <None Remove="Auth\" />
     <None Remove="Pages\Auth\" />
+    <None Remove="Helpers\" />
+    <None Remove="Pages\Actualizaciones\" />
+    <None Remove="Pages\Formularios\" />
+    <None Remove="Repositorios\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
+    <Folder Include="Pages\Actualizaciones\" />
     <Folder Include="Pages\Auth\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Pages\Formularios\Pedidos\" />
+    <Folder Include="Repositorios\" />
   </ItemGroup>
 </Project>
