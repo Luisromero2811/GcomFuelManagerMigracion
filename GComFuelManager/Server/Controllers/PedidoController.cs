@@ -17,7 +17,7 @@ namespace GComFuelManager.Server.Controllers
 
         public async Task<ActionResult> Get()
         {
-            var pedidos = await context.OrdenEmbarques.ToListAsync();
+            var pedidos = await context.OrdenEmbarque.ToListAsync();
             return Ok(pedidos);
         }
     }
