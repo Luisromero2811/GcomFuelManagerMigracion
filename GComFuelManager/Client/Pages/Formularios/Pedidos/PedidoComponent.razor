@@ -1,12 +1,123 @@
 ﻿@page "/"
 
-<div class="col-12">
-    <div class="col-12 m-2 card">
-        <div class="row">
-            
-        </div>
+<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="@ordenEmbarque" class="form col-12">
+            <div class="row col-12 g-3 mb-3 px-4">
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Terminal</label>
+                        <InputSelect @bind-Value="TerminalSeleccionada" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Grupo</label>
+                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Cliente</label>
+                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Estacion</label>
+                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Producto</label>
+                        <InputSelect @bind-Value="ProductoSeleccionado" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Cantidad</label>
+                        <InputSelect @bind-Value="CapacidadSeleccionada" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Fecha de carga en terminal</label>
+                        <InputDate class="col-3 form-control" TValue="DateTime" @bind-Value="FechaCarga"></InputDate>
+                    </div>
+                </div>
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Precio</label>
+                        <InputNumber class="form-control col-12" TValue="float" @bind-Value="Precio"></InputNumber>
+                    </div>
+                </div>
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Temperatura</label>
+                        <input class="form-control col-12 disabled" disabled/>
+                    </div>
+                </div>
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Condiciones de pago</label>
+                        <input class="form-control col-12 disabled" disabled/>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-2">
+                <div class="col-6 row">
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Agregar</b></button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Confirmar Pedido</b></button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
     </div>
 </div>
 
+<div class="col-12 mt-5">
+    <table class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Binomio</th>
+                <th scope="col">Estacion</th>
+                <th scope="col">Terminal</th>
+                <th scope="col">Producto</th>
+                <th scope="col">Cantidad</th>
+                <th scope="col">Precio</th>
+                <th scope="col">Fecha de carga</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
 @code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private int TerminalSeleccionada = 0;
+    private int GrupoSeleccionado = 0;
+    private int ClienteSeleccionado = 0;
+    private int EstacionSeleccionada = 0;
+    private int ProductoSeleccionado = 0;
+    private int CapacidadSeleccionada = 0;
+
+    private DateTime FechaCarga = DateTime.MinValue;
+    private float Precio = 0;
 }
