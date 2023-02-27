@@ -5,17 +5,17 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class Ciudad
 	{
-		[JsonProperty("cod")]
-		public int cod { get; set; }
+		[JsonProperty("cod"), Key]
+		public int Cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(128)]
-		public string? den { get; set; } = string.Empty;
+		public string? Den { get; set; } = string.Empty;
 
 		[JsonProperty("fch")]
-		public DateTime? fch { get; set; } = DateTime.MinValue;
+		public DateTime? Fch { get; set; } = DateTime.MinValue;
 
 		[JsonProperty("codent")]
-		public int? codent { get; set; } = 0;
+		public int? Codent { get; set; } = 0;
 	}
 }
 

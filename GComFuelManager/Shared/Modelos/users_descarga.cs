@@ -8,7 +8,7 @@ namespace GComFuelManager.Shared.Modelos
 	[Table("users_descargas")]
 	public class users_descarga
 	{
-		[JsonProperty("iduser")]
+		[JsonProperty("iduser"), Key]
 		public int iduser { get; set; }
 
 		[JsonProperty("usuario"), MaxLength(50)]

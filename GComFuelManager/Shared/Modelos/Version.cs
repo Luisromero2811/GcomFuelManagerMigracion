@@ -5,7 +5,7 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class Version
 	{
-		[JsonProperty("cod")]
+		[JsonProperty("cod"), Key]
 		public int cod { get; set; }
 
 		[JsonProperty("ver"), MaxLength(50)]

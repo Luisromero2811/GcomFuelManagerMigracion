@@ -6,7 +6,7 @@ namespace GComFuelManager.Shared.Modelos
 	public class Producto
 	{
         //5
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
 		public int cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(50)]
