@@ -5,7 +5,7 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class TransportistaGrupo
 	{
-		[JsonProperty("cod")]
+		[JsonProperty("cod"), Key]
 		public int cod { get; set; }
 
 		[JsonProperty("codtra")]

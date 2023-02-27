@@ -5,23 +5,23 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class Chofer
 	{
-		[JsonProperty("cod")]
-		public int cod { get; set; }
+		[JsonProperty("cod"), Key]
+		public int Cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(128)]
-		public string? den { get; set; } = string.Empty;
+		public string? Den { get; set; } = string.Empty;
 
 		[JsonProperty("codtransport")]
-		public int? codtransport { get; set; } = 0;
+		public int? Codtransport { get; set; } = 0;
 
 		[JsonProperty("dricod"), MaxLength(6)]
-		public string? dricod { get; set; } = string.Empty;
+		public string? Dricod { get; set; } = string.Empty;
 
 		[JsonProperty("shortden"), MaxLength(128)]
-		public string? shortden { get; set; } = string.Empty;
+		public string? Shortden { get; set; } = string.Empty;
 
 		[JsonProperty("activo")]
-		public bool? activo { get; set; } = true;
+		public bool? Activo { get; set; } = true;
 	}
 }
 

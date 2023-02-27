@@ -9,7 +9,7 @@ namespace GComFuelManager.Shared.Modelos
     [Table("Descargas")]
 	public class Descarga
 	{
-		[JsonProperty("idDescarga")]
+		[JsonProperty("idDescarga"), Key]
 		public int idDescarga { get; set; }
 
 		[JsonProperty("fecha_carga")]

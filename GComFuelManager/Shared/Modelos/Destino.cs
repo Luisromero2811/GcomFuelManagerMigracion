@@ -10,7 +10,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Destino
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("num")]
         public int? Num { get; set; } = 0;

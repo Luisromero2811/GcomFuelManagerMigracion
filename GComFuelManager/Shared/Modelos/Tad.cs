@@ -6,7 +6,7 @@ namespace GComFuelManager.Shared.Modelos
 	//5
 	public class Tad
 	{
-		[JsonProperty("cod")]
+		[JsonProperty("cod"), Key]
 		public int cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(128)]

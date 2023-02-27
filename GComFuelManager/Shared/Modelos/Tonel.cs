@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Tonel
     {
-        [JsonProperty("cod")] public int Cod { get; set; }
+        [JsonProperty("cod"), Key] public int Cod { get; set; }
         [JsonProperty("placa"), MaxLength(30)] public string Placa { get; set; } = string.Empty;
 
         [JsonProperty("codsyn")] public int Codsyn { get; set; } = 0;
