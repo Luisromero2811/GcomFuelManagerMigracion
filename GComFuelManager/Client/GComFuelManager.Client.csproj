@@ -26,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +40,7 @@
     <None Remove="Pages\Actualizaciones\" />
     <None Remove="Pages\Formularios\" />
     <None Remove="Repositorios\" />
+    <None Remove="Shared\Layouts\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -46,5 +48,6 @@
     <Folder Include="Pages\Auth\" />
     <Folder Include="Helpers\" />
     <Folder Include="Repositorios\" />
+    <Folder Include="Shared\Layouts\" />
   </ItemGroup>
 </Project>
