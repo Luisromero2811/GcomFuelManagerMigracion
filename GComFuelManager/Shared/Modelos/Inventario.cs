@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Inventario
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("invini")]
         public float? Invini { get; set; } = float.NaN;

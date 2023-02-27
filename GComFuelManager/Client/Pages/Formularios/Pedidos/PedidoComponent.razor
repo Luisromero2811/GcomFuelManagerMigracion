@@ -68,13 +68,13 @@
                 <div class="col-3 mb-1">
                     <div class="col-12">
                         <label>Temperatura</label>
-                        <input class="form-control col-12 disabled" disabled/>
+                        <input class="form-control col-12 disabled" disabled />
                     </div>
                 </div>
                 <div class="col-3 mb-1">
                     <div class="col-12">
                         <label>Condiciones de pago</label>
-                        <input class="form-control col-12 disabled" disabled/>
+                        <input class="form-control col-12 disabled" disabled />
                     </div>
                 </div>
             </div>
@@ -106,12 +106,32 @@
                 <th scope="col">Fecha de carga</th>
             </tr>
         </thead>
+        <tbody>
+            @if (ordenEmbarque is null)
+            {
+                <SpinnerLoading />
+            }
+            else if (ordens.Count == 0)
+            {
+                <tr>
+                    <td colspan="8">
+                        <NoHayRegistros />
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                </tr>
+            }
+        </tbody>
     </table>
 </div>
 
 @code {
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
     private int TerminalSeleccionada = 0;
     private int GrupoSeleccionado = 0;
     private int ClienteSeleccionado = 0;

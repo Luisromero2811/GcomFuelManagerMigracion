@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Usuario
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("den"),MaxLength(64)]
         public string? Den { get; set; } = string.Empty;

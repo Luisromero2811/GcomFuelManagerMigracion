@@ -10,7 +10,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Orden
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("fch")]
         public DateTime? Fch { get; set; } = DateTime.MinValue;
