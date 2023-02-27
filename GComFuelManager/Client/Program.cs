@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using GComFuelManager.Client;
 using CurrieTechnologies.Razor.SweetAlert2;
+using GComFuelManager.Client.Repositorios;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -16,4 +17,5 @@ await builder.Build().RunAsync();
 void ConfigureServices(IServiceCollection services)
 {
     services.AddSweetAlert2();
+    services.AddScoped<IRepositorio, Repositorio>();
 }
