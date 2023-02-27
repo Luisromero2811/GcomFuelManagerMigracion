@@ -4,53 +4,14 @@
 @inject NavigationManager navigationManager
 @inject SweetAlertService swal
 
+<div class="card col-6 ">
 
-<div class="card col-6 mx-auto mt-5">
-    <div class="col-12">
-        <div class="row m-0 p-0">
-            <div class="col-lg-6 d-none d-lg-block p-0 m-0">
-                <img class="img-fluid h-100" src="./img/logo.png" />
-            </div>
-            <div class="col-lg-6 col-12 px-md-0 px-2">
-                <div class="col-12 my-5">
-                    <div class="col-12 text-center mb-3">
-                        <h3>
-                            <b>¡Bienvenido!</b>
-                        </h3>
-                    </div>
-                    <div class="col-12 p-0">
-                        <EditForm  >
-                            <DataAnnotationsValidator />
-                            <div class="input-group mb-3 px-3">
-                                <div class="col-12 mb-3">
-                                    <label>Usuario</label>
-                                    <InputText class="form-control" />
-                                
-                                </div>
-                                <div class="col-12 mb-3">
-                                    <label>Contraseña</label>
-                                    <InputText type="password" />
-                                    
-                                </div>
-                                <div class="input-group col-4">
-                                    <button class="btn btn-primary mx-auto" type="submit">
-                                        Iniciar sesion
-                                     
-                                    </button>
-                                </div>
-                            </div>
-                        </EditForm>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 
 
-
 @code {
+    private Usuario usuario = new Usuario
 
 }
 
