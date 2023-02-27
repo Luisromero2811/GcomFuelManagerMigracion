@@ -1,27 +1,31 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace GComFuelManager.Shared.Modelos
 {
 	public class Grupo
 	{
 		[JsonProperty("cod"), Key]
-		public int cod { get; set; }
+		public Int16 Cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(30)]
-		public string? den { get; set; } = string.Empty;
+		public string? Den { get; set; } = string.Empty;
 
 		[JsonProperty("eje"), MaxLength(50)]
-		public string? eje { get; set; } = string.Empty;
+		public string? Eje { get; set; } = string.Empty;
 
 		[JsonProperty("fch")]
-		public DateTime? fch { get; set; } = DateTime.MinValue;
+		public DateTime? Fch { get; set; } = DateTime.MinValue;
 
-		[JsonProperty("class")]
-		public int? clase { get; set; } = 0;
+		//[JsonProperty("class")]
+		//public int? Clase { get; set; } = 0;
 
 		[JsonProperty("tipven"), MaxLength(16)]
-		public string? tipven { get; set; } = string.Empty;
+		public string? Tipven { get; set; } = string.Empty;
+		[ForeignKey("codgru")]
+		public List<Cliente> Clientes { get; set; } = new List<Cliente>();
 	}
 }
 
