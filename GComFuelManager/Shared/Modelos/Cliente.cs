@@ -21,13 +21,13 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("tem"), MaxLength(50)]
         public string? Tem { get; set; } = string.Empty;
         [JsonProperty("codgru")]
-        public string? Codgru { get; set; } = string.Empty;
+        public Int16? Codgru { get; set; } = 0;
         [JsonProperty("email"), MaxLength(30)]
         public string? Email { get; set; } = string.Empty;
         [JsonProperty("con"), MaxLength(50)]
         public string? Con { get; set; } = string.Empty;
         [JsonProperty("codtad")]
-        public string? Cadtad { get; set; } = string.Empty;
+        public Int16? Codtad { get; set; } = 0;
         [JsonProperty("codsyn"), MaxLength(20)]
         public string? Codsyn { get; set; } = string.Empty;
         [JsonProperty("esenergas")]
