@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject IRepositorio http
 
 <div class="col-12 card shadow">
     <div class="card-body">
@@ -142,4 +143,38 @@
     private DateTime FechaCarga = DateTime.MinValue;
     private float Precio = 0;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTerminales();
+    }
+
+    public async Task GetTerminales()
+    {
+        
+    }
+
+    public async Task GetEstaciones()
+    {
+
+    }
+
+    public async Task GetGrupos()
+    {
+
+    }
+
+    public async Task GetClientes()
+    {
+
+    }
+
+    public async Task GetCantidades()
+    {
+
+    }
+
+    public async Task GetProductos()
+    {
+
+    }
 }

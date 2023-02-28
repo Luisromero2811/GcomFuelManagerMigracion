@@ -7,13 +7,13 @@ namespace GComFuelManager.Shared.Modelos
 	public class Tad
 	{
 		[JsonProperty("cod"), Key]
-		public int cod { get; set; }
+		public Int16 cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(128)]
 		public string? den { get; set; } = string.Empty;
 
 		[JsonProperty("nro")]
-		public int? nro { get; set; } = 0;
+		public Int16? nro { get; set; } = 0;
 
 		[JsonProperty("activo")]
 		public bool? activo { get; set; } = true; 
