@@ -1,10 +1,10 @@
 ﻿@page "/seguimiento/ordenes"
 <!--Maquetación de formularios-->
 <h4>Seguimiento de ordenenes</h4>
-<div class="row">
+<div class="row d-flex">
     <label class="form-label">Editar:</label>
-    <div class="col-6 mb-4 card shadow d-flex">
-        <div class="form-outline">
+    <div class="col-6 mb-4 card shadow">
+        <div class="col-12">
             <EditForm Model="@ordenEmbarque">
                 <DataAnnotationsValidator />
                 <div class="row">
@@ -31,7 +31,7 @@
     </div>
     <label class="form-label">Mostrar Ordenes:</label>
     <div class="col-6 mb-4 me-2 card shadow d-flex">
-        <div class="form-outline">
+        <div class="col-12">
             <EditForm Model="@ordenEmbarque">
                 <DataAnnotationsValidator />
                 <div class="row">
@@ -121,17 +121,3 @@
     public DateTime Date { get; set; }
 }
 
-<!--
-<div class="row">
-    <div class="col-4 card shadow row mx-2">
-        <div class="card-body">
-
-        </div>
-    </div>
-    <div class="col-4 card shadow">
-        <div class="card-body">
-
-        </div>
-    </div>
-</div>
--->
