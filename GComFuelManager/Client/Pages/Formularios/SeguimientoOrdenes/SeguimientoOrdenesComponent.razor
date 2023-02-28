@@ -1,18 +1,137 @@
 ﻿@page "/seguimiento/ordenes"
-<h1>Hola</h1>
+<!--Maquetación de formularios-->
+<h4>Seguimiento de ordenenes</h4>
 <div class="row">
-    <div class="col-6 card shadow">
+    <label class="form-label">Editar:</label>
+    <div class="col-6 mb-4 card shadow d-flex">
+        <div class="form-outline">
+            <EditForm Model="@ordenEmbarque">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-6">
+                        <div class="col-12">
+                            <label class="form-label" for="form2Example17">Destino:</label>
+                            <InputDate class="form-control" @bind-Value="Date" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-outline">
+                            <label class="form-label" for="form2Example17">Fecha de Carga:</label>
+                            <InputDate class="form-control" @bind-Value="Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-end">
+                    <div class="col-4 mt-3 mb-3">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Guardar Cambios</b></button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+    <label class="form-label">Mostrar Ordenes:</label>
+    <div class="col-6 mb-4 me-2 card shadow d-flex">
+        <div class="form-outline">
+            <EditForm Model="@ordenEmbarque">
+                <DataAnnotationsValidator />
+                <div class="row">
+                    <div class="col-6">
+                        <div class="col-12">
+                            <label class="form-label" for="form2Example17">Del:</label>
+                            <InputDate class="form-control" @bind-Value="Date" />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-outline">
+                            <label class="form-label" for="form2Example17">Al:</label>
+                            <InputDate class="form-control" @bind-Value="Date" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2 mb-2">
+                    <div class="d-flex justify-content-center">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                            <label class="form-check-label" for="inlineRadio1">Sin Cargar</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                            <label class="form-check-label" for="inlineRadio2">Cargadas</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+                            <label class="form-check-label" for="inlineRadio3">En Trayecto</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="d-grid gap-4 d-md-flex justify-content-md-center">
+                        <div class="mt-2 mb-3">
+                            <button class="btn gcom-bg-amarillo"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar</b></button>
+                            <button class="btn gcom-bg-amarillo"><b>Mostrar Ordenes</b></button>
+                            <button class="btn gcom-bg-amarillo"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de despacho</b></button>
+                            <button class="btn gcom-bg-amarillo"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Tráfico</b></button>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<!--Maquetación de Tabla-->
+<div class="col-12 mt-5">
+    <table class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">NO.</th>
+                <th scope="col">Referencia</th>
+                <th scope="col">Fecha Programa</th>
+                <th scope="col">Estatus Orden</th>
+                <th scope="col">Fecha Carga</th>
+                <th scope="col">Bol</th>
+                <th scope="col">Delivery/Rack</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Destino</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ordenEmbarque is null)
+            {
+                <SpinnerLoading />
+            }
+            else if (ordens.Count == 0)
+            {
+                <tr>
+                    <td colspan="9">
+                        <NoHayRegistros />
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+    public DateTime Date { get; set; }
+}
+
+<!--
+<div class="row">
+    <div class="col-4 card shadow row mx-2">
         <div class="card-body">
 
         </div>
     </div>
-    <div class="col-6 card shadow">
+    <div class="col-4 card shadow">
         <div class="card-body">
 
         </div>
     </div>
 </div>
-@code {
-
-}
-
+-->
