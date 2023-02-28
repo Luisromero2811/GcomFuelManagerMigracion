@@ -1,8 +1,117 @@
 ﻿@page "/usuarios"
 
-<h3>Component1</h3>
+<h4>Usuarios</h4>
+<!--Maquetacion formulario de usuarios-->
+<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="@ordenEmbarque">
+            <div class="row d-flex g-3">
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Nombre Completo:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Nombre Usuario:</label>
+                        <InputText class="form-control" @bind-Value="usu" />
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Contraseña</label>
+                        <InputText class="form-control" @bind-Value="cve" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex g-3">
+                <div class="col-6">
+                    <label>Activo:</label>
+                    <InputSelect @bind-Value="nmbr" class="form-select">
+                        <option>-- Selecciona una opcion --</option>
+                    </InputSelect>
+                </div>
+                <div class="col-6">
+                    <label>Tipo de Usuario:</label>
+                    <InputSelect @bind-Value="nmbr" class="form-select">
+                        <option>-- Selecciona una opcion --</option>
+                    </InputSelect>
+                </div>
+            </div>
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    <label>Permiso:</label>
+                    <InputSelect @bind-Value="nmbr" class="form-select">
+                        <option>-- Selecciona una opcion --</option>
+                    </InputSelect>
+                </div>
+                <div class="col-6">
+                    <label>Departamento:</label>
+                    <InputSelect @bind-Value="nmbr" class="form-select">
+                        <option>-- Selecciona una opcion --</option>
+                    </InputSelect>
+                </div>
+            </div>
+
+            <div class="col-12 d-flex justify-content-center mt-2">
+                <div class="col-6 row">
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Agregar</b></button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Guardar Cambios</b></button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+<!--Maquetación de Tabla-->
+<div class="col-12 mt-5">
+    <table class="table table-striped table-hover table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">Nimbre</th>
+                <th scope="col">Usuario</th>
+                <th scope="col">Contraseña</th>
+                <th scope="col">Fecha de Alta</th>
+                <th scope="col">Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (ordenEmbarque is null)
+            {
+                <SpinnerLoading />
+            }
+            else if (ordens.Count == 0)
+            {
+                <tr>
+                    <td colspan="5">
+                        <NoHayRegistros />
+                    </td>
+                </tr>
+            }
+            else
+            {
+                <tr>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 
 @code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+
+    private Usuario usuario { get; set; } = new Usuario();
+    private string nmbr = string.Empty;
+    private string usu = string.Empty;
+    private string cve = string.Empty;
+    private bool activo = false;
+    private string act = string.Empty;
 
 }
 
