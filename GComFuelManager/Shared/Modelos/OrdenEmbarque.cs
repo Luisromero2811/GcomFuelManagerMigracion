@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.Modelos
 {
-    [Table("OrdenEmbarque")]
     public class OrdenEmbarque
     {
         [JsonProperty("cod"), Key] public int Cod { get; set; }

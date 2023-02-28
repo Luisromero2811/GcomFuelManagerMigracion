@@ -6,19 +6,28 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PedidoController : ControllerBase
+    public class ProductoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
 
-        public PedidoController(ApplicationDbContext context)
+        public ProductoController(ApplicationDbContext context)
         {
             this.context = context;
         }
 
+        [HttpGet]
         public async Task<ActionResult> Get()
         {
-            var pedidos = await context.OrdenEmbarque.ToListAsync();
-            return Ok(pedidos);
+            try
+            {
+                var productos = await context.Producto.Where(x=>x.Activo == true).ToListAsync();
+                return Ok(productos);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

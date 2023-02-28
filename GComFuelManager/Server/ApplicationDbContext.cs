@@ -25,7 +25,7 @@ namespace GComFuelManager.Server
         public DbSet<OrdEmbDet> OrdEmbDet { get; set; }
         public DbSet<Orden> Orden { get; set; }
         public DbSet<OrdenCompra> OrdenCompra { get; set; }
-        public DbSet<OrdenEmbarque> OrdenEmbarques { get; set; }
+        public DbSet<OrdenEmbarque> OrdenEmbarque { get; set; }
         public DbSet<Pipa> Pipa { get; set; }
         public DbSet<Privilegio> Privilegio { get; set; }
         public DbSet<PrivilegioUsuario> PrivilegioUsuario { get; set; }
