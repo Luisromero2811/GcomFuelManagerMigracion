@@ -31,4 +31,18 @@
   </ItemGroup>
 
 
+  <ItemGroup>
+    <None Remove="Controllers\PedidoController\" />
+    <None Remove="Controllers\AsignacionUnidadesController\" />
+    <None Remove="Controllers\SeguimientoOrdenController\" />
+    <None Remove="Controllers\ETAController\" />
+    <None Remove="Controllers\UsuarioController\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\PedidoController\" />
+    <Folder Include="Controllers\AsignacionUnidadesController\" />
+    <Folder Include="Controllers\SeguimientoOrdenController\" />
+    <Folder Include="Controllers\ETAController\" />
+    <Folder Include="Controllers\UsuarioController\" />
+  </ItemGroup>
 </Project>

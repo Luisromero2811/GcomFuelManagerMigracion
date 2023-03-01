@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using System;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,10 +21,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var productos = await context.Producto
-                    .Where(x=>x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
-                    .ToListAsync();
+                var productos = await context.Producto.Where(x=>x.Activo == true).ToListAsync();
                 return Ok(productos);
             }
             catch (Exception)
