@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,10 @@ namespace GComFuelManager.Server.Controllers
 
         public async Task<ActionResult> Get()
         {
-            var terminales = await context.Tad.Where(x => x.activo == true).ToListAsync();
+            var terminales = await context.Tad
+                .Where(x => x.activo == true)
+                .Select(x => new CodDenDTO { Cod = x.cod, Den = x.den! })
+                .ToListAsync();
             return Ok(terminales);
         }
     }

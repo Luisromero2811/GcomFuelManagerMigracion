@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject IRepositorio http
+@inject SweetAlertService Swal
 
 <div class="col-12 card shadow">
     <div class="card-body">
@@ -10,30 +11,89 @@
                         <label>Terminal</label>
                         <InputSelect @bind-Value="TerminalSeleccionada" class="form-select">
                             <option>-- Selecciona una opcion --</option>
+                            @if(Terminales is null){
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Terminales.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Terminales)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Grupo</label>
-                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select">
+                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select" @onselect="()=>GetClientes()">
                             <option>-- Selecciona una opcion --</option>
+                            @if (Grupos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Grupos.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Grupos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Cliente</label>
-                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select">
+                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select" onchange="@GetClientes()">
                             <option>-- Selecciona una opcion --</option>
+                            @if (Clientes is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Clientes.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Clientes)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Estacion</label>
-                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select">
+                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select" onchange="@GetEstaciones()">
                             <option>-- Selecciona una opcion --</option>
+                            @if (Estaciones is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Estaciones.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Estaciones)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -42,6 +102,21 @@
                         <label>Producto</label>
                         <InputSelect @bind-Value="ProductoSeleccionado" class="form-select">
                             <option>-- Selecciona una opcion --</option>
+                            @if (Productos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Productos.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Productos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -50,6 +125,21 @@
                         <label>Cantidad</label>
                         <InputSelect @bind-Value="CapacidadSeleccionada" class="form-select">
                             <option>-- Selecciona una opcion --</option>
+                            @if (Cantidades is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Cantidades.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Cantidades)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
                         </InputSelect>
                     </div>
                 </div>
@@ -94,7 +184,7 @@
 </div>
 
 <div class="col-12 mt-5">
-    <table class="table table-striped table-hover table-bordered">
+    <table class="table">
         <thead>
             <tr>
                 <th scope="col">#</th>
@@ -133,9 +223,23 @@
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+
+    //listas
+    private List<CodDenDTO> Terminales { get; set; } = null!;
+    private List<CodDenDTO> Grupos { get; set; } = null!;
+    private List<CodDenDTO> Clientes { get; set; } = null!;
+    private List<CodDenDTO> Estaciones { get; set; } = null!;
+    private List<CodDenDTO> Productos { get; set; } = null!;
+    private List<int> Cantidades { get; set; } = null!;
+
+    //selecciones
     private int TerminalSeleccionada = 0;
     private int GrupoSeleccionado = 0;
+    private int GrupoSeleccionadoB = 0;
+
     private int ClienteSeleccionado = 0;
+    private int ClienteSeleccionadoB = 0;
+
     private int EstacionSeleccionada = 0;
     private int ProductoSeleccionado = 0;
     private int CapacidadSeleccionada = 0;
@@ -146,35 +250,100 @@
     protected override async Task OnInitializedAsync()
     {
         await GetTerminales();
+        await GetGrupos();
+        await GetCantidades();
+        await GetProductos();
     }
 
     public async Task GetTerminales()
     {
-        
+        var response = await http.Get<List<CodDenDTO>>("api/terminal");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }else{
+            Terminales = response.Response;
+        }
     }
 
     public async Task GetEstaciones()
     {
-
+        if (ClienteSeleccionado != 0 && ClienteSeleccionado != ClienteSeleccionadoB)
+        {
+            var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ClienteSeleccionado}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Estaciones = response.Response;
+                StateHasChanged();
+                ClienteSeleccionadoB = ClienteSeleccionado;
+            }
+        }
     }
 
     public async Task GetGrupos()
     {
-
+        var response = await http.Get<List<CodDenDTO>>("api/grupo");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Grupos = response.Response;
+        }
     }
 
     public async Task GetClientes()
     {
-
+        if(GrupoSeleccionado != 0 && GrupoSeleccionado != GrupoSeleccionadoB){
+            var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionado}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                GrupoSeleccionadoB = GrupoSeleccionado;
+                Console.WriteLine(GrupoSeleccionado);
+                Clientes = response.Response;
+                StateHasChanged();
+            }
+        }
     }
 
     public async Task GetCantidades()
     {
-
+        var response = await http.Get<List<int>>("api/cantidad");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+           Cantidades  = response.Response;
+        }
     }
 
     public async Task GetProductos()
     {
-
+        var response = await http.Get<List<CodDenDTO>>("api/producto");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Productos = response.Response;
+        }
     }
 }
