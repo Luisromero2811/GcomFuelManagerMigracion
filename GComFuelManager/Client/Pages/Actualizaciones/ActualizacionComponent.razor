@@ -1,32 +1,74 @@
 ﻿@page "/actualizacion"
-<h4>Componente actualizacion</h4>
+<h4><b>Componente actualizacion</b></h4>
 
-<div class="col-12 card shadow">
-    <div class="card-body">
-        <EditForm Model="ordenEmbarque">
-            <div class="row justify-content-center">
-                <div class="col-6">
-                    <label></label>
-                    <InputText class="form-control" @bind-Value="nmbr"></InputText>
+<div class="col-12 d-flex justify-content-center mt-4">
+    <div class="col-9 card shadow ">
+        <div class="card-body">
+            <div class="row p-4">
+                <div class="col-12 mb-3">
+                    <label class="my-1"><b>Transportista</b></label>
+                    <select class="form-select">
+                        <option>-- Seleccione una opcion --</option>
+                    </select>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="col-12">
+                        <button class="col-12 h-100 btn shadow-sm">
+                            <div class="col-12 row">
+                                <div class="col-4">
+                                    <img src="img/delivery-truck.png" class="img-fluid"/>
+                                </div>
+                                <div class="col d-flex align-items-center justify-content-start">
+                                    <b>Actualizar unidades</b>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="col-12">
+                        <button class="col-12 h-100 btn shadow-sm">
+                            <div class="col-12 row">
+                                <div class="col-4">
+                                    <img src="img/worker (1).png" class="img-fluid" />
+                                </div>
+                                <div class="col d-flex align-items-center justify-content-start">
+                                    <b>Actualizar operarios</b>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="col-12">
+                        <button class="col-12 h-100 btn shadow-sm">
+                            <div class="col-12 row">
+                                <div class="col-4">
+                                    <img src="img/delivery-truck (1).png" class="img-fluid" />
+                                </div>
+                                <div class="col d-flex align-items-center justify-content-start">
+                                    <b>Actualizar transportistas</b>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="col-12">
+                        <button class="col-12 h-100 btn shadow-sm">
+                            <div class="col-12 row">
+                                <div class="col-4">
+                                    <img src="img/rating.png" class="img-fluid" />
+                                </div>
+                                <div class="col d-flex align-items-center justify-content-start">
+                                    <b>Actualizar clientes/destinos</b>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div class="row g-3 mt-3 justify-content-center">
-                <div class="col-2">
-                    <button class="btn btn-light btn-lg"><img src="img/delivery-truck.png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Unidades</b></button>
-                </div>
-                <div class="col-2">
-                    <button class="btn btn-light btn-lg"><img src="img/worker (1).png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Operadores</b></button>
-                </div>
-            </div>
-            <div class="row g-3 mt-3 justify-content-center">
-                <div class="col-2">
-                    <button class="btn btn-light btn-lg"><img src="img/delivery-truck (1).png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Transportistas</b></button>
-                </div>
-                <div class="col-2">
-                    <button class="btn btn-light btn-lg"><img src="img/rating.png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Destinos</b></button>
-                </div>
-            </div>
-        </EditForm>
+        </div>
     </div>
 </div>
 
