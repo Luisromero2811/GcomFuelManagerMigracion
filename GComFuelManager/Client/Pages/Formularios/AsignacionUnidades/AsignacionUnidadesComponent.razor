@@ -1,4 +1,6 @@
 ﻿@page "/asignacion/unidades"
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
 
 <h4><b>Asignacion de unidades</b></h4>
 
@@ -12,9 +14,24 @@
                         <div class="col mb-3">
                             <div class="col-12">
                                 <label>Destino:</label>
-                                <select class="form-select col-12">
+                                <InputSelect class="form-select col-12" @bind-Value="DestinoSeleccionado">
                                     <option>-- seleccione una opcion --</option>
-                                </select>
+                                    @if (Destinos is null)
+                                    {
+                                        <option disabled>Cargando...</option>
+                                    }
+                                    else if (Destinos.Count == 0)
+                                    {
+                                        <option disabled>No hay Productos</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Destinos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
                             </div>
                         </div>
                         <div class="col mb-3">
@@ -23,9 +40,24 @@
                         </div>
                         <div class="col mb-3">
                             <label>Producto:</label>
-                            <select class="form-select col-12">
+                            <InputSelect class="form-select col-12" @bind-Value="ProductoSeleccionado">
                                 <option>-- seleccione una opcion --</option>
-                            </select>
+                                @if (Productos is null)
+                                {
+                                    <option disabled>Cargando...</option>
+                                }
+                                else if (Productos.Count == 0)
+                                {
+                                    <option disabled>No hay Productos</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Productos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                         <div class="col-12 d-flex justify-content-end">
                             <button class="btn gcom-bg-amarillo"><b>Guardar cambios</b></button>
@@ -156,6 +188,48 @@
 </div>
 
 @code {
+    //Listas
+    private List<CodDenDTO> Destinos { get; set; } = null!;
+    private List<CodDenDTO> Productos { get; set; } = null!;
+
+    //Selecciones
+    private int ProductoSeleccionado = 0;
+    private int DestinoSeleccionado = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDestinos();
+        await GetProductos();
+    }
+
+    public async Task GetDestinos()
+    {
+        var response = await repositorio.Get<List<CodDenDTO>>("api/destino");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Destinos = response.Response;
+        }
+    }
+
+    public async Task GetProductos()
+    {
+        var response = await repositorio.Get<List<CodDenDTO>>("api/producto");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Productos = response.Response;
+        }
+    }
 
 }
 
+<!--cod, den , activo-->
