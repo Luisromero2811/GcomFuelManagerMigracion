@@ -2,7 +2,7 @@
 <h4>ETA</h4>
 <div class="col-12 card shadow">
     <div class="card-body">
-        <EditForm Model="ordenEmbarque">
+        <EditForm Model="ordenEmbarque" class="row">
             <div class="row">
                 <div class="col-6">
                     <label>Nombre Bol:</label>
@@ -10,57 +10,63 @@
                 </div>
             </div>
             <div class="row d-flex g-3">
-                <div class="col-4">
-                    <label>Fecha documentación:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label>HH:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label>MM:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label>ETA:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label></label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
+               <div class="row">
+                    <div class="col-4">
+                        <label>Fecha documentación:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>HH:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>MM:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>ETA:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label></label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+               </div>
             </div>
             <div class="row d-flex g-3">
-                <div class="col-4">
-                    <label>Fecha de llegada estimada:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-4">
-                    <label>Localizacion:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-4">
-                    <label>Equipo:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
+               <div class="row">
+                    <div class="col-4">
+                        <label>Fecha de llegada estimada:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Localizacion:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Equipo:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+               </div>
             </div>
             <div class="row d-flex g-3">
-                <div class="col-4">
-                    <label>En trayecto:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-4">
-                    <label>Fecha real de llegada a destino:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label>HH:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-                <div class="col-2">
-                    <label>MM:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
+                <div class="row">
+                    <div class="col-4">
+                        <label>En trayecto:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Fecha real de llegada a destino:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>HH:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>MM:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-6">
