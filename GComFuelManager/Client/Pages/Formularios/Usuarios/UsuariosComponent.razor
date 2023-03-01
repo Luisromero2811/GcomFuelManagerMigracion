@@ -2,10 +2,10 @@
 
 <h4>Usuarios</h4>
 <!--Maquetacion formulario de usuarios-->
-<div class="col-12 card shadow">
-    <div class="card-body">
+<div class="col-12 card shadow p-2">
+    <div class="card-body g-3">
         <EditForm Model="@ordenEmbarque">
-            <div class="row d-flex g-3">
+            <div class="row d-flex g-3 p-2">
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Completo:</label>
@@ -25,36 +25,36 @@
                     </div>
                 </div>
             </div>
-            <div class="row d-flex g-3">
-                <div class="col-6">
+            <div class="row d-flex g-3 p-2">
+                <div class="col-4">
                     <label>Activo:</label>
                     <InputSelect @bind-Value="nmbr" class="form-select">
                         <option>-- Selecciona una opcion --</option>
                     </InputSelect>
                 </div>
-                <div class="col-6">
+                <div class="col-4">
                     <label>Tipo de Usuario:</label>
                     <InputSelect @bind-Value="nmbr" class="form-select">
                         <option>-- Selecciona una opcion --</option>
                     </InputSelect>
                 </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-6">
-                    <label>Permiso:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select">
-                        <option>-- Selecciona una opcion --</option>
-                    </InputSelect>
-                </div>
-                <div class="col-6">
+                <div class="col-4">
                     <label>Departamento:</label>
                     <InputSelect @bind-Value="nmbr" class="form-select">
                         <option>-- Selecciona una opcion --</option>
                     </InputSelect>
                 </div>
             </div>
+            <div class="row p-2">
+                <div class="col-12">
+                    <label>Permiso:</label>
+                    <InputSelect @bind-Value="nmbr" class="form-select">
+                        <option>-- Selecciona una opcion --</option>
+                    </InputSelect>
+                </div>
+            </div>
 
-            <div class="col-12 d-flex justify-content-center mt-2">
+            <div class="col-12 d-flex justify-content-center mt-2 p-2">
                 <div class="col-6 row">
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12"><b>Agregar</b></button>
