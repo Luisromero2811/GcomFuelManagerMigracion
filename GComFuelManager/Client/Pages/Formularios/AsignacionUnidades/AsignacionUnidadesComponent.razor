@@ -1,7 +1,159 @@
 ﻿@page "/asignacion/unidades"
 
-<h3>Component1</h3>
+<h4><b>Asignacion de unidades</b></h4>
 
+<div class="col-12 px-4 mt-4">
+    <div class="col-12 row mb-4">
+        <div class="col-6">
+            <div class="col-12">
+                <label><b>Editar:</b></label>
+                <div class="card shadow-sm">
+                    <div class="row card-body">
+                        <div class="col mb-3">
+                            <div class="col-12">
+                                <label>Destino:</label>
+                                <select class="form-select col-12">
+                                    <option>-- seleccione una opcion --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col mb-3">
+                            <label>Fecha de carga:</label>
+                            <input type="date" class="form-control col-12" />
+                        </div>
+                        <div class="col mb-3">
+                            <label>Producto:</label>
+                            <select class="form-select col-12">
+                                <option>-- seleccione una opcion --</option>
+                            </select>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button class="btn gcom-bg-amarillo"><b>Guardar cambios</b></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="col-12">
+                <label><b>Mostrar ordenes:</b></label>
+                <div class="card shadow-sm">
+                    <div class="row card-body">
+                        <div class="col mb-3">
+                            <label>Del:</label>
+                            <input type="date" class="form-control col-12" />
+                        </div>
+                        <div class="col mb-3">
+                            <label>A:</label>
+                            <input type="date" class="form-control col-12" />
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button class="btn gcom-bg-amarillo"><b>Mostrar ordenes</b></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <div class="col-9">
+            <label><b>Asignar unidades:</b></label>
+            <div class="col card shadow-sm">
+                <div class="col-12 card-body">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label>Transportista:</label>
+                            <select class="form-select col-12">
+                                <option>-- Selecione una opcion --</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label>Chofer:</label>
+                            <select class="form-select col-12">
+                                <option>-- Selecione una opcion --</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label>Vehiculo:</label>
+                            <select class="form-select col-12">
+                                <option>-- Selecione una opcion --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-8 row align-content-center">
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="com" id="com1">
+                                        <label class="form-check-label" for="com">
+                                            Com1
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="com" id="com2">
+                                        <label class="form-check-label" for="com">
+                                            Com2
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="com" id="com3">
+                                        <label class="form-check-label" for="com">
+                                            Com3
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="com" id="com4">
+                                        <label class="form-check-label" for="com">
+                                            Com4
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <button class="btn gcom-bg-amarillo col-12">Asignar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 mt-4">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">No.</th>
+                    <th scope="col">Orden de compra</th>
+                    <th scope="col">Referencia</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Destino</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Volumen</th>
+                    <th scope="col">Fecha de carga</th>
+                    <th scope="col">Transportista</th>
+                    <th scope="col">Unidad</th>
+                    <th scope="col">Compartimento</th>
+                    <th scope="col">Operador</th>
+                    <th scope="col">BIN</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">SIMSA TRANSPORTE</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
 @code {
 
 }
