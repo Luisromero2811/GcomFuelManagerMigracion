@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.4.0" />
+    <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +42,10 @@
     <None Remove="Pages\Formularios\" />
     <None Remove="Repositorios\" />
     <None Remove="Shared\Layouts\" />
+    <None Remove="Pages\Formularios\SeguimientoOrdenes\" />
+    <None Remove="Pages\Formularios\AsignacionUnidades\" />
+    <None Remove="Pages\Formularios\Usuarios\" />
+    <None Remove="Pages\Formularios\ETA\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -49,5 +54,9 @@
     <Folder Include="Helpers\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Shared\Layouts\" />
+    <Folder Include="Pages\Formularios\SeguimientoOrdenes\" />
+    <Folder Include="Pages\Formularios\AsignacionUnidades\" />
+    <Folder Include="Pages\Formularios\Usuarios\" />
+    <Folder Include="Pages\Formularios\ETA\" />
   </ItemGroup>
 </Project>

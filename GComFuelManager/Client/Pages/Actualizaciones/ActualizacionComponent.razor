@@ -1,0 +1,41 @@
+﻿@page "/actualizacion"
+<h4>Componente actualizacion</h4>
+
+<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="ordenEmbarque">
+            <div class="row justify-content-center">
+                <div class="col-6">
+                    <label></label>
+                    <InputText class="form-control" @bind-Value="nmbr"></InputText>
+                </div>
+            </div>
+            <div class="row g-3 mt-3 justify-content-center">
+                <div class="col-2">
+                    <button class="btn btn-light btn-lg"><img src="img/delivery-truck.png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Unidades</b></button>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-light btn-lg"><img src="img/worker (1).png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Operadores</b></button>
+                </div>
+            </div>
+            <div class="row g-3 mt-3 justify-content-center">
+                <div class="col-2">
+                    <button class="btn btn-light btn-lg"><img src="img/delivery-truck (1).png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Transportistas</b></button>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-light btn-lg"><img src="img/rating.png" class="img-fluid" style="width:64px; height:auto;" /><b>Actualizar Destinos</b></button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+
+    private Usuario usuario { get; set; } = new Usuario();
+    private string nmbr = string.Empty;
+}
+
