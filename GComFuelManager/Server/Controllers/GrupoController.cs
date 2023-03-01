@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,9 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var grupos = await context.Grupo.ToListAsync();
+                var grupos = await context.Grupo
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                    .ToListAsync();
                 return Ok(grupos);
             }
             catch (Exception e)

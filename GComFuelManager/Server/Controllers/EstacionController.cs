@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,15 @@ namespace GComFuelManager.Server.Controllers
             this.context = context;
         }
 
-        [HttpGet("{cliente}")]
+        [HttpGet("{cliente:int}")]
         public async Task<ActionResult> Get(int cliente)
         {
             try
             {
-                var estaciones = await context.Destino.Where(x=>x.Codcte == cliente).ToListAsync();
+                var estaciones = await context.Destino
+                    .Where(x=>x.Codcte == cliente)
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den!})
+                    .ToListAsync();
                 return Ok(estaciones);
             }
             catch (Exception e)

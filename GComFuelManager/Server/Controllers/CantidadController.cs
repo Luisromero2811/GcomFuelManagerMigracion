@@ -21,7 +21,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var cantidades = await context.Tonel.Where(x => x.Capcom != null && x.Capcom > 10000 && x.Capcom < 268349)
+                var cantidades = await context.Tonel
+                    .Where(x => x.Capcom != null && x.Capcom > 10000 && x.Capcom < 268349)
                     .Select(x => x.Capcom)
                     .Distinct()
                     .ToListAsync();
