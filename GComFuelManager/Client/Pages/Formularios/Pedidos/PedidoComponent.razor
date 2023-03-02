@@ -13,7 +13,8 @@
                         <label>Terminal</label>
                         <InputSelect @bind-Value="TerminalSeleccionada" class="form-select">
                             <option>-- Selecciona una opcion --</option>
-                            @if(Terminales is null){
+                            @if (Terminales is null)
+                            {
                                 <option disabled> Cargando ...</option>
                             }
                             else if (Terminales.Count == 0)
@@ -33,7 +34,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Grupo</label>
-                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select" @onselect="()=>GetClientes()">
+                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select" onchange="@GetClientes()">
                             <option>-- Selecciona una opcion --</option>
                             @if (Grupos is null)
                             {
@@ -41,7 +42,7 @@
                             }
                             else if (Grupos.Count == 0)
                             {
-                                <option disabled> No hay terminales</option>
+                                <option disabled> No hay grupos</option>
                             }
                             else
                             {
@@ -56,7 +57,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Cliente</label>
-                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select" onchange="@GetClientes()">
+                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select" onchange="@GetEstaciones()">
                             <option>-- Selecciona una opcion --</option>
                             @if (Clientes is null)
                             {
@@ -64,7 +65,7 @@
                             }
                             else if (Clientes.Count == 0)
                             {
-                                <option disabled> No hay terminales</option>
+                                <option disabled> No hay clientes</option>
                             }
                             else
                             {
@@ -79,7 +80,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Estacion</label>
-                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select" onchange="@GetEstaciones()">
+                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Estaciones is null)
                             {
@@ -87,7 +88,7 @@
                             }
                             else if (Estaciones.Count == 0)
                             {
-                                <option disabled> No hay terminales</option>
+                                <option disabled> No hay estaciones</option>
                             }
                             else
                             {
@@ -110,7 +111,7 @@
                             }
                             else if (Productos.Count == 0)
                             {
-                                <option disabled> No hay terminales</option>
+                                <option disabled> No hay productos</option>
                             }
                             else
                             {
@@ -133,7 +134,7 @@
                             }
                             else if (Cantidades.Count == 0)
                             {
-                                <option disabled> No hay terminales</option>
+                                <option disabled> No hay capacidades</option>
                             }
                             else
                             {
@@ -149,13 +150,13 @@
                 <div class="col-3 mb-1">
                     <div class="col-12">
                         <label>Fecha de carga en terminal</label>
-                        <InputDate class="col-3 form-control" TValue="DateTime" @bind-Value="FechaCarga"></InputDate>
+                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.Fchcar"></InputDate>
                     </div>
                 </div>
                 <div class="col-3 mb-1">
                     <div class="col-12">
                         <label>Precio</label>
-                        <InputNumber class="form-control col-12" TValue="float" @bind-Value="Precio"></InputNumber>
+                        <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.Pre"></InputNumber>
                     </div>
                 </div>
                 <div class="col-3 mb-1">
@@ -174,7 +175,7 @@
             <div class="col-12 d-flex justify-content-center mt-2">
                 <div class="col-6 row">
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12"><b>Agregar</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido"><b>Agregar</b></button>
                     </div>
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12"><b>Confirmar Pedido</b></button>
@@ -200,7 +201,7 @@
             </tr>
         </thead>
         <tbody>
-            @if (ordenEmbarque is null)
+            @if (ordens is null)
             {
                 <SpinnerLoading />
             }
@@ -214,8 +215,14 @@
             }
             else
             {
-                <tr>
-                </tr>
+                @for (int i = 0; i < ordens.Count; i++)
+                {
+                    <tr>
+                        <td>@i++</td>
+                        <td>BIN_@ordens[i].Bin</td>
+                        <td>@ordens[i].Coddes</td>
+                    </tr>
+                }
             }
         </tbody>
     </table>
@@ -259,53 +266,58 @@
 
     public async Task GetTerminales()
     {
-        var response = await http.Get<List<CodDenDTO>>("api/terminal");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-        }else{
-            Terminales = response.Response;
+            var response = await http.Get<List<CodDenDTO>>("api/terminal");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
     public async Task GetEstaciones()
     {
-        if (ClienteSeleccionado != 0 && ClienteSeleccionado != ClienteSeleccionadoB)
+        try
         {
-            var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ClienteSeleccionado}");
-            if (response.Error)
+            if (ClienteSeleccionado != 0 && ClienteSeleccionado != ClienteSeleccionadoB)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ClienteSeleccionado}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Estaciones = response.Response;
+                    StateHasChanged();
+                    ClienteSeleccionadoB = ClienteSeleccionado;
+                }
             }
-            else
-            {
-                Estaciones = response.Response;
-                StateHasChanged();
-                ClienteSeleccionadoB = ClienteSeleccionado;
-            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
     public async Task GetGrupos()
     {
-        var response = await http.Get<List<CodDenDTO>>("api/grupo");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-        }
-        else
-        {
-            Grupos = response.Response;
-        }
-    }
-
-    public async Task GetClientes()
-    {
-        if(GrupoSeleccionado != 0 && GrupoSeleccionado != GrupoSeleccionadoB){
-            var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionado}");
+            var response = await http.Get<List<CodDenDTO>>("api/grupo");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -313,39 +325,119 @@
             }
             else
             {
-                GrupoSeleccionadoB = GrupoSeleccionado;
-                Console.WriteLine(GrupoSeleccionado);
-                Clientes = response.Response;
-                StateHasChanged();
+                Grupos = response.Response;
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (GrupoSeleccionado != 0 && GrupoSeleccionado != GrupoSeleccionadoB)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionado}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoB = GrupoSeleccionado;
+                    Console.WriteLine(GrupoSeleccionado);
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
     public async Task GetCantidades()
     {
-        var response = await http.Get<List<int>>("api/cantidad");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            var response = await http.Get<List<int>>("api/cantidad");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cantidades = response.Response;
+                Cantidades.OrderBy(x => x);
+            }
         }
-        else
+        catch (Exception e)
         {
-           Cantidades  = response.Response;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
     public async Task GetProductos()
     {
-        var response = await http.Get<List<CodDenDTO>>("api/producto");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            var response = await http.Get<List<CodDenDTO>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Productos = response.Response;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task SavePedido()
+    {
+        try
+        {
+            if (ordens.Count < 6)
+            {
+                ordenEmbarque.Codtad = (Int16)TerminalSeleccionada;
+                ordenEmbarque.Codprd = (byte)ProductoSeleccionado;
+                ordenEmbarque.Codest = 9;
+                ordenEmbarque.Coddes = EstacionSeleccionada;
+                ordenEmbarque.Vol = CapacidadSeleccionada;
+                ordenEmbarque.Fchpet = DateTime.Now;
+                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                    if (response.Response is not null)
+                    ordens.Add(response.Response);
+            }
+            else
+            {
+                await Swal.FireAsync("Advertencia", "El limite de pedidos ha sido alcanzado", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }
