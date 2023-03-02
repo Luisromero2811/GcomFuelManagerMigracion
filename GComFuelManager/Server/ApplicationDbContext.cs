@@ -9,6 +9,8 @@ namespace GComFuelManager.Server
         {
         }
 
+
+
         public DbSet<Actividad> Actividad { get; set; }
         public DbSet<BitacoraModificacion> BitacoraModificacion { get; set; }
         public DbSet<Chofer> Chofer { get; set; }

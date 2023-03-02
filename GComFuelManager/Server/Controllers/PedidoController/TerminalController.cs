@@ -19,8 +19,8 @@ namespace GComFuelManager.Server.Controllers
         public async Task<ActionResult> Get()
         {
             var terminales = await context.Tad
-                .Where(x => x.activo == true)
-                .Select(x => new CodDenDTO { Cod = x.cod, Den = x.den! })
+                .Where(x => x.Activo == true)
+                .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                 .ToListAsync();
             return Ok(terminales);
         }
