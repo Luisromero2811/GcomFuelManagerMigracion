@@ -27,13 +27,13 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("idcom2")] public int Idcom2 { get; set; } = 0;
 
-        [JsonProperty("capcom2")] public decimal Capcom2 { get; set; } = decimal.Zero;
+        [JsonProperty("capcom2")] public decimal? Capcom2 { get; set; } = decimal.Zero;
 
         [JsonProperty("nrocom3")] public int Nrocom3 { get; set; } = 0;
 
         [JsonProperty("idcom3")] public int Idcom3 { get; set; } = 0;
 
-        [JsonProperty("capcom3")] public decimal Capcom3 { get; set; } = decimal.Zero;
+        [JsonProperty("capcom3")] public decimal? Capcom3 { get; set; } = decimal.Zero;
 
         [JsonProperty("tracto"), MaxLength(20)] public string Tracto { get; set; } = string.Empty;
 
@@ -47,7 +47,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("idcom4")] public int Idcom4 { get; set; } = 0;
 
-        [JsonProperty("capcom4")] public int Capcom4 { get; set; } = 0;
+        [JsonProperty("capcom4")] public int? Capcom4 { get; set; } = 0;
 
     }
 }

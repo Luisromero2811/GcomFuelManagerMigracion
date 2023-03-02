@@ -1,4 +1,6 @@
 ﻿@page "/seguimiento/ordenes"
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
 <!--Maquetación de formularios-->
 <h4><b>Seguimiento de ordenenes</b></h4>
 
@@ -12,7 +14,24 @@
                     <div class="col-6">
                         <div class="col-12">
                             <label class="form-label" for="form2Example17">Destino:</label>
-                            <InputDate class="form-control" @bind-Value="Date" />
+                            <InputSelect class="form-select" @bind-Value="DestinoSeleccionado">
+                                <option>--- Seleccione una opcion ----</option>
+                                @if (Destinos is null)
+                                {
+                                    <option disabled>Cargando...</option>
+                                }
+                                else if (Destinos.Count == 0)
+                                {
+                                    <option disabled>No hay destinos</option>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Destinos)
+                                    {
+                                            <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                     </div>
                     <div class="col-6">
@@ -79,7 +98,7 @@
                         <div class="col-sm-12 col-md-6">
                             <button class="btn gcom-bg-amarillo col-12 mt-3"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Tráfico</b></button>
                         </div>
-                    </div>              
+                    </div>
                 </div>
             </EditForm>
         </div>
@@ -126,6 +145,31 @@
 @code {
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+    //Listas
+    private List<CodDenDTO> Destinos { get; set; } = null!;
+
+    //Selecciones
+    private int DestinoSeleccionado = 0;
+
     public DateTime Date { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDestinos();
+    }
+
+    public async Task GetDestinos()
+    {
+        var response = await repositorio.Get<List<CodDenDTO>>("api/destino");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Destinos = response.Response;
+        }
+    }
 }
 
