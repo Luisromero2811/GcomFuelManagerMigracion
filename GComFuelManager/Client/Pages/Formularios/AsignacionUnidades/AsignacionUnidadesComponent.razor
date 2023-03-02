@@ -95,21 +95,66 @@
                     <div class="row mb-3">
                         <div class="col">
                             <label>Transportista:</label>
-                            <select class="form-select col-12">
-                                <option>-- Selecione una opcion --</option>
-                            </select>
+                            <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" @onselect="()=>GetChoferes()">
+                                <option>-- seleccione una opcion --</option>
+                                @if (Transportistas is null)
+                                {
+                                    <option disabled>Cargando...</option>
+                                }
+                                else if (Transportistas.Count == 0)
+                                {
+                                    <option disabled>No hay Transportistas</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Transportistas)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                         <div class="col">
                             <label>Chofer:</label>
-                            <select class="form-select col-12">
-                                <option>-- Selecione una opcion --</option>
-                            </select>
+                            <InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado" onchange="@GetChoferes()">
+                                <option>-- seleccione una opcion --</option>
+                                @if (Choferes is null)
+                                {
+                                    <option disabled>Cargando...</option>
+                                }
+                                else if (Choferes.Count == 0)
+                                {
+                                    <option disabled>No hay Choferes</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Choferes)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                         <div class="col">
                             <label>Vehiculo:</label>
-                            <select class="form-select col-12">
-                                <option>-- Selecione una opcion --</option>
-                            </select>
+                            <InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado" onchange="@GetVehiculo()">
+                                <option>-- seleccione una opcion --</option>
+                                @if (Vehiculos is null)
+                                {
+                                    <option disabled>Cargando...</option>
+                                }
+                                else if (Vehiculos.Count == 0)
+                                {
+                                    <option disabled>No hay vehiculos</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Vehiculos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                     </div>
                     <div class="col-12">
@@ -192,14 +237,25 @@
     private List<CodDenDTO> Destinos { get; set; } = null!;
     private List<CodDenDTO> Productos { get; set; } = null!;
 
+    private List<CodDenDTO> Transportistas { get; set; } = null!;
+    private List<CodDenDTO> Choferes { get; set; } = null!;
+    private List<CodDenDTO> Vehiculos { get; set; } = null!;
     //Selecciones
     private int ProductoSeleccionado = 0;
     private int DestinoSeleccionado = 0;
 
+    private int TransportistaSeleccionado = 0;
+    private int TransportistaSeleccionadoB = 0;
+
+    private int ChoferSeleccionado = 0;
+    private int ChoferSeleccionadoB = 0;
+
+    private int VehiculoSeleccionado = 0;
     protected override async Task OnInitializedAsync()
     {
         await GetDestinos();
         await GetProductos();
+        await GetTransportista();
     }
 
     public async Task GetDestinos()
@@ -230,6 +286,57 @@
         }
     }
 
-}
+    public async Task GetTransportista()
+    {
+        var response = await repositorio.Get<List<CodDenDTO>>("api/transportista");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Transportistas = response.Response;
+        }
+    }
+    public async Task GetChoferes()
+    {
+        if (TransportistaSeleccionado != 0 && TransportistaSeleccionado != TransportistaSeleccionadoB)
+        {
+            var response = await repositorio.Get<List<CodDenDTO>>($"api/chofer/{TransportistaSeleccionado}");
+            if (response.Error)
+            {
+                var repositorioHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                TransportistaSeleccionadoB = TransportistaSeleccionado;
+                Choferes = response.Response;
+                StateHasChanged();
+            }
+        }
+    }
+    public async Task GetVehiculo()
+    {
+        if (ChoferSeleccionado != 0 && ChoferSeleccionado != ChoferSeleccionadoB)
+        {
+            var response = await repositorio.Get<List<CodDenDTO>>($"api/vehiculo/{ChoferSeleccionado}");
+            if (response.Error)
+            {
+                var repositorioHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vehiculos = response.Response;
+                StateHasChanged();
+                ChoferSeleccionadoB = ChoferSeleccionado;
+            }
+        }
+    }
 
+}
+<!--Grupo, cliente y estacion-->
+<!--Transportista, chofer y vehiculo-->
 <!--cod, den , activo-->

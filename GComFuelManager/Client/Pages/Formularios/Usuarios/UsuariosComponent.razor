@@ -1,5 +1,7 @@
 ﻿@page "/usuarios"
-
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+ 
 <h4><b>Usuarios</b></h4>
 <!--Maquetacion formulario de usuarios-->
 <div class="col-12 card shadow p-2">
@@ -36,6 +38,8 @@
                     <label>Tipo de Usuario:</label>
                     <InputSelect @bind-Value="nmbr" class="form-select">
                         <option>-- Selecciona una opcion --</option>
+                        <option>@TUsu</option>
+                        <option>@TUsu2</option>
                     </InputSelect>
                 </div>
                 <div class="col-4">
@@ -112,6 +116,14 @@
     private string cve = string.Empty;
     private bool activo = false;
     private string act = string.Empty;
+
+    private string active = "Si";
+    private string active2 = "No";
+    private string TUsu = "TP";
+    private string TUsu2 = "Energas";
+    //Listas 
+
+    //Selecciones
 
 }
 
