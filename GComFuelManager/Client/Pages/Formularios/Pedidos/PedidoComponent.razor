@@ -218,9 +218,15 @@
                 @for (int i = 0; i < ordens.Count; i++)
                 {
                     <tr>
-                        <td>@i++</td>
+                        <td>@i</td>
                         <td>BIN_@ordens[i].Bin</td>
-                        <td>@ordens[i].Destino.Den</td>
+                        <td>@ordens[i]?.Destino?.Den</td>
+                        <td>@ordens[i]?.Tad?.Den</td>
+                        <td>@ordens[i]?.Producto?.Den</td>
+                        <td>@ordens[i]?.Vol</td>
+                        <td>@ordens[i].Pre</td>
+                        <td>@ordens[i].Fchcar?.ToString("dd/MM/yyyy")</td>
+
                     </tr>
                 }
             }
