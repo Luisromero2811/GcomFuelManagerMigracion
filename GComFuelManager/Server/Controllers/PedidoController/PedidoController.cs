@@ -24,7 +24,8 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var pedidos = await context.OrdenEmbarque
-                    //.Where(x=>x.Codusu == 1)
+                    .Where(x=>x.Codusu == 1)
+                    .Include(x=>x.Destino)
                     .ToListAsync();
                 return Ok(pedidos);
             }

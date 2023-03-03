@@ -29,5 +29,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
         [JsonProperty("compartment")] public int? Compartment { get; set; }
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
+
+        public Destino Destino { get; set; } = null!;
     }
 }

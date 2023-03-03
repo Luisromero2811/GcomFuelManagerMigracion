@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using GComFuelManager.Client.Repositorios;
 
 namespace GComFuelManager.Client.Repositorios
@@ -16,7 +17,9 @@ namespace GComFuelManager.Client.Repositorios
         }
         private JsonSerializerOptions OpcionesPorDefectoJson => new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            PropertyNamingPolicy = null
         };
         //Method Post
         //Encapsularemos el objeto para despues poderlo enviar, recibimos un string url con el objeto encapsulado y le daremos funcionalidad a partir de T
