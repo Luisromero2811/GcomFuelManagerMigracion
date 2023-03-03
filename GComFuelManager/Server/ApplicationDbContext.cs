@@ -9,7 +9,14 @@ namespace GComFuelManager.Server
         {
         }
 
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Destino)
+                .WithMany(x => x.OrdenEmbarque)
+                .HasForeignKey(x=>x.Coddes);
+        }
 
         public DbSet<Actividad> Actividad { get; set; }
         public DbSet<BitacoraModificacion> BitacoraModificacion { get; set; }
