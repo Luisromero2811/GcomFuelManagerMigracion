@@ -18,7 +18,7 @@ namespace GComFuelManager.Server.Controllers
         {
             this.context = context;
         }
-
+        [HttpGet]
         public async Task<ActionResult> Get()
         {
             try
@@ -34,6 +34,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
@@ -51,6 +52,10 @@ namespace GComFuelManager.Server.Controllers
                 }
 
                 orden.Codusu = 1;
+                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.Coddes);
+                orden.Tad = await context.Tad.FirstOrDefaultAsync(x => x.Cod == orden.Codtad);
+                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.Codprd);
+                orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
                 
                 context.Add(orden);
                 await context.SaveChangesAsync();

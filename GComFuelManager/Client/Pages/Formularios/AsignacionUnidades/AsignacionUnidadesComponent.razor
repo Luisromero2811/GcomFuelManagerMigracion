@@ -73,14 +73,14 @@
                     <div class="row card-body">
                         <div class="col mb-3">
                             <label>Del:</label>
-                            <input type="date" class="form-control col-12" />
+                            <InputDate @bind-Value="@Date1" class="form-control col-12" />
                         </div>
                         <div class="col mb-3">
                             <label>A:</label>
-                            <input type="date" class="form-control col-12" />
+                            <InputDate @bind-Value="@Date2" class="form-control col-12" />
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo"><b>Mostrar ordenes</b></button>
+                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrden"><b>Mostrar ordenes</b></button>
                         </div>
                     </div>
                 </div>
@@ -228,12 +228,49 @@
                 </tr>
             </thead>
             <tbody>
+                @if (ordenes is null)
+                {
+                    <SpinnerLoading />
+                }
+                else if (ordenes.Count == 0)
+                {
+                    <tr>
+                        <td colspan="15">
+                            <NoHayRegistros />
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @for (int i = 1; i < ordenes.Count; i++)
+                    {
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                    }
+                }
             </tbody>
         </table>
     </div>
 </div>
 
 @code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
     //Listas
     private List<CodDenDTO> Destinos { get; set; } = null!;
     private List<CodDenDTO> Productos { get; set; } = null!;
@@ -241,18 +278,21 @@
     private List<CodDenDTO> Transportistas { get; set; } = null!;
     private List<CodDenDTO> Choferes { get; set; } = null!;
     private List<CodDenDTO> Vehiculos { get; set; } = null!;
+
     //Selecciones
     private int ProductoSeleccionado = 0;
     private int DestinoSeleccionado = 0;
-
     private int TransportistaSeleccionado = 0;
     private int TransportistaSeleccionadoB = 0;
 
     private int ChoferSeleccionado = 0;
     private int ChoferSeleccionadoB = 0;
 
-
     private int VehiculoSeleccionado = 0;
+
+    public DateTime Date1 = DateTime.MinValue;
+    public DateTime Date2 = DateTime.MinValue;
+
     protected override async Task OnInitializedAsync()
     {
         await GetDestinos();
@@ -337,9 +377,24 @@
             }
         }
     }
+    public async Task MostrarOrden()
+    {
+        try
+        {
+
+        }
+        catch
+        {
+
+        }
+    }
+
+
+}
+<!--Grupo, cliente y estacion-->
+<!--Transportista, chofer y vehiculo--
 
 }
 <!--Grupo, cliente y estacion-->
 <!--Transportista, chofer y vehiculo-->
-
 <!--cod, den , activo-->
