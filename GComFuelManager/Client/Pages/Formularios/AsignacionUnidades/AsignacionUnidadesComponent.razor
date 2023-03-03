@@ -96,6 +96,7 @@
                         <div class="col">
                             <label>Transportista:</label>
                             <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" @onselect="()=>GetChoferes()">
+                                <input type="text"/>
                                 <option>-- seleccione una opcion --</option>
                                 @if (Transportistas is null)
                                 {
@@ -236,45 +237,6 @@
     //Listas
     private List<CodDenDTO> Destinos { get; set; } = null!;
     private List<CodDenDTO> Productos { get; set; } = null!;
-
-
-    //Selecciones
-    private int ProductoSeleccionado = 0;
-    private int DestinoSeleccionado = 0;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await GetDestinos();
-        await GetProductos();
-    }
-
-    public async Task GetDestinos()
-    {
-        var response = await repositorio.Get<List<CodDenDTO>>("api/destino");
-        if (response.Error)
-        {
-            var responseHttp = await response.ObtenerMensajeError();
-            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-        }
-        else
-        {
-            Destinos = response.Response;
-        }
-    }
-
-    public async Task GetProductos()
-    {
-        var response = await repositorio.Get<List<CodDenDTO>>("api/producto");
-        if (response.Error)
-        {
-            var responseHttp = await response.ObtenerMensajeError();
-            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-        }
-        else
-        {
-            Productos = response.Response;
-        }
-    }
 
     private List<CodDenDTO> Transportistas { get; set; } = null!;
     private List<CodDenDTO> Choferes { get; set; } = null!;
