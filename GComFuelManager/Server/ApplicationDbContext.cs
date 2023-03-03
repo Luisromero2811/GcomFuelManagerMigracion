@@ -1,6 +1,7 @@
-﻿using GComFuelManager.Shared.Modelos;
+﻿using System;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace GComFuelManager.Server
 {
     public class ApplicationDbContext : DbContext
@@ -8,15 +9,35 @@ namespace GComFuelManager.Server
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            //Configuracion de la entidad a través de Modelbuilder.Entity
+            //Con esta entidad podemos aplicar la llave compartida para generar un campo de muchos a muchos
+            //Estacion
             modelBuilder.Entity<OrdenEmbarque>()
-                .HasOne(x => x.Destino)
-                .WithMany(x => x.OrdenEmbarque)
-                .HasForeignKey(x=>x.Coddes);
+                    .HasOne(x => x.Destino)
+                    .WithMany(x => x.ordenEmbarque)
+                .HasForeignKey(x => x.Coddes);
+
+            //Terminal
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Tad)
+                .WithMany(x => x.ordenEmbarque)
+                .HasForeignKey(x => x.Codtad);
+            //Producto
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Producto)
+                .WithMany(x => x.ordenEmbarque)
+                .HasForeignKey(x => x.Codprd);
+            //Cantidad
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Tonel)
+                .WithMany(x => x.ordenEmbarque)
+                .HasForeignKey(x => x.Codton);
         }
+
 
         public DbSet<Actividad> Actividad { get; set; }
         public DbSet<BitacoraModificacion> BitacoraModificacion { get; set; }
@@ -46,6 +67,7 @@ namespace GComFuelManager.Server
         public DbSet<users_descarga> Users_descarga { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Shared.Modelos.Version> Version { get; set; }
+
 
 
     }

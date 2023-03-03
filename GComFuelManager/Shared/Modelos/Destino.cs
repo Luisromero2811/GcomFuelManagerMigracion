@@ -14,7 +14,7 @@ namespace GComFuelManager.Shared.Modelos
         public int Cod { get; set; }
         [JsonProperty("num")]
         public int? Num { get; set; } = 0;
-        [JsonProperty("den"), MaxLength(128)]
+        [JsonProperty("den"),MaxLength(128)]
         public string? Den { get; set; } = string.Empty;
         [JsonProperty("codcte")]
         public int? Codcte { get; set; } = 0;
@@ -42,7 +42,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Ciu { get; set; } = string.Empty;
         [JsonProperty("est"), MaxLength(50)]
         public string? Est { get; set; } = string.Empty;
-
-        public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+     
+        public List<OrdenEmbarque> ordenEmbarque { get; set; } = new List<OrdenEmbarque>();
     }
 }

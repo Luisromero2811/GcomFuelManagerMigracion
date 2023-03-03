@@ -43,8 +43,6 @@
     <None Remove="Repositorios\" />
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\Formularios\SeguimientoOrdenes\" />
-    <None Remove="Pages\Formularios\AsignacionUnidades\" />
-    <None Remove="Pages\Formularios\Usuarios\" />
     <None Remove="Pages\Formularios\ETA\" />
   </ItemGroup>
   <ItemGroup>
@@ -55,8 +53,6 @@
     <Folder Include="Repositorios\" />
     <Folder Include="Shared\Layouts\" />
     <Folder Include="Pages\Formularios\SeguimientoOrdenes\" />
-    <Folder Include="Pages\Formularios\AsignacionUnidades\" />
-    <Folder Include="Pages\Formularios\Usuarios\" />
     <Folder Include="Pages\Formularios\ETA\" />
   </ItemGroup>
 </Project>
