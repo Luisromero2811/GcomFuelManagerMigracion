@@ -96,7 +96,7 @@
                         <div class="col">
                             <label>Transportista:</label>
                             <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" @onselect="()=>GetChoferes()">
-                                <input type="text"/>
+                                <input type="text" />
                                 <option>-- seleccione una opcion --</option>
                                 @if (Transportistas is null)
                                 {
@@ -244,23 +244,25 @@
                 {
                     @for (int i = 1; i < ordenes.Count; i++)
                     {
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
                     }
                 }
             </tbody>
@@ -382,9 +384,27 @@
         try
         {
 
+            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>("api/pedido/");
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordenes = responseHttp.Response;
+            }
+        }
+        catch(Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+
+
         }
         catch
         {
+
 
         }
     }

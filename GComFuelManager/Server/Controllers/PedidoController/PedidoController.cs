@@ -36,6 +36,23 @@ namespace GComFuelManager.Server.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<ActionResult> GetDate(DateTime Date1, DateTime Date2)
+        {
+            try
+            {
+                var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => Date1 >= x.Fchpet &&  Date2 <= x.Fchpet)
+                    .ToListAsync();
+                    return Ok(pedidosDate);
+            }
+            catch
+            {
+                return BadRequest();
+            }
+        }
+
+
         [HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
         {
