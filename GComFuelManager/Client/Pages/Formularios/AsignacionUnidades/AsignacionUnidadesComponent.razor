@@ -244,6 +244,7 @@
                 {
                     @for (int i = 1; i < ordenes.Count; i++)
                     {
+
                         <tr>
                             <td></td>
                             <td></td>
@@ -261,6 +262,7 @@
                             <td></td>
                             <td></td>
                         </tr>
+
                     }
                 }
             </tbody>
@@ -381,6 +383,7 @@
     {
         try
         {
+
             var responseHttp = await repositorio.Get<List<OrdenEmbarque>>("api/pedido/");
             if (responseHttp.Error)
             {
@@ -396,6 +399,13 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+
+
+        }
+        catch
+        {
+
+
         }
     }
 

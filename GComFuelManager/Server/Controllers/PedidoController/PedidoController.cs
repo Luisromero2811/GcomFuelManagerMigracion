@@ -35,6 +35,7 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+
         [HttpGet]
         public async Task<ActionResult> GetDate(DateTime Date1, DateTime Date2)
         {
@@ -50,6 +51,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest();
             }
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
