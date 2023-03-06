@@ -175,10 +175,22 @@
             <div class="col-12 d-flex justify-content-center mt-2">
                 <div class="col-6 row">
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido"><b>Agregar</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                            <b>Agregar</b>
+                            @if (loadingAgregar)
+                            {
+                                <SpinnerLoading></SpinnerLoading>
+                            }
+                        </button>
                     </div>
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12"><b>Confirmar Pedido</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ConfirmPedido">
+                            <b>Confirmar Pedido</b>
+                            @if (loadingConfirm)
+                            {
+                                <SpinnerLoading></SpinnerLoading>
+                            }
+                        </button>
                     </div>
                 </div>
             </div>
@@ -215,10 +227,10 @@
             }
             else
             {
-                @for (int i = 1; i < ordens.Count; i++)
+                @for (int i = 0; i < ordens.Count; i++)
                 {
                     <tr>
-                        <td>@i</td>
+                        <td>@(i + 1)</td>
                         <td>BIN_@ordens[i].Bin</td>
                         <td>@ordens[i]?.Destino?.Den</td>
                         <td>@ordens[i]?.Tad?.Den</td>
@@ -261,6 +273,10 @@
 
     private DateTime FechaCarga = DateTime.MinValue;
     private float Precio = 0;
+
+    //loadings
+    bool loadingAgregar = false;
+    bool loadingConfirm = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -416,6 +432,7 @@
 
     private async Task SavePedido()
     {
+        loadingAgregar = true;
         try
         {
             if (ordens.Count < 6)
@@ -429,20 +446,51 @@
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                 if (response.Error)
                 {
+                    loadingAgregar = false;
                     var message = await response.ObtenerMensajeError();
                     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                 }
                 else
+                {
+                    loadingAgregar = false;
                     if (response.Response is not null)
-                    ordens.Add(response.Response);
+                        ordens.Add(response.Response);
+                }
             }
             else
             {
+                loadingAgregar = false;
                 await Swal.FireAsync("Advertencia", "El limite de pedidos ha sido alcanzado", SweetAlertIcon.Warning);
             }
         }
         catch (Exception e)
         {
+            loadingAgregar = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ConfirmPedido()
+    {
+        loadingConfirm = true;
+        try
+        {
+            var response = await http.Put<List<OrdenEmbarque>>("api/pedido/confirm", ordens);
+            if (response.Error)
+            {
+                loadingConfirm = false;
+                string? message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingConfirm = false;
+                await Swal.FireAsync("Folio", response.Response.ToString(), SweetAlertIcon.Info);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingConfirm = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }

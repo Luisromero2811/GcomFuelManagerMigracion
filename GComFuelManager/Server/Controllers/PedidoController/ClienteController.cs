@@ -24,6 +24,7 @@ namespace GComFuelManager.Server.Controllers
                 var grupos = await context.Cliente
                     .Where(x => x.Codgru == grupo)
                     .Select(x => new CodDenDTO {Cod = x.Cod, Den = x.Den! })
+                    .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(grupos);
             }

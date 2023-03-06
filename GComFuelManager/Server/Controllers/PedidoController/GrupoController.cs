@@ -23,6 +23,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 var grupos = await context.Grupo
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                    .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(grupos);
             }

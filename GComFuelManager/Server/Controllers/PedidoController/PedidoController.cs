@@ -1,9 +1,11 @@
-﻿using GComFuelManager.Shared.Modelos;
+﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 
 namespace GComFuelManager.Server.Controllers
@@ -39,23 +41,24 @@ namespace GComFuelManager.Server.Controllers
         }
 
 
-        [HttpGet("pedido/{Date1}/{Date2}")]
-
-        [HttpGet]
-
-        public async Task<ActionResult> GetDate(DateTime Date1, DateTime Date2)
+        [HttpPost("filtrar")]
+        public async Task<ActionResult> GetDate([FromBody] FechasF fechas)
         {
-            //{Date1}/{Date2}
             try
             {
                 var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => Date1 >= x.Fchpet &&  Date2 <= x.Fchpet)
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .OrderBy(x=>x.Fchpet)
+                    .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
             }
             catch(Exception e)
             {
-
                 return BadRequest(e.Message);
             }
         }
@@ -69,7 +72,7 @@ namespace GComFuelManager.Server.Controllers
                 var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
                 if (bin.HasValue)
                 {
-                    orden.Bin = bin;
+                    orden.Bin = bin + 1;
                 }
                 else
                 {
@@ -85,6 +88,35 @@ namespace GComFuelManager.Server.Controllers
                 context.Add(orden);
                 await context.SaveChangesAsync();
                 return Ok(orden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("confirm")]
+        public async Task<ActionResult> PutPedido(List<OrdenEmbarque> orden)
+        {
+            try
+            {
+                OrdenCompra newFolio = new OrdenCompra();
+                var folio = await context.OrdenCompra.Select(x=>x.cod).OrderBy(x=>x).LastOrDefaultAsync();
+                if (folio != 0)
+                {
+                     newFolio = new() { cod = ++folio, den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
+                    context.Add(newFolio);
+                }
+                orden.ForEach(x =>
+                {
+                    x.Codest = 3;
+                    x.CodordCom = folio;
+                    x.FchOrd = DateTime.Now.Date;
+
+                });
+                context.AddRange(orden);
+                await context.SaveChangesAsync();
+                return Ok(newFolio.den);
             }
             catch (Exception e)
             {
