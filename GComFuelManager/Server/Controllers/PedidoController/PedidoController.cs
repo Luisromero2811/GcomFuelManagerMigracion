@@ -24,13 +24,35 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var pedidos = await context.OrdenEmbarque
-                    .Where(x=>x.Codusu == 1)
-                    .Include(x=>x.Destino)
+                    .Where(x => x.Codusu == 1)
+                    .Include(x => x.Destino)
                     .ToListAsync();
                 return Ok(pedidos);
             }
             catch (Exception e)
             {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("pedido/{Date1}/{Date2}")]
+
+        [HttpGet]
+
+        public async Task<ActionResult> GetDate(DateTime Date1, DateTime Date2)
+        {
+            //{Date1}/{Date2}
+            try
+            {
+                var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => Date1 >= x.Fchpet &&  Date2 <= x.Fchpet)
+                    .ToListAsync();
+                    return Ok(pedidosDate);
+            }
+            catch(Exception e)
+            {
+
                 return BadRequest(e.Message);
             }
         }

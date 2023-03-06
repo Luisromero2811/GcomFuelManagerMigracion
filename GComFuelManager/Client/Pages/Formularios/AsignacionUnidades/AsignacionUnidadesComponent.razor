@@ -1,4 +1,5 @@
 ﻿@page "/asignacion/unidades"
+
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 
@@ -80,7 +81,7 @@
                             <InputDate @bind-Value="@Date2" class="form-control col-12" />
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrden"><b>Mostrar ordenes</b></button>
+                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrdenFecha"><b>Mostrar ordenes</b></button>
                         </div>
                     </div>
                 </div>
@@ -96,7 +97,7 @@
                         <div class="col">
                             <label>Transportista:</label>
                             <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" @onselect="()=>GetChoferes()">
-                                <input type="text"/>
+                                <input type="text" />
                                 <option>-- seleccione una opcion --</option>
                                 @if (Transportistas is null)
                                 {
@@ -242,25 +243,27 @@
                 }
                 else
                 {
-                    @for (int i = 1; i < ordenes.Count; i++)
+                    @for (int i = 0; i < ordenes.Count; i++)
                     {
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
+
+                        <tr>
+                            <td>@ordenes[i]?.Producto?.Den</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
                     }
                 }
             </tbody>
@@ -289,9 +292,10 @@
     private int ChoferSeleccionadoB = 0;
 
     private int VehiculoSeleccionado = 0;
-
-    public DateTime Date1 = DateTime.MinValue;
-    public DateTime Date2 = DateTime.MinValue;
+    [Parameter]
+    public DateTime Date1 { get; set; } = DateTime.MinValue;
+    [Parameter]
+    public DateTime Date2 { get; set; } = DateTime.MinValue;
 
     protected override async Task OnInitializedAsync()
     {
@@ -377,19 +381,39 @@
             }
         }
     }
-    public async Task MostrarOrden()
+    public async Task MostrarOrdenFecha()
     {
         try
         {
+
+            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>($"api/pedido/{Date1.ToString("dd-MM-yyyy")}/{Date2.ToString("dd-MM-yyyy")}");
+
+
+            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>("api/pedido/");
+
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordenes = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+
 
         }
         catch
         {
 
+
         }
     }
-
-
 }
 <!--Grupo, cliente y estacion-->
 <!--Transportista, chofer y vehiculo--
