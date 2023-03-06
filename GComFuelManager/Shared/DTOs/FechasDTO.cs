@@ -8,8 +8,8 @@ namespace GComFuelManager.Shared.DTOs
 {
 	public class FechasF
 	{
-		public DateTime Date1 { get; set; } = DateTime.MinValue;
-		public DateTime Date2 { get; set; } = DateTime.MinValue;
+		public DateTime DateInicio { get; set; } = DateTime.MinValue;
+		public DateTime DateFin { get; set; } = DateTime.MinValue;
 	}
 }
 

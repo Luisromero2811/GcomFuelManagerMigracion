@@ -24,6 +24,7 @@ namespace GComFuelManager.Server.Controllers
                 var estaciones = await context.Destino
                     .Where(x=>x.Codcte == cliente)
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den!})
+                    .OrderBy(x=>x.Den)
                     .ToListAsync();
                 return Ok(estaciones);
             }

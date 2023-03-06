@@ -19,8 +19,7 @@ namespace GComFuelManager.Shared.Modelos
 
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
-
-		public List<OrdenEmbarque> ordenEmbarque { get; set; } = new List<OrdenEmbarque>();
+		//public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
     }
 }
 
