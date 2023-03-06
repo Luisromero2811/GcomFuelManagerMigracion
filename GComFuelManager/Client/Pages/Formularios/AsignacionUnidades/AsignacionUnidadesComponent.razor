@@ -245,6 +245,7 @@
                 {
                     @for (int i = 0; i < ordenes.Count; i++)
                     {
+
                         <tr>
                             <td>@ordenes[i]?.Producto?.Den</td>
                             <td></td>
@@ -262,6 +263,7 @@
                             <td></td>
                             <td></td>
                         </tr>
+
                     }
                 }
             </tbody>
@@ -383,7 +385,12 @@
     {
         try
         {
+
             var responseHttp = await repositorio.Get<List<OrdenEmbarque>>($"api/pedido/{Date1.ToString("dd-MM-yyyy")}/{Date2.ToString("dd-MM-yyyy")}");
+
+
+            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>("api/pedido/");
+
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -398,6 +405,13 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+
+
+        }
+        catch
+        {
+
+
         }
     }
 }
