@@ -81,7 +81,9 @@
                             <InputDate @bind-Value="@Date2" class="form-control col-12" />
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrdenFecha"><b>Mostrar ordenes</b></button>
+                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrdenFecha">
+                                <b>Mostrar ordenes</b>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -206,14 +208,14 @@
     </div>
 </div>
 
-<div class="view mt-4">
-    <div class="wrapper">
+<div class="my-4 d-flex justify-content-center">
+    <div class="table-responsive" style="height:500px;width:1000px">
         <table class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th class="sticky-col first-col">No.</th>
-                    <th class="sticky-col second-col">Orden de compra</th>
-                    <th class="sticky-col second-col" scope="col">Referencia</th>
+                    <th scope="col">No.</th>
+                    <th scope="col">Orden de compra</th>
+                    <th scope="col">Referencia</th>
                     <th scope="col">Cliente</th>
                     <th scope="col">Destino</th>
                     <th scope="col">Producto</th>
@@ -247,8 +249,9 @@
                     {
 
                         <tr>
+                            <td>@(i + 1)</td>
                             <td>@ordenes[i]?.Producto?.Den</td>
-                            <td></td>
+                            <td>@ordenes[i]?.Fchpet</td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -292,10 +295,11 @@
     private int ChoferSeleccionadoB = 0;
 
     private int VehiculoSeleccionado = 0;
-    [Parameter]
-    public DateTime Date1 { get; set; } = DateTime.MinValue;
-    [Parameter]
-    public DateTime Date2 { get; set; } = DateTime.MinValue;
+
+    public DateTime Date1 { get; set; } = DateTime.Now;
+    public DateTime Date2 { get; set; } = DateTime.Now;
+
+    bool loadingFiltro = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -385,33 +389,33 @@
     {
         try
         {
+            loadingFiltro = true;
+            ordenes = null!;
+            StateHasChanged();
+            FechasF fechas = new FechasF()
+                {
+                    DateInicio = Date1,
+                    DateFin = Date2
+                };
 
-            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>($"api/pedido/{Date1.ToString("dd-MM-yyyy")}/{Date2.ToString("dd-MM-yyyy")}");
-
-
-            var responseHttp = await repositorio.Get<List<OrdenEmbarque>>("api/pedido/");
+            var responseHttp = await repositorio.Post<FechasF, List<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
 
             if (responseHttp.Error)
             {
+                loadingFiltro = false;
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
                 await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
             else
             {
+                loadingFiltro = false;
                 ordenes = responseHttp.Response;
             }
         }
         catch (Exception e)
         {
+            loadingFiltro = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-
-
-        }
-        catch
-        {
-
-
         }
     }
 }

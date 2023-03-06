@@ -18,23 +18,23 @@ namespace GComFuelManager.Server
             //Estacion
             modelBuilder.Entity<OrdenEmbarque>()
                     .HasOne(x => x.Destino)
-                    .WithMany(x => x.ordenEmbarque)
-                .HasForeignKey(x => x.Coddes);
+                    .WithMany()
+                    .HasForeignKey(x => x.Coddes);
 
             //Terminal
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Tad)
-                .WithMany(x => x.ordenEmbarque)
+                .WithMany()
                 .HasForeignKey(x => x.Codtad);
             //Producto
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Producto)
-                .WithMany(x => x.ordenEmbarque)
+                .WithMany()
                 .HasForeignKey(x => x.Codprd);
             //Cantidad
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Tonel)
-                .WithMany(x => x.ordenEmbarque)
+                .WithMany()
                 .HasForeignKey(x => x.Codton);
         }
 

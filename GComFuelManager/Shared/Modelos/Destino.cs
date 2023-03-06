@@ -42,7 +42,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Ciu { get; set; } = string.Empty;
         [JsonProperty("est"), MaxLength(50)]
         public string? Est { get; set; } = string.Empty;
-     
-        public List<OrdenEmbarque> ordenEmbarque { get; set; } = new List<OrdenEmbarque>();
+
+        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
     }
 }
