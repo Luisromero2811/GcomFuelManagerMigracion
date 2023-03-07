@@ -1,6 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+
 namespace GComFuelManager.Shared.Modelos
 {
 	public class Chofer
@@ -22,6 +26,8 @@ namespace GComFuelManager.Shared.Modelos
 
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
-	}
+
+        [NotMapped] public Transportista? Transportista { get; set; }
+    }
 }
 
