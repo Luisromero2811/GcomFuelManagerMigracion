@@ -1,12 +1,7 @@
 ﻿using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -20,7 +15,7 @@ namespace GComFuelManager.Server.Controllers
         {
             this.context = context;
         }
-        //Method para obtener thodos los pedidos
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {
@@ -34,6 +29,32 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                 return Ok(pedidos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("list")]
+        public async Task<ActionResult> GetList(List<int> list)
+        {
+            try
+            {
+                List<OrdenEmbarque> ordenes = new List<OrdenEmbarque>();
+                OrdenEmbarque pedido = new OrdenEmbarque();
+
+                foreach (var item in list)
+                {
+                    pedido = await context.OrdenEmbarque
+                    .Where(x => x.Cod == item)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .FirstOrDefaultAsync();
+                    ordenes.Add(pedido);
+                }
+                return Ok(ordenes);
             }
             catch (Exception e)
             {
@@ -157,9 +178,9 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-        //Method para confirmar pedidos
-        [HttpPut("confirm")]
-        public async Task<ActionResult> PutPedido(List<OrdenEmbarque> orden)
+
+        [HttpPost("confirm")]
+        public async Task<ActionResult<OrdenCompra>> PostConfirm(List<OrdenEmbarque> orden)
         {
             try
             {
@@ -167,23 +188,23 @@ namespace GComFuelManager.Server.Controllers
                 var folio = await context.OrdenCompra.Select(x => x.cod).OrderBy(x => x).LastOrDefaultAsync();
                 if (folio != 0)
                 {
-                    newFolio = new() { cod = ++folio, den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
+                    ++folio;
+                     newFolio = new OrdenCompra() { den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
                     context.Add(newFolio);
                 }
                 orden.ForEach(x =>
                 {
                     x.Codest = 3;
                     x.CodordCom = folio;
-                    x.FchOrd = DateTime.Now.Date;
-
+                    x.FchOrd = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+                    context.Update(x);
                 });
-                context.AddRange(orden);
                 await context.SaveChangesAsync();
-                return Ok(newFolio.den);
+                return Ok(newFolio);
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(e);
             }
         }
     }
