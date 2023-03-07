@@ -1,27 +1,54 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">GComFuelManager</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿<div class="col-12 gcom-bg-rojo-dark p-3">
+        <div class="d-flex justify-content-center col-12">
+            <img src="img/gcom_unilogo.png" class="img-fluid col-7" />
+        </div>
+        <div class="col-12 text-center text-white my-2">
+            <b>Gcom Fuel Manager</b>
+        </div>
     </div>
-</div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass nav-scrollable gcom-bg-rojo" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
+                <div class="text-white">
+                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Pedido
+                </div>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="oi oi-plus" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="asignacion/unidades" Match="NavLinkMatch.All">
+                <div class="text-white">
+                    <i class="fa fa-solid fa-truck-droplet" aria-hidden="true"></i> Asignacion de unidades
+                </div>
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+            <NavLink class="nav-link" href="seguimiento/ordenes" Match="NavLinkMatch.All">
+                <div class="text-white">
+                    <i class="fa fa-solid fa-clipboard-list" aria-hidden="true"></i> Seguimiento de ordenes
+                </div>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="usuarios" Match="NavLinkMatch.All">
+                <div class="text-white">
+                    <i class="fa fa-solid fa-user" aria-hidden="true"></i> Usuarios
+                </div>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="eta" Match="NavLinkMatch.All">
+                <div class="text-white">
+                    <i class="fa fa-solid fa-hourglass-half" aria-hidden="true"></i> ETA
+                </div>
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="actualizacion" Match="NavLinkMatch.All">
+                <div class="text-white">
+                    <i class="fa fa-solid fa-rotate" aria-hidden="true"></i> Actualizacion de registros
+                </div>
             </NavLink>
         </div>
     </nav>
