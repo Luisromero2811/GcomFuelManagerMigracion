@@ -2,16 +2,19 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 
-
+<NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 <h4><b>Pedidos</b></h4>
 <div class="col-12 card shadow">
     <div class="card-body">
         <EditForm Model="@ordenEmbarque" class="form col-12">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
             <div class="row col-12 g-3 mb-3 px-4">
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Terminal</label>
-                        <InputSelect @bind-Value="TerminalSeleccionada" class="form-select">
+                        <InputSelect @bind-Value="ordenEmbarque.Codtad" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Terminales is null)
                             {
@@ -80,7 +83,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Estacion</label>
-                        <InputSelect @bind-Value="EstacionSeleccionada" class="form-select">
+                        <InputSelect @bind-Value="ordenEmbarque.Coddes" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Estaciones is null)
                             {
@@ -103,7 +106,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Producto</label>
-                        <InputSelect @bind-Value="ProductoSeleccionado" class="form-select">
+                        <InputSelect @bind-Value="ordenEmbarque.Codprd" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Productos is null)
                             {
@@ -126,7 +129,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Cantidad</label>
-                        <InputSelect @bind-Value="CapacidadSeleccionada" class="form-select">
+                        <InputSelect @bind-Value="ordenEmbarque.Vol" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Cantidades is null)
                             {
@@ -260,16 +263,16 @@
     private List<int> Cantidades { get; set; } = null!;
 
     //selecciones
-    private int TerminalSeleccionada = 0;
-    private int GrupoSeleccionado = 0;
-    private int GrupoSeleccionadoB = 0;
+    private int TerminalSeleccionada;
+    private int GrupoSeleccionado;
+    private int GrupoSeleccionadoB;
 
-    private int ClienteSeleccionado = 0;
-    private int ClienteSeleccionadoB = 0;
+    private int ClienteSeleccionado;
+    private int ClienteSeleccionadoB;
 
-    private int EstacionSeleccionada = 0;
-    private int ProductoSeleccionado = 0;
-    private int CapacidadSeleccionada = 0;
+    private int EstacionSeleccionada;
+    private int ProductoSeleccionado;
+    private int CapacidadSeleccionada;
 
     private DateTime FechaCarga = DateTime.MinValue;
     private float Precio = 0;
@@ -284,6 +287,30 @@
         await GetGrupos();
         await GetCantidades();
         await GetProductos();
+    }
+
+    private async Task OnPreventInternalNavigation(LocationChangingContext context)
+    {
+        if (ordens.Count == 0)
+        {
+            return;
+        }
+
+        var confirm = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "Tiene ordenes pendientes por confirma, si sale no podra volver a ver esas ordenes. ¿ Seguro que quiere salir? "
+            });
+
+        if (!string.IsNullOrEmpty(confirm.Value))
+        {
+            return;
+        }
+
+        context.PreventNavigation();
     }
 
     public async Task GetTerminales()
@@ -437,24 +464,28 @@
         {
             if (ordens.Count < 6)
             {
-                ordenEmbarque.Codtad = (Int16)TerminalSeleccionada;
-                ordenEmbarque.Codprd = (byte)ProductoSeleccionado;
-                ordenEmbarque.Codest = 9;
-                ordenEmbarque.Coddes = EstacionSeleccionada;
-                ordenEmbarque.Vol = CapacidadSeleccionada;
-                ordenEmbarque.Fchpet = DateTime.Now;
-                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
-                if (response.Error)
+                if (ordenEmbarque.Codtad != 0 && ordenEmbarque.Codprd != 0 && ordenEmbarque.Coddes != 0 && ordenEmbarque.Vol != 0)
                 {
-                    loadingAgregar = false;
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    ordenEmbarque.Codest = 9;
+                    ordenEmbarque.Fchpet = DateTime.Now;
+                    var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
+                    if (response.Error)
+                    {
+                        loadingAgregar = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loadingAgregar = false;
+                        if (response.Response is not null)
+                            ordens.Add(response.Response);
+                    }
                 }
                 else
                 {
+                    await Swal.FireAsync("Advertencia", "Revise que no falte ningun campo en el formulario por llenar.", SweetAlertIcon.Warning);
                     loadingAgregar = false;
-                    if (response.Response is not null)
-                        ordens.Add(response.Response);
                 }
             }
             else
@@ -475,7 +506,7 @@
         loadingConfirm = true;
         try
         {
-            var response = await http.Put<List<OrdenEmbarque>>("api/pedido/confirm", ordens);
+            var response = await http.Post<List<OrdenEmbarque>, OrdenCompra>("api/pedido/confirm", ordens);
             if (response.Error)
             {
                 loadingConfirm = false;
@@ -485,7 +516,8 @@
             else
             {
                 loadingConfirm = false;
-                await Swal.FireAsync("Folio", response.Response.ToString(), SweetAlertIcon.Info);
+                await Swal.FireAsync("Folio", response.Response.den, SweetAlertIcon.Info);
+                ordens = new List<OrdenEmbarque>();
             }
         }
         catch (Exception e)

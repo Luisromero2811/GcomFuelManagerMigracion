@@ -1,12 +1,7 @@
 ﻿using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Globalization;
-using System.Linq;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -95,8 +90,8 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPut("confirm")]
-        public async Task<ActionResult> PutPedido(List<OrdenEmbarque> orden)
+        [HttpPost("confirm")]
+        public async Task<ActionResult<OrdenCompra>> PostConfirm(List<OrdenEmbarque> orden)
         {
             try
             {
@@ -104,23 +99,23 @@ namespace GComFuelManager.Server.Controllers
                 var folio = await context.OrdenCompra.Select(x=>x.cod).OrderBy(x=>x).LastOrDefaultAsync();
                 if (folio != 0)
                 {
-                     newFolio = new() { cod = ++folio, den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
+                    ++folio;
+                     newFolio = new OrdenCompra() { den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
                     context.Add(newFolio);
                 }
                 orden.ForEach(x =>
                 {
                     x.Codest = 3;
                     x.CodordCom = folio;
-                    x.FchOrd = DateTime.Now.Date;
-
+                    x.FchOrd = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+                    context.Update(x);
                 });
-                context.AddRange(orden);
                 await context.SaveChangesAsync();
-                return Ok(newFolio.den);
+                return Ok(newFolio);
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return BadRequest(e);
             }
         }
     }
