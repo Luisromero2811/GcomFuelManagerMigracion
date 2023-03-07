@@ -10,9 +10,7 @@ namespace GComFuelManager.Shared.DTOs
 	{
 		public DateTime DateInicio { get; set; } = DateTime.MinValue;
 		public DateTime DateFin { get; set; } = DateTime.MinValue;
-		public bool SinCargar { get; set; } = false;
-		public bool Cargadas { get; set; } = false;
-		public bool EnTrayecto { get; set; } = false;
+		public int Estado { get; set; } = 1;
 	}
 }
 
