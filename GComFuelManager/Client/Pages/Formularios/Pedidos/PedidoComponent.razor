@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject IRepositorio http
 @inject SweetAlertService Swal
+@inject IJSRuntime js
 
 <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 <h4><b>Pedidos</b></h4>
@@ -205,14 +206,16 @@
     <table class="table">
         <thead>
             <tr>
-                <th scope="col">#</th>
-                <th scope="col">Binomio</th>
-                <th scope="col">Estacion</th>
-                <th scope="col">Terminal</th>
-                <th scope="col">Producto</th>
-                <th scope="col">Cantidad</th>
-                <th scope="col">Precio</th>
-                <th scope="col">Fecha de carga</th>
+                <th></th>
+                <th>#</th>
+                <th>Binomio</th>
+                <th>Estacion</th>
+                <th>Terminal</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio</th>
+                <th>Fecha de carga</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -233,6 +236,11 @@
                 @for (int i = 0; i < ordens.Count; i++)
                 {
                     <tr>
+                        <td>
+                            <div>
+                                <button class="btn btn-info"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                            </div>
+                        </td>
                         <td>@(i + 1)</td>
                         <td>BIN_@ordens[i].Bin</td>
                         <td>@ordens[i]?.Destino?.Den</td>
@@ -241,7 +249,11 @@
                         <td>@ordens[i]?.Vol</td>
                         <td>@ordens[i].Pre</td>
                         <td>@ordens[i].Fchcar?.ToString("dd/MM/yyyy")</td>
-
+                        <td>
+                            <div>
+                                <button class="btn btn-danger"><i class="fa fa-solid fa-ban"></i></button>
+                            </div>
+                        </td>
                     </tr>
                 }
             }
@@ -281,8 +293,12 @@
     bool loadingAgregar = false;
     bool loadingConfirm = false;
 
+    //editmodel
+    private EditContext OrdenContext = null!;
+
     protected override async Task OnInitializedAsync()
     {
+        OrdenContext = new(ordenEmbarque);
         await GetTerminales();
         await GetGrupos();
         await GetCantidades();
@@ -307,6 +323,9 @@
 
         if (!string.IsNullOrEmpty(confirm.Value))
         {
+            List<int> ordenesTemp = new List<int>();
+            ordens.ForEach(x => ordenesTemp.Add(x.Cod));
+            await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenesTemp));
             return;
         }
 

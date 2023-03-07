@@ -15,6 +15,7 @@ namespace GComFuelManager.Server.Controllers
         {
             this.context = context;
         }
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {
@@ -28,6 +29,32 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                 return Ok(pedidos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("list")]
+        public async Task<ActionResult> GetList(List<int> list)
+        {
+            try
+            {
+                List<OrdenEmbarque> ordenes = new List<OrdenEmbarque>();
+                OrdenEmbarque pedido = new OrdenEmbarque();
+
+                foreach (var item in list)
+                {
+                    pedido = await context.OrdenEmbarque
+                    .Where(x => x.Cod == item)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .FirstOrDefaultAsync();
+                    ordenes.Add(pedido);
+                }
+                return Ok(ordenes);
             }
             catch (Exception e)
             {
