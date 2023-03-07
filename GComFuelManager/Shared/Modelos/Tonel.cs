@@ -50,6 +50,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("capcom4")] public int? Capcom4 { get; set; } = 0;
 
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+        public Transportista Transportista { get; set; } = null!;
 
     }
 }

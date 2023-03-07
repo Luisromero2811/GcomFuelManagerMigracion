@@ -58,28 +58,28 @@
                     <div class="col-6">
                         <div class="col-12">
                             <label class="form-label" for="form2Example17">Del:</label>
-                            <InputDate class="form-control" @bind-Value="@Date1" />
+                            <InputDate class="form-control" @bind-Value="@fechas.DateInicio" />
                         </div>
                     </div>
                     <div class="col-6">
                         <div class="form-outline">
                             <label class="form-label" for="form2Example17">Al:</label>
-                            <InputDate class="form-control" @bind-Value="@Date2" />
+                            <InputDate class="form-control" @bind-Value="@fechas.DateFin" />
                         </div>
                     </div>
                 </div>
                 <div class="row mt-4 mb-2">
                     <div class="d-flex justify-content-center">
                         <div class="form-check form-check-inline">
-                            <input type="radio" class="form-check-input" @bind-value="@SinCargar" />
+                            <input type="radio" class="form-check-input" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)"/>
                             <label class="form-check-label" for="inlineRadio1">Sin Cargar</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" @bind-value="@Cargadas" />
+                            <input class="form-check-input" type="radio" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
                             <label class="form-check-label" for="inlineRadio2">Cargadas</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" @bind-value="@EnTrayecto" />
+                            <input class="form-check-input" type="radio" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
                             <label class="form-check-label" for="inlineRadio3">En Trayecto</label>
                         </div>
                     </div>
@@ -128,7 +128,7 @@
             </tr>
         </thead>
         <tbody>
-            @if (ordenEmbarque is null)
+            @if (ordens is null)
             {
                 <SpinnerLoading />
             }
@@ -166,12 +166,10 @@
     public DateTime Date { get; set; } = DateTime.Now;
     public DateTime Date1 { get; set; } = DateTime.Now;
     public DateTime Date2 { get; set; } = DateTime.Now;
-    //Booleanos
-    public bool SinCargar { get; set; } = true;
-    public bool Cargadas { get; set; } = true;
-    public bool EnTrayecto { get; set; } = true;
 
     bool loadingFiltro = false;
+
+    FechasF fechas = new FechasF();
 
     protected override async Task OnInitializedAsync()
     {
@@ -198,14 +196,6 @@
             loadingFiltro = true;
             ordens = null!;
             StateHasChanged();
-            FechasF fechas = new FechasF()
-            {
-                DateInicio = Date1,
-                DateFin = Date2,
-                SinCargar = SinCargar,
-                Cargadas = Cargadas,
-                EnTrayecto = EnTrayecto
-            };
             var responseHttp = await repositorio.Post<FechasF, List<OrdenEmbarque>>($"api/pedido/filtro", fechas);
 
             if (responseHttp.Error)

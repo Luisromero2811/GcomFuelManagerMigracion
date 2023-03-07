@@ -94,24 +94,27 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                if (fechas.SinCargar)
+                if (fechas.Estado == 1)
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Bolguidid == null && x.Codest == 3 &&  x.Chofer!.Transportista!.activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel.Transportista.activo == true)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Chofer)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
-                }else if(fechas.Cargadas)
+                }
+                else if (fechas.Estado == 2)
                 {
                     //Traerme al transportista activo en 1 y codest = 26
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Codest == 3 && x.Transportista!.activo == true)
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Codest == 3 && x.Tonel.Transportista.activo == true)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
@@ -120,11 +123,12 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
-                }else if(fechas.EnTrayecto)
+                }
+                else if (fechas.Estado == 3)
                 {
                     //Traerme al transportista activo en 1
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Transportista!.activo == true)
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Tonel.Transportista.activo == true)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
@@ -138,7 +142,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     return BadRequest();
                 }
-                 
+
             }
             catch (Exception e)
             {
@@ -189,7 +193,7 @@ namespace GComFuelManager.Server.Controllers
                 if (folio != 0)
                 {
                     ++folio;
-                     newFolio = new OrdenCompra() { den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
+                    newFolio = new OrdenCompra() { den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
                     context.Add(newFolio);
                 }
                 orden.ForEach(x =>
