@@ -20,16 +20,17 @@ namespace GComFuelManager.Server.Controllers
         {
             this.context = context;
         }
+        //Method para obtener thodos los pedidos
         [HttpGet]
         public async Task<ActionResult> Get()
         {
             try
             {
                 var pedidos = await context.OrdenEmbarque
-                    .Include(x=>x.Destino)
-                    .Include(x=>x.Tad)
-                    .Include(x=>x.Producto)
-                    .Include(x=>x.Tonel)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
                     .Take(10000)
                     .ToListAsync();
                 return Ok(pedidos);
@@ -41,29 +42,91 @@ namespace GComFuelManager.Server.Controllers
         }
 
 
+        //Method para obtener pedidos mediante un rango de fechas
         [HttpPost("filtrar")]
         public async Task<ActionResult> GetDate([FromBody] FechasF fechas)
         {
             try
             {
                 var pedidosDate = await context.OrdenEmbarque
+
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
-                    .OrderBy(x=>x.Fchpet)
+                    .OrderBy(x => x.Fchpet)
+                    .Take(10000)
+                    .ToListAsync();
+                return Ok(pedidosDate);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        //Method para obtener pedidos mediante rango de fechas y checbox seleccionado
+        //REALIZAR TRES CONDICIONES, UNA POR CADA RADIOBUTTON, QUE SEA EN TRUE SE HARÁ EL MISMO FILTRO POR FECHAS EN WHERE AÑADIENDO LOS CAMPOS QUE UTILIZAN CADA CLAUSULA
+        [HttpPost("filtro")]
+        public async Task<ActionResult> GetDateRadio([FromBody] FechasF fechas)
+        {
+            try
+            {
+                if (fechas.SinCargar)
+                {
+                    //Traerme al bolguid is not null, codest =3 y transportista activo en 1
+                    var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Bolguidid == null && x.Codest == 3 &&  x.Chofer!.Transportista!.activo == true)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
+                }else if(fechas.Cargadas)
+                {
+                    //Traerme al transportista activo en 1 y codest = 26
+                    var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Codest == 3 && x.Transportista!.activo == true)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .OrderBy(x => x.Fchpet)
+                    .Take(10000)
+                    .ToListAsync();
+                    return Ok(pedidosDate);
+                }else if(fechas.EnTrayecto)
+                {
+                    //Traerme al transportista activo en 1
+                    var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Transportista!.activo == true)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .OrderBy(x => x.Fchpet)
+                    .Take(10000)
+                    .ToListAsync();
+                    return Ok(pedidosDate);
+                }
+                else
+                {
+                    return BadRequest();
+                }
+                 
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
 
 
+        //Method para realizar (agregar) pedido
         [HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
         {
@@ -84,7 +147,7 @@ namespace GComFuelManager.Server.Controllers
                 orden.Tad = await context.Tad.FirstOrDefaultAsync(x => x.Cod == orden.Codtad);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.Codprd);
                 orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
-                
+
                 context.Add(orden);
                 await context.SaveChangesAsync();
                 return Ok(orden);
@@ -94,17 +157,17 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        //Method para confirmar pedidos
         [HttpPut("confirm")]
         public async Task<ActionResult> PutPedido(List<OrdenEmbarque> orden)
         {
             try
             {
                 OrdenCompra newFolio = new OrdenCompra();
-                var folio = await context.OrdenCompra.Select(x=>x.cod).OrderBy(x=>x).LastOrDefaultAsync();
+                var folio = await context.OrdenCompra.Select(x => x.cod).OrderBy(x => x).LastOrDefaultAsync();
                 if (folio != 0)
                 {
-                     newFolio = new() { cod = ++folio, den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
+                    newFolio = new() { cod = ++folio, den = $"ENER_{DateTime.Now:yyyy-MM-dd}_{folio}" };
                     context.Add(newFolio);
                 }
                 orden.ForEach(x =>
