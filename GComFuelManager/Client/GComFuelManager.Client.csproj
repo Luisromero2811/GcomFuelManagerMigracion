@@ -54,5 +54,9 @@
     <Folder Include="Shared\Layouts\" />
     <Folder Include="Pages\Formularios\SeguimientoOrdenes\" />
     <Folder Include="Pages\Formularios\ETA\" />
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\js\" />
   </ItemGroup>
 </Project>

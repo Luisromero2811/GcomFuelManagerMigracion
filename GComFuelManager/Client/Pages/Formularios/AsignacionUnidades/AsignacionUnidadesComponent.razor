@@ -59,11 +59,11 @@
                     <div class="row card-body">
                         <div class="col mb-3">
                             <label>Del:</label>
-                            <InputDate @bind-Value="@Date1" class="form-control col-12" />
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio"/>
                         </div>
                         <div class="col mb-3">
                             <label>A:</label>
-                            <InputDate @bind-Value="@Date2" class="form-control col-12" />
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
                         </div>
                         <div class="col-12 d-flex justify-content-end">
                             <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrdenFecha">
@@ -281,8 +281,8 @@
 
     private int VehiculoSeleccionado = 0;
 
-    public DateTime Date1 { get; set; } = DateTime.Now;
-    public DateTime Date2 { get; set; } = DateTime.Now;
+
+    FechasF fechas = new FechasF();
 
     bool loadingFiltro = false;
 
@@ -377,11 +377,6 @@
             loadingFiltro = true;
             ordenes = null!;
             StateHasChanged();
-            FechasF fechas = new FechasF()
-                {
-                    DateInicio = Date1,
-                    DateFin = Date2
-                };
 
             var responseHttp = await repositorio.Post<FechasF, List<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
 
