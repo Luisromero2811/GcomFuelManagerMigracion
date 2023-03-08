@@ -36,8 +36,8 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("list")]
-        public async Task<ActionResult> GetList(List<int> list)
+        [HttpPost("list")]
+        public async Task<ActionResult> PostList(List<int> list)
         {
             try
             {
@@ -70,7 +70,6 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var pedidosDate = await context.OrdenEmbarque
-
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)

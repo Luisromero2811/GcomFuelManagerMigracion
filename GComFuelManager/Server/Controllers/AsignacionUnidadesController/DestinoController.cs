@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using GComFuelManager.Shared.DTOs;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -20,7 +21,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var destinos = await context.Destino.Where(x => x.Activo == true).ToListAsync();
+                var destinos = await context.Destino
+                    .Where(x => x.Activo == true)
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den})
+                    .ToListAsync();
                 return Ok(destinos);
             }
             catch (Exception)
