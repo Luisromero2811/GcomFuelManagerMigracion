@@ -14,24 +14,9 @@
                     <div class="col-6">
                         <div class="col-12">
                             <label class="form-label" for="form2Example17">Destino:</label>
-                            <InputSelect class="form-select" @bind-Value="DestinoSeleccionado">
-                                <option>--- Seleccione una opcion ----</option>
-                                @if (Destinos is null)
-                                {
-                                    <option disabled>Cargando...</option>
-                                }
-                                else if (Destinos.Count == 0)
-                                {
-                                    <option disabled>No hay destinos</option>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Destinos)
-                                    {
-                                        <option value="@item.Cod">@item.Den</option>
-                                    }
-                                }
-                            </InputSelect>
+                            <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
                         </div>
                     </div>
                     <div class="col-6">
