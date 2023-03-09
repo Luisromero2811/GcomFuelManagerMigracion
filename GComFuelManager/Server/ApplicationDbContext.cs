@@ -42,12 +42,22 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Chofer)
                 .WithMany()
                 .HasForeignKey(x => x.Codchf);
-
+            //Tonel
             modelBuilder.Entity<Tonel>()
                 .HasOne(x => x.Transportista)
                 .WithMany()
                 .HasPrincipalKey(x=>x.carrId)
                 .HasForeignKey(x => x.Carid);
+            //Orden compra
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.OrdenCompra)
+                .WithMany()
+                .HasForeignKey(x => x.CodordCom);
+            //cliente - destino
+            modelBuilder.Entity<Destino>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.Codcte);
         }
 
 

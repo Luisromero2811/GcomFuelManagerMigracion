@@ -8,7 +8,7 @@
 @if (isEditing)
 {
     <EditPedidoForm Terminales="Terminales" Productos="Productos" Cantidades="Cantidades" ordenEmbarque="ordenEmbarque" CancelPedido="changeEdit"
-        Estacion="Destino" SavePedido="EditPedido"/>
+                Estacion="Destino" SavePedido="EditPedido" />
 }
 else
 {
@@ -61,8 +61,12 @@ else
                         <td>@item.Fchcar?.ToString("dd/MM/yyyy")</td>
                         <td>
                             <div class="col-12 row">
-                                <button class="btn btn-danger" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
-                                <button class="btn btn-primary" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                <div class="col">
+                                    <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                                </div>
+                                <div class="col">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -197,7 +201,7 @@ else
             }
 
             DateTime expiration;
-            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONPEDIDO"),out expiration))
+            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONPEDIDO"), out expiration))
             {
                 if (DateTime.Today.Date < expiration)
                 {
@@ -218,7 +222,7 @@ else
                 {
                     foreach (var item in ordenesPendientes)
                     {
-                        var response = await http.Put<int>($"api/pedido/{item}/cancel",0);
+                        var response = await http.Put<int>($"api/pedido/{item}/cancel", 0);
                         if (response.Error)
                         {
                             var message = await response.ObtenerMensajeError();

@@ -59,7 +59,7 @@
                     <div class="row card-body">
                         <div class="col mb-3">
                             <label>Del:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio"/>
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
                         </div>
                         <div class="col mb-3">
                             <label>A:</label>
@@ -183,7 +183,7 @@
                                 </div>
                             </div>
                             <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12">Asignar</button>
+                                <button class="btn gcom-bg-amarillo col-12"><b>Asignar</b></button>
                             </div>
                         </div>
                     </div>
@@ -193,75 +193,39 @@
     </div>
 </div>
 
-<div class="my-4 d-flex justify-content-center">
-    <div class="table-responsive" style="height:500px;width:1000px">
-        <table class="table table-hover table-bordered">
-            <thead>
-                <tr>
-                    <th scope="col">No.</th>
-                    <th scope="col">Orden de compra</th>
-                    <th scope="col">Referencia</th>
-                    <th scope="col">Cliente</th>
-                    <th scope="col">Destino</th>
-                    <th scope="col">Producto</th>
-                    <th scope="col">Volumen</th>
-                    <th scope="col">Fecha de carga</th>
-                    <th scope="col">Transportista</th>
-                    <th scope="col">Unidad</th>
-                    <th scope="col">Compartimento</th>
-                    <th scope="col">Operador</th>
-                    <th scope="col">BIN</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">SIMSA TRANSPORTE</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (ordenes is null)
-                {
-                    <SpinnerLoading />
-                }
-                else if (ordenes.Count == 0)
-                {
-                    <tr>
-                        <td colspan="15">
-                            <NoHayRegistros />
-                        </td>
-                    </tr>
-                }
-                else
-                {
-                    @for (int i = 0; i < ordenes.Count; i++)
-                    {
-
-                        <tr>
-                            <td>@(i + 1)</td>
-                            <td>@ordenes[i]?.Producto?.Den</td>
-                            <td>@ordenes[i]?.Fchpet</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-
-                    }
-                }
-            </tbody>
-        </table>
+@if (ordenesSeleccionada.Any() == true)
+{
+    <div>
+        @ordenesSeleccionada[0].Bin
     </div>
+}
+<div class="col-12 d-flex justify-content-center">
+    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
+                    GridLines="DataGridGridLines.Both" Style="height:500px;width:1000px" class="rz-my-12 col-12" @bind-Value="ordenesSeleccionada" Density="Density.Default">
+                    <EmptyTemplate>
+                        <NoHayRegistros></NoHayRegistros>
+                    </EmptyTemplate>
+        <Columns>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="150px" Frozen="true"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Referencia" Property="OrdenEmbarque.OrdenCompra.den" Width="150px" Frozen="true"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="OrdenEmbarque.Destino.Cliente.Den" Width="150px" Frozen="true"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="OrdenEmpleado.Destino.Den" Width="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Property="OrdenEmbarque.Vol" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px" />
+        </Columns>
+    </RadzenDataGrid>
 </div>
 
 @code {
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private List<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    private IEnumerable<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
+
     //Listas
     private List<CodDenDTO> Destinos { get; set; } = null!;
     private List<CodDenDTO> Productos { get; set; } = null!;
@@ -378,7 +342,7 @@
             ordenes = null!;
             StateHasChanged();
 
-            var responseHttp = await repositorio.Post<FechasF, List<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
+            var responseHttp = await repositorio.Post<FechasF, IEnumerable<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
 
             if (responseHttp.Error)
             {

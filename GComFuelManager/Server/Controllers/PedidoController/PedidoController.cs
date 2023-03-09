@@ -102,6 +102,8 @@ namespace GComFuelManager.Server.Controllers
                 var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
                     .Include(x => x.Destino)
+                    .ThenInclude(x=>x.Cliente)
+                    .Include(x=>x.OrdenCompra)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
@@ -227,9 +229,13 @@ namespace GComFuelManager.Server.Controllers
                 }
                 orden.ForEach(x =>
                 {
+                    x.Destino = null;
+                    x.Tad = null!;
+                    x.Chofer = null!;
+                    x.Tonel = null!;
                     x.Codest = 3;
                     x.CodordCom = folio;
-                    x.FchOrd = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day);
+                    x.FchOrd = DateTime.Today.Date;
                     context.Update(x);
                 });
                 await context.SaveChangesAsync();
