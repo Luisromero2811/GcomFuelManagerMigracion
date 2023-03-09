@@ -28,7 +28,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
             catch(Exception e)
             {
-                throw e;
+                return BadRequest(e.Message);
             }
         }
 

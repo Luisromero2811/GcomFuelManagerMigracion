@@ -47,7 +47,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<OrdenEmbarque> ordenes = new List<OrdenEmbarque>();
-                OrdenEmbarque pedido = new OrdenEmbarque();
+                OrdenEmbarque? pedido = new OrdenEmbarque();
 
                 foreach (var item in list)
                 {
@@ -64,6 +64,31 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{cod:int}/cancel")]
+        public async Task<ActionResult> PutCancel([FromRoute]int cod)
+        {
+            try
+            {
+                OrdenEmbarque? pedido = await context.OrdenEmbarque.FirstOrDefaultAsync(x=>x.Cod == cod);
+
+                if (pedido is null)
+                {
+                    return NotFound();
+                }
+
+                pedido.Codest = 14;
+                context.Update(pedido);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw e;
             }
         }
 
@@ -209,6 +234,21 @@ namespace GComFuelManager.Server.Controllers
                 });
                 await context.SaveChangesAsync();
                 return Ok(newFolio);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> PutPedido([FromBody] OrdenEmbarque orden)
+        {
+            try
+            {
+                context.Update(orden);
+                await context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception e)
             {

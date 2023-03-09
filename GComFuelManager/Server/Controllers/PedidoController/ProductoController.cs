@@ -24,10 +24,10 @@ namespace GComFuelManager.Server.Controllers
                 var productos = await context.Producto.Where(x=>x.Activo == true).ToListAsync();
                 return Ok(productos);
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                return BadRequest(e.Message);
             }
         }
     }

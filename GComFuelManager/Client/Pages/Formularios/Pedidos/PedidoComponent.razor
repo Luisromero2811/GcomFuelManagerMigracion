@@ -8,7 +8,7 @@
 @if (isEditing)
 {
     <EditPedidoForm Terminales="Terminales" Productos="Productos" Cantidades="Cantidades" ordenEmbarque="ordenEmbarque" CancelPedido="changeEdit"
-        Estacion="Destino"/>
+        Estacion="Destino" SavePedido="EditPedido"/>
 }
 else
 {
@@ -20,8 +20,6 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th></th>
-                <th>#</th>
                 <th>Binomio</th>
                 <th>Estacion</th>
                 <th>Terminal</th>
@@ -35,7 +33,11 @@ else
         <tbody>
             @if (ordens is null)
             {
-                <SpinnerLoading />
+                <tr>
+                    <td colspan="10">
+                        <SpinnerLoading />
+                    </td>
+                </tr>
             }
             else if (ordens.Count == 0)
             {
@@ -47,25 +49,20 @@ else
             }
             else
             {
-                @for (int i = 0; i < ordens.Count; i++)
+                @foreach (OrdenEmbarque item in ordens)
                 {
                     <tr>
+                        <td>BIN_@item.Bin</td>
+                        <td>@item.Destino?.Den</td>
+                        <td>@item.Tad?.Den</td>
+                        <td>@item.Producto?.Den</td>
+                        <td>@item?.Vol</td>
+                        <td>@item.Pre</td>
+                        <td>@item.Fchcar?.ToString("dd/MM/yyyy")</td>
                         <td>
-                            <div>
-                                <button class="btn btn-primary" @onclick="@(()=>SetEdit(ordens[i - 1]))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                            </div>
-                        </td>
-                        <td>@(i + 1)</td>
-                        <td>BIN_@ordens[i].Bin</td>
-                        <td>@ordens[i]?.Destino?.Den</td>
-                        <td>@ordens[i]?.Tad?.Den</td>
-                        <td>@ordens[i]?.Producto?.Den</td>
-                        <td>@ordens[i]?.Vol</td>
-                        <td>@ordens[i].Pre</td>
-                        <td>@ordens[i].Fchcar?.ToString("dd/MM/yyyy")</td>
-                        <td>
-                            <div>
-                                <button class="btn btn-danger"><i class="fa fa-solid fa-ban"></i></button>
+                            <div class="col-12 row">
+                                <button class="btn btn-danger" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                                <button class="btn btn-primary" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -110,12 +107,13 @@ else
         await GetGrupos();
         await GetCantidades();
         await GetProductos();
-        await GetOrdenesPendientes();
         await GetEstaciones();
+        await GetOrdenesPendientes();
     }
 
     private void changeEdit()
     {
+        ordenEmbarque = new OrdenEmbarque();
         isEditing = !isEditing;
     }
 
@@ -136,7 +134,46 @@ else
         }
         catch (Exception e)
         {
-            Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CancelPedido(OrdenEmbarque orden)
+    {
+        try
+        {
+            var confirm = await Swal.FireAsync(new SweetAlertOptions
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
+
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+
+                var response = await http.Delete($"api/pedido/{orden.Cod}/cancel");
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Pedido cancelado", $"El pedido con el binomio {orden.Bin} ha sido cancelado", SweetAlertIcon.Info);
+                    ordenPendientes.Remove(orden.Cod);
+                    await js.SetItemLocalStorage("EXPIRACIONPEDIDO", DateTime.Today.Date.AddDays(1).ToString());
+                    await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenPendientes));
+                    await GetOrdenesPendientes();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
@@ -144,13 +181,14 @@ else
     {
         try
         {
-            List<int> ordenesPendientes = new List<int>();
-
+            List<int>? ordenesPendientes = new List<int>();
             try
             {
                 if (await js.GetItemLocalStorage("PEDIDO") != null)
                 {
                     ordenesPendientes = JsonConvert.DeserializeObject<List<int>>(await js.GetItemLocalStorage("PEDIDO"));
+                    ordens = null!;
+                    StateHasChanged();
                 }
             }
             catch (Exception e)
@@ -158,16 +196,36 @@ else
                 await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             }
 
-            var response = await http.Post<List<int>, List<OrdenEmbarque>>("api/pedido/list", ordenesPendientes);
+            DateTime expiration;
+            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONPEDIDO"),out expiration))
+            {
+                if (DateTime.Today.Date < expiration)
+                {
+                    var response = await http.Post<List<int>, List<OrdenEmbarque>>("api/pedido/list", ordenesPendientes);
 
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ordens = response.Response;
+                    if (response.Error)
+                    {
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        ordens = response.Response;
+                        ordenPendientes = ordenesPendientes;
+                    }
+                }
+                else
+                {
+                    foreach (var item in ordenesPendientes)
+                    {
+                        var response = await http.Put<int>($"api/pedido/{item}/cancel",0);
+                        if (response.Error)
+                        {
+                            var message = await response.ObtenerMensajeError();
+                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        }
+                    }
+                }
             }
 
         }
@@ -190,12 +248,13 @@ else
                 ShowCancelButton = true,
                 ConfirmButtonText = "Aceptar",
                 CancelButtonText = "Cancelar",
-                Text = "Tiene ordenes pendientes por confirma, si sale no podra volver a ver esas ordenes. ¿ Seguro que quiere salir? "
+                Text = "Tiene ordenes pendientes por confirmar, ¿Seguro que quiere salir?"
             });
 
         if (!string.IsNullOrEmpty(confirm.Value))
         {
             await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenPendientes));
+            await js.SetItemLocalStorage("EXPIRACIONPEDIDO", DateTime.Today.Date.AddDays(1).ToString());
             return;
         }
 
@@ -296,7 +355,7 @@ else
         loadingAgregar = true;
         try
         {
-            if (ordens.Count < 8)
+            if (ordens?.Count < 8 || ordens is null)
             {
                 if (ordenEmbarque.Codtad != 0 && ordenEmbarque.Codprd != 0 && ordenEmbarque.Coddes != 0 && ordenEmbarque.Vol != 0)
                 {
@@ -316,6 +375,8 @@ else
                         {
                             ordens.Add(response.Response);
                             ordenPendientes.Add(response.Response.Cod);
+                            await js.SetItemLocalStorage("EXPIRACIONPEDIDO", DateTime.Today.Date.AddDays(1).ToString());
+                            await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenPendientes));
                         }
                     }
                 }
@@ -357,6 +418,9 @@ else
                     loadingConfirm = false;
                     await Swal.FireAsync("Folio", response.Response.den, SweetAlertIcon.Info);
                     ordens = new List<OrdenEmbarque>();
+                    await js.RemoveItemLocalStorage("PEDIDO");
+                    await js.RemoveItemLocalStorage("EXPIRACIONPEDIDO");
+                    ordenPendientes = new List<int>();
                 }
             }
             else
@@ -369,6 +433,34 @@ else
         {
             loadingConfirm = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task EditPedido()
+    {
+        loadingAgregar = true;
+        try
+        {
+            ordenEmbarque.Destino = null;
+            var response = await http.Put<OrdenEmbarque>("api/pedido", ordenEmbarque);
+            if (response.Error)
+            {
+                loadingAgregar = false;
+                string? message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingAgregar = false;
+                changeEdit();
+                await GetOrdenesPendientes();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingAgregar = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 

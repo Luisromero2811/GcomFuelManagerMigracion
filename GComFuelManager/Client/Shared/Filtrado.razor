@@ -19,9 +19,9 @@
     [Parameter] public Func<string, Task<IEnumerable<T>>> Buscar { get; set; } = null!;
     [Parameter] public RenderFragment<T> Resultado { get; set; } = null!;
     [Parameter] public RenderFragment<T> Selecteccionado { get; set; } = null!;
-    [Parameter] public T value { get; set; } = default(T);
+    [Parameter] public T? value { get; set; } = default(T);
 
-    T simpleItem = default(T);
+    T? simpleItem = default(T);
 
 
     private void ItemSeleccionado(T item)
