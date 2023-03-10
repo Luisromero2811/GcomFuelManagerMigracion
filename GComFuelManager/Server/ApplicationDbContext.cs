@@ -20,6 +20,10 @@ namespace GComFuelManager.Server
                     .HasOne(x => x.Destino)
                     .WithMany()
                     .HasForeignKey(x => x.Coddes);
+            modelBuilder.Entity<Destino>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.Codcte);
 
             //Terminal
             modelBuilder.Entity<OrdenEmbarque>()
@@ -36,6 +40,7 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Tonel)
                 .WithMany()
                 .HasForeignKey(x => x.Codton);
+
 
             //TransportistaOrden
             modelBuilder.Entity<OrdenEmbarque>()

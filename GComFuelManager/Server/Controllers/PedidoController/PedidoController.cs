@@ -132,6 +132,7 @@ namespace GComFuelManager.Server.Controllers
                     var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
                     .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
@@ -148,6 +149,7 @@ namespace GComFuelManager.Server.Controllers
                     var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
                     .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
@@ -162,6 +164,7 @@ namespace GComFuelManager.Server.Controllers
                     var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
                     .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
