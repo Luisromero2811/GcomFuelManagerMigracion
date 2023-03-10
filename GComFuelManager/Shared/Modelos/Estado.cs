@@ -5,8 +5,8 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class Estado
 	{
-        [JsonProperty("cod")]
-        public int Cod { get; set; } 
+        [JsonProperty("cod"), Key]
+        public byte Cod { get; set; } 
 
         [JsonProperty("den"), MaxLength(128)]
         public string? den { get; set; } = string.Empty;

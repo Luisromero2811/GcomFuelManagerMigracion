@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,5 +35,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Esenergas { get; set; } = false;
         [JsonProperty("tipven"), MaxLength(16)]
         public string? Tipven { get; set; } = string.Empty;
+
+        [NotMapped] public Grupo? Grupo { get; set; } = null!;
     }
 }

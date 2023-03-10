@@ -52,5 +52,8 @@ namespace GComFuelManager.Shared.Modelos
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
         public Transportista Transportista { get; set; } = null!;
 
+        public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
+
+        public string Veh { get { return $"{Tracto} {Placa}"; } }
     }
 }

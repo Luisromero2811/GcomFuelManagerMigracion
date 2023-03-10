@@ -78,6 +78,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Estacion</label>
+                        @ordenEmbarque.Coddes
                         <RadzenDropDown @bind-Value="ordenEmbarque.Coddes" Data="Estacion" ValueProperty="Cod" TextProperty="Den"
                                         AllowVirtualization="true" AllowFiltering="true" 
                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
@@ -99,6 +100,7 @@
                     <div class="col-6 row">
                         <div class="col-6">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                                <i class="fa fa-solid fa-floppy-disk"></i>
                                 <b>Guardar Cambio</b>
                                 @if (loadingAgregar)
                                 {
@@ -108,6 +110,7 @@
                         </div>
                         <div class="col-6">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@CancelPedido">
+                                <i class="fa fa-solid fa-xmark"></i>
                                 <b>Cancelar</b>
                             </button>
                         </div>
