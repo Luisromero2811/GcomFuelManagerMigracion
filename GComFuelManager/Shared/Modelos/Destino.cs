@@ -45,6 +45,8 @@ namespace GComFuelManager.Shared.Modelos
         public string? Est { get; set; } = string.Empty;
 
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
+
     }
 }

@@ -90,10 +90,10 @@
                             </button>
                         </div>
                         <div class="col-sm-12 col-md-6">
-                            <button class="btn gcom-bg-amarillo col-12 mt-3"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de despacho</b></button>
+                            <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de despacho</b></button>
                         </div>
                         <div class="col-sm-12 col-md-6">
-                            <button class="btn gcom-bg-amarillo col-12 mt-3"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Tráfico</b></button>
+                            <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Tráfico</b></button>
                         </div>
                     </div>
                 </div>
@@ -138,6 +138,13 @@
                     {
                         <tr>
                             <td>@(i + 1)</td>
+                            <td>@ordens[i].Folio</td>
+                            <td>@ordens[i].Fchcar?.ToString("dd/MM/yyyy")</td>
+                            <td>@ordens[i].Codest</td>
+                            <td>@ordens[i].Fchcar?.ToString("dd/MM/yyyy")</td>
+                            <td>@ordens[i].Bolguidid</td>
+                            <td>@ordens[i]?.Destino?.Cliente?.Tipven</td>
+                            <td>@ordens[i]?.Destino?.Cliente?.Den</td>
                             <td>@ordens[i]?.Destino?.Den</td>
                         </tr>
                     }
@@ -218,7 +225,6 @@
         try
         {
             var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"api/pedido/filtro", ordenes);
-            //var responseHttp = await repositorio.Post<List<OrdenEmbarque>>();
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -230,15 +236,14 @@
                 var excel = new ExcelPackage();
                 var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
                 //Nombres de columnas
-                worksheet.Cells[1, 1].Value = "Destino";
-                worksheet.Cells[1, 2].Value = "Prueba";
+
                 //Formación de Excel
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
                 from o in ordens
-                select new {o.Destino!.Den, o.Producto}, true);
+                select new OrdenesDTO() {Referencia = o.Folio, FechaPrograma = o.Fchcar, EstatusOrden = o.Codest, FechaCarga = o.Fchcar, Bol = o.Bolguidid, DeliveryRack = o.Destino!.Cliente!.Tipven, Cliente = o.Destino!.Cliente!.Den , Destino = o.Destino!.Den }, true);
                 //Guardado de Excel
-                await JS.GuardarComo("Ordenes.xlsx", excel.GetAsByteArray());
-
+                await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("yyyy-MM-dd")}.xlsx", excel.GetAsByteArray());
+                //Folio, fchcar, codest, fhcar, bol, destinocliente.tipven, destinocliente.den, destino.den
             }
         }
         catch (Exception e)
@@ -246,6 +251,71 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+    public async Task ExportHist()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"", ordenes);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial");
+                //Nombres de Columnas
+
+                //Formación de Excel
+
+                //Guardado de Excel
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    public async Task ExportTraffic()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"", ordenes);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Trafico");
+                //Nombre de columnas
+
+                //Formación de Excel
+
+                //Guardado de Excel
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
 
 <!--Fecha de carga, estacion es destino-->
+<!--
+              //worksheet.Cells[1, 1].Value = "No";
+                //worksheet.Cells[1, 2].Value = "Referencia";
+                //worksheet.Cells[1, 3].Value = "Fecha Programa";
+                //worksheet.Cells[1, 4].Value = "Estatus Orden";
+                //worksheet.Cells[1, 5].Value = "Fecha Carga";
+                //worksheet.Cells[1, 6].Value = "BOL";
+                //worksheet.Cells[1, 7].Value = "Delivery/Rack";
+                //worksheet.Cells[1, 8].Value = "Cliente";
+                //worksheet.Cells[1, 9].Value = "Destino";
+    //o.Folio, o.Fchcar, o.Codest, o.FchPro, o.Bolguidid, o.Destino!.Cliente!.Tipven, o.Destino.Cliente.Den, o.Destino.DesCod
+-->
