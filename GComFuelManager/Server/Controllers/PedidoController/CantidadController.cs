@@ -32,7 +32,7 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
 
-                throw e;
+                return BadRequest(e.Message);
             }
         }
     }

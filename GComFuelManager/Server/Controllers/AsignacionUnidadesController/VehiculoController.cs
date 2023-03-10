@@ -23,12 +23,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 var vehiculos = await context.Tonel
                     .Where(x => Convert.ToInt32(x.Carid) == chofer)
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den =  $"{x.Tracto} {x.Placatracto} {x.Placa} {x.Capcom!} {x.Capcom2!} {x.Capcom3!} {x.Capcom4!} {x.Codsyn!}" })
+                    .OrderBy(x=>x.Cod)
                     .ToListAsync();
                     return Ok(vehiculos);
             }
             catch(Exception e)
             {
-                throw e;
+                return BadRequest(e.Message);
             }
         }
 

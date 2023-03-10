@@ -28,10 +28,10 @@ namespace GComFuelManager.Server.Controllers
                     .ToListAsync();
                 return Ok(grupos);
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                return BadRequest(e.Message);
             }
         }
     }

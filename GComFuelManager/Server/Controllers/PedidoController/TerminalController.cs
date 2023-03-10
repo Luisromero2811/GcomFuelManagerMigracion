@@ -18,11 +18,19 @@ namespace GComFuelManager.Server.Controllers
 
         public async Task<ActionResult> Get()
         {
-            var terminales = await context.Tad
+            try
+            {
+                var terminales = await context.Tad
                 .Where(x => x.Activo == true)
                 .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                 .ToListAsync();
-            return Ok(terminales);
+                return Ok(terminales);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 }

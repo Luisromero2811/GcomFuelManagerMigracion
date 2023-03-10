@@ -156,7 +156,7 @@
                         <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.Pre"></InputNumber>
                     </div>
                 </div>
-                <div class="col-3 mb-1">
+                @*<div class="col-3 mb-1">
                     <div class="col-12">
                         <label>Temperatura</label>
                         <input class="form-control col-12 disabled" disabled />
@@ -167,12 +167,13 @@
                         <label>Condiciones de pago</label>
                         <input class="form-control col-12 disabled" disabled />
                     </div>
-                </div>
+                </div>*@
             </div>
             <div class="col-12 d-flex justify-content-center mt-2">
                 <div class="col-6 row">
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                            <i class="fa fa-solid fa-plus"></i>
                             <b>Agregar</b>
                             @if (loadingAgregar)
                             {
@@ -182,6 +183,7 @@
                     </div>
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12" @onclick="@ConfirmPedido">
+                            <i class="fa fa-solid fa-check"></i>
                             <b>Confirmar Pedido</b>
                             @if (loadingConfirm)
                             {

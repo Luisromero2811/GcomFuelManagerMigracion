@@ -27,10 +27,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .ToListAsync();
                 return Ok(destinos);
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                return BadRequest(e.Message);
             }
         }
 	}

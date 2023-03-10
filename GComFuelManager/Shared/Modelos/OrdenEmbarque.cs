@@ -17,7 +17,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("coddes"), Required(ErrorMessage = "El campo de estacion es requerido.")] public int? Coddes { get; set; } = 0;
         [JsonProperty("codest")] public byte? Codest { get; set; }
         [JsonProperty("fchpet")] public DateTime? Fchpet { get; set; }
-        [JsonProperty("fchcar"), Required(ErrorMessage = "El campo de fecha de carga es requerido.")] public DateTime? Fchcar { get; set; } = DateTime.MinValue;
+        [JsonProperty("fchcar"), Required(ErrorMessage = "El campo de fecha de carga es requerido.")] public DateTime? Fchcar { get; set; } = DateTime.Today;
         [JsonProperty("codton")] public int? Codton { get; set; }
         [JsonProperty("bin")] public int? Bin { get; set; }
         [JsonProperty("codusu")] public int? Codusu { get; set; }
@@ -36,5 +36,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Producto? Producto { get; set; }
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
+        [NotMapped] public OrdenCompra? OrdenCompra { get; set; } = null!;
+        [NotMapped] public Estado? Estado { get; set; } = null!;
     }
 }
