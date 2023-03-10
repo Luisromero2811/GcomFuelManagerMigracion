@@ -103,6 +103,7 @@ namespace GComFuelManager.Server.Controllers
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
                     .Include(x => x.Destino)
                     .ThenInclude(x=>x.Cliente)
+                    .Include(x=>x.Estado)
                     .Include(x=>x.OrdenCompra)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
@@ -252,6 +253,14 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                orden.Producto = null;
+                orden.Chofer = null;
+                orden.Destino = null;
+                orden.Tonel = null;
+                orden.Tad = null;
+                orden.OrdenCompra = null;
+                orden.Estado = null;
+
                 context.Update(orden);
                 await context.SaveChangesAsync();
                 return Ok();

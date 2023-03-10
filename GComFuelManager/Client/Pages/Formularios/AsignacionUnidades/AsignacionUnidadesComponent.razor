@@ -8,55 +8,79 @@
 <div class="col-12 px-4 mt-4">
     <div class="col-12 row mb-4">
         <div class="col-6">
-            <div class="col-12">
+            <div class="col-12 h-100">
                 <label><b>Editar:</b></label>
-                <div class="card shadow-sm">
-                    <div class="row card-body">
+                <div class="card shadow-sm h-100">
+                    <div class="row card-body h-100">
                         <div class="col mb-3">
                             <div class="col-12">
                                 <label>Destino:</label>
-                                <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
+                                @if (ordenesSeleccionada.Count > 0)
+                                {
+                                    <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault().Coddes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                                }
+                                else
+                                {
+                                    <input class="col-12 form-control disabled" disabled />
+                                }
                             </div>
                         </div>
                         <div class="col mb-3">
                             <label>Fecha de carga:</label>
-                            <input type="date" class="form-control col-12" />
+                            @if (ordenesSeleccionada.Count > 0)
+                            {
+                                <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Fchcar" />
+                            }
+                            else
+                            {
+                                <input class="col-12 form-control disabled" disabled />
+                            }
                         </div>
                         <div class="col mb-3">
                             <label>Producto:</label>
-                            <InputSelect class="form-select col-12" @bind-Value="ProductoSeleccionado">
-                                <option>-- seleccione una opcion --</option>
-                                @if (Productos is null)
-                                {
-                                    <option disabled>Cargando...</option>
-                                }
-                                else if (Productos.Count == 0)
-                                {
-                                    <option disabled>No hay Productos</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Productos)
+                            @if (ordenesSeleccionada.Count > 0)
+                            {
+                                <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Codprd">
+                                    <option>-- seleccione una opcion --</option>
+                                    @if (Productos is null)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option disabled>Cargando...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (Productos.Count == 0)
+                                    {
+                                        <option disabled>No hay Productos</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Productos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            }
+                            else
+                            {
+                                <input class="col-12 form-control disabled" disabled />
+                            }
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo"><b>Guardar cambios</b></button>
+                            <div class="col-6 d-flex">
+                                <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
+                                    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-6">
-            <div class="col-12">
+            <div class="col-12 h-100">
                 <label><b>Mostrar ordenes:</b></label>
-                <div class="card shadow-sm">
-                    <div class="row card-body">
+                <div class="card shadow-sm h-100">
+                    <div class="row card-body h-100">
                         <div class="col mb-3">
                             <label>Del:</label>
                             <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
@@ -66,17 +90,20 @@
                             <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
                         </div>
                         <div class="col-12 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo" @onclick="@MostrarOrdenFecha">
-                                <b>Mostrar ordenes</b>
-                            </button>
+                            <div class="col-6 d-flex">
+                                <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@MostrarOrdenFecha">
+                                    <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="d-flex justify-content-center">
-        <div class="col-9">
+        <div class="col-9 mt-4">
             <label><b>Asignar unidades:</b></label>
             <div class="col card shadow-sm">
                 <div class="col-12 card-body">
@@ -193,35 +220,47 @@
     </div>
 </div>
 
-@if (ordenesSeleccionada.Any() == true)
-{
-    <div>
-        @ordenesSeleccionada[0].Bin
-    </div>
-}
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                    GridLines="DataGridGridLines.Both" Style="height:500px;width:1000px" class="rz-my-12 col-12" @bind-Value="ordenesSeleccionada" Density="Density.Default">
-                    <EmptyTemplate>
-                        <NoHayRegistros></NoHayRegistros>
-                    </EmptyTemplate>
+                    GridLines="DataGridGridLines.Both" class="rz-my-12" Style="width:1000px;height:500px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid">
+        <EmptyTemplate>
+            <NoHayRegistros></NoHayRegistros>
+        </EmptyTemplate>
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="150px" Frozen="true"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Referencia" Property="OrdenEmbarque.OrdenCompra.den" Width="150px" Frozen="true"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="OrdenEmbarque.Destino.Cliente.Den" Width="150px" Frozen="true"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="OrdenEmpleado.Destino.Den" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Property="OrdenEmbarque.Vol" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Referencia" Property="OrdenEmbarque.Folio" Width="200px" Frozen="true" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="OrdenEmbarque.Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="OrdenEmpleado.Destino.Den" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Property="OrdenEmbarque.Vol" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.den" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" MinWidth="200px">
+                <Template Context="data">
+                    <div class="col-12">
+                        @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Fchcar" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" MinWidth="200px">
+                <Template Context="data">
+                    <div class="col-12">
+                        @data?.Chofer?.Den @data?.Chofer?.Shortden
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" />
         </Columns>
     </RadzenDataGrid>
 </div>
 
 @code {
+    //grid
+    private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
+
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private IEnumerable<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
@@ -248,7 +287,10 @@
 
     FechasF fechas = new FechasF();
 
+    //loadings
     bool loadingFiltro = false;
+    bool loadingEdit = false;
+    bool loadginAsignar = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -270,7 +312,6 @@
             Destinos = response.Response;
         }
     }
-
     public async Task GetProductos()
     {
         var response = await repositorio.Get<List<CodDenDTO>>("api/producto");
@@ -284,7 +325,6 @@
             Productos = response.Response;
         }
     }
-
     public async Task GetTransportista()
     {
         var response = await repositorio.Get<List<CodDenDTO>>("api/transportista");
@@ -360,6 +400,38 @@
         {
             loadingFiltro = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    public async Task EditOrden()
+    {
+        try
+        {
+            if (ordenesSeleccionada.Count == 0)
+            {
+                await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
+            }
+            else
+            {
+
+                var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+
+                if (responseHttp.Error)
+                {
+                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    grid?.Reload();
+                    await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
+                    await MostrarOrdenFecha();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 }

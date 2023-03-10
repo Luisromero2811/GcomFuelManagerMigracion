@@ -220,14 +220,25 @@ else
                 }
                 else
                 {
-                    foreach (var item in ordenesPendientes)
+                    try
                     {
-                        var response = await http.Put<int>($"api/pedido/{item}/cancel", 0);
-                        if (response.Error)
+                        foreach (var item in ordenesPendientes)
                         {
-                            var message = await response.ObtenerMensajeError();
-                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            var response = await http.Delete($"api/pedido/{item}/cancel");
+                            if (response.Error)
+                            {
+                                var message = await response.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
                         }
+                        ordens = new List<OrdenEmbarque>();
+                        await js.RemoveItemLocalStorage("PEDIDO");
+                        await js.RemoveItemLocalStorage("EXPIRACIONPEDIDO");
+                    }
+                    catch (Exception e)
+                    {
+                        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                        throw e;
                     }
                 }
             }

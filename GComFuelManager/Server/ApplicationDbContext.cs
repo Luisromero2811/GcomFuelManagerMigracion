@@ -58,6 +58,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.Codcte);
+            //Estado
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x=>x.Estado)
+                .WithMany()
+                .HasForeignKey(x=>x.Codest);
         }
 
 
