@@ -88,7 +88,6 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-                throw e;
             }
         }
 
@@ -101,6 +100,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
+                    .Include(x=>x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x=>x.Cliente)
                     .Include(x=>x.Estado)
@@ -108,6 +108,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
+                    .ThenInclude(x=>x.Transportista)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -245,6 +246,26 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e);
+            }
+        }
+
+        [HttpPost("check/chofer")]
+        public async Task<ActionResult> PostConfirmChofer([FromBody] CheckChofer checkChofer)
+        {
+            try
+            {
+                var chofer = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Codton == checkChofer.Tonel
+                && x.Codchf == checkChofer.Chofer && x.CompartmentId == checkChofer.Compartimento && x.Fchcar == checkChofer.FechaCarga
+                && x.Bolguidid == null);
+                if (chofer == null)
+                {
+                    return Ok(0);
+                }
+                return Ok(chofer.Cod);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 

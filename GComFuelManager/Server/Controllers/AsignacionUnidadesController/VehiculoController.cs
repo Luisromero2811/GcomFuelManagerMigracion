@@ -15,15 +15,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 		{
             this.context = context;
         }
-        [HttpGet("{chofer:int}")]
-        public async Task<ActionResult> Get(int chofer)
+        [HttpGet("{transportista:int}")]
+        public async Task<ActionResult> Get(int transportista)
         {
             try
             {
                 var vehiculos = await context.Tonel
-                    .Where(x => Convert.ToInt32(x.Carid) == chofer)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den =  $"{x.Tracto} {x.Placatracto} {x.Placa} {x.Capcom!} {x.Capcom2!} {x.Capcom3!} {x.Capcom4!} {x.Codsyn!}" })
-                    .OrderBy(x=>x.Cod)
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
+                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den =  $"{x.Tracto} {x.Placatracto} {x.Placa} {x.Capcom!} {x.Capcom2!} {x.Capcom3!} {x.Capcom4!} {x.Codsyn!}" })
+                    .OrderBy(x=>x.Placa)
                     .ToListAsync();
                     return Ok(vehiculos);
             }
