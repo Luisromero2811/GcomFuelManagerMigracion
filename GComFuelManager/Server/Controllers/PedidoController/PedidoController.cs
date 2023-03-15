@@ -40,7 +40,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        //Realización de pedido
         [HttpPost("list")]
         public async Task<ActionResult> PostList(List<int> list)
         {
@@ -66,7 +66,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        //Borrar pedido
         [HttpDelete("{cod:int}/cancel")]
         public async Task<ActionResult> PutCancel([FromRoute]int cod)
         {
@@ -139,6 +139,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
+                    .Include(x => x.Estado)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -147,14 +148,16 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 2)
                 {
                     //Traerme al transportista activo en 1 y codest = 26
-                    var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
+                    var pedidosDate = await context.Orden
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Tad)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Chofer)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
-                    .OrderBy(x => x.Fchpet)
+                    .ThenInclude(x => x.Transportista)
+                    .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
@@ -162,14 +165,16 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 3)
                 {
                     //Traerme al transportista activo en 1
-                    var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
+                    var pedidosDate = await context.Orden
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 26)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
-                    .OrderBy(x => x.Fchpet)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Chofer)
+                    .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
                     return Ok(pedidosDate);
@@ -218,7 +223,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        //Confirmar pedido
         [HttpPost("confirm")]
         public async Task<ActionResult<OrdenCompra>> PostConfirm(List<OrdenEmbarque> orden)
         {

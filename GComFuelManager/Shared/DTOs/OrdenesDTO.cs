@@ -8,15 +8,20 @@ namespace GComFuelManager.Shared.DTOs
 {
 	public class OrdenesDTO
 	{
-		public int? Referencia { get; set; }
-        public DateTime? FechaPrograma { get; set; } = DateTime.MinValue;
-        public int? EstatusOrden { get; set; }
-		public DateTime? FechaCarga { get; set; } = DateTime.MinValue;
-        public string Bol { get; set; } = string.Empty;
+        public string? Referencia { get; set; } = string.Empty;
+        public string? FechaPrograma { get; set; } = string.Empty;
+        public string EstatusOrden { get; set; } = string.Empty;
+		public string? FechaCarga { get; set; } = string.Empty;
+        public Int64? Bol { get; set; } 
         public string DeliveryRack { get; set; } = string.Empty;
         public string Cliente { get; set; } = string.Empty;
         public string Destino { get; set; } = string.Empty;
-
+        public string Producto { get; set; } = string.Empty;
+        public int VolNat { get; set; }
+        public int VolCar { get; set; }
+        public string Transportista { get; set; } = string.Empty;
+        public string Unidad { get; set; } = string.Empty;
+        public string Operador { get; set; } = string.Empty;
     }
 }
 

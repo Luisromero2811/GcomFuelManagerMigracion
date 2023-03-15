@@ -68,9 +68,14 @@
                         </div>
                         <div class="col-12 d-flex justify-content-end">
                             <div class="col-6 d-flex">
+
+                                <button class="btn gcom-bg-amarillo col-12 mt-auto" >
+                                    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b></button>
+
                                 <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
                                     <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -441,18 +446,42 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-    public async Task EditOrden()
-    {
-        try
-        {
-            if (ordenesSeleccionada.Count == 0)
-            {
-                await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
-            }
-            else
-            {
+    //public async Task EditOrden()
+    //{
+    //    try
+    //    {
+    //        if (ordenesSeleccionada.Count == 0)
+    //        {
+    //            await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
+    //        }
+    //        else
+    //        {
 
-                var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+    //            var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+
+
+    //            if (responseHttp.Error)
+    //            {
+    //                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //            }
+    //            else
+    //            {
+    //                grid?.Reload();
+    //                await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
+    //                await MostrarOrdenFecha();
+    //            }
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //        throw e;
+    //    }
+    //}
+}
+<!--Grupo, cliente y estacion-->
+<!--Transportista, chofer y vehiculo--
 
                 if (responseHttp.Error)
                 {
@@ -473,6 +502,7 @@
             throw e;
         }
     }
+
 
     public async Task AsignarUnidad()
     {
