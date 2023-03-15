@@ -1,5 +1,5 @@
 ﻿@page "/asignacion/unidades"
-
+@inject IJSRuntime js
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 
@@ -175,7 +175,7 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="row">
+                        <div class="row d-flex justify-content-end">
                             <div class="col-8 row">
                                 @if (Vehiculos != null)
                                 {
@@ -196,7 +196,24 @@
                                 }
                             </div>
                             <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Asignar</b></button>
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-truck-front"></i> <b>Asignar</b></button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="col-12 my-3">
+                        <div class="row">
+                            <div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a Syntesis</b></button>
                             </div>
                         </div>
                     </div>
@@ -208,20 +225,20 @@
 
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12" Style="width:1000px;height:500px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true">
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         @*<EmptyTemplate>
         <NoHayRegistros></NoHayRegistros>
         </EmptyTemplate>*@
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Referencia" Property="OrdenEmbarque.Folio" Width="200px" Frozen="true" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="OrdenEmbarque.Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="OrdenEmpleado.Destino.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Property="OrdenEmbarque.Vol" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Referencia" Property="Folio" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Property="Vol" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
@@ -229,7 +246,7 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="Compartment" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
@@ -237,18 +254,30 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Width="200px" MinWidth="200px" />
         </Columns>
     </RadzenDataGrid>
 </div>
+
+<style type="text/css" media="screen and (min-width:1200px)">
+    .ancho {
+        width: 1000px;
+    }
+</style>
+
+<style type="text/css" media="screen and (min-width:1400px)">
+    .ancho {
+        width: 1500px;
+    }
+</style>
 
 @code {
     //grid
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private IEnumerable<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    private ICollection<OrdenEmbarque> ordenes { get; set; } = null!;
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
 
     //Listas
@@ -392,7 +421,7 @@
             ordenes = null!;
             StateHasChanged();
 
-            var responseHttp = await repositorio.Post<FechasF, IEnumerable<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
+            var responseHttp = await repositorio.Post<FechasF, ICollection<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
 
             if (responseHttp.Error)
             {
@@ -460,10 +489,10 @@
                         Chofer = ChoferSeleccionado,
                         Tonel = VehiculoSeleccionado,
                         Compartimento =
-                                      (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
-                                        : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
-                                                : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
-                                                : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                                                          (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
+                                                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
+                                                                    : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
+                                                                    : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
                     };
@@ -476,25 +505,44 @@
                 }
                 else
                 {
-                    if (responseHttp.Response != 0)
+                    if (responseHttp.Response == 0)
                     {
                         ordenesSeleccionada.FirstOrDefault().Codchf = checkChofer.Chofer;
                         ordenesSeleccionada.FirstOrDefault().Codton = checkChofer.Tonel;
                         ordenesSeleccionada.FirstOrDefault().Compartment = CompartimentoSeleccionado;
                         ordenesSeleccionada.FirstOrDefault().CompartmentId = checkChofer.Compartimento;
 
-                        var response = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+                        await UpdateOrden();
+                    }
+                    else
+                    {
+                        var confirm = await swal.FireAsync(new SweetAlertOptions
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
-                        if (response.Error)
+                        if (!string.IsNullOrEmpty(confirm.Value))
                         {
-                            var message = await response.ObtenerMensajeError();
-                            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                        }
-                        else
-                        {
-                            grid?.Reload();
-                            await swal.FireAsync("Exito", "Se le ha asignado la unidad", SweetAlertIcon.Success);
-                            await MostrarOrdenFecha();
+                            var response = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
+
+                            if (response.Error)
+                            {
+                                var message = await response.ObtenerMensajeError();
+                                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                ordenesSeleccionada.FirstOrDefault().Codchf = checkChofer.Chofer;
+                                ordenesSeleccionada.FirstOrDefault().Codton = checkChofer.Tonel;
+                                ordenesSeleccionada.FirstOrDefault().Compartment = CompartimentoSeleccionado;
+                                ordenesSeleccionada.FirstOrDefault().CompartmentId = checkChofer.Compartimento;
+
+                                await UpdateOrden();
+                            }
                         }
                     }
                 }
@@ -506,11 +554,54 @@
             throw e;
         }
     }
-}
-<!--Grupo, cliente y estacion-->
-<!--Transportista, chofer y vehiculo--
 
+    private async Task UpdateOrden()
+    {
+        var response = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            grid?.Reload();
+            await MostrarOrdenFecha();
+        }
+    }
+
+    private async Task GenerateExcel()
+    {
+        if(ordenes != null){
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
+
+            //Formación de Excel
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+            from o in ordenes
+            select new TablaAsignacionUnidadesDTO()
+                {
+                    OrdenCompra = o.OrdenCompra.den,
+                    Referencia = o.Folio.ToString(),
+                    Cliente = o.Destino.Cliente.Den,
+                    Destino = o.Destino.Den,
+                    Producto = o.Producto.Den,
+                    Volumen = o.Vol,
+                    FechaCarga = o.Fchcar.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o.Tonel.Transportista.den,
+                    Unidad = o.Tonel.Veh,
+                    Compartimento = o.Compartment,
+                    Operador = o.Chofer.Den,
+                    Bin = o.Bin,
+                    Status = o.Estado.den
+                }, true);
+            //Guardado de Excel
+            await js.GuardarComo($"AsignacionUnidades_{fechas.DateInicio}_{fechas.DateFin}.xlsx", excel.GetAsByteArray());
+        }
+        else
+        {
+            await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
+        }
+    }
 }
-<!--Grupo, cliente y estacion-->
-<!--Transportista, chofer y vehiculo-->
-<!--cod, den , activo-->

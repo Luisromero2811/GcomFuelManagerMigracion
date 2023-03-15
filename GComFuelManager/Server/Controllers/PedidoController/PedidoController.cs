@@ -99,7 +99,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.CodordCom != null)
                     .Include(x=>x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x=>x.Cliente)
@@ -235,6 +235,7 @@ namespace GComFuelManager.Server.Controllers
                     x.Tad = null!;
                     x.Chofer = null!;
                     x.Tonel = null!;
+                    x.Producto = null;
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;
@@ -262,6 +263,32 @@ namespace GComFuelManager.Server.Controllers
                     return Ok(0);
                 }
                 return Ok(chofer.Cod);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("desasignar/{code:int}")]
+        public async Task<ActionResult> PutAsignacion(int code)
+        {
+            try
+            {
+                var orden = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == code);
+                
+                orden.Chofer = null;
+                orden.Tonel = null;
+
+                orden.Codchf = null;
+                orden.Codton = null;
+                orden.Compartment = null;
+                orden.CompartmentId = null;
+
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {

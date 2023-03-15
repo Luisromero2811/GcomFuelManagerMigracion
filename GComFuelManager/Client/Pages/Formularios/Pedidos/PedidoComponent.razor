@@ -61,10 +61,10 @@ else
                         <td>@item.Fchcar?.ToString("dd/MM/yyyy")</td>
                         <td>
                             <div class="col-12 row">
-                                <div class="col">
+                                <div class="col-6">
                                     <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
                                 </div>
-                                <div class="col">
+                                <div class="col-6">
                                     <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                 </div>
                             </div>
@@ -419,7 +419,7 @@ else
         loadingConfirm = true;
         try
         {
-            if (ordens.Count < 8)
+            if (ordens.Count <= 8)
             {
                 var response = await http.Post<List<OrdenEmbarque>, OrdenCompra>("api/pedido/confirm", ordens);
                 if (response.Error)
