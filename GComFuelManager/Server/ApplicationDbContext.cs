@@ -72,9 +72,7 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x=>x.Codest);
 
             //Relaciones Tabla orden
-            //Orden-Estado
-            //Conversion  modelBuilder.Entity<Orden>().Property(x => x.Codest).HasConversion(v => ((byte?)v), v => ((sbyte?)v)); 
-            modelBuilder.Entity<Orden>().Property(x => x.Codest).HasConversion<byte>(); 
+            //Orden-Estado 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Estado)
                 .WithMany()
@@ -85,7 +83,6 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.Coddes);
             //Orden-Producto
-            modelBuilder.Entity<Orden>().Property(x => x.Codprd).HasConversion<byte>();
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Producto)
                 .WithMany()

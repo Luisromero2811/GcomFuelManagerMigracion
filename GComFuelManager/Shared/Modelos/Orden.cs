@@ -20,16 +20,16 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("coddes")]
         public int? Coddes { get; set; } = 0;
         //
-        [JsonProperty("codprd"), Column(TypeName = "tinyint")]
-        public int? Codprd { get; set; } = Convert.ToByte(0); //PK
+        [JsonProperty("codprd")]
+        public byte? Codprd { get; set; } = 0; //PK
 
         [JsonProperty("vol")]
-        public float? Vol { get; set; } = float.NaN;
+        public double? Vol { get; set; } = float.NaN;
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
         //Prueba
-        [JsonProperty("codest"), Column(TypeName = "tinyint")]
-        public Int16? Codest { get; set; } = Convert.ToByte(0); //PK
+        [JsonProperty("codest")]
+        public byte? Codest { get; set; } = 0; //PK
 
         [JsonProperty("coduni")]
         public int? Coduni { get; set; } = 0;
@@ -44,7 +44,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("dendes"), MaxLength(256)]
         public string? Dendes { get; set; } = string.Empty;
         [JsonProperty("vol2")]
-        public float? Vol2 { get; set; } = float.NaN;
+        public double? Vol2 { get; set; } = float.NaN;
         [JsonProperty("batchId")]
         public Int64? BatchId { get; set; }
         [JsonProperty("CompartmentId")]
