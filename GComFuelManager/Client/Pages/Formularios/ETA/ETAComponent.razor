@@ -1,4 +1,12 @@
 ﻿@page "/ETA"
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject IJSRuntime JS
+@inject HttpClient Http
+@using System.IO;
+@using System.Text.Json;
+@using GComFuelManager.Client.Helpers;
+
 <h4><b>ETA</b></h4>
 <div class="col-12 card shadow">
     <div class="card-body">
@@ -107,7 +115,7 @@
             </div>
             <div class="row justify-content-end me-3">
                 <div class="col-3 mt-3 mb-3">
-                    <button class="btn gcom-bg-amarillo col-12"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Guardar</b></button>
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Guardar</b></button>
                 </div>
             </div>
         </EditForm>
@@ -120,5 +128,37 @@
     private Usuario usuario { get; set; } = new Usuario();
     private string nmbr = string.Empty;
     public DateTime Date { get; set; }
+
+    OrdenesDTO ordenes = new OrdenesDTO();
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"api/pedido/filtrar", ordenes);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                //
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                    from o in ordens
+                    select new {}, true);
+                //Guardar Excell
+                await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
 }
 
