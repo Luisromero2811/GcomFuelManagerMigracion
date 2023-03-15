@@ -68,14 +68,9 @@
                         </div>
                         <div class="col-12 d-flex justify-content-end">
                             <div class="col-6 d-flex">
-
-                                <button class="btn gcom-bg-amarillo col-12 mt-auto" >
-                                    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b></button>
-
                                 <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
                                     <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
                                 </button>
-
                             </div>
                         </div>
                     </div>
@@ -446,42 +441,19 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-    //public async Task EditOrden()
-    //{
-    //    try
-    //    {
-    //        if (ordenesSeleccionada.Count == 0)
-    //        {
-    //            await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
-    //        }
-    //        else
-    //        {
+    public async Task EditOrden()
+    {
+        try
+        {
+            if (ordenesSeleccionada.Count == 0)
+            {
+                await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
+            }
+            else
+            {
 
-    //            var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+                var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
 
-
-    //            if (responseHttp.Error)
-    //            {
-    //                var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //            }
-    //            else
-    //            {
-    //                grid?.Reload();
-    //                await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
-    //                await MostrarOrdenFecha();
-    //            }
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //        throw e;
-    //    }
-    //}
-}
-<!--Grupo, cliente y estacion-->
-<!--Transportista, chofer y vehiculo--
 
                 if (responseHttp.Error)
                 {
@@ -503,7 +475,6 @@
         }
     }
 
-
     public async Task AsignarUnidad()
     {
         try
@@ -519,10 +490,10 @@
                         Chofer = ChoferSeleccionado,
                         Tonel = VehiculoSeleccionado,
                         Compartimento =
-                                                          (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
-                                                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
-                                                                    : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
-                                                                    : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                                (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
+                                    : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
+                                        : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
+                                            : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
                     };
@@ -557,7 +528,8 @@
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
-                            var response = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
+                            var response = await repositorio.Put<OrdenEmbarque>
+                                ($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
 
                             if (response.Error)
                             {
@@ -587,7 +559,8 @@
 
     private async Task UpdateOrden()
     {
-        var response = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+        var response = await repositorio.Put<OrdenEmbarque>
+            ($"api/pedido", ordenesSeleccionada.FirstOrDefault());
 
         if (response.Error)
         {
@@ -603,7 +576,9 @@
 
     private async Task GenerateExcel()
     {
-        if(ordenes != null){
+        if (ordenes != null)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var excel = new ExcelPackage();
             var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
 
@@ -612,26 +587,27 @@
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
                 {
-                    OrdenCompra = o.OrdenCompra.den,
-                    Referencia = o.Folio.ToString(),
-                    Cliente = o.Destino.Cliente.Den,
-                    Destino = o.Destino.Den,
-                    Producto = o.Producto.Den,
-                    Volumen = o.Vol,
-                    FechaCarga = o.Fchcar.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o.Tonel.Transportista.den,
-                    Unidad = o.Tonel.Veh,
-                    Compartimento = o.Compartment,
-                    Operador = o.Chofer.Den,
-                    Bin = o.Bin,
-                    Status = o.Estado.den
+                    OrdenCompra = o?.OrdenCompra?.den,
+                    Referencia = o?.Folio.ToString(),
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    Volumen = o?.Vol,
+                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o?.Tonel?.Transportista?.den,
+                    Unidad = o?.Tonel?.Veh,
+                    Compartimento = o?.Compartment,
+                    Operador = o?.Chofer?.Den,
+                    Bin = o?.Bin,
+                    Status = o?.Estado?.den
                 }, true);
             //Guardado de Excel
-            await js.GuardarComo($"AsignacionUnidades_{fechas.DateInicio}_{fechas.DateFin}.xlsx", excel.GetAsByteArray());
+            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
         }
         else
         {
             await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
         }
     }
+}
 }
