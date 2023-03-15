@@ -12,48 +12,62 @@ namespace GComFuelManager.Shared.Modelos
     public class Tonel
     {
         [JsonProperty("cod"), Key] public int Cod { get; set; }
-        [JsonProperty("placa"), MaxLength(30)] public string Placa { get; set; } = string.Empty;
+        [JsonProperty("placa"), MaxLength(30)] public string? Placa { get; set; } = string.Empty;
 
-        [JsonProperty("codsyn")] public int Codsyn { get; set; } = 0;
+        [JsonProperty("codsyn")] public int? Codsyn { get; set; } = 0;
 
-        [JsonProperty("carid"), MaxLength(15)] public string Carid { get; set; } = string.Empty;
+        [JsonProperty("carid"), MaxLength(15)] public string? Carid { get; set; } = string.Empty;
 
-        [JsonProperty("nrocom")] public int Nrocom { get; set; } = 0;
+        [JsonProperty("nrocom")] public int? Nrocom { get; set; } = 0;
 
-        [JsonProperty("idcom")] public int Idcom { get; set; } = 0;
-        [JsonProperty("capcom")] public decimal Capcom { get; set; } = decimal.Zero;
+        [JsonProperty("idcom")] public int? Idcom { get; set; } = 0;
+        [JsonProperty("capcom")] public decimal? Capcom { get; set; } = decimal.Zero;
 
-        [JsonProperty("nrocom2")] public int Nrocom2 { get; set; } = 0;
+        [JsonProperty("nrocom2")] public int? Nrocom2 { get; set; } = 0;
 
-        [JsonProperty("idcom2")] public int Idcom2 { get; set; } = 0;
+        [JsonProperty("idcom2")] public int? Idcom2 { get; set; } = 0;
 
         [JsonProperty("capcom2")] public decimal? Capcom2 { get; set; } = decimal.Zero;
 
-        [JsonProperty("nrocom3")] public int Nrocom3 { get; set; } = 0;
+        [JsonProperty("nrocom3")] public int? Nrocom3 { get; set; } = 0;
 
-        [JsonProperty("idcom3")] public int Idcom3 { get; set; } = 0;
+        [JsonProperty("idcom3")] public int? Idcom3 { get; set; } = 0;
 
         [JsonProperty("capcom3")] public decimal? Capcom3 { get; set; } = decimal.Zero;
 
-        [JsonProperty("tracto"), MaxLength(20)] public string Tracto { get; set; } = string.Empty;
+        [JsonProperty("tracto"), MaxLength(20)] public string? Tracto { get; set; } = string.Empty;
 
-        [JsonProperty("placatracto"), MaxLength(20)] public string Placatracto { get; set; } = string.Empty;
+        [JsonProperty("placatracto"), MaxLength(20)] public string? Placatracto { get; set; } = string.Empty;
 
-        [JsonProperty("activo")] public bool Activo { get; set; } = true;
+        [JsonProperty("activo")] public bool? Activo { get; set; } = true;
 
-        [JsonProperty("gps")] public bool Gps { get; set; } = false;
+        [JsonProperty("gps")] public bool? Gps { get; set; } = false;
 
-        [JsonProperty("nrocom4")] public int Nrocom4 { get; set; } = 0;
+        [JsonProperty("nrocom4")] public int? Nrocom4 { get; set; } = 0;
 
-        [JsonProperty("idcom4")] public int Idcom4 { get; set; } = 0;
+        [JsonProperty("idcom4")] public int? Idcom4 { get; set; } = 0;
 
         [JsonProperty("capcom4")] public int? Capcom4 { get; set; } = 0;
 
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
-        public Transportista Transportista { get; set; } = null!;
+        public Transportista? Transportista { get; set; } = null!;
 
         public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
 
         public string Veh { get { return $"{Tracto} {Placa}"; } }
+
+        public int CapDisponible { get
+            {
+                int c = 0;
+                if (Capcom != null)
+                    c++;
+                if (Capcom2 != null)
+                    c++;
+                if (Capcom3 != null)
+                    c++;
+                if(Capcom4 != null)
+                    c++;
+                return c;
+            } }
     }
 }

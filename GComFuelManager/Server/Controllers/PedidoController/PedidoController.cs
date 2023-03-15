@@ -88,7 +88,6 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-                throw e;
             }
         }
 
@@ -100,7 +99,8 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin)
+                    .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.CodordCom != null)
+                    .Include(x=>x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x=>x.Cliente)
                     .Include(x=>x.Estado)
@@ -108,6 +108,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
+                    .ThenInclude(x=>x.Transportista)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -237,6 +238,7 @@ namespace GComFuelManager.Server.Controllers
                     x.Tad = null!;
                     x.Chofer = null!;
                     x.Tonel = null!;
+                    x.Producto = null;
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;
@@ -248,6 +250,52 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e);
+            }
+        }
+
+        [HttpPost("check/chofer")]
+        public async Task<ActionResult> PostConfirmChofer([FromBody] CheckChofer checkChofer)
+        {
+            try
+            {
+                var chofer = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Codton == checkChofer.Tonel
+                && x.Codchf == checkChofer.Chofer && x.CompartmentId == checkChofer.Compartimento && x.Fchcar == checkChofer.FechaCarga
+                && x.Bolguidid == null);
+                if (chofer == null)
+                {
+                    return Ok(0);
+                }
+                return Ok(chofer.Cod);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("desasignar/{code:int}")]
+        public async Task<ActionResult> PutAsignacion(int code)
+        {
+            try
+            {
+                var orden = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == code);
+                
+                orden.Chofer = null;
+                orden.Tonel = null;
+
+                orden.Codchf = null;
+                orden.Codton = null;
+                orden.Compartment = null;
+                orden.CompartmentId = null;
+
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
 
