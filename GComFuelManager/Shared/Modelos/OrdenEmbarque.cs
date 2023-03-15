@@ -43,5 +43,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public Usuario? Usuario { get; set; } = null!;
 
+        [NotMapped] public Orden? Orden { get; set; } = null!;
+
+        [NotMapped] public Transportista? Transportista { get; set; } = null!;
+
     }
 }
