@@ -27,7 +27,7 @@ namespace GComFuelManager.Shared.Modelos
         public float? Vol { get; set; } = float.NaN;
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
-        //
+        //Prueba
         [JsonProperty("codest"), Column(TypeName = "tinyint")]
         public Int16? Codest { get; set; } = Convert.ToByte(0); //PK
 
