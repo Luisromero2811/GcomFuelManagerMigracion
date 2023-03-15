@@ -15,6 +15,8 @@ namespace GComFuelManager.Server
 
             //Configuracion de la entidad a través de Modelbuilder.Entity
             //Con esta entidad podemos aplicar la llave compartida para generar un campo de muchos a muchos
+
+            //Relaciones en su mayoria de tabla OrdenEmbarques
             //Estacion
             modelBuilder.Entity<OrdenEmbarque>()
                     .HasOne(x => x.Destino)
@@ -42,7 +44,7 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.Codton);
 
 
-            //TransportistaOrden
+            //TransportistaOrdenEmbarque
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Chofer)
                 .WithMany()
@@ -68,6 +70,40 @@ namespace GComFuelManager.Server
                 .HasOne(x=>x.Estado)
                 .WithMany()
                 .HasForeignKey(x=>x.Codest);
+
+            //Relaciones Tabla orden
+            //Orden-Estado
+            //Conversion  modelBuilder.Entity<Orden>().Property(x => x.Codest).HasConversion(v => ((byte?)v), v => ((sbyte?)v)); 
+            modelBuilder.Entity<Orden>().Property(x => x.Codest).HasConversion<byte>(); 
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Estado)
+                .WithMany()
+                .HasForeignKey(x => x.Codest);
+            //Orden-Estacion(Destino)
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.Coddes);
+            //Orden-Producto
+            modelBuilder.Entity<Orden>().Property(x => x.Codprd).HasConversion<byte>();
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.Codprd);
+            //Orden-Tonel
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Tonel)
+                .WithMany()
+                .HasForeignKey(x => x.Coduni);
+            //Orden-Chofer
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Chofer)
+                .WithMany()
+                .HasForeignKey(x => x.Codchf);
+            //Orden-Transportista
+
+            //Orden-Cliente
+
         }
 
 
