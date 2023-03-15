@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Destino
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("num")]
         public int? Num { get; set; } = 0;
@@ -42,5 +43,10 @@ namespace GComFuelManager.Shared.Modelos
         public string? Ciu { get; set; } = string.Empty;
         [JsonProperty("est"), MaxLength(50)]
         public string? Est { get; set; } = string.Empty;
+
+        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
+
     }
 }

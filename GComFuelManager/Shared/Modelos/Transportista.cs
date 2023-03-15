@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace GComFuelManager.Shared.Modelos
 {
 	public class Transportista
 	{
-		[JsonProperty("cod")]
+		[JsonProperty("cod"), Key]
 		public int cod { get; set; }
 
 		[JsonProperty("den"), MaxLength(256)]
@@ -25,6 +26,8 @@ namespace GComFuelManager.Shared.Modelos
 
 		[JsonProperty("gru"), MaxLength(32)]
 		public string? gru { get; set; } = string.Empty;
+
+		
 
 	}
 }

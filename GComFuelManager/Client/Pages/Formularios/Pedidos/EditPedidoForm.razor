@@ -1,0 +1,135 @@
+﻿<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="ordenEmbarque" class="form-check col-12">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="col-12 row">
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Terminal</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Codtad" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Terminales is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Terminales.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Terminales)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Producto</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Codprd" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Productos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Productos.Count == 0)
+                            {
+                                <option disabled> No hay productos</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Productos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Cantidad</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Vol" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Cantidades is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Cantidades.Count == 0)
+                            {
+                                <option disabled> No hay capacidades</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Cantidades)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Estacion</label>
+                        @ordenEmbarque.Coddes
+                        <RadzenDropDown @bind-Value="ordenEmbarque.Coddes" Data="Estacion" ValueProperty="Cod" TextProperty="Den"
+                                        AllowVirtualization="true" AllowFiltering="true" 
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Fecha de carga en terminal</label>
+                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.Fchcar"></InputDate>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Precio</label>
+                        <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.Pre"></InputNumber>
+                    </div>
+                </div>
+                <div class="col-12 d-flex justify-content-center mt-2">
+                    <div class="col-6 row">
+                        <div class="col-6">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                                <i class="fa fa-solid fa-floppy-disk"></i>
+                                <b>Guardar Cambio</b>
+                                @if (loadingAgregar)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@CancelPedido">
+                                <i class="fa fa-solid fa-xmark"></i>
+                                <b>Cancelar</b>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    [Parameter] public EventCallback SavePedido { get; set; }
+    [Parameter] public EventCallback CancelPedido { get; set; }
+    [Parameter] public List<CodDenDTO> Terminales { get; set; } = new List<CodDenDTO>();
+    [Parameter] public List<int> Cantidades { get; set; } = new List<int>();
+    [Parameter] public List<CodDenDTO> Productos { get; set; } = new List<CodDenDTO>();
+    [Parameter] public IEnumerable<CodDenDTO> Estacion { get; set; } = new List<CodDenDTO>();
+
+    bool loadingAgregar = false;
+
+}

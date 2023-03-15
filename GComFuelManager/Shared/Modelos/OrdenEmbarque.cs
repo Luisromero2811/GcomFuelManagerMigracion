@@ -1,35 +1,51 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.Modelos
 {
     public class OrdenEmbarque
     {
-        [JsonProperty("cod")] public int Cod { get; set; }
+        [JsonProperty("cod"), Key] public int Cod { get; set; }
         [JsonProperty("fchOrd")] public DateTime? FchOrd { get; set; }
         [JsonProperty("fchPro")] public DateTime? FchPro { get; set; }
-        [JsonProperty("codtad")] public int? Codtad { get; set; }
-        [JsonProperty("codprd")] public int? Codprd { get; set; }
-        [JsonProperty("vol")] public float? Vol { get; set; }
+        [JsonProperty("codtad"), Required(ErrorMessage = "El campo de terminal es requerido.")] public Int16? Codtad { get; set; } = 0;
+        [JsonProperty("codprd"), Required(ErrorMessage = "El campo de producto es requerido.")] public byte? Codprd { get; set; } = 0;
+        [JsonProperty("vol"), Required(ErrorMessage = "El campo de cantidad es requerido.")] public double? Vol { get; set; } = 0;
         [JsonProperty("codchf")] public int? Codchf { get; set; }
-        [JsonProperty("coddes")] public int? Coddes { get; set; }
-        [JsonProperty("codest")] public int? Codest { get; set; }
+        [JsonProperty("coddes"), Required(ErrorMessage = "El campo de estacion es requerido.")] public int? Coddes { get; set; } = 0;
+        [JsonProperty("codest")] public byte? Codest { get; set; }
         [JsonProperty("fchpet")] public DateTime? Fchpet { get; set; }
-        [JsonProperty("fchcar")] public DateTime? Fchcar { get; set; }
+        [JsonProperty("fchcar"), Required(ErrorMessage = "El campo de fecha de carga es requerido.")] public DateTime? Fchcar { get; set; } = DateTime.Today;
         [JsonProperty("codton")] public int? Codton { get; set; }
         [JsonProperty("bin")] public int? Bin { get; set; }
         [JsonProperty("codusu")] public int? Codusu { get; set; }
         [JsonProperty("folio")] public int? Folio { get; set; }
-        [JsonProperty("pre")] public float? Pre { get; set; }
+        [JsonProperty("pre"), Required(ErrorMessage = "El campo de precio es requerido.")] public double? Pre { get; set; } = 0;
         [JsonProperty("codordCom")] public int? CodordCom { get; set; }
         [JsonProperty("bolguidid")] public string? Bolguidid { get; set; }
         [JsonProperty("tp")] public bool? Tp { get; set; }
         [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
         [JsonProperty("compartment")] public int? Compartment { get; set; }
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
+
+
+        [NotMapped] public Destino? Destino { get; set; } = null!;
+        [NotMapped] public Tad? Tad { get; set; }
+        [NotMapped] public Producto? Producto { get; set; }
+        [NotMapped] public Tonel? Tonel { get; set; } = null!;
+        [NotMapped] public Chofer? Chofer { get; set; } = null!;
+
+        [NotMapped] public OrdenCompra? OrdenCompra { get; set; } = null!;
+        [NotMapped] public Estado? Estado { get; set; } = null!;
+
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped] public Usuario? Usuario { get; set; } = null!;
+
+        [NotMapped] public Orden? Orden { get; set; } = null!;
+
+        [NotMapped] public Transportista? Transportista { get; set; } = null!;
+
     }
 }

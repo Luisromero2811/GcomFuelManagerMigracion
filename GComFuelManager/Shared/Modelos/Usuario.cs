@@ -6,12 +6,12 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.ComponentModel.DataAnnotations.Schema;
 namespace GComFuelManager.Shared.Modelos
 {
     public class Usuario
     {
-        [JsonProperty("cod")]
+        [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("den"),MaxLength(64)]
         public string? Den { get; set; } = string.Empty;
@@ -29,5 +29,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Privilegio { get; set; } = string.Empty;
         [JsonProperty("activo")]
         public bool? Activo { get; set; } = true;
+
+        [NotMapped] public Cliente? Cliente { get; set; }
     }
 }

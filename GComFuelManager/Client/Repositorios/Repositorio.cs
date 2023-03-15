@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using GComFuelManager.Client.Repositorios;
 
 namespace GComFuelManager.Client.Repositorios
 {
     //Repositorio dedicado a uso de peticiones HTTP (GET, PUT, DELETE & POST)
     public class Repositorio : IRepositorio
     {
-        private readonly HttpClient httpClient;
+        public readonly HttpClient httpClient;
 
         public Repositorio(HttpClient httpClient)
         {
@@ -15,7 +17,9 @@ namespace GComFuelManager.Client.Repositorios
         }
         private JsonSerializerOptions OpcionesPorDefectoJson => new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            PropertyNamingPolicy = null
         };
         //Method Post
         //Encapsularemos el objeto para despues poderlo enviar, recibimos un string url con el objeto encapsulado y le daremos funcionalidad a partir de T
@@ -50,13 +54,13 @@ namespace GComFuelManager.Client.Repositorios
             }
             return new HttpResponseWrapper<TResponse>(default!, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
-        private async Task<T> DeserializarRespuesta<T>(HttpResponseMessage httpResponse, JsonSerializerOptions jsonSerializerOptions)
+        public async Task<T> DeserializarRespuesta<T>(HttpResponseMessage httpResponse, JsonSerializerOptions jsonSerializerOptions)
 		{
             var respuestaString = await httpResponse.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(respuestaString, jsonSerializerOptions)!;
         }
         //Method para Delete
-        private async Task<HttpResponseWrapper<object>> Delete(string url)
+        public async Task<HttpResponseWrapper<object>> Delete(string url)
         {
             //Enviamos la peticion por method Delete
             var responseHTTP = await httpClient.DeleteAsync(url);
@@ -64,7 +68,7 @@ namespace GComFuelManager.Client.Repositorios
             return new HttpResponseWrapper<object>(null!, !responseHTTP.IsSuccessStatusCode, responseHTTP);
         }
         //Method para obtencion de datos GET
-        private async Task<HttpResponseWrapper<T>> Get<T>(string url)
+        public async Task<HttpResponseWrapper<T>> Get<T>(string url)
         {
             //Variable HTTP en donde obtendremos la data
             var respuestaHTTP = await httpClient.GetAsync(url);
@@ -82,7 +86,7 @@ namespace GComFuelManager.Client.Repositorios
             }
         }
         //Method PUT
-        private async Task<HttpResponseWrapper<object>> Put<T>(string url, T enviar)
+        public async Task<HttpResponseWrapper<object>> Put<T>(string url, T enviar)
         {
             //Serializamos el objeto que se va a enviar
             var enviarJson = JsonSerializer.Serialize(enviar);

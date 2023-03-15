@@ -1,0 +1,281 @@
+﻿<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="@ordenEmbarque" class="form col-12">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="row col-12 g-3 mb-3 px-4">
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Terminal</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Codtad" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Terminales is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Terminales.Count == 0)
+                            {
+                                <option disabled> No hay terminales</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Terminales)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Grupo</label>
+                        <InputSelect @bind-Value="GrupoSeleccionado" class="form-select" onchange="@GetClientes()">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Grupos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Grupos.Count == 0)
+                            {
+                                <option disabled> No hay grupos</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Grupos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Cliente</label>
+                        <InputSelect @bind-Value="ClienteSeleccionado" class="form-select" onchange="@GetEstaciones()">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Clientes is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Clientes.Count == 0)
+                            {
+                                <option disabled> No hay clientes</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Clientes)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Estacion</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Coddes" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Estaciones is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Estaciones.Count == 0)
+                            {
+                                <option disabled> No hay estaciones</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Estaciones)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Producto</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Codprd" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Productos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Productos.Count == 0)
+                            {
+                                <option disabled> No hay productos</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Productos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Cantidad</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Vol" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Cantidades is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Cantidades.Count == 0)
+                            {
+                                <option disabled> No hay capacidades</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Cantidades)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Fecha de carga en terminal</label>
+                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.Fchcar"></InputDate>
+                    </div>
+                </div>
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Precio</label>
+                        <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.Pre"></InputNumber>
+                    </div>
+                </div>
+                @*<div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Temperatura</label>
+                        <input class="form-control col-12 disabled" disabled />
+                    </div>
+                </div>
+                <div class="col-3 mb-1">
+                    <div class="col-12">
+                        <label>Condiciones de pago</label>
+                        <input class="form-control col-12 disabled" disabled />
+                    </div>
+                </div>*@
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-2">
+                <div class="col-6 row">
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                            <i class="fa fa-solid fa-plus"></i>
+                            <b>Agregar</b>
+                            @if (loadingAgregar)
+                            {
+                                <SpinnerLoading></SpinnerLoading>
+                            }
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ConfirmPedido">
+                            <i class="fa fa-solid fa-check"></i>
+                            <b>Confirmar Pedido</b>
+                            @if (loadingConfirm)
+                            {
+                                <SpinnerLoading></SpinnerLoading>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    //parametros
+    [Parameter] public EventCallback SavePedido { get; set; }
+    [Parameter] public EventCallback ConfirmPedido { get; set; }
+    [Parameter] public OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    [Parameter] public SweetAlertService Swal { get; set; } = null!;
+    [Parameter] public IRepositorio http { get; set; } = null!;
+
+    //Seleccionables
+    private int GrupoSeleccionado;
+    private int GrupoSeleccionadoB;
+    private int ClienteSeleccionado;
+    private int ClienteSeleccionadoB;
+
+    //listas
+    [Parameter] public List<CodDenDTO> Terminales { get; set; } = null!;
+    [Parameter] public List<CodDenDTO> Grupos { get; set; } = null!;
+    [Parameter] public List<CodDenDTO> Productos { get; set; } = null!;
+    [Parameter] public List<int> Cantidades { get; set; } = null!;
+    private List<CodDenDTO> Clientes { get; set; } = null!;
+    private List<CodDenDTO> Estaciones { get; set; } = null!;
+
+    //loadings
+    bool loadingAgregar = false;
+    bool loadingConfirm = false;
+
+    public async Task GetEstaciones()
+    {
+        try
+        {
+            if (ClienteSeleccionado != 0 && ClienteSeleccionado != ClienteSeleccionadoB)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ClienteSeleccionado}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Estaciones = response.Response;
+                    StateHasChanged();
+                    ClienteSeleccionadoB = ClienteSeleccionado;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (GrupoSeleccionado != 0 && GrupoSeleccionado != GrupoSeleccionadoB)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionado}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoB = GrupoSeleccionado;
+                    Console.WriteLine(GrupoSeleccionado);
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+}

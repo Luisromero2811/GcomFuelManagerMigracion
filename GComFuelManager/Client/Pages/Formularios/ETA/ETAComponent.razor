@@ -1,0 +1,164 @@
+﻿@page "/ETA"
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject IJSRuntime JS
+@inject HttpClient Http
+@using System.IO;
+@using System.Text.Json;
+@using GComFuelManager.Client.Helpers;
+
+<h4><b>ETA</b></h4>
+<div class="col-12 card shadow">
+    <div class="card-body">
+        <EditForm Model="ordenEmbarque" class="row">
+            <div class="row">
+                <div class="col-6">
+                    <label>Nombre Bol:</label>
+                    <InputText class="form-control" @bind-Value="nmbr" />
+                </div>
+            </div>
+            <div class="row d-flex g-3">
+                <div class="row">
+                    <div class="col-4">
+                        <label>Fecha documentación:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>HH:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>MM:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>ETA:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label></label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex g-3">
+                <div class="row">
+                    <div class="col-4">
+                        <label>Fecha de llegada estimada:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Localizacion:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Equipo:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-flex g-3">
+                <div class="row">
+                    <div class="col-4">
+                        <label>En trayecto:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-4">
+                        <label>Fecha real de llegada a destino:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>HH:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-2">
+                        <label>MM:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label>Cantidad de litros entregados:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label>Observaciones</label>
+                        <InputTextArea class="form-control" @bind-Value="nmbr"></InputTextArea>
+                    </div>
+                </div>
+                <div class="row justify-content-end">
+                    <div class="col-3 mt-3 mb-3">
+                        <button class="btn gcom-bg-amarillo col-12"><b>Guardar</b></button>
+                    </div>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+<!--Segundo formulario-->
+<div class="col-12 card shadow mt-3 mb-5">
+    <div class="card-body">
+        <EditForm Model="ordenEmbarque">
+            <div class="row g3 d-flex">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label>Reporte:</label>
+                        <InputDate class="form-control" @bind-Value="Date" />
+                    </div>
+                    <div class="col-md-6">
+                        <label></label>
+                        <InputDate class="form-control" @bind-Value="Date" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-end me-3">
+                <div class="col-3 mt-3 mb-3">
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Guardar</b></button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+@code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+
+    private Usuario usuario { get; set; } = new Usuario();
+    private string nmbr = string.Empty;
+    public DateTime Date { get; set; }
+
+    OrdenesDTO ordenes = new OrdenesDTO();
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"api/pedido/filtrar", ordenes);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                //
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                    from o in ordens
+                    select new {}, true);
+                //Guardar Excell
+                await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+
+        }
+    }
+
+}
+
