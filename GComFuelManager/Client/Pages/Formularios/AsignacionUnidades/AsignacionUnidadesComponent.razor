@@ -574,6 +574,7 @@
     private async Task GenerateExcel()
     {
         if(ordenes != null){
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var excel = new ExcelPackage();
             var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
 
@@ -582,22 +583,22 @@
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
                 {
-                    OrdenCompra = o.OrdenCompra.den,
-                    Referencia = o.Folio.ToString(),
-                    Cliente = o.Destino.Cliente.Den,
-                    Destino = o.Destino.Den,
-                    Producto = o.Producto.Den,
-                    Volumen = o.Vol,
-                    FechaCarga = o.Fchcar.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o.Tonel.Transportista.den,
-                    Unidad = o.Tonel.Veh,
-                    Compartimento = o.Compartment,
-                    Operador = o.Chofer.Den,
-                    Bin = o.Bin,
-                    Status = o.Estado.den
+                    OrdenCompra = o?.OrdenCompra?.den,
+                    Referencia = o?.Folio.ToString(),
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    Volumen = o?.Vol,
+                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o?.Tonel?.Transportista?.den,
+                    Unidad = o?.Tonel?.Veh,
+                    Compartimento = o?.Compartment,
+                    Operador = o?.Chofer?.Den,
+                    Bin = o?.Bin,
+                    Status = o?.Estado?.den
                 }, true);
             //Guardado de Excel
-            await js.GuardarComo($"AsignacionUnidades_{fechas.DateInicio}_{fechas.DateFin}.xlsx", excel.GetAsByteArray());
+            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
         }
         else
         {
