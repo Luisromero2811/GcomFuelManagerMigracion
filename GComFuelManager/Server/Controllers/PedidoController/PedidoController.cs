@@ -141,6 +141,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    //.Select(x => new OrdenesDTO() { Referencia = x.Folio }) 
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -150,7 +151,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al transportista activo en 1 y codest = 26
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 20)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -168,6 +169,22 @@ namespace GComFuelManager.Server.Controllers
                     //Traerme al transportista activo en 1
                     var pedidosDate = await context.Orden
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 26)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Chofer)
+                    .OrderBy(x => x.Fchcar)
+                    .Take(10000)
+                    .ToListAsync();
+                    return Ok(pedidosDate);
+                }
+                else if (fechas.Estado == 4)
+                {
+                    var pedidosDate = await context.Orden
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 36)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)
