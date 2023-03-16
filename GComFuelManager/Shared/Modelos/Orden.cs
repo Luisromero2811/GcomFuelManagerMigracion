@@ -14,7 +14,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cod"), Key]
         public Int64? Cod { get; set; }
         [JsonProperty("fch")]
-        public DateTime? Fch { get; set; } = DateTime.MinValue;
+        public DateTime? Fch { get; set; } = null!;
         [JsonProperty("ref"), MaxLength(32)]
         public string? Ref { get; set; } = string.Empty;
         [JsonProperty("coddes")]
