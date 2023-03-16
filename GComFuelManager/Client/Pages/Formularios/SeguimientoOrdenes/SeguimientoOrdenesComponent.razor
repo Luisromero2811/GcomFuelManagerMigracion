@@ -109,12 +109,12 @@
                             <button class="btn gcom-bg-amarillo col-12 mt-3"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de despacho</b></button>
                         </div>
                         <div class="col-sm-12 col-md-6">
-                            <button class="btn gcom-bg-amarillo col-12 mt-3">
+                            <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@MostrarTraffic">
                                 <b>Tráfico</b>
-                                @if (loadingFiltro)
-                                {
-                                        <SpinnerLoading></SpinnerLoading>
-                                }
+                                @*@if (loadingFiltro)
+                                    {
+                                            <SpinnerLoading></SpinnerLoading>
+                                    }*@
                             </button>
                         </div>
                     </div>
@@ -135,11 +135,23 @@
             <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Width="100px" Frozen="true" MinWidth="100px" />
             <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fchcar" FormatString="{0:d}" Width="150px" MinWidth="150px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" MinWidth="150px" />
             <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" MinWidth="305px" />
             <RadzenDataGridColumn TItem="Orden" Title="Delivery/Rack" Property="Destino.Cliente.Tipven" Width="150px" MinWidth="150px" />
             <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
             <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.den" Width="290px" MinWidth="290px" />
+            <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
+                <Template Context="data">
+                    <div class="col-12">
+                        @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" MinWidth="290px" />
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -264,6 +276,7 @@
             }
             else
             {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
                 var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
                 //Formación de Excel
@@ -310,34 +323,37 @@
     //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
     //    }
     //}
-    //public async Task MostrarTraffic()
-    //{
-    //    try
-    //    {
-    //        loadingFiltro = true;
-    //        ordeness = null!;
-    //        StateHasChanged();
+    public async Task MostrarTraffic()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
+            int state = 0;
+            state = fechas.Estado = 4;
+            loadingFiltro = true;
+            ordeness = null!;
+            StateHasChanged();
 
-    //        var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
+            if (responseHttp.Error)
+            {
+                loadingFiltro = false;
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingFiltro = false;
+                ordeness = responseHttp.Response;
+            }
 
-    //        if (responseHttp.Error)
-    //        {
-    //            loadingFiltro = false;
-    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            loadingFiltro = false;
-    //            ordeness = responseHttp.Response;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        loadingFiltro = false;
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
+
+        }
+        catch (Exception e)
+        {
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
 }
 
