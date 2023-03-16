@@ -2,6 +2,7 @@
 @inject IJSRuntime js
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
+@inject NotificationService ns
 
 <h4><b>Asignacion de unidades</b></h4>
 
@@ -202,18 +203,18 @@
                     </div>
                     <hr />
                     <div class="col-12 my-3">
-                        <div class="row">
-                            <div class="col-3">
+                        <div class="row d-flex justify-content-end">
+                            <div class="col-4">
                                 <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
                             </div>
-                            <div class="col-3">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
+                            @*<div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
                             </div>
                             <div class="col-3">
-                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
-                            </div>
-                            <div class="col-3">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a Syntesis</b></button>
+                            <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
+                            </div>*@
+                            <div class="col-4">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
                             </div>
                         </div>
                     </div>
@@ -256,6 +257,16 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px" Sortable="false">
+                <Template Context="data">
+                    <div class="col-12">
+                        <div class="form-check form-switch m-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
+                                   @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
+                        </div>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -490,10 +501,10 @@
                         Chofer = ChoferSeleccionado,
                         Tonel = VehiculoSeleccionado,
                         Compartimento =
-                                (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
-                                    : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
-                                        : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
-                                            : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                                        (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
+                                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
+                                                : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
+                                                    : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
                     };
@@ -559,8 +570,7 @@
 
     private async Task UpdateOrden()
     {
-        var response = await repositorio.Put<OrdenEmbarque>
-            ($"api/pedido", ordenesSeleccionada.FirstOrDefault());
+        var response = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
 
         if (response.Error)
         {
@@ -609,5 +619,36 @@
             await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
         }
     }
-}
+
+    private async Task AsignarTp(int code, ChangeEventArgs tp)
+    {
+        try
+        {
+            OrdenesTP ordentp = new OrdenesTP() { Cod = code, TP = (bool)tp.Value };
+            var response = await repositorio.Put<OrdenesTP>($"api/pedido/tp", ordentp);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (ordentp.TP)
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
+                else
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada", Detail = "La orden ha sido desasignada a TP." });
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Message(NotificationMessage message)
+    {
+        ns.Notify(message);
+    }
 }

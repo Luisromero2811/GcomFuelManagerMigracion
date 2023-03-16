@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Microsoft.Identity.Client;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -68,11 +69,11 @@ namespace GComFuelManager.Server.Controllers
         }
         //Borrar pedido
         [HttpDelete("{cod:int}/cancel")]
-        public async Task<ActionResult> PutCancel([FromRoute]int cod)
+        public async Task<ActionResult> PutCancel([FromRoute] int cod)
         {
             try
             {
-                OrdenEmbarque? pedido = await context.OrdenEmbarque.FirstOrDefaultAsync(x=>x.Cod == cod);
+                OrdenEmbarque? pedido = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == cod);
 
                 if (pedido is null)
                 {
@@ -100,15 +101,15 @@ namespace GComFuelManager.Server.Controllers
             {
                 var pedidosDate = await context.OrdenEmbarque
                     .Where(x => x.Fchpet >= fechas.DateInicio && x.Fchpet <= fechas.DateFin && x.CodordCom != null)
-                    .Include(x=>x.Chofer)
+                    .Include(x => x.Chofer)
                     .Include(x => x.Destino)
-                    .ThenInclude(x=>x.Cliente)
-                    .Include(x=>x.Estado)
-                    .Include(x=>x.OrdenCompra)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
                     .Include(x => x.Tad)
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
-                    .ThenInclude(x=>x.Transportista)
+                    .ThenInclude(x => x.Transportista)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -152,8 +153,8 @@ namespace GComFuelManager.Server.Controllers
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
-                    .Include(x=>x.Estado)
-                    .Include(x=>x.Producto)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Producto)
                     .Include(x => x.Chofer)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
@@ -284,7 +285,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var orden = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == code);
-                
+
                 orden.Chofer = null;
                 orden.Tonel = null;
 
@@ -324,6 +325,25 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e);
+            }
+        }
+
+        [HttpPut("tp")]
+        public async Task<ActionResult> PutTP([FromBody] OrdenesTP ordenesTP)
+        {
+            try
+            {
+                var orden = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == ordenesTP.Cod);
+                orden.Tp = ordenesTP.TP;
+                context.Update(orden);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

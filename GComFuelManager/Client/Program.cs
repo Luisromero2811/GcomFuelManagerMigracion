@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using GComFuelManager.Client;
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client.Repositorios;
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -18,4 +19,8 @@ void ConfigureServices(IServiceCollection services)
 {
     services.AddSweetAlert2();
     services.AddScoped<IRepositorio, Repositorio>();
+    services.AddScoped<DialogService>();
+    services.AddScoped<NotificationService>();
+    services.AddScoped<TooltipService>();
+    services.AddScoped<ContextMenuService>();
 }
