@@ -109,7 +109,11 @@
                             <button class="btn gcom-bg-amarillo col-12 mt-3"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de despacho</b></button>
                         </div>
                         <div class="col-sm-12 col-md-6">
+
                             <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i>
+
+                            <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@MostrarTraffic">
+
                                 <b>Tráfico</b>
                                 @*@if (loadingFiltro)
                                     {
@@ -322,6 +326,7 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
     public async Task ExportHist()
     {
         try
@@ -367,6 +372,37 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    //public async Task ExportHist()
+    //{
+    //    try
+    //    {
+    //        var responseHttp = await repositorio.Post<OrdenesDTO, List<Orden>>($"api/pedido/filtro", ordenes);
+    //        if (responseHttp.Error)
+    //        {
+    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            // Generacion Excel 1 //
+    //            var excel = new ExcelPackage();
+    //            var worksheet = excel.Workbook.Worksheets.Add("Historial1");
+    //            //Formación de Excel
+    //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+    //            from o in ordeness
+    //                //Referencia, Fecha Programa, Estatus Orden, Fecha Carga, Bol, Cliente, Destino, Producto, Volúmen natural, Volúmen Cargado, Transportista, Unidad, Operador
+    //            select new OrdenesDTO() { Referencia = o.Folio, FechaPrograma = o.Fchcar.Value.ToString("yyyy-MM-dd"), EstatusOrden = o.Estado.den, FechaCarga = o.Fchcar.Value.ToString("yyyy-MM-dd"), Bol = o.Bolguidid, DeliveryRack = o.Destino!.Cliente!.Tipven, Cliente = o.Destino!.Cliente!.Den, Destino = o.Destino!.Den }, true);
+    //            //Guardado de Excel
+    //            await JS.GuardarComo($"Historial_{DateTime.Now.ToString("yyyy-MM-dd hh:mm")}.xlsx", excel.GetAsByteArray());
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
+
     public async Task MostrarTraffic()
     {
         try
@@ -377,6 +413,7 @@
             loadingFiltro = true;
             ordeness = null!;
             StateHasChanged();
+
 
             if (responseHttp.Error)
             {
@@ -389,6 +426,22 @@
                 loadingFiltro = false;
                 ordeness = responseHttp.Response;
             }
+
+
+
+
+            if (responseHttp.Error)
+            {
+                loadingFiltro = false;
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingFiltro = false;
+                ordeness = responseHttp.Response;
+            }
+
 
 
         }

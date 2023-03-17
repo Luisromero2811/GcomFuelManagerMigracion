@@ -184,7 +184,11 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 4)
                 {
                     var pedidosDate = await context.Orden
+
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 36 && x.Codest == 22)
+
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 36)
+
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)
