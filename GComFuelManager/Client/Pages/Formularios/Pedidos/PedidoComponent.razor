@@ -61,10 +61,10 @@ else
                         <td>@item.Fchcar?.ToString("dd/MM/yyyy")</td>
                         <td>
                             <div class="col-12 row">
-                                <div class="col-6">
+                                <div class="col-6 p-0">
                                     <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
                                 </div>
-                                <div class="col-6">
+                                <div class="col-6 p-0">
                                     <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                 </div>
                             </div>
