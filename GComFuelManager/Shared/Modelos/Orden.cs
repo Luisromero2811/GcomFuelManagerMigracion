@@ -12,7 +12,7 @@ namespace GComFuelManager.Shared.Modelos
     public class Orden
     {
         [JsonProperty("cod"), Key]
-        public Int64? Cod { get; set; }
+        public Int64? Cod { get; set; } = null!;
         [JsonProperty("fch")]
         public DateTime? Fch { get; set; } = null!;
         [JsonProperty("ref"), MaxLength(32)]
@@ -24,7 +24,7 @@ namespace GComFuelManager.Shared.Modelos
         public byte? Codprd { get; set; } = 0; //PK
 
         [JsonProperty("vol")]
-        public double? Vol { get; set; } = float.NaN;
+        public double? Vol { get; set; } = null!;
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
         //Prueba
@@ -38,34 +38,26 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("bolguiid"),MaxLength(256)]
         public string? Bolguiid { get; set; } = string.Empty;
         [JsonProperty("liniteid")]
-        public Int64? Liniteid { get; set; }
+        public Int64? Liniteid { get; set; } = null!;
         [JsonProperty("codprd2")]
         public int? Codprd2 { get; set; } = 0;
         [JsonProperty("dendes"), MaxLength(256)]
         public string? Dendes { get; set; } = string.Empty;
         [JsonProperty("vol2")]
-        public double? Vol2 { get; set; } = float.NaN;
+        public double? Vol2 { get; set; } = null!;
         [JsonProperty("batchId")]
-        public Int64? BatchId { get; set; }
+        public Int64? BatchId { get; set; } = null!;
         [JsonProperty("CompartmentId")]
-        public int? CompartmentId { get; set; }
+        public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
         public string? SealNumber { get; set; } = string.Empty;
 
         //Prop de nav Estado
         [NotMapped] public Estado? Estado { get; set; } = null!;
         [NotMapped] public Destino? Destino { get; set; } = null!;
-        [NotMapped] public Producto? Producto { get; set; }
+        [NotMapped] public Producto? Producto { get; set; } = null!;
 
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
-
-        [NotMapped] public OrdenCompra? OrdenCompra { get; set; } = null!;
-   
-
-        [NotMapped] public Cliente? Cliente { get; set; } = null!;
-        [NotMapped] public Usuario? Usuario { get; set; } = null!;
-
-        [NotMapped] public Transportista? Transportista { get; set; } = null!;
     }
 }
