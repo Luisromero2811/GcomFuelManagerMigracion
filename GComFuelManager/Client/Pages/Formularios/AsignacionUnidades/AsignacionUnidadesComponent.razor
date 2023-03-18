@@ -227,7 +227,7 @@
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
+                    IsLoading="loadingFiltro" Density="Density.Compact" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" >
         @*<EmptyTemplate>
         <NoHayRegistros></NoHayRegistros>
         </EmptyTemplate>*@
