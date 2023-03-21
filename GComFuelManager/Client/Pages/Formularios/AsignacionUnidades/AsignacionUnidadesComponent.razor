@@ -591,6 +591,8 @@
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var excel = new ExcelPackage();
             var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
+            worksheet.Columns.Width = 60;
+            worksheet.Columns.AutoFit();
 
             //Formación de Excel
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
@@ -611,6 +613,12 @@
                     Bin = o?.Bin,
                     Status = o?.Estado?.den
                 }, true);
+
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            var header = worksheet.Cells["A1:M1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
             //Guardado de Excel
             await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
         }
