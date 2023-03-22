@@ -16,67 +16,49 @@ else
                  Terminales="Terminales" Grupos="Grupos" Productos="Productos" Cantidades="Cantidades" />
 }
 
-<div class="col-12 mt-5">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Binomio</th>
-                <th>Estacion</th>
-                <th>Terminal</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Precio</th>
-                <th>Fecha de carga</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (ordens is null)
-            {
-                <tr>
-                    <td colspan="10">
-                        <SpinnerLoading />
-                    </td>
-                </tr>
-            }
-            else if (ordens.Count == 0)
-            {
-                <tr>
-                    <td colspan="10">
-                        <NoHayRegistros />
-                    </td>
-                </tr>
-            }
-            else
-            {
-                @foreach (OrdenEmbarque item in ordens)
-                {
-                    <tr>
-                        <td>BIN_@item.Bin</td>
-                        <td>@item.Destino?.Den</td>
-                        <td>@item.Tad?.Den</td>
-                        <td>@item.Producto?.Den</td>
-                        <td>@item?.Vol</td>
-                        <td>@item.Pre</td>
-                        <td>@item.Fchcar?.ToString("dd/MM/yyyy")</td>
-                        <td>
-                            <div class="col-12 row">
-                                <div class="col-6 p-0">
-                                    <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
-                                </div>
-                                <div class="col-6 p-0">
-                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            }
-        </tbody>
-    </table>
+<div class="col-12 d-flex justify-content-center">
+    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"
+                    IsLoading="loading" @ref="@grid" AllowSorting="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Acciones" MinWidth="200px" >
+                <Template Context="item">
+                    <div class="col-12 row">
+                        <div class="col">
+                            <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Terminal" Property="Bin" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px" Property="Vol" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Precio" Width="200px" MinWidth="200px" Property="Pre" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+        </Columns>
+    </RadzenDataGrid>
 </div>
 
+<style type="text/css" media="screen and (min-width:1200px)">
+    .ancho {
+        width: 1000px;
+    }
+</style>
+
+<style type="text/css" media="screen and (min-width:1400px)">
+    .ancho {
+        width: 1500px;
+    }
+</style>
+
 @code {
+    //grid
+    private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
@@ -96,9 +78,9 @@ else
     //loadings
     bool loadingAgregar = false;
     bool loadingConfirm = false;
+    bool loading = false;
 
     //editmodel
-    private EditContext OrdenContext = null!;
     private bool isEditing = false;
 
     //ordenesPendientes
@@ -106,7 +88,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        OrdenContext = new(ordenEmbarque);
         await GetTerminales();
         await GetGrupos();
         await GetCantidades();
