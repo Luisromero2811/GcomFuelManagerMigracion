@@ -27,7 +27,8 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("gru"), MaxLength(32)]
 		public string? gru { get; set; } = string.Empty;
 
-		
+		[NotMapped] public int UnidadesCount { get; set; } = 0;
+		[NotMapped] public int ChoferCount { get; set; } = 0;
 
 	}
 }
