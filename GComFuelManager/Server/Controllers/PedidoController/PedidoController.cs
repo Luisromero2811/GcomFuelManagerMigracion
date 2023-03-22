@@ -204,7 +204,8 @@ namespace GComFuelManager.Server.Controllers
                     .Select(o => new Orden()
                     {
                         Cod = o.Cod,
-                        Ref = null!,
+                        Ref = "ENER-" + o.Folio.ToString(),
+                        //Ref = o.ref
                         Fchcar = o.Fchcar,
                         Estado = o.Estado,
                         Destino = o.Destino,
@@ -258,11 +259,7 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 4)
                 {
                     var pedidosDate = await context.Orden
-
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 36 && x.Codest == 22)
-
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 36)
-
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codprd2 != 10157)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)
