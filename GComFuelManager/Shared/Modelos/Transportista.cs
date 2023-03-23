@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+
 namespace GComFuelManager.Shared.Modelos
 {
 	public class Transportista
@@ -24,11 +26,8 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("simsa")]
 		public bool? simsa { get; set; } = true;
 
-		[JsonProperty("gru"), MaxLength(32)]
-		public string? gru { get; set; } = string.Empty;
-
-		[NotMapped] public int UnidadesCount { get; set; } = 0;
-		[NotMapped] public int ChoferCount { get; set; } = 0;
+		//[JsonProperty("gru"), MaxLength(32)]
+		//public string? gru { get; set; } = string.Empty;
 
 	}
 }

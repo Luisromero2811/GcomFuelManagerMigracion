@@ -21,9 +21,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var transportistas = await context.Transportista.Where(x => x.activo == true)
+                var transportistas = await context.Transportista.Where(x => x.activo == true && x.carrId != string.Empty)
                     //.Select(x => new CodDenDTO { Cod = Convert.ToInt32(x.busentid), Den = x.den!})
-                    .OrderBy(x=>x.den)
+                    .OrderBy(x => x.den)
                     .ToListAsync();
                 return Ok(transportistas);
             }
