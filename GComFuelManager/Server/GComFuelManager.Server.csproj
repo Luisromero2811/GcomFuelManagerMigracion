@@ -29,6 +29,7 @@
     <PackageReference Include="System.ServiceModel.Http" Version="4.10.*" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.*" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.10.*" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.23.2" />
   </ItemGroup>
 
   <ItemGroup>

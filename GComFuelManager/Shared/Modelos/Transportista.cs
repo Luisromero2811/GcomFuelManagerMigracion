@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,8 +26,8 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("simsa")]
 		public bool? simsa { get; set; } = true;
 
-		//[JsonProperty("gru"), MaxLength(32)]
-		//public string? gru { get; set; } = string.Empty;
+		[JsonProperty("gru")]
+		public string? gru { get; set; } = string.Empty;
 
 	}
 }
