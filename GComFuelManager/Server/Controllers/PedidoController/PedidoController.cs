@@ -2,7 +2,8 @@
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using System;
+using System.Collections.Generic;
 namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -256,10 +257,97 @@ namespace GComFuelManager.Server.Controllers
                     .ToListAsync();
                     return Ok(pedidosDate);
                 }
-                else if (fechas.Estado == 4)
+                else
                 {
-                    var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codprd2 != 10157)
+                    return BadRequest();
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("trafico")]
+        public async Task<ActionResult> GetTraffic([FromBody] FechasF fechas)
+        {
+            try
+            {
+
+                var pedidosDate = await context.Orden
+                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codprd2 != 10157)
+                  .Include(x => x.Destino)
+                  .ThenInclude(x => x.Cliente)
+                  .Include(x => x.Producto)
+                  .Include(x => x.Tonel)
+                  .ThenInclude(x => x.Transportista)
+                  .Include(x => x.Estado)
+                  .Include(x => x.Chofer)
+                  .OrderBy(x => x.Fchcar)
+                  .Take(10000)
+                  .ToListAsync();
+                return Ok(pedidosDate);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+           
+        }
+        [HttpPost("Historial")]
+        public async Task<ActionResult> GetHistorial([FromBody] FechasF fechas)
+        {
+
+            try
+            {
+                List<Orden> Ordenes = new List<Orden>();
+                    var pedidosDate = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Estado)
+                    .Select(o => new Orden()
+                    {
+                        Cod = o.Cod,
+                        Ref = "ENER-" + o.Folio.ToString(),
+                        Fchcar = o.Fchcar,
+                        Estado = o.Estado,
+                        Destino = o.Destino,
+                        Producto = o.Producto,
+                        Vol2 = o.Vol,
+                        Vol = null!,
+                        Bolguiid = null!,
+                        BatchId = null!,
+                        Tonel = o.Tonel,
+                        Chofer = o.Chofer
+                    })
+                    .OrderBy(x => x.Fchcar)
+                    .Take(10000)
+                    .ToListAsync();
+                Ordenes.AddRange(pedidosDate);
+                var pedidosDate2 = await context.Orden
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 20)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .OrderBy(x => x.Fchcar)
+                    .Take(10000)
+                    .ToListAsync();
+                Ordenes.AddRange(pedidosDate2);
+
+                var pedidosDate3 = await context.Orden
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 26)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)
@@ -270,12 +358,8 @@ namespace GComFuelManager.Server.Controllers
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
-                    return Ok(pedidosDate);
-                }
-                else
-                {
-                    return BadRequest();
-                }
+                Ordenes.AddRange(pedidosDate3);
+                    return Ok(Ordenes);
 
             }
             catch (Exception e)
@@ -284,6 +368,32 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("trafico")]
+        public async Task<ActionResult> GetTraffic([FromBody] FechasF fechas)
+        {
+            try
+            {
+
+                var pedidosDate = await context.Orden
+                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codprd2 != 10157)
+                  .Include(x => x.Destino)
+                  .ThenInclude(x => x.Cliente)
+                  .Include(x => x.Producto)
+                  .Include(x => x.Tonel)
+                  .ThenInclude(x => x.Transportista)
+                  .Include(x => x.Estado)
+                  .Include(x => x.Chofer)
+                  .OrderBy(x => x.Fchcar)
+                  .Take(10000)
+                  .ToListAsync();
+                return Ok(pedidosDate);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+           
+        }
 
         //Method para realizar (agregar) pedido
         [HttpPost]
