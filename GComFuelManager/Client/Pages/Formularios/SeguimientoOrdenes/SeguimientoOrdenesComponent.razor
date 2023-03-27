@@ -12,6 +12,7 @@
 <div class="row">
 
 
+
     @*<div class="col-6 p-4">
             <label><b>Editar:</b></label>
             <div class="col-12 card h-100 shadow">
@@ -57,6 +58,7 @@
                 </EditForm>
             </div>
         </div>
+
     <div class="col-6 p-4">
         <label class="ms-4"><b>Mostrar Ordenes:</b></label>
         <div class="col-12 card h-100 shadow ms-4">
@@ -226,6 +228,7 @@
             //loadingFiltro = true;
             //ordeness = null!;
             //StateHasChanged();
+
             Status = true;
             var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
 
@@ -261,8 +264,9 @@
             loadingFiltro = true;
             ordeness = null!;
             StateHasChanged();
+
             Status = true;
-            var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
 
 
             if (responseHttp.Error)
@@ -290,7 +294,7 @@
         try
         {
             Status = false;
-            var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/trafico", fechas);
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
             fechas.Estado = 4;
             if (responseHttp.Error)
             {
@@ -428,7 +432,7 @@
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
 
     {
-        try
+        if (ordens != null)
         {
             //Quitar errores por terminos de licencias al momento de descargar
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -480,9 +484,9 @@
             //Función para guardar el documento en formato Excel
             await JS.GuardarComo($"Trafico_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
         }
-        catch (Exception e)
+        else
         {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            await swal.FireAsync("Alerta", "Debera tener datos filtrados para poder realizar la exportación", SweetAlertIcon.Warning);
         }
 
     }
@@ -490,15 +494,52 @@
     {
         try
         {
-            // Generacion Excel 1 //
-            var excel = new ExcelPackage();
-            var worksheet = excel.Workbook.Worksheets.Add("Historial1");
-            //Formación de Excel
-            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-            from o in ordens
-                //Referencia, Fecha Programa, Estatus Orden, Fecha Carga, Bol, Cliente, Destino, Producto, Volúmen natural, Volúmen Cargado, Transportista, Unidad, Operador
-            select new OrdenesDTO()
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/Historial", fechas);
+            if (responseHttp.Error)
             {
+
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response;
+                //Quitar errores por terminos de licencia al momento de descargar el archivo
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // Generacion Excel  //
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial");
+                worksheet.Columns.Width = 49;
+                worksheet.Columns.AutoFit();
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                from o in ordens
+                select new OrdenesDTO()
+                {
+                    Referencia = o?.Ref,
+                    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                    EstatusOrden = o?.Estado.den,
+                    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
+                    Bol = o?.BatchId,
+                    DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    VolNat = o?.Vol2,
+                    VolCar = o?.Vol,
+                    Transportista = o?.Tonel?.Transportista?.den,
+                    Unidad = o?.Tonel?.Veh,
+                    Operador = o?.Chofer?.Den
+                }, true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                var header = worksheet.Cells["A1:N1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //Guardado de Excel
+                await JS.GuardarComo($"HistorialDespacho_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+            }
+
                 Referencia = o?.Ref,
                 FechaPrograma = o?.Fch.Value.ToString("yyyy-MM-dd"),
                 EstatusOrden = o?.Estado.den,
@@ -517,9 +558,11 @@
             //Guardado de Excel
             await JS.GuardarComo($"Historial_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
 
+
         }
         catch (Exception e)
         {
+            loadingFiltro = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
