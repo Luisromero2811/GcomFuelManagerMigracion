@@ -23,4 +23,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<NotificationService>();
     services.AddScoped<TooltipService>();
     services.AddScoped<ContextMenuService>();
+    services.AddAuthorizationCore();
+
+
 }
