@@ -1,4 +1,9 @@
-﻿@page "/actualizacion"
+﻿@inject IJSRuntime js
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject NotificationService ns
+
+@page "/actualizacion"
 <h4><b>Actualizacion de registros</b></h4>
 
 <div class="col-12 d-flex justify-content-center mt-4">
@@ -6,17 +11,34 @@
         <div class="card-body">
             <div class="row p-4">
                 <div class="col-12 mb-3">
-                    <label class="my-1"><b>Transportista</b></label>
-                    <select class="form-select">
-                        <option>-- Seleccione una opcion --</option>
-                    </select>
+                    <!--Transportista-->
+                    <label>Transportista:</label>
+                    <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado">
+                        <input type="text" />
+                        <option>-- seleccione una opcion --</option>
+                        @if (Transportistas is null)
+                        {
+                            <option disabled>Cargando...</option>
+                        }
+                        else if (Transportistas.Count == 0)
+                        {
+                            <option disabled>No hay Transportistas</option>
+                        }
+                        else
+                        {
+                            foreach (var item in Transportistas)
+                            {
+                                <option value="@item.cod">@item.den</option>
+                            }
+                        }
+                    </InputSelect>
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
                         <button class="col-12 h-100 btn shadow-sm">
                             <div class="col-12 row">
                                 <div class="col-4">
-                                    <img src="img/delivery-truck.png" class="img-fluid"/>
+                                    <img src="img/delivery-truck.png" class="img-fluid" />
                                 </div>
                                 <div class="col d-flex align-items-center justify-content-start">
                                     <b>Actualizar unidades</b>
@@ -79,5 +101,32 @@
 
     private Usuario usuario { get; set; } = new Usuario();
     private string nmbr = string.Empty;
+
+    //Selecciones
+    private int TransportistaSeleccionado = 0;
+    private int TransportistaSeleccionadoB = 0;
+
+    //Listas
+    private List<Transportista> Transportistas { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTransportista();
+    }
+
+    public async Task GetTransportista()
+    {
+        var response = await repositorio.Get<List<Transportista>>("api/transportista");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Transportistas = response.Response;
+        }
+    }
+
 }
 

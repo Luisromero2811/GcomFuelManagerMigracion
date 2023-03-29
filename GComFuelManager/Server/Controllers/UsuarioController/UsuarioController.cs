@@ -21,7 +21,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
 		{
 			try
 			{
-				var usuarios = await context.Usuario
+				var usuarios = "Luis";
 
 				return Ok(usuarios);
 			}
