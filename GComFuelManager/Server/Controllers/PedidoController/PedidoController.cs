@@ -262,6 +262,7 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest();
                 }
 
+
             }
             catch (Exception e)
             {
@@ -366,6 +367,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
         //Method para realizar (agregar) pedido
         [HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
