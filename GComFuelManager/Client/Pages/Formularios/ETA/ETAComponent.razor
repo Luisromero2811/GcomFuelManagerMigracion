@@ -12,10 +12,17 @@
 <div class="col-12 card shadow">
     <div class="card-body">
         <EditForm Model="ordenEmbarque" class="row">
-            <div class="row">
-                <div class="col-6">
-                    <label>Nombre Bol:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
+            <div class="row d-flex g-3">
+                <div class="row">
+                    <div class="col-6">
+                        <label>Nombre Bol:</label>
+                        <InputText class="form-control" @bind-Value="nmbr" />
+                    </div>
+                    <div class="col-1 mt-4">
+                        <button class="btn gcom-bg-amarillo col-12">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row d-flex g-3">
@@ -38,10 +45,7 @@
                         <label>Fecha de llegada estimada:</label>
                         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
                     </div>
-                    @*<div class="col-4">
-            <label>Localizacion:</label>
-            <InputText class="form-control" @bind-Value="nmbr" />
-        </div>*@
+
                     <div class="col-4">
                         <label>En trayecto:</label>
                         <InputText class="form-control" @bind-Value="nmbr" />
@@ -52,26 +56,13 @@
                     </div>
                 </div>
             </div>
+            <!--btn look-->
             <div class="row d-flex g-3">
-                @*<div class="row">
 
-
-                </div>*@
                 <div class="row justify-content-end">
-                    <div class="col-3 mt-2 mb-2">
-                        <button class="btn gcom-bg-amarillo col-12">
-                            <i class="fa-solid fa-magnifying-glass"></i> <b>Buscar Orden</b>
-                        </button>
-                    </div>
+                  
                 </div>
             </div>
-        </EditForm>
-    </div>
-</div>
-<!--Segundo formulario para tiempo de llegada real de pedido-->
-<div class="col-12 card shadow mt-3 mb-5">
-    <div class="card-body">
-        <EditForm Model="ordenEmbarque">
             <div class="row">
                 <div class="col-6">
                     <label>Fecha real de llegada a destino:</label>
@@ -97,12 +88,10 @@
                     </div>
                 </div>
             </div>
-
         </EditForm>
     </div>
 </div>
-
-    <!--Tercer formulario-->
+    <!--Segundo formulario para exportación de ETA-->
     <div class="col-12 card shadow mt-3 mb-5">
         <div class="card-body">
             <EditForm Model="ordenEmbarque">
