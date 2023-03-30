@@ -4,6 +4,8 @@ using GComFuelManager.Client;
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client.Repositorios;
 using Radzen;
+using Microsoft.AspNetCore.Components.Authorization;
+using GComFuelManager.Client.Auth;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -24,6 +26,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<TooltipService>();
     services.AddScoped<ContextMenuService>();
     services.AddAuthorizationCore();
-
+    services.AddScoped<AuthenticationStateProvider, ProveedorAutenticacionJWT>();
 
 }

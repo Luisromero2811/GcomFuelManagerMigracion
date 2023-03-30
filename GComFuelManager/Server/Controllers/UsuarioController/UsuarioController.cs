@@ -21,7 +21,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
 		{
 			try
 			{
-				var usuarios = await context.Usuario
+				var usuarios = context.Usuario.AsEnumerable();
 
 				return Ok(usuarios);
 			}
