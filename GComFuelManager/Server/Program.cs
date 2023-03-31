@@ -1,6 +1,10 @@
 ﻿using GComFuelManager.Server;
-using Microsoft.AspNetCore.ResponseCompression;
+using GComFuelManager.Server.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +23,23 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 builder.Services.AddRazorPages();
+
+builder.Services.AddIdentity<IdentityUsuario, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["jwtkey"]!)),
+        ClockSkew = TimeSpan.Zero
+    });
 
 var app = builder.Build();
 
@@ -41,6 +62,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

@@ -2,9 +2,11 @@
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using GComFuelManager.Server.Identity;
+
 namespace GComFuelManager.Server
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

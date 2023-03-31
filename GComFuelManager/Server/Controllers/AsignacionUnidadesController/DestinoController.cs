@@ -23,7 +23,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var destinos = await context.Destino
                     .Where(x => x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den})
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den })
                     .ToListAsync();
                 return Ok(destinos);
             }
@@ -33,6 +33,6 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
-	}
+    }
 }
 

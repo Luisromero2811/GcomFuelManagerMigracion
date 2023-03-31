@@ -25,7 +25,7 @@ namespace GComFuelManager.Server.Controllers
                     .Where(x => x.Capcom != null && x.Capcom > 10000 && x.Capcom < 268349)
                     .Select(x => x.Capcom)
                     .Distinct()
-                    .OrderBy(x=>x)
+                    .OrderBy(x => x)
                     .ToListAsync();
                 return Ok(cantidades);
             }
