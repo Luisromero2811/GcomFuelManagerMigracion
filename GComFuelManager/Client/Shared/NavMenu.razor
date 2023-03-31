@@ -30,13 +30,15 @@
                 </div>
             </NavLink>
         </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="usuarios" Match="NavLinkMatch.All">
-                <div class="text-white">
-                    <i class="fa fa-solid fa-user" aria-hidden="true"></i> Usuarios
-                </div>
-            </NavLink>
-        </div>
+        <AuthorizeView Roles="Admin">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="usuarios" Match="NavLinkMatch.All">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-user" aria-hidden="true"></i> Usuarios
+                    </div>
+                </NavLink>
+            </div>
+        </AuthorizeView>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="eta" Match="NavLinkMatch.All">
                 <div class="text-white">
