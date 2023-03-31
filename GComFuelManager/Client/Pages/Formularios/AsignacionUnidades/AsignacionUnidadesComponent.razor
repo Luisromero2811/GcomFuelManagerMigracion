@@ -227,7 +227,7 @@
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="loadingFiltro" Density="Density.Compact" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" >
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" >
         @*<EmptyTemplate>
         <NoHayRegistros></NoHayRegistros>
         </EmptyTemplate>*@
@@ -264,7 +264,7 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
+            @*<RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
                         <div class="form-check form-switch m-2">
@@ -273,7 +273,7 @@
                         </div>
                     </div>
                 </Template>
-            </RadzenDataGridColumn>
+            </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -508,17 +508,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                    {
-                        Chofer = ChoferSeleccionado,
-                        Tonel = VehiculoSeleccionado,
-                        Compartimento =
+                {
+                    Chofer = ChoferSeleccionado,
+                    Tonel = VehiculoSeleccionado,
+                    Compartimento =
                                         (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
                                             : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
                                                 : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
                                                     : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
-                    };
+                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                    FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
+                };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -540,13 +540,13 @@
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                        });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -609,21 +609,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-                {
-                    OrdenCompra = o?.OrdenCompra?.den,
-                    Referencia = o?.Folio.ToString(),
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    Volumen = o?.Vol,
-                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o?.Tonel?.Transportista?.den,
-                    Unidad = o?.Tonel?.Veh,
-                    Compartimento = o?.Compartment,
-                    Operador = o?.Chofer?.Den,
-                    Bin = o?.Bin,
-                    Status = o?.Estado?.den
-                }, true);
+            {
+                OrdenCompra = o?.OrdenCompra?.den,
+                Referencia = o?.Folio.ToString(),
+                Cliente = o?.Destino?.Cliente?.Den,
+                Destino = o?.Destino?.Den,
+                Producto = o?.Producto?.Den,
+                Volumen = o?.Vol,
+                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                Transportista = o?.Tonel?.Transportista?.den,
+                Unidad = o?.Tonel?.Veh,
+                Compartimento = o?.Compartment,
+                Operador = o?.Chofer?.Den,
+                Bin = o?.Bin,
+                Status = o?.Estado?.den
+            }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -639,35 +639,35 @@
         }
     }
 
-    private async Task AsignarTp(int code, ChangeEventArgs tp)
-    {
-        try
-        {
-            OrdenesTP ordentp = new OrdenesTP() { Cod = code, TP = (bool)tp.Value };
-            var response = await repositorio.Put<OrdenesTP>($"api/pedido/tp", ordentp);
+    //private async Task AsignarTp(int code, ChangeEventArgs tp)
+    //{
+    //    try
+    //    {
+    //        OrdenesTP ordentp = new OrdenesTP() { Cod = code, TP = (bool)tp.Value };
+    //        var response = await repositorio.Put<OrdenesTP>($"api/pedido/tp", ordentp);
 
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                grid?.Reload();
-                if (ordentp.TP)
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
-                else
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada", Detail = "La orden ha sido desasignada a TP." });
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
+    //        if (response.Error)
+    //        {
+    //            var message = await response.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            grid?.Reload();
+    //            if (ordentp.TP)
+    //                Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
+    //            else
+    //                Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada", Detail = "La orden ha sido desasignada a TP." });
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
 
-    private void Message(NotificationMessage message)
-    {
-        ns.Notify(message);
-    }
+    //private void Message(NotificationMessage message)
+    //{
+    //    ns.Notify(message);
+    //}
 }
