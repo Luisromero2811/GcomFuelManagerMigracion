@@ -25,7 +25,15 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<NotificationService>();
     services.AddScoped<TooltipService>();
     services.AddScoped<ContextMenuService>();
+    
     services.AddAuthorizationCore();
-    services.AddScoped<AuthenticationStateProvider, ProveedorAutenticacionJWT>();
+
+    services.AddScoped<ProveedorAutenticacionJWT>();
+
+    services.AddScoped<AuthenticationStateProvider, ProveedorAutenticacionJWT>(proveedor => 
+    proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
+
+    services.AddScoped<ILoginService, ProveedorAutenticacionJWT>(proveedor =>
+    proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
 
 }

@@ -5,7 +5,14 @@
                 <p>Autorizando</p>
             </Authorizing>
             <NotAuthorized>
-                <p>No estas autorizado</p>
+                @if (!context.User.Identity!.IsAuthenticated)
+                {
+                    <Login/>
+                }
+                else
+                {
+                    <p>No estas autorizado</p>
+                }
             </NotAuthorized>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="@routeData" Selector="h1" />

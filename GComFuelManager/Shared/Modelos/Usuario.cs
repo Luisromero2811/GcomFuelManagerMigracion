@@ -22,9 +22,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fch")]
         public DateTime? Fch { get; set; } = DateTime.MinValue;
         [JsonProperty("tip")]
-        public int? Tip { get; set; } = 0;
+        public byte? Tip { get; set; } = 0;
         [JsonProperty("est")]
-        public int? Est { get; set; } = 0;
+        public byte? Est { get; set; } = 0;
         [JsonProperty("privilegio"), MaxLength(256)]
         public string? Privilegio { get; set; } = string.Empty;
         [JsonProperty("activo")]
