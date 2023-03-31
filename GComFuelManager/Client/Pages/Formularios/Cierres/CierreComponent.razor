@@ -1,0 +1,207 @@
+﻿@page "/cierres"
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<h3>Cierre de Ordenes</h3>
+
+<div class="col-12 d-flex justify-content-center">
+    <div class="col-12">
+        <div class="col-12 card">
+            <div class="col-12 card-body">
+                <EditForm Model="ordenCierre" class="form col-12">
+                    <DataAnnotationsValidator />
+
+                    <div class="col-12 row">
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Folio</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Fecha de cierre</label>
+                                <InputDate class="form-control col-12" @bind-Value="ordenCierre.FchCierre" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Cliente</label>
+                                @*<RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" @bind-Value="clienteSeleccioado"
+                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />*@
+                                <InputSelect @bind-Value="clienteSeleccioado" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Clientes is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Destino</label>
+                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="cod" @bind-Value="DestinoSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Producto</label>
+                                <RadzenDropDown Data="Productos" class="col-12" TextProperty="Den" ValueProperty="cod" @bind-Value="ProductosSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Precio</label>
+                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Tipo de Venta</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Vendedor</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Observaciones</label>
+                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-center mt-3">
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Crear cierre</b></button>
+                            </div>
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Guardar cierres</b></button>
+                            </div>
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Exportar Cierres</b></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+    IList<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
+
+    private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    private int clienteSeleccioado { get; set; }
+
+    private List<CodDenDTO> Destino { get; set; } = null!;
+    private int DestinoSeleccionado { get; set; }
+    private List<CodDenDTO> Productos { get; set; } = null!;
+    private int ProductosSeleccionado { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProductos();
+        await GetClientes();
+        await GetEstaciones();
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/clientes");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetEstaciones()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/destino");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Destino = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+}
