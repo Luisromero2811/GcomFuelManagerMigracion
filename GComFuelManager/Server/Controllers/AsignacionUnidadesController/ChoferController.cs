@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using GComFuelManager.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 	public class ChoferController : ControllerBase 
 	{
         private readonly ApplicationDbContext context;
