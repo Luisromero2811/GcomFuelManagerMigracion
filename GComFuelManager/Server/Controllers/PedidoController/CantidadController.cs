@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Metadata.Ecma335;
@@ -7,6 +9,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CantidadController : ControllerBase
     {
         private readonly ApplicationDbContext context;

@@ -1,5 +1,7 @@
 ﻿using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +44,7 @@ namespace GComFuelManager.Server.Controllers.Auth
                 var result = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return BuildToken(info);
+                    return await BuildToken(info);
                 }
                 else
                 {
@@ -56,6 +58,7 @@ namespace GComFuelManager.Server.Controllers.Auth
         }
 
         [HttpPost("register")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Register([FromBody] UsuarioInfo info)
         {
             try
@@ -90,12 +93,26 @@ namespace GComFuelManager.Server.Controllers.Auth
             }
         }
 
-        private UserTokenDTO BuildToken(UsuarioInfo info)
+        private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, info.UserName),
+                new Claim(JwtRegisteredClaimNames.UniqueName, info.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            var usuario = await userManager.FindByNameAsync(info.UserName);
+            if(usuario != null)
+            {
+                var roles = await userManager.GetRolesAsync(usuario);
+
+                foreach (var role in roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+            }
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -116,6 +133,7 @@ namespace GComFuelManager.Server.Controllers.Auth
         }
 
         [HttpPost("crear")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Create()
         {
             try
@@ -128,7 +146,9 @@ namespace GComFuelManager.Server.Controllers.Auth
                         UserName = item.Usu,
                         UserCod = item.Cod
                     };
+                    
                     var result = await userManager.FindByNameAsync(user.UserName!);
+
                     if (result == null)
                     {
                         await userManager.CreateAsync(user, item.Cve!);
