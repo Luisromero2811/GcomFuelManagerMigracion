@@ -1,4 +1,8 @@
-﻿<div class="col-12 py-2 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") d-flex">
+﻿@inject ILoginService login
+@inject SweetAlertService swal
+@inject NavigationManager navigate
+
+<div class="col-12 py-2 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") d-flex">
     <div class="col">
         @if (close)
         {
@@ -15,7 +19,7 @@
     </div>
     <div class="col-11 d-flex justify-content-end">
         <div class="col-2 text-center my-auto">
-            <b>Cerrar sesion</b>
+            <button class="btn" @onclick="@CerrarSesion">Cerrar sesion</button>
         </div>
     </div>
 </div>
@@ -28,5 +32,18 @@
     private void CloseMenuLateral()
     {
         closeMenu.InvokeAsync();
+    }
+
+    private async void CerrarSesion()
+    {
+        try
+        {
+            await login.Logoute();
+            navigate.NavigateTo("/login");
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

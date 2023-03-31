@@ -1,29 +1,33 @@
 ﻿@inherits LayoutComponentBase
 
-<RadzenDialog />
-<RadzenNotification />
-<RadzenContextMenu />
-<RadzenTooltip />
+<AuthorizeView>
+    <Authorized>
+        <RadzenDialog />
+        <RadzenNotification />
+        <RadzenContextMenu />
+        <RadzenTooltip />
 
-<div class="page">
-    @if (!isClosed)
-    {
-        <div class="sidebar">
-            @*<MenuLateral />*@
-            <NavMenu></NavMenu>
+        <div class="page">
+            @if (!isClosed)
+            {
+                <div class="sidebar">
+                    @*<MenuLateral />*@
+                    <NavMenu></NavMenu>
+                </div>
+            }
+
+            <main>
+                <div>
+                    <MenuNav close=@isClosed closeMenu="CloseMenu" />
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
-    }
-
-    <main>
-        <div>
-            <MenuNav close=@isClosed closeMenu="CloseMenu"/>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    </Authorized>
+</AuthorizeView>
 
 @code{
     public bool isClosed = false;

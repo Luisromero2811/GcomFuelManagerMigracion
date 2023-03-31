@@ -21,7 +21,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var productos = await context.Producto.Where(x=>x.Activo == true).ToListAsync();
+                var productos = await context.Producto.Where(x => x.Activo == true).ToListAsync();
                 return Ok(productos);
             }
             catch (Exception e)
