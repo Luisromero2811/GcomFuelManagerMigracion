@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class OrdenCierre
     {
+        [Key]
         public int Cod { get; set; }
         public DateTime FchCierre { get; set; } = DateTime.Now;
         public string Folio { get; set; } = string.Empty;
