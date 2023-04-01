@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@inject GComFuelManager.Client.Auth.RenovadorToken renovadorToken 
 
 <AuthorizeView>
     <Authorized>
@@ -36,4 +37,10 @@
     {
         isClosed = !isClosed;
     }
+
+    protected override void OnInitialized()
+    {
+        renovadorToken.Iniciar();
+    }
+
 }

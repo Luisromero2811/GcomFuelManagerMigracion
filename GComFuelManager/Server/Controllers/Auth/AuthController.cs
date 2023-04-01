@@ -14,7 +14,7 @@ using System.Text;
 namespace GComFuelManager.Server.Controllers.Auth
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cuentas")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUsuario> userManager;
@@ -93,7 +93,21 @@ namespace GComFuelManager.Server.Controllers.Auth
             }
         }
 
-        private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
+
+        [HttpGet("renovarToken")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult<UserTokenDTO>> Renovar()
+        {
+            //Construimos un userInfo para poder utilizar el method de BuildToken
+            var userInfo = new UsuarioInfo()
+            {
+                UserName = HttpContext.User.Identity!.Name!
+            };
+
+            return await BuildToken(userInfo);
+        }
+
+        private async Task <UserTokenDTO> BuildToken(UsuarioInfo info)
         {
             var claims = new List<Claim>()
             {
@@ -101,7 +115,6 @@ namespace GComFuelManager.Server.Controllers.Auth
                 new Claim(JwtRegisteredClaimNames.UniqueName, info.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
-
             var usuario = await userManager.FindByNameAsync(info.UserName);
             if(usuario != null)
             {
@@ -112,26 +125,24 @@ namespace GComFuelManager.Server.Controllers.Auth
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
             }
-
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var expiration = DateTime.Now.AddHours(1);
-
+            //var expiration = DateTime.Now.AddHours(1);
+            var expiration = DateTime.Now.AddMinutes(30);
             var token = new JwtSecurityToken(
                 issuer: null,
                 audience: null,
                 claims: claims,
                 expires: expiration,
                 signingCredentials: creds);
-
             return new UserTokenDTO
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Expiration = expiration,
             };
         }
-
+        //Crear usuarios ya definidos de la tabla Usuarios
         [HttpPost("crear")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> Create()
