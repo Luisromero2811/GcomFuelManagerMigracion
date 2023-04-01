@@ -73,7 +73,7 @@
         try
         {
             loading = true;
-            var response = await http.Post<UserLogin, UserTokenDTO>("api/auth/login", usuario);
+            var response = await http.Post<UserLogin, UserTokenDTO>("api/cuentas/login", usuario);
             if (response.Error)
             {
                 loading = false;
