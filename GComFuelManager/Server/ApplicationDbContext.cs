@@ -134,8 +134,7 @@ namespace GComFuelManager.Server
         public DbSet<users_descarga> Users_descarga { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Shared.Modelos.Version> Version { get; set; }
-
-
+        public DbSet<OrdenCierre> OrdenCierres { get; set; }
 
     }
 }

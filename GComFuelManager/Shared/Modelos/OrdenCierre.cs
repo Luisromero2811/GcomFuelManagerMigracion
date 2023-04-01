@@ -24,5 +24,6 @@ namespace GComFuelManager.Shared.Modelos
         public Destino Destino { get; set; } = null!;
         public int Volumen { get; set; }
         public string Observaciones { get; set; } = string.Empty;
+        public bool Estatus { get; set; } = true;
     }
 }
