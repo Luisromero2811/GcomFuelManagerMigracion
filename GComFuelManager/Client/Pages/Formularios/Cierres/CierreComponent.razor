@@ -1,0 +1,338 @@
+﻿@page "/cierres"
+@using System.Globalization;
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<h3>Cierre de Ordenes</h3>
+
+<div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
+    <div class="col-12">
+        <div class="col-12 card">
+            <div class="col-12 card-body">
+                <div class="col-12 row">
+                    <div class="col-3">
+                        <div class="col-12">
+                            <label class="form-label">Folio</label>
+                            <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="col-12">
+                            <label class="form-label">Cliente</label>
+                            @*<RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" @bind-Value="clienteSeleccioado"
+                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />*@
+                            <InputSelect @bind-Value="clienteSeleccioado" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Clientes is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Clientes.Count == 0)
+                                {
+                                    <option disabled> No hay capacidades</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Clientes)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Mes</label>
+                        @*<RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" @bind-Value="clienteSeleccioado"
+                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />*@
+                        <InputSelect @bind-Value="mesSeleccionado" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (meses is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (meses.Count == 0)
+                            {
+                                <option disabled> No hay capacidades</option>
+                            }
+                            else
+                            {
+                                foreach (var item in meses)
+                                {
+                                    <option value="@item">@item.ToUpper()</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-1 d-flex ">
+                        <div class="col-12 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 d-flex justify-content-center shadow-sm">
+    <div class="col-12">
+        <div class="col-12 card">
+            <div class="col-12 card-body">
+                <EditForm Model="ordenCierre" class="form col-12">
+                    <DataAnnotationsValidator />
+
+                    <div class="col-12 row">
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Folio</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Fecha de cierre</label>
+                                <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Cliente</label>
+                                @*<RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" @bind-Value="clienteSeleccioado"
+                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />*@
+                                <InputSelect @bind-Value="clienteSeleccioado" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Clientes is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Destino</label>
+                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="cod" @bind-Value="DestinoSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Producto</label>
+                                <RadzenDropDown Data="Productos" class="col-12" TextProperty="Den" ValueProperty="cod" @bind-Value="ProductosSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Precio</label>
+                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Tipo de Venta</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Vendedor</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Observaciones</label>
+                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-center mt-3">
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Crear cierre</b></button>
+                            </div>
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Guardar cierres</b></button>
+                            </div>
+                            <div class="col-3 mx-2">
+                                <button class="btn gcom-bg-amarillo col-12"><b>Exportar Cierres</b></button>
+                            </div>
+                        </div>
+                    </div>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-12 d-flex justify-content-center">
+    <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"
+                    IsLoading="loading" @ref="@grid" AllowSorting="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true">
+                <Template Context="item">
+                    <div class="col-12 row">
+                        <div class="col">
+                            <button class="btn btn-danger col-12"><i class="fa fa-solid fa-ban"></i></button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-primary col-12"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Tad.Den" Width="200px" MinWidth="200px" Frozen="true" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Width="200px" MinWidth="200px" Property="Pre" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Destino.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Producto.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px" Property="Vol" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Width="200px" MinWidth="200px" Property="Pre" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Width="200px" MinWidth="200px" Property="Pre" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Width="400px" MinWidth="400px" Property="Pre" />
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+<style type="text/css" media="screen and (max-width:1200px)">
+    .ancho {
+        width: 1200px;
+    }
+</style>
+
+<style type="text/css" media="screen and (min-width:1500px)">
+    .ancho {
+        width: 1500px;
+    }
+</style>
+<style type="text/css" media="screen and (min-width:1100px)">
+    .ancho {
+        width: 1000px;
+    }
+</style>
+
+@code {
+
+    OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+    IList<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
+
+    RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
+
+    private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    private int clienteSeleccioado { get; set; }
+
+    private List<CodDenDTO> Destino { get; set; } = null!;
+    private int DestinoSeleccionado { get; set; }
+
+    private List<CodDenDTO> Productos { get; set; } = null!;
+    private int ProductosSeleccionado { get; set; }
+
+    private List<string> meses { get; set; } = new List<string>();
+    private string mesSeleccionado { get; set; } = string.Empty;
+    bool loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        meses = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
+        meses.RemoveAt(meses.IndexOf(meses.Last()));
+
+        await GetProductos();
+        await GetClientes();
+        await GetEstaciones();
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/clientes");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetEstaciones()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/destino");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Destino = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<CodDenDTO>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+}
