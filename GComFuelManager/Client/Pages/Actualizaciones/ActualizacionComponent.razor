@@ -10,28 +10,13 @@
     <div class="col-9 card shadow ">
         <div class="card-body">
             <div class="row p-4">
-                <div class="col-12 mb-3">
+                <div class="col-12 mb-4">
                     <!--Transportista-->
                     <label>Transportista:</label>
-                    <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado">
-                        <input type="text" />
-                        <option>-- seleccione una opcion --</option>
-                        @if (Transportistas is null)
-                        {
-                            <option disabled>Cargando...</option>
-                        }
-                        else if (Transportistas.Count == 0)
-                        {
-                            <option disabled>No hay Transportistas</option>
-                        }
-                        else
-                        {
-                            foreach (var item in Transportistas)
-                            {
-                                <option value="@item.cod">@item.den</option>
-                            }
-                        }
-                    </InputSelect>
+                <RadzenDropDown @bind-Value="TransportistaSeleccionado" Data="Transportistas" TextProperty="Den"
+                                AllowVirtualization="true" AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                </RadzenDropDown>
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
@@ -98,16 +83,17 @@
 @code {
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+    //private IList<Transportista> transportistaSeleccionado { get; set; } = new List<Transportista>();
 
+    //Helpers de desarrollo 
     private Usuario usuario { get; set; } = new Usuario();
     private string nmbr = string.Empty;
 
-    //Selecciones
-    private int TransportistaSeleccionado = 0;
-    private int TransportistaSeleccionadoB = 0;
 
     //Listas
     private List<Transportista> Transportistas { get; set; } = null!;
+
+    private Transportista TransportistaSeleccionado = new Transportista();
 
     protected override async Task OnInitializedAsync()
     {
