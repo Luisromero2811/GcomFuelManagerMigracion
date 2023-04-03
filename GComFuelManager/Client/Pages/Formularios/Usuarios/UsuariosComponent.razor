@@ -2,12 +2,12 @@
 
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
- 
+
 <h4><b>Usuarios</b></h4>
 <!--Maquetacion formulario de usuarios-->
 <div class="col-12 card shadow p-2">
     <div class="card-body g-3">
-        <EditForm Model="@ordenEmbarque">
+        <EditForm Model="@users">
             <div class="row d-flex g-3 p-2">
                 <div class="col-4 mb-1">
                     <div class="col-12">
@@ -29,33 +29,34 @@
                 </div>
             </div>
             @*<div class="row d-flex g-3 p-2">
-                <div class="col-4">
-                    <label>Activo:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select">
-                        <option>-- Selecciona una opcion --</option>
-                    </InputSelect>
-                </div>
-                <div class="col-4">
-                    <label>Tipo de Usuario:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select">
-                        <option>-- Selecciona una opcion --</option>
-                        <option>@TUsu</option>
-                        <option>@TUsu2</option>
-                    </InputSelect>
-                </div>
-                <div class="col-4">
-                    <label>Departamento:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select" disabled>
-                        <option disabled>-- Selecciona una opcion --</option>
-                    </InputSelect>
-                </div>
-            </div>*@
+                    <div class="col-4">
+                        <label>Activo:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-4">
+                        <label>Tipo de Usuario:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            <option>@TUsu</option>
+                            <option>@TUsu2</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-4">
+                        <label>Departamento:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select" disabled>
+                            <option disabled>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>*@
             <div class="row p-2">
                 <div class="col-12">
-                    <label>Permiso:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select" >
-                        <option>-- Selecciona una opcion --</option>
-                    </InputSelect>
+                    <label>Roles:</label>
+                    <!--Selector multiple de Radzen-->
+                    <RadzenDropDown @bind-Value="RolesSelectDTO" Data="Roles" TextProperty="NombreRol" ValueProperty="ID"
+                                    Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
+                    </RadzenDropDown>
                 </div>
             </div>
 
@@ -75,36 +76,69 @@
 
 <!--Maquetación de Tabla con Radzen-->
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" 
+    <RadzenDataGrid TItem="Usuario" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
                     AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Nombre" Property="Bin" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Usuario" Property="Tad.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Contraseña" Property="Destino.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha Alta" Property="Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Activo" Width="200px" MinWidth="200px" Property="Vol" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Nombre" Property="Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Usuario" Property="Usu" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Contraseña" Property="Cve" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Fecha Alta" Property="Fch" Width="200px" MinWidth="200px" />
         </Columns>
     </RadzenDataGrid>
 </div>
 
 
 @code {
-    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
-
-    private Usuario usuario { get; set; } = new Usuario();
+    //Helpers de selectores
     private string nmbr = string.Empty;
     private string usu = string.Empty;
     private string cve = string.Empty;
-    private bool activo = false;
-    private string act = string.Empty;
 
-    private string TUsu = "TP";
-    private string TUsu2 = "Energas";
-    //Listas 
+    //Listas
+    private Usuario users { get; set; } = new Usuario();
+    private List<Usuario> Usuarios { get; set; } = null!;
+    //private List<Usuario> users {get; set;} = new List<Usuario>();
 
-    //Selecciones
+    private List<RolDTO> Roles { get; set; } = null!;
+    private List<string> RolesSelectDTO = new List<string>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRoles();
+        await GetUsers();
+    }
+
+    public async Task GetRoles()
+    {
+        //Variable donde guardamos la obtención de los roles
+        var respuestaHTTP = await repositorio.Get<List<RolDTO>>("api/usuarios/roles");
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Roles = respuestaHTTP.Response;
+        }
+    }
+
+    public async Task GetUsers()
+    {
+        //Variable donde guardamos la obtención de los usuarios
+        var respuestaHTTP = await repositorio.Get<List<Usuario>>("api/usuarios/UsuariosList");
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Usuarios = respuestaHTTP.Response;
+        }
+    }
 }
 
