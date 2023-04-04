@@ -2,7 +2,7 @@
 
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
-
+@inject NavigationManager navigationManager
 <h4><b>Usuarios</b></h4>
 <!--Maquetacion formulario de usuarios-->
 <div class="col-12 card shadow p-2">
@@ -63,7 +63,7 @@
             <div class="col-12 d-flex justify-content-center mt-2 p-2">
                 <div class="col-6 row">
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@PostUsers"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
                     </div>
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
@@ -83,7 +83,6 @@
             <RadzenDataGridColumn TItem="Usuario" Title="Nombre" Property="Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="Usuario" Title="Usuario" Property="Usu" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="Usuario" Title="Contraseña" Property="Cve" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="Usuario" Title="Fecha Alta" Property="Fch" Width="200px" MinWidth="200px" />
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -95,20 +94,21 @@
     private string usu = string.Empty;
     private string cve = string.Empty;
 
+
+    bool cargando = false; 
     //Listas
     private Usuario users { get; set; } = new Usuario();
-    private List<Usuario> Usuarios { get; set; } = null!;
-    //private List<Usuario> users {get; set;} = new List<Usuario>();
+    private List<Usuario> Usuarios { get; set; } = new List<Usuario>();
 
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
-
+    //Ciclo de vida de inicio del componente
     protected override async Task OnInitializedAsync()
     {
         await GetRoles();
         await GetUsers();
     }
-
+    //Obtención de roles
     public async Task GetRoles()
     {
         //Variable donde guardamos la obtención de los roles
@@ -124,7 +124,7 @@
             Roles = respuestaHTTP.Response;
         }
     }
-
+    //Obtención de usuarios en lista
     public async Task GetUsers()
     {
         //Variable donde guardamos la obtención de los usuarios
@@ -139,6 +139,35 @@
         {
             Usuarios = respuestaHTTP.Response;
         }
+    }
+    //Creación de usuarios nuevos
+    public async Task PostUsers()
+    {
+        //Petición hacía controlador donde creamos el usuario
+        var respuestaHTTP = await repositorio.Post<Usuario>("api/auth/crearUser", users);
+        if (users.Den != null && users.Usu != null && users.Cve != null)
+        {
+            if (respuestaHTTP.Error)
+            {
+                var responseHTTP = await respuestaHTTP.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHTTP, SweetAlertIcon.Error);
+            }
+            else
+            {
+                //Formamos el POST para agregar al nuevo usuario
+                if (respuestaHTTP.Response is not null)
+                {
+                    await swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
+                    //Hacer un reload de la tabla
+                    
+                }
+            }
+        }
+        else
+        {
+            await swal.FireAsync("Advertencia", "Verifique que todos los campos esten rellenados por favor.", SweetAlertIcon.Warning);
+        }
+
     }
 }
 
