@@ -260,7 +260,7 @@
                                     </button>
                                 </div>
                                 <div class="col-3 mx-2">
-                                    <button class="btn gcom-bg-amarillo col-12">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         <b>Guardar cierres</b>
                                     </button>
@@ -808,7 +808,11 @@
     {
         try
         {
-            MailMessage message = new MailMessage();
+            MailMessage message = new MailMessage("innovacion2@gasamigas.com","angelzapata582@gmail.com");
+            message.Subject = "Prueba";
+            message.Body = "cuerpo de prueba";
+            SmtpClient client = new SmtpClient("smtp.exchangeadministrado.com");
+            client.Send(message);
         }
         catch (Exception e)
         {
