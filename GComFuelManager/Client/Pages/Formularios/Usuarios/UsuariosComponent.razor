@@ -2,12 +2,12 @@
 
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
- 
+@inject NavigationManager navigationManager
 <h4><b>Usuarios</b></h4>
 <!--Maquetacion formulario de usuarios-->
 <div class="col-12 card shadow p-2">
     <div class="card-body g-3">
-        <EditForm Model="@ordenEmbarque">
+        <EditForm Model="@users">
             <div class="row d-flex g-3 p-2">
                 <div class="col-4 mb-1">
                     <div class="col-12">
@@ -29,40 +29,41 @@
                 </div>
             </div>
             @*<div class="row d-flex g-3 p-2">
-                <div class="col-4">
-                    <label>Activo:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select">
-                        <option>-- Selecciona una opcion --</option>
-                    </InputSelect>
-                </div>
-                <div class="col-4">
-                    <label>Tipo de Usuario:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select">
-                        <option>-- Selecciona una opcion --</option>
-                        <option>@TUsu</option>
-                        <option>@TUsu2</option>
-                    </InputSelect>
-                </div>
-                <div class="col-4">
-                    <label>Departamento:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select" disabled>
-                        <option disabled>-- Selecciona una opcion --</option>
-                    </InputSelect>
-                </div>
-            </div>*@
+                    <div class="col-4">
+                        <label>Activo:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-4">
+                        <label>Tipo de Usuario:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            <option>@TUsu</option>
+                            <option>@TUsu2</option>
+                        </InputSelect>
+                    </div>
+                    <div class="col-4">
+                        <label>Departamento:</label>
+                        <InputSelect @bind-Value="nmbr" class="form-select" disabled>
+                            <option disabled>-- Selecciona una opcion --</option>
+                        </InputSelect>
+                    </div>
+                </div>*@
             <div class="row p-2">
                 <div class="col-12">
-                    <label>Permiso:</label>
-                    <InputSelect @bind-Value="nmbr" class="form-select" >
-                        <option>-- Selecciona una opcion --</option>
-                    </InputSelect>
+                    <label>Roles:</label>
+                    <!--Selector multiple de Radzen-->
+                    <RadzenDropDown @bind-Value="RolesSelectDTO" Data="Roles" TextProperty="NombreRol" ValueProperty="ID"
+                                    Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
+                    </RadzenDropDown>
                 </div>
             </div>
 
             <div class="col-12 d-flex justify-content-center mt-2 p-2">
                 <div class="col-6 row">
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@PostUsers"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
                     </div>
                     <div class="col-6">
                         <button class="btn gcom-bg-amarillo col-12"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
@@ -75,36 +76,98 @@
 
 <!--Maquetación de Tabla con Radzen-->
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" 
+    <RadzenDataGrid TItem="Usuario" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
                     AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Nombre" Property="Bin" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Usuario" Property="Tad.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Contraseña" Property="Destino.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha Alta" Property="Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Activo" Width="200px" MinWidth="200px" Property="Vol" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Nombre" Property="Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Usuario" Property="Usu" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="Usuario" Title="Contraseña" Property="Cve" Width="200px" MinWidth="200px" />
         </Columns>
     </RadzenDataGrid>
 </div>
 
 
 @code {
-    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
-
-    private Usuario usuario { get; set; } = new Usuario();
+    //Helpers de selectores
     private string nmbr = string.Empty;
     private string usu = string.Empty;
     private string cve = string.Empty;
-    private bool activo = false;
-    private string act = string.Empty;
 
-    private string TUsu = "TP";
-    private string TUsu2 = "Energas";
-    //Listas 
 
-    //Selecciones
+    bool cargando = false; 
+    //Listas
+    private Usuario users { get; set; } = new Usuario();
+    private List<Usuario> Usuarios { get; set; } = new List<Usuario>();
 
+    private List<RolDTO> Roles { get; set; } = null!;
+    private List<string> RolesSelectDTO = new List<string>();
+    //Ciclo de vida de inicio del componente
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRoles();
+        await GetUsers();
+    }
+    //Obtención de roles
+    public async Task GetRoles()
+    {
+        //Variable donde guardamos la obtención de los roles
+        var respuestaHTTP = await repositorio.Get<List<RolDTO>>("api/usuarios/roles");
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Roles = respuestaHTTP.Response;
+        }
+    }
+    //Obtención de usuarios en lista
+    public async Task GetUsers()
+    {
+        //Variable donde guardamos la obtención de los usuarios
+        var respuestaHTTP = await repositorio.Get<List<Usuario>>("api/usuarios/UsuariosList");
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Usuarios = respuestaHTTP.Response;
+        }
+    }
+    //Creación de usuarios nuevos
+    public async Task PostUsers()
+    {
+        //Petición hacía controlador donde creamos el usuario
+        var respuestaHTTP = await repositorio.Post<Usuario>("api/auth/crearUser", users);
+        if (users.Den != null && users.Usu != null && users.Cve != null)
+        {
+            if (respuestaHTTP.Error)
+            {
+                var responseHTTP = await respuestaHTTP.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHTTP, SweetAlertIcon.Error);
+            }
+            else
+            {
+                //Formamos el POST para agregar al nuevo usuario
+                if (respuestaHTTP.Response is not null)
+                {
+                    await swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
+                    //Hacer un reload de la tabla
+                    
+                }
+            }
+        }
+        else
+        {
+            await swal.FireAsync("Advertencia", "Verifique que todos los campos esten rellenados por favor.", SweetAlertIcon.Warning);
+        }
+
+    }
 }
 

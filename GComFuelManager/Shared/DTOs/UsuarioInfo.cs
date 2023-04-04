@@ -10,10 +10,13 @@ namespace GComFuelManager.Shared.DTOs
     {
         public string Id { get; set; } = string.Empty;
         public int UserCod { get; set; }
+        //Nombre de persona
+        public string Nombre { get; set; } = string.Empty;
+        //Nombre de usuario en sistema 
         public string UserName { get; set; } = string.Empty;
+        //Roles asignados
         public List<string> Roles { get; set; } = new List<string>();
+        //Contraseña
         public string Password { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Drawing;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using GComFuelManager.Shared.Modelos;
 using System.Text;
 
 namespace GComFuelManager.Server.Controllers.Auth
@@ -60,31 +61,51 @@ namespace GComFuelManager.Server.Controllers.Auth
             }
         }
 
-        [HttpPost("register")]
+        [HttpPost("crearUser")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> Register([FromBody] UsuarioInfo info)
+        public async Task<ActionResult> Create([FromBody] UsuarioInfo info)
         {
             try
             {
-                var u = await context.Usuario.ToListAsync();
+
+                var resultadoUser = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
+                Usuario usuario = new Usuario();
+                if (resultadoUser == null)
+                {
+                    //context.Add();
+                    await context.SaveChangesAsync();
+                    //return;
+     
+                }
+                else
+                {
+                    return BadRequest("Ya existe un usuario registrado con esos datos.");
+                }
+
+                //Instancia hacia IdentityUsuario quien este nos maneja a los usuarios nuevos
                 var user = new IdentityUsuario
                 {
-                    UserName = info.UserName,
-                    UserCod = info.UserCod
+                    UserName = usuario.Den,
+                    UserCod = usuario.Cod,
                 };
+                //Buscar por medio de userManager a un usuario por su nombre
                 var result = await userManager.FindByNameAsync(user.UserName!);
+                //Sino se encuentra un usuario por su nombre lo creará 
                 if (result == null)
                 {
-                    var suc = await userManager.CreateAsync(user, info.Password!);
-                    if (suc.Succeeded)
+                    //Creación del usuario 
+                    var success = await userManager.CreateAsync(user, info.Password!);
+                    if (success.Succeeded)
                     {
                         return Ok();
                     }
+                    //En caso de error retorna un estatus erroneo valga la redundancia 
                     else
                     {
-                        return BadRequest(suc.Errors);
+                        return BadRequest(success.Errors);
                     }
                 }
+                //Si se encuentra un usuario por búsqueda de su nombre, muestra una alerta de la existencia de este. 
                 else
                 {
                     return BadRequest("Ya existe un usuario registrado con esos datos.");
@@ -110,7 +131,7 @@ namespace GComFuelManager.Server.Controllers.Auth
             return await BuildToken(userInfo);
         }
 
-        private async Task <UserTokenDTO> BuildToken(UsuarioInfo info)
+        private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
             var claims = new List<Claim>()
             {
@@ -119,7 +140,7 @@ namespace GComFuelManager.Server.Controllers.Auth
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var usuario = await userManager.FindByNameAsync(info.UserName);
-            if(usuario != null)
+            if (usuario != null)
             {
                 var roles = await userManager.GetRolesAsync(usuario);
 
@@ -160,7 +181,7 @@ namespace GComFuelManager.Server.Controllers.Auth
                         UserName = item.Usu,
                         UserCod = item.Cod
                     };
-                    
+
                     var result = await userManager.FindByNameAsync(user.UserName!);
 
                     if (result == null)
