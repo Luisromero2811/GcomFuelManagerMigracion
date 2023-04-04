@@ -99,6 +99,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 orden.Estatus = false;
 
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
                 return Ok();
             }
             catch (Exception e)
@@ -138,13 +141,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                IEnumerable<OrdenCierre> cierres = new List<OrdenCierre>();
-                cierres = context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte
-                && x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .AsEnumerable();
+                IList<OrdenCierre> cierres = new List<OrdenCierre>();
+                if (!filtroDTO.forFolio)
+                {
+                    cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte
+                    && x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin && x.Estatus == true)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .ToListAsync();
+                }
+                else
+                {
+                    cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .ToListAsync();
+                }
 
                 return Ok(cierres);
             }
@@ -159,7 +173,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var years = context.OrdenCierre.Select(x=>x.FchCierre.Year).Distinct().ToList();
+                var years = context.OrdenCierre.Select(x=>x.FchCierre!.Value.Year).Distinct().ToList();
                 return Ok(years);
             }
             catch (Exception e)

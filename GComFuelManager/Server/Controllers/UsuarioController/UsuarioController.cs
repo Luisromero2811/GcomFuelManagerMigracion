@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Server.Controllers.UsuarioController
 {
@@ -42,6 +43,54 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
 		{
 			return await context.Roles.Select(x => new RolDTO { ID = x.Id, NombreRol = x.Name! }).ToListAsync();
 		}
-	}
+
+        [HttpPost("crear")]
+        public async Task<ActionResult> Create([FromBody] UsuarioInfo info)
+        {
+			try
+			{
+				var userSistema = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
+
+				if (userSistema != null)
+				{
+					return BadRequest("El usuario ya existe");
+				}
+
+				var userAsp = await userManager.FindByNameAsync(info.UserName);
+
+				if (userAsp != null)
+				{
+					return BadRequest("El usuario ya existe");
+				}
+
+				var newUserSistema = new Usuario { Den = info.Nombre, Usu = info.UserName, Cve = info.Password, Fch = DateTime.Now };
+				context.Add(newUserSistema);
+				await context.SaveChangesAsync();
+
+				var newUserAsp = new IdentityUsuario { UserName = newUserSistema.Usu, UserCod = newUserSistema.Cod };
+				var result = await userManager.CreateAsync(newUserAsp, newUserSistema.Cve);
+
+				if (!result.Succeeded)
+				{
+					context.Remove(newUserSistema);
+					await context.SaveChangesAsync();
+					return BadRequest(result.Errors);
+				}
+
+				result = await userManager.AddToRolesAsync(newUserAsp, info.Roles);
+
+				if (!result.Succeeded)
+				{
+					return BadRequest(result.Errors);
+				}
+
+                return Ok(newUserSistema);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+    }
 }
 

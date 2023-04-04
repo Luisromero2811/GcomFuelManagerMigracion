@@ -20,7 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cve"), MaxLength(10)]
         public string? Cve { get; set; } = string.Empty;
         [JsonProperty("fch")]
-        public DateTime? Fch { get; set; } = DateTime.MinValue;
+        public DateTime? Fch { get; set; } = DateTime.Now;
         [JsonProperty("tip")]
         public byte? Tip { get; set; } = 0;
         [JsonProperty("est")]

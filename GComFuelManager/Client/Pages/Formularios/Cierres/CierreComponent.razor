@@ -3,6 +3,7 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject IJSRuntime js
+@inject NotificationService ms
 
 <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 
@@ -13,16 +14,23 @@
         <div class="col-12 card">
             <div class="col-12 card-body">
                 <div class="col-12 row">
-                    <div class="col-3">
-                        <div class="col-12">
+                    <div class="col-3 row">
+                        <div class="col-8">
                             <label class="form-label">Folio</label>
                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
+                        </div>
+                        <div class="col-4 d-flex">
+                            <div class="col-12 mt-auto">
+                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(true))">
+                                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="col-12">
                             <label class="form-label">Cliente</label>
-                            <InputSelect @bind-Value="clienteSeleccioado" class="form-select">
+                            <InputSelect @bind-Value="filtro.codCte" class="form-select">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Clientes is null)
                                 {
@@ -86,7 +94,7 @@
                     </div>
                     <div class="col-1 d-flex ">
                         <div class="col-12 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
@@ -203,7 +211,24 @@
                         <div class="col-4 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Tipo de Venta</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.TipoVenta" />
+                                <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (TpVenta is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (TpVenta.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in TpVenta)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
                             </div>
                         </div>
 
@@ -235,13 +260,13 @@
                                     </button>
                                 </div>
                                 <div class="col-3 mx-2">
-                                    <button class="btn gcom-bg-amarillo col-12">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         <b>Guardar cierres</b>
                                     </button>
                                 </div>
                                 <div class="col-3 mx-2">
-                                    <button class="btn gcom-bg-amarillo col-12">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
                                         <i class="fa fa-solid fa-file-excel"></i>
                                         <b>Exportar Cierres</b>
                                     </button>
@@ -300,6 +325,7 @@
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px" Property="Volumen" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Width="200px" MinWidth="200px" Property="TipoVenta" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Width="200px" MinWidth="200px" Property="Cliente.Den" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Width="200px" MinWidth="200px" Property="Vendedor" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Width="400px" MinWidth="400px" Property="Observaciones" />
@@ -350,29 +376,39 @@
     private List<int> Cantidades { get; set; } = null!;
     private List<int> ordenPendientes { get; set; } = new List<int>();
 
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
+
     bool loading = false;
     bool isEdit = false;
     bool loadingCreate = false;
     bool loadingFilter = false;
+    bool isFilter = false;
 
     protected override async Task OnInitializedAsync()
     {
-        var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
-        months.RemoveAt(meses.IndexOf(meses.Last()));
-        var i = 1;
-        foreach (var item in months)
+        try
         {
+            var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
+            months.RemoveAt(months.IndexOf(months.Last()));
+            var i = 1;
+            foreach (var item in months)
+            {
 
-            meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
-            i++;
+                meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
+                i++;
+            }
+
+            await GetYears();
+            await GetProductos();
+            await GetCantidades();
+            await GetClientes();
+            await GetEstaciones();
+            await GetOrdenesPendientes();
         }
-
-        await GetYears();
-        await GetProductos();
-        await GetCantidades();
-        await GetClientes();
-        await GetEstaciones();
-        await GetOrdenesPendientes();
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
     private async Task GetClientes()
@@ -468,6 +504,7 @@
         try
         {
             loadingCreate = true;
+            isFilter = false;
             var response = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
             if (response.Error)
             {
@@ -529,6 +566,7 @@
                 var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
                 ordenCierres.RemoveAt(index);
                 ordenCierres.Insert(index, response.Response);
+                ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 3000 });
                 await grid.Reload();
             }
         }
@@ -543,6 +581,11 @@
     private async Task OnPreventInternalNavigation(LocationChangingContext context)
     {
         if (ordenCierres.Count == 0)
+        {
+            return;
+        }
+
+        if (isFilter)
         {
             return;
         }
@@ -594,7 +637,8 @@
                     ordenPendientes.Remove(orden.Cod);
                     await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
                     await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-                    await GetOrdenesPendientes();
+                    ordenCierres.Remove(orden);
+                    //await GetOrdenesPendientes();
                 }
             }
         }
@@ -695,13 +739,19 @@
         }
     }
 
-    private async Task GetFiltroCierres()
+    private async Task GetFiltroCierres(bool forFolio)
     {
         try
         {
-            int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-            filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-            filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+            filtro.forFolio = forFolio;
+            isFilter = true;
+
+            if (!forFolio)
+            {
+                int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
+                filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
+                filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+            }
 
             var response = await http.Post<CierreFiltroDTO, IList<OrdenCierre>>("api/cierre/filtrar", filtro);
             if (response.Error)
@@ -713,6 +763,56 @@
             {
                 ordenCierres = response.Response;
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GenerateExcel()
+    {
+        try
+        {
+            if (ordenCierres != null)
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Cierre");
+                ws.Columns.Width = 50;
+                ws.Columns.AutoFit();
+
+                var header = ws.Cells["A1:J1"];
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenCierres, true);
+                tablebody.Style.Font.Size = 14;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "No hay datos que exportar.", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SendEmail()
+    {
+        try
+        {
+            MailMessage message = new MailMessage("innovacion2@gasamigas.com","angelzapata582@gmail.com");
+            message.Subject = "Prueba";
+            message.Body = "cuerpo de prueba";
+            SmtpClient client = new SmtpClient("smtp.exchangeadministrado.com");
+            client.Send(message);
         }
         catch (Exception e)
         {
