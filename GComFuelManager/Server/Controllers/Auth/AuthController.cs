@@ -44,7 +44,10 @@ namespace GComFuelManager.Server.Controllers.Auth
                 var result = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return await BuildToken(info);
+                    var token = await BuildToken(info);
+                    //var user = await userManager.FindByNameAsync(info.UserName);
+                    //await userManager.SetAuthenticationTokenAsync(user!,"login","jwtToken",token.Token);
+                    return Ok(token);
                 }
                 else
                 {

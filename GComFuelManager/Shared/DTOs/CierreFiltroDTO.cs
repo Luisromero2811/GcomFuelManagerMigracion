@@ -9,5 +9,9 @@ namespace GComFuelManager.Shared.DTOs
     public class CierreFiltroDTO
     {
         public string Folio { get; set; } = string.Empty;
+        public DateTime FchInicio { get; set; } = DateTime.Now;
+        public DateTime FchFin{ get; set; } = DateTime.Now;
+        public int codCte { get; set; }
+
     }
 }
