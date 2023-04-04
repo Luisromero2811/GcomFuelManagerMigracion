@@ -6,10 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Drawing;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using GComFuelManager.Shared.Modelos;
 using System.Text;
 
 namespace GComFuelManager.Server.Controllers.Auth
@@ -45,7 +43,10 @@ namespace GComFuelManager.Server.Controllers.Auth
                 var result = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    return await BuildToken(info);
+                    var token = await BuildToken(info);
+                    //var user = await userManager.FindByNameAsync(info.UserName);
+                    //await userManager.SetAuthenticationTokenAsync(user!,"login","jwtToken",token.Token);
+                    return Ok(token);
                 }
                 else
                 {
@@ -57,63 +58,6 @@ namespace GComFuelManager.Server.Controllers.Auth
                 return BadRequest(e.Message);
             }
         }
-
-        [HttpPost("crearUser")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> Create([FromBody] UsuarioInfo info)
-        {
-            try
-            {
-
-                var resultadoUser = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
-                Usuario usuario = new Usuario();
-                if (resultadoUser == null)
-                {
-                    //context.Add();
-                    await context.SaveChangesAsync();
-                    //return;
-     
-                }
-                else
-                {
-                    return BadRequest("Ya existe un usuario registrado con esos datos.");
-                }
-
-                //Instancia hacia IdentityUsuario quien este nos maneja a los usuarios nuevos
-                var user = new IdentityUsuario
-                {
-                    UserName = usuario.Den,
-                    UserCod = usuario.Cod,
-                };
-                //Buscar por medio de userManager a un usuario por su nombre
-                var result = await userManager.FindByNameAsync(user.UserName!);
-                //Sino se encuentra un usuario por su nombre lo creará 
-                if (result == null)
-                {
-                    //Creación del usuario 
-                    var success = await userManager.CreateAsync(user, info.Password!);
-                    if (success.Succeeded)
-                    {
-                        return Ok();
-                    }
-                    //En caso de error retorna un estatus erroneo valga la redundancia 
-                    else
-                    {
-                        return BadRequest(success.Errors);
-                    }
-                }
-                //Si se encuentra un usuario por búsqueda de su nombre, muestra una alerta de la existencia de este. 
-                else
-                {
-                    return BadRequest("Ya existe un usuario registrado con esos datos.");
-                }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
 
         [HttpGet("renovarToken")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]

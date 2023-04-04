@@ -12,19 +12,19 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Completo:</label>
-                        <InputText class="form-control" @bind-Value="nmbr" />
+                        <InputText class="form-control" @bind-Value="info.Nombre" />
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Usuario:</label>
-                        <InputText class="form-control" @bind-Value="usu" />
+                        <InputText class="form-control" @bind-Value="info.UserName" />
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Contraseña</label>
-                        <InputText class="form-control" @bind-Value="cve" />
+                        <InputText class="form-control" @bind-Value="info.Password" />
                     </div>
                 </div>
             </div>
@@ -54,7 +54,7 @@
                 <div class="col-12">
                     <label>Roles:</label>
                     <!--Selector multiple de Radzen-->
-                    <RadzenDropDown @bind-Value="RolesSelectDTO" Data="Roles" TextProperty="NombreRol" ValueProperty="ID"
+                    <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
                                     Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
                     </RadzenDropDown>
                 </div>
@@ -89,11 +89,7 @@
 
 
 @code {
-    //Helpers de selectores
-    private string nmbr = string.Empty;
-    private string usu = string.Empty;
-    private string cve = string.Empty;
-
+    UsuarioInfo info = new UsuarioInfo();
 
     bool cargando = false; 
     //Listas
@@ -144,7 +140,7 @@
     public async Task PostUsers()
     {
         //Petición hacía controlador donde creamos el usuario
-        var respuestaHTTP = await repositorio.Post<Usuario>("api/auth/crearUser", users);
+        var respuestaHTTP = await repositorio.Post<UsuarioInfo,Usuario>("api/usuarios/crear", info);
         if (users.Den != null && users.Usu != null && users.Cve != null)
         {
             if (respuestaHTTP.Error)
@@ -159,7 +155,7 @@
                 {
                     await swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
                     //Hacer un reload de la tabla
-                    
+                    Usuarios.Add(respuestaHTTP.Response);
                 }
             }
         }

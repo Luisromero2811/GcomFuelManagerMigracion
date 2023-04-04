@@ -106,6 +106,12 @@ namespace GComFuelManager.Client.Auth
             var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>("api/cuentas/renovarToken");
             var nuevoToken = nuevoTokenResponse.Response!;
 
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                await Logoute();
+                return "";
+            }
+
             await js.SetItemLocalStorage(TOKENKEY, nuevoToken.Token);
             await js.SetItemLocalStorage(EXPIRATIONTOKENKEY, nuevoToken.Expiration.ToString());
 
