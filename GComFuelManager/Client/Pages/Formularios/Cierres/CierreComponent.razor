@@ -269,6 +269,10 @@
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
                                         <i class="fa fa-solid fa-file-excel"></i>
                                         <b>Exportar Cierres</b>
+                                        @if (loadingExport)
+                                        {
+                                            <SpinnerLoading></SpinnerLoading>
+                                        }
                                     </button>
                                 </div>
                             }
@@ -383,6 +387,7 @@
     bool loadingCreate = false;
     bool loadingFilter = false;
     bool isFilter = false;
+    bool loadingExport = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -776,6 +781,7 @@
         {
             if (ordenCierres != null)
             {
+                loadingExport = true;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var ws = excel.Workbook.Worksheets.Add("Cierre");
@@ -792,9 +798,11 @@
                 header.Style.Font.Bold = true;
 
                 await js.GuardarComo($"Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                loadingExport = false;
             }
             else
             {
+                loadingExport = false;
                 await Swal.FireAsync("Alerta", "No hay datos que exportar.", SweetAlertIcon.Warning);
             }
         }
@@ -808,11 +816,16 @@
     {
         try
         {
-            MailMessage message = new MailMessage("innovacion2@gasamigas.com","angelzapata582@gmail.com");
-            message.Subject = "Prueba";
-            message.Body = "cuerpo de prueba";
-            SmtpClient client = new SmtpClient("smtp.exchangeadministrado.com");
-            client.Send(message);
+            var response = await http.Get<bool>("api/email");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "Coreo enviado", SweetAlertIcon.Success);
+            }
         }
         catch (Exception e)
         {

@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,6 +30,22 @@ namespace GComFuelManager.Server.Controllers
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] Grupo grupo)
+        {
+            try
+            {
+                context.Add(grupo);
+                await context.SaveChangesAsync();
+                return Ok();
             }
             catch (Exception e)
             {

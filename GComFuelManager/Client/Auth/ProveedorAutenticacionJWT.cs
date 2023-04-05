@@ -39,7 +39,7 @@ namespace GComFuelManager.Client.Auth
             if (string.IsNullOrWhiteSpace(token))
             {
                 navigation.NavigateTo("/login");
-                return this.anonimo;
+                return anonimo;
             }
 
             var tiempoExpiracionObject = await js.GetItemLocalStorage(EXPIRATIONTOKENKEY);
