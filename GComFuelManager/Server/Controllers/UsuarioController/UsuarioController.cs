@@ -63,8 +63,9 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
 					return BadRequest("El usuario ya existe");
 				}
 
-				var newUserSistema = new Usuario { Den = info.Nombre, Usu = info.UserName, Cve = info.Password, Fch = DateTime.Now };
-				context.Add(newUserSistema);
+				var newUserSistema = new Usuario { Den = info.Nombre, Usu = info.UserName, Fch = DateTime.Now, Cve = info.Password  };
+                //, Cve = info.Password
+                context.Add(newUserSistema);
 				await context.SaveChangesAsync();
 
 				var newUserAsp = new IdentityUsuario { UserName = newUserSistema.Usu, UserCod = newUserSistema.Cod };
