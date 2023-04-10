@@ -30,6 +30,6 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("activo")]
         public bool? Activo { get; set; } = true;
 
-        [NotMapped] public Cliente? Cliente { get; set; }
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
     }
 }

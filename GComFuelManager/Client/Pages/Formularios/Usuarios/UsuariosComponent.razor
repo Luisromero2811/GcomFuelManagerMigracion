@@ -24,32 +24,15 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Contraseña</label>
-                        <InputText class="form-control" @bind-Value="info.Password" />
+                        <RadzenPassword class="form-control" @bind-Value="info.Password" />
+                        <div>
+                            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
+                                Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
+                            </RadzenAlert>
+                        </div>
                     </div>
                 </div>
             </div>
-            @*<div class="row d-flex g-3 p-2">
-                    <div class="col-4">
-                        <label>Activo:</label>
-                        <InputSelect @bind-Value="nmbr" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                        </InputSelect>
-                    </div>
-                    <div class="col-4">
-                        <label>Tipo de Usuario:</label>
-                        <InputSelect @bind-Value="nmbr" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            <option>@TUsu</option>
-                            <option>@TUsu2</option>
-                        </InputSelect>
-                    </div>
-                    <div class="col-4">
-                        <label>Departamento:</label>
-                        <InputSelect @bind-Value="nmbr" class="form-select" disabled>
-                            <option disabled>-- Selecciona una opcion --</option>
-                        </InputSelect>
-                    </div>
-                </div>*@
             <div class="row p-2">
                 <div class="col-12">
                     <label>Roles:</label>
@@ -76,13 +59,23 @@
 
 <!--Maquetación de Tabla con Radzen-->
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="Usuario" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
-                    AllowSorting="true">
+    <RadzenDataGrid TItem="Usuario" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
+                    IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         <Columns>
             <RadzenDataGridColumn TItem="Usuario" Title="Nombre" Property="Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="Usuario" Title="Usuario" Property="Usu" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="Usuario" Title="Contraseña" Property="Cve" Width="200px" MinWidth="200px" />
+            <!--Switch para activar al usuario-->
+            <RadzenDataGridColumn TItem="Usuario" Title="Activar" Width="100px" MinWidth="100px">
+                <Template Context="data">
+                    <div class="col-12">
+                        <div class="form-check form-switch m-2">
+                            <input class="form-check-input" type="checkbox" role="switch" />
+                        </div>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -91,13 +84,21 @@
 @code {
     UsuarioInfo info = new UsuarioInfo();
 
-    bool cargando = false; 
+    bool cargando = false;
     //Listas
     private Usuario users { get; set; } = new Usuario();
     private List<Usuario> Usuarios { get; set; } = new List<Usuario>();
 
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
+    //Usuario seleccionado
+    private IList<Usuario> usuarioSeleccionado { get; set; } = new List<Usuario>();
+    //RadzenDataGrid
+    private RadzenDataGrid<Usuario>? grid = new RadzenDataGrid<Usuario>();
+
+    //loadings
+    bool loadingEdit = false;
+
     //Ciclo de vida de inicio del componente
     protected override async Task OnInitializedAsync()
     {
@@ -140,7 +141,7 @@
     public async Task PostUsers()
     {
         //Petición hacía controlador donde creamos el usuario
-        var respuestaHTTP = await repositorio.Post<UsuarioInfo,Usuario>("api/usuarios/crear", info);
+        var respuestaHTTP = await repositorio.Post<UsuarioInfo, Usuario>("api/usuarios/crear", info);
         if (users.Den != null && users.Usu != null && users.Cve != null)
         {
             if (respuestaHTTP.Error)
@@ -164,6 +165,25 @@
             await swal.FireAsync("Advertencia", "Verifique que todos los campos esten rellenados por favor.", SweetAlertIcon.Warning);
         }
 
+    }
+    //Edición del usuario
+    public async Task EditUser()
+    {
+        try
+        {
+            if (usuarioSeleccionado.Count == 0)
+            {
+                await swal.FireAsync("Advertencia", "Seleccione a un usuario para editar");
+            }
+            else
+            {
+
+            }
+        }
+        catch
+        {
+
+        }
     }
 }
 
