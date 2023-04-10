@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,6 +34,44 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
 
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] Grupo grupo)
+        {
+            try
+            {
+                grupo.Fch = DateTime.Now;
+                context.Add(grupo);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("cliente")]
+        public async Task<ActionResult> AsignCliente([FromBody]Cliente cliente)
+        {
+            try
+            {   
+                if (cliente == null)
+                {
+                    return NotFound();
+                }
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
                 return BadRequest(e.Message);
             }
         }
