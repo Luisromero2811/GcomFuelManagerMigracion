@@ -1,7 +1,104 @@
 ﻿@page "/asignar-contacto"
 
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ms
+
 <h4><b>Asignar Contacto</b></h4>
+<div class="col-12 d-flex justify-content-center">
+    <div class="col-10 card shadow-sm">
+        <div class="col-12 row card-body">
+            <div class="col-12 mb-4 row">
+                <div class="col-10">
+                    <label>Cliente:</label>
+                    <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" TValue="Cliente" TextProperty="Den"
+                                    AllowVirtualization="true" AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        <Template>
+                            @((context as Cliente)?.Den)
+                        </Template>
+                        <ValueTemplate>
+                            @((context as Cliente)?.Den)
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </div>
+                <div class="col-2 d-flex mt-auto">
+                    <button class="col-12 mx-auto btn gcom-bg-amarillo">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Buscar contactos
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 mb-3 row">
+                <div class="col-5">
+                    <label class="form-label">Nombre</label>
+                    <InputText class="form-control" @bind-Value="contacto.Name" />
+                </div>
+                <div class="col-5">
+                    <label class="form-label">Correo</label>
+                    <InputText class="form-control" @bind-Value="contacto.Email" />
+                </div>
+                <div class="col-2 d-flex mt-auto">
+                    <button class="col-12 btn gcom-bg-amarillo">
+                        <i class="fa fa-solid fa-plus"></i> Agregar Contacto
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 d-flex justify-content-center">
+    <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
+                    IsLoading="loading" @ref="@grid" AllowSorting="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="Cliente" Title="Nombre de contacto" Property="Name" OrderIndex="1" />
+            <RadzenDataGridColumn TItem="Cliente" Title="Correo" Property="Email" Width="200px" OrderIndex="2" />
+            <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="3" >
+                <Template>
+
+                </Template>
+            </RadzenDataGridColumn>
+
+        </Columns>
+    </RadzenDataGrid>
+</div>
 
 @code {
+    RadzenDataGrid<Contacto>? grid { get; set; } = new RadzenDataGrid<Contacto>();
 
+    Cliente ClienteSeleccionado { get; set; } = new Cliente();
+    IEnumerable<Cliente> Clientes = new List<Cliente>();
+
+    Contacto contacto { get; set; } = new Contacto();
+    IEnumerable<Contacto> Contactos = new List<Contacto>();
+
+    bool loading = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetClientes();
+    }
+
+    private async Task GetClientes()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Cliente>>("api/clientes");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

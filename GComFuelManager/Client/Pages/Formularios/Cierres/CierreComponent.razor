@@ -263,6 +263,10 @@
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         <b>Guardar cierres</b>
+                                        @if (loadingSend)
+                                        {
+                                            <SpinnerLoading></SpinnerLoading>
+                                        }
                                     </button>
                                 </div>
                                 <div class="col-3 mx-2">
@@ -389,6 +393,7 @@
     bool loadingFilter = false;
     bool isFilter = false;
     bool loadingExport = false;
+    bool loadingSend = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -817,19 +822,23 @@
     {
         try
         {
+            loadingSend = true;
             var response = await http.Get<bool>("api/email");
             if (response.Error)
             {
+                loadingSend = false;
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
+                loadingSend = false;
                 await Swal.FireAsync("Exito", "Coreo enviado", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
         {
+            loadingSend = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
