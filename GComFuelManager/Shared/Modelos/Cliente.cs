@@ -22,7 +22,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("tem"), MaxLength(50)]
         public string? Tem { get; set; } = string.Empty;
         [JsonProperty("codgru")]
-        public Int16? Codgru { get; set; } = 0;
+        public Int16? Codgru { get; set; }
         [JsonProperty("email"), MaxLength(30)]
         public string? Email { get; set; } = string.Empty;
         [JsonProperty("con"), MaxLength(50)]

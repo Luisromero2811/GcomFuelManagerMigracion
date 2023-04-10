@@ -50,7 +50,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
-    <Folder Include="Pages\Actualizaciones\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Helpers\" />
     <Folder Include="Repositorios\" />
