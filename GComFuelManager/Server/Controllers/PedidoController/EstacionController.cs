@@ -25,7 +25,26 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var estaciones = await context.Destino
-                    .Where(x => x.Codcte == cliente)
+                    .Where(x => x.Codcte == cliente && x.Activo == true)
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+                return Ok(estaciones);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetAll()
+        {
+            try
+            {
+                var estaciones = await context.Destino
+                    .Where(x=>x.Activo == true)
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();

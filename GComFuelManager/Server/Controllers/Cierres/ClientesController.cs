@@ -34,6 +34,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAll()
+        {
+            try
+            {
+                var clientes = context.Cliente.AsEnumerable().OrderBy(x => x.Den);
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("grupo/{cod:int}")]
         public async Task<ActionResult> Get(int cod)
         {
@@ -48,23 +62,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpPost("asignar")]
-        public async Task<ActionResult> PostAsignar([FromBody]ClienteGrupoAsignacionDTO asignacionDTO)
+        [HttpPost("asignar/{cod:int}")]
+        public async Task<ActionResult> PostAsignar([FromBody]CodDenDTO codden, [FromRoute] int cod)
         {
             try
             {
-                var cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == asignacionDTO.Cliente);
+                var destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == codden.Cod);
 
-                if (cliente == null)
+                if (destino == null)
                 {
                     return NotFound();
                 }
 
-                cliente.Grupo = null;
-
-                cliente.Codgru = asignacionDTO.Grupo;
-
-                context.Update(cliente);
+                destino.Codcte = cod;
+                context.Update(destino);
                 await context.SaveChangesAsync();
                 
                 return Ok();

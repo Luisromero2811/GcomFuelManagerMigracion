@@ -15,8 +15,11 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? FchCierre { get; set; } = DateTime.Now;
         
         [DisplayName("Fecha de cierre"), NotMapped]
-        public string? fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
-        
+        public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
+
+        [DisplayName("Fecha de vencimiento"), NotMapped]
+        public string? FchVen { get { return FchCierre!.Value.AddDays(7).ToString("dd/MM/yyyy"); } }
+
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
         

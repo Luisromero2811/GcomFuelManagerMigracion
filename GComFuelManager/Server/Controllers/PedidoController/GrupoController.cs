@@ -43,6 +43,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                grupo.Fch = DateTime.Now;
                 context.Add(grupo);
                 await context.SaveChangesAsync();
                 return Ok();
@@ -50,6 +51,27 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
 
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("cliente")]
+        public async Task<ActionResult> AsignCliente([FromBody]Cliente cliente)
+        {
+            try
+            {   
+                if (cliente == null)
+                {
+                    return NotFound();
+                }
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
                 return BadRequest(e.Message);
             }
         }

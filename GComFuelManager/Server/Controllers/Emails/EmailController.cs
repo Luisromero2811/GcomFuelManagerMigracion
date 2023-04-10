@@ -23,19 +23,19 @@ namespace GComFuelManager.Server.Controllers.Emails
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Angel", "innovacion2@gasamigas.com"));
+                message.From.Add(new MailboxAddress("Angel", "endpoint@gasamigas.com"));
                 message.To.Add(new MailboxAddress("Angel", "angelzapata582@gmail.com"));
                 message.Subject = "Prueba";
                 var s = 2;
                 message.Body = new TextPart("plain")
                 {
-                    Text = @"Cuerpo de correo de prueba.{s}"
+                    Text = $@"Cuerpo de correo de prueba.{s}"
                 };
                 
                 SmtpClient smtpClient = new SmtpClient();
 
                 await smtpClient.ConnectAsync("smtp.exchangeadministrado.com", 587, SecureSocketOptions.Auto);
-
+                await smtpClient.AuthenticateAsync("endpoint@gasamigas.com", "ZZR5tp_");
                 await smtpClient.SendAsync(message);
 
                 await smtpClient.DisconnectAsync(true);

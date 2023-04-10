@@ -324,6 +324,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchVen" FormatString="{0:d}" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="200px" MinWidth="200px" Frozen="true" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" MinWidth="200px" Property="Destino.Den" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
@@ -788,7 +789,7 @@
                 ws.Columns.Width = 50;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:J1"];
+                var header = ws.Cells["A1:K1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenCierres, true);
                 tablebody.Style.Font.Size = 14;
                 header.Style.Font.Size = 14;

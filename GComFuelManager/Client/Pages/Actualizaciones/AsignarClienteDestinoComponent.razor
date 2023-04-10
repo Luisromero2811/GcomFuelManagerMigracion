@@ -47,7 +47,7 @@
             <div class="col-12 mb-4 row">
                 <div class="col">
                     <label>Grupo:</label>
-                    <RadzenDropDown @bind-Value="GrupoSeleccionado" TValue="Grupo" Data="Grupos"
+                    <RadzenDropDown @bind-Value="GrupoSeleccionado" TValue="Grupo" Data="Grupos" TextProperty="Den"
                                     AllowVirtualization="true" AllowFiltering="true"
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                         <Template>
@@ -60,9 +60,15 @@
                 </div>
                 <div class="col">
                     <label>Cliente:</label>
-                    <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="ClientesGrupo" TextProperty="Den" ValueProperty="Cod"
+                    <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
                                     AllowVirtualization="true" AllowFiltering="true"
                                     FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        <Template>
+                            @((context as Cliente)?.Den)
+                        </Template>
+                        <ValueTemplate>
+                            @((context as Cliente)?.Den)
+                        </ValueTemplate>
                     </RadzenDropDown>
                 </div>
             </div>
@@ -84,7 +90,7 @@
 
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
                     IsLoading="loading" @ref="@grid" AllowSorting="true">
         <Columns>
             <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="1" />
@@ -98,19 +104,47 @@
 <div class="col-12 d-flex justify-content-center">
     <div class="col-10 card shadow-sm">
         <div class="col-12 row card-body">
-            <h5>Buscar clientes</h5>
+            <h5>Buscar destino</h5>
             <div class="col-12 mb-4 row">
-                <div class="col-md-11 col-12">
-                    <label>Grupo:</label>
-                    <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" TextProperty="Den" ValueProperty="Cod"
-                                    AllowVirtualization="true" AllowFiltering="true"
-                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                    </RadzenDropDown>
+                <div class="col-12 mb-4 row">
+                    <div class="col">
+                        <label>Cliente:</label>
+                        <RadzenDropDown @bind-Value="ClienteDSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                            <Template>
+                                @((context as Cliente)?.Den)
+                            </Template>
+                            <ValueTemplate>
+                                @((context as Cliente)?.Den)
+                            </ValueTemplate>
+                        </RadzenDropDown>
+                    </div>
+                    <div class="col">
+                        <label>Destino:</label>
+                        <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                            <Template>
+                                @((context as CodDenDTO)?.Den)
+                            </Template>
+                            <ValueTemplate>
+                                @((context as CodDenDTO)?.Den)
+                            </ValueTemplate>
+                        </RadzenDropDown>
+                    </div>
                 </div>
-                <div class="col d-flex mt-auto">
-                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetClientes">
-                        <i class="fa fa-solid fa-magnifying-glass"></i>
-                    </button>
+                <div class="col-12 mb-3 d-flex justify-content-center">
+                    <div class="col d-flex mt-auto">
+                        <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente">
+                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
+                        </button>
+                    </div>
+                    <div class="col d-flex mt-auto">
+                        <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarDestinosClientes">
+                            <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,12 +152,11 @@
 </div>
 
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="Cliente" Data="@ClientesGrupo" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true">
+    <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>gridDestino!.Reset())"
+                    IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="1" />
-            <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="2" />
+            <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -152,20 +185,25 @@
 
     bool loading = false;
 
-    RadzenDataGrid<Cliente> grid { get; set; } = new RadzenDataGrid<Cliente>();
+    RadzenDataGrid<Cliente>? grid { get; set; } = new RadzenDataGrid<Cliente>();
+    RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
 
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
 
-    int ClienteSeleccionado { get; set; }
+    Cliente ClienteSeleccionado { get; set; } = new Cliente();
+    Cliente ClienteDSeleccionado { get; set; } = new Cliente();
     IEnumerable<Cliente> ClientesGrupo = new List<Cliente>();
     IEnumerable<Cliente> Clientes = new List<Cliente>();
 
-    ClienteGrupoAsignacionDTO asignacionDTO { get; set; } = new ClienteGrupoAsignacionDTO();
+    CodDenDTO DestinoSeleccionado { get; set; } = new CodDenDTO();
+    IEnumerable<CodDenDTO> DestinoClientes = new List<CodDenDTO>();
+    IEnumerable<CodDenDTO> Destinos = new List<CodDenDTO>();
 
     protected async override Task OnInitializedAsync()
     {
         await GetGrupos();
         await GetClientesGroup();
+        await GetDestinos();
     }
 
     private async Task GetGrupos()
@@ -189,11 +227,11 @@
         }
     }
 
-    private async Task CreateGrupos()
+    private async Task GetDestinos()
     {
         try
         {
-            var response = await http.Post<Grupo>("api/grupo",Grupo);
+            var response = await http.Get<IList<CodDenDTO>>("api/estacion");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -201,6 +239,49 @@
             }
             else
             {
+                DestinoClientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetDestinosCliente()
+    {
+        try
+        {
+            var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDSeleccionado.Cod}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Destinos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CreateGrupos()
+    {
+        try
+        {
+            var response = await http.Post<Grupo>("api/grupo", Grupo);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await GetGrupos();
                 await Swal.FireAsync("Error", $"Grpo {Grupo.Den} creado exitosamente", SweetAlertIcon.Success);
             }
         }
@@ -243,7 +324,7 @@
     {
         try
         {
-            var response = await http.Get<IEnumerable<Cliente>>($"api/clientes");
+            var response = await http.Get<IEnumerable<Cliente>>($"api/clientes/all");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -264,17 +345,53 @@
     {
         try
         {
-            asignacionDTO.Cliente = ClienteSeleccionado;
-            asignacionDTO.Grupo = GrupoSeleccionado.Cod;
-            var response = await http.Post<ClienteGrupoAsignacionDTO>($"api/clientes/asignar", asignacionDTO);
-            if (response.Error)
+            if (GrupoSeleccionado == null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                await Swal.FireAsync("Alerta", "Seleccione un grupo.", SweetAlertIcon.Warning);
+
             }
             else
             {
-                await Swal.FireAsync("Error", $"Cliente Asignado a {GrupoSeleccionado.Den}", SweetAlertIcon.Success);
+                ClienteSeleccionado.Codgru = GrupoSeleccionado.Cod;
+                var response = await http.Post<Cliente>($"api/grupo/cliente", ClienteSeleccionado);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Cliente Asignado a {GrupoSeleccionado.Den}", SweetAlertIcon.Success);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task AsignarDestinosClientes()
+    {
+        try
+        {
+            if (ClienteDSeleccionado == null)
+            {
+                await Swal.FireAsync("Alerta", "Seleccione un cliente.", SweetAlertIcon.Warning);
+
+            }
+            else
+            {
+                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDSeleccionado.Cod}", DestinoSeleccionado);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDSeleccionado.Den}", SweetAlertIcon.Success);
+                }
             }
         }
         catch (Exception e)
