@@ -114,6 +114,18 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Producto)
                 .WithMany()
                 .HasForeignKey(x => x.CodPrd);
+
+            //Contacto - Cliente
+            modelBuilder.Entity<Contacto>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.CodCte);
+
+            //Contacto - Cliente
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.ContactoN)
+                .WithMany()
+                .HasForeignKey(x => x.CodCon);
         }
 
 
@@ -146,6 +158,6 @@ namespace GComFuelManager.Server
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<Shared.Modelos.Version> Version { get; set; }
         public DbSet<OrdenCierre> OrdenCierre { get; set; }
-
+        public DbSet<Contacto> Contacto { get; set; }
     }
 }

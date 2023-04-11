@@ -24,7 +24,7 @@
                     </RadzenDropDown>
                 </div>
                 <div class="col-2 d-flex mt-auto">
-                    <button class="col-12 mx-auto btn gcom-bg-amarillo">
+                    <button class="col-12 mx-auto btn gcom-bg-amarillo" @onclick="@GetContactos">
                         <i class="fa fa-solid fa-magnifying-glass"></i> Buscar contactos
                     </button>
                 </div>
@@ -32,14 +32,14 @@
             <div class="col-12 mb-3 row">
                 <div class="col-5">
                     <label class="form-label">Nombre</label>
-                    <InputText class="form-control" @bind-Value="contacto.Name" />
+                    <InputText class="form-control" @bind-Value="contacto.Nombre" />
                 </div>
                 <div class="col-5">
                     <label class="form-label">Correo</label>
-                    <InputText class="form-control" @bind-Value="contacto.Email" />
+                    <InputText class="form-control" @bind-Value="contacto.Correo" />
                 </div>
                 <div class="col-2 d-flex mt-auto">
-                    <button class="col-12 btn gcom-bg-amarillo">
+                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
                         <i class="fa fa-solid fa-plus"></i> Agregar Contacto
                     </button>
                 </div>
@@ -53,9 +53,14 @@
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
                     IsLoading="loading" @ref="@grid" AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="Cliente" Title="Nombre de contacto" Property="Name" OrderIndex="1" />
-            <RadzenDataGridColumn TItem="Cliente" Title="Correo" Property="Email" Width="200px" OrderIndex="2" />
-            <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="3" >
+            <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
+            <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
+            <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
+                <Template>
+
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">
                 <Template>
 
                 </Template>
@@ -75,6 +80,7 @@
     IEnumerable<Contacto> Contactos = new List<Contacto>();
 
     bool loading = false;
+    bool isEdit = false;
 
     protected async override Task OnInitializedAsync()
     {
@@ -94,6 +100,131 @@
             else
             {
                 Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetContactos()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/cliente/{ClienteSeleccionado.Cod}");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                Contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task PostContacto()
+    {
+        try
+        {
+
+            if (ClienteSeleccionado == null)
+            {
+                await Swal.FireAsync("Error", "Seleccione un cliente para registrar un contacto.", SweetAlertIcon.Warning);
+            }
+            else
+            {
+                contacto.CodCte = ClienteSeleccionado.Cod;
+                var response = await http.Post<Contacto>($"api/contacto", contacto);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await GetContactos();
+
+                    await Swal.Mixin(new SweetAlertOptions
+                        {
+                            Position = "top-end",
+                            ShowConfirmButton = false,
+                            Timer = 1500,
+                            TimerProgressBar = true,
+                            Toast = true,
+                        }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Success, Text = $"Contacto Registrado en {ClienteSeleccionado.Den}." });
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task PutContacto()
+    {
+        try
+        {
+            var response = await http.Put<Contacto>($"api/contacto", contacto);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await GetContactos();
+
+                await Swal.Mixin(new SweetAlertOptions
+                    {
+                        Position = "top-end",
+                        ShowConfirmButton = false,
+                        Timer = 1500,
+                        TimerProgressBar = true,
+                        Toast = true,
+                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Editado." });
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task DeleteContacto(int Cod)
+    {
+        try
+        {
+            var response = await http.Delete($"api/contacto/{Cod}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await GetContactos();
+
+                await Swal.Mixin(new SweetAlertOptions
+                    {
+                        Position = "top-end",
+                        ShowConfirmButton = false,
+                        Timer = 1500,
+                        TimerProgressBar = true,
+                        Toast = true,
+                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Habilitado / Deshabilitado en {ClienteSeleccionado.Den}." });
             }
         }
         catch (Exception e)

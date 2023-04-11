@@ -47,7 +47,6 @@
     <None Remove="Controllers\UsuarioController\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controllers\Contactos\" />
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\AsignacionUnidadesController\" />
     <Folder Include="Controllers\SeguimientoOrdenController\" />
