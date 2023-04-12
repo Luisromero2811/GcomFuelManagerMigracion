@@ -36,7 +36,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] 
         public Producto? Producto { get; set; } = null!;
         [DisplayName("producto")]
-        public string Pro { get { return Producto != null ? Producto.Den : string.Empty; } }
+        public string? Pro { get { return Producto != null ? Producto.Den : string.Empty; } }
         
         [JsonPropertyName("codCte"), EpplusIgnore]
         public int? CodCte { get; set; }

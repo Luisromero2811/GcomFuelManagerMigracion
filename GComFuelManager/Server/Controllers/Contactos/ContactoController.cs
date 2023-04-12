@@ -89,8 +89,8 @@ namespace GComFuelManager.Server.Controllers.Contactos
             }
         }
 
-        [HttpDelete("{cod:int}")]
-        public async Task<ActionResult> Delete([FromRoute] int cod)
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
         {
             try
             {
@@ -102,7 +102,7 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 if (contacto == null)
                     return NotFound();
 
-                contacto.Estado = false;
+                contacto.Estado = status;
 
                 context.Update(contacto);
                 await context.SaveChangesAsync();

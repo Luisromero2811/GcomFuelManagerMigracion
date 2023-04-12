@@ -32,16 +32,28 @@
             <div class="col-12 mb-3 row">
                 <div class="col-5">
                     <label class="form-label">Nombre</label>
-                    <InputText class="form-control" @bind-Value="contacto.Nombre" />
+                    <InputText class="form-control" @bind-Value="Contacto.Nombre" />
                 </div>
                 <div class="col-5">
                     <label class="form-label">Correo</label>
-                    <InputText class="form-control" @bind-Value="contacto.Correo" />
+                    <InputText class="form-control" @bind-Value="Contacto.Correo" />
                 </div>
                 <div class="col-2 d-flex mt-auto">
-                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
-                        <i class="fa fa-solid fa-plus"></i> Agregar Contacto
-                    </button>
+                    @if (!isEdit)
+                    {
+                        <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
+                            <i class="fa fa-solid fa-plus"></i> Agregar Contacto
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@PutContacto">
+                            <i class="fa fa-solid fa-check"></i>
+                        </button>
+                        <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit">
+                            <i class="fa fa-solid fa-xmark"></i>
+                        </button>
+                    }
                 </div>
             </div>
         </div>
@@ -56,13 +68,22 @@
             <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
             <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
             <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
-                <Template>
-
+                <Template Context="item">
+                    <div class="col-12 ">
+                        <div class="col">
+                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                    </div>
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">
-                <Template>
-
+                <Template Context="data">
+                    <div class="col-12">
+                        <div class="form-check form-switch m-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Estado"
+                                   @onchange="@((ChangeEventArgs e) => HabilitarDesabilitar(data, e))">
+                        </div>
+                    </div>
                 </Template>
             </RadzenDataGridColumn>
 
@@ -76,7 +97,7 @@
     Cliente ClienteSeleccionado { get; set; } = new Cliente();
     IEnumerable<Cliente> Clientes = new List<Cliente>();
 
-    Contacto contacto { get; set; } = new Contacto();
+    Contacto Contacto { get; set; } = new Contacto();
     IEnumerable<Contacto> Contactos = new List<Contacto>();
 
     bool loading = false;
@@ -85,6 +106,25 @@
     protected async override Task OnInitializedAsync()
     {
         await GetClientes();
+    }
+
+    private void cancelEdit()
+    {
+        isEdit = false;
+        Contacto = new Contacto();
+    }
+
+    private async void setEdit(Contacto contacto)
+    {
+        try
+        {
+            isEdit = true;
+            Contacto = contacto;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
     private async Task GetClientes()
@@ -144,8 +184,8 @@
             }
             else
             {
-                contacto.CodCte = ClienteSeleccionado.Cod;
-                var response = await http.Post<Contacto>($"api/contacto", contacto);
+                Contacto.CodCte = ClienteSeleccionado.Cod;
+                var response = await http.Post<Contacto>($"api/contacto", Contacto);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -177,7 +217,8 @@
     {
         try
         {
-            var response = await http.Put<Contacto>($"api/contacto", contacto);
+            Contacto.CodCte = ClienteSeleccionado.Cod;
+            var response = await http.Put<Contacto>($"api/contacto", Contacto);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -231,5 +272,44 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private async Task HabilitarDesabilitar(Contacto contacto, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await http.Put<bool>($"api/contacto/{contacto.Cod}", status);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (status)
+                    await Message($"{contacto.Nombre} ha sido habilitado", SweetAlertIcon.Info);
+                else
+                    await Message($"{contacto.Nombre} ha sido deshabilitado", SweetAlertIcon.Info);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+            {
+                Position = "top-end",
+                ShowConfirmButton = false,
+                Timer = 1500,
+                TimerProgressBar = true,
+                Toast = true,
+            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 }
