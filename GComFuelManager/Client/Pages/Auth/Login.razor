@@ -77,14 +77,14 @@
             {
                 loading = false;
                 string? message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos." ,SweetAlertIcon.Error);
             }
             else
             {
                 loading = false;
                 await login.Login(response.Response);
                 await swal.FireAsync("Bienvenido", "Datos ingresados con éxito" ,SweetAlertIcon.Success);
-                navigation.NavigateTo("");
+                navigation.NavigateTo("/");
             }
         }
         catch (Exception e)
