@@ -12,19 +12,19 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Completo:</label>
-                        <InputText class="form-control" @bind-Value="info.Nombre" />
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Usuario:</label>
-                        <InputText class="form-control" @bind-Value="info.UserName" />
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName"/>
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Contraseña</label>
-                        <RadzenPassword class="form-control" @bind-Value="info.Password" />
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
                         <div>
                             <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
                                 Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
@@ -37,7 +37,7 @@
                 <div class="col-12">
                     <label>Roles:</label>
                     <!--Selector multiple de Radzen-->
-                    <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
+                    <RadzenDropDown @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
                                     Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
                     </RadzenDropDown>
                 </div>
@@ -49,7 +49,7 @@
                         <button class="btn gcom-bg-amarillo col-12" @onclick="@PostUsers"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
                     </div>
                     <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
                     </div>
                 </div>
             </div>
@@ -59,13 +59,20 @@
 
 <!--Maquetación de Tabla con Radzen-->
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="Usuario" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
+    <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
                     IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="Usuario" Title="Nombre" Property="Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="Usuario" Title="Usuario" Property="Usu" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="Usuario" Title="Contraseña" Property="Cve" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px"  MinWidth="200px">
+                <Template Context="data">
+                    @foreach(var i in data.Roles)
+                        @i
+                </Template>
+            </RadzenDataGridColumn>
+
             <!--Switch para activar al usuario-->
             <RadzenDataGridColumn TItem="Usuario" Title="Activar" Width="100px" MinWidth="100px">
                 <Template Context="data">
@@ -81,20 +88,20 @@
 </div>
 
 
-@code {
+    @code {
     UsuarioInfo info = new UsuarioInfo();
 
     bool cargando = false;
     //Listas
-    private Usuario users { get; set; } = new Usuario();
-    private List<Usuario> Usuarios { get; set; } = new List<Usuario>();
+    private UsuarioInfo users { get; set; } = new UsuarioInfo();
+    private List<UsuarioInfo> Usuarios { get; set; } = new List<UsuarioInfo>();
 
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
     //Usuario seleccionado
-    private IList<Usuario> usuarioSeleccionado { get; set; } = new List<Usuario>();
+    private IList<UsuarioInfo> usuarioSeleccionado { get; set; } = new List<UsuarioInfo> { new UsuarioInfo() };
     //RadzenDataGrid
-    private RadzenDataGrid<Usuario>? grid = new RadzenDataGrid<Usuario>();
+    private RadzenDataGrid<UsuarioInfo>? grid = new RadzenDataGrid<UsuarioInfo>();
 
     //loadings
     bool loadingEdit = false;
@@ -125,7 +132,7 @@
     public async Task GetUsers()
     {
         //Variable donde guardamos la obtención de los usuarios
-        var respuestaHTTP = await repositorio.Get<List<Usuario>>("api/usuarios/UsuariosList");
+        var respuestaHTTP = await repositorio.Get<List<UsuarioInfo>>("api/usuarios/list");
 
         if (respuestaHTTP.Error)
         {
@@ -141,13 +148,13 @@
     public async Task PostUsers()
     {
         //Petición hacía controlador donde creamos el usuario
-        var respuestaHTTP = await repositorio.Post<UsuarioInfo, Usuario>("api/usuarios/crear", info);
-        if (users.Den != null && users.Usu != null && users.Cve != null)
+        var respuestaHTTP = await repositorio.Post<UsuarioInfo, UsuarioInfo>("api/usuarios/crear", usuarioSeleccionado.FirstOrDefault()!);
+        if (users.Nombre != null && users.UserName != null && users.Password != null)
         {
             if (respuestaHTTP.Error)
             {
                 var responseHTTP = await respuestaHTTP.ObtenerMensajeError();
-                await swal.FireAsync("Error", responseHTTP, SweetAlertIcon.Error);
+                await swal.FireAsync("Error", "Ha ocurrido un error, vuelva a intentarlo", SweetAlertIcon.Error);
             }
             else
             {
@@ -173,16 +180,29 @@
         {
             if (usuarioSeleccionado.Count == 0)
             {
-                await swal.FireAsync("Advertencia", "Seleccione a un usuario para editar");
+                await swal.FireAsync("Advertencia", "Seleccione a un usuario para editar", SweetAlertIcon.Warning);
             }
             else
             {
+                var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/editar", usuarioSeleccionado.FirstOrDefault()!);
 
+                if (responseHttp.Error)
+                {
+                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    grid?.Reload();
+                    await swal.FireAsync("Exito", "El usuario ha sido modificado", SweetAlertIcon.Success);
+                    await GetUsers();
+                }
             }
         }
-        catch
+        catch (Exception e)
         {
-
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e; 
         }
     }
 }
