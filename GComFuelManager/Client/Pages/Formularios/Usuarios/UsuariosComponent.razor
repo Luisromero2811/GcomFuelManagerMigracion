@@ -12,19 +12,19 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Completo:</label>
-                        <InputText class="form-control" @bind-Value="info.Nombre" />
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Usuario:</label>
-                        <InputText class="form-control" @bind-Value="info.UserName"/>
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName"/>
                     </div>
                 </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Contraseña</label>
-                        <RadzenPassword class="form-control" @bind-Value="info.Password"/>
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
                         <div>
                             <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
                                 Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
@@ -37,7 +37,7 @@
                 <div class="col-12">
                     <label>Roles:</label>
                     <!--Selector multiple de Radzen-->
-                    <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
+                    <RadzenDropDown @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
                                     Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
                     </RadzenDropDown>
                 </div>
@@ -66,7 +66,12 @@
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Property="Roles" Width="200px"  MinWidth="200px"/>
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px"  MinWidth="200px">
+                <Template Context="data">
+                    @foreach(var i in data.Roles)
+                        @i
+                </Template>
+            </RadzenDataGridColumn>
 
             <!--Switch para activar al usuario-->
             <RadzenDataGridColumn TItem="Usuario" Title="Activar" Width="100px" MinWidth="100px">
@@ -83,7 +88,7 @@
 </div>
 
 
-@code {
+    @code {
     UsuarioInfo info = new UsuarioInfo();
 
     bool cargando = false;
@@ -94,7 +99,7 @@
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
     //Usuario seleccionado
-    private IList<UsuarioInfo> usuarioSeleccionado { get; set; } = new List<UsuarioInfo>();
+    private IList<UsuarioInfo> usuarioSeleccionado { get; set; } = new List<UsuarioInfo> { new UsuarioInfo() };
     //RadzenDataGrid
     private RadzenDataGrid<UsuarioInfo>? grid = new RadzenDataGrid<UsuarioInfo>();
 
@@ -127,7 +132,7 @@
     public async Task GetUsers()
     {
         //Variable donde guardamos la obtención de los usuarios
-        var respuestaHTTP = await repositorio.Get<List<UsuarioInfo>>("api/usuarios/UsuariosList");
+        var respuestaHTTP = await repositorio.Get<List<UsuarioInfo>>("api/usuarios/list");
 
         if (respuestaHTTP.Error)
         {
@@ -143,7 +148,7 @@
     public async Task PostUsers()
     {
         //Petición hacía controlador donde creamos el usuario
-        var respuestaHTTP = await repositorio.Post<UsuarioInfo, UsuarioInfo>("api/usuarios/crear", info);
+        var respuestaHTTP = await repositorio.Post<UsuarioInfo, UsuarioInfo>("api/usuarios/crear", usuarioSeleccionado.FirstOrDefault()!);
         if (users.Nombre != null && users.UserName != null && users.Password != null)
         {
             if (respuestaHTTP.Error)
@@ -179,7 +184,7 @@
             }
             else
             {
-                var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/editar", usuarioSeleccionado.FirstOrDefault());
+                var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/editar", usuarioSeleccionado.FirstOrDefault()!);
 
                 if (responseHttp.Error)
                 {

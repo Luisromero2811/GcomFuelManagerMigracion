@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml.Attributes;
+﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,16 +25,18 @@ namespace GComFuelManager.Shared.Modelos
         public string? Folio { get; set; } = string.Empty;
         
         [JsonPropertyName("contacto"), DisplayName("Contacto")]
-        public string? Contacto { get; set; } = string.Empty;
+        public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
         
         [JsonPropertyName("email"), DisplayName("Correo")]
-        public string? Email { get; set; } = string.Empty;
+        public string? Email { get { return ContactoN != null ? ContactoN.Correo : string.Empty; } }
         
         [JsonPropertyName("codPrd"), EpplusIgnore]
         public byte? CodPrd { get; set; }
         
         [NotMapped, EpplusIgnore] 
         public Producto? Producto { get; set; } = null!;
+        [DisplayName("producto")]
+        public string? Pro { get { return Producto != null ? Producto.Den : string.Empty; } }
         
         [JsonPropertyName("codCte"), EpplusIgnore]
         public int? CodCte { get; set; }
@@ -58,7 +61,13 @@ namespace GComFuelManager.Shared.Modelos
         
         [NotMapped, EpplusIgnore] 
         public Destino? Destino { get; set; } = null!;
-        
+
+        [DisplayName("destino")]
+        public string? Des { get { return Destino != null ? Destino.Den : string.Empty; } }
+
+        [DisplayName("cliente")]
+        public string? Cli { get { return Cliente != null ? Cliente.Den : string.Empty; } }
+
         [JsonPropertyName("volumen"), DisplayName("Volumen")]
         public int? Volumen { get; set; }
         
@@ -70,5 +79,10 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("confirmada"), EpplusIgnore]
         public bool? Confirmada { get; set; } = false;
+
+        [JsonProperty("codCon"), EpplusIgnore]
+        public int CodCon { get; set; }
+        [NotMapped, EpplusIgnore]
+        public Contacto? ContactoN { get; set; } = null!;
     }
 }

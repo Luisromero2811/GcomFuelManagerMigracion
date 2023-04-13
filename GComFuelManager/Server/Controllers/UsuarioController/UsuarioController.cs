@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.Modelos;
+using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace GComFuelManager.Server.Controllers.UsuarioController
 {
@@ -24,12 +26,31 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
             this.context = context;
             this.userManager = userManager;
         }
-        [HttpGet("UsuariosList")]
+        [HttpGet("list")]
         public async Task<ActionResult> GetUsers()
         {
             try
             {
-                var usuarios = await context.Usuario.FirstOrDefaultAsync();
+                var usuarios = await context.Usuario.Select(x=>new UsuarioInfo
+                {
+                    UserName = x.Usu!,
+                    Password = x.Cve!,
+                    Nombre = x.Den!,
+                    UserCod = x.Cod
+                }).ToListAsync();
+
+                foreach (var item in usuarios)
+                {
+                    var u = await context.Users.Where(x => x.UserCod == item.UserCod).FirstOrDefaultAsync();
+                    if (u != null)
+                    {
+                        IList<string> roles = await userManager.GetRolesAsync(u);
+                        usuarios.FirstOrDefault(item).Roles = roles.ToList();
+                        usuarios.FirstOrDefault(item).Id = u.Id;
+                        Debug.WriteLine(JsonConvert.SerializeObject(u));
+                    }
+                }
+
                 return Ok(usuarios);
             }
             catch (Exception e)
@@ -89,13 +110,16 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
         {
             try
             {
-
                 //Buscamos al usuario y lo sincronizamos con el usuario de ASP
                 var updateUserSistema = await context.Usuario.FirstOrDefaultAsync(x => x.Cod == info.UserCod);
+
                 if (updateUserSistema == null)
                 {
                     return NotFound(); 
                 }
+
+                var oldUser = updateUserSistema;
+
                 //Variable para asignacion de la vieja contraseña
                 var viejaPass = updateUserSistema.Cve;
                 //Nuevos datos a actualizar del usuario, Nombre, nombre de usuario y contraseña
@@ -107,22 +131,33 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 await context.SaveChangesAsync();
                 //Actualizar Usuario de Identity AspNet
                 var updateUserAsp = await userManager.FindByIdAsync(info.Id);
-                //Variable para asignacion de los roles
-                var roles = info.Roles;
-                //Nuevo dato a actualizar del usuario de Asp, solo mandamos el Nombre de usuario 
-                updateUserAsp.UserName = info.UserName;
-                //Nuevo dato para actualizar la contraseña
-                var changepassword = await userManager.ChangePasswordAsync(updateUserAsp, viejaPass , updateUserSistema.Cve);
-                //A través de estas acciones, vamos a obtener, remover y volver a agregar el listado de roles
-                //Method para obtención de los roles
-                var changeGetRoles = await userManager.GetRolesAsync(updateUserAsp);
-                //Method para eliminar los roles 
-                var resultDeleteRoles = await userManager.RemoveFromRolesAsync(updateUserAsp, changeGetRoles.ToList());
-                //Method para mandar el listado de roles
-                var resultAddRoles = await userManager.AddToRolesAsync(updateUserAsp, roles);
-                //Segundo parametros me pide un string de roles no un listado 
 
-                var resultado = await userManager.UpdateAsync(updateUserAsp);
+                if(updateUserAsp != null)
+                {
+                    //Variable para asignacion de los roles
+                    var roles = info.Roles;
+                    //Nuevo dato a actualizar del usuario de Asp, solo mandamos el Nombre de usuario 
+                    updateUserAsp.UserName = info.UserName;
+                    //Nuevo dato para actualizar la contraseña
+                    var changepassword = await userManager.ChangePasswordAsync(updateUserAsp, viejaPass, updateUserSistema.Cve);
+                    //A través de estas acciones, vamos a obtener, remover y volver a agregar el listado de roles
+                    //Method para obtención de los roles
+                    var changeGetRoles = await userManager.GetRolesAsync(updateUserAsp);
+                    //Method para eliminar los roles 
+                    var resultDeleteRoles = await userManager.RemoveFromRolesAsync(updateUserAsp, changeGetRoles.ToList());
+                    //Method para mandar el listado de roles
+                    var resultAddRoles = await userManager.AddToRolesAsync(updateUserAsp, roles);
+                    //Segundo parametros me pide un string de roles no un listado 
+
+                    var resultado = await userManager.UpdateAsync(updateUserAsp);
+
+                    if (!resultado.Succeeded)
+                    {
+                        context.Update(oldUser);
+                        await context.SaveChangesAsync();
+                        return BadRequest();
+                    }
+                }
 
                 //Asignación del rol editado
 

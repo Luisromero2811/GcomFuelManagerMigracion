@@ -1,4 +1,4 @@
-﻿@page "/login"
+@page "/login"
 
 @layout FullPageComponent
 @inject NavigationManager navigation
@@ -83,8 +83,7 @@
             {
                 loading = false;
                 await login.Login(response.Response);
-                await swal.FireAsync("Bienvenido", "Datos ingresados con éxito" ,SweetAlertIcon.Success);
-                navigation.NavigateTo("/");
+                navigation.NavigateTo("");
             }
         }
         catch (Exception e)
