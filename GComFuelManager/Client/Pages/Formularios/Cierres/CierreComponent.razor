@@ -4,6 +4,7 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
+@inject DialogService ds
 
 <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 
@@ -15,13 +16,20 @@
             <div class="col-12 card-body">
                 <div class="col-12 row">
                     <div class="col-3 row">
-                        <div class="col-8">
+                        <div class="col-6">
                             <label class="form-label">Folio</label>
                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
                         </div>
-                        <div class="col-4 d-flex">
+                        <div class="col-3 d-flex">
                             <div class="col-12 mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(true))">
+                                <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@ShowDetails">
+                                    <i class="fa fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-3 d-flex">
+                            <div class="col-12 mt-auto">
+                                <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
                                     <i class="fa fa-solid fa-magnifying-glass"></i>
                                 </button>
                             </div>
@@ -380,7 +388,7 @@
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
     OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
-    IList<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
+    List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
 
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
@@ -719,62 +727,27 @@
         try
         {
             List<int>? ordenesPendientes = new List<int>();
-            try
-            {
-                if (await js.GetItemLocalStorage("CIERRE") != null)
-                {
-                    ordenesPendientes = JsonConvert.DeserializeObject<List<int>>(await js.GetItemLocalStorage("CIERRE"));
-                    ordenCierres = null!;
-                    StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            }
 
-            DateTime expiration;
-            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONCIERRE"), out expiration))
+            if (await js.GetItemLocalStorage("CIERRE") != null)
             {
-                if (DateTime.Today.Date < expiration)
-                {
-                    var response = await http.Post<List<int>, List<OrdenCierre>>("api/cierre/list", ordenesPendientes!);
+                ordenesPendientes = JsonConvert.DeserializeObject<List<int>>(await js.GetItemLocalStorage("CIERRE"));
+                ordenCierres = null!;
+                StateHasChanged();
 
-                    if (response.Error)
-                    {
-                        var message = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        ordenCierres = response.Response;
-                        ordenPendientes = ordenesPendientes!;
-                    }
+                var response = await http.Post<List<int>, List<OrdenCierre>>("api/cierre/list", ordenesPendientes!);
+
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                 }
                 else
                 {
-                    try
-                    {
-                        foreach (var item in ordenesPendientes!)
-                        {
-                            var response = await http.Delete($"api/cierre/{item}/cancel");
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                        }
-                        ordenCierres = new List<OrdenCierre>();
-                        await js.RemoveItemLocalStorage("CIERRE");
-                        await js.RemoveItemLocalStorage("EXPIRACIONCIERRE");
-                    }
-                    catch (Exception e)
-                    {
-                        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                        throw e;
-                    }
+                    ordenCierres = response.Response;
+                    ordenPendientes = ordenesPendientes!;
                 }
             }
+            
 
         }
         catch (Exception e)
@@ -818,7 +791,7 @@
                 filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
             }
 
-            var response = await http.Post<CierreFiltroDTO, IList<OrdenCierre>>("api/cierre/filtrar", filtro);
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -894,6 +867,20 @@
         {
             loadingSend = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ShowDetails()
+    {
+        try
+        {
+            await ds.OpenAsync<TabsCierresDialogs>($"Orden {filtro.Folio}",
+            new Dictionary<string, object>() { { "folio", filtro.Folio } },
+            new DialogOptions() { Height = "500px", Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);   
         }
     }
 }
