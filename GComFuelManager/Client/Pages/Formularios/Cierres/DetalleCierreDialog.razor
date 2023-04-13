@@ -1,0 +1,91 @@
+﻿@*@page "/detalle/{folio}"*@
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<RadzenStack Gap="1rem">
+    @if (cierres == null)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        <div class="col-12">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th scope="row">Fecha: </th>
+                        <td>@cierres.FirstOrDefault()!.FchCierre</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Comprador: </th>
+                        <td>@cierres.FirstOrDefault()!.Cliente!.Den</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Contacto: </th>
+                        <td>@cierres.FirstOrDefault()!.ContactoN!.Nombre</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Correo: </th>
+                        <td>@cierres.FirstOrDefault()!.ContactoN!.Correo</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Producto: </th>
+                        <td>@cierres.FirstOrDefault()!.Producto!.Den</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Volumen: </th>
+                        <td>
+                            Aprox. @(VolumenTotal / 60000) Fulles (@VolumenTotal Litros)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Precio: </th>
+                        <td>$ @cierres.FirstOrDefault()!.Precio</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    }
+</RadzenStack>
+
+@code {
+    [Parameter] public string folio { get; set; } = string.Empty;
+
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+
+    OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+    List<OrdenCierre>? cierres { get; set; }
+
+    private int? VolumenTotal { get; set; } = 0;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetFiltroCierres();
+    }
+
+    private async Task GetFiltroCierres()
+    {
+        try
+        {
+            filtro.Folio = folio;
+            filtro.forFolio = true;
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                cierres = response.Response;
+                foreach (var item in cierres)
+                    VolumenTotal = VolumenTotal + item.Volumen;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

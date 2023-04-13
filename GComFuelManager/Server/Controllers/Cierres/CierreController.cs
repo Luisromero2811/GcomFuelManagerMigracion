@@ -145,7 +145,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                IList<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
                 if (!filtroDTO.forFolio)
                 {
                     cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte

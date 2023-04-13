@@ -49,7 +49,7 @@
                 <hr>
                 <div class="col-6 mb-3">
                     <div class="col-12">
-                        <button class="col-12 h-100 btn shadow-sm">
+                        <button class="col-12 h-100 btn shadow-sm" @onclick="@ServiceTransportistas">
                             <div class="col-12 row">
                                 <div class="col-4">
                                     <img src="img/delivery-truck (1).png" class="img-fluid" />
@@ -103,6 +103,20 @@
     public async Task GetTransportista()
     {
         var response = await repositorio.Get<List<Transportista>>("api/transportista");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Transportistas = response.Response;
+        }
+    }
+
+    public async Task ServiceTransportistas()
+    {
+        var response = await repositorio.Get<List<Transportista>>("api/service/transportista");
         if (response.Error)
         {
             var responseHttp = await response.ObtenerMensajeError();
