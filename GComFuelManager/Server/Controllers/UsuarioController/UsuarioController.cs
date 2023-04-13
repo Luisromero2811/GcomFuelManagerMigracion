@@ -31,6 +31,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
         {
             try
             {
+                //Variable asignada para traer el contexto de Usuario igualado a UsuarioInfo con sus propiedades
                 var usuarios = await context.Usuario.Select(x=>new UsuarioInfo
                 {
                     UserName = x.Usu!,
@@ -38,16 +39,15 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     Nombre = x.Den!,
                     UserCod = x.Cod
                 }).ToListAsync();
-
+                
                 foreach (var item in usuarios)
                 {
                     var u = await context.Users.Where(x => x.UserCod == item.UserCod).FirstOrDefaultAsync();
                     if (u != null)
                     {
                         IList<string> roles = await userManager.GetRolesAsync(u);
-                        usuarios.FirstOrDefault(item).Roles = roles.ToList();
-                        usuarios.FirstOrDefault(item).Id = u.Id;
-                        Debug.WriteLine(JsonConvert.SerializeObject(u));
+                        usuarios.FirstOrDefault(x=>x.UserCod == item.UserCod)!.Roles = roles.ToList();
+                        usuarios.FirstOrDefault(x => x.UserCod == item.UserCod)!.Id = u.Id;
                     }
                 }
 
@@ -170,12 +170,26 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
             }
         }
 
-        [HttpPut("editActivar")]
-        public async Task<ActionResult> PutActive(int activo)
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> PutActive([FromRoute] int activecode, [FromBody] bool state)
         {
             try
             {
-                context.Update(activo);
+                //Si no existe ningun usuario retorna un BadRequest
+                if (activecode == 0)
+                {
+                    return BadRequest();
+                }
+
+                var usuario = context.Usuario.Where(x => x.Cod ==activecode).FirstOrDefault();
+                //Si el usuario no existe
+                if (usuario == null)
+                {
+                    return NotFound();
+                }
+                usuario.Activo = state;
+                //Función para actualizar el estado activo del usuario
+                context.Update(usuario);
                 await context.SaveChangesAsync();
 
                 return Ok();
