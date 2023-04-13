@@ -131,7 +131,7 @@
                         <div class="col-4 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Cliente</label>
-                                <InputSelect @bind-Value="ordenCierre.CodCte" class="form-select">
+                                <InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetData()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Clientes is null)
                                     {
@@ -154,17 +154,25 @@
 
                         <div class="col-4 mb-1">
                             <div class="col-12">
-                                <label class="form-label">Comprador</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Contacto" />
-                            </div>
-                        </div>
-
-                        <div class="col-4 mb-1">
-                            <div class="col-12">
-                                <label class="form-label">Destino</label>
-                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" />
+                                <label class="form-label">Contacto</label>
+                                <InputSelect @bind-Value="ordenCierre.CodCon" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Contactos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Contactos.Count() == 0)
+                                    {
+                                        <option disabled> No hay contactos</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Contactos)
+                                        {
+                                            <option value="@item.Cod">Nombre: @item.Nombre | Correo: @item.Correo</option>
+                                        }
+                                    }
+                                </InputSelect>
                             </div>
                         </div>
 
@@ -172,6 +180,15 @@
                             <div class="col-12">
                                 <label class="form-label">Producto</label>
                                 <RadzenDropDown Data="Productos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodPrd"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Destino</label>
+                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 AllowVirtualization="true" />
                             </div>
@@ -263,6 +280,10 @@
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         <b>Guardar cierres</b>
+                                        @if (loadingSend)
+                                        {
+                                            <SpinnerLoading></SpinnerLoading>
+                                        }
                                     </button>
                                 </div>
                                 <div class="col-3 mx-2">
@@ -364,13 +385,11 @@
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
-    private int clienteSeleccioado { get; set; }
+    private int? clienteSeleccioado { get; set; }
 
     private List<CodDenDTO> Destino { get; set; } = null!;
-    private int DestinoSeleccionado { get; set; }
 
     private List<Producto> Productos { get; set; } = null!;
-    private int ProductosSeleccionado { get; set; }
 
     private List<CodDenDTO> meses { get; set; } = new List<CodDenDTO>();
     private int mesSeleccionado { get; set; }
@@ -381,7 +400,10 @@
     private List<int> Cantidades { get; set; } = null!;
     private List<int> ordenPendientes { get; set; } = new List<int>();
 
-    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
+    private List<string> TpVenta { get; set; } = new List<string> { "Delivery" , "Rack" };
+
+    Contacto Contacto { get; set; } = new Contacto();
+    IEnumerable<Contacto> Contactos = new List<Contacto>();
 
     bool loading = false;
     bool isEdit = false;
@@ -389,6 +411,7 @@
     bool loadingFilter = false;
     bool isFilter = false;
     bool loadingExport = false;
+    bool loadingSend = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -414,6 +437,42 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetData()
+    {
+        if (ordenCierre.CodCte != clienteSeleccioado)
+        {
+            await GetContactos();
+            await GetEstaciones();
+            clienteSeleccioado = ordenCierre.CodCte;
+        }
+    }
+
+    private async Task GetContactos()
+    {
+        try
+        {
+            if (ordenCierre.CodCte != null)
+            {
+                var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/{ordenCierre.CodCte}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Contactos = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
@@ -443,7 +502,7 @@
     {
         try
         {
-            var response = await http.Get<List<CodDenDTO>>("api/destino");
+            var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ordenCierre.CodCte}");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -789,7 +848,7 @@
                 ws.Columns.Width = 50;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:K1"];
+                var header = ws.Cells["A1:M1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenCierres, true);
                 tablebody.Style.Font.Size = 14;
                 header.Style.Font.Size = 14;
@@ -798,7 +857,7 @@
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
                 header.Style.Font.Bold = true;
 
-                await js.GuardarComo($"Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                await js.GuardarComo($"Cierre_{ordenCierre.Folio}_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
                 loadingExport = false;
             }
             else
@@ -817,19 +876,23 @@
     {
         try
         {
+            loadingSend = true;
             var response = await http.Get<bool>("api/email");
             if (response.Error)
             {
+                loadingSend = false;
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                await Swal.FireAsync("Exito", "Coreo enviado", SweetAlertIcon.Success);
+                loadingSend = false;
+                await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
         {
+            loadingSend = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }

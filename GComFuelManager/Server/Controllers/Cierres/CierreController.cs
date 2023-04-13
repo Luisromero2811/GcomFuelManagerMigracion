@@ -49,6 +49,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
                 orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
+                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
 
                 context.Add(orden);
                 await context.SaveChangesAsync();
@@ -69,6 +70,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Producto = null;
                 orden.Destino = null;
                 orden.Cliente = null;
+                orden.ContactoN = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
@@ -76,6 +78,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
                 orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
+                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
 
                 return Ok(orden);
             }
@@ -125,6 +128,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .Include(x => x.Cliente)
+                    .Include(x => x.ContactoN)
                     .FirstOrDefaultAsync();
                     ordenes.Add(pedido!);
                 }
@@ -149,6 +153,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Cliente)
                         .Include(x => x.Producto)
                         .Include(x => x.Destino)
+                        .Include(x => x.ContactoN)
                         .ToListAsync();
                 }
                 else
@@ -157,6 +162,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Cliente)
                         .Include(x => x.Producto)
                         .Include(x => x.Destino)
+                        .Include(x => x.ContactoN)
                         .ToListAsync();
                 }
 
@@ -173,7 +179,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var years = context.OrdenCierre.Select(x=>x.FchCierre!.Value.Year).Distinct().ToList();
+                var years = context.OrdenCierre.Select(x => x.FchCierre!.Value.Year).Distinct().ToList();
                 return Ok(years);
             }
             catch (Exception e)
