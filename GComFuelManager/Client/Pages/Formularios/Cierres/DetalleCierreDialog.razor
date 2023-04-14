@@ -10,38 +10,35 @@
     else
     {
         <div class="col-12">
-            <table class="table table-bordered">
-                <tbody>
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <th scope="row">Fecha: </th>
-                        <td>@cierres.FirstOrDefault()!.FchCierre</td>
+                        <th scope="col">OC</th>
+                        <th scope="col">Fecha de cierre</th>
+                        <th scope="col">Destino</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Fulles</th>
+                        <th scope="col">Litros cargados</th>
+                        <th scope="col">BOL</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Estatus</th>
+                        <th scope="col">Fecha de entrega</th>
                     </tr>
-                    <tr>
-                        <th scope="row">Comprador: </th>
-                        <td>@cierres.FirstOrDefault()!.Cliente!.Den</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Contacto: </th>
-                        <td>@cierres.FirstOrDefault()!.ContactoN!.Nombre</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Correo: </th>
-                        <td>@cierres.FirstOrDefault()!.ContactoN!.Correo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Producto: </th>
-                        <td>@cierres.FirstOrDefault()!.Producto!.Den</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Volumen: </th>
-                        <td>
-                            Aprox. @(VolumenTotal / 60000) Fulles (@VolumenTotal Litros)
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Precio: </th>
-                        <td>$ @cierres.FirstOrDefault()!.Precio</td>
-                    </tr>
+                </thead>
+                <tbody style="height:500px;overflow-y:scroll;">
+                    <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
+                        <tr>
+                            <td>
+                                @item.Folio
+                            </td>
+                            <td>
+                                @item.FchCierre
+                            </td>
+                            <td>
+                                @item.Destino!.Den
+                            </td>
+                        </tr>
+                    </Virtualize>
                 </tbody>
             </table>
         </div>
@@ -58,6 +55,8 @@
     List<OrdenCierre>? cierres { get; set; }
 
     private int? VolumenTotal { get; set; } = 0;
+
+    RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
     protected async override Task OnInitializedAsync()
     {

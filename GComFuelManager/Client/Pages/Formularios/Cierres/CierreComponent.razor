@@ -408,7 +408,7 @@
     private List<int> Cantidades { get; set; } = null!;
     private List<int> ordenPendientes { get; set; } = new List<int>();
 
-    private List<string> TpVenta { get; set; } = new List<string> { "Delivery" , "Rack" };
+    private List<string> TpVenta { get; set; } = new List<string> { "Delivery", "Rack" };
 
     Contacto Contacto { get; set; } = new Contacto();
     IEnumerable<Contacto> Contactos = new List<Contacto>();
@@ -578,21 +578,54 @@
         {
             loadingCreate = true;
             isFilter = false;
-            var response = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
-            if (response.Error)
+
+            var responseBIN = await http.Get<int>("api/pedido/binNumber");
+            if (responseBIN.Error)
             {
                 loadingCreate = false;
-                var message = await response.ObtenerMensajeError();
+                var message = await responseBIN.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                loadingCreate = false;
-                ordenCierres.Add(response.Response);
-                ordenPendientes.Add(response.Response.Cod);
-                await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-                await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-                await grid.Reload();
+                var bin = responseBIN.Response;
+                OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
+                    {
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Bin = ordenCierres.Count == 0 ? bin : ordenCierres.Count % 2 == 0 ? bin : bin++
+                    };
+
+                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
+                if (response.Error)
+                {
+                    loadingCreate = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    ordenCierre.CodPed = response.Response.Cod;
+                    var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
+                    if (responseOC.Error)
+                    {
+                        loadingCreate = false;
+                        var message = await responseOC.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loadingCreate = false;
+                        ordenCierres.Add(responseOC.Response);
+                        ordenPendientes.Add(responseOC.Response.Cod);
+                        await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
+                        await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
+                        await grid.Reload();
+                    }
+                }
             }
         }
         catch (Exception e)
@@ -626,21 +659,40 @@
         try
         {
             loadingCreate = true;
-            var response = await http.Post<OrdenCierre, OrdenCierre>("api/cierre/update", ordenCierre);
-            if (response.Error)
+
+            OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
+                {
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes
+                };
+
+            var responseEM = await http.Put<OrdenEmbarque>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenEmbarque);
+            if (responseEM.Error)
             {
                 loadingCreate = false;
-                var message = await response.ObtenerMensajeError();
+                var message = await responseEM.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                loadingCreate = false;
-                var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
-                ordenCierres.RemoveAt(index);
-                ordenCierres.Insert(index, response.Response);
-                ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 3000 });
-                await grid.Reload();
+                var response = await http.Post<OrdenCierre, OrdenCierre>("api/cierre/update", ordenCierre);
+                if (response.Error)
+                {
+                    loadingCreate = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loadingCreate = false;
+                    var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                    ordenCierres.RemoveAt(index);
+                    ordenCierres.Insert(index, response.Response);
+                    ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 3000 });
+                    await grid.Reload();
+                }
             }
         }
         catch (Exception e)
@@ -653,33 +705,12 @@
 
     private async Task OnPreventInternalNavigation(LocationChangingContext context)
     {
-        if (ordenCierres.Count == 0)
-        {
-            return;
-        }
+        await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
+        await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
 
-        if (isFilter)
-        {
-            return;
-        }
+        //context.PreventNavigation();
 
-        var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "Tiene cierres pendientes por confirmar, ¿Seguro que quiere salir?"
-            });
-
-        if (!string.IsNullOrEmpty(confirm.Value))
-        {
-            await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-            await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-            return;
-        }
-
-        context.PreventNavigation();
+        return;
     }
 
     private async Task CancelPedido(OrdenCierre orden)
@@ -698,20 +729,29 @@
             if (!string.IsNullOrEmpty(confirm.Value))
             {
 
-                var response = await http.Delete($"api/cierre/{orden.Cod}/cancel");
-                if (response.Error)
+                var responseEM = await http.Delete($"api/pedido/{orden.CodPed}/cancel");
+                if (responseEM.Error)
                 {
-                    var responseHttp = await response.ObtenerMensajeError();
+                    var responseHttp = await responseEM.ObtenerMensajeError();
                     await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
                 }
                 else
                 {
-                    await Swal.FireAsync("Cierre cancelado", $"La orden con folio {orden.Folio} ha sido cancelada.", SweetAlertIcon.Info);
-                    ordenPendientes.Remove(orden.Cod);
-                    await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-                    await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-                    ordenCierres.Remove(orden);
-                    //await GetOrdenesPendientes();
+                    var response = await http.Delete($"api/cierre/{orden.Cod}/cancel");
+                    if (response.Error)
+                    {
+                        var responseHttp = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        await Swal.FireAsync("Cierre cancelado", $"La orden con folio {orden.Folio} ha sido cancelada.", SweetAlertIcon.Info);
+                        ordenPendientes.Remove(orden.Cod);
+                        await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
+                        await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
+                        ordenCierres.Remove(orden);
+                        //await GetOrdenesPendientes();
+                    }
                 }
             }
         }
@@ -727,6 +767,16 @@
         try
         {
             List<int>? ordenesPendientes = new List<int>();
+
+            DateTime expiration;
+            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONCIERRE"), out expiration))
+            {
+                if (DateTime.Now > expiration)
+                {
+                    await js.RemoveItemLocalStorage("EXPIRACIONCIERRE");
+                    await js.RemoveItemLocalStorage("CIERRE");
+                }
+            }
 
             if (await js.GetItemLocalStorage("CIERRE") != null)
             {
@@ -747,7 +797,7 @@
                     ordenPendientes = ordenesPendientes!;
                 }
             }
-            
+
 
         }
         catch (Exception e)
@@ -876,11 +926,11 @@
         {
             await ds.OpenAsync<TabsCierresDialogs>($"Orden {filtro.Folio}",
             new Dictionary<string, object>() { { "folio", filtro.Folio } },
-            new DialogOptions() { Height = "500px", Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true });
+            new DialogOptions() { Height = "600px", Resizable = true, Draggable = true, CloseDialogOnOverlayClick = true });
         }
         catch (Exception e)
         {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);   
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

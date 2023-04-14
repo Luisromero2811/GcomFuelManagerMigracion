@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Security.Claims;
+
 namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
@@ -280,7 +283,7 @@ namespace GComFuelManager.Server.Controllers
             {
 
                 var pedidosDate = await context.Orden
-                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codprd2 != 10157)
+                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true && x.Codprd2 != 10157)
                   .Include(x => x.Destino)
                   .ThenInclude(x => x.Cliente)
                   .Include(x => x.Producto)
@@ -307,7 +310,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 List<Orden> Ordenes = new List<Orden>();
                 var pedidosDate = await context.OrdenEmbarque
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.activo == true)
                 .Include(x => x.Destino)
                 .ThenInclude(x => x.Cliente)
                 .Include(x => x.Tad)
@@ -377,17 +380,10 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
-                if (bin.HasValue)
-                {
-                    orden.Bin = bin + 1;
-                }
-                else
-                {
-                    return BadRequest();
-                }
-
-                orden.Codusu = 1;
+                var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+                if (user == null)
+                    return NotFound();
+                orden.Codusu = user!.Cod;
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.Coddes);
                 orden.Tad = await context.Tad.FirstOrDefaultAsync(x => x.Cod == orden.Codtad);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.Codprd);
@@ -402,6 +398,22 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("binNumber")]
+        [HttpGet]
+        public async Task<ActionResult> GetLastBin()
+        {
+            try
+            {
+                var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
+                return Ok(bin);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         //Confirmar pedido
         [HttpPost("confirm")]
         public async Task<ActionResult<OrdenCompra>> PostConfirm(List<OrdenEmbarque> orden)
@@ -483,7 +495,7 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost("update")]
         public async Task<ActionResult> PutPedido([FromBody] OrdenEmbarque orden)
         {
             try
@@ -498,6 +510,40 @@ namespace GComFuelManager.Server.Controllers
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
+
+                var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
+                    .Include(x=>x.Producto)
+                    .Include(x=>x.Destino)
+                    .Include(x=>x.Tonel)
+                    .Include(x=>x.Tad)
+                    .Include(x => x.Estado)
+                    .FirstOrDefaultAsync();
+                
+                return Ok(ord);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpPut("cierre/update/{cod:int}")]
+        public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenEmbarque orden, [FromRoute]int cod)
+        {
+            try
+            {
+                var o = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == cod);
+                if (o == null)
+                    return NotFound();
+
+                o!.Codprd = orden.Codprd;
+                o!.Coddes = orden.Coddes;
+                o!.Pre = orden.Pre;
+                o!.Vol = o.Vol;
+
+                context.Update(o);
+                await context.SaveChangesAsync();
+
                 return Ok();
             }
             catch (Exception e)
