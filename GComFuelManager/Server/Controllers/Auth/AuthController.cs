@@ -40,13 +40,19 @@ namespace GComFuelManager.Server.Controllers.Auth
         {
             try
             {
-                var result = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
-                if (result.Succeeded)
+                var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
+                if(usuario.Activo == true)
                 {
-                    var token = await BuildToken(info);
-                    //var user = await userManager.FindByNameAsync(info.UserName);
-                    //await userManager.SetAuthenticationTokenAsync(user!,"login","jwtToken",token.Token);
-                    return Ok(token);
+                    var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
+                    if (resultado.Succeeded)
+                    {
+                        var token = await BuildToken(info);
+                        return Ok(token);
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
                 }
                 else
                 {

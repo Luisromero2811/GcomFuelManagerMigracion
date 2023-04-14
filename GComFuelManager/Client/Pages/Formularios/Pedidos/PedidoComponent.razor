@@ -21,7 +21,7 @@ else
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"
                     IsLoading="loading" @ref="@grid" AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Acciones" MinWidth="200px" Visible="true" >
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Acciones" Width="200px" MinWidth="200px" Visible="true" >
                 <Template Context="item">
                     <div class="col-12 row">
                         <div class="col">

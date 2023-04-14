@@ -80,9 +80,8 @@
                 <Template Context="data">
                     <div class="col-12">
                         <div class="form-check form-switch m-2">
-                            <input class="form-check-input" type="checkbox" role="switch">
-                                                               @*id="@data.UserCod" checked="@data.Activo"
-                                   @onchange="@((ChangeEventArgs e) => ActivateUser(data, e))"*@
+                            <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
+                                    @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
                         </div>
                     </div>
                 </Template>
@@ -213,13 +212,16 @@
             throw e;
         }
     }
-    //Función asincrona para activar al usuario o desactivarlo. 
-    public async Task ActivateUser(UsuarioInfo usuario, ChangeEventArgs act)
+    //Función asincrona para activar al usuario o desactivarlo.
+    //Dentro de los parametros a asignar vamos a trabajar con el usuario que se va a modificar y un cambio evento que se encarga de modificar el dato
+    public async Task ActivateUser(int code, ChangeEventArgs act, string name)
     {
         try
         {
-            var state = (bool)act.Value!;
-            var responseHttp = await repositorio.Put<bool>($"api/usuarios/editActivar{usuario.UserCod}", state);
+            //Variable booleana ligada al parametro de cambio de evento.
+            UsuarioInfo usuarioInfo = new UsuarioInfo() { UserCod = code, Activo = (bool)act.Value, Nombre = name };
+            //Petición de tipo PUT recibiendo un valor booleano, mandando el cod del usuario y el cambio de estado activo 
+            var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/activar", usuarioInfo);
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -227,14 +229,15 @@
             }
             else
             {
+                //Cambio en la grid 
                 grid?.Reload();
-                if (state)
+                if (usuarioInfo.Activo)
                 {
-                    await Alertas($"{usuario.UserName} ha sido activado", SweetAlertIcon.Info);
+                    await Alertas($"El usuario: {usuarioInfo.Nombre} ha sido activado", SweetAlertIcon.Info);
                 }
                 else
                 {
-                    await Alertas($"{usuario.UserName} ha sido desactivado", SweetAlertIcon.Info);
+                    await Alertas($"El usuario: {usuarioInfo.Nombre} ha sido desactivado", SweetAlertIcon.Info);
                 }
             }
         }
