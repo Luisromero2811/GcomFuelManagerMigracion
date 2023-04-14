@@ -639,35 +639,35 @@
         }
     }
 
-    //private async Task AsignarTp(int code, ChangeEventArgs tp)
-    //{
-    //    try
-    //    {
-    //        OrdenesTP ordentp = new OrdenesTP() { Cod = code, TP = (bool)tp.Value };
-    //        var response = await repositorio.Put<OrdenesTP>($"api/pedido/tp", ordentp);
+    private async Task AsignarTp(int code, ChangeEventArgs tp)
+    {
+        try
+        {
+            OrdenesTP ordentp = new OrdenesTP() { Cod = code, TP = (bool)tp.Value };
+            var response = await repositorio.Put<OrdenesTP>($"api/pedido/tp", ordentp);
 
-    //        if (response.Error)
-    //        {
-    //            var message = await response.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            grid?.Reload();
-    //            if (ordentp.TP)
-    //                Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
-    //            else
-    //                Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada", Detail = "La orden ha sido desasignada a TP." });
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (ordentp.TP)
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
+                else
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada" ,Detail = "La orden ha sido desasignada a TP." });
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
-    //private void Message(NotificationMessage message)
-    //{
-    //    ns.Notify(message);
-    //}
+    private void Message(NotificationMessage message)
+    {
+        ns.Notify(message);
+    }
 }
