@@ -41,6 +41,29 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("{folio}")]
+        public async Task<ActionResult> GetByFolio([FromRoute]string folio)
+        {
+            try
+            {
+                var ordenes = await context.OrdenCierre.Where(x=>x.Folio == folio && x.Estatus == true)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x!.Destino)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x!.Producto)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x.Tad)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x.Tonel)
+                    .ToListAsync();
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrdenCierre orden)
         {
@@ -71,6 +94,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Destino = null;
                 orden.Cliente = null;
                 orden.ContactoN = null!;
+                orden.OrdenEmbarque = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
