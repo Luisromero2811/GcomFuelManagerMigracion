@@ -18,5 +18,7 @@ namespace GComFuelManager.Shared.DTOs
         public List<string> Roles { get; set; } = new List<string>();
         //Contraseña
         public string Password { get; set; } = string.Empty;
+        //Estado
+        public bool Activo { get; set; } = true;
     }
 }

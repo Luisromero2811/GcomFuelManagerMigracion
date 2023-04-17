@@ -28,7 +28,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("privilegio"), MaxLength(256)]
         public string? Privilegio { get; set; } = string.Empty;
         [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
+        public bool Activo { get; set; } = true;
 
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
     }

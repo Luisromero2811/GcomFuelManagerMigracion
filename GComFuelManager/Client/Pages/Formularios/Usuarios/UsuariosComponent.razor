@@ -18,7 +18,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Nombre Usuario:</label>
-                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName"/>
+                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName" />
                     </div>
                 </div>
                 <div class="col-4 mb-1">
@@ -66,19 +66,22 @@
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px"  MinWidth="200px">
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" MinWidth="200px">
                 <Template Context="data">
-                    @foreach(var i in data.Roles)
-                        @i
+                    @foreach (var i in data.Roles)
+                    {
+                        <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
+                            @i
+                        </RadzenBadge>
+                    }
                 </Template>
             </RadzenDataGridColumn>
-
-            <!--Switch para activar al usuario-->
-            <RadzenDataGridColumn TItem="Usuario" Title="Activar" Width="100px" MinWidth="100px">
+            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
                 <Template Context="data">
                     <div class="col-12">
                         <div class="form-check form-switch m-2">
-                            <input class="form-check-input" type="checkbox" role="switch" />
+                            <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
+                                    @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
                         </div>
                     </div>
                 </Template>
@@ -88,7 +91,7 @@
 </div>
 
 
-    @code {
+@code {
     UsuarioInfo info = new UsuarioInfo();
 
     bool cargando = false;
@@ -161,9 +164,13 @@
                 //Formamos el POST para agregar al nuevo usuario
                 if (respuestaHTTP.Response is not null)
                 {
+
                     await swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
                     //Hacer un reload de la tabla
                     Usuarios.Add(respuestaHTTP.Response);
+                    grid?.Reload();
+                    await GetUsers();
+
                 }
             }
         }
@@ -202,8 +209,54 @@
         catch (Exception e)
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e; 
+            throw e;
         }
+    }
+    //Función asincrona para activar al usuario o desactivarlo.
+    //Dentro de los parametros a asignar vamos a trabajar con el usuario que se va a modificar y un cambio evento que se encarga de modificar el dato
+    public async Task ActivateUser(int code, ChangeEventArgs act, string name)
+    {
+        try
+        {
+            //Variable booleana ligada al parametro de cambio de evento.
+            UsuarioInfo usuarioInfo = new UsuarioInfo() { UserCod = code, Activo = (bool)act.Value, Nombre = name };
+            //Petición de tipo PUT recibiendo un valor booleano, mandando el cod del usuario y el cambio de estado activo 
+            var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/activar", usuarioInfo);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                //Cambio en la grid 
+                grid?.Reload();
+                if (usuarioInfo.Activo)
+                {
+                    await Alertas($"El usuario: {usuarioInfo.Nombre} ha sido activado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Alertas($"El usuario: {usuarioInfo.Nombre} ha sido desactivado", SweetAlertIcon.Info);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    //Función privada para creación de alertas personalizadas
+    private async Task Alertas(string message, SweetAlertIcon icon)
+    {
+        await swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1200,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
     }
 }
 

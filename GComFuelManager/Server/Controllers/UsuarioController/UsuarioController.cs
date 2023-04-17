@@ -31,12 +31,14 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
         {
             try
             {
-                var usuarios = await context.Usuario.Select(x=>new UsuarioInfo
+                //Variable asignada para traer el contexto de Usuario igualado a UsuarioInfo con sus propiedades
+                var usuarios = await context.Usuario.Select(x => new UsuarioInfo
                 {
                     UserName = x.Usu!,
                     Password = x.Cve!,
                     Nombre = x.Den!,
-                    UserCod = x.Cod
+                    UserCod = x.Cod,
+                    Activo = x.Activo
                 }).ToListAsync();
 
                 foreach (var item in usuarios)
@@ -45,9 +47,8 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     if (u != null)
                     {
                         IList<string> roles = await userManager.GetRolesAsync(u);
-                        usuarios.FirstOrDefault(item).Roles = roles.ToList();
-                        usuarios.FirstOrDefault(item).Id = u.Id;
-                        Debug.WriteLine(JsonConvert.SerializeObject(u));
+                        usuarios.FirstOrDefault(x => x.UserCod == item.UserCod)!.Roles = roles.ToList();
+                        usuarios.FirstOrDefault(x => x.UserCod == item.UserCod)!.Id = u.Id;
                     }
                 }
 
@@ -115,7 +116,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
 
                 if (updateUserSistema == null)
                 {
-                    return NotFound(); 
+                    return NotFound();
                 }
 
                 var oldUser = updateUserSistema;
@@ -132,7 +133,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 //Actualizar Usuario de Identity AspNet
                 var updateUserAsp = await userManager.FindByIdAsync(info.Id);
 
-                if(updateUserAsp != null)
+                if (updateUserAsp != null)
                 {
                     //Variable para asignacion de los roles
                     var roles = info.Roles;
@@ -170,14 +171,21 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
             }
         }
 
-        [HttpPut("editActivar")]
-        public async Task<ActionResult> PutActive(int activo)
+        [HttpPut("activar")]
+        public async Task<ActionResult> PutActive([FromBody] UsuarioInfo info)
         {
             try
             {
-                context.Update(activo);
+                var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Cod == info.UserCod);
+                //Si el usuario no existe
+                if (usuario == null)
+                {
+                    return NotFound();
+                }
+                usuario.Activo = info.Activo;
+                //Función para actualizar el estado activo del usuario
+                context.Update(usuario);
                 await context.SaveChangesAsync();
-
                 return Ok();
             }
             catch (Exception e)
@@ -188,3 +196,4 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
     }
 }
 
+//   var updateUserSistema = await context.Usuario.FirstOrDefaultAsync(x => x.Cod == info.UserCod);
