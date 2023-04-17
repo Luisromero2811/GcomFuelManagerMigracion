@@ -1,0 +1,90 @@
+﻿@*@page "/detalle/{folio}"*@
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<RadzenStack Gap="1rem">
+    @if (cierres == null)
+    {
+        <p>Cargando...</p>
+    }
+    else
+    {
+        <div class="col-12">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">OC</th>
+                        <th scope="col">Fecha de cierre</th>
+                        <th scope="col">Destino</th>
+                        <th scope="col">Producto</th>
+                        <th scope="col">Fulles</th>
+                        <th scope="col">Litros cargados</th>
+                        <th scope="col">BOL</th>
+                        <th scope="col">Unidad</th>
+                        <th scope="col">Estatus</th>
+                        <th scope="col">Fecha de entrega</th>
+                    </tr>
+                </thead>
+                <tbody style="height:500px;overflow-y:scroll;">
+                    <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
+                        <tr>
+                            <td>
+                                @item.Folio
+                            </td>
+                            <td>
+                                @item.FchCierre
+                            </td>
+                            <td>
+                                @item.Destino!.Den
+                            </td>
+                        </tr>
+                    </Virtualize>
+                </tbody>
+            </table>
+        </div>
+    }
+</RadzenStack>
+
+@code {
+    [Parameter] public string folio { get; set; } = string.Empty;
+
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+
+    OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+    List<OrdenCierre>? cierres { get; set; }
+
+    private int? VolumenTotal { get; set; } = 0;
+
+    RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetFiltroCierres();
+    }
+
+    private async Task GetFiltroCierres()
+    {
+        try
+        {
+            filtro.Folio = folio;
+            filtro.forFolio = true;
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                cierres = response.Response;
+                foreach (var item in cierres)
+                    VolumenTotal = VolumenTotal + item.Volumen;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

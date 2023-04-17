@@ -41,6 +41,52 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("{folio}")]
+        public async Task<ActionResult> GetByFolio([FromRoute]string folio)
+        {
+            try
+            {
+                var ordenes = await context.OrdenCierre.Where(x=>x.Folio == folio && x.Estatus == true)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x!.Destino)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x!.Producto)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x.Tad)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x.Tonel)
+                    .ToListAsync();
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{folio}/detalle")]
+        public async Task<ActionResult> GetDetailByFolio([FromRoute] string folio)
+        {
+            try
+            {
+                var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
+                    .ToListAsync();
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrdenCierre orden)
         {
@@ -71,6 +117,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Destino = null;
                 orden.Cliente = null;
                 orden.ContactoN = null!;
+                orden.OrdenEmbarque = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
@@ -145,7 +192,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                IList<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
                 if (!filtroDTO.forFolio)
                 {
                     cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte

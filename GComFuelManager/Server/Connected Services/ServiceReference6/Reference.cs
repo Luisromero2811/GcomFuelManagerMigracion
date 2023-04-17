@@ -7,12 +7,12 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ServiceReference4
+namespace ServiceReference6
 {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="http://www.entessa.com/synthesisSchema/1/", ConfigurationName="ServiceReference4.BusinessEntityService")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="http://www.entessa.com/synthesisSchema/1/", ConfigurationName="ServiceReference6.BusinessEntityService")]
     public interface BusinessEntityService
     {
         
@@ -21,7 +21,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> GetBusinessEntityAsync(ServiceReference4.WsGetBusinessEntityRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> GetBusinessEntityAsync(ServiceReference6.WsGetBusinessEntityRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntitie" +
             "s", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntitie" +
@@ -29,7 +29,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> GetBusinessEntitiesAsync(ServiceReference4.WsGetBusinessEntitiesRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> GetBusinessEntitiesAsync(ServiceReference6.WsGetBusinessEntitiesRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityL" +
             "ocation", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityL" +
@@ -37,7 +37,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityLocationResponse> GetBusinessEntityLocationAsync(ServiceReference4.WsGetBusinessEntityLocationRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityLocationResponse> GetBusinessEntityLocationAsync(ServiceReference6.WsGetBusinessEntityLocationRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityL" +
             "ocations", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityL" +
@@ -45,7 +45,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityLocationResponse> GetBusinessEntityLocationsAsync(ServiceReference4.WsGetBusinessEntityLocationsRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityLocationResponse> GetBusinessEntityLocationsAsync(ServiceReference6.WsGetBusinessEntityLocationsRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityA" +
             "ssociation", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityA" +
@@ -53,7 +53,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationAsync(ServiceReference4.WsGetBusinessEntityAssociationRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationAsync(ServiceReference6.WsGetBusinessEntityAssociationRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityA" +
             "ssociations", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityA" +
@@ -61,7 +61,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationsAsync(ServiceReference4.WsGetBusinessEntityAssociationsRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationsAsync(ServiceReference6.WsGetBusinessEntityAssociationsRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/AddBusinessEntityC" +
             "redit", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/AddBusinessEntityC" +
@@ -69,14 +69,14 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> AddBusinessEntityCreditAsync(ServiceReference4.WsSaveBusinessEntityCreditRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> AddBusinessEntityCreditAsync(ServiceReference6.WsSaveBusinessEntityCreditRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/AddBusinessEntity", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/AddBusinessEntityR" +
             "esponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> AddBusinessEntityAsync(ServiceReference4.WsSaveBusinessEntityRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> AddBusinessEntityAsync(ServiceReference6.WsSaveBusinessEntityRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/UpdateBusinessEnti" +
             "ty", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/UpdateBusinessEnti" +
@@ -84,7 +84,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> UpdateBusinessEntityAsync(ServiceReference4.WsSaveBusinessEntityRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> UpdateBusinessEntityAsync(ServiceReference6.WsSaveBusinessEntityRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityC" +
             "redit", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityC" +
@@ -92,7 +92,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> GetBusinessEntityCreditAsync(ServiceReference4.WsGetBusinessEntityCreditRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> GetBusinessEntityCreditAsync(ServiceReference6.WsGetBusinessEntityCreditRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityC" +
             "redits", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/GetBusinessEntityC" +
@@ -100,7 +100,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> GetBusinessEntityCreditsAsync(ServiceReference4.WsGetBusinessEntityCreditsRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> GetBusinessEntityCreditsAsync(ServiceReference6.WsGetBusinessEntityCreditsRequest req);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/UpdateBusinessEnti" +
             "tyCredit", ReplyAction="http://www.entessa.com/synthesisSchema/1/BusinessEntityService/UpdateBusinessEnti" +
@@ -108,7 +108,7 @@ namespace ServiceReference4
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(WsResponse))]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(SynthesisEntity))]
-        System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> UpdateBusinessEntityCreditAsync(ServiceReference4.WsSaveBusinessEntityCreditRequest req);
+        System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> UpdateBusinessEntityCreditAsync(ServiceReference6.WsSaveBusinessEntityCreditRequest req);
     }
     
     /// <remarks/>
@@ -8490,13 +8490,13 @@ namespace ServiceReference4
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    public interface BusinessEntityServiceChannel : ServiceReference4.BusinessEntityService, System.ServiceModel.IClientChannel
+    public interface BusinessEntityServiceChannel : ServiceReference6.BusinessEntityService, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    public partial class BusinessEntityServiceClient : System.ServiceModel.ClientBase<ServiceReference4.BusinessEntityService>, ServiceReference4.BusinessEntityService
+    public partial class BusinessEntityServiceClient : System.ServiceModel.ClientBase<ServiceReference6.BusinessEntityService>, ServiceReference6.BusinessEntityService
     {
         
         /// <summary>
@@ -8532,62 +8532,62 @@ namespace ServiceReference4
         {
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> GetBusinessEntityAsync(ServiceReference4.WsGetBusinessEntityRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> GetBusinessEntityAsync(ServiceReference6.WsGetBusinessEntityRequest req)
         {
             return base.Channel.GetBusinessEntityAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> GetBusinessEntitiesAsync(ServiceReference4.WsGetBusinessEntitiesRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> GetBusinessEntitiesAsync(ServiceReference6.WsGetBusinessEntitiesRequest req)
         {
             return base.Channel.GetBusinessEntitiesAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityLocationResponse> GetBusinessEntityLocationAsync(ServiceReference4.WsGetBusinessEntityLocationRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityLocationResponse> GetBusinessEntityLocationAsync(ServiceReference6.WsGetBusinessEntityLocationRequest req)
         {
             return base.Channel.GetBusinessEntityLocationAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityLocationResponse> GetBusinessEntityLocationsAsync(ServiceReference4.WsGetBusinessEntityLocationsRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityLocationResponse> GetBusinessEntityLocationsAsync(ServiceReference6.WsGetBusinessEntityLocationsRequest req)
         {
             return base.Channel.GetBusinessEntityLocationsAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationAsync(ServiceReference4.WsGetBusinessEntityAssociationRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationAsync(ServiceReference6.WsGetBusinessEntityAssociationRequest req)
         {
             return base.Channel.GetBusinessEntityAssociationAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationsAsync(ServiceReference4.WsGetBusinessEntityAssociationsRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityAssociationResponse> GetBusinessEntityAssociationsAsync(ServiceReference6.WsGetBusinessEntityAssociationsRequest req)
         {
             return base.Channel.GetBusinessEntityAssociationsAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> AddBusinessEntityCreditAsync(ServiceReference4.WsSaveBusinessEntityCreditRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> AddBusinessEntityCreditAsync(ServiceReference6.WsSaveBusinessEntityCreditRequest req)
         {
             return base.Channel.AddBusinessEntityCreditAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> AddBusinessEntityAsync(ServiceReference4.WsSaveBusinessEntityRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> AddBusinessEntityAsync(ServiceReference6.WsSaveBusinessEntityRequest req)
         {
             return base.Channel.AddBusinessEntityAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityResponse> UpdateBusinessEntityAsync(ServiceReference4.WsSaveBusinessEntityRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityResponse> UpdateBusinessEntityAsync(ServiceReference6.WsSaveBusinessEntityRequest req)
         {
             return base.Channel.UpdateBusinessEntityAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> GetBusinessEntityCreditAsync(ServiceReference4.WsGetBusinessEntityCreditRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> GetBusinessEntityCreditAsync(ServiceReference6.WsGetBusinessEntityCreditRequest req)
         {
             return base.Channel.GetBusinessEntityCreditAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> GetBusinessEntityCreditsAsync(ServiceReference4.WsGetBusinessEntityCreditsRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> GetBusinessEntityCreditsAsync(ServiceReference6.WsGetBusinessEntityCreditsRequest req)
         {
             return base.Channel.GetBusinessEntityCreditsAsync(req);
         }
         
-        public System.Threading.Tasks.Task<ServiceReference4.WsBusinessEntityCreditResponse> UpdateBusinessEntityCreditAsync(ServiceReference4.WsSaveBusinessEntityCreditRequest req)
+        public System.Threading.Tasks.Task<ServiceReference6.WsBusinessEntityCreditResponse> UpdateBusinessEntityCreditAsync(ServiceReference6.WsSaveBusinessEntityCreditRequest req)
         {
             return base.Channel.UpdateBusinessEntityCreditAsync(req);
         }

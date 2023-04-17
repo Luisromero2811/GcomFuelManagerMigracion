@@ -81,7 +81,14 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Confirmada { get; set; } = false;
 
         [JsonProperty("codCon"), EpplusIgnore]
-        public int CodCon { get; set; }
+        public int? CodCon { get; set; }
+
+        [JsonProperty("codPed"), EpplusIgnore]
+        public int? CodPed { get; set; }
+
+        [EpplusIgnore]
+        public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
+
         [NotMapped, EpplusIgnore]
         public Contacto? ContactoN { get; set; } = null!;
     }

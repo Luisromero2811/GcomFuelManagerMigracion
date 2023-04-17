@@ -1,14 +1,14 @@
 {
   "ExtendedData": {
     "inputs": [
-      "https://qa.synthesis.itzoil.com:14095/v1/BusinessEntityService?wsdl"
+      "https://qa.synthesis.itzoil.com:14095/v1/BusinessEntityService"
     ],
     "collectionTypes": [
       "System.Array",
       "System.Collections.Generic.Dictionary`2"
     ],
     "namespaceMappings": [
-      "*, ServiceReference4"
+      "*, ServiceReference6"
     ],
     "targetFramework": "net7.0",
     "typeReuseMode": "All"

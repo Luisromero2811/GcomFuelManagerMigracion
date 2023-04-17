@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ServiceReference4;
+using Newtonsoft.Json;
+using System.Diagnostics;
 using System.ServiceModel;
 
 namespace GComFuelManager.Server.Controllers.Services
@@ -10,12 +11,10 @@ namespace GComFuelManager.Server.Controllers.Services
     public class ServicesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        private readonly BusinessEntityService businessEntity;
 
-        public ServicesController(ApplicationDbContext context, BusinessEntityService businessEntity)
+        public ServicesController(ApplicationDbContext context)
         {
             this.context = context;
-            this.businessEntity = businessEntity;
         }
 
         [Route("transportistas")]
@@ -24,12 +23,6 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                WsGetBusinessEntityAssociationsRequest be = new WsGetBusinessEntityAssociationsRequest();
-
-                be.IncludeChildObjects = new ServiceReference4.NBool();
-
-                var response = businessEntity.GetBusinessEntityAssociationsAsync(be);
-
                 return Ok();
             }
             catch (Exception e)

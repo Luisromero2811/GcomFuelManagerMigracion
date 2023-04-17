@@ -126,6 +126,12 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.ContactoN)
                 .WithMany()
                 .HasForeignKey(x => x.CodCon);
+
+            //OrdenEmbarque - Cierre
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.OrdenEmbarque)
+                .WithMany()
+                .HasForeignKey(x => x.CodPed);
         }
 
 
