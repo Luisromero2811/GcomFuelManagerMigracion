@@ -10,6 +10,9 @@
     else
     {
         <div class="col-12">
+            <div class="col-12">
+                Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+            </div>
             <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
@@ -17,26 +20,27 @@
                         <th scope="col">Fecha de cierre</th>
                         <th scope="col">Destino</th>
                         <th scope="col">Producto</th>
-                        <th scope="col">Fulles</th>
-                        <th scope="col">Litros cargados</th>
+                        @*<th scope="col">Fulles</th>*@
+                        @*<th scope="col">Litros cargados</th>*@
                         <th scope="col">BOL</th>
                         <th scope="col">Unidad</th>
                         <th scope="col">Estatus</th>
                         <th scope="col">Fecha de entrega</th>
                     </tr>
                 </thead>
-                <tbody style="height:500px;overflow-y:scroll;">
+                <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
                     <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
                         <tr>
-                            <td>
-                                @item.Folio
-                            </td>
-                            <td>
-                                @item.FchCierre
-                            </td>
-                            <td>
-                                @item.Destino!.Den
-                            </td>
+                            <td>@item.Folio</td>
+                            <td>@item.FchCierre</td>
+                            <td>@item.Destino?.Den</td>
+                            <td>@item.Producto?.Den</td>
+                            @*<td></td>*@
+                            @*<td>@((index++ % 2) == 0 ? index : "")</td>*@
+                            <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
+                            <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
+                            <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
+                            <td>@item?.FchLlegada</td>
                         </tr>
                     </Virtualize>
                 </tbody>
@@ -48,13 +52,14 @@
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
 
-    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
-
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
     List<OrdenCierre>? cierres { get; set; }
 
-    private int? VolumenTotal { get; set; } = 0;
+    private int? FullesRestantes { get; set; } = 0;
+
+    private int index { get; set; } = 0;
+    private int indexRow { get; set; } = 0;
 
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
@@ -67,9 +72,7 @@
     {
         try
         {
-            filtro.Folio = folio;
-            filtro.forFolio = true;
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+            var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}/detalle");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -79,7 +82,8 @@
             {
                 cierres = response.Response;
                 foreach (var item in cierres)
-                    VolumenTotal = VolumenTotal + item.Volumen;
+                    if (item.OrdenEmbarque?.Folio == null)
+                        FullesRestantes++;
             }
         }
         catch (Exception e)

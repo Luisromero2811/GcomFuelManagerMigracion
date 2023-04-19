@@ -8,9 +8,10 @@
       "System.Collections.Generic.Dictionary`2"
     ],
     "namespaceMappings": [
-      "*, ServiceReference6"
+      "*, BusinessReferenceService"
     ],
+    "sync": true,
     "targetFramework": "net7.0",
-    "typeReuseMode": "All"
+    "typeReuseMode": "Specified"
   }
 }

@@ -42,19 +42,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("{folio}")]
-        public async Task<ActionResult> GetByFolio([FromRoute]string folio)
+        public async Task<ActionResult> GetByFolio([FromRoute] string folio)
         {
             try
             {
-                var ordenes = await context.OrdenCierre.Where(x=>x.Folio == folio && x.Estatus == true)
-                    .Include(x=>x.OrdenEmbarque)
-                    .ThenInclude(x=>x!.Destino)
-                    .Include(x=>x.OrdenEmbarque)
-                    .ThenInclude(x=>x!.Producto)
-                    .Include(x=>x.OrdenEmbarque)
-                    .ThenInclude(x=>x.Tad)
-                    .Include(x=>x.OrdenEmbarque)
-                    .ThenInclude(x=>x.Tonel)
+                var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
                     .ToListAsync();
                 return Ok(ordenes);
             }
@@ -79,6 +79,18 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Tonel)
                     .ToListAsync();
+
+                foreach (var item in ordenes)
+                {
+                    if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                    {
+                        var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                        if (o != null)
+                            ordenes.FirstOrDefault(x=>x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                        else
+                            ordenes.FirstOrDefault(x=>x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                    }
+                }
                 return Ok(ordenes);
             }
             catch (Exception e)

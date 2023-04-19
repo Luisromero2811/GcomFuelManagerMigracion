@@ -27,29 +27,29 @@
                         </InputSelect>
                     </div>
                 </div>
-                @*<div class="col-4 mb-1">
-                <div class="col-12">
-                <label>Grupo</label>
-                <InputSelect @bind-Value="GrupoSeleccionado" class="form-select" onchange="@GetClientes()">
-                <option>-- Selecciona una opcion --</option>
-                @if (Grupos is null)
-                {
-                <option disabled> Cargando ...</option>
-                }
-                else if (Grupos.Count == 0)
-                {
-                <option disabled> No hay grupos</option>
-                }
-                else
-                {
-                foreach (var item in Grupos)
-                {
-                <option value="@item.Cod">@item.Den</option>
-                }
-                }
-                </InputSelect>
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Grupo</label>
+                        <InputSelect @bind-Value="ordenEmbarque.CodGru" class="form-select" onchange="@GetClientes()">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Grupos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Grupos.Count == 0)
+                            {
+                                <option disabled> No hay grupos</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Grupos)
+                                {
+                                    <option value="@item.Cod">@item.Den</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
                 </div>
-                </div>*@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Cliente</label>
@@ -76,7 +76,7 @@
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Estacion</label>
-                        <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Coddes" class="form-select">
+                        <InputSelect @bind-Value="ordenEmbarque.CodDes" class="form-select">
                             <option>-- Selecciona una opcion --</option>
                             @if (Estaciones is null)
                             {
@@ -149,6 +149,37 @@
                         <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Fchcar"></InputDate>
                     </div>
                 </div>
+
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Fecha de llegada</label>
+                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.FchLlegada"></InputDate>
+                    </div>
+                </div>
+
+                <div class="col-4 mb-1">
+                    <div class="col-12">
+                        <label>Turno</label>
+                        <InputSelect @bind-Value="ordenEmbarque.Turno" class="form-select">
+                            <option>-- Selecciona una opcion --</option>
+                            @if (Turnos is null)
+                            {
+                                <option disabled> Cargando ...</option>
+                            }
+                            else if (Turnos.Count == 0)
+                            {
+                                <option disabled> No hay capacidades</option>
+                            }
+                            else
+                            {
+                                foreach (var item in Turnos)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
                 <div class="col-4 mb-1">
                     <div class="col-12">
                         <label>Precio</label>
@@ -171,8 +202,8 @@
             <div class="col-12 d-flex justify-content-center mt-2">
                 @if (isEdit)
                 {
-                    <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SavePedido">
+                    <div class="col-4 px-2">
+                        <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@SavePedido">
                             <i class="fa fa-solid fa-plus"></i>
                             <b>Guardar Cambio</b>
                             @if (loadingAgregar)
@@ -182,8 +213,8 @@
                         </button>
                     </div>
                 }
-                <div class="col-6">
-                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ConfirmPedido">
+                <div class="col-4 px-2">
+                    <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@ConfirmPedido">
                         <i class="fa fa-solid fa-check"></i>
                         <b>Confirmar Pedidos</b>
                         @if (loadingConfirm)
@@ -209,7 +240,7 @@
 
     //Seleccionables
     //private int GrupoSeleccionado;
-    //private int GrupoSeleccionadoB;
+    private Int16? GrupoSeleccionadoB = 0;
     //private int ClienteSeleccionado;
     private int? ClienteSeleccionadoB = 0;
 
@@ -218,7 +249,8 @@
     [Parameter] public List<CodDenDTO> Grupos { get; set; } = null!;
     [Parameter] public List<CodDenDTO> Productos { get; set; } = null!;
     [Parameter] public List<int> Cantidades { get; set; } = null!;
-    [Parameter] public List<CodDenDTO> Clientes { get; set; } = null!;
+    public List<CodDenDTO> Clientes { get; set; } = null!;
+    public List<string> Turnos { get; set; } = new List<string>() { "11:00 pm - 7:00 am", "7:00 am - 3:00 pm", "3:00 pm - 11:00 pm" };
     private List<CodDenDTO> Estaciones { get; set; } = null!;
 
     //loadings
@@ -242,6 +274,33 @@
                     Estaciones = response.Response;
                     StateHasChanged();
                     ClienteSeleccionadoB = ordenEmbarque.CodCte;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (ordenEmbarque.CodGru != null && ordenEmbarque.CodGru != GrupoSeleccionadoB)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenEmbarque.CodGru}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoB = ordenEmbarque.CodGru;
+                    Clientes = response.Response;
+                    StateHasChanged();
                 }
             }
         }
