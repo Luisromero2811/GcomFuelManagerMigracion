@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Views\gcom_unilogo.png" />
+    <None Remove="wwwroot\img\bar-de-hamburguesas(1).png" />
+    <None Remove="wwwroot\img\bar-de-hamburguesas.png" />
+    <None Remove="wwwroot\img\camion-de-carga.png" />
+    <None Remove="wwwroot\img\delivery-truck (1).png" />
+    <None Remove="wwwroot\img\delivery-truck.png" />
+    <None Remove="wwwroot\img\gcom_unilogo.png" />
+    <None Remove="wwwroot\img\hourglass.png" />
+    <None Remove="wwwroot\img\lista(1).png" />
+    <None Remove="wwwroot\img\lista-de-verificacion.png" />
+    <None Remove="wwwroot\img\opcion-de-actualizacion-de-pagina.png" />
+    <None Remove="wwwroot\img\rating.png" />
+    <None Remove="wwwroot\img\sobresalir.png" />
+    <None Remove="wwwroot\img\usuario.png" />
+    <None Remove="wwwroot\img\worker (1).png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Views\gcom_unilogo.png">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GComFuelManager\Shared\GComFuelManager.Shared.csproj" />
+  </ItemGroup>
+
+
+
+</Project>

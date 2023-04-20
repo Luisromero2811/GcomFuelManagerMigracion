@@ -18,7 +18,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("correo")]
         public string Correo { get; set; } = string.Empty;
         [JsonProperty("codCte")]
-        public int CodCte { get; set; }
+        public int? CodCte { get; set; }
         [JsonProperty("estatus")]
         public bool Estado { get; set; } = true;
         [NotMapped]

@@ -310,7 +310,7 @@
                                 </div>
                                 <div class="col-3 mx-2">
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
-                                        <i class="fa fa-solid fa-floppy-disk"></i>
+                                        <i class="fa fa-solid fa-envelope"></i>
                                         <b>Enviar cierre</b>
                                         @if (loadingSend)
                                         {
@@ -446,6 +446,7 @@
 
     private int GrupoSeleccionado = 0;
     private int ClienteSeleccionado = 0;
+    private int? VolumenTotal = 0;
 
     bool loading = false;
     bool isEdit = false;
@@ -934,22 +935,22 @@
         try
         {
             loadingSend = true;
+            IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
+
+            foreach (var item in cierresDistinc)
+            {
+                foreach (var cierre in ordenCierres)
+                    if (cierre.Producto!.Den == item.Producto!.Den)
+                        VolumenTotal = VolumenTotal + cierre.Volumen;
+                cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                VolumenTotal = 0;
+            }
 
             emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
             emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
             emailContent.Subject = "Confirmacion de compra";
-            emailContent.Body = 
-            $"{emailContent.Nombre}"+
-            @"<div>
-                                        <table>
-                                            <thead style='background-color:#000;color:#fff'>
-                                                <tr><th>col1</th><th>col2</th></tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr><td>value1</td><td>value2</td></tr>
-                                            </tbody>
-                                        </table>
-                                    </div>";
+            emailContent.ordenCierres = cierresDistinc;
+
             var response = await http.Post<EmailContent>("api/email", emailContent);
             if (response.Error)
             {
