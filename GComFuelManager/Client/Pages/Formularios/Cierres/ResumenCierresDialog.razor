@@ -7,48 +7,57 @@
     {
         <p>Cargando...</p>
     }
-    else if(cierres.Count == 0)
+    else if (cierres.Count == 0)
     {
         <p>No hay ordenes ligadas a este folio.</p>
     }
     else
     {
-        <div class="col-12">
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th scope="row">Fecha: </th>
-                        <td>@cierres.FirstOrDefault()!.FchCierre</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Comprador: </th>
-                        <td>@cierres.FirstOrDefault()!.Cliente!.Den</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Contacto: </th>
-                        <td>@cierres.FirstOrDefault()!.ContactoN!.Nombre</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Correo: </th>
-                        <td>@cierres.FirstOrDefault()!.ContactoN!.Correo</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Producto: </th>
-                        <td>@cierres.FirstOrDefault()!.Producto!.Den</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Volumen: </th>
-                        <td>
-                            Aprox. @(VolumenTotal / 60000) Fulles (@VolumenTotal Litros)
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Precio: </th>
-                        <td>$ @cierres.FirstOrDefault()!.Precio</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        foreach (var cierre in cierresDistinc)
+        {
+            <div class="col-12">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Fecha: </th>
+                            <td>@cierre.FchCierre</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Comprador: </th>
+                            <td>@cierre.Cliente!.Den</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Contacto: </th>
+                            <td>@cierre.ContactoN!.Nombre</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Correo: </th>
+                            <td>@cierre.ContactoN!.Correo</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Producto: </th>
+                            <td>@cierre.Producto!.Den</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Volumen Aprox. Litros: </th>
+                            <td>
+                                @cierre.Volumen Litros
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Volumen Aprox. Fulles: </th>
+                            <td>
+                                @(Convert.ToDecimal(cierre.Volumen) / 60000) Fulles
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Precio: </th>
+                            <td>$ @cierre.Precio</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
     }
 </RadzenStack>
 
@@ -61,11 +70,11 @@
 
     List<OrdenCierre>? cierres { get; set; }
 
+    IEnumerable<OrdenCierre>? cierresDistinc { get; set; }
+
     private int? VolumenTotal { get; set; } = 0;
 
-    protected async override Task OnInitializedAsync()
-    {
-    }
+    private List<string?> ProductosEnResumen { get; set; } = null!;
 
     protected async override Task OnParametersSetAsync()
     {
@@ -87,8 +96,16 @@
             else
             {
                 cierres = response.Response;
-                foreach (var item in cierres)
-                    VolumenTotal = VolumenTotal + item.Volumen;
+                cierresDistinc = cierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in cierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
             }
         }
         catch (Exception e)

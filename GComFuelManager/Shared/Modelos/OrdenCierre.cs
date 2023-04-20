@@ -91,5 +91,20 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped, EpplusIgnore]
         public Contacto? ContactoN { get; set; } = null!;
+
+        [EpplusIgnore, JsonProperty("fchLlegada")]
+        public DateTime? FchLlegada { get; set; } = DateTime.Now;
+
+        [DisplayName("Fecha de llegada"), NotMapped]
+        public string? FechaLlegada { get { return FchLlegada!.Value.ToString("dd/MM/yyyy"); } }
+
+        [DisplayName("Turno"), JsonPropertyName("turno")]
+        public string? Turno { get; set; } = string.Empty;
+
+        [EpplusIgnore, JsonPropertyName("codGru")]
+        public Int16? CodGru { get; set; }
+
+        [EpplusIgnore, NotMapped]
+        public Grupo? Grupo { get; set; } = null!;
     }
 }

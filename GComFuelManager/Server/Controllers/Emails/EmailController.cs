@@ -1,6 +1,6 @@
-﻿using MailKit.Net.Smtp;
+﻿using GComFuelManager.Shared.DTOs;
+using MailKit.Net.Smtp;
 using MailKit.Security;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 
@@ -17,21 +17,19 @@ namespace GComFuelManager.Server.Controllers.Emails
             this.context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> SendEmail()
+        [HttpPost]
+        public async Task<ActionResult> SendEmail([FromBody] EmailContent content)
         {
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Angel", "endpoint@gasamigas.com"));
-                message.To.Add(new MailboxAddress("Angel", "angelzapata582@gmail.com"));
-                message.Subject = "Prueba";
-                var s = 2;
-                message.Body = new TextPart("plain")
-                {
-                    Text = $@"Cuerpo de correo de prueba.{s}"
-                };
-                
+                var body = new BodyBuilder();
+
+                message.From.Add(new MailboxAddress("Gcom Fuel Manager", "endpoint@gasamigas.com"));
+                message.To.Add(new MailboxAddress(content.Nombre, content.Email));
+                message.Subject = content.Subject;
+                body.HtmlBody = content.Body;
+                message.Body = body.ToMessageBody();
                 SmtpClient smtpClient = new SmtpClient();
 
                 await smtpClient.ConnectAsync("smtp.exchangeadministrado.com", 587, SecureSocketOptions.Auto);
