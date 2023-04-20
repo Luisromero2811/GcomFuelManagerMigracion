@@ -35,7 +35,7 @@ else
 }*@
 
 <CrearPedidoForm http="http" Swal="Swal" ordenEmbarque="ordenCierre" ConfirmPedido="ConfirmPedido" SavePedido="EditPedido"
-                 Terminales="Terminales" Grupos="Grupos" Productos="Productos" Cantidades="Cantidades" Clientes="Clientes"
+                 Terminales="Terminales" Grupos="Grupos" Productos="Productos" Cantidades="Cantidades"
                  isEdit="isEditing" />
 
 <div class="col-12 d-flex justify-content-center">
@@ -120,12 +120,12 @@ else
     protected override async Task OnInitializedAsync()
     {
         await GetTerminales();
-        //await GetGrupos();
-        await GetClientes();
+        await GetGrupos();
+        //await GetClientes();
         await GetCantidades();
         await GetProductos();
         await GetEstaciones();
-        await GetOrdenesPendientes();
+        //await GetOrdenesPendientes();
     }
 
     private void changeEdit()
@@ -379,6 +379,7 @@ else
             else
             {
                 Grupos = response.Response;
+                Console.WriteLine(JsonConvert.SerializeObject(Grupos));
             }
         }
         catch (Exception e)
@@ -487,7 +488,7 @@ else
         loadingConfirm = true;
         try
         {
-            if (ordens.Count != 0)
+            if (ordenCierres.Count != 0)
             {
                 foreach (var item in ordenCierres)
                     ordens.Add(item.OrdenEmbarque!);
