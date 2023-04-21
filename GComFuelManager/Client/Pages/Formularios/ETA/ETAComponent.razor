@@ -6,91 +6,99 @@
 @using System.IO;
 @using System.Text.Json;
 @using GComFuelManager.Client.Helpers;
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Analista Suministros, Auditor, Capturista Recepcion Producto")]
+
 
 <h4><b>ETA</b></h4>
 <!--Primer formulario para tiempo estimado de llegada del pedido-->
 <div class="col-12 card shadow">
     <div class="card-body">
         <EditForm Model="ordenEmbarque" class="row">
-            <div class="row d-flex g-3">
+            <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Eta">
+                <div class="row d-flex g-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Nombre Bol:</label>
+                            <InputText class="form-control" @bind-Value="nmbr" />
+                        </div>
+                        <div class="col-1 mt-4">
+                            <button class="btn gcom-bg-amarillo col-12">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row d-flex g-3">
+                    <div class="row">
+                        <div class="col-4">
+                            <label>Fecha documentación:</label>
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                        </div>
+
+                        <div class="col-4">
+                            <label>ETA:</label>
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row d-flex g-3">
+                    <div class="row">
+                        <div class="col-4">
+                            <label>Fecha de llegada estimada:</label>
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                        </div>
+
+                        <div class="col-4">
+                            <label>En trayecto:</label>
+                            <InputText class="form-control" @bind-Value="nmbr" />
+                        </div>
+                        <div class="col-4">
+                            <label>Equipo:</label>
+                            <InputText class="form-control" @bind-Value="nmbr" />
+                        </div>
+                    </div>
+                </div>
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto" Context="EtaReal">
+                <!--btn look-->
+                <div class="row d-flex g-3">
+
+                    <div class="row justify-content-end">
+
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-6">
-                        <label>Nombre Bol:</label>
-                        <InputText class="form-control" @bind-Value="nmbr" />
-                    </div>
-                    <div class="col-1 mt-4">
-                        <button class="btn gcom-bg-amarillo col-12">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="row d-flex g-3">
-                <div class="row">
-                    <div class="col-4">
-                        <label>Fecha documentación:</label>
+                        <label>Fecha real de llegada a destino:</label>
                         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
                     </div>
-
-                    <div class="col-4">
-                        <label>ETA:</label>
-                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-                    </div>
-
-                </div>
-            </div>
-            <div class="row d-flex g-3">
-                <div class="row">
-                    <div class="col-4">
-                        <label>Fecha de llegada estimada:</label>
-                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-                    </div>
-
-                    <div class="col-4">
-                        <label>En trayecto:</label>
-                        <InputText class="form-control" @bind-Value="nmbr" />
-                    </div>
-                    <div class="col-4">
-                        <label>Equipo:</label>
+                    <div class="col-6">
+                        <label>Cantidad de litros entregados:</label>
                         <InputText class="form-control" @bind-Value="nmbr" />
                     </div>
                 </div>
-            </div>
-            <!--btn look-->
-            <div class="row d-flex g-3">
-
-                <div class="row justify-content-end">
-                  
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-6">
-                    <label>Fecha real de llegada a destino:</label>
-                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-                </div>
-                <div class="col-6">
-                    <label>Cantidad de litros entregados:</label>
-                    <InputText class="form-control" @bind-Value="nmbr" />
-                </div>
-            </div>
-            <div class="row g-3 mt-1 mb-2">
-                <div class="col-6">
-                    <label>Observaciones</label>
-                    <InputTextArea class="form-control" @bind-Value="nmbr"></InputTextArea>
-                </div>
-            </div>
-            <div class="row d-flex g-3">
-                <div class="row justify-content-end">
-                    <div class="col-3 mt-3 mb-3">
-                        <button class="btn gcom-bg-amarillo col-12">
-                            <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar Orden</b>
-                        </button>
+                <div class="row g-3 mt-1 mb-2">
+                    <div class="col-6">
+                        <label>Observaciones</label>
+                        <InputTextArea class="form-control" @bind-Value="nmbr"></InputTextArea>
                     </div>
                 </div>
-            </div>
+                <div class="row d-flex g-3">
+                    <div class="row justify-content-end">
+                        <div class="col-3 mt-3 mb-3">
+                            <button class="btn gcom-bg-amarillo col-12">
+                                <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar Orden</b>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </AuthorizeView>
         </EditForm>
     </div>
 </div>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto" Context="Exportar">
     <!--Segundo formulario para exportación de ETA-->
     <div class="col-12 card shadow mt-3 mb-5">
         <div class="card-body">
@@ -115,44 +123,46 @@
             </EditForm>
         </div>
     </div>
-    @code {
-        private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-        private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+</AuthorizeView>
 
-        private Usuario usuario { get; set; } = new Usuario();
-        private string nmbr = string.Empty;
-        public DateTime Date { get; set; }
+@code {
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
 
-        OrdenesDTO ordenes = new OrdenesDTO();
-        FechasF fechas = new FechasF();
-        public async Task ExportExcel()
+    private Usuario usuario { get; set; } = new Usuario();
+    private string nmbr = string.Empty;
+    public DateTime Date { get; set; }
+
+    OrdenesDTO ordenes = new OrdenesDTO();
+    FechasF fechas = new FechasF();
+    public async Task ExportExcel()
+    {
+        try
         {
-            try
+            var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"api/pedido/filtrar", ordenes);
+            if (responseHttp.Error)
             {
-                var responseHttp = await repositorio.Post<OrdenesDTO, List<OrdenEmbarque>>($"api/pedido/filtrar", ordenes);
-                if (responseHttp.Error)
-                {
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    var excel = new ExcelPackage();
-                    var worksheet = excel.Workbook.Worksheets.Add("ETA");
-                    //
-                    //Formación de Excel
-                    var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                        from o in ordens
-                        select new { }, true);
-                    //Guardar Excell
-                    await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd")}.xlsx", excel.GetAsByteArray());
-                }
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
-            catch (Exception e)
+            else
             {
-
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                //
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                    from o in ordens
+                    select new { }, true);
+                //Guardar Excell
+                await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd")}.xlsx", excel.GetAsByteArray());
             }
         }
+        catch (Exception e)
+        {
 
+        }
     }
+
+}
 

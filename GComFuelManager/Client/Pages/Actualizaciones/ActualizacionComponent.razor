@@ -4,6 +4,9 @@
 @inject NotificationService ns
 
 @page "/actualizacion"
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Programador, Gestion de Transporte")]
+
 <h4><b>Actualizacion de registros</b></h4>
 
 <div class="col-12 d-flex justify-content-center mt-4">
@@ -13,10 +16,10 @@
                 <div class="col-12 mb-4">
                     <!--Transportista-->
                     <label>Transportista:</label>
-                <RadzenDropDown @bind-Value="TransportistaSeleccionado" Data="Transportistas" TextProperty="Den"
-                                AllowVirtualization="true" AllowFiltering="true"
-                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                </RadzenDropDown>
+                    <RadzenDropDown @bind-Value="TransportistaSeleccionado" Data="Transportistas" TextProperty="Den"
+                                    AllowVirtualization="true" AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                    </RadzenDropDown>
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
@@ -86,7 +89,7 @@
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
     //private IList<Transportista> transportistaSeleccionado { get; set; } = new List<Transportista>();
 
-    //Helpers de desarrollo 
+    //Helpers de desarrollo
     private string nmbr = string.Empty;
 
 

@@ -3,80 +3,84 @@
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 @inject NotificationService ns
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
 
-<h4><b>Asignacion de unidades</b></h4>
+<h4><b>Programación de Equipos</b></h4>
 
 <div class="col-12 px-4 mt-4">
     <div class="col-12 row mb-4">
         <div class="col-6">
-            <div class="col-12 h-100">
-                <label><b>Editar:</b></label>
-                <div class="card shadow-sm h-100">
-                    <div class="row card-body h-100">
-                        <div class="col mb-3">
-                            <div class="col-12">
-                                <label>Destino:</label>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                <div class="col-12 h-100">
+                    <label><b>Editar:</b></label>
+                    <div class="card shadow-sm h-100">
+                        <div class="row card-body h-100">
+                            <div class="col mb-3">
+                                <div class="col-12">
+                                    <label>Destino:</label>
+                                    @if (ordenesSeleccionada.Count > 0)
+                                    {
+                                        <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault().Coddes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
+                                                        AllowVirtualization="true" AllowFiltering="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                                    }
+                                    else
+                                    {
+                                        <input class="col-12 form-control disabled" disabled />
+                                    }
+                                </div>
+                            </div>
+                            <div class="col mb-3">
+                                <label>Fecha de carga:</label>
                                 @if (ordenesSeleccionada.Count > 0)
                                 {
-                                    <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault().Coddes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Fchcar" />
                                 }
                                 else
                                 {
                                     <input class="col-12 form-control disabled" disabled />
                                 }
                             </div>
-                        </div>
-                        <div class="col mb-3">
-                            <label>Fecha de carga:</label>
-                            @if (ordenesSeleccionada.Count > 0)
-                            {
-                                <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Fchcar" />
-                            }
-                            else
-                            {
-                                <input class="col-12 form-control disabled" disabled />
-                            }
-                        </div>
-                        <div class="col mb-3">
-                            <label>Producto:</label>
-                            @if (ordenesSeleccionada.Count > 0)
-                            {
-                                <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Codprd">
-                                    <option>-- seleccione una opcion --</option>
-                                    @if (Productos is null)
-                                    {
-                                        <option disabled>Cargando...</option>
-                                    }
-                                    else if (Productos.Count == 0)
-                                    {
-                                        <option disabled>No hay Productos</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Productos)
+                            <div class="col mb-3">
+                                <label>Producto:</label>
+                                @if (ordenesSeleccionada.Count > 0)
+                                {
+                                    <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Codprd">
+                                        <option>-- seleccione una opcion --</option>
+                                        @if (Productos is null)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                            <option disabled>Cargando...</option>
                                         }
-                                    }
-                                </InputSelect>
-                            }
-                            else
-                            {
-                                <input class="col-12 form-control disabled" disabled />
-                            }
-                        </div>
-                        <div class="col-12 d-flex justify-content-end">
-                            <div class="col-6 d-flex">
-                                <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
-                                    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
-                                </button>
+                                        else if (Productos.Count == 0)
+                                        {
+                                            <option disabled>No hay Productos</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Productos)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                }
+                                else
+                                {
+                                    <input class="col-12 form-control disabled" disabled />
+                                }
+                            </div>
+                            <div class="col-12 d-flex justify-content-end">
+                                <div class="col-6 d-flex">
+                                    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
+                                        <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </AuthorizeView>
         </div>
         <div class="col-6">
             <div class="col-12 h-100">
@@ -109,112 +113,119 @@
             <label><b>Asignar unidades:</b></label>
             <div class="col card shadow-sm">
                 <div class="col-12 card-body">
-                    <div class="row mb-3">
-                        <div class="col">
-                            <label>Transportista:</label>
-                            <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
-                                <input type="text" />
-                                <option>-- seleccione una opcion --</option>
-                                @if (Transportistas is null)
-                                {
-                                    <option disabled>Cargando...</option>
-                                }
-                                else if (Transportistas.Count == 0)
-                                {
-                                    <option disabled>No hay Transportistas</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Transportistas)
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label>Transportista:</label>
+                                <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
+                                    <input type="text" />
+                                    <option>-- seleccione una opcion --</option>
+                                    @if (Transportistas is null)
                                     {
-                                        <option value="@item.cod">@item.den</option>
+                                        <option disabled>Cargando...</option>
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col">
-                            <label>Chofer:</label>
-                            <InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado">
-                                <option>-- seleccione una opcion --</option>
-                                @if (Choferes is null)
-                                {
-                                    <option disabled>Cargando...</option>
-                                }
-                                else if (Choferes.Count == 0)
-                                {
-                                    <option disabled>No hay Choferes</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Choferes)
+                                    else if (Transportistas.Count == 0)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option disabled>No hay Transportistas</option>
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col">
-                            <label>Vehiculo:</label>
-                            <InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado">
-                                <option>-- seleccione una opcion --</option>
-                                @if (Vehiculos is null)
-                                {
-                                    <option disabled>Cargando...</option>
-                                }
-                                else if (Vehiculos.Count == 0)
-                                {
-                                    <option disabled>No hay vehiculos</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Vehiculos)
+                                    else
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        foreach (var item in Transportistas)
+                                        {
+                                            <option value="@item.cod">@item.den</option>
+                                        }
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="row d-flex justify-content-end">
-                            <div class="col-8 row">
-                                @if (Vehiculos != null)
-                                {
-                                    @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
+                                </InputSelect>
+                            </div>
+                            <div class="col">
+                                <label>Chofer:</label>
+                                <InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado">
+                                    <option>-- seleccione una opcion --</option>
+                                    @if (Choferes is null)
                                     {
-                                        <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
-                                            @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).CapDisponible; i++)
-                                            {
-                                                <div class="col">
-                                                    <div class="form-check">
-                                                        <InputRadio Value="@i" class="form-check-input" id="@i" />
-                                                        <label class="form-check-label" for="@i">Com @i</label>
+                                        <option disabled>Cargando...</option>
+                                    }
+                                    else if (Choferes.Count == 0)
+                                    {
+                                        <option disabled>No hay Choferes</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Choferes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col">
+                                <label>Vehiculo:</label>
+                                <InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado">
+                                    <option>-- seleccione una opcion --</option>
+                                    @if (Vehiculos is null)
+                                    {
+                                        <option disabled>Cargando...</option>
+                                    }
+                                    else if (Vehiculos.Count == 0)
+                                    {
+                                        <option disabled>No hay vehiculos</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Vehiculos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="row d-flex justify-content-end">
+                                <div class="col-8 row">
+                                    @if (Vehiculos != null)
+                                    {
+                                        @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
+                                        {
+                                            <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
+                                                @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).CapDisponible; i++)
+                                                {
+                                                    <div class="col">
+                                                        <div class="form-check">
+                                                            <InputRadio Value="@i" class="form-check-input" id="@i" />
+                                                            <label class="form-check-label" for="@i">Com @i</label>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            }
-                                        </InputRadioGroup>
+                                                }
+                                            </InputRadioGroup>
+                                        }
                                     }
-                                }
-                            </div>
-                            <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-truck-front"></i> <b>Asignar</b></button>
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-truck-front"></i> <b>Asignar</b></button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </AuthorizeView>
                     <hr />
                     <div class="col-12 my-3">
                         <div class="row d-flex justify-content-end">
                             <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                                </AuthorizeView>
                             </div>
                             @*<div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
-                            </div>
-                            <div class="col-3">
-                            <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
-                            </div>*@
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
+                                </div>
+                                <div class="col-3">
+                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
+                                </div>*@
                             <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                </AuthorizeView>
+
                             </div>
                         </div>
                     </div>
@@ -227,19 +238,19 @@
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" >
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         @*<EmptyTemplate>
-        <NoHayRegistros></NoHayRegistros>
-        </EmptyTemplate>*@
+            <NoHayRegistros></NoHayRegistros>
+            </EmptyTemplate>*@
         <Columns>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px" >
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
-                        @(data?.Compartment == 1 ? data?.Tonel?.Capcom 
+                        @(data?.Compartment == 1 ? data?.Tonel?.Capcom
                         : data?.Compartment == 2 ? data?.Tonel?.Capcom2
                         : data?.Compartment == 3 ? data?.Tonel?.Capcom3 : data?.Tonel?.Capcom4)
                     </div>
@@ -265,15 +276,15 @@
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Width="200px" MinWidth="200px" />
             @*<RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
-                <Template Context="data">
-                    <div class="col-12">
-                        <div class="form-check form-switch m-2">
-                            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
-                                   @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
+                                       @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
+                            </div>
                         </div>
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>*@
+                    </Template>
+                </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -657,7 +668,7 @@
                 if (ordentp.TP)
                     Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden asignada", Detail = "La orden ha sido asignada a TP." });
                 else
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada" ,Detail = "La orden ha sido desasignada a TP." });
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Orden desasignada", Detail = "La orden ha sido desasignada a TP." });
             }
         }
         catch (Exception e)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GComFuelManager.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230417172917_NewRoles")]
-    partial class NewRoles
+    [Migration("20230420221603_NewEtaRoles")]
+    partial class NewEtaRoles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

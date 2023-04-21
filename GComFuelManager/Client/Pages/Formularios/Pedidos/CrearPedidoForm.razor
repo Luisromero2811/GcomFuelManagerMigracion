@@ -1,233 +1,237 @@
-﻿<div class="col-12 card shadow">
-    <div class="card-body">
-        <EditForm Model="@ordenEmbarque" class="form col-12">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="row col-12 g-3 mb-3 px-4">
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Terminal</label>
-                        <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codtad" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Terminales is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Terminales.Count == 0)
-                            {
-                                <option disabled> No hay terminales</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Terminales)
+<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Create">
+    <div class="col-12 card shadow">
+        <div class="card-body">
+            <EditForm Model="@ordenEmbarque" class="form col-12">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row col-12 g-3 mb-3 px-4">
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Terminal</label>
+                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codtad" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Terminales is null)
                                 {
-                                    <option value="@item.Cod">@item.Den</option>
+                                    <option disabled> Cargando ...</option>
                                 }
-                            }
-                        </InputSelect>
-                    </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Grupo</label>
-                        <InputSelect @bind-Value="ordenEmbarque.CodGru" class="form-select" onchange="@GetClientes()">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Grupos is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Grupos.Count == 0)
-                            {
-                                <option disabled> No hay grupos</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Grupos)
+                                else if (Terminales.Count == 0)
                                 {
-                                    <option value="@item.Cod">@item.Den</option>
+                                    <option disabled> No hay terminales</option>
                                 }
-                            }
-                        </InputSelect>
-                    </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Cliente</label>
-                        <InputSelect @bind-Value="ordenEmbarque.CodCte" class="form-select" onchange="@GetEstaciones()">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Clientes is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Clientes.Count == 0)
-                            {
-                                <option disabled> No hay clientes</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Clientes)
+                                else
                                 {
-                                    <option value="@item.Cod">@item.Den</option>
+                                    foreach (var item in Terminales)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
                                 }
-                            }
-                        </InputSelect>
+                            </InputSelect>
+                        </div>
                     </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Estacion</label>
-                        <InputSelect @bind-Value="ordenEmbarque.CodDes" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Estaciones is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Estaciones.Count == 0)
-                            {
-                                <option disabled> No hay estaciones</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Estaciones)
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Grupo</label>
+                            <InputSelect @bind-Value="ordenEmbarque.CodGru" class="form-select" onchange="@GetClientes()">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Grupos is null)
                                 {
-                                    <option value="@item.Cod">@item.Den</option>
+                                    <option disabled> Cargando ...</option>
                                 }
-                            }
-                        </InputSelect>
-                    </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Producto</label>
-                        <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codprd" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Productos is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Productos.Count == 0)
-                            {
-                                <option disabled> No hay productos</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Productos)
+                                else if (Grupos.Count == 0)
                                 {
-                                    <option value="@item.Cod">@item.Den</option>
+                                    <option disabled> No hay grupos</option>
                                 }
-                            }
-                        </InputSelect>
-                    </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Cantidad</label>
-                        <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Cantidades is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Cantidades.Count == 0)
-                            {
-                                <option disabled> No hay capacidades</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Cantidades)
+                                else
                                 {
-                                    <option value="@item">@item</option>
+                                    foreach (var item in Grupos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
                                 }
-                            }
-                        </InputSelect>
+                            </InputSelect>
+                        </div>
                     </div>
-                </div>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Cliente</label>
+                            <InputSelect @bind-Value="ordenEmbarque.CodCte" class="form-select" onchange="@GetEstaciones()">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Clientes is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Clientes.Count == 0)
+                                {
+                                    <option disabled> No hay clientes</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Clientes)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Estacion</label>
+                            <InputSelect @bind-Value="ordenEmbarque.CodDes" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Estaciones is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Estaciones.Count == 0)
+                                {
+                                    <option disabled> No hay estaciones</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Estaciones)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Producto</label>
+                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codprd" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Productos is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Productos.Count == 0)
+                                {
+                                    <option disabled> No hay productos</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Productos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Cantidad</label>
+                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Cantidades is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Cantidades.Count == 0)
+                                {
+                                    <option disabled> No hay capacidades</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Cantidades)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
 
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Fecha de carga en terminal</label>
-                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Fchcar"></InputDate>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Fecha de carga en terminal</label>
+                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Fchcar"></InputDate>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Fecha de llegada</label>
-                        <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.FchLlegada"></InputDate>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Fecha de llegada</label>
+                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.FchLlegada"></InputDate>
+                        </div>
                     </div>
-                </div>
 
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Turno</label>
-                        <InputSelect @bind-Value="ordenEmbarque.Turno" class="form-select">
-                            <option>-- Selecciona una opcion --</option>
-                            @if (Turnos is null)
-                            {
-                                <option disabled> Cargando ...</option>
-                            }
-                            else if (Turnos.Count == 0)
-                            {
-                                <option disabled> No hay capacidades</option>
-                            }
-                            else
-                            {
-                                foreach (var item in Turnos)
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Turno</label>
+                            <InputSelect @bind-Value="ordenEmbarque.Turno" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Turnos is null)
                                 {
-                                    <option value="@item">@item</option>
+                                    <option disabled> Cargando ...</option>
                                 }
-                            }
-                        </InputSelect>
+                                else if (Turnos.Count == 0)
+                                {
+                                    <option disabled> No hay capacidades</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Turnos)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
                     </div>
-                </div>
-                <div class="col-4 mb-1">
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Precio</label>
+                            <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Pre"></InputNumber>
+                        </div>
+                    </div>
+                    @*<div class="col-3 mb-1">
                     <div class="col-12">
-                        <label>Precio</label>
-                        <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Pre"></InputNumber>
+                    <label>Temperatura</label>
+                    <input class="form-control col-12 disabled" disabled />
                     </div>
+                    </div>
+                    <div class="col-3 mb-1">
+                    <div class="col-12">
+                    <label>Condiciones de pago</label>
+                    <input class="form-control col-12 disabled" disabled />
+                    </div>
+                    </div>*@
                 </div>
-                @*<div class="col-3 mb-1">
-                <div class="col-12">
-                <label>Temperatura</label>
-                <input class="form-control col-12 disabled" disabled />
-                </div>
-                </div>
-                <div class="col-3 mb-1">
-                <div class="col-12">
-                <label>Condiciones de pago</label>
-                <input class="form-control col-12 disabled" disabled />
-                </div>
-                </div>*@
-            </div>
-            <div class="col-12 d-flex justify-content-center mt-2">
-                @if (isEdit)
-                {
+                <div class="col-12 d-flex justify-content-center mt-2">
+                    @if (isEdit)
+                    {
+                        <div class="col-4 px-2">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@SavePedido">
+                                <i class="fa fa-solid fa-plus"></i>
+                                <b>Guardar Cambio</b>
+                                @if (loadingAgregar)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
+                    }
                     <div class="col-4 px-2">
-                        <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@SavePedido">
-                            <i class="fa fa-solid fa-plus"></i>
-                            <b>Guardar Cambio</b>
-                            @if (loadingAgregar)
+                        <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@ConfirmPedido">
+                            <i class="fa fa-solid fa-check"></i>
+                            <b>Confirmar Pedidos</b>
+                            @if (loadingConfirm)
                             {
                                 <SpinnerLoading></SpinnerLoading>
                             }
                         </button>
                     </div>
-                }
-                <div class="col-4 px-2">
-                    <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@ConfirmPedido">
-                        <i class="fa fa-solid fa-check"></i>
-                        <b>Confirmar Pedidos</b>
-                        @if (loadingConfirm)
-                        {
-                            <SpinnerLoading></SpinnerLoading>
-                        }
-                    </button>
                 </div>
-            </div>
-        </EditForm>
+            </EditForm>
+        </div>
     </div>
-</div>
 
+            
+    
+</AuthorizeView>
 
 @code {
     //parametros

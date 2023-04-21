@@ -35,7 +35,7 @@
                                             <ValidationMessage For="@(()=>usuario.Username)" />
                                         </div>
 
-                                        <div class="form-outline mb-2">
+                                        <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example27">Ingrese su contraseña:</label>
                                             <InputText type="password" class="form-control" placeholder="Contraseña" @bind-Value="usuario.Password" />
                                             <ValidationMessage For="@(()=>usuario.Password)" />
@@ -67,6 +67,7 @@
     private UserLogin usuario { get; set; } = new UserLogin();
     private bool loading = false;
 
+
     private async Task LoguearUsuario()
     {
         try
@@ -77,7 +78,7 @@
             {
                 loading = false;
                 string? message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos." ,SweetAlertIcon.Error);
+                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos.", SweetAlertIcon.Error);
             }
             else
             {

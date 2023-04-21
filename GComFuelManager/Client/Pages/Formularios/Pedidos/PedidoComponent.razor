@@ -2,70 +2,77 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject IJSRuntime js
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador")]
 
-<NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
-<h4><b>Pedidos</b></h4>
-<div class="col-12 card shadow-sm mb-3">
-    <div class="col-12 card-body">
-        <div class="col-12 px-4 mb-3">
-            <div class="col-4 row">
-                <div class="col-10">
-                    <label class="form-label">Folio</label>
-                    <InputText class="form-control col-12" @bind-Value="folio" />
-                </div>
-                <div class="col-2 d-flex">
-                    <div class="col-12 mt-auto">
-                        <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@GetPedidoFolio">
-                            <i class="fa fa-solid fa-magnifying-glass"></i>
-                        </button>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+    <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
+    <h4><b>Pedidos</b></h4>
+    <div class="col-12 card shadow-sm mb-3">
+        <div class="col-12 card-body">
+            <div class="col-12 px-4 mb-3">
+                <div class="col-4 row">
+                    <div class="col-10">
+                        <label class="form-label">Folio</label>
+                        <InputText class="form-control col-12" @bind-Value="folio" />
+                    </div>
+                    <div class="col-2 d-flex">
+                        <div class="col-12 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@GetPedidoFolio">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
+</AuthorizeView>
 @*@if (isEditing)
-{
-    <EditPedidoForm Terminales="Terminales" Productos="Productos" Cantidades="Cantidades" ordenEmbarque="ordenEmbarque" CancelPedido="changeEdit"
-                Estacion="Destino" SavePedido="EditPedido" />
-}
-else
-{
-}*@
+    {
+        <EditPedidoForm Terminales="Terminales" Productos="Productos" Cantidades="Cantidades" ordenEmbarque="ordenEmbarque" CancelPedido="changeEdit"
+                    Estacion="Destino" SavePedido="EditPedido" />
+    }
+    else
+    {
+    }*@
 
 <CrearPedidoForm http="http" Swal="Swal" ordenEmbarque="ordenCierre" ConfirmPedido="ConfirmPedido" SavePedido="EditPedido"
                  Terminales="Terminales" Grupos="Grupos" Productos="Productos" Cantidades="Cantidades"
                  isEdit="isEditing" />
-
-<div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>gridOC.Reset())"
-                    IsLoading="loading" @ref="@gridOC" AllowSorting="true">
-        <Columns>
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true">
-                <Template Context="item">
-                    <div class="col-12 row">
-                        <div class="col">
-                            <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
-                        </div>
-                        <div class="col">
-                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                        </div>
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Vol" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Pre" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
-        </Columns>
-    </RadzenDataGrid>
-</div>
-
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>gridOC.Reset())"
+                        IsLoading="loading" @ref="@gridOC" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="200px" MinWidth="200px" Visible="true">
+                    <Template Context="item">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Acciones">
+                            <div class="col-12 row">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Cancelar">
+                                    <div class="col">
+                                        <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                                    </div>
+                                </AuthorizeView>
+                                <div class="col">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                </div>
+                            </div>
+                        </AuthorizeView>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Vol" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Pre" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
 <style type="text/css" media="screen and (min-width:1200px)">
     .ancho {
         width: 1200px;
@@ -205,13 +212,13 @@ else
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -326,13 +333,13 @@ else
         }
 
         var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "Tiene ordenes pendientes por confirmar, ¿Seguro que quiere salir?"
-            });
+        {
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Aceptar",
+            CancelButtonText = "Cancelar",
+            Text = "Tiene ordenes pendientes por confirmar, ¿Seguro que quiere salir?"
+        });
 
         if (!string.IsNullOrEmpty(confirm.Value))
         {
