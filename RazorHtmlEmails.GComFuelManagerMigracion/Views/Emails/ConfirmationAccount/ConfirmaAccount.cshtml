@@ -1,0 +1,60 @@
+﻿@using GComFuelManager.Shared.DTOs;
+@using RazorHtmlEmails.GComFuelManagerMigracion.Views.Emails.ConfirmationAccount
+@using RazorHtmlEmails.GComFuelManagerMigracion.Views.Shared
+@using System.Diagnostics;
+@model EmailContent
+
+@{
+
+    ViewData["EmailTitle"] = "Compra confirmada!";
+
+}
+<p>
+    @Model.ordenCierres.FirstOrDefault()!.Cliente!.Den, Se ha confirmado la compra de los siguientes productos.
+</p>
+
+<br />
+
+@{
+    if (Model.ordenCierres != null)
+    {
+        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+            <thead>
+                <tr>
+                    <th width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Producto
+                    </th>
+                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Cantidad
+                    </th>
+                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Precio Unitario
+                    </th>
+                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Precio
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var item in Model.ordenCierres)
+                {
+                    <tr>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            @item.Producto!.Den
+                        </td>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            @item.Volumen
+                        </td>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            $@(item.Precio)
+                        </td>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            $@(item.Precio * Convert.ToDouble(item.Volumen))
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+<br />

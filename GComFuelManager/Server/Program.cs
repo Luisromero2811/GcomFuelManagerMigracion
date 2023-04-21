@@ -3,7 +3,10 @@ using GComFuelManager.Server.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
+using RazorHtmlEmails.Common;
+using RazorHtmlEmails.GComFuelManagerMigracion.Services;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -40,6 +43,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             Encoding.UTF8.GetBytes(builder.Configuration["jwtkey"]!)),
         ClockSkew = TimeSpan.Zero
     });
+
+builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
+builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 
 var app = builder.Build();
 

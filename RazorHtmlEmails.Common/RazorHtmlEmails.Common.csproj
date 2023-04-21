@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GComFuelManager\Shared\GComFuelManager.Shared.csproj" />
+    <ProjectReference Include="..\RazorHtmlEmails.GComFuelManagerMigracion\RazorHtmlEmails.GComFuelManagerMigracion.csproj" />
+  </ItemGroup>
+
+</Project>

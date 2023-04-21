@@ -47,7 +47,7 @@
                         <tr>
                             <th scope="row">Volumen Aprox. Fulles: </th>
                             <td>
-                                @(Convert.ToDecimal(cierre.Volumen) / 60000) Fulles
+                                @(Math.Round(Convert.ToDecimal(cierre.Volumen) / 60000,1)) Fulles
                             </td>
                         </tr>
                         <tr>
