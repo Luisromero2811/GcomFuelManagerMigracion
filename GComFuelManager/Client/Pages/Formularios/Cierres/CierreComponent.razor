@@ -475,6 +475,7 @@
             await GetCantidades();
             //await GetClientes();
             await GetEstaciones();
+            await SendEmailV();
             //await GetOrdenesPendientes();
         }
         catch (Exception e)
@@ -951,7 +952,31 @@
             emailContent.Subject = "Confirmacion de compra";
             emailContent.ordenCierres = cierresDistinc;
 
-            var response = await http.Post<EmailContent>("api/email", emailContent);
+            var response = await http.Post<EmailContent>("api/email/confirmacion", emailContent);
+            if (response.Error)
+            {
+                loadingSend = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingSend = false;
+                await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingSend = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SendEmailV()
+    {
+        try
+        {
+            var response = await http.Post<EmailContent>("api/email/vencimiento", emailContent);
             if (response.Error)
             {
                 loadingSend = false;

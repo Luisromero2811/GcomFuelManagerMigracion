@@ -112,7 +112,7 @@
         try
         {
             loading = true;
-            var response = await http.Get<List<Contacto>>($"api/contacto/email");
+            var response = await http.Get<List<Contacto>>("api/contacto/cliente/0");
             if (response.Error)
             {
                 loading = false;

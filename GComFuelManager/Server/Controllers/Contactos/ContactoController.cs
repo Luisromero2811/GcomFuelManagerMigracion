@@ -1,12 +1,16 @@
 ﻿using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Mail;
 
 namespace GComFuelManager.Server.Controllers.Contactos
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ContactoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -21,9 +25,6 @@ namespace GComFuelManager.Server.Controllers.Contactos
         {
             try
             {
-                if (cod == 0)
-                    return NotFound();
-
                 var contactos = context.Contacto.Where(x => x.CodCte == cod).OrderBy(x => x.Nombre).AsEnumerable();
 
                 return Ok(contactos);
@@ -34,23 +35,8 @@ namespace GComFuelManager.Server.Controllers.Contactos
             }
         }
 
-        [HttpGet("cliente/email")]
-        public async Task<ActionResult> GetEmailContacts()
-        {
-            try
-            {
-                var contactos = await context.Contacto.Where(x => x.CodCte == 0).OrderBy(x => x.Nombre).ToListAsync();
-
-                return Ok(contactos);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpGet("{cod:int}")]
-        public async Task<ActionResult> GetContacto([FromRoute] int cod)
+        public ActionResult GetContacto([FromRoute] int cod)
         {
             try
             {
