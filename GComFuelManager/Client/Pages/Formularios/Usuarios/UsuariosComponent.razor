@@ -3,92 +3,100 @@
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 @inject NavigationManager navigationManager
-<h4><b>Usuarios</b></h4>
-<!--Maquetacion formulario de usuarios-->
-<div class="col-12 card shadow p-2">
-    <div class="card-body g-3">
-        <EditForm Model="@users">
-            <div class="row d-flex g-3 p-2">
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Nombre Completo:</label>
-                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
+@using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Usuarios">
+    <h4><b>Usuarios</b></h4>
+    <!--Maquetacion formulario de usuarios-->
+    <div class="col-12 card shadow p-2">
+        <div class="card-body g-3">
+            <EditForm Model="@users">
+                <div class="row d-flex g-3 p-2">
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Nombre Completo:</label>
+                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Nombre Usuario:</label>
-                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName" />
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Nombre Usuario:</label>
+                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName" />
+                        </div>
                     </div>
-                </div>
-                <div class="col-4 mb-1">
-                    <div class="col-12">
-                        <label>Contraseña</label>
-                        <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
-                        <div>
-                            <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
-                                Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
-                            </RadzenAlert>
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Contraseña</label>
+                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
+                            <div>
+                                <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
+                                    Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
+                                </RadzenAlert>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row p-2">
-                <div class="col-12">
-                    <label>Roles:</label>
-                    <!--Selector multiple de Radzen-->
-                    <RadzenDropDown @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
-                                    Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
-                    </RadzenDropDown>
+                <div class="row p-2">
+                    <div class="col-12">
+                        <label>Roles:</label>
+                        <!--Selector multiple de Radzen-->
+                        <RadzenDropDown @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
+                                        Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
+                        </RadzenDropDown>
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-12 d-flex justify-content-center mt-2 p-2">
-                <div class="col-6 row">
-                    <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@PostUsers"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
-                    </div>
-                    <div class="col-6">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                <div class="col-12 d-flex justify-content-center mt-2 p-2">
+                    <div class="col-6 row">
+                        <div class="col-6">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@PostUsers"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </EditForm>
+            </EditForm>
+        </div>
     </div>
-</div>
+</AuthorizeView>
 
-<!--Maquetación de Tabla con Radzen-->
-<div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
-                    IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
-        <Columns>
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" MinWidth="200px">
-                <Template Context="data">
-                    @foreach (var i in data.Roles)
-                    {
-                        <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
-                            @i
-                        </RadzenBadge>
-                    }
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
-                <Template Context="data">
-                    <div class="col-12">
-                        <div class="form-check form-switch m-2">
-                            <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
-                                    @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
+<AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia">
+    <!--Maquetación de Tabla con Radzen-->
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
+                        IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" MinWidth="200px">
+                    <Template Context="data">
+                        @foreach (var i in data.Roles)
+                        {
+                            <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
+                                @i
+                            </RadzenBadge>
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
+                                       @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
+                            </div>
                         </div>
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-        </Columns>
-    </RadzenDataGrid>
-</div>
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+
 
 
 @code {
@@ -157,7 +165,7 @@
             if (respuestaHTTP.Error)
             {
                 var responseHTTP = await respuestaHTTP.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Ha ocurrido un error, vuelva a intentarlo", SweetAlertIcon.Error);
+                await swal.FireAsync("Error", "Verifique que el Nombre de Usuario o Contraseña cumpla con los requisitos", SweetAlertIcon.Error);
             }
             else
             {
@@ -220,7 +228,7 @@
         {
             //Variable booleana ligada al parametro de cambio de evento.
             UsuarioInfo usuarioInfo = new UsuarioInfo() { UserCod = code, Activo = (bool)act.Value, Nombre = name };
-            //Petición de tipo PUT recibiendo un valor booleano, mandando el cod del usuario y el cambio de estado activo 
+            //Petición de tipo PUT recibiendo un valor booleano, mandando el cod del usuario y el cambio de estado activo
             var responseHttp = await repositorio.Put<UsuarioInfo>($"api/usuarios/activar", usuarioInfo);
             if (responseHttp.Error)
             {
@@ -229,7 +237,7 @@
             }
             else
             {
-                //Cambio en la grid 
+                //Cambio en la grid
                 grid?.Reload();
                 if (usuarioInfo.Activo)
                 {
@@ -253,10 +261,10 @@
         {
             Position = "top-end",
             ShowConfirmButton = false,
-            Timer = 1200,
+            Timer = 1800,
             TimerProgressBar = true,
             Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 }
 
