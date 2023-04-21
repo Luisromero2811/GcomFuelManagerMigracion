@@ -1,6 +1,7 @@
 ﻿using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace GComFuelManager.Server.Controllers.Contactos
 {
@@ -24,6 +25,21 @@ namespace GComFuelManager.Server.Controllers.Contactos
                     return NotFound();
 
                 var contactos = context.Contacto.Where(x => x.CodCte == cod).OrderBy(x => x.Nombre).AsEnumerable();
+
+                return Ok(contactos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("cliente/email")]
+        public async Task<ActionResult> GetEmailContacts()
+        {
+            try
+            {
+                var contactos = await context.Contacto.Where(x => x.CodCte == 0).OrderBy(x => x.Nombre).ToListAsync();
 
                 return Ok(contactos);
             }

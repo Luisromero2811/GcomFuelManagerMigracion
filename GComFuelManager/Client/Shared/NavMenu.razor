@@ -86,7 +86,25 @@
                     </div>
                 }
             </div>
-
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
+                    </div>
+                </NavLink>
+                @if (ConfigMenu)
+                {
+                    <div class="vh-100">
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                </div>
+                            </NavLink>
+                        </div>
+                    </div>
+                }
+            </div>
         </AuthorizeView>
     </nav>
 </div>
@@ -94,6 +112,7 @@
 @code {
     private bool collapseNavMenu = true;
     private bool UpdateMenu = false;
+    private bool ConfigMenu = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 

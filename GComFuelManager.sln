@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Client", "G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Shared", "GComFuelManager\Shared\GComFuelManager.Shared.csproj", "{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorHtmlEmails.GComFuelManagerMigracion", "RazorHtmlEmails.GComFuelManagerMigracion\RazorHtmlEmails.GComFuelManagerMigracion.csproj", "{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorHtmlEmails.Common", "RazorHtmlEmails.Common\RazorHtmlEmails.Common.csproj", "{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CCC0E95-DEE3-465E-AA95-D5CD127B5010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
