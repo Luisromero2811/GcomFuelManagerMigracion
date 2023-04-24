@@ -5,12 +5,10 @@
 @model EmailContent
 
 @{
-
     ViewData["EmailTitle"] = "Compra confirmada!";
-
 }
 <p>
-    @Model.ordenCierres.FirstOrDefault()!.Cliente!.Den, Se ha confirmado la compra de los siguientes productos.
+    @Model.ordenCierres!.FirstOrDefault()!.Cliente!.Den, Se ha confirmado la compra de los siguientes productos.
 </p>
 
 <br />
@@ -36,7 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach(var item in Model.ordenCierres)
+                @foreach (var item in Model.ordenCierres)
                 {
                     <tr>
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
@@ -53,6 +51,14 @@
                         </td>
                     </tr>
                 }
+                <tr>
+                    <td colspan="4" style="padding:25px 0px">
+                        <a style="background-color:#EABF1A; color:black; border:none; border-radius:5px;margin:10px;padding:15px 25px;box-shadow: 0px 4px 4px 0px #00000040;
+                                        font-size:18px; text-decoration:none;" href="https://localhost:44333/orden/@Model.ordenCierres.First().Folio">
+                        Ver estado de orden
+                        </a>
+                    </td>
+                </tr>
             </tbody>
         </table>
     }

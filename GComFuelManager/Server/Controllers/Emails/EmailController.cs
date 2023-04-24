@@ -6,6 +6,7 @@ using MimeKit;
 using MimeKit.Text;
 using RazorHtmlEmails.Common;
 using RazorHtmlEmails.GComFuelManagerMigracion.Services;
+using System.Net.Mail;
 using System.Security.Cryptography.Xml;
 
 namespace GComFuelManager.Server.Controllers.Emails
@@ -17,47 +18,48 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly ApplicationDbContext context;
         private readonly IRazorViewToStringRenderer razorView;
         private readonly IRegisterAccountService registerAccount;
+        private readonly IVencimientoService vencimientoService;
 
-        public EmailController(ApplicationDbContext context, IRazorViewToStringRenderer razorView, IRegisterAccountService registerAccount)
+        public EmailController(ApplicationDbContext context, 
+            IRazorViewToStringRenderer razorView, 
+            IRegisterAccountService registerAccount,
+            IVencimientoService vencimientoService)
         {
             this.context = context;
             this.razorView = razorView;
             this.registerAccount = registerAccount;
+            this.vencimientoService = vencimientoService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> SendEmail([FromBody] EmailContent content)
+        [HttpPost("confirmacion")]
+        public async Task<ActionResult> SendEmailConfirmacion([FromBody] EmailContent content)
         {
             try
             {
-                //var message = new MimeMessage();
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
 
-                //MemoryStream stream = new MemoryStream();
-                //StreamWriter writter = new StreamWriter(stream);
-                //writter.Write(result);
-                //writter.Flush();
-                //stream.Position = 0;
-
-                //message.From.Add(new MailboxAddress("Gcom Fuel Manager", "endpoint@gasamigas.com"));
-                //message.To.Add(new MailboxAddress(content.Nombre, content.Email));
-                //message.Subject = content.Subject;
-                //var bodyBuilder = new BodyBuilder();
-
-                //bodyBuilder.HtmlBody = @"<div>HTML email body</div>";
-
-                //bodyBuilder.Attachments.Add("msg.html", stream);
-
-                //message.Body = new TextPart(TextFormat.Html) { Text = result};
-
-                //SmtpClient smtpClient = new SmtpClient();
-
-                //await smtpClient.ConnectAsync("smtp.exchangeadministrado.com", 587, SecureSocketOptions.Auto);
-                //await smtpClient.AuthenticateAsync("endpoint@gasamigas.com", "ZZR5tp_");
-                //await smtpClient.SendAsync(message);
-
-                //await smtpClient.DisconnectAsync(true);
+                content.CC = cc;
 
                 await registerAccount.Register(content);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("vencimiento")]
+        public async Task<ActionResult> SendEmailVencimiento([FromBody] EmailContent content)
+        {
+            try
+            {
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+
+                content.CC = cc;
+
+                await vencimientoService.Vencimiento(content);
 
                 return Ok(true);
             }

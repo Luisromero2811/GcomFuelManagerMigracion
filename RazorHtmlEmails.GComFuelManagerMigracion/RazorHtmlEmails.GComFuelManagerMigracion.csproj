@@ -10,20 +10,7 @@
 
   <ItemGroup>
     <None Remove="Views\gcom_unilogo.png" />
-    <None Remove="wwwroot\img\bar-de-hamburguesas(1).png" />
-    <None Remove="wwwroot\img\bar-de-hamburguesas.png" />
-    <None Remove="wwwroot\img\camion-de-carga.png" />
-    <None Remove="wwwroot\img\delivery-truck (1).png" />
-    <None Remove="wwwroot\img\delivery-truck.png" />
     <None Remove="wwwroot\img\gcom_unilogo.png" />
-    <None Remove="wwwroot\img\hourglass.png" />
-    <None Remove="wwwroot\img\lista(1).png" />
-    <None Remove="wwwroot\img\lista-de-verificacion.png" />
-    <None Remove="wwwroot\img\opcion-de-actualizacion-de-pagina.png" />
-    <None Remove="wwwroot\img\rating.png" />
-    <None Remove="wwwroot\img\sobresalir.png" />
-    <None Remove="wwwroot\img\usuario.png" />
-    <None Remove="wwwroot\img\worker (1).png" />
   </ItemGroup>
 
   <ItemGroup>

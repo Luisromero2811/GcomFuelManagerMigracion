@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GComFuelManager.Shared", "G
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorHtmlEmails.GComFuelManagerMigracion", "RazorHtmlEmails.GComFuelManagerMigracion\RazorHtmlEmails.GComFuelManagerMigracion.csproj", "{ED6C667D-DAEE-44C1-8AFC-1746B04738AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RazorHtmlEmails.Common", "RazorHtmlEmails.Common\RazorHtmlEmails.Common.csproj", "{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RazorHtmlEmails.Common", "RazorHtmlEmails.Common\RazorHtmlEmails.Common.csproj", "{FC2369D3-D49F-4F46-8AA3-81EC13DC902C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -49,6 +49,11 @@
     <None Remove="Controllers\ETAController\" />
     <None Remove="Controllers\UsuarioController\" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Include="imgs\gcom_unilogo.png" />
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\AsignacionUnidadesController\" />
