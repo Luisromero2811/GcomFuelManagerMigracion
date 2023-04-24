@@ -78,6 +78,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.Tad)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Tonel)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                     .ToListAsync();
 
                 foreach (var item in ordenes)

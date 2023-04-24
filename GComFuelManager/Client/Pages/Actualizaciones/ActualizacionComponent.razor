@@ -81,13 +81,39 @@
 </div>
 
 
-@code {
-    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
-    //private IList<Transportista> transportistaSeleccionado { get; set; } = new List<Transportista>();
+<div class="col-12 d-flex justify-content-center mt-4">
+    <div class="col-9 card shadow ">
+        <div class="card-body">
+            <div class="col-12 row">
+                <div class="col-8 d-flex mt-auto">
+                    <RadzenDropDown Data="@Clientes" @bind-Value="Cliente" TValue="Cliente" class="col-12" AllowFiltering="true" TextProperty="Den"
+                    AllowVirtualization="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains">
+                        <Template Context="data">
+                            @((data as Cliente)!.Den) | @((data as Cliente)!.CodCte)
+                        </Template>
+                        <ValueTemplate Context="data">
+                            @((data as Cliente)!.Den) | @((data as Cliente)!.CodCte)
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </div>
+                <div class="col-2">
+                    <label class="form-label">Codigo de identificacion:</label>
+                    <InputText @bind-Value="Cliente.CodCte" class="col-12 form-control"/>
+                </div>
+                <div class="col-2 d-flex mt-auto">
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@PutClientes">
+                        <i class="fa fa-solid fa-check"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    //Helpers de desarrollo 
-    private string nmbr = string.Empty;
+
+@code {
+    private IEnumerable<Cliente> Clientes { get; set; } = new List<Cliente>();
+    private Cliente Cliente { get; set; } = new Cliente();
 
 
     //Listas
@@ -98,6 +124,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetTransportista();
+        await GetClientes();
     }
 
     public async Task GetTransportista()
@@ -116,15 +143,65 @@
 
     public async Task ServiceTransportistas()
     {
-        var response = await repositorio.Get<List<Transportista>>("api/service/transportista");
-        if (response.Error)
+        try
         {
-            var responseHttp = await response.ObtenerMensajeError();
-            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            var response = await repositorio.Get<List<Transportista>>("api/service/transportista");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Transportistas = response.Response;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Transportistas = response.Response;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetClientes()
+    {
+        try
+        {
+            var response = await repositorio.Get<IEnumerable<Cliente>>("api/clientes/all");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task  PutClientes()
+    {
+        try
+        {
+            var response = await repositorio.Put<Cliente>("api/clientes", Cliente);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Clinte modificado.", SweetAlertIcon.Success);
+
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 

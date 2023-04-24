@@ -35,6 +35,10 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Esenergas { get; set; } = false;
         [JsonProperty("tipven"), MaxLength(16)]
         public string? Tipven { get; set; } = string.Empty;
+        [JsonProperty("codCte")]
+        public string? CodCte { get; set; } = string.Empty;
+        [JsonProperty("consecutivo")]
+        public int? Consecutivo { get;set; } = 0;
 
         [NotMapped] public Grupo? Grupo { get; set; } = null!;
     }

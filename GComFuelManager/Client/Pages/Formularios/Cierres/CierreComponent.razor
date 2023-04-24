@@ -5,6 +5,7 @@
 @inject IJSRuntime js
 @inject NotificationService ms
 @inject DialogService ds
+@inject TooltipService ts
 
 <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 
@@ -35,7 +36,30 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2 mb-1">
+                        <div class="col-12">
+                            <label>Grupo</label>
+                            <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Grupos is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (Grupos.Count == 0)
+                                {
+                                    <option disabled> No hay grupos</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Grupos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="col-2">
                         <div class="col-12">
                             <label class="form-label">Cliente</label>
                             <InputSelect @bind-Value="filtro.codCte" class="form-select">
@@ -121,13 +145,6 @@
                     <DataAnnotationsValidator />
 
                     <div class="col-12 row">
-
-                        <div class="col-4 mb-1">
-                            <div class="col-12">
-                                <label class="form-label">Folio</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Folio" />
-                            </div>
-                        </div>
 
                         <div class="col-4 mb-1">
                             <div class="col-12">
@@ -288,6 +305,24 @@
                             </div>
                         </div>
 
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Fecha de llegada</label>
+                                <InputDate class="col-12 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
+                            </div>
+                        </div>
+
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                    <label class="form-label">
+                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                    </label>
+                                </div>
+                                <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                            </div>
+                        </div>
+
                         <div class="col-12 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Observaciones</label>
@@ -299,7 +334,7 @@
                             @if (!isEdit)
                             {
                                 <div class="col-3 mx-2">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@CreateCierre">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
                                         <i class="fa fa-solid fa-plus"></i>
                                         <b>Crear cierre</b>
                                         @if (loadingCreate)
@@ -377,7 +412,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchVen" FormatString="{0:d}" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" MinWidth="200px" Frozen="true" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" MinWidth="200px" Property="Destino.Den" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" MinWidth="200px" />
@@ -417,7 +452,7 @@
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
-    private List<CodDenDTO> ClientesSeleccionado { get; set; } = new List<CodDenDTO>();
+    private Cliente Cliente { get; set; } = new Cliente();
 
     private int? clienteSeleccioado { get; set; }
 
@@ -456,6 +491,8 @@
     bool loadingExport = false;
     bool loadingSend = false;
 
+    ElementReference infoIcon;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -475,7 +512,7 @@
             await GetCantidades();
             //await GetClientes();
             await GetEstaciones();
-            await SendEmailV();
+            //await SendEmailV();
             //await GetOrdenesPendientes();
         }
         catch (Exception e)
@@ -483,6 +520,8 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
 
     private async Task GetData()
     {
@@ -632,7 +671,7 @@
                         Vol = ordenCierre.Volumen,
                         Coddes = ordenCierre.CodDes,
                         Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? bin : ordenCierres.Count % 2 == 0 ? bin : bin++
+                        Bin = ordenCierres.Count == 0 ? bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
                     };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
@@ -963,6 +1002,8 @@
             {
                 loadingSend = false;
                 await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
+                ordenCierres = new List<OrdenCierre>();
+                ordenCierre = new OrdenCierre();
             }
         }
         catch (Exception e)
@@ -1034,6 +1075,57 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    public async Task GetFolio()
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(ordenCierre.Folio))
+            {
+                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Cliente = response.Response;
+                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+
+                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+                    await PutClientes();
+                    await CreateCierre();
+                }
+            }
+            else
+            {
+                await CreateCierre();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task PutClientes()
+    {
+        try
+        {
+            var response = await http.Put<Cliente>("api/clientes", Cliente);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

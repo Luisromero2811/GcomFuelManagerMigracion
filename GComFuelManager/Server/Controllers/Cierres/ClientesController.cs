@@ -34,6 +34,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("{cod:int}")]
+        public async Task<ActionResult> GetByCod([FromRoute]int cod)
+        {
+            try
+            {
+                var clientes = context.Cliente.Find(cod);
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("all")]
         public async Task<ActionResult> GetAll()
         {
@@ -79,6 +93,55 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 await context.SaveChangesAsync();
                 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> PutCliente([FromBody] Cliente cliente)
+        {
+            try
+            {
+                if (cliente == null)
+                {
+                    return BadRequest();
+                }
+                
+                cliente.Grupo = null;
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("folio/{cod:int}")]
+        public async Task<ActionResult> GetFolio([FromRoute]int cod)
+        {
+            try
+            {
+                var cliente = await context.Cliente.FindAsync(cod);
+                if (cliente == null)
+                    return NotFound();
+
+                cliente.Consecutivo = cliente.Consecutivo != null ? cliente.Consecutivo + 1 : 1;
+
+                var folio = cliente.CodCte != null ? cliente.CodCte + Convert.ToString(cliente.Consecutivo) : string.Empty;
+
+                cliente.Grupo = null!;
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok(folio);
             }
             catch (Exception e)
             {

@@ -24,7 +24,7 @@ namespace RazorHtmlEmails.Common
 
         public async Task Vencimiento(EmailContent content)
         {
-            string body = await razorView.RenderViewToStringAsync("/Views/Emails/Vencimiento/VencimientoPage.htmlcs", content);
+            string body = await razorView.RenderViewToStringAsync("/Views/Emails/Vencimiento/VencimientoPage.cshtml", content);
             var message = new MimeMessage();
             
             //AlternateView alternateView = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
