@@ -6,70 +6,76 @@
 @inject NotificationService ms
 
 <h4><b>Asignar Contacto</b></h4>
-<div class="col-12 d-flex justify-content-center">
-    <div class="col-10 card shadow-sm">
-        <div class="col-12 row card-body">
-            <div class="col-12 mb-3 row">
-                <div class="col-5">
-                    <label class="form-label">Nombre</label>
-                    <InputText class="form-control" @bind-Value="Contacto.Nombre" />
-                </div>
-                <div class="col-5">
-                    <label class="form-label">Correo</label>
-                    <InputText class="form-control" @bind-Value="Contacto.Correo" />
-                </div>
-                <div class="col-2 d-flex mt-auto">
-                    @if (!isEdit)
-                    {
-                        <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
-                            <i class="fa fa-solid fa-plus"></i> Agregar Contacto
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@PutContacto">
-                            <i class="fa fa-solid fa-check"></i>
-                        </button>
-                        <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit">
-                            <i class="fa fa-solid fa-xmark"></i>
-                        </button>
-                    }
+<AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <div class="col-12 mb-3 row">
+                    <div class="col-5">
+                        <label class="form-label">Nombre</label>
+                        <InputText class="form-control" @bind-Value="Contacto.Nombre" />
+                    </div>
+                    <div class="col-5">
+                        <label class="form-label">Correo</label>
+                        <InputText class="form-control" @bind-Value="Contacto.Correo" />
+                    </div>
+                    <div class="col-2 d-flex mt-auto">
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
+                                <i class="fa fa-solid fa-plus"></i> Agregar Contacto
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@PutContacto">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</AuthorizeView>
+    <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Contacts">
+        <div class="col-12 d-flex justify-content-center">
+            <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
+                            IsLoading="loading" @ref="@grid" AllowSorting="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
+                    <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
+                        <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
+                            <Template Context="item">
+                                <div class="col-12 ">
+                                    <div class="col">
+                                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">
+                            <Template Context="data">
+                                <div class="col-12">
+                                    <div class="form-check form-switch m-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Estado"
+                                               @onchange="@((ChangeEventArgs e) => HabilitarDesabilitar(data, e))">
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </AuthorizeView>
+               
 
-<div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true">
-        <Columns>
-            <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
-            <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
-            <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
-                <Template Context="item">
-                    <div class="col-12 ">
-                        <div class="col">
-                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                        </div>
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">
-                <Template Context="data">
-                    <div class="col-12">
-                        <div class="form-check form-switch m-2">
-                            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Estado"
-                                   @onchange="@((ChangeEventArgs e) => HabilitarDesabilitar(data, e))">
-                        </div>
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-
-        </Columns>
-    </RadzenDataGrid>
-</div>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </AuthorizeView>
 
 @code {
     RadzenDataGrid<Contacto>? grid { get; set; } = new RadzenDataGrid<Contacto>();

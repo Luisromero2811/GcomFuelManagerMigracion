@@ -82,16 +82,18 @@
                         }
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
-                    <Template Context="data">
-                        <div class="col-12">
-                            <div class="form-check form-switch m-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
-                                       @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Actions">
+                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.UserCod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => ActivateUser(data.UserCod, e, data.Nombre))">
+                                </div>
                             </div>
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
             </Columns>
         </RadzenDataGrid>
     </div>

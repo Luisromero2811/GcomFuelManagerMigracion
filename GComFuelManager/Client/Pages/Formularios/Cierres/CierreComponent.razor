@@ -6,12 +6,12 @@
 @inject NotificationService ms
 @inject DialogService ds
 @using Microsoft.AspNetCore.Authorization;
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador")]
 
 <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
 
 <h3>Cierre de Ordenes</h3>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
     <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
         <div class="col-12">
             <div class="col-12 card">
@@ -115,7 +115,7 @@
         </div>
     </div>
 </AuthorizeView>
-<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Folio">
+<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador" Context="Folio">
     <div class="col-12 d-flex justify-content-center shadow-sm">
         <div class="col-12">
             <div class="col-12 card">
@@ -363,7 +363,7 @@
         </div>
     </div>
 </AuthorizeView>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())"

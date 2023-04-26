@@ -1,90 +1,90 @@
 ﻿@page "/orden/{folio}"
 @inject IRepositorio http
 @inject SweetAlertService Swal
-
-<RadzenStack Gap="1rem">
-    @if (cierres == null)
-    {
-        <p>Cargando...</p>
-    }
-    else if (cierres.Count == 0)
-    {
-        <p>No hay ordenes.</p>
-    }
-    else
-    {
-        <div class="col-12">
-            <div class="col-12">
-                Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
-            </div>
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">OC</th>
-                        <th scope="col">Destino</th>
-                        <th scope="col">Producto</th>
-                        <th scope="col">Unidad</th>
-                        <th scope="col">Estatus</th>
-                        <th scope="col">Fecha de entrega</th>
-                    </tr>
-                </thead>
-                <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
-                    <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
-                        <tr>
-                            <td>@item.Folio</td>
-                            <td>@item.Destino?.Den</td>
-                            <td>@item.Producto?.Den</td>
-                            <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
-                            <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                            <td>@item?.FchLlegada</td>
-                        </tr>
-                    </Virtualize>
-                </tbody>
-            </table>
-        </div>
-    }
-</RadzenStack>
-
-@code {
-    [Parameter] public string folio { get; set; } = string.Empty;
-
-    OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
-
-    List<OrdenCierre>? cierres { get; set; }
-
-    private int? FullesRestantes { get; set; } = 0;
-
-    private int index { get; set; } = 0;
-    private int indexRow { get; set; } = 0;
-
-    RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
-
-    protected async override Task OnInitializedAsync()
-    {
-        await GetFiltroCierres();
-    }
-
-    private async Task GetFiltroCierres()
-    {
-        try
-        {
-            var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}");
-            if (response.Error)
+    <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
+        <RadzenStack Gap="1rem">
+            @if (cierres == null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                <p>Cargando...</p>
+            }
+            else if (cierres.Count == 0)
+            {
+                <p>No hay ordenes.</p>
             }
             else
             {
-                cierres = response.Response;
-                foreach (var item in cierres)
-                    if (item.OrdenEmbarque?.Folio == null)
-                        FullesRestantes++;
+                <div class="col-12">
+                    <div class="col-12">
+                        Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                    </div>
+                    <table class="table table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">OC</th>
+                                <th scope="col">Destino</th>
+                                <th scope="col">Producto</th>
+                                <th scope="col">Unidad</th>
+                                <th scope="col">Estatus</th>
+                                <th scope="col">Fecha de entrega</th>
+                            </tr>
+                        </thead>
+                        <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
+                            <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
+                                <tr>
+                                    <td>@item.Folio</td>
+                                    <td>@item.Destino?.Den</td>
+                                    <td>@item.Producto?.Den</td>
+                                    <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
+                                    <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
+                                    <td>@item?.FchLlegada</td>
+                                </tr>
+                            </Virtualize>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </RadzenStack>
+    </AuthorizeView>
+    @code {
+        [Parameter] public string folio { get; set; } = string.Empty;
+
+        OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+        List<OrdenCierre>? cierres { get; set; }
+
+        private int? FullesRestantes { get; set; } = 0;
+
+        private int index { get; set; } = 0;
+        private int indexRow { get; set; } = 0;
+
+        RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
+
+        protected async override Task OnInitializedAsync()
+        {
+            await GetFiltroCierres();
+        }
+
+        private async Task GetFiltroCierres()
+        {
+            try
+            {
+                var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    cierres = response.Response;
+                    foreach (var item in cierres)
+                        if (item.OrdenEmbarque?.Folio == null)
+                            FullesRestantes++;
+                }
+            }
+            catch (Exception e)
+            {
+                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             }
         }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
     }
-}

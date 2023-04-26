@@ -59,5 +59,6 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
+        [NotMapped] public OrdEmbDet OrdEmbDet { get; set; } = null!;
     }
 }
