@@ -1,6 +1,9 @@
 ﻿using GComFuelManager.Shared.DTOs;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using MimeKit.Text;
@@ -13,6 +16,7 @@ namespace GComFuelManager.Server.Controllers.Emails
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class EmailController : ControllerBase
     {
         private readonly ApplicationDbContext context;

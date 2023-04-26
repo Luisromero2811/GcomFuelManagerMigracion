@@ -1,4 +1,4 @@
-﻿<div class="col-12 gcom-bg-rojo-dark p-3">
+<div class="col-12 gcom-bg-rojo-dark p-3">
     <div class="d-flex justify-content-center col-12">
         <img src="img/gcom_unilogo.png" class="img-fluid col-7" />
     </div>
@@ -9,29 +9,37 @@
 
 <div class="@NavMenuCssClass nav-scrollable gcom-bg-rojo" @onclick="ToggleNavMenu">
     <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="cierres" Match="NavLinkMatch.All">
-                <div class="text-white">
-                    <i class="fa fa-solid fa-store-slash" aria-hidden="true"></i> Cierre de orden
-                </div>
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <div class="text-white">
-                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Pedido
-                </div>
-            </NavLink>
-        </div>
-
-        <AuthorizeView Roles="Admin">
+        <!--Módulos con autorización de Cierre de Orden y de Ordenes(Pedido)-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="asignacion/unidades" Match="NavLinkMatch.All">
+                <NavLink class="nav-link" href="cierres" Match="NavLinkMatch.All">
                     <div class="text-white">
-                        <i class="fa fa-solid fa-truck-droplet" aria-hidden="true"></i> Asignacion de unidades
+                        <i class="fa fa-solid fa-store-slash" aria-hidden="true"></i> Cierre de orden
                     </div>
                 </NavLink>
             </div>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Ordenes
+                    </div>
+                </NavLink>
+            </div>
+        </AuthorizeView>
+        <!--Módulo con autorizaciones de Asignación de Unidades-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="asignacion/unidades" Match="NavLinkMatch.All">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-truck-droplet" aria-hidden="true"></i> Programación Equipos
+                    </div>
+                </NavLink>
+            </div>
+        </AuthorizeView>
+        <!--Módulo con autorizaciones de Seguimiento de ordenes-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="seguimiento/ordenes" Match="NavLinkMatch.All">
                     <div class="text-white">
@@ -39,6 +47,9 @@
                     </div>
                 </NavLink>
             </div>
+        </AuthorizeView>
+        <!--Módulo con autorizaciones de Usuarios-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="usuarios" Match="NavLinkMatch.All">
                     <div class="text-white">
@@ -46,6 +57,9 @@
                     </div>
                 </NavLink>
             </div>
+        </AuthorizeView>
+        <!--Módulo con autorizaciones de ETA-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="eta" Match="NavLinkMatch.All">
                     <div class="text-white">
@@ -53,6 +67,9 @@
                     </div>
                 </NavLink>
             </div>
+        </AuthorizeView>
+        <!--Módulo con autorizaciomes de Actualizaciones de registros-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>UpdateMenu = !UpdateMenu)">
                     <div class="text-white">
@@ -62,50 +79,65 @@
                 @if (UpdateMenu)
                 {
                     <div class="vh-100">
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="actualizacion" Match="NavLinkMatch.All">
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-database" aria-hidden="true"></i> Actualizar datos
-                                </div>
-                            </NavLink>
-                        </div>
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="asignar-cliente-destino" Match="NavLinkMatch.All">
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-user-tie" aria-hidden="true"></i> Asignar Cliente y Destino
-                                </div>
-                            </NavLink>
-                        </div>
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="asignar-contacto" Match="NavLinkMatch.All">
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-address-book" aria-hidden="true"></i> Asignar Contacto
-                                </div>
-                            </NavLink>
-                        </div>
-                    </div>
-                }
-            </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
-                    <div class="text-white">
-                        <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
-                    </div>
-                </NavLink>
-                @if (ConfigMenu)
-                {
-                    <div class="vh-100">
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
-                                </div>
-                            </NavLink>
-                        </div>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Programador" Context="Actualizar">
+                            <!--Módulo de Actualizar Datos con autorizaciones-->
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="actualizacion" Match="NavLinkMatch.All">
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-database" aria-hidden="true"></i> Actualizar datos
+                                    </div>
+                                </NavLink>
+                            </div>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="AsignarCliDest">
+                            <!--Módulo de Actualizar Datos con autorizaciones-->
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="asignar-cliente-destino" Match="NavLinkMatch.All">
+                                    <div class="text-white">
+                                        s
+                                        <i class="fa fa-solid fa-user-tie" aria-hidden="true"></i> Asignar Cliente y Destino
+                                    </div>
+                                </NavLink>
+                            </div>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="AsignarContacto">
+                            <!--Módulo de Actualizar Datos con autorizaciones-->
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="asignar-contacto" Match="NavLinkMatch.All">
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-address-book" aria-hidden="true"></i> Asignar Contacto
+                                    </div>
+                                </NavLink>
+                            </div>
+                        </AuthorizeView>
+
                     </div>
                 }
             </div>
         </AuthorizeView>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Configs">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
+                        <div class="text-white">
+                            <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
+                        </div>
+                    </NavLink>
+                    @if (ConfigMenu)
+                    {
+                        <div class="vh-100">
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                    </div>
+                                </NavLink>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </AuthorizeView>
+
+        <!--Cierre de módulos autorizados-->
     </nav>
 </div>
 

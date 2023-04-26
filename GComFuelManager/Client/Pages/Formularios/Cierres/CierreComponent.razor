@@ -1,4 +1,4 @@
-﻿@page "/cierres"
+@page "/"
 
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -735,15 +735,7 @@
         {
             loadingCreate = true;
 
-            OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                {
-                    Codprd = ordenCierre.CodPrd,
-                    Pre = ordenCierre.Precio,
-                    Vol = ordenCierre.Volumen,
-                    Coddes = ordenCierre.CodDes
-                };
-
-            var responseEM = await http.Put<OrdenEmbarque>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenEmbarque);
+            var responseEM = await http.Post<OrdenCierre>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenCierre);
             if (responseEM.Error)
             {
                 loadingCreate = false;
@@ -765,7 +757,7 @@
                     var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
                     ordenCierres.RemoveAt(index);
                     ordenCierres.Insert(index, response.Response);
-                    ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 3000 });
+                    ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 1500 });
                     await grid.Reload();
                 }
             }

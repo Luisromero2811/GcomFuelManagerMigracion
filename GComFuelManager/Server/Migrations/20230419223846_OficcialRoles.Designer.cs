@@ -4,6 +4,7 @@ using GComFuelManager.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GComFuelManager.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230419223846_OficcialRoles")]
+    partial class OficcialRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,7 +278,7 @@ namespace GComFuelManager.Server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Cod"));
 
-                    b.Property<int?>("CodCte")
+                    b.Property<int>("CodCte")
                         .HasColumnType("int");
 
                     b.Property<string>("Correo")
@@ -787,10 +790,6 @@ namespace GComFuelManager.Server.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("Relational:JsonPropertyName", "codDes");
 
-                    b.Property<short?>("CodGru")
-                        .HasColumnType("smallint")
-                        .HasAnnotation("Relational:JsonPropertyName", "codGru");
-
                     b.Property<int?>("CodPed")
                         .HasColumnType("int");
 
@@ -809,9 +808,6 @@ namespace GComFuelManager.Server.Migrations
                     b.Property<DateTime?>("FchCierre")
                         .HasColumnType("datetime2")
                         .HasAnnotation("Relational:JsonPropertyName", "fchCierre");
-
-                    b.Property<DateTime?>("FchLlegada")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Folio")
                         .HasColumnType("nvarchar(max)")
@@ -832,10 +828,6 @@ namespace GComFuelManager.Server.Migrations
                     b.Property<string>("TipoVenta")
                         .HasColumnType("nvarchar(max)")
                         .HasAnnotation("Relational:JsonPropertyName", "tipoVenta");
-
-                    b.Property<string>("Turno")
-                        .HasColumnType("nvarchar(max)")
-                        .HasAnnotation("Relational:JsonPropertyName", "turno");
 
                     b.Property<string>("Vendedor")
                         .HasColumnType("nvarchar(max)")
@@ -1474,7 +1466,9 @@ namespace GComFuelManager.Server.Migrations
                 {
                     b.HasOne("GComFuelManager.Shared.Modelos.Cliente", "Cliente")
                         .WithMany()
-                        .HasForeignKey("CodCte");
+                        .HasForeignKey("CodCte")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cliente");
                 });
