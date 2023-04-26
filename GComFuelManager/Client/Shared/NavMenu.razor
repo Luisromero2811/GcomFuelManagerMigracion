@@ -10,7 +10,7 @@
 <div class="@NavMenuCssClass nav-scrollable gcom-bg-rojo" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <!--Módulos con autorización de Cierre de Orden y de Ordenes(Pedido)-->
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="cierres" Match="NavLinkMatch.All">
                     <div class="text-white">
@@ -79,7 +79,7 @@
                 @if (UpdateMenu)
                 {
                     <div class="vh-100">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Programador" Context="Actualizar"> 
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Programador" Context="Actualizar">
                             <!--Módulo de Actualizar Datos con autorizaciones-->
                             <div class="nav-item px-3">
                                 <NavLink class="nav-link" href="actualizacion" Match="NavLinkMatch.All">
@@ -88,12 +88,13 @@
                                     </div>
                                 </NavLink>
                             </div>
-                    </AuthorizeView>
+                        </AuthorizeView>
                         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="AsignarCliDest">
                             <!--Módulo de Actualizar Datos con autorizaciones-->
                             <div class="nav-item px-3">
                                 <NavLink class="nav-link" href="asignar-cliente-destino" Match="NavLinkMatch.All">
-                                    <div class="text-white">s
+                                    <div class="text-white">
+                                        s
                                         <i class="fa fa-solid fa-user-tie" aria-hidden="true"></i> Asignar Cliente y Destino
                                     </div>
                                 </NavLink>
@@ -113,26 +114,29 @@
                     </div>
                 }
             </div>
-            <div class="nav-item px-3">
-                <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
-                    <div class="text-white">
-                        <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
-                    </div>
-                </NavLink>
-                @if (ConfigMenu)
-                {
-                    <div class="vh-100">
-                        <div class="nav-item px-3">
-                            <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
-                                </div>
-                            </NavLink>
-                        </div>
-                    </div>
-                }
-            </div>
         </AuthorizeView>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Configs">
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
+                        <div class="text-white">
+                            <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
+                        </div>
+                    </NavLink>
+                    @if (ConfigMenu)
+                    {
+                        <div class="vh-100">
+                            <div class="nav-item px-3">
+                                <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                    </div>
+                                </NavLink>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </AuthorizeView>
+
         <!--Cierre de módulos autorizados-->
     </nav>
 </div>
