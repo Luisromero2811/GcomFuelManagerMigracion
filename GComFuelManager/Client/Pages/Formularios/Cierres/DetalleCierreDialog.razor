@@ -1,6 +1,7 @@
 ﻿@*@page "/detalle/{folio}"*@
 @inject IRepositorio http
 @inject SweetAlertService Swal
+@inject IJSRuntime js
 
 <RadzenStack Gap="1rem">
     @if (cierres == null)
@@ -10,8 +11,19 @@
     else
     {
         <div class="col-12">
-            <div class="col-12">
-                Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+            <div class="col-12 row">
+                <div class="col-4">
+                    Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                </div>
+                <div class="col-4">
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                        <i class="fa-solid fa-file-excel fa"></i> Eportar
+                        @if (loadingExport)
+                        {
+                            <SpinnerLoading></SpinnerLoading>
+                        }
+                    </button>
+                </div>
             </div>
             <table class="table table-bordered table-striped">
                 <thead>
@@ -56,16 +68,34 @@
 
     List<OrdenCierre>? cierres { get; set; }
 
+    List<DetalleCierreDTO> detalleCierres { get; set; } = new List<DetalleCierreDTO>();
+
     private int? FullesRestantes { get; set; } = 0;
 
     private int index { get; set; } = 0;
     private int indexRow { get; set; } = 0;
+
+    bool loadingExport = false;
 
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
     protected async override Task OnInitializedAsync()
     {
         await GetFiltroCierres();
+        foreach (var item in cierres!)
+        {
+            detalleCierres.Add(new DetalleCierreDTO
+                {
+                    OC = item.Folio,
+                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                    Destino = item?.Destino?.Den,
+                    Producto = item?.Producto?.Den,
+                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                    FchLlegada = item?.FechaLlegada
+                });
+        }
     }
 
     private async Task GetFiltroCierres()
@@ -91,4 +121,42 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task GenerateExcel()
+    {
+        try
+        {
+            if (cierres != null)
+            {
+                loadingExport = true;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Cierre");
+                ws.Columns.Width = 50;
+                ws.Columns.AutoFit();
+
+                var header = ws.Cells["A1:P1"];
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(detalleCierres, true);
+                tablebody.Style.Font.Size = 14;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Detalle_Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                loadingExport = false;
+            }
+            else
+            {
+                loadingExport = false;
+                await Swal.FireAsync("Alerta", "No hay datos que exportar.", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
