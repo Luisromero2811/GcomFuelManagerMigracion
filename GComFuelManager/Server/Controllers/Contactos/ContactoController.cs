@@ -1,10 +1,9 @@
 ﻿using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Mail;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Contactos
 {
@@ -110,6 +109,25 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 await context.SaveChangesAsync();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("comprador")]
+        public ActionResult GetContactoComprador()
+        {
+            try
+            {
+                var user = context.Usuario.FirstOrDefault(x => x.Usu == HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName));
+                if (user == null)
+                    return BadRequest();
+
+                var clientes = context.Contacto.Where(x => x.CodCte == user!.CodCte).AsEnumerable().OrderBy(x => x.Nombre);
+
+                return Ok(clientes);
             }
             catch (Exception e)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +21,8 @@ namespace GComFuelManager.Shared.DTOs
         public string Password { get; set; } = string.Empty;
         //Estado
         public bool Activo { get; set; } = true;
+        public int? CodCte { get; set; }
+        public Int16? CodGru { get; set; }
+        public bool IsClient { get; set; } = false;
     }
 }

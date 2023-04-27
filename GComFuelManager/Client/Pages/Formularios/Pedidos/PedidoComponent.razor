@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/pedidos"
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject IJSRuntime js
@@ -498,7 +498,8 @@
             if (ordenCierres.Count != 0)
             {
                 foreach (var item in ordenCierres)
-                    ordens.Add(item.OrdenEmbarque!);
+                    if(item.OrdenEmbarque!.CodordCom == null)
+                        ordens.Add(item.OrdenEmbarque!);
 
                 var response = await http.Post<List<OrdenEmbarque>, OrdenCompra>("api/pedido/confirm", ordens);
                 if (response.Error)

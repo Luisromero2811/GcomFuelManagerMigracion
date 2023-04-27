@@ -41,7 +41,10 @@ namespace GComFuelManager.Server.Controllers.Auth
             try
             {
                 var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
-                if(usuario.Activo == true)
+                if (usuario == null)
+                    return BadRequest();
+
+                if(usuario!.Activo == true)
                 {
                     var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
                     if (resultado.Succeeded)
@@ -141,6 +144,27 @@ namespace GComFuelManager.Server.Controllers.Auth
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("check/cliente"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> GetClient()
+        {
+            try
+            {
+                var name = HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName);
+                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName)!);
+                //Si el usuario no existe
+                if (usuario == null)
+                    return NotFound();
+
+                var isClient = await userManager.IsInRoleAsync(usuario, "Comprador");
+
+                return Ok(isClient);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
             }
         }
     }

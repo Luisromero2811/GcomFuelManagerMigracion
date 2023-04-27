@@ -12,7 +12,7 @@
         <!--Módulos con autorización de Cierre de Orden y de Ordenes(Pedido)-->
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="cierres" Match="NavLinkMatch.All">
+                <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
                     <div class="text-white">
                         <i class="fa fa-solid fa-store-slash" aria-hidden="true"></i> Cierre de orden
                     </div>
@@ -21,7 +21,7 @@
         </AuthorizeView>
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
             <div class="nav-item px-3">
-                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <NavLink class="nav-link" href="pedidos" Match="NavLinkMatch.All">
                     <div class="text-white">
                         <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Ordenes
                     </div>
