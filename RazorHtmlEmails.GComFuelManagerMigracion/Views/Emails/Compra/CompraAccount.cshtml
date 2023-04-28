@@ -8,7 +8,7 @@
     ViewData["EmailTitle"] = "Compra confirmada!";
 }
 <p>
-    @Model.ordenCierres!.FirstOrDefault()!.Cliente!.Den, ha consumido los siguientes productos.
+    @Model.ordenCierres!.FirstOrDefault()!.Cliente!.Den, Se ha confirmado la compra de los siguientes productos.
 </p>
 
 <br />
@@ -27,6 +27,12 @@
                     <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
                         Cantidad
                     </th>
+                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Precio Unitario
+                    </th>
+                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                        Precio
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -39,6 +45,12 @@
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
                             @item.Volumen?.ToString("N0")
                         </td>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            $@(item.Precio)
+                        </td>
+                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
+                            $@((item.Precio * Convert.ToDouble(item.Volumen))?.ToString("N0"))
+                        </td>
                     </tr>
                 }
                 <tr>
@@ -46,41 +58,6 @@
                         <a style="background-color:#EABF1A; color:black; border:none; border-radius:5px;margin:10px;padding:15px 25px;box-shadow: 0px 4px 4px 0px #00000040;
                                         font-size:18px; text-decoration:none;" href="https://localhost:44333/orden/@Model.ordenCierres.First().Folio">
                         Ver estado de orden
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-
-        <b>Produco Restante</b>
-        <table cellspacing="0" cellpadding="0" border="0" width="100%">
-            <thead>
-                <tr>
-                    <th width="75%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Producto
-                    </th>
-                    <th width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Cantidad
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.ordenRestante)
-                {
-                    <tr>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @item.Producto!.Den
-                        </td>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @item.Volumen?.ToString("N0")
-                        </td>
-                    </tr>
-                }
-                <tr>
-                    <td colspan="4" style="padding:25px 0px 0px 25px">
-                        <a style="background-color:#EABF1A; color:black; border:none; border-radius:5px;margin:10px;padding:15px 25px;box-shadow: 0px 4px 4px 0px #00000040;
-                                            font-size:18px; text-decoration:none;" href="https://localhost:44333/orden/@Model.ordenCierres.First().Folio">
-                            Ver estado de orden
                         </a>
                     </td>
                 </tr>

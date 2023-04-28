@@ -3,18 +3,17 @@ using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
+using System.Linq;
+using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador")]
     public class CierreController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -71,9 +70,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
                     .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x!.Destino)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x!.Producto)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Tad)
                     .Include(x => x.OrdenEmbarque)
@@ -88,9 +84,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
                         if (o != null)
-                            ordenes.FirstOrDefault(x=>x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                            ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
                         else
-                            ordenes.FirstOrDefault(x=>x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                            ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
                     }
                 }
                 return Ok(ordenes);
@@ -106,6 +102,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
+                var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (user == null)
+                    return NotFound();
+
+                if (await UserManager.IsInRoleAsync(user, "Comprador"))
+                {
+                    var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                    if (userSis == null)
+                        return NotFound();
+                    orden.CodCte = userSis.CodCte;
+                    orden.CodGru = userSis.CodGru;
+                    orden.Vendedor = userSis.Den;
+                }
+
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
                 orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
@@ -207,6 +217,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 List<OrdenCierre> cierres = new List<OrdenCierre>();
+
+                if (string.IsNullOrEmpty(HttpContext.User.FindFirstValue(ClaimTypes.Name)))
+                    return BadRequest();
+
+                var usuario = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (usuario == null)
+                    return NotFound();
+
+                var isClient = await UserManager.IsInRoleAsync(usuario, "Cliente Lectura");
+
+                if (isClient)
+                    filtroDTO.codCte = context.Usuario.Find(usuario.UserCod)!.CodCte;
+
                 if (!filtroDTO.forFolio)
                 {
                     cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte
@@ -215,18 +238,54 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Producto)
                         .Include(x => x.Destino)
                         .Include(x => x.ContactoN)
+                        .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+
                         .ToListAsync();
+
                 }
                 else
                 {
-                    cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
+                    if (isClient)
+                    {
+                        cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.Folio.Contains(context.Cliente.Find(filtroDTO.codCte)!.CodCte!))
                         .Include(x => x.Cliente)
                         .Include(x => x.Producto)
                         .Include(x => x.Destino)
                         .Include(x => x.ContactoN)
+                        .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                         .ToListAsync();
+                    }
+                    else
+                    {
+                        cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .Include(x => x.ContactoN)
+                        .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                        .ToListAsync();
+                    }
                 }
-
+                foreach (var item in cierres)
+                {
+                    if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                    {
+                        var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                        if (o != null)
+                            cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                        else
+                            cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                    }
+                }
                 return Ok(cierres);
             }
             catch (Exception e)

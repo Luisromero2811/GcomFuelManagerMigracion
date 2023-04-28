@@ -152,15 +152,21 @@ namespace GComFuelManager.Server.Controllers.Auth
         {
             try
             {
-                var name = HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName);
-                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName)!);
+                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 //Si el usuario no existe
                 if (usuario == null)
                     return NotFound();
 
+                var user = new UsuarioInfo();
+
                 var isClient = await userManager.IsInRoleAsync(usuario, "Comprador");
 
-                return Ok(isClient);
+                user.IsClient = isClient;
+
+                if (isClient)
+                    user.CodCte = context.Usuario.Find(usuario.UserCod)!.CodCte;
+
+                return Ok(user);
             }
             catch (Exception e)
             {
