@@ -34,11 +34,11 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
-                //private ICollection<Orden> ordens { get; set; } = null!;
-                List<Orden> OrdenesEta = new List<Orden>();
-                //Conexión a tabla de Orden
-                var Eta = context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true)
+                var Eta = await context.Orden.OrderBy(x => x.Destino.Den).ThenBy(x => x.Fchcar).ThenBy(x => x.Producto.Den).ThenBy(x => x.BatchId)
+                    .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.den)
+                    .ThenBy(x => x.Coduni).ThenBy(x => x.Ref).ThenBy(x => x.Codprd2).ThenBy(x => x.Codest)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true )
+                    .Include(x => x.OrdEmbDet)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -46,28 +46,34 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .Include(x => x.Chofer)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
-                    .OrderBy(x => x.Fchcar)
-                    .GroupByMany(x => (x.Destino.Den, x.Fchcar, x.Producto.Den, x.Destino.Cliente.Den, x.BatchId, x.Chofer.Den, x.Chofer.Shortden, x.Tonel.Placa, x.Tonel.Tracto, x.Tonel.Transportista.den, x.Coduni, x.Codprd2, x.Codest))
-                    .Take(1000)
-                    .ToList();
-                OrdenesEta.AddRange((ICollection<Orden>)Eta);
-                //Conexión con tabla de OrdEmbDet
-                var Eta2 = await context.OrdEmbDet
-                    .Take(1000)
-                    .Select(x => new EtaDTO()
-                    {
-                        FechaDoc = x.FchDoc,
-                        Eta = x.Eta,
-                        FechaEst = x.Fchlleest,
-                        Observaciones = x.Obs,
-                        FechaRealEta = x.Fchrealledes,
-                        LitEnt = x.Litent
-                    })
-                    .ToListAsync();
-                OrdenesEta.AddRange((ICollection<Orden>)Eta2);
 
-                //Retorno de datos
-                return Ok(OrdenesEta);
+                     .Select(e => new EtaDTO()
+                     {
+                         Referencia = e.Ref,
+                         FechaPrograma = e.Fch.Value.ToString("yyyy-MM-dd"),
+                         EstatusOrden = "CLOSED",
+                         FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                         Bol = e.BatchId,
+                         Cliente = e.Destino.Cliente.Den,
+                         Destino = e.Destino.Den,
+                         Producto = e.Producto.Den,
+                         VolNat = e.Vol2,
+                         VolCar = e.Vol,
+                         Transportista = e.Tonel.Transportista.den,
+                         Unidad = e.Tonel.Veh,
+                         Operador = e.Chofer.Den,
+                         FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                         Eta = e.OrdEmbDet.Eta,
+                         FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                         Trayecto = "ENTREGADO",
+                         Observaciones = e.OrdEmbDet!.Obs,
+                         FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd"),
+                         LitEnt = e.OrdEmbDet.Litent
+                     })
+                     
+                    .Take(1000)
+                    .ToListAsync();
+                return Ok(Eta);
             }
             catch (Exception e)
             {
@@ -77,3 +83,5 @@ namespace GComFuelManager.Server.Controllers.ETAController
     }
 }
 
+//d.den, o.fchcar, p.den, ct.den, o.batchId, ch.den, ch.shortden,
+//t.placa, t.tracto, tr.den, o.coduni, o.ref, o.codprd2, o.codest
