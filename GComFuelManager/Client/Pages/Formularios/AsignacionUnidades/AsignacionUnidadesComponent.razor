@@ -21,9 +21,9 @@
                                     <label>Destino:</label>
                                     @if (ordenesSeleccionada.Count > 0)
                                     {
-                                        <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault().Coddes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
-                                                        AllowVirtualization="true" AllowFiltering="true"
-                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                                        <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault()!.CodDes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
+                                                    AllowVirtualization="true" AllowFiltering="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
                                     }
                                     else
                                     {
@@ -35,7 +35,7 @@
                                 <label>Fecha de carga:</label>
                                 @if (ordenesSeleccionada.Count > 0)
                                 {
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Fchcar" />
+                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Fchcar" />
                                 }
                                 else
                                 {
@@ -46,7 +46,7 @@
                                 <label>Producto:</label>
                                 @if (ordenesSeleccionada.Count > 0)
                                 {
-                                    <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault().Codprd">
+                                    <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.CodPrd">
                                         <option>-- seleccione una opcion --</option>
                                         @if (Productos is null)
                                         {
@@ -72,7 +72,7 @@
                             </div>
                             <div class="col-12 d-flex justify-content-end">
                                 <div class="col-6 d-flex">
-                                    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrden">
+                                    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrder">
                                         <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
                                     </button>
                                 </div>
@@ -188,7 +188,7 @@
                                         @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
                                         {
                                             <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
-                                                @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).CapDisponible; i++)
+                                                @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.CapDisponible; i++)
                                                 {
                                                     <div class="col">
                                                         <div class="form-check">
@@ -216,11 +216,11 @@
                                 </AuthorizeView>
                             </div>
                             @*<div class="col-3">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
-                                </div>
-                                <div class="col-3">
-                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
-                                </div>*@
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
+                            </div>
+                            <div class="col-3">
+                            <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
+                            </div>*@
                             <div class="col-4">
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
@@ -236,55 +236,55 @@
 </div>
 
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" ColumnResized="@(()=>grid.Reset())"
+    <RadzenDataGrid TItem="OrdenCierre" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         @*<EmptyTemplate>
-            <NoHayRegistros></NoHayRegistros>
-            </EmptyTemplate>*@
+        <NoHayRegistros></NoHayRegistros>
+        </EmptyTemplate>*@
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px">
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
-                        @(data?.Compartment == 1 ? data?.Tonel?.Capcom
-                        : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                        : data?.Compartment == 3 ? data?.Tonel?.Capcom3 : data?.Tonel?.Capcom4)
+                        @(data?.OrdenEmbarque?.Compartment == 1 ? data?.OrdenEmbarque?.Tonel?.Capcom
+                            : data?.OrdenEmbarque?.Compartment == 2 ? data?.OrdenEmbarque?.Tonel?.Capcom2
+                            : data?.OrdenEmbarque?.Compartment == 3 ? data?.OrdenEmbarque?.Tonel?.Capcom3 : data?.OrdenEmbarque?.Tonel?.Capcom4)
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" MinWidth="200px">
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
-                        @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                        @data?.OrdenEmbarque?.Tonel?.Tracto @data?.OrdenEmbarque?.Tonel?.Placa
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="Compartment" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" MinWidth="200px">
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Operador" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
-                        @data?.Chofer?.Den @data?.Chofer?.Shortden
+                        @data?.OrdenEmbarque?.Chofer?.Den @data?.OrdenEmbarque?.Chofer?.Shortden
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" />
             @*<RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
-                    <Template Context="data">
-                        <div class="col-12">
-                            <div class="form-check form-switch m-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
-                                       @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
-                            </div>
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>*@
+            <Template Context="data">
+            <div class="col-12">
+            <div class="form-check form-switch m-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
+            @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
+            </div>
+            </div>
+            </Template>
+            </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -307,11 +307,11 @@
 </style>
 @code {
     //grid
-    private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
+    private RadzenDataGrid<OrdenCierre>? grid = new RadzenDataGrid<OrdenCierre>();
 
-    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private ICollection<OrdenEmbarque> ordenes { get; set; } = null!;
-    private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
+    private OrdenCierre ordenEmbarque { get; set; } = new OrdenCierre();
+    private IList<OrdenCierre> ordenes { get; set; } = null!;
+    private IList<OrdenCierre> ordenesSeleccionada { get; set; } = new List<OrdenCierre>();
 
     //Listas
     private List<CodDenDTO> Destinos { get; set; } = null!;
@@ -340,7 +340,7 @@
     bool loadingFiltro = false;
     bool loadingEdit = false;
     bool loadginAsignar = false;
-
+    bool loadingAgregar = false;
     //
     CheckChofer checkChofer = new CheckChofer();
 
@@ -454,7 +454,7 @@
             ordenes = null!;
             StateHasChanged();
 
-            var responseHttp = await repositorio.Post<FechasF, ICollection<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
+            var responseHttp = await repositorio.Post<FechasF, IList<OrdenCierre>>($"api/cierre/asignacion/filtrar", fechas);
 
             if (responseHttp.Error)
             {
@@ -474,39 +474,6 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-    public async Task EditOrden()
-    {
-        try
-        {
-            if (ordenesSeleccionada.Count == 0)
-            {
-                await swal.FireAsync("Advertencia", "Selecciona una orden para editar", SweetAlertIcon.Warning);
-            }
-            else
-            {
-
-                var responseHttp = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
-
-
-                if (responseHttp.Error)
-                {
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    grid?.Reload();
-                    await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
-                    await MostrarOrdenFecha();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
 
     public async Task AsignarUnidad()
     {
@@ -519,17 +486,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = ChoferSeleccionado,
-                    Tonel = VehiculoSeleccionado,
-                    Compartimento =
-                                        (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
-                                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
-                                                : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
-                                                    : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault().Fchcar
-                };
+                    {
+                        Chofer = ChoferSeleccionado,
+                        Tonel = VehiculoSeleccionado,
+                        Compartimento =
+                                            (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
+                                                : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
+                                                    : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
+                                                        : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque?.Fchcar
+                    };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -541,23 +508,23 @@
                 {
                     if (responseHttp.Response == 0)
                     {
-                        ordenesSeleccionada.FirstOrDefault().Codchf = checkChofer.Chofer;
-                        ordenesSeleccionada.FirstOrDefault().Codton = checkChofer.Tonel;
-                        ordenesSeleccionada.FirstOrDefault().Compartment = CompartimentoSeleccionado;
-                        ordenesSeleccionada.FirstOrDefault().CompartmentId = checkChofer.Compartimento;
+                        ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Codchf = checkChofer.Chofer;
+                        ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Codton = checkChofer.Tonel;
+                        ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Compartment = CompartimentoSeleccionado;
+                        ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.CompartmentId = checkChofer.Compartimento;
 
                         await UpdateOrden();
                     }
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                        {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -571,10 +538,10 @@
                             }
                             else
                             {
-                                ordenesSeleccionada.FirstOrDefault().Codchf = checkChofer.Chofer;
-                                ordenesSeleccionada.FirstOrDefault().Codton = checkChofer.Tonel;
-                                ordenesSeleccionada.FirstOrDefault().Compartment = CompartimentoSeleccionado;
-                                ordenesSeleccionada.FirstOrDefault().CompartmentId = checkChofer.Compartimento;
+                                ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Codchf = checkChofer.Chofer;
+                                ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Codton = checkChofer.Tonel;
+                                ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Compartment = CompartimentoSeleccionado;
+                                ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.CompartmentId = checkChofer.Compartimento;
 
                                 await UpdateOrden();
                             }
@@ -590,19 +557,61 @@
         }
     }
 
+    private async Task EditOrder()
+    {
+        try
+        {
+            ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque.Codprd = ordenesSeleccionada.FirstOrDefault()!.CodPrd;
+            ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque.Coddes = ordenesSeleccionada.FirstOrDefault()!.CodDes;
+            ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque.Coddes = ordenesSeleccionada.FirstOrDefault()!.CodDes;
+            await UpdateOrden();
+        }
+        catch (Exception e)
+        {
+            loadingAgregar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
     private async Task UpdateOrden()
     {
-        var response = await repositorio.Put<OrdenEmbarque>($"api/pedido", ordenesSeleccionada.FirstOrDefault());
-
-        if (response.Error)
+        loadingAgregar = true;
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            var responseOC = await repositorio.Post<OrdenCierre, OrdenCierre>("api/cierre/update", ordenesSeleccionada.FirstOrDefault()!);
+            if (responseOC.Error)
+            {
+                loadingAgregar = false;
+                string? message = await responseOC.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var response = await repositorio.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido/update", ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!);
+                if (response.Error)
+                {
+                    loadingAgregar = false;
+                    string? message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loadingAgregar = false;
+                    responseOC.Response.OrdenEmbarque = response.Response;
+                    var index = ordenes.IndexOf(ordenes.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
+                    ordenes.RemoveAt(index);
+                    ordenes.Insert(index, responseOC.Response);
+                    ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos actualizados.", Duration = 1500 });
+                    await grid!.Reload();
+                }
+            }
         }
-        else
+        catch (Exception e)
         {
-            grid?.Reload();
-            await MostrarOrdenFecha();
+            loadingAgregar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 
@@ -620,21 +629,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-            {
-                OrdenCompra = o?.OrdenCompra?.den,
-                Referencia = o?.Folio.ToString(),
-                Cliente = o?.Destino?.Cliente?.Den,
-                Destino = o?.Destino?.Den,
-                Producto = o?.Producto?.Den,
-                Volumen = o?.Vol,
-                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                Transportista = o?.Tonel?.Transportista?.den,
-                Unidad = o?.Tonel?.Veh,
-                Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den,
-                Bin = o?.Bin,
-                Status = o?.Estado?.den
-            }, true);
+                {
+                    OrdenCompra = o?.OrdenEmbarque?.OrdenCompra?.den,
+                    Referencia = o?.OrdenEmbarque?.Folio.ToString(),
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    Volumen = o?.OrdenEmbarque?.Vol,
+                    FechaCarga = o?.OrdenEmbarque?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o?.OrdenEmbarque?.Tonel?.Transportista?.den,
+                    Unidad = o?.OrdenEmbarque?.Tonel?.Veh,
+                    Compartimento = o?.OrdenEmbarque?.Compartment,
+                    Operador = o?.OrdenEmbarque?.Chofer?.Den,
+                    Bin = o?.OrdenEmbarque?.Bin,
+                    Status = o?.OrdenEmbarque?.Estado?.den
+                }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

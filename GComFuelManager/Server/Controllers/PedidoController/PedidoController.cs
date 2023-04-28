@@ -512,13 +512,16 @@ namespace GComFuelManager.Server.Controllers
                 await context.SaveChangesAsync();
 
                 var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
-                    .Include(x=>x.Producto)
-                    .Include(x=>x.Destino)
-                    .Include(x=>x.Tonel)
-                    .Include(x=>x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Tad)
                     .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Chofer)
                     .FirstOrDefaultAsync();
-                
+
                 return Ok(ord);
             }
             catch (Exception e)
@@ -528,7 +531,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPut("cierre/update/{cod:int}")]
-        public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenEmbarque orden, [FromRoute]int cod)
+        public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenEmbarque orden, [FromRoute] int cod)
         {
             try
             {

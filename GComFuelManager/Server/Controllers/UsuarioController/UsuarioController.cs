@@ -10,6 +10,7 @@ using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.Modelos;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.UsuarioController
 {
@@ -38,7 +39,10 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     Password = x.Cve!,
                     Nombre = x.Den!,
                     UserCod = x.Cod,
-                    Activo = x.Activo
+                    Activo = x.Activo,
+                    IsClient = x.IsClient,
+                    CodGru = x.CodGru,
+                    CodCte = x.CodCte
                 }).ToListAsync();
 
                 foreach (var item in usuarios)
@@ -80,7 +84,16 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 {
                     return BadRequest("El usuario ya existe");
                 }
-                var newUserSistema = new Usuario { Den = info.Nombre, Usu = info.UserName, Fch = DateTime.Now, Cve = info.Password };
+                var newUserSistema = new Usuario
+                {
+                    Den = info.Nombre,
+                    Usu = info.UserName,
+                    Fch = DateTime.Now,
+                    Cve = info.Password,
+                    IsClient = info.IsClient,
+                    CodCte = info.CodCte,
+                    CodGru = info.CodGru
+                };
                 context.Add(newUserSistema);
                 await context.SaveChangesAsync();
                 var newUserAsp = new IdentityUsuario { UserName = newUserSistema.Usu, UserCod = newUserSistema.Cod };
@@ -127,6 +140,9 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 updateUserSistema.Den = info.Nombre;
                 updateUserSistema.Usu = info.UserName;
                 updateUserSistema.Cve = info.Password;
+                updateUserSistema.CodCte = info.CodCte;
+                updateUserSistema.CodGru = info.CodGru;
+                updateUserSistema.IsClient = info.IsClient;
                 //Actualizacion de registros
                 context.Update(updateUserSistema);
                 await context.SaveChangesAsync();

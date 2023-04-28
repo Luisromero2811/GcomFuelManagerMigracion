@@ -19,7 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
 
         [DisplayName("Fecha de vencimiento"), NotMapped]
-        public string? FchVen { get { return FchCierre!.Value.AddDays(7).ToString("dd/MM/yyyy"); } }
+        public string? FchVen { get { return FchCierre!.Value.AddDays(7).ToString("D"); } }
 
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
@@ -96,7 +96,7 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? FchLlegada { get; set; } = DateTime.Now;
 
         [DisplayName("Fecha de llegada"), NotMapped]
-        public string? FechaLlegada { get { return FchLlegada!.Value.ToString("dd/MM/yyyy"); } }
+        public string? FechaLlegada { get { return FchLlegada!.Value.ToString("D"); } }
 
         [DisplayName("Turno"), JsonPropertyName("turno")]
         public string? Turno { get; set; } = string.Empty;
