@@ -12,7 +12,7 @@
     <div class="col-12 card shadow p-2">
         <div class="card-body g-3">
             <EditForm Model="@users">
-                <div class="row d-flex g-3 p-2">
+                <div class="col-12 row d-flex g-3 p-2">
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Nombre Completo:</label>
@@ -37,7 +37,64 @@
                         </div>
                     </div>
                 </div>
-                <div class="row p-2">
+                <div class="col-12 row">
+                    <div class="col-4 d-flex">
+                       <div class="col-12 my-auto">
+                            <RadzenCheckBox @bind-Value="@usuarioSeleccionado.FirstOrDefault()!.IsClient" Name="CheckBox1" class="mx-3"/>
+                            <RadzenLabel Text="Es Cliente" Component="CheckBox1"/>
+                       </div>
+                    </div>
+                    @if (usuarioSeleccionado.FirstOrDefault()!.IsClient)
+                    {
+                        <div class="col-4">
+                            <div class="col-12">
+                                <label class="form-label">Grupo</label>
+                                <InputSelect @bind-Value="usuarioSeleccionado.FirstOrDefault()!.CodGru" class="form-select" onchange="@GetClientes()">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Grupos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Grupos.Count == 0)
+                                    {
+                                        <option disabled> No hay grupos</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Grupos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="col-12">
+                                <label class="form-label">Cliente</label>
+                                <InputSelect @bind-Value="usuarioSeleccionado.FirstOrDefault()!.CodCte" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Clientes is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="col-12 row p-2">
                     <div class="col-12">
                         <label>Roles:</label>
                         <!--Selector multiple de Radzen-->
@@ -111,6 +168,15 @@
 
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
+
+    private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    private Cliente Cliente { get; set; } = new Cliente();
+
+    private int? clienteSeleccioado { get; set; }
+
+    private List<CodDenDTO> Grupos { get; set; } = null!;
+    private Int16? GrupoSeleccionadoB = 0;
+
     //Usuario seleccionado
     private IList<UsuarioInfo> usuarioSeleccionado { get; set; } = new List<UsuarioInfo> { new UsuarioInfo() };
     //RadzenDataGrid
@@ -124,6 +190,7 @@
     {
         await GetRoles();
         await GetUsers();
+        await GetGrupos();
     }
     //Obtención de roles
     public async Task GetRoles()
@@ -267,6 +334,55 @@
             TimerProgressBar = true,
             Toast = true,
         }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
+    }
+
+    public async Task GetGrupos()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<CodDenDTO>>("api/grupo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (usuarioSeleccionado.FirstOrDefault()!.CodGru != null && usuarioSeleccionado.FirstOrDefault()!.CodGru != GrupoSeleccionadoB)
+            {
+                var response = await repositorio.Get<List<CodDenDTO>>($"api/cliente/{usuarioSeleccionado.FirstOrDefault()!.CodGru}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoB = usuarioSeleccionado.FirstOrDefault()!.CodGru;
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
     }
 }
 

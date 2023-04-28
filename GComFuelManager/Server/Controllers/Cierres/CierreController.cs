@@ -248,5 +248,34 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("asignacion/filtrar")]
+        public async Task<ActionResult> GetDate([FromBody] FechasF fechas)
+        {
+            try
+            {
+                var ordens = await context.OrdenCierre
+                    .Where(x => x.OrdenEmbarque!.Fchcar >= fechas.DateInicio && x.OrdenEmbarque!.Fchcar <= fechas.DateFin && x.OrdenEmbarque!.Codest == 3 && x.OrdenEmbarque!.FchOrd != null
+                    && x.OrdenEmbarque!.Bolguidid == null)
+                    .Include(x => x.OrdenEmbarque!.Chofer)
+                    .Include(x => x.OrdenEmbarque!.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.OrdenEmbarque!.Estado)
+                    .Include(x => x.OrdenEmbarque!.OrdenCompra)
+                    .Include(x => x.OrdenEmbarque!.Tad)
+                    .Include(x => x.OrdenEmbarque!.Producto)
+                    .Include(x => x.OrdenEmbarque!.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .OrderBy(x => x.OrdenEmbarque!.Fchpet)
+                    .Take(1000)
+                    .ToListAsync();
+
+                return Ok(ordens);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
