@@ -46,7 +46,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("vol2")]
         public double? Vol2 { get; set; } = null!;
         [JsonProperty("batchId")]
-        public Int64? BatchId { get; set; } = null!;
+        public int? BatchId { get; set; }
         [JsonProperty("CompartmentId")]
         public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
@@ -59,6 +59,6 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
-        [NotMapped] public OrdEmbDet OrdEmbDet { get; set; } = null!;
+        [NotMapped] public OrdEmbDet? OrdEmbDet { get; set; } = null!;
     }
 }
