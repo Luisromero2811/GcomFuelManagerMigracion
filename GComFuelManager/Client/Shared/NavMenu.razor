@@ -19,7 +19,7 @@
                 </NavLink>
             </div>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
             <div class="nav-item px-3">
                 <NavLink class="nav-link" href="pedidos" Match="NavLinkMatch.All">
                     <div class="text-white">
@@ -115,27 +115,36 @@
                 }
             </div>
         </AuthorizeView>
-            <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Configs">
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
-                        <div class="text-white">
-                            <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
+        <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Configs">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" style="cursor:pointer;" @onclick="@(()=>ConfigMenu = !ConfigMenu)">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
+                    </div>
+                </NavLink>
+                @if (ConfigMenu)
+                {
+                    <div class="vh-100">
+                        <div class="nav-item px-3">
+                            <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                </div>
+                            </NavLink>
                         </div>
-                    </NavLink>
-                    @if (ConfigMenu)
-                    {
-                        <div class="vh-100">
-                            <div class="nav-item px-3">
-                                <NavLink class="nav-link" href="configuracion-email" Match="NavLinkMatch.All">
-                                    <div class="text-white">
-                                        <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
-                                    </div>
-                                </NavLink>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </AuthorizeView>
+                    </div>
+                }
+            </div>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura" Context="Configs">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" style="cursor:pointer;" href="orden" Match="NavLinkMatch.All">
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Estado de pedido
+                    </div>
+                </NavLink>
+            </div>
+        </AuthorizeView>
 
         <!--Cierre de módulos autorizados-->
     </nav>

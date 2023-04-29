@@ -1,8 +1,88 @@
-﻿@page "/orden/{folio}"
+﻿@page "/orden/{folio?}"
+@page "/orden"
+
 @inject IRepositorio http
 @inject SweetAlertService Swal
-    <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
-        <RadzenStack Gap="1rem">
+@inject IJSRuntime js
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
+    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
+
+        <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
+            <div class="col-12">
+                <div class="col-12 card">
+                    <div class="col-12 card-body">
+                        <div class="col-12 row">
+                            <div class="col-4 row">
+                                <div class="col-6">
+                                    <label class="form-label">Folio</label>
+                                    <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
+                                </div>
+                                <div class="col-6 d-flex">
+                                    <div class="col-12 mt-auto">
+                                        <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
+                                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <label class="form-label">Año</label>
+                                <InputSelect @bind-Value="añoSeleccionado" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (años is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (años.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in años)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label">Mes</label>
+                                <InputSelect @bind-Value="mesSeleccionado" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (meses is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (meses.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in meses)
+                                        {
+                                            <option value="@item.Cod">@item.Den.ToUpper()</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-1 d-flex ">
+                                <div class="col-12 mt-auto">
+                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
+                                        <i class="fa fa-solid fa-magnifying-glass"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(folio) || cierres?.Count > 0)
+        {
             @if (cierres == null)
             {
                 <p>Cargando...</p>
@@ -14,8 +94,21 @@
             else
             {
                 <div class="col-12">
-                    <div class="col-12">
-                        Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                    <div class="col-12 row mb-3">
+                        <div class="col-6 d-flex">
+                            <b class="my-auto">
+                            Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                            </b>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end">
+                            <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
+                                <i class="fa-solid fa-file-excel fa"></i> Eportar
+                                @if (loadingExport)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
                     </div>
                     <table class="table table-bordered table-striped">
                         <thead>
@@ -23,6 +116,7 @@
                                 <th scope="col">OC</th>
                                 <th scope="col">Destino</th>
                                 <th scope="col">Producto</th>
+                                <th scope="col">BOL</th>
                                 <th scope="col">Unidad</th>
                                 <th scope="col">Estatus</th>
                                 <th scope="col">Fecha de entrega</th>
@@ -34,57 +128,193 @@
                                     <td>@item.Folio</td>
                                     <td>@item.Destino?.Den</td>
                                     <td>@item.Producto?.Den</td>
+                                    <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
                                     <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
                                     <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                                    <td>@item?.FchLlegada</td>
+                                    <td>@item?.FchLlegada?.ToString("dd/MM/yyyy")</td>
                                 </tr>
                             </Virtualize>
                         </tbody>
                     </table>
                 </div>
             }
-        </RadzenStack>
-    </AuthorizeView>
-    @code {
-        [Parameter] public string folio { get; set; } = string.Empty;
-
-        OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
-
-        List<OrdenCierre>? cierres { get; set; }
-
-        private int? FullesRestantes { get; set; } = 0;
-
-        private int index { get; set; } = 0;
-        private int indexRow { get; set; } = 0;
-
-        RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
-
-        protected async override Task OnInitializedAsync()
-        {
-            await GetFiltroCierres();
         }
+    </RadzenStack>
+</AuthorizeView>
+@code {
+    [Parameter] public string? folio { get; set; } = string.Empty;
 
-        private async Task GetFiltroCierres()
+    OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+    List<OrdenCierre>? cierres { get; set; }
+
+    private int? FullesRestantes { get; set; } = 0;
+
+    RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
+
+    private List<CodDenDTO> meses { get; set; } = new List<CodDenDTO>();
+    private int mesSeleccionado { get; set; }
+
+    private List<int> años { get; set; } = new List<int>();
+    private int añoSeleccionado { get; set; }
+
+    private List<DetalleCierreDTO> detalleCierres { get; set; } = new List<DetalleCierreDTO>();
+
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+
+    bool loadingExport = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
+        months.RemoveAt(months.IndexOf(months.Last()));
+        var i = 1;
+        foreach (var item in months)
         {
-            try
+
+            meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
+            i++;
+        }
+        await GetYears();
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!string.IsNullOrEmpty(folio))
+            await GetFiltroCierres(true);
+
+    }
+
+    private async Task GetYears()
+    {
+        try
+        {
+            var response = await http.Get<List<int>>("api/cierre/years");
+            if (response.Error)
             {
-                var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    cierres = response.Response;
-                    foreach (var item in cierres)
-                        if (item.OrdenEmbarque?.Folio == null)
-                            FullesRestantes++;
-                }
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
-            catch (Exception e)
+            else
             {
-                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                años = response.Response;
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task GetFolioCierres()
+    {
+        try
+        {
+            var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                cierres = response.Response;
+                foreach (var item in cierres)
+                    if (item.OrdenEmbarque?.Folio == null)
+                        FullesRestantes++;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetFiltroCierres(bool forFolio)
+    {
+        try
+        {
+            filtro.forFolio = forFolio;
+            folio = filtro.Folio;
+
+            if (!forFolio)
+            {
+                int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
+                filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
+                filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+            }
+
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                cierres = response.Response;
+                foreach (var item in cierres)
+                    if (item.OrdenEmbarque?.Folio == null)
+                        FullesRestantes++;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GenerateExcel()
+    {
+        try
+        {
+            if (cierres != null)
+            {
+                foreach (var item in cierres!)
+        {
+            detalleCierres.Add(new DetalleCierreDTO
+                {
+                    OC = item.Folio,
+                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                    Destino = item?.Destino?.Den,
+                    Producto = item?.Producto?.Den,
+                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                    FchLlegada = item?.FechaLlegada
+                });
+        }
+
+                loadingExport = true;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Cierre");
+                ws.Columns.Width = 50;
+                ws.Columns.AutoFit();
+
+                var header = ws.Cells["A1:H1"];
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(detalleCierres, true);
+                tablebody.Style.Font.Size = 14;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Detalle_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                loadingExport = false;
+            }
+            else
+            {
+                loadingExport = false;
+                await Swal.FireAsync("Alerta", "No hay datos que exportar.", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

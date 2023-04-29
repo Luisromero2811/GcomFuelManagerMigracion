@@ -20,6 +20,6 @@ namespace GComFuelManager.Shared.DTOs
         public string Body { get; set; } = string.Empty;
         public IEnumerable<MailboxAddress>? CC { get; set; } = null!;
         public IEnumerable<OrdenCierre>? ordenCierres { get; set; } = null!;
-
+        public IEnumerable<OrdenCierre>? ordenRestante { get; set; } = null!;
     }
 }

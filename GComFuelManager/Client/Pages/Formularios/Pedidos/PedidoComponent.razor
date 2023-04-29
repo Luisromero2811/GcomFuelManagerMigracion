@@ -3,7 +3,7 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @using Microsoft.AspNetCore.Authorization;
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
     <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>

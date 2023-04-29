@@ -45,7 +45,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var user = context.Usuario.FirstOrDefault(x => x.Usu == HttpContext.User.FindFirstValue(JwtRegisteredClaimNames.UniqueName));
+                var user = context.Usuario.FirstOrDefault(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
                 if (user == null)
                     return BadRequest();
 

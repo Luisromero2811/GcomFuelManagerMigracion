@@ -13,7 +13,7 @@
 
         <h3>Cierre de Ordenes</h3>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FILTRO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FILTRO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
                     <div class="col-12">
@@ -449,29 +449,29 @@
                 </Columns>
             </RadzenDataGrid>
         </div>
+        <style type="text/css" media="screen and (min-width:1200px)">
+            .ancho {
+                width: 1100px;
+            }
+        </style>
+
+        <style type="text/css" media="screen and (min-width:1400px)">
+            .ancho {
+                width: 1300px;
+            }
+        </style>
+        <style type="text/css" media="screen and (min-width:1100px)">
+            .ancho {
+                width: 1000px;
+            }
+        </style>
     </Authorized>
 </AuthorizeView>
 
-
-<style type="text/css" media="screen and (min-width:1200px)">
-    .ancho {
-        width: 1100px;
-    }
-</style>
-
-<style type="text/css" media="screen and (min-width:1400px)">
-    .ancho {
-        width: 1300px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1100px)">
-    .ancho {
-        width: 1000px;
-    }
-</style>
-
 @code {
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+
+    UsuarioInfo user { get; set; } = new UsuarioInfo();
 
     OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
     List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
@@ -556,7 +556,7 @@
         }
     }
 
-    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
 
     private async Task GetData()
     {
@@ -1157,6 +1157,9 @@
         {
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
+                if (IsClient)
+                    ordenCierre.CodCte = user.CodCte;    
+
                 var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
                 if (response.Error)
                 {
@@ -1206,7 +1209,7 @@
     {
         try
         {
-            var response = await http.Get<bool>("api/cuentas/check/cliente");
+            var response = await http.Get<UsuarioInfo>("api/cuentas/check/cliente");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -1214,7 +1217,8 @@
             }
             else
             {
-                IsClient = response.Response;
+                IsClient = response.Response.IsClient;
+                user = response.Response;
             }
         }
         catch (Exception e)
