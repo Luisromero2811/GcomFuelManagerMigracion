@@ -70,6 +70,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
                     .Include(x => x.OrdenEmbarque)
+                    .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .Include(x => x.ContactoN)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Tad)
                     .Include(x => x.OrdenEmbarque)
@@ -242,7 +246,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.Tonel)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Estado)
-
                         .ToListAsync();
 
                 }

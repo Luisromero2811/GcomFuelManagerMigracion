@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.AspNetCore.Authentication;
@@ -36,15 +37,32 @@ namespace GComFuelManager.Server.Controllers.Emails
         }
 
         [HttpPost("confirmacion")]
-        public async Task<ActionResult> SendEmailConfirmacion([FromBody] EmailContent content)
+        public async Task<ActionResult> SendEmailConfirmacion([FromBody] List<OrdenCierre> ordenCierres)
         {
             try
             {
+                EmailContent emailContent = new EmailContent();
+                int? VolumenTotal = 0;
                 var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
+                emailContent.CC = cc;
 
-                content.CC = cc;
+                IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
 
-                await registerAccount.Register(content);
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in ordenCierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+
+                emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
+                emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
+                emailContent.Subject = "Confirmacion de compra";
+                emailContent.ordenCierres = cierresDistinc;
+
+                await registerAccount.Register(emailContent);
 
                 return Ok(true);
             }

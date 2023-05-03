@@ -120,7 +120,7 @@
                             </InputSelect>
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
+                    <div class="col-2 mb-1">
                         <div class="col-12">
                             <label>Cantidad</label>
                             <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
@@ -141,6 +141,13 @@
                                     }
                                 }
                             </InputSelect>
+                        </div>
+                    </div>
+
+                    <div class="col-2 mb-1">
+                        <div class="col-12">
+                            <label>Cantidad</label>
+                            <InputNumber class="form-control col-12" @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" />
                         </div>
                     </div>
 
@@ -229,8 +236,8 @@
         </div>
     </div>
 
-            
-    
+
+
 </AuthorizeView>
 
 @code {

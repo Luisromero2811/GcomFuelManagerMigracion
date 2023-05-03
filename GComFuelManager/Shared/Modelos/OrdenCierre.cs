@@ -44,14 +44,20 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] 
         public Cliente? Cliente { get; set; } = null!;
         
+        [JsonPropertyName("modeloVenta"), DisplayName("Modelo de Venta")]
+        public string? ModeloVenta { get; set; } = string.Empty;
+
         [JsonPropertyName("tipoVenta"), DisplayName("Tipo de Venta")]
         public string? TipoVenta { get; set; } = string.Empty;
+
+        [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
+        public string? TipoPago { get; set; } = string.Empty;
         
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double? Precio { get; set; }
         
         [JsonPropertyName("temperatura"), DisplayName("Temperatura")]
-        public double? Temperatura { get; set; }
+        [NotMapped] public double? Temperatura { get; set; } = null!;
         
         [JsonPropertyName("vendedor"), DisplayName("Vendedor")]
         public string? Vendedor { get; set; } = string.Empty;
