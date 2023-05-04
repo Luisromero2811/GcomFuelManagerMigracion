@@ -16,15 +16,15 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fch")]
         public DateTime? Fch { get; set; } = DateTime.MinValue;
         [JsonProperty("fchDoc")]
-        public DateTime? FchDoc { get; set; } = DateTime.MinValue;
+        public DateTime? FchDoc { get; set; } = DateTime.Today;
         [JsonProperty("eta"), MaxLength(4)] 
         public string? Eta { get; set; } = string.Empty;
         [JsonProperty("fchlleest")]
         public DateTime? Fchlleest { get; set; } = DateTime.MinValue;
         [JsonProperty("fchrealledes")]
-        public DateTime? Fchrealledes { get; set; } = DateTime.MinValue;
+        public DateTime? Fchrealledes { get; set; } = DateTime.Today;
         [JsonProperty("litent")]
-        public decimal? Litent { get; set; } = decimal.MaxValue;
+        public decimal? Litent { get; set; } = decimal.Zero;
         [JsonProperty("obs"), MaxLength(256)]
         public string? Obs { get; set; } = string.Empty;
         [JsonProperty("bol")]
@@ -39,6 +39,6 @@ namespace GComFuelManager.Shared.Modelos
         public string? Loc { get; set; } = string.Empty;
 
         //Propiedad de navegación
-        [NotMapped] public Orden Orden { get; set; } = null!;
+        [NotMapped] public Orden? Orden { get; set; } = null!;
     }
 }

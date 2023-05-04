@@ -5,6 +5,7 @@
 @inject NavigationManager navigationManager
 @using Microsoft.AspNetCore.Authorization;
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia")]
+@inject TooltipService ts
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Usuarios">
     <h4><b>Usuarios</b></h4>
@@ -15,34 +16,42 @@
                 <div class="col-12 row d-flex g-3 p-2">
                     <div class="col-4 mb-1">
                         <div class="col-12">
-                            <label>Nombre Completo:</label>
-                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
+                            <div class="col-12 row p-0">
+                                <label>Nombre Completo:</label>
+                            </div>
+                            <div class="mt-2">
+                                <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
+                            </div>
+                           
                         </div>
                     </div>
                     <div class="col-4 mb-1">
                         <div class="col-12">
-                            <label>Nombre Usuario:</label>
+                            <div class="col-12 row p-0" @onmouseenter="@(args => ShowToolsTip(infosIcon))" @ref="infosIcon">
+                                <label class="form-label">
+                                    Nombre Usuario: <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
+                            </div>
                             <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.UserName" />
                         </div>
                     </div>
                     <div class="col-4 mb-1">
                         <div class="col-12">
-                            <label>Contraseña</label>
-                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
-                            <div>
-                                <RadzenAlert AlertStyle="AlertStyle.Danger" ShowIcon="true" Variant="Variant.Filled" Shade="Shade.Lighter" Size="AlertSize.ExtraSmall" AllowClose="true">
-                                    Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+
-                                </RadzenAlert>
+                            <div class="col-12 row p-0" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
+                                <label class="form-label">
+                                    Contraseña <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
                             </div>
+                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
                         </div>
                     </div>
                 </div>
                 <div class="col-12 row">
                     <div class="col-4 d-flex">
-                       <div class="col-12 my-auto">
-                            <RadzenCheckBox @bind-Value="@usuarioSeleccionado.FirstOrDefault()!.IsClient" Name="CheckBox1" class="mx-3"/>
-                            <RadzenLabel Text="Es Cliente" Component="CheckBox1"/>
-                       </div>
+                        <div class="col-12 my-auto">
+                            <RadzenCheckBox @bind-Value="@usuarioSeleccionado.FirstOrDefault()!.IsClient" Name="CheckBox1" class="mx-3" />
+                            <RadzenLabel Text="Es Cliente" Component="CheckBox1" />
+                        </div>
                     </div>
                     @if (usuarioSeleccionado.FirstOrDefault()!.IsClient)
                     {
@@ -185,6 +194,8 @@
     //loadings
     bool loadingEdit = false;
 
+    ElementReference infoIcon;
+    ElementReference infosIcon;
     //Ciclo de vida de inicio del componente
     protected override async Task OnInitializedAsync()
     {
@@ -192,6 +203,9 @@
         await GetUsers();
         await GetGrupos();
     }
+
+    void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+", options);
+    void ShowToolsTip(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Mínimo de 8 y máximo de 10 caracteres, sin usar letra Ñ");
     //Obtención de roles
     public async Task GetRoles()
     {

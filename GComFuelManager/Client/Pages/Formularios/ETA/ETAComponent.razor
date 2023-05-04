@@ -3,6 +3,7 @@
 @inject SweetAlertService swal
 @inject IJSRuntime JS
 @inject HttpClient Http
+@inject NavigationManager navigationManager
 @using System.IO;
 @using System.Text.Json;
 @using GComFuelManager.Client.Helpers;
@@ -20,17 +21,22 @@
                     <div class="row">
                         <div class="col-6">
                             <label>Nombre Bol:</label>
-                            <InputText class="form-control" @bind-Value="nmbr" />
+                            <InputNumber class="form-control" @bind-Value="etaDto.Bol" />
                         </div>
                         <div class="col-1 mt-4">
-                            <button class="btn gcom-bg-amarillo col-12">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GetOrden">
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                         <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="SendETA">
                             <div class="col-2 mt-4">
-                                <button class="btn gcom-bg-amarillo col-12">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@SendOrdenEta">
                                     <i class="fa-solid fa-arrow-up-from-bracket"></i> <b>Enviar ETA</b>
+                                </button>
+                            </div>
+                            <div class="col-2 mt-4">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@UpdateOrdenEta">
+                                    <i class="fa-solid fa-rotate"></i> <b>Editar ETA</b>
                                 </button>
                             </div>
                         </AuthorizeView>
@@ -42,12 +48,12 @@
                     <div class="row">
                         <div class="col-4">
                             <label>Fecha documentación:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="Ordenes.FchDoc" />
                         </div>
 
                         <div class="col-4">
                             <label>ETA:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                            <InputText class="form-control col-12" @bind-Value="Ordenes.Eta" />
                         </div>
 
                     </div>
@@ -56,16 +62,30 @@
                     <div class="row">
                         <div class="col-4">
                             <label>Fecha de llegada estimada:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                            <RadzenDatePicker class="col-12" Disabled="true" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
                         </div>
 
                         <div class="col-4">
                             <label>En trayecto:</label>
-                            <InputText class="form-control" @bind-Value="nmbr" />
+                            @*<InputText class="form-control" @bind-Value="@Ordenes.Orden.Estado.den" />*@
+                            <InputSelect @bind-Value="@Ordenes.Orden.Estado.den" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (Trayecto is null)
+                                {
+                                    <option disabled>Cargando</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in Trayecto)
+                                    {
+                                            <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
                         </div>
                         <div class="col-4">
                             <label>Equipo:</label>
-                            <InputText class="form-control" @bind-Value="nmbr" />
+                            <RadzenTextBox class="col-12" Disabled="true" @bind-Value="@Ordenes.Orden.Tonel.Tracto"></RadzenTextBox>
                         </div>
                     </div>
                 </div>
@@ -81,23 +101,28 @@
                 <div class="row">
                     <div class="col-6">
                         <label>Fecha real de llegada a destino:</label>
-                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Ordenes.Fchrealledes" />
                     </div>
                     <div class="col-6">
                         <label>Cantidad de litros entregados:</label>
-                        <InputText class="form-control" @bind-Value="nmbr" />
+                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="decimal?" />
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">
                     <div class="col-6">
                         <label>Observaciones</label>
-                        <InputTextArea class="form-control" @bind-Value="nmbr"></InputTextArea>
+                        <InputTextArea class="form-control" @bind-Value="Ordenes.Obs"></InputTextArea>
                     </div>
                 </div>
                 <div class="row d-flex g-3">
                     <div class="row justify-content-end">
                         <div class="col-3 mt-3 mb-3">
-                            <button class="btn gcom-bg-amarillo col-12">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="UpdateEtaReal">
+                                <i class="fa-solid fa-rotate"></i> <b>Editar Orden</b>
+                            </button>
+                        </div>
+                        <div class="col-3 mt-3 mb-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="SendEtaReal">
                                 <i class="fa fa-solid fa-floppy-disk"></i> <b>Cerrar Orden</b>
                             </button>
                         </div>
@@ -135,15 +160,121 @@
 </AuthorizeView>
 
 @code {
+    //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = null!;
 
-    private Usuario usuario { get; set; } = new Usuario();
-    private string nmbr = string.Empty;
-    public DateTime Date { get; set; }
+    private List<string> Trayecto { get; set; } = new List<string> { "SI", "NO" };
 
-    EtaDTO ordenes = new EtaDTO();
+    //Instancia a modelo de OrdEmbDet
+    OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
+        {
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
+    //Instancia a DTO
     FechasF fechas = new FechasF();
+    EtaDTO etaDto = new EtaDTO();
+
+    public async Task GetOrden()
+    {
+        try
+        {
+            //Tiempo Estimado de Arribo
+            var responseHttp = await repositorio.Post<EtaDTO, OrdEmbDet>($"api/Eta/Filtro", etaDto);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Ordenes = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", "La orden no ha sido registrada, favor de aplicarle un ETA", SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task SendOrdenEta()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<EtaDTO>($"api/Eta/SendEta", etaDto);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task UpdateOrdenEta()
+    {
+        var responseHttp = await repositorio.Put($"api/Eta/EditarEta", Ordenes);
+        if (responseHttp.Error)
+        {
+            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            //navigationManager.NavigateTo("ETA");
+            await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
+            await GetOrden();
+        }
+    }
+
+    public async Task SendEtaReal()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<EtaDTO>($"api/Eta/SendRealEta", etaDto);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task UpdateEtaReal()
+    {
+        var responseHttp = await repositorio.Put($"api/Eta/EditarEtaReal", Ordenes);
+        if (responseHttp.Error)
+        {
+            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            //navigationManager.NavigateTo("ETA");
+            await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
+            await GetOrden();
+        }
+    }
+
     public async Task ExportExcel()
     {
         try
@@ -179,7 +310,7 @@
         }
         catch (Exception e)
         {
-            await swal.FireAsync("Error", e.Message + "Error2", SweetAlertIcon.Error);
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
