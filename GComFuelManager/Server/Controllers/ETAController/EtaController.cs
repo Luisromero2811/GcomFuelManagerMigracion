@@ -51,26 +51,12 @@ namespace GComFuelManager.Server.Controllers.ETAController
         }
         //Method para enviar la fecha ESTIMADA de llegada al destino 1era parte
         [HttpPost("SendEta")]
-        public async Task<ActionResult> SendEta([FromBody] EtaDTO etaDTO)
+        public async Task<ActionResult> SendEta([FromBody] OrdEmbDet ordEmb)
         {
             try
             {
-                context.Add(etaDTO);
-                await context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-        //Method para enviar la fecha real de llegada al destino 2da y ultima parte del formulario 
-        [HttpPost("SendRealEta")]
-        public async Task<ActionResult> SendRealEta([FromBody] EtaDTO etaDTO)
-        {
-            try
-            {
-                context.Add(etaDTO);
+                ordEmb.Orden = null!;
+                context.Add(ordEmb);
                 await context.SaveChangesAsync();
                 return Ok();
             }
