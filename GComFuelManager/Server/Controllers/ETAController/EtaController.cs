@@ -29,6 +29,87 @@ namespace GComFuelManager.Server.Controllers.ETAController
             this.context = context;
             this.userManager = userManager;
         }
+        //Filtro para ordenes por Bol 
+        [HttpPost("Filtro")]
+        public async Task<ActionResult> EtaGet([FromBody] EtaDTO etaDTO)
+        {
+            try
+            {
+                var eta = await context.OrdEmbDet
+                    .Where(x => x.Bol == etaDTO.Bol)
+                    .Include(x => x.Orden)
+                    .ThenInclude(x => x.Tonel)
+                    .Include(x => x.Orden)
+                    .ThenInclude(x => x.Estado)
+                    .FirstOrDefaultAsync();
+                    return Ok(eta);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Method para enviar la fecha ESTIMADA de llegada al destino 1era parte
+        [HttpPost("SendEta")]
+        public async Task<ActionResult> SendEta([FromBody] EtaDTO etaDTO)
+        {
+            try
+            {
+                context.Add(etaDTO);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Method para enviar la fecha real de llegada al destino 2da y ultima parte del formulario 
+        [HttpPost("SendRealEta")]
+        public async Task<ActionResult> SendRealEta([FromBody] EtaDTO etaDTO)
+        {
+            try
+            {
+                context.Add(etaDTO);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Method para editar fecha ESTIMADA de llegada a destino 1era parte
+        [HttpPut("EditarEta")]
+        public async Task<ActionResult> PutEta(OrdEmbDet ordEmb)
+        {
+            try
+            {
+                context.Update(ordEmb);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Method para editar la fecha real de llegada 2da y última parte
+        [HttpPut("EditarEtaReal")]
+        public async Task<ActionResult> PutRealEta(OrdEmbDet ordEmb)
+        {
+            try
+            {
+                context.Update(ordEmb);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Method para exportación de reportes mediante lapso de fechas
         [HttpPost("Etareporte")]
         public async Task<ActionResult> GetEta([FromBody] FechasF fechas)
         {
