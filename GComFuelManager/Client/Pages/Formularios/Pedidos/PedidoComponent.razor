@@ -43,7 +43,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>gridOC.Reset())"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="200px" MinWidth="200px" Visible="true">
@@ -75,11 +75,11 @@
 </AuthorizeView>
 <style type="text/css" media="screen and (min-width:1200px)">
     .ancho {
-        width: 1200px;
+        width: 1100px;
     }
 </style>
 
-<style type="text/css" media="screen and (min-width:1400px)">
+<style type="text/css" media="screen and (min-width:1500px)">
     .ancho {
         width: 1500px;
     }
