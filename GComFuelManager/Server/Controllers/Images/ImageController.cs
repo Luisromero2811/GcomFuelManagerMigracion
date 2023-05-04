@@ -17,7 +17,7 @@ namespace GComFuelManager.Server.Controllers.Images
         [HttpGet("logo"), AllowAnonymous]
         public IActionResult GetLogo()
         {
-            byte[] imageArray = System.IO.File.ReadAllBytes("./imgs/gcom_unilogo.png");
+            byte[] imageArray = System.IO.File.ReadAllBytes("./imgs/Triptico_EnergasEDITABLE-03.png");
             //string base64Image = Convert.ToBase64String(imageArray);
             //return base64Image;
             return File(imageArray, "image/png");

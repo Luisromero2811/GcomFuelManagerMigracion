@@ -1,4 +1,6 @@
-<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Create">
+@inject TooltipService ts
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
             <EditForm Model="@ordenEmbarque" class="form col-12">
@@ -120,27 +122,51 @@
                             </InputSelect>
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
-                        <div class="col-12">
-                            <label>Cantidad</label>
-                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Cantidades is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Cantidades.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Cantidades)
+                    @if (!IsDifferentVol)
+                    {
+                        <div class="col-2 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Volumen</label>
+                                <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Cantidades is null)
                                     {
-                                        <option value="@item">@item</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (Cantidades.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Cantidades)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+
+                    @if (IsDifferentVol)
+                    {
+                        <div class="col-2 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Volumen</label>
+                                <InputNumber class="form-control col-12" @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" />
+                            </div>
+                        </div>
+                    }
+
+                    <div class="col-2 mb-1 d-flex">
+                        <div class="col-12 my-auto d-flex">
+                            <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
+                            <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
+                                <label class="form-label" for="CheckBox1">
+                                    Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -229,8 +255,8 @@
         </div>
     </div>
 
-            
-    
+
+
 </AuthorizeView>
 
 @code {
@@ -260,6 +286,12 @@
     //loadings
     bool loadingAgregar = false;
     bool loadingConfirm = false;
+    [Parameter] public bool IsDifferentVol {get;set;} = false;
+    
+    ElementReference infoIcon;
+    ElementReference infoIconVolumen;
+
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
 
     public async Task GetEstaciones()
     {

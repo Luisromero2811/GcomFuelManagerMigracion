@@ -42,7 +42,7 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="col-12">
-                                            <label>Grupo</label>
+                                            <label class="form-label">Grupo</label>
                                             <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
@@ -169,7 +169,7 @@
                                     <Authorized>
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label>Grupo</label>
+                                                <label class="form-label">Grupo</label>
                                                 <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
                                                     <option>-- Selecciona una opcion --</option>
                                                     @if (Grupos is null)
@@ -259,7 +259,8 @@
                                     </div>
                                 </div>
 
-                                <div class="col-4 mb-1">
+                                @if(!IsDifferentVol){
+                                    <div class="col-2 mb-1">
                                     <div class="col-12">
                                         <label class="form-label">Volumen</label>
                                         <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
@@ -281,6 +282,28 @@
                                             }
                                         </InputSelect>
                                     </div>
+                                </div>                                    
+                                }
+
+                                @if (IsDifferentVol)
+                                {
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="col-2 mb-1 d-flex">
+                                    <div class="col-12 my-auto d-flex">
+                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2"/>
+                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
+                                            <label class="form-label" for="CheckBox1">
+                                                Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="col-4 mb-1">
@@ -290,32 +313,81 @@
                                     </div>
                                 </div>
 
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Tipo de Venta</label>
-                                        <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (TpVenta is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (TpVenta.Count == 0)
-                                            {
-                                                <option disabled> No hay capacidades</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in TpVenta)
-                                                {
-                                                    <option value="@item">@item</option>
-                                                }
-                                            }
-                                        </InputSelect>
-                                    </div>
-                                </div>
-
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
                                     <Authorized>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Modelo de Venta</label>
+                                                <InputSelect @bind-Value="ordenCierre.ModeloVenta" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (MdVenta is null)
+                                                    {
+                                                        <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (MdVenta.Count == 0)
+                                                    {
+                                                        <option disabled> No hay capacidades</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var item in MdVenta)
+                                                        {
+                                                            <option value="@item">@item</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Tipo de Venta</label>
+                                                <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (TpVenta is null)
+                                                    {
+                                                        <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (TpVenta.Count == 0)
+                                                    {
+                                                        <option disabled> No hay modelo de venta</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var item in TpVenta)
+                                                        {
+                                                            <option value="@item">@item</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Tipo de pago</label>
+                                                <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (TpPago is null)
+                                                    {
+                                                        <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (TpPago.Count == 0)
+                                                    {
+                                                        <option disabled> No hay tipos de pago</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var item in TpPago)
+                                                        {
+                                                            <option value="@item">@item</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+                                            </div>
+                                        </div>
+
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label class="form-label">Vendedor</label>
@@ -325,12 +397,12 @@
                                     </Authorized>
                                 </AuthorizeView>
 
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Fecha de llegada</label>
-                                        <InputDate class="col-12 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
-                                    </div>
+                                @*<div class="col-4 mb-1">
+                                <div class="col-12">
+                                <label class="form-label">Fecha de llegada</label>
+                                <InputDate class="col-12 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
                                 </div>
+                                </div>*@
 
                                 <div class="col-4 mb-1">
                                     <div class="col-12">
@@ -416,10 +488,10 @@
 
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnWidth="200px"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true">
+                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
                         <Template Context="item">
                             <div class="col-12 row">
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
@@ -435,17 +507,47 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" MinWidth="200px" Frozen="true" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" MinWidth="200px" Property="Destino.Den" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" MinWidth="200px" Property="Volumen" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" MinWidth="200px" Property="TipoVenta" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" MinWidth="200px" Property="Cliente.Den" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" MinWidth="200px" Property="Vendedor" Visible="!IsClient" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" MinWidth="400px" Property="Observaciones" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                        <FilterTemplate>
+                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div class="col-12 d-flex">
+                                <div class="col-1">
+                                    @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                    {
+                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                                    }
+                                    else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                    {
+                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                                    }
+                                    else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                    {
+                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                                    }
+                                </div>
+                                <div class="col-11">
+                                    @data.Producto?.Den
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
             </RadzenDataGrid>
         </div>
@@ -496,7 +598,11 @@
     private List<int> Cantidades { get; set; } = null!;
     private List<int> ordenPendientes { get; set; } = new List<int>();
 
-    private List<string> TpVenta { get; set; } = new List<string> { "Delivery", "Rack" };
+    private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
+
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
+
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrga" };
 
     Contacto Contacto { get; set; } = new Contacto();
     IEnumerable<Contacto> Contactos = new List<Contacto>();
@@ -510,6 +616,9 @@
     private int ClienteSeleccionado = 0;
     private int? VolumenTotal = 0;
 
+    private string ProductoSeleccionado = string.Empty;
+    private IEnumerable<string> ProductList { get; set; } = new List<string>();
+
     bool loading = false;
     bool isEdit = false;
     bool loadingCreate = false;
@@ -518,8 +627,9 @@
     bool loadingExport = false;
     bool loadingSend = false;
     bool IsClient = true;
-
+    bool IsDifferentVol = false;
     ElementReference infoIcon;
+    ElementReference infoIconVolumen;
 
     protected override async Task OnInitializedAsync()
     {
@@ -548,7 +658,6 @@
             }
             await GetCantidades();
             await GetProductos();
-
         }
         catch (Exception e)
         {
@@ -557,6 +666,7 @@
     }
 
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
 
     private async Task GetData()
     {
@@ -773,6 +883,10 @@
         try
         {
             ordenCierre = orden;
+            if (!Cantidades.Any(x => x == ordenCierre.Volumen))
+                IsDifferentVol = true;
+            else
+                IsDifferentVol = false;
             isEdit = true;
         }
         catch (Exception e)
@@ -793,7 +907,7 @@
         {
             loadingCreate = true;
 
-            var responseEM = await http.Post<OrdenCierre>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenCierre);
+            var responseEM = await http.Put<OrdenCierre>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenCierre);
             if (responseEM.Error)
             {
                 loadingCreate = false;
@@ -817,6 +931,7 @@
                     ordenCierres.Insert(index, response.Response);
                     ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 1500 });
                     await grid.Reload();
+                    cancelEdit();
                 }
             }
         }
@@ -975,6 +1090,7 @@
             else
             {
                 ordenCierres = response.Response;
+                ProductList = ordenCierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
             }
         }
         catch (Exception e)
@@ -997,7 +1113,13 @@
                 ws.Columns.AutoFit();
 
                 var header = ws.Cells["A1:P1"];
-                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenCierres, true);
+
+                var ordenFilter = new List<OrdenCierre>();
+                foreach (var item in ordenCierres)
+                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                        ordenFilter.Add(item);
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
                 tablebody.Style.Font.Size = 14;
                 header.Style.Font.Size = 14;
 
@@ -1024,36 +1146,29 @@
     {
         try
         {
-            loadingSend = true;
-            IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
-
-            foreach (var item in cierresDistinc)
+            if (ordenCierres.Count > 0)
             {
-                foreach (var cierre in ordenCierres)
-                    if (cierre.Producto!.Den == item.Producto!.Den)
-                        VolumenTotal = VolumenTotal + cierre.Volumen;
-                cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
-                VolumenTotal = 0;
-            }
+                loadingSend = true;
 
-            emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
-            emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
-            emailContent.Subject = "Confirmacion de compra";
-            emailContent.ordenCierres = cierresDistinc;
 
-            var response = await http.Post<EmailContent>("api/email/confirmacion", emailContent);
-            if (response.Error)
-            {
-                loadingSend = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
+                if (response.Error)
+                {
+                    loadingSend = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loadingSend = false;
+                    await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
+                    ordenCierres = new List<OrdenCierre>();
+                    ordenCierre = new OrdenCierre();
+                }
             }
             else
             {
-                loadingSend = false;
-                await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
-                ordenCierres = new List<OrdenCierre>();
-                ordenCierre = new OrdenCierre();
+                await Swal.FireAsync("Alerta", "Se deben tener un cierre para enviar el correo.", SweetAlertIcon.Warning);
             }
         }
         catch (Exception e)
@@ -1158,7 +1273,7 @@
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
                 if (IsClient)
-                    ordenCierre.CodCte = user.CodCte;    
+                    ordenCierre.CodCte = user.CodCte;
 
                 var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
                 if (response.Error)

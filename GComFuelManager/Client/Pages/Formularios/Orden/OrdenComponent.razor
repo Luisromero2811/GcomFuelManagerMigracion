@@ -81,64 +81,75 @@
             </div>
         </div>
 
-        @if (!string.IsNullOrEmpty(folio) || cierres?.Count > 0)
-        {
-            @if (cierres == null)
-            {
-                <p>Cargando...</p>
-            }
-            else if (cierres.Count == 0)
-            {
-                <p>No hay ordenes.</p>
-            }
-            else
-            {
-                <div class="col-12">
-                    <div class="col-12 row mb-3">
-                        <div class="col-6 d-flex">
-                            <b class="my-auto">
-                            Fulles: @(Convert.ToDouble(cierres.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
-                            </b>
-                        </div>
-                        <div class="col-6 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                                <i class="fa-solid fa-file-excel fa"></i> Eportar
-                                @if (loadingExport)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
-                            </button>
-                        </div>
-                    </div>
-                    <table class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th scope="col">OC</th>
-                                <th scope="col">Destino</th>
-                                <th scope="col">Producto</th>
-                                <th scope="col">BOL</th>
-                                <th scope="col">Unidad</th>
-                                <th scope="col">Estatus</th>
-                                <th scope="col">Fecha de entrega</th>
-                            </tr>
-                        </thead>
-                        <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
-                            <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
-                                <tr>
-                                    <td>@item.Folio</td>
-                                    <td>@item.Destino?.Den</td>
-                                    <td>@item.Producto?.Den</td>
-                                    <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
-                                    <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
-                                    <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                                    <td>@item?.FchLlegada?.ToString("dd/MM/yyyy")</td>
-                                </tr>
-                            </Virtualize>
-                        </tbody>
-                    </table>
+        <div class="col-12">
+            <div class="col-12 row mb-3">
+                <div class="col-6 d-flex">
+                    <b class="my-auto">
+                        Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                    </b>
                 </div>
-            }
-        }
+                <div class="col-6 d-flex justify-content-end">
+                    <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
+                        <i class="fa-solid fa-file-excel fa"></i> Eportar
+                        @if (loadingExport)
+                        {
+                            <SpinnerLoading></SpinnerLoading>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true"
+                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" >
+            <Columns>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                    <FilterTemplate Context="filter">
+                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                    </FilterTemplate>
+                    <Template Context="data">
+                        <div class="col-12 row">
+                            <div class="col-1">
+                                @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                {
+                                    <div class="badge rounded-pill regular">&nbsp;</div>
+                                }
+                                else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                {
+                                    <div class="badge rounded-pill regular-vdm">&nbsp;</div>
+                                }
+                                else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                {
+                                    <div class="badge rounded-pill premium">&nbsp;</div>
+                                }
+                                else
+                                {
+                                    <div class="badge rounded-pill diesel">&nbsp;</div>
+                                }
+                            </div>
+                            <div class="col-11">
+                                @data.Producto?.Den
+                            </div>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
+                    <Template Context="item">
+                        @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
+            </Columns>
+        </RadzenDataGrid>
+
     </RadzenStack>
 </AuthorizeView>
 @code {
@@ -163,6 +174,10 @@
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
     bool loadingExport = false;
+    bool loading = false;
+
+    private string ProductoSeleccionado = string.Empty;
+    private IEnumerable<string> ProductList { get; set; } = new List<string>();
 
     protected async override Task OnInitializedAsync()
     {
@@ -182,7 +197,10 @@
     protected override async Task OnParametersSetAsync()
     {
         if (!string.IsNullOrEmpty(folio))
+        {
+            filtro.Folio = folio!;
             await GetFiltroCierres(true);
+        }
 
     }
 
@@ -236,7 +254,6 @@
         try
         {
             filtro.forFolio = forFolio;
-            folio = filtro.Folio;
 
             if (!forFolio)
             {
@@ -254,9 +271,11 @@
             else
             {
                 cierres = response.Response;
+                FullesRestantes = 0;
                 foreach (var item in cierres)
                     if (item.OrdenEmbarque?.Folio == null)
                         FullesRestantes++;
+                ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
                 StateHasChanged();
             }
         }
@@ -272,20 +291,22 @@
         {
             if (cierres != null)
             {
+
                 foreach (var item in cierres!)
-        {
-            detalleCierres.Add(new DetalleCierreDTO
                 {
-                    OC = item.Folio,
-                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                    Destino = item?.Destino?.Den,
-                    Producto = item?.Producto?.Den,
-                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                    FchLlegada = item?.FechaLlegada
-                });
-        }
+                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                        detalleCierres.Add(new DetalleCierreDTO
+                            {
+                                OC = item.Folio,
+                                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                                FchLlegada = item?.FechaLlegada
+                            });
+                }
 
                 loadingExport = true;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -305,6 +326,7 @@
 
                 await js.GuardarComo($"Detalle_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
                 loadingExport = false;
+                detalleCierres.Clear();
             }
             else
             {
