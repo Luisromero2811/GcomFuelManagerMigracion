@@ -12,7 +12,7 @@ namespace GComFuelManager.Shared.DTOs
         public string? FechaPrograma { get; set; } = string.Empty;
         public string EstatusOrden { get; set; } = string.Empty;
 		public string? FechaCarga { get; set; } = string.Empty;
-        public Int64? Bol { get; set; } = null!;
+        public int? Bol { get; set; } = 0;
         public string DeliveryRack { get; set; } = string.Empty;
         public string Cliente { get; set; } = string.Empty;
         public string Destino { get; set; } = string.Empty;
