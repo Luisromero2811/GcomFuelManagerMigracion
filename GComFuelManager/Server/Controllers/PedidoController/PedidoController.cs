@@ -531,18 +531,19 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPut("cierre/update/{cod:int}")]
-        public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenEmbarque orden, [FromRoute] int cod)
+        public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenCierre orden, [FromRoute] int cod)
         {
             try
             {
+
                 var o = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == cod);
                 if (o == null)
                     return NotFound();
 
-                o!.Codprd = orden.Codprd;
-                o!.Coddes = orden.Coddes;
-                o!.Pre = orden.Pre;
-                o!.Vol = o.Vol;
+                o!.Codprd = orden.CodPrd;
+                o!.Coddes = orden.CodDes;
+                o!.Pre = orden.Precio;
+                o!.Vol = orden.Volumen;
 
                 context.Update(o);
                 await context.SaveChangesAsync();

@@ -53,7 +53,6 @@
   <ItemGroup>
     <Folder Include="Auth\" />
     <Folder Include="Pages\Auth\" />
-    <Folder Include="Helpers\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Shared\Layouts\" />
     <Folder Include="Pages\Formularios\SeguimientoOrdenes\" />
