@@ -259,7 +259,8 @@
                                     </div>
                                 </div>
 
-                                <div class="col-2 mb-1">
+                                @if(!IsDifferentVol){
+                                    <div class="col-2 mb-1">
                                     <div class="col-12">
                                         <label class="form-label">Volumen</label>
                                         <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
@@ -281,12 +282,27 @@
                                             }
                                         </InputSelect>
                                     </div>
-                                </div>
+                                </div>                                    
+                                }
 
-                                <div class="col-2 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Volumen</label>
-                                        <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen"/>
+                                @if (IsDifferentVol)
+                                {
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="col-2 mb-1 d-flex">
+                                    <div class="col-12 my-auto d-flex">
+                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2"/>
+                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
+                                            <label class="form-label" for="CheckBox1">
+                                                Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -491,11 +507,11 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -526,12 +542,12 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio"  />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen"  Property="Volumen" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta"  Property="TipoVenta" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente"  Property="Cliente.Den" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor"  Property="Vendedor" Visible="!IsClient" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones"  Property="Observaciones" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
             </RadzenDataGrid>
         </div>
@@ -611,8 +627,9 @@
     bool loadingExport = false;
     bool loadingSend = false;
     bool IsClient = true;
-
+    bool IsDifferentVol = false;
     ElementReference infoIcon;
+    ElementReference infoIconVolumen;
 
     protected override async Task OnInitializedAsync()
     {
@@ -649,6 +666,7 @@
     }
 
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
 
     private async Task GetData()
     {
@@ -865,6 +883,10 @@
         try
         {
             ordenCierre = orden;
+            if (!Cantidades.Any(x => x == ordenCierre.Volumen))
+                IsDifferentVol = true;
+            else
+                IsDifferentVol = false;
             isEdit = true;
         }
         catch (Exception e)
@@ -1124,7 +1146,8 @@
     {
         try
         {
-            if(ordenCierres.Count > 0){
+            if (ordenCierres.Count > 0)
+            {
                 loadingSend = true;
 
 
@@ -1142,8 +1165,10 @@
                     ordenCierres = new List<OrdenCierre>();
                     ordenCierre = new OrdenCierre();
                 }
-            }else{
-                    await Swal.FireAsync("Alerta", "Se deben tener un cierre para enviar el correo.", SweetAlertIcon.Warning);
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "Se deben tener un cierre para enviar el correo.", SweetAlertIcon.Warning);
             }
         }
         catch (Exception e)

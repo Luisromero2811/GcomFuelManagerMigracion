@@ -39,7 +39,7 @@
 
 <CrearPedidoForm http="http" Swal="Swal" ordenEmbarque="ordenCierre" ConfirmPedido="ConfirmPedido" SavePedido="EditPedido"
                  Terminales="Terminales" Grupos="Grupos" Productos="Productos" Cantidades="Cantidades"
-                 isEdit="isEditing" />
+                 isEdit="isEditing" IsDifferentVol="IsDifferentVol"/>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
@@ -117,7 +117,7 @@
     bool loadingAgregar = false;
     bool loadingConfirm = false;
     bool loading = false;
-
+    bool IsDifferentVol = false;
     //editmodel
     private bool isEditing = false;
 
@@ -138,6 +138,10 @@
     private void changeEdit()
     {
         ordenEmbarque = new OrdenEmbarque();
+        if (!Cantidades.Any(x => x == ordenCierre.Volumen))
+            IsDifferentVol = true;
+        else
+            IsDifferentVol = false;
         isEditing = !isEditing;
     }
 
