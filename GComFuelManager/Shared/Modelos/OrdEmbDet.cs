@@ -14,17 +14,18 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cod"), Key]
         public int Cod { get; set; }
         [JsonProperty("fch")]
-        public DateTime? Fch { get; set; } = DateTime.MinValue;
+        public DateTime? Fch { get; set; } = DateTime.Now;
         [JsonProperty("fchDoc")]
-        public DateTime? FchDoc { get; set; } = DateTime.Today;
+        public DateTime? FchDoc { get; set; } = DateTime.Now;
         [JsonProperty("eta"), MaxLength(4)] 
-        public string? Eta { get; set; } = string.Empty;
+        public string? Eta { get; set; }
+
         [JsonProperty("fchlleest")]
-        public DateTime? Fchlleest { get; set; } = DateTime.MinValue;
+        public DateTime? Fchlleest { get; set; } = DateTime.Now;
         [JsonProperty("fchrealledes")]
         public DateTime? Fchrealledes { get; set; } = DateTime.Today;
         [JsonProperty("litent")]
-        public decimal? Litent { get; set; } = decimal.Zero;
+        public double? Litent { get; set; } = 0;
         [JsonProperty("obs"), MaxLength(256)]
         public string? Obs { get; set; } = string.Empty;
         [JsonProperty("bol")]
@@ -32,7 +33,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codusu")]
         public int Codusu { get; set; }
         [JsonProperty("fchmod")]
-        public DateTime Fchmod { get; set; } = DateTime.MinValue;
+        public DateTime Fchmod { get; set; } = DateTime.Now;
         [JsonProperty("codusumod")]
         public int Codusumod { get; set; }
         [JsonProperty("loc")]
