@@ -17,18 +17,5 @@ namespace GComFuelManager.Server.Controllers.Services
             this.context = context;
         }
 
-        [Route("transportistas")]
-        [HttpGet]
-        public async Task<ActionResult> GetTransportistas()
-        {
-            try
-            {
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
     }
 }
