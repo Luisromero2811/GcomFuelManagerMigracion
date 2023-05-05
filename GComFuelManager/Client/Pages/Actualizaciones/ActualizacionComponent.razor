@@ -132,7 +132,7 @@
 
     public async Task GetTransportista()
     {
-        var response = await repositorio.Get<List<Transportista>>("api/transportista");
+        var response = await repositorio.Get<List<Transportista>>("api/transportista").WaitAsync(TimeSpan.FromMinutes(10));
         if (response.Error)
         {
             var responseHttp = await response.ObtenerMensajeError();
@@ -148,7 +148,7 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Transportista>>("api/service/transportista");
+            var response = await repositorio.Get<List<Transportista>>("api/transportista/service");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -156,7 +156,7 @@
             }
             else
             {
-                Transportistas = response.Response;
+                await swal.FireAsync("Exito", "Los transportistas fueron actualizados", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
