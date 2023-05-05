@@ -38,7 +38,7 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Fecha Real de Llegada")]
         public string? FechaRealEta { get; set; } = string.Empty;
         [DisplayName("Litros Entregados")]
-        public decimal? LitEnt { get; set; } = decimal.MaxValue;
+        public double? LitEnt { get; set; } = 0;
 
     }
 }
