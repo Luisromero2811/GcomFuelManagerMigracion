@@ -29,18 +29,6 @@
                                 <i class="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="SendETA">
-                            <div class="col-2 mt-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@SendOrdenEta">
-                                    <i class="fa-solid fa-arrow-up-from-bracket"></i> <b>Enviar ETA</b>
-                                </button>
-                            </div>
-                            <div class="col-2 mt-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@UpdateOrdenEta">
-                                    <i class="fa-solid fa-rotate"></i> <b>Editar ETA</b>
-                                </button>
-                            </div>
-                        </AuthorizeView>
                     </div>
                 </div>
             </AuthorizeView>
@@ -49,38 +37,32 @@
                     <div class="row">
                         <div class="col-4">
                             <label>Fecha documentación:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="Ordenes.FchDoc" />
+                            <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                                              @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
                         </div>
-
+                        @*<div class="col-4">
+                        <label>ETA:</label>
+                        <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
+                        </div>*@
                         <div class="col-4">
-                            <label>ETA:</label>
-                            @*<InputText class="form-control col-12" @bind-Value="Ordenes.Eta" />*@
-                            <RadzenDatePicker @bind-Value="Ordenes.Eta" ShowTime="true" TimeOnly="true" DateFormat="HH:mm" class="col-12"/>
+                            <label>Fecha de llegada estimada:</label>
+                            <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                                              @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
                         </div>
-
                     </div>
                 </div>
                 <div class="row d-flex g-3">
                     <div class="row">
                         <div class="col-4">
-                            <label>Fecha de llegada estimada:</label>
-                            <RadzenDatePicker class="col-12" Disabled="true" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
-                        </div>
-
-                        <div class="col-4">
                             <label>En trayecto:</label>
-                            @*<InputText class="form-control" @bind-Value="@Ordenes.Orden.Estado.den" />*@
-                            <InputSelect @bind-Value="@Ordenes.Orden.Estado.den" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                    @foreach (var item in Trayecto)
-                                    {
-                                            <option value="@item">@item</option>
-                                    }
+                            <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
+                                <option value="20">NO</option>
+                                <option value="26">SI</option>
                             </InputSelect>
                         </div>
                         <div class="col-4">
                             <label>Equipo:</label>
-                            <RadzenTextBox class="col-12" Disabled="true" @bind-Value="@Ordenes.Orden.Tonel.Tracto"></RadzenTextBox>
+                            <RadzenTextBox class="col-12" Disabled="true" @bind-Value="@Ordenes.Orden!.Tonel!.Tracto"></RadzenTextBox>
                         </div>
                     </div>
                 </div>
@@ -96,11 +78,12 @@
                 <div class="row">
                     <div class="col-6">
                         <label>Fecha real de llegada a destino:</label>
-                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Ordenes.Fchrealledes" />
+                        <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                                          @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
                     </div>
                     <div class="col-6">
                         <label>Cantidad de litros entregados:</label>
-                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="decimal?" />
+                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="double?"/>
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">
@@ -112,9 +95,9 @@
                 <div class="row d-flex g-3">
                     <div class="row justify-content-end">
                         <div class="col-3 mt-3 mb-3" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="UpdateEtaReal">
-                                <i class="fa-solid fa-rotate"></i> <b>Capturar Orden</b>
-                            </button> 
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="SendOrdenEta">
+                                <i class="fa-solid fa-floppy-disk"></i> <b>Guardar</b>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -154,22 +137,22 @@
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = null!;
 
-    private List<string> Trayecto { get; set; } = new List<string> { "SI", "NO" };
-
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
-    {
-        Orden = new Orden()
         {
-            Estado = new Estado(),
-            Tonel = new Tonel()
-        }
-    };
+            Orden = new Orden()
+            {
+                Estado = new Estado(),
+                Tonel = new Tonel()
+            }
+        };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
 
     ElementReference infoIcon;
+
+    TimeOnly time;
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Este boton funciona simultaneamente para Editar como para Guardar el ETA Real", options);
 
@@ -181,17 +164,21 @@
             var responseHttp = await repositorio.Post<EtaDTO, OrdEmbDet>($"api/Eta/Filtro", etaDto);
             if (responseHttp.Error)
             {
+                Ordenes = null!;
+                Ordenes = new OrdEmbDet() { Orden = new Orden() { Estado = new Estado(), Tonel = new Tonel() } };
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
+
                 await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
             else
             {
                 Ordenes = responseHttp.Response;
+                Console.WriteLine(Ordenes.Fchlleest?.Subtract(Ordenes.FchDoc.Value));
             }
         }
         catch (Exception e)
         {
-            await swal.FireAsync("Error", "La orden no ha sido registrada, favor de aplicarle un ETA", SweetAlertIcon.Error);
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
@@ -199,7 +186,8 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post($"api/Eta/SendEta", Ordenes);
+            Ordenes.Bol = etaDto.Bol;
+            var responseHttp = await repositorio.Post<OrdEmbDet,OrdEmbDet>($"api/eta", Ordenes);
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -207,6 +195,7 @@
             }
             else
             {
+                await GetOrden();
                 await swal.FireAsync("Exito", "La orden ha sido registrada con exito", SweetAlertIcon.Success);
             }
         }

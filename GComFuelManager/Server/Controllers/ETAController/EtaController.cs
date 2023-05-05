@@ -16,7 +16,7 @@ using System.Linq.Dynamic.Core;
 namespace GComFuelManager.Server.Controllers.ETAController
 {
 
-    [Route("api/Eta")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto")]
     public class EtaController : ControllerBase
@@ -42,7 +42,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .Include(x => x.Orden)
                     .ThenInclude(x => x.Estado)
                     .FirstOrDefaultAsync();
-                    return Ok(eta);
+                if (eta == null)
+                    return NotFound("No se ha encontrado ningun registro.");
+                return Ok(eta);
             }
             catch (Exception e)
             {
@@ -50,51 +52,33 @@ namespace GComFuelManager.Server.Controllers.ETAController
             }
         }
         //Method para enviar la fecha ESTIMADA de llegada al destino 1era parte
-        [HttpPost("SendEta")]
+        [HttpPost]
         public async Task<ActionResult> SendEta([FromBody] OrdEmbDet ordEmb)
         {
             try
             {
+                ordEmb.Orden!.Estado = null!;
+
+                context.Update(ordEmb.Orden);
+
                 ordEmb.Orden = null!;
-                context.Add(ordEmb);
+                TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
+                ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
+                if (ordEmb.Cod == 0)
+                    context.Add(ordEmb);
+                else
+                    context.Update(ordEmb);
+
                 await context.SaveChangesAsync();
-                return Ok();
+
+                return Ok(ordEmb);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
-        //Method para editar fecha ESTIMADA de llegada a destino 1era parte
-        [HttpPut("EditarEta")]
-        public async Task<ActionResult> PutEta(OrdEmbDet ordEmb)
-        {
-            try
-            {
-                context.Update(ordEmb);
-                await context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-        //Method para editar la fecha real de llegada 2da y última parte
-        [HttpPut("EditarEtaReal")]
-        public async Task<ActionResult> PutRealEta(OrdEmbDet ordEmb)
-        {
-            try
-            {
-                context.Update(ordEmb);
-                await context.SaveChangesAsync();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+
         //Method para exportación de reportes mediante lapso de fechas
         [HttpPost("Etareporte")]
         public async Task<ActionResult> GetEta([FromBody] FechasF fechas)
@@ -104,7 +88,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 var Eta = await context.Orden.OrderBy(x => x.Destino.Den).ThenBy(x => x.Fchcar).ThenBy(x => x.Producto.Den).ThenBy(x => x.BatchId)
                     .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.den)
                     .ThenBy(x => x.Coduni).ThenBy(x => x.Ref).ThenBy(x => x.Codprd2).ThenBy(x => x.Codest)
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true )
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true)
                     .Include(x => x.OrdEmbDet)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -137,7 +121,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd"),
                          LitEnt = e.OrdEmbDet.Litent
                      })
-                     
+
                     .Take(1000)
                     .ToListAsync();
                 return Ok(Eta);
