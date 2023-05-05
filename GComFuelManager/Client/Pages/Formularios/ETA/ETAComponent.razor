@@ -41,9 +41,9 @@
                                               @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
                         </div>
                         @*<div class="col-4">
-                        <label>ETA:</label>
-                        <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
-                        </div>*@
+                            <label>ETA:</label>
+                            <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
+                            </div>*@
                         <div class="col-4">
                             <label>Fecha de llegada estimada:</label>
                             <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
@@ -83,7 +83,7 @@
                     </div>
                     <div class="col-6">
                         <label>Cantidad de litros entregados:</label>
-                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="double?"/>
+                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" />
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">
@@ -92,6 +92,8 @@
                         <InputTextArea class="form-control" @bind-Value="Ordenes.Obs"></InputTextArea>
                     </div>
                 </div>
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador" Context="Actions">
                 <div class="row d-flex g-3">
                     <div class="row justify-content-end">
                         <div class="col-3 mt-3 mb-3" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
@@ -139,13 +141,13 @@
 
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
         {
-            Orden = new Orden()
-            {
-                Estado = new Estado(),
-                Tonel = new Tonel()
-            }
-        };
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -187,7 +189,8 @@
         try
         {
             Ordenes.Bol = etaDto.Bol;
-            var responseHttp = await repositorio.Post<OrdEmbDet,OrdEmbDet>($"api/eta", Ordenes);
+            Ordenes.Orden.BatchId = etaDto.Bol;
+            var responseHttp = await repositorio.Post<OrdEmbDet, OrdEmbDet>($"api/eta", Ordenes);
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -205,37 +208,37 @@
         }
     }
 
-    public async Task UpdateOrdenEta()
-    {
-        var responseHttp = await repositorio.Put($"api/Eta/EditarEta", Ordenes);
-        if (responseHttp.Error)
-        {
-            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-        }
-        else
-        {
-            //navigationManager.NavigateTo("ETA");
-            await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
-            await GetOrden();
-        }
-    }
+    //public async Task UpdateOrdenEta()
+    //{
+    //    var responseHttp = await repositorio.Put($"api/Eta/EditarEta", Ordenes);
+    //    if (responseHttp.Error)
+    //    {
+    //        var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //    }
+    //    else
+    //    {
+    //        //navigationManager.NavigateTo("ETA");
+    //        await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
+    //        await GetOrden();
+    //    }
+    //}
 
-    public async Task UpdateEtaReal()
-    {
-        var responseHttp = await repositorio.Put($"api/Eta/EditarEtaReal", Ordenes);
-        if (responseHttp.Error)
-        {
-            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-        }
-        else
-        {
-            //navigationManager.NavigateTo("ETA");
-            await swal.FireAsync("Exito", "La orden ha sido capturada", SweetAlertIcon.Success);
-            await GetOrden();
-        }
-    }
+    //public async Task UpdateEtaReal()
+    //{
+    //    var responseHttp = await repositorio.Put($"api/Eta/EditarEtaReal", Ordenes);
+    //    if (responseHttp.Error)
+    //    {
+    //        var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //    }
+    //    else
+    //    {
+    //        //navigationManager.NavigateTo("ETA");
+    //        await swal.FireAsync("Exito", "La orden ha sido capturada", SweetAlertIcon.Success);
+    //        await GetOrden();
+    //    }
+    //}
 
     public async Task ExportExcel()
     {
