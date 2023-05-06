@@ -23,7 +23,7 @@
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
-                        <button class="col-12 h-100 btn shadow-sm">
+                        <button class="col-12 h-100 btn shadow-sm" @onclick="@ServiceUnidad">
                             <div class="col-12 row">
                                 <div class="col-4">
                                     <img src="img/delivery-truck.png" class="img-fluid" />
@@ -37,7 +37,7 @@
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
-                        <button class="col-12 h-100 btn shadow-sm">
+                        <button class="col-12 h-100 btn shadow-sm" @onclick="@ServiceChofer">
                             <div class="col-12 row">
                                 <div class="col-4">
                                     <img src="img/worker (1).png" class="img-fluid" />
@@ -66,7 +66,7 @@
                 </div>
                 <div class="col-6 mb-3">
                     <div class="col-12">
-                        <button class="col-12 h-100 btn shadow-sm">
+                        <button class="col-12 h-100 btn shadow-sm" @onclick="@ServiceClientDestination">
                             <div class="col-12 row">
                                 <div class="col-4">
                                     <img src="img/rating.png" class="img-fluid" />
@@ -90,7 +90,7 @@
             <div class="col-12 row">
                 <div class="col-8 d-flex mt-auto">
                     <RadzenDropDown Data="@Clientes" @bind-Value="Cliente" TValue="Cliente" class="col-12" AllowFiltering="true" TextProperty="Den"
-                    AllowVirtualization="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains">
+                                    AllowVirtualization="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains">
                         <Template Context="data">
                             @((data as Cliente)!.Den) | @((data as Cliente)!.CodCte)
                         </Template>
@@ -101,7 +101,7 @@
                 </div>
                 <div class="col-2">
                     <label class="form-label">Codigo de identificacion:</label>
-                    <InputText @bind-Value="Cliente.CodCte" class="col-12 form-control"/>
+                    <InputText @bind-Value="Cliente.CodCte" class="col-12 form-control" />
                 </div>
                 <div class="col-2 d-flex mt-auto">
                     <button class="btn gcom-bg-amarillo col-12" @onclick="@PutClientes">
@@ -165,6 +165,69 @@
         }
     }
 
+    public async Task ServiceClientDestination()
+    {
+        try
+        {
+            var respuestaHttp = await repositorio.Get<List<Cliente>>("api/clientes/service");
+            if (respuestaHttp.Error)
+            {
+                var responseHttp = await respuestaHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Los Clientes y Destinos fueron actualizados", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ServiceUnidad()
+    {
+        try
+        {
+            var respuestaHttp = await repositorio.Get<List<Tonel>>("api/vehiculo/service");
+            if (respuestaHttp.Error)
+            {
+                var responseHttp = await respuestaHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Las Unidades han sido actualizadas", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ServiceChofer()
+    {
+        try
+        {
+            var respuestaHttp = await repositorio.Get<List<Chofer>>("api/chofer/service");
+            if (respuestaHttp.Error)
+            {
+                var responseHttp = await respuestaHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Los operadores han sido actualizados con exito", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
     private async Task GetClientes()
     {
         try
@@ -186,7 +249,7 @@
         }
     }
 
-    private async Task  PutClientes()
+    private async Task PutClientes()
     {
         try
         {

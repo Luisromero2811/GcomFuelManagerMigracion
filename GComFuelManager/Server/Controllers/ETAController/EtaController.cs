@@ -67,8 +67,6 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     context.Update(Eta);
 
                     ordEmb.Orden = null!;
-                    //TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
-                    //ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
                     context.Add(ordEmb);
                 }
 
@@ -150,5 +148,3 @@ namespace GComFuelManager.Server.Controllers.ETAController
     }
 }
 
-//d.den, o.fchcar, p.den, ct.den, o.batchId, ch.den, ch.shortden,
-//t.placa, t.tracto, tr.den, o.coduni, o.ref, o.codprd2, o.codest
