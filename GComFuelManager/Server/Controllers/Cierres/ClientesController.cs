@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Diagnostics;
+using System.ServiceModel;
+using ServiceReference6;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -148,5 +152,61 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        [Route("service")]
+        [HttpGet]
+        public async Task<ActionResult> GetClienteService()
+        {
+            try
+            {
+                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                client.ClientCredentials.UserName.UserName = "energasws";
+                client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+
+                try
+                {
+                    var svc = client.ChannelFactory.CreateChannel();
+
+                    ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new ServiceReference6.WsGetBusinessEntityAssociationsRequest();
+
+                    getReq.IncludeChildObjects = new ServiceReference6.NBool();
+                    getReq.IncludeChildObjects.Value = true;
+
+                    getReq.BusinessEntityType = new ServiceReference6.NInt();
+                    getReq.BusinessEntityType.Value = 4;
+
+                    getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
+                    getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
+                    getReq.AssociatedBusinessEntityId.Id.Value = 51004;
+
+                    getReq.AssociatedBusinessEntityType = new ServiceReference6.NInt();
+                    getReq.AssociatedBusinessEntityType.Value = 1;
+
+                    getReq.ActiveIndicator = new ServiceReference6.NEnumOfActiveIndicatorEnum();
+                    getReq.ActiveIndicator.Value = ServiceReference6.ActiveIndicatorEnum.ACTIVE;
+
+                    var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
+
+                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
+                }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    client.Close();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+        }
+
     }
 }
