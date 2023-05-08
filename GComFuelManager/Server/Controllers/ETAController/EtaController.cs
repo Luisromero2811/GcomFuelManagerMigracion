@@ -57,17 +57,31 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
-                ordEmb.Orden!.Estado = null!;
-
-                context.Update(ordEmb.Orden);
-
-                ordEmb.Orden = null!;
-                TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
-                ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
+                
                 if (ordEmb.Cod == 0)
+                {
+                    var Eta = context.Orden.FirstOrDefault(x => x.BatchId == ordEmb.Bol);
+
+                   Eta.Codest = ordEmb.Orden!.Codest;
+
+                    context.Update(Eta);
+
+                    ordEmb.Orden = null!;
                     context.Add(ordEmb);
+                }
+
                 else
+                {
+                    ordEmb.Orden!.Estado = null!;
+
+                    context.Update(ordEmb.Orden);
+
+                    ordEmb.Orden = null!;
+                    TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
+                    ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
                     context.Update(ordEmb);
+                }
+                   
 
                 await context.SaveChangesAsync();
 
@@ -134,5 +148,3 @@ namespace GComFuelManager.Server.Controllers.ETAController
     }
 }
 
-//d.den, o.fchcar, p.den, ct.den, o.batchId, ch.den, ch.shortden,
-//t.placa, t.tracto, tr.den, o.coduni, o.ref, o.codprd2, o.codest

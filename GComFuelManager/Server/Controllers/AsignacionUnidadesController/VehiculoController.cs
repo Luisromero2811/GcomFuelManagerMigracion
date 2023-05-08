@@ -4,6 +4,9 @@ using GComFuelManager.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Diagnostics;
+using System.ServiceModel;
+using ServiceReference6;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -33,6 +36,36 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [Route("service")]
+        [HttpGet]
+        public async Task<ActionResult> GetVehiculo()
+        {
+            try
+            {
+                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                client.ClientCredentials.UserName.UserName = "energasws";
+                client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                try
+                {
+
+                }
+                catch (Exception e)
+                {
+                    return BadRequest();
+                }
+                finally
+                {
+                    client.Close();
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
             }
         }
 
