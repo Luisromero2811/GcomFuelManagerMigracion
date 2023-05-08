@@ -55,8 +55,10 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Tonel>()
                 .HasOne(x => x.Transportista)
                 .WithMany()
-                .HasPrincipalKey(x=>x.carrId)
-                .HasForeignKey(x => x.Carid);
+                .HasPrincipalKey(x=>x.CarrId)
+                .IsRequired(false)
+                .HasForeignKey(x => x.Carid)
+                .IsRequired(false);
             //Orden compra
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.OrdenCompra)

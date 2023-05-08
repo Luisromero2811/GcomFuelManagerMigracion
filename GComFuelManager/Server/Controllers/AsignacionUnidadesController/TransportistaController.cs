@@ -9,29 +9,30 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.ServiceModel;
 using ServiceReference6;
+using GComFuelManager.Shared.Modelos;
+using ServiceReference3;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	public class TransportistaController : ControllerBase 
-	{
+    public class TransportistaController : ControllerBase
+    {
         private readonly ApplicationDbContext context;
 
         public TransportistaController(ApplicationDbContext context)
-		{
+        {
             this.context = context;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {
             try
             {
-                var transportistas = await context.Transportista.Where(x => x.activo == true && x.gru != null)
-                    //.Select(x => new CodDenDTO { Cod = Convert.ToInt32(x.busentid), Den = x.den!})
-                    .OrderBy(x => x.den)
+                var transportistas = await context.Transportista.Where(x => x.Activo == true && x.Gru != null)
+                    .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);
             }
@@ -47,21 +48,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                //ChannelFactory<ServiceReference6.BusinessEntityServiceChannel> svcTruck = new ChannelFactory<ServiceReference6.BusinessEntityServiceChannel>("BasicHttpBinding_BusinessEntityService");
-                //svcTruck.Credentials.UserName.UserName = "energasws";
-                //svcTruck.Credentials.UserName.Password = "Energas23!";
-                
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
+                TruckCarrierServiceClient truck = new TruckCarrierServiceClient(TruckCarrierServiceClient.EndpointConfiguration.BasicHttpBinding_TruckCarrierService);
+                truck.ClientCredentials.UserName.UserName = "energasws";
+                truck.ClientCredentials.UserName.Password = "Energas23!";
+                truck.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+
                 try
                 {
+
+                    List<Transportista> transportistas = new List<Transportista>();
                     //ServiceReference6.BusinessEntityServiceChannel svc = svcTruck.CreateChannel();
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new ServiceReference6.WsGetBusinessEntityAssociationsRequest();
+                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
 
                     getReq.IncludeChildObjects = new ServiceReference6.NBool();
                     getReq.IncludeChildObjects.Value = true;
@@ -78,7 +82,54 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
-                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
+                    WsGetTruckCarriersRequest truckRequest = new WsGetTruckCarriersRequest();
+                    var truckResponse = await truck.GetTruckCarriersAsync(truckRequest);
+
+                    foreach (var item in respuesta.BusinessEntityAssociations)
+                    {
+                        var carrid = truckResponse.TruckCarriers.FirstOrDefault(x => x.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
+                        Transportista transportista = new Transportista()
+                        {
+                            Den = item.BusinessEntity.BusinessEntityName,
+                            Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
+                            Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                            CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString()
+                        };
+
+                        if (transportista.Activo == true)
+                        {
+                            Debug.WriteLine($"activo: {transportista.Busentid}");
+                            Transportista? t = context.Transportista.Where(x => x.Busentid == transportista.Busentid)
+                                .DefaultIfEmpty()
+                                .FirstOrDefault();
+
+                            if (t != null)
+                            {
+                                t.Den = transportista.Den;
+                                t.Activo = transportista.Activo;
+                                t.CarrId = string.IsNullOrEmpty(t.CarrId) ? string.Empty : t.CarrId;
+                                context.Update(t);
+                            }
+                            else
+                                context.Add(transportista);
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"inactivo:{transportista.Busentid}");
+                            var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId)).DefaultIfEmpty().FirstOrDefault();
+                            if (cod != null)
+                            {
+                                var tinactivo = context.Transportista.Find(cod.Cod);
+                                if (tinactivo != null)
+                                {
+                                    tinactivo.Activo = false;
+                                    context.Update(tinactivo);
+                                }
+                            }
+                        }
+                    }
+
+                    await context.SaveChangesAsync();
 
                 }
                 catch (Exception e)
@@ -91,7 +142,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     client.Close();
                 }
 
-                return Ok();
+                return Ok(true);
             }
             catch (Exception e)
             {

@@ -100,9 +100,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
             try
             {
                 var Eta = await context.Orden.OrderBy(x => x.Destino.Den).ThenBy(x => x.Fchcar).ThenBy(x => x.Producto.Den).ThenBy(x => x.BatchId)
-                    .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.den)
+                    .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.Den)
                     .ThenBy(x => x.Coduni).ThenBy(x => x.Ref).ThenBy(x => x.Codprd2).ThenBy(x => x.Codest)
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true)
                     .Include(x => x.OrdEmbDet)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -124,7 +124,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          Producto = e.Producto.Den,
                          VolNat = e.Vol2,
                          VolCar = e.Vol,
-                         Transportista = e.Tonel.Transportista.den,
+                         Transportista = e.Tonel.Transportista.Den,
                          Unidad = e.Tonel.Veh,
                          Operador = e.Chofer.Den,
                          FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),

@@ -132,7 +132,7 @@
                                     {
                                         foreach (var item in Transportistas)
                                         {
-                                            <option value="@item.cod">@item.den</option>
+                                            <option value="@item.Cod">@item.Den</option>
                                         }
                                     }
                                 </InputSelect>
@@ -404,7 +404,7 @@
     {
         try
         {
-            string? busentid = Transportistas.FirstOrDefault(x => x.cod == TransportistaSeleccionado).busentid;
+            string? busentid = Transportistas.FirstOrDefault(x => x.Cod == TransportistaSeleccionado).Busentid;
             var response = await repositorio.Get<List<CodDenDTO>>($"api/chofer/{busentid}");
             if (response.Error)
             {
@@ -427,7 +427,7 @@
     {
         try
         {
-            string? carid = Transportistas.FirstOrDefault(x => x.cod == TransportistaSeleccionado).carrId;
+            string? carid = Transportistas.FirstOrDefault(x => x.Cod == TransportistaSeleccionado).CarrId;
             var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/{carid}");
             if (response.Error)
             {
@@ -637,7 +637,7 @@
                     Producto = o?.Producto?.Den,
                     Volumen = o?.OrdenEmbarque?.Vol,
                     FechaCarga = o?.OrdenEmbarque?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o?.OrdenEmbarque?.Tonel?.Transportista?.den,
+                    Transportista = o?.OrdenEmbarque?.Tonel?.Transportista?.Den,
                     Unidad = o?.OrdenEmbarque?.Tonel?.Veh,
                     Compartimento = o?.OrdenEmbarque?.Compartment,
                     Operador = o?.OrdenEmbarque?.Chofer?.Den,
