@@ -1,8 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +18,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("codsyn")] public int? Codsyn { get; set; } = 0;
 
-        [JsonProperty("carid"), MaxLength(15)] public string? Carid { get; set; } = string.Empty;
+        [JsonProperty("carid"), AllowNull, DefaultValue("")] public string? Carid { get; set; } = string.Empty;
 
         [JsonProperty("nrocom")] public int? Nrocom { get; set; } = 0;
 

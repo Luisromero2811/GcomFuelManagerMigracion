@@ -104,7 +104,7 @@ namespace GComFuelManager.Server.Controllers
                 List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
                 var ordenTpAsig = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.Tp == true && x.FchOrd != null
-                    && x.Bolguidid == null && x.Tonel.Transportista.activo == true)
+                    && x.Bolguidid == null && x.Tonel.Transportista.Activo == true)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -198,7 +198,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista.Activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -233,7 +233,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al transportista activo en 1 y codest = 26
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 20)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -250,7 +250,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al transportista activo en 1
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 26)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)
@@ -283,7 +283,7 @@ namespace GComFuelManager.Server.Controllers
             {
 
                 var pedidosDate = await context.Orden
-                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.activo == true && x.Codprd2 != 10157)
+                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && x.Codprd2 != 10157)
                   .Include(x => x.Destino)
                   .ThenInclude(x => x.Cliente)
                   .Include(x => x.Producto)
@@ -310,7 +310,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 List<Orden> Ordenes = new List<Orden>();
                 var pedidosDate = await context.OrdenEmbarque
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.activo == true)
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true)
                 .Include(x => x.Destino)
                 .ThenInclude(x => x.Cliente)
                 .Include(x => x.Tad)
@@ -339,7 +339,7 @@ namespace GComFuelManager.Server.Controllers
                 .ToListAsync();
                 Ordenes.AddRange(pedidosDate);
                 var pedidosDate2 = await context.Orden
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 20)
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -353,7 +353,7 @@ namespace GComFuelManager.Server.Controllers
                 Ordenes.AddRange(pedidosDate2);
 
                 var pedidosDate3 = await context.Orden
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.activo == true && x.Codest == 26)
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Producto)

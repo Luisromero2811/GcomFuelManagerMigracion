@@ -52,16 +52,16 @@
                 <hr>
                 <div class="col-6 mb-3">
                     <div class="col-12">
-                        <button class="col-12 h-100 btn shadow-sm" @onclick="@ServiceTransportistas">
+                        <RadzenButton class="col-12 h-100 btn shadow-sm" Variant="Variant.Text" Click="@ServiceTransportistas" Disabled="updateData">
                             <div class="col-12 row">
                                 <div class="col-4">
                                     <img src="img/delivery-truck (1).png" class="img-fluid" />
                                 </div>
-                                <div class="col d-flex align-items-center justify-content-start">
+                                <div class="col d-flex align-items-center text-black justify-content-start">
                                     <b>Actualizar transportistas</b>
                                 </div>
                             </div>
-                        </button>
+                        </RadzenButton>
                     </div>
                 </div>
                 <div class="col-6 mb-3">
@@ -90,7 +90,7 @@
             <div class="col-12 row">
                 <div class="col-8 d-flex mt-auto">
                     <RadzenDropDown Data="@Clientes" @bind-Value="Cliente" TValue="Cliente" class="col-12" AllowFiltering="true" TextProperty="Den"
-                    AllowVirtualization="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains">
+                                    AllowVirtualization="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains">
                         <Template Context="data">
                             @((data as Cliente)!.Den) | @((data as Cliente)!.CodCte)
                         </Template>
@@ -101,7 +101,7 @@
                 </div>
                 <div class="col-2">
                     <label class="form-label">Codigo de identificacion:</label>
-                    <InputText @bind-Value="Cliente.CodCte" class="col-12 form-control"/>
+                    <InputText @bind-Value="Cliente.CodCte" class="col-12 form-control" />
                 </div>
                 <div class="col-2 d-flex mt-auto">
                     <button class="btn gcom-bg-amarillo col-12" @onclick="@PutClientes">
@@ -118,6 +118,7 @@
     private IEnumerable<Cliente> Clientes { get; set; } = new List<Cliente>();
     private Cliente Cliente { get; set; } = new Cliente();
 
+    bool updateData = false;
 
     //Listas
     private List<Transportista> Transportistas { get; set; } = null!;
@@ -148,19 +149,30 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Transportista>>("api/transportista/service");
+            ns.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Actulizando Transportistas",
+                    Detail = "Los registros de los trasportistas se estan actializando. Esto podria tardar un tiempo.\n Permanesca en esta pantalla hasta finalizar el proceso.",
+                    Duration = 15000
+                });
+            updateData = true;
+            var response = await repositorio.Get<bool>("api/transportista/service");
             if (response.Error)
             {
+                updateData = false;
                 var responseHttp = await response.ObtenerMensajeError();
                 await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
             }
             else
             {
                 await swal.FireAsync("Exito", "Los transportistas fueron actualizados", SweetAlertIcon.Success);
+                updateData = false;
             }
         }
         catch (Exception e)
         {
+            updateData = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
@@ -186,7 +198,7 @@
         }
     }
 
-    private async Task  PutClientes()
+    private async Task PutClientes()
     {
         try
         {

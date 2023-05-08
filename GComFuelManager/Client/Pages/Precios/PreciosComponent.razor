@@ -1,5 +1,6 @@
 ﻿@page "/precios"
-
+@inject IJSRuntime js
+@inject IRepositorio http
 <AuthorizeView>
     <Authorized>
         <h3>Precios</h3>
@@ -13,5 +14,53 @@
 </AuthorizeView>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProductos();
+    }
+
+    private async Task GenerateExcel()
+    {
+
+        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+        var excel = new ExcelPackage();
+        var ws = excel.Workbook.Worksheets.Add("Cierre");
+        ws.Columns.Width = 50;
+        ws.Columns.AutoFit();
+
+
+        await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
+
+    }
+
+
+    private async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<Producto>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                foreach (var item in response.Response.DistinctBy(x=>x.Den))
+                {
+                    
+                    var ws = excel.Workbook.Worksheets.Add(item.Den);
+                    ws.Columns.Width = 50;
+                    ws.Columns.AutoFit();
+                }
+                await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
 
 }
