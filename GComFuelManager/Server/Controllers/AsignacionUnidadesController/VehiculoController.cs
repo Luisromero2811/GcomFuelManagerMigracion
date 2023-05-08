@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Diagnostics;
 using System.ServiceModel;
-using ServiceReference6;
+using ServiceReference1;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -45,12 +45,33 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+               
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+
                 try
                 {
+                    var svc = client.ChannelFactory.CreateChannel();
+                    
+                    ServiceReference1.WsGetVehiclesRequest getReq = new ServiceReference1.WsGetVehiclesRequest();
+
+                    //Pendientes
+
+                    getReq.IncludeChildObjects = new ServiceReference1.NBool();
+                    getReq.IncludeChildObjects.Value = true;
+
+                    getReq.SystemId = new ServiceReference1.Identifier();
+                    getReq.SystemId.Id = new ServiceReference1.NLong();
+                    getReq.SystemId.Id.Value = 100;
+
+                    getReq.VehicleType = new ServiceReference1.NInt();
+                    getReq.VehicleType.Value = 4;
+
+                    getReq.ActiveInd = new ServiceReference1.NEnumOfActiveIndicatorEnum();
+                    getReq.ActiveInd.Value = ServiceReference1.ActiveIndicatorEnum.ACTIVE;
+
+                    var respuesta = await svc.GetVehicles(getReq);
 
                 }
                 catch (Exception e)
@@ -72,5 +93,4 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     }
 }
 
-//+ x.Tracto + x.Placatracto
-//+ x.Placa + x.Capcom + " " + x.Capcom2 + " " + x.Capcom3 + " " + x.Capcom4 + " " + x.Codsyn
+//BusinessEntityService.WsGetBusinessEntityAssociationsRequest be = new BusinessEntityService.WsGetBusinessEntityAssociationsRequest();
