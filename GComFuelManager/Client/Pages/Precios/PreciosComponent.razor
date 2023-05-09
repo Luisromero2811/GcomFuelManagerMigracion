@@ -1,22 +1,110 @@
 ﻿@page "/precios"
 @inject IJSRuntime js
 @inject IRepositorio http
+@inject SweetAlertService Swal
+
 <AuthorizeView>
     <Authorized>
         <h3>Precios</h3>
 
         <div class="d-flex justify-content-center col-12 shadow-sm mt-3 card">
             <div class="col-9 card-body">
-                
+                <div class="col-12 row">
+
+                    <div class="col-12 row">
+                        <div class="col-6">
+                            <div class="form-label">
+                                <label>Importar:</label>
+                            </div>
+                            @*<RadzenFileInput Accept="*.xlsx" @bind-Value="@file.File" @bind-FileName="@file.Name" @bind-FileSize="@file.Size" TValue="IFormFile"></RadzenFileInput>*@
+                            <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload"
+                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" />
+                        </div>
+                        <div class="col-2 d-flex">
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@(()=>radzenUpload!.Upload())"> <i class="fa-solid fa-upload"></i> subir</button>
+                            @*<button class="col-12 gcom-bg-amarillo mt-auto btn" @onclick="@UploadExcel">
+                            <i class="fa-solid fa-upload"></i>
+                            </button>*@
+                        </div>
+                    </div>
+
+                </div>
             </div>
         </div>
     </Authorized>
 </AuthorizeView>
 
 @code {
+    List<PreciosDTO> precios { get; set; } = new List<PreciosDTO>();
+
+    FileUploadDTO file { get; set; } = new FileUploadDTO();
+
+    RadzenUpload radzenUpload { get; set; } = new RadzenUpload();
+
+    string? ExcelBytes { get; set; } = string.Empty;
+
+    List<Producto> Productos { get; set; } = new List<Producto>();
+
+    bool loadingUpload = false;
+
+    private long masFileSize = 1024 * 20;
+
     protected override async Task OnInitializedAsync()
     {
         //await GetProductos();
+    }
+
+    private void OnProgress(UploadProgressArgs e)
+    {
+        try
+        {
+            Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private void OnChangeFile(UploadChangeEventArgs e)
+    {
+        try
+        {
+            foreach (var item in e.Files)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(item));
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task UploadExcel()
+    {
+        try
+        {
+            loadingUpload = true;
+
+            var response = await http.Post<FileUploadDTO, List<PreciosDTO>>("api/precio/upload", file);
+            if (response.Error)
+            {
+                loadingUpload = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingUpload = false;
+                precios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loadingUpload = false;
+            throw e;
+        }
     }
 
     private async Task GenerateExcel()
@@ -24,10 +112,21 @@
 
         ExcelPackage.LicenseContext = LicenseContext.Commercial;
         var excel = new ExcelPackage();
-        var ws = excel.Workbook.Worksheets.Add("Cierre");
+
+        var ws = excel.Workbook.Worksheets.Add("Precios");
         ws.Columns.Width = 50;
         ws.Columns.AutoFit();
 
+        var header = ws.Cells["A1:P1"];
+
+        var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(precios, true);
+
+        tablebody.Style.Font.Size = 14;
+        header.Style.Font.Size = 14;
+
+        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+        header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+        header.Style.Font.Bold = true;
 
         await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
 
@@ -45,16 +144,7 @@
             }
             else
             {
-                ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                var excel = new ExcelPackage();
-                foreach (var item in response.Response.DistinctBy(x=>x.Den))
-                {
-                    
-                    var ws = excel.Workbook.Worksheets.Add(item.Den);
-                    ws.Columns.Width = 50;
-                    ws.Columns.AutoFit();
-                }
-                await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
+
             }
         }
         catch (Exception e)
