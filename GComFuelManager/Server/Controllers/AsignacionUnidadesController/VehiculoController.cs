@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Diagnostics;
 using System.ServiceModel;
 using ServiceReference1;
+using Newtonsoft.Json;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -45,7 +46,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-               
+                VehicleServiceClient client = new VehicleServiceClient(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -71,8 +72,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.ActiveInd = new ServiceReference1.NEnumOfActiveIndicatorEnum();
                     getReq.ActiveInd.Value = ServiceReference1.ActiveIndicatorEnum.ACTIVE;
 
-                    var respuesta = await svc.GetVehicles(getReq);
+                    getReq.IncludeVehicleCompartments = new ServiceReference1.NBool();
+                    getReq.IncludeVehicleCompartments.Value = true;
 
+                    var respuesta = client.GetVehiclesAsync(getReq);
+
+                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
                 }
                 catch (Exception e)
                 {

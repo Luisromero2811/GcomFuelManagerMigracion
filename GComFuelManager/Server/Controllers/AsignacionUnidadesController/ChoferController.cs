@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Diagnostics;
 using System.ServiceModel;
 using ServiceReference6;
+using GComFuelManager.Shared.Modelos;
+using Newtonsoft.Json;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -39,12 +41,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
-
+       
         [Route("service")]
         [HttpGet]
         public async Task<ActionResult> GetChofer()
         {
-           
+            Transportista tr = new Transportista();
             try
             {
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
@@ -56,7 +58,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+                    //ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+
+                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
 
                     getReq.IncludeChildObjects = new ServiceReference6.NBool();
                     getReq.IncludeChildObjects.Value = false;
@@ -72,8 +76,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
                     getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
-                    //getReq.AssociatedBusinessEntityId.Id.Value = await context.Transportista.Where(x => x.busentid);
+                    getReq.AssociatedBusinessEntityId.Id.Value = tr.Busentid.LongCount();
+
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
+
+                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
 
                 }
                 catch (Exception e)
