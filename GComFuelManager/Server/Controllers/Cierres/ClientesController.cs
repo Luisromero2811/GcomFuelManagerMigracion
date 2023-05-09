@@ -171,7 +171,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new ServiceReference6.WsGetBusinessEntityAssociationsRequest();
 
                     getReq.IncludeChildObjects = new ServiceReference6.NBool();
-                    getReq.IncludeChildObjects.Value = true;
+                    getReq.IncludeChildObjects.Value = false;
 
                     getReq.BusinessEntityType = new ServiceReference6.NInt();
                     getReq.BusinessEntityType.Value = 4;
