@@ -1,6 +1,9 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using System.Diagnostics;
 
@@ -10,6 +13,15 @@ namespace GComFuelManager.Server.Controllers.Precios
     [ApiController]
     public class PrecioController : ControllerBase
     {
+        private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> userManager;
+
+        public PrecioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        {
+            this.context = context;
+            this.userManager = userManager;
+        }
+
         [HttpPost]
         [Route("upload")]
         public async Task<ActionResult> Convert(IFormFile file)
@@ -43,6 +55,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
                     }
                 }
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetPrecios()
+        {
+            try
+            {
+                var precios = await context.Precio
+                    .Include(x => x.Zona)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ToListAsync();
 
                 return Ok(precios);
             }
