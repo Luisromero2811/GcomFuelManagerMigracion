@@ -1,22 +1,273 @@
 ﻿@page "/precios"
 @inject IJSRuntime js
 @inject IRepositorio http
+@inject SweetAlertService Swal
+
 <AuthorizeView>
     <Authorized>
         <h3>Precios</h3>
 
-        <div class="d-flex justify-content-center col-12 shadow-sm mt-3 card">
-            <div class="col-9 card-body">
-                
+        <div class="d-flex justify-content-center col-12 shadow-sm mt-3">
+            <div class="col-12 card">
+                <div class="col-12 row card-body">
+
+                    <div class="col-12 row  mb-3">
+                        <div class="col-6">
+                            <div class="form-label">
+                                <label class="form-label">Importar:</label>
+                            </div>
+                            <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload"
+                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" />
+                        </div>
+                        <div class="col-2 d-flex">
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@(()=>radzenUpload!.Upload())"> <i class="fa-solid fa-upload"></i> subir</button>
+
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="col-12 row">
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Zona</label>
+                            <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
+                                <option>-- Seleccione una opcion</option>
+                                @if (Zonas == null)
+                                {
+                                    <option>Cargando...</option>
+                                }
+                                else if (Zonas.Count == 0)
+                                {
+                                    <option>No hay zonas.</option>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Zonas)
+                                    {
+                                        <option value="@item.Cod">@item.Nombre</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Grupo</label>
+                            <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
+                                <option>-- Seleccione una opcion</option>
+                                @if (Grupos == null)
+                                {
+                                    <option>Cargando...</option>
+                                }
+                                else if (Grupos.Count == 0)
+                                {
+                                    <option>No hay clientes.</option>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Grupos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Cliente</label>
+                            <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
+                                <option>-- Seleccione una opcion</option>
+                                @if (Clientes == null)
+                                {
+                                    <option>Cargando...</option>
+                                }
+                                else if (Clientes.Count == 0)
+                                {
+                                    <option>No hay clientes.</option>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Clientes)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Producto</label>
+                            <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
+                                <option>-- Seleccione una opcion</option>
+                                @if (Productos == null)
+                                {
+                                    <option>Cargando...</option>
+                                }
+                                else if (Productos.Count == 0)
+                                {
+                                    <option>No hay productos.</option>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Productos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Fecha</label>
+                            <InputDate @bind-Value="Precio.FchActualizacion" class="form-control col-12" />
+                        </div>
+                        <div class="col-4 mb-2">
+                            <label class="form-label">Precio</label>
+                            <InputNumber TValue="float" @bind-Value="Precio.pre" class="form-control col-12" />
+                        </div>
+                        <div class="col-12 d-flex justify-content-center">
+                            <div class="col-4">
+                                <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
+                                    <i class="fa fa-solid fa-floppy-disk"></i>
+                                    Guardar
+                                    @if (loadingSave)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+
+        <div class="col-12 d-flex justify-content-center">
+            <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                            GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="Precio" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
+                        <Template Context="item">
+                            <div class="col-12 row">
+                                <div class="col">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Filterable="false" Property="FchDia" FormatString="{0:d}" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Precio" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                        <FilterTemplate Context="filter">
+                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div class="col-12 d-flex">
+                                <div class="col-1">
+                                    @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                    {
+                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                                    }
+                                    else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                    {
+                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                                    }
+                                    else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                    {
+                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                                    }
+                                </div>
+                                <div class="col-11">
+                                    @data.Producto?.Den
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+
     </Authorized>
 </AuthorizeView>
 
+<style type="text/css" media="screen and (min-width:1200px)">
+    .ancho {
+        width: 1100px;
+    }
+</style>
+
+<style type="text/css" media="screen and (min-width:1500px)">
+    .ancho {
+        width: 1500px;
+    }
+</style>
+<style type="text/css" media="screen and (min-width:1100px)">
+    .ancho {
+        width: 1000px;
+    }
+</style>
+
 @code {
+    private string ProductoSeleccionado = string.Empty;
+
+    List<Precio> precios { get; set; } = new List<Precio>();
+
+    Precio Precio { get; set; } = new Precio();
+
+    RadzenUpload radzenUpload { get; set; } = new RadzenUpload();
+
+    List<Producto> Productos { get; set; } = new List<Producto>();
+    List<Zona> Zonas { get; set; } = new List<Zona>();
+    List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    List<Grupo> Grupos { get; set; } = new List<Grupo>();
+    List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+
+    private int GrupoSeleccionado = 0;
+    private int ClienteSeleccionado = 0;
+
+    bool loadingUpload = false;
+    bool loading = false;
+    bool loadingSave = false;
+
+    private IEnumerable<string> ProductList { get; set; } = new List<string>();
+
+    RadzenDataGrid<Precio> grid { get; set; } = new RadzenDataGrid<Precio>();
+
     protected override async Task OnInitializedAsync()
     {
-        //await GetProductos();
+        await GetProductos();
+        await GetPrecios();
+        await GetGrupos();
+        await GetZonas();
+    }
+
+    private void OnProgress(UploadProgressArgs e)
+    {
+        try
+        {
+            Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private void OnChangeFile(UploadChangeEventArgs e)
+    {
+        try
+        {
+            foreach (var item in e.Files)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(item));
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 
     private async Task GenerateExcel()
@@ -24,10 +275,21 @@
 
         ExcelPackage.LicenseContext = LicenseContext.Commercial;
         var excel = new ExcelPackage();
-        var ws = excel.Workbook.Worksheets.Add("Cierre");
+
+        var ws = excel.Workbook.Worksheets.Add("Precios");
         ws.Columns.Width = 50;
         ws.Columns.AutoFit();
 
+        var header = ws.Cells["A1:P1"];
+
+        var tablebody = ws.Cells["A1:A1"].LoadFromCollection<Precio>(precios, true);
+
+        tablebody.Style.Font.Size = 14;
+        header.Style.Font.Size = 14;
+
+        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+        header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+        header.Style.Font.Bold = true;
 
         await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
 
@@ -45,22 +307,171 @@
             }
             else
             {
-                ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                var excel = new ExcelPackage();
-                foreach (var item in response.Response.DistinctBy(x=>x.Den))
-                {
-                    
-                    var ws = excel.Workbook.Worksheets.Add(item.Den);
-                    ws.Columns.Width = 50;
-                    ws.Columns.AutoFit();
-                }
-                await js.GuardarComo($"Precios.xlsx", excel.GetAsByteArray());
+                Productos = response.Response;
+                ProductList = Productos.DistinctBy(x => x.Den).Select(x => x.Den)!;
             }
         }
         catch (Exception e)
         {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
     }
 
+    private async Task GetPrecios()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<List<Precio>>("api/precio");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                precios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+
+    private async Task GetZonas()
+    {
+        try
+        {
+            var response = await http.Get<List<Zona>>("api/zona");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Zonas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetGrupos()
+    {
+        try
+        {
+            var response = await http.Get<List<Grupo>>("api/grupo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (Precio.codGru != 0 && Precio.codGru != GrupoSeleccionado)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.codGru}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionado = Precio.codGru;
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetEstaciones()
+    {
+        try
+        {
+            if (Precio.codCte != 0 && ClienteSeleccionado != Precio.codCte)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.codCte}");
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Destinos = response.Response;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async void setEdit(Precio Item)
+    {
+        try
+        {
+            Precio = Item;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SavePrecio()
+    {
+        try
+        {
+            loadingSave = true;
+            var response = await http.Post<Precio>("api/precio", Precio);
+            if (response.Error)
+            {
+                loadingSave = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingSave = false;
+                await GetPrecios();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingSave = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
 }

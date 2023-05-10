@@ -145,6 +145,48 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.OrdenEmbarque)
                 .WithMany()
                 .HasForeignKey(x => x.CodPed);
+
+            //Precio - Zona
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Zona)
+                .WithMany()
+                .HasForeignKey(x => x.codZona);
+            //Precio - cliente
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.codCte);
+            //Precio - Producto
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.codPrd);
+            //Precio - Destino
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.codDes);
+
+            //PrecioHistorico - Zona
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Zona)
+                .WithMany()
+                .HasForeignKey(x => x.codZona);
+            //PrecioHistorico - cliente
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.codCte);
+            //PrecioHistorico - Producto
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.codPrd);
+            //PrecioHistorico - Destino
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.codDes);
         }
 
 
@@ -178,5 +220,8 @@ namespace GComFuelManager.Server
         public DbSet<Shared.Modelos.Version> Version { get; set; }
         public DbSet<OrdenCierre> OrdenCierre { get; set; }
         public DbSet<Contacto> Contacto { get; set; }
+        public DbSet<Precio> Precio { get; set; }
+        public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
+        public DbSet<Zona> Zona { get; set; }
     }
 }
