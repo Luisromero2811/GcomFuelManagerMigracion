@@ -60,7 +60,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     //ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
 
-                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+                    //WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+
+                    ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new ServiceReference6.WsGetBusinessEntityAssociationsRequest();
 
                     getReq.IncludeChildObjects = new ServiceReference6.NBool();
                     getReq.IncludeChildObjects.Value = false;
@@ -73,7 +75,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     getReq.ActiveIndicator = new ServiceReference6.NEnumOfActiveIndicatorEnum();
                     getReq.ActiveIndicator.Value = ServiceReference6.ActiveIndicatorEnum.ACTIVE;
-
+                    
                     getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
                     getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
                     getReq.AssociatedBusinessEntityId.Id.Value = tr.Busentid.LongCount();
@@ -81,6 +83,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
                     Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
+
+                    foreach (var item in respuesta.BusinessEntityAssociations)
+                    {
+
+                    }
 
                 }
                 catch (Exception e)

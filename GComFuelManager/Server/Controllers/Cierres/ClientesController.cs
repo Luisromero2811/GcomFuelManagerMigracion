@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.ServiceModel;
 using ServiceReference6;
+using System.Drawing;
+using System;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -39,7 +41,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("{cod:int}")]
-        public async Task<ActionResult> GetByCod([FromRoute]int cod)
+        public async Task<ActionResult> GetByCod([FromRoute] int cod)
         {
             try
             {
@@ -71,7 +73,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = context.Cliente.Where(x=>x.Codgru == cod).AsEnumerable().OrderBy(x => x.Den);
+                var clientes = context.Cliente.Where(x => x.Codgru == cod).AsEnumerable().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -81,7 +83,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpPost("asignar/{cod:int}")]
-        public async Task<ActionResult> PostAsignar([FromBody]CodDenDTO codden, [FromRoute] int cod)
+        public async Task<ActionResult> PostAsignar([FromBody] CodDenDTO codden, [FromRoute] int cod)
         {
             try
             {
@@ -95,7 +97,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 destino.Codcte = cod;
                 context.Update(destino);
                 await context.SaveChangesAsync();
-                
+
                 return Ok();
             }
             catch (Exception e)
@@ -113,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     return BadRequest();
                 }
-                
+
                 cliente.Grupo = null;
 
                 context.Update(cliente);
@@ -128,7 +130,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("folio/{cod:int}")]
-        public async Task<ActionResult> GetFolio([FromRoute]int cod)
+        public async Task<ActionResult> GetFolio([FromRoute] int cod)
         {
             try
             {
@@ -162,13 +164,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
-                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(100);
 
                 try
                 {
+
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    ServiceReference6.WsGetBusinessEntityAssociationsRequest getReq = new ServiceReference6.WsGetBusinessEntityAssociationsRequest();
+                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
 
                     getReq.IncludeChildObjects = new ServiceReference6.NBool();
                     getReq.IncludeChildObjects.Value = false;
@@ -188,7 +191,150 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
-                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
+                   //Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
+
+                    foreach (var item in respuesta.BusinessEntityAssociations)
+                    {
+                        var clienteId = respuesta.BusinessEntityAssociations.FirstOrDefault(x => x.BusinessEntity.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
+                        //Construcción del objeto del cliente
+                        Cliente cliente = new Cliente()
+                        {
+                            Den = item.BusinessEntity.BusinessEntityName != null ? item.BusinessEntity.BusinessEntityName : item.BusinessEntity.BusinessEntityShortName,
+                            Codsyn = item.BusinessEntity.BusinessEntityId.Id.Value.ToString()
+                        };
+                        //Obtención de código del cliente
+                        Cliente? c = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                            .DefaultIfEmpty()
+                            .FirstOrDefault();
+                        //Si el cliente no es nulo 
+                        if (c != null)
+                        {
+                            
+                            foreach (var items in item.BusinessEntity.Destinations)
+                            {
+                                //Construcción del objeto del Destino 
+                                Destino destino = new Destino()
+                                {
+                                    Den = items.DestinationName,
+                                    Codsyn = items.DestinationId.Id.Value.ToString(),
+                                    Codcte = c.Cod, 
+                                    Activo = items.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Dir = items.Address.Address1,
+                                    Ciu = items.Address.City,
+                                    Est = items.Address.State != null ? items.Address.State : "N/A",
+                                };
+                                //Obtención del Cod del Destino 
+                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
+                                    .DefaultIfEmpty()
+                                    .FirstOrDefault();
+                                //Si el destino esta activo 
+                                if (destino.Activo == true)
+                                {
+                                    //Si el destino no es nulo
+                                    if (d != null)
+                                    {
+                                        Debug.WriteLine($"activo: {destino.Codsyn}");
+                                        //Activa el destino
+                                        d.Den = destino.Den;
+                                        d.Activo = destino.Activo;
+                                        //d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        context.Update(d);
+                                    }
+                                    else
+                                    {
+                                        //Agrega un nuevo destino 
+                                        context.Add(destino);
+                                    }
+                                }
+                                else
+                                {
+                                    //Actualiza el destino
+                                  
+                                    var cod = context.Destino.Where(x => x.Cod == destino.Cod)
+                                        .DefaultIfEmpty()
+                                        .FirstOrDefault();
+                                    if (cod != null)
+                                    {
+                                        var dinactivo = context.Destino.Find(cod.Cod);
+                                        if (dinactivo != null)
+                                        {
+                                            dinactivo.Activo = false;
+                                            context.Update(dinactivo);
+                                        }
+
+                                    }
+                                }
+
+                            }
+                            context.Update(c);
+                        }
+                        else
+                        {
+                            //Obtención del código del cliente
+                            Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                                .DefaultIfEmpty()
+                                .FirstOrDefault();
+                            foreach (var itemss in item.BusinessEntity.Destinations)
+                            {
+                                //Construcción del objeto del Destino
+                                Destino destino = new Destino()
+                                {
+                                    Den = itemss.DestinationName,
+                                    Codsyn = itemss.DestinationId.Id.Value.ToString(),
+                                    Codcte = cli?.Cod,
+                                    Activo = itemss.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Dir = itemss.Address.Address1,
+                                    Ciu = itemss.Address.City,
+                                    Est = itemss.Address.State != null ? itemss.Address.State : "N/A",
+                                };
+                                //Obtención del code del destino 
+                                Destino? d = context.Destino.Where(x => x.Cod == destino.Cod)
+                                   .DefaultIfEmpty()
+                                   .FirstOrDefault();
+                                //Si el destino esta activo
+                                if (destino.Activo == true)
+                                {
+                                    //Si el destino no es nulo 
+                                    if (d != null)
+                                    {
+                                        Debug.WriteLine($"activo: {destino.Cod}");
+                                        //Activa el destino
+                                        d.Den = destino.Den;
+                                        d.Activo = destino.Activo;
+                                        //d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        context.Update(d);
+                                    }
+                                    else
+                                    {
+                                        //Agrega un nuevo destino 
+                                        context.Add(destino);
+                                    }
+                                }
+                                else
+                                {
+                                    //Actualiza el destino
+                                    Debug.WriteLine($"inactivo: {destino.Cod}");
+                                    var cod = context.Destino.Where(x => x.Cod == destino.Cod)
+                                        .DefaultIfEmpty()
+                                        .FirstOrDefault();
+                                    if (cod != null)
+                                    {
+                                        var dinactivo = context.Destino.Find(cod.Cod);
+                                        if (dinactivo != null)
+                                        {
+                                            dinactivo.Activo = false;
+                                            context.Update(dinactivo);
+                                        }
+
+                                    }
+                                }
+                            }
+                            //Se agrega el cliente
+                            context.Add(cliente);
+                        }
+                    }
+
+                    await context.SaveChangesAsync();
                 }
                 catch (Exception e)
                 {
