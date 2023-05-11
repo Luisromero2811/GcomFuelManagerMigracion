@@ -1,0 +1,85 @@
+﻿<h4><b>Asignar Destino</b></h4>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <h5>Buscar destino</h5>
+                <div class="col-12 mb-4 row">
+                    <div class="col-12 mb-4 row">
+                        @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
+                        <div class="col">
+                            <label>Cliente:</label>
+                            <RadzenDropDown @bind-Value="ClienteDSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                <Template>
+                                    @((context as Cliente)?.Den)
+                                </Template>
+                                <ValueTemplate>
+                                    @((context as Cliente)?.Den)
+                                </ValueTemplate>
+                            </RadzenDropDown>
+                        </div>
+                        @*</AuthorizeView>*@
+                        <AuthorizeView Roles="Admin, Administrador Sistema">
+                            <div class="col">
+                                <label>Destino:</label>
+                                <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
+                                                AllowVirtualization="true" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                    @*<Template>
+                                    @((context as CodDenDTO)?.Den)
+                                    </Template>
+                                    <ValueTemplate>
+                                    @((context as CodDenDTO)?.Den)
+                                    </ValueTemplate>*@
+                                </RadzenDropDown>
+                            </div>
+                        </AuthorizeView>
+
+                    </div>
+                    <div class="col-12 mb-3 d-flex justify-content-center">
+                        @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">*@
+                        <div class="col d-flex mt-auto">
+                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente">
+                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
+                            </button>
+                        </div>
+                        @*</AuthorizeView>*@
+                        <AuthorizeView Roles="Admin, Administrador Sistema">
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarDestinosClientes">
+                                    <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                                </button>
+                            </div>
+                        </AuthorizeView>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+@code {
+    [Parameter] public Cliente ClienteDSeleccionado { get; set; } = new Cliente();
+    [Parameter] public CodDenDTO DestinoSeleccionado { get; set; } = new CodDenDTO();
+    [Parameter] public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
+    [Parameter] public IEnumerable<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+    [Parameter] public EventCallback GetDestinosCliente { get; set; }
+    [Parameter] public EventCallback AsignarDestinosClientes { get; set; }
+    [Parameter] public IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
+    [Parameter] public RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
+    [Parameter] public bool loading { get; set; }
+
+}

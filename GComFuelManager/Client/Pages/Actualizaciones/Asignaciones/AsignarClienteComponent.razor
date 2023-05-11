@@ -1,0 +1,122 @@
+﻿<h4><b>Asignar Cliente</b></h4>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Admin">
+                    <h5>Agregar grupo</h5>
+                    <div class="col-12 row mb-3">
+                        <div class="col-md-6 col">
+                            <label>Nombre:</label>
+                            <InputText @bind-Value="@Grupo.Den" class="form-control" />
+                        </div>
+                        <div class="col-md-5 col">
+                            <label class="">Tipo de Venta</label>
+                            <InputSelect @bind-Value="Grupo.Tipven" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (TpVenta is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (TpVenta.Count == 0)
+                                {
+                                    <option disabled> No hay capacidades</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in TpVenta)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="col d-flex mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@CreateGrupos">
+                                <i class="fa fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </AuthorizeView>
+                <hr />
+                <div class="col-12 mb-4 row">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Gruposss">
+                        <div class="col">
+                            <label>Grupo:</label>
+                            <RadzenDropDown @bind-Value="GrupoSeleccionado" TValue="Grupo" Data="Grupos" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                @*<Template>
+                                @((context as Grupo)?.Den)
+                                </Template>
+                                <ValueTemplate>
+                                @((context as Grupo)?.Den)
+                                </ValueTemplate>*@
+                            </RadzenDropDown>
+                        </div>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="Cli">
+                        <div class="col">
+                            <label>Cliente:</label>
+                            <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                @*<Template>
+                                @((context as Cliente)?.Den)
+                                </Template>
+                                <ValueTemplate>
+                                @((context as Cliente)?.Den)
+                                </ValueTemplate>*@
+                            </RadzenDropDown>
+                        </div>
+                    </AuthorizeView>
+                </div>
+                <div class="col-12 mb-3 d-flex justify-content-center">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="BuscarClientes">
+                        <div class="col d-flex mt-auto">
+                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes">
+                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
+                            </button>
+                        </div>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="BotonCli">
+                        <div class="col d-flex mt-auto">
+                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarClientesGroup">
+                                <i class="fa fa-solid fa-plus"></i> Agregar Cliente
+                            </button>
+                        </div>
+                    </AuthorizeView>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="1" />
+                <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="2" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+@code {
+    [Parameter] public List<string> TpVenta { get; set; } = new List<string>();
+    [Parameter] public EventCallback CreateGrupos { get; set; }
+    [Parameter] public IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
+    [Parameter] public EventCallback GetClientes { get; set; }
+    [Parameter] public EventCallback AsignarClientesGroup { get; set; }
+    [Parameter] public Grupo GrupoSeleccionado { get; set; } = null!;
+    [Parameter] public Cliente ClienteSeleccionado { get; set; } = null!;
+    [Parameter] public Grupo Grupo { get; set; } = new Grupo();
+    [Parameter] public IList<Grupo> Grupos { get; set; } = new List<Grupo>();
+    [Parameter] public bool loading { get; set; }
+    [Parameter] public RadzenDataGrid<Cliente> grid { get; set; } = new RadzenDataGrid<Cliente>();
+    [Parameter] public IEnumerable<Cliente> Clientes { get; set; } = new List<Cliente>();
+}
