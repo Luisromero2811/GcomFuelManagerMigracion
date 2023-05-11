@@ -5,188 +5,21 @@
 @inject IJSRuntime js
 @inject NotificationService ms
 
-<h4><b>Asignar Cliente</b></h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
-    <div class="col-12 d-flex justify-content-center">
-        <div class="col-10 card shadow-sm">
-            <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Admin">
-                    <h5>Agregar grupo</h5>
-                    <div class="col-12 row mb-3">
-                        <div class="col-md-6 col">
-                            <label>Nombre:</label>
-                            <InputText @bind-Value="@Grupo.Den" class="form-control" />
-                        </div>
-                        <div class="col-md-5 col">
-                            <label class="">Tipo de Venta</label>
-                            <InputSelect @bind-Value="Grupo.Tipven" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (TpVenta is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (TpVenta.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in TpVenta)
-                                    {
-                                        <option value="@item">@item</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col d-flex mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@CreateGrupos">
-                                <i class="fa fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </AuthorizeView>
-                <hr />
-                <div class="col-12 mb-4 row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Gruposss">
-                        <div class="col">
-                            <label>Grupo:</label>
-                            <RadzenDropDown @bind-Value="GrupoSeleccionado" TValue="Grupo" Data="Grupos" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                @*<Template>
-                                        @((context as Grupo)?.Den)
-                                    </Template>
-                                    <ValueTemplate>
-                                        @((context as Grupo)?.Den)
-                                    </ValueTemplate>*@
-                            </RadzenDropDown>
-                        </div>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="Cli">
-                        <div class="col">
-                            <label>Cliente:</label>
-                            <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                @*<Template>
-                                        @((context as Cliente)?.Den)
-                                    </Template>
-                                    <ValueTemplate>
-                                        @((context as Cliente)?.Den)
-                                    </ValueTemplate>*@
-                            </RadzenDropDown>
-                        </div>
-                    </AuthorizeView>
-                </div>
-                <div class="col-12 mb-3 d-flex justify-content-center">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="BuscarClientes">
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
-                            </button>
-                        </div>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="BotonCli">
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarClientesGroup">
-                                <i class="fa fa-solid fa-plus"></i> Agregar Cliente
-                            </button>
-                        </div>
-                    </AuthorizeView>
-                </div>
-            </div>
+<RadzenTabs>
+    <Tabs>
+        <RadzenTabsItem Text="Asignar Cliente - Grupo">
+            <AsignarClienteComponent Grupo="Grupo" AsignarClientesGroup="AsignarClientesGroup" ClienteSeleccionado="ClienteDSeleccionado" TpVenta="TpVenta"
+                                     ClientesGrupo="ClientesGrupo" CreateGrupos="CreateGrupos" GetClientes="GetClientes" Grupos="Grupos" GrupoSeleccionado="GrupoSeleccionado"
+                                     Clientes="Clientes" grid="grid" loading="loading"></AsignarClienteComponent>
+        </RadzenTabsItem>
+        <RadzenTabsItem Text="Asignar Cliente - Grupo">
+            <AsignacionDestinoComponent AsignarDestinosClientes="AsignarDestinosClientes" ClienteDSeleccionado="ClienteDSeleccionado" ClientesGrupo="ClientesGrupo"
+                                        DestinoClientes="DestinoClientes" Destinos="Destinos" DestinoSeleccionado="DestinoSeleccionado" GetDestinosCliente="GetDestinosCliente"
+                                        gridDestino="gridDestino" loading="loading"></AsignacionDestinoComponent>
+        </RadzenTabsItem>
 
-
-        </div>
-    </div>
-</AuthorizeView>
-
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
-    <div class="col-12 d-flex justify-content-center">
-        <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true">
-            <Columns>
-                <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="1" />
-                <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="2" />
-            </Columns>
-        </RadzenDataGrid>
-    </div>
-</AuthorizeView>
-<h4><b>Asignar Destino</b></h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
-    <div class="col-12 d-flex justify-content-center">
-        <div class="col-10 card shadow-sm">
-            <div class="col-12 row card-body">
-                <h5>Buscar destino</h5>
-                <div class="col-12 mb-4 row">
-                    <div class="col-12 mb-4 row">
-                        @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
-                        <div class="col">
-                            <label>Cliente:</label>
-                            <RadzenDropDown @bind-Value="ClienteDSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                <Template>
-                                    @((context as Cliente)?.Den)
-                                </Template>
-                                <ValueTemplate>
-                                    @((context as Cliente)?.Den)
-                                </ValueTemplate>
-                            </RadzenDropDown>
-                        </div>
-                        @*</AuthorizeView>*@
-                        <AuthorizeView Roles="Admin, Administrador Sistema">
-                            <div class="col">
-                                <label>Destino:</label>
-                                <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                    @*<Template>
-                                            @((context as CodDenDTO)?.Den)
-                                        </Template>
-                                        <ValueTemplate>
-                                            @((context as CodDenDTO)?.Den)
-                                        </ValueTemplate>*@
-                                </RadzenDropDown>
-                            </div>
-                        </AuthorizeView>
-
-                    </div>
-                    <div class="col-12 mb-3 d-flex justify-content-center">
-                        @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">*@
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
-                            </button>
-                        </div>
-                        @*</AuthorizeView>*@
-                        <AuthorizeView Roles="Admin, Administrador Sistema">
-                            <div class="col d-flex mt-auto">
-                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarDestinosClientes">
-                                    <i class="fa fa-solid fa-plus"></i> Agregar Destino
-                                </button>
-                            </div>
-                        </AuthorizeView>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</AuthorizeView>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
-    <div class="col-12 d-flex justify-content-center">
-        <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>gridDestino!.Reset())"
-                        IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
-            <Columns>
-                <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
-            </Columns>
-        </RadzenDataGrid>
-    </div>
-</AuthorizeView>
-
+    </Tabs>
+</RadzenTabs>
 
 <style type="text/css" media="screen and (min-width:1200px)">
     .ancho {
@@ -379,7 +212,7 @@
             }
             else
             {
-                ClienteSeleccionado.Codgru = GrupoSeleccionado.Cod;
+                ClienteSeleccionado.codgru = GrupoSeleccionado.Cod;
                 var response = await http.Post<Cliente>($"api/grupo/cliente", ClienteSeleccionado);
                 if (response.Error)
                 {

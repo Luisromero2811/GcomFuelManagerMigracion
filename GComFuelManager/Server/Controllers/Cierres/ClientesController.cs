@@ -73,7 +73,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Codgru == cod).AsEnumerable().OrderBy(x => x.Den);
+                var clientes = context.Cliente.Where(x => x.codgru == cod).AsEnumerable().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -116,7 +116,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     return BadRequest();
                 }
 
-                cliente.Grupo = null;
+                //cliente.Grupo = null;
 
                 context.Update(cliente);
                 await context.SaveChangesAsync();
@@ -142,7 +142,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 var folio = cliente.CodCte != null ? cliente.CodCte + Convert.ToString(cliente.Consecutivo) : string.Empty;
 
-                cliente.Grupo = null!;
+                //cliente.Grupo = null!;
 
                 context.Update(cliente);
                 await context.SaveChangesAsync();
@@ -191,7 +191,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
-                   //Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
+                    //Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
 
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
@@ -209,7 +209,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         //Si el cliente no es nulo 
                         if (c != null)
                         {
-                            
+                            context.Update(c);
                             foreach (var items in item.BusinessEntity.Destinations)
                             {
                                 //Construcción del objeto del Destino 
@@ -217,7 +217,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 {
                                     Den = items.DestinationName,
                                     Codsyn = items.DestinationId.Id.Value.ToString(),
-                                    Codcte = c.Cod, 
+                                    Codcte = c.Cod,
                                     Activo = items.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
                                     Dir = items.Address.Address1,
                                     Ciu = items.Address.City,
@@ -233,11 +233,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {destino.Codsyn}");
+                                        Debug.WriteLine($"activo: {d.Cod}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
-                                        //d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        d.Est = string.IsNullOrEmpty(destino.Est) ? string.Empty : destino.Est;
+                                        d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
+                                        d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
+                                        d.Codcte = destino.Codcte;
                                         context.Update(d);
                                     }
                                     else
@@ -249,27 +253,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 else
                                 {
                                     //Actualiza el destino
-                                  
-                                    var cod = context.Destino.Where(x => x.Cod == destino.Cod)
+
+                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)
                                     {
-                                        var dinactivo = context.Destino.Find(cod.Cod);
-                                        if (dinactivo != null)
-                                        {
-                                            dinactivo.Activo = false;
-                                            context.Update(dinactivo);
-                                        }
-
+                                        cod.Activo = false;
+                                        context.Update(cod);
                                     }
                                 }
 
                             }
-                            context.Update(c);
                         }
                         else
                         {
+                            context.Add(cliente);
+                            await context.SaveChangesAsync();
                             //Obtención del código del cliente
                             Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
                                 .DefaultIfEmpty()
@@ -288,7 +288,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Est = itemss.Address.State != null ? itemss.Address.State : "N/A",
                                 };
                                 //Obtención del code del destino 
-                                Destino? d = context.Destino.Where(x => x.Cod == destino.Cod)
+                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
                                    .DefaultIfEmpty()
                                    .FirstOrDefault();
                                 //Si el destino esta activo
@@ -297,11 +297,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo 
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {destino.Cod}");
+                                        Debug.WriteLine($"activo: {d.Cod}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
-                                        //d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        d.Codsyn = string.IsNullOrEmpty(d.Codsyn) ? string.Empty : d.Codsyn;
+                                        d.Est = string.IsNullOrEmpty(destino.Est) ? string.Empty : destino.Est;
+                                        d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
+                                        d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
+                                        d.Codcte = destino.Codcte;
                                         context.Update(d);
                                     }
                                     else
@@ -314,27 +318,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 {
                                     //Actualiza el destino
                                     Debug.WriteLine($"inactivo: {destino.Cod}");
-                                    var cod = context.Destino.Where(x => x.Cod == destino.Cod)
+                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)
                                     {
-                                        var dinactivo = context.Destino.Find(cod.Cod);
-                                        if (dinactivo != null)
-                                        {
-                                            dinactivo.Activo = false;
-                                            context.Update(dinactivo);
-                                        }
 
+                                        cod.Activo = false;
+                                        context.Update(cod);
                                     }
                                 }
                             }
                             //Se agrega el cliente
-                            context.Add(cliente);
                         }
                     }
 
                     await context.SaveChangesAsync();
+                    return Ok(true);
                 }
                 catch (Exception e)
                 {
