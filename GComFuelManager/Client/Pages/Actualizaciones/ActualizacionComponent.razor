@@ -204,6 +204,7 @@
         }
         catch (Exception e)
         {
+            updateData = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
