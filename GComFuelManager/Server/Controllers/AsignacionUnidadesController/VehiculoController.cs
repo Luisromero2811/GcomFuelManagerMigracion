@@ -8,18 +8,20 @@ using System.Diagnostics;
 using System.ServiceModel;
 using ServiceReference1;
 using Newtonsoft.Json;
+using GComFuelManager.Shared.Modelos;
+using System.Numerics;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	public class VehiculoController : ControllerBase
-	{
+    public class VehiculoController : ControllerBase
+    {
         private readonly ApplicationDbContext context;
 
         public VehiculoController(ApplicationDbContext context)
-		{
+        {
             this.context = context;
         }
         [HttpGet("{transportista:int}")]
@@ -46,6 +48,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+
                 VehicleServiceClient client = new VehicleServiceClient(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
@@ -54,8 +57,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 try
                 {
                     var svc = client.ChannelFactory.CreateChannel();
-                    
-                    ServiceReference1.WsGetVehiclesRequest getReq = new ServiceReference1.WsGetVehiclesRequest();
+
+                    WsGetVehiclesRequest getReq = new WsGetVehiclesRequest();
 
                     //Pendientes
 
@@ -75,9 +78,74 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.IncludeVehicleCompartments = new ServiceReference1.NBool();
                     getReq.IncludeVehicleCompartments.Value = true;
 
-                    var respuesta = client.GetVehiclesAsync(getReq);
+                    var respuesta = await svc.GetVehiclesAsync(getReq);
 
                     Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
+
+                    Transportista transportista = new Transportista();
+                    //Obtenemos el CarrID del transportista 
+                    transportista = context.Transportista
+                        .Where(x => x.Den == transportista.Den)
+                        .DefaultIfEmpty()
+                        .FirstOrDefault();
+
+                    long carrierId;
+    
+                    foreach (var item in respuesta.Vehicles)
+                    {
+                        carrierId = item.CarrierId.Id.Value;
+
+                        if (carrierId == (long)Convert.ToDouble(transportista.CarrId))
+                        {                            
+                            //Creamos el objeto del Tonel
+                            Tonel tonel = new Tonel()
+                            {
+                                Placa = item.RegistrationNumber.Trim(),
+                                Tracto = item.VehicleCode.Trim(),
+                                //Placatracto = item.RfiTagId.Trim(),
+                                Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
+                                Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
+                                Carid = item.CarrierId.Id.Value.ToString()
+                            };
+                            //Obtenemos el code del tonel
+                            Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
+                                .DefaultIfEmpty()
+                                .FirstOrDefault();
+                            //Si el tone esta activo
+                            if (tonel.Activo == true)
+                            {
+                                //Si el tonel no es nulo lo actualimos
+                                if (t != null)
+                                {
+                                    t.Placa = item.RegistrationNumber.Trim();
+                                    t.Tracto = item.VehicleCode.Trim();
+                                    //t.Placatracto = item.RfiTagId.Trim();
+                                    t.Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "";
+                                    t.Codsyn = Convert.ToInt32(item.VehicleId.Id.Value);
+                                    t.Carid = item.CarrierId.Id.Value.ToString();
+                                    context.Update(t);
+                                }
+                                //Sino le agregamos un nuevo tonel
+                                else
+                                {
+                                    context.Add(tonel);
+                                }
+                            }
+                            else
+                            {
+                                //Actualizamos el campo activo del tonel
+                                var cod = context.Tonel.Where(x => x.Codsyn == tonel.Codsyn)
+                                    .DefaultIfEmpty()
+                                    .FirstOrDefault();
+                                if (cod != null)
+                                {
+                                    cod.Activo = false;
+                                    context.Update(cod);
+                                }
+                            }
+                        }
+
+                    }
                 }
                 catch (Exception e)
                 {

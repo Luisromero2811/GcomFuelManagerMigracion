@@ -252,7 +252,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 }
                                 else
                                 {
-                                    //Actualiza el destino
+                                    //Actualiza el campo activo del destino
 
                                     var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                         .DefaultIfEmpty()
@@ -316,7 +316,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 }
                                 else
                                 {
-                                    //Actualiza el destino
+                                    //Actualiza el campo activo del destino
                                     Debug.WriteLine($"inactivo: {destino.Cod}");
                                     var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                         .DefaultIfEmpty()

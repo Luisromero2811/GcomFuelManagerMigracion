@@ -153,7 +153,7 @@
             {
                 Severity = NotificationSeverity.Info,
                 Summary = "Actualizando Transportistas",
-                Detail = "Los registros de los trasportistas se estan actualizando. Esto podria tardar un tiempo.\n Permanezca en esta pantalla hasta finalizar el proceso.",
+                Detail = "Los registros de los transportistas se estan actualizando. Esto podria tardar un tiempo.\n Permanezca en esta pantalla hasta finalizar el proceso.",
                 Duration = 15000
             });
             updateData = true;
@@ -184,7 +184,7 @@
             ns.Notify(new NotificationMessage
             {
                 Severity = NotificationSeverity.Info,
-                Summary = "Actualizando CLientes/Destinos",
+                Summary = "Actualizando Clientes/Destinos",
                 Detail = "Los registros de los clientes y destinos se estan actualizando. Esto podria tardar un tiempo. \n Permanezca en esta pantalla hasta finalizar el proceso.",
                 Duration = 16000
             });
@@ -236,6 +236,7 @@
         }
         catch (Exception e)
         {
+            updateData = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
@@ -267,6 +268,7 @@
         }
         catch (Exception e)
         {
+            updateData = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
