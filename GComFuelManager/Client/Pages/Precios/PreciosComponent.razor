@@ -16,11 +16,17 @@
                             <div class="form-label">
                                 <label class="form-label">Importar:</label>
                             </div>
+                            @if (radzenUpload.HasValue)
+                            {
+                                <p>Progreso: @Progress %</p>
+                            }
                             <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload"
-                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" />
+                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
+                                <RadzenUploadHeader Name="Authorization" Value="@Token" />
+                            </RadzenUpload>
                         </div>
                         <div class="col-2 d-flex">
-                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@(()=>radzenUpload!.Upload())"> <i class="fa-solid fa-upload"></i> subir</button>
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile"> <i class="fa-solid fa-upload"></i> subir</button>
 
                         </div>
                     </div>
@@ -89,23 +95,46 @@
                                 }
                             </InputSelect>
                         </div>
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Destino</label>
+                                <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
+                                    <option>-- Seleccione una opcion</option>
+                                    @if (Destinos == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Destinos.Count == 0)
+                                    {
+                                        <option>No hay productos.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Destinos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">Producto</label>
                             <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
                                 <option>-- Seleccione una opcion</option>
-                                @if (Productos == null)
+                                @if (precios == null)
                                 {
                                     <option>Cargando...</option>
                                 }
-                                else if (Productos.Count == 0)
+                                else if (precios.Count == 0)
                                 {
                                     <option>No hay productos.</option>
                                 }
                                 else
                                 {
-                                    @foreach (var item in Productos)
+                                    @foreach (var item in precios)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option value="@item.Producto!.Cod">@item.Producto.Den</option>
                                     }
                                 }
                             </InputSelect>
@@ -116,7 +145,7 @@
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">Precio</label>
-                            <InputNumber TValue="float" @bind-Value="Precio.pre" class="form-control col-12" />
+                            <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
                         </div>
                         <div class="col-12 d-flex justify-content-center">
                             <div class="col-4">
@@ -152,7 +181,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Precio" Title="Fecha" Filterable="false" Property="FchDia" FormatString="{0:d}" />
                     <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Precio" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate Context="filter">
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -224,8 +253,12 @@
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
 
+    private string Token { get; set; } = string.Empty;
+
     private int GrupoSeleccionado = 0;
     private int ClienteSeleccionado = 0;
+
+    private int Progress = 0;
 
     bool loadingUpload = false;
     bool loading = false;
@@ -241,13 +274,16 @@
         await GetPrecios();
         await GetGrupos();
         await GetZonas();
+
+        Token = "Bearer " + await js.GetItemLocalStorage("TOKENKEY");
     }
 
     private void OnProgress(UploadProgressArgs e)
     {
         try
         {
-            Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
+            //Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
+            Progress = e.Progress;
         }
         catch (Exception)
         {
@@ -343,7 +379,6 @@
         }
     }
 
-
     private async Task GetZonas()
     {
         try
@@ -428,6 +463,8 @@
                 else
                 {
                     Destinos = response.Response;
+                    StateHasChanged();
+                    ClienteSeleccionado = Precio.codCte;
                 }
             }
         }
@@ -470,6 +507,39 @@
         catch (Exception e)
         {
             loadingSave = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task UploadFile()
+    {
+        try
+        {
+            if (radzenUpload.HasValue)
+            {
+                await radzenUpload.Upload();
+            }else{
+                await Swal.FireAsync("Alerta", "Seleccione un archivo con formato excel para poder subirlo.", SweetAlertIcon.Warning);
+
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task HandlerErrorUpload(Radzen.UploadErrorEventArgs ex)
+    {
+        try
+        {
+            await Swal.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+            Progress = 0;
+        }
+        catch (Exception e)
+        {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }

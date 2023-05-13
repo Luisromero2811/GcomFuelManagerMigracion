@@ -243,46 +243,80 @@
 
                                 <div class="col-4 mb-1">
                                     <div class="col-12">
-                                        <label class="form-label">Producto</label>
-                                        <RadzenDropDown Data="Productos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodPrd"
-                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                        AllowVirtualization="true" />
-                                    </div>
-                                </div>
-
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
                                         <label class="form-label">Destino</label>
-                                        <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
-                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                        AllowVirtualization="true" />
-                                    </div>
-                                </div>
-
-                                @if(!IsDifferentVol){
-                                    <div class="col-2 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Volumen</label>
-                                        <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
+                                        @*<RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
+                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        AllowVirtualization="true" />*@
+                                        <InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" onchange="@GetPrecios()">
                                             <option>-- Selecciona una opcion --</option>
-                                            @if (Cantidades is null)
+                                            @if (Destino is null)
                                             {
                                                 <option disabled> Cargando ...</option>
                                             }
-                                            else if (Cantidades.Count == 0)
+                                            else if (Destino.Count == 0)
                                             {
                                                 <option disabled> No hay capacidades</option>
                                             }
                                             else
                                             {
-                                                foreach (var item in Cantidades)
+                                                foreach (var item in Destino)
                                                 {
-                                                    <option value="@item">@item</option>
+                                                    <option value="@item.Cod">@item.Den</option>
                                                 }
                                             }
                                         </InputSelect>
                                     </div>
-                                </div>                                    
+                                </div>
+
+                                <div class="col-4 mb-1">
+                                    <div class="col-12">
+                                        <label class="form-label">Producto</label>
+                                        <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select" onchange="@ChangeProducto()">
+                                            <option>-- Selecciona una opcion --</option>
+                                            @if (Precios is null)
+                                            {
+                                                <option disabled> Cargando ...</option>
+                                            }
+                                            else if (Precios.Count == 0)
+                                            {
+                                                <option disabled> No hay Productos</option>
+                                            }
+                                            else
+                                            {
+                                                foreach (var item in Precios)
+                                                {
+                                                    <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
+                                                }
+                                            }
+                                        </InputSelect>
+                                    </div>
+                                </div>
+
+                                @if (!IsDifferentVol)
+                                {
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (Cantidades is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (Cantidades.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in Cantidades)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    </div>
                                 }
 
                                 @if (IsDifferentVol)
@@ -297,7 +331,7 @@
 
                                 <div class="col-2 mb-1 d-flex">
                                     <div class="col-12 my-auto d-flex">
-                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2"/>
+                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
                                         <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
                                             <label class="form-label" for="CheckBox1">
                                                 Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -308,8 +342,12 @@
 
                                 <div class="col-4 mb-1">
                                     <div class="col-12">
-                                        <label class="form-label">Precio</label>
-                                        <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" />
+                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
+                                            <label class="form-label">
+                                                Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                            </label>
+                                        </div>
+                                        <RadzenNumeric class="form-control col-12 disabled" @bind-Value="ordenCierre.Precio" Disabled="true" />
                                     </div>
                                 </div>
 
@@ -505,10 +543,10 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
@@ -540,11 +578,11 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
             </RadzenDataGrid>
@@ -603,6 +641,8 @@
 
     private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrga" };
 
+    private List<Precio> Precios { get; set; } = new List<Precio>();
+
     Contacto Contacto { get; set; } = new Contacto();
     IEnumerable<Contacto> Contactos = new List<Contacto>();
 
@@ -613,7 +653,9 @@
 
     private int GrupoSeleccionado = 0;
     private int ClienteSeleccionado = 0;
+    private int? DestinoSeleccionado = 0;
     private int? VolumenTotal = 0;
+    private byte? CodProductoSeleccionado = 0;
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
@@ -625,10 +667,11 @@
     bool isFilter = false;
     bool loadingExport = false;
     bool loadingSend = false;
-    bool IsClient = true;
+    bool IsClient = false;
     bool IsDifferentVol = false;
     ElementReference infoIcon;
     ElementReference infoIconVolumen;
+    ElementReference infoPrecio;
 
     protected override async Task OnInitializedAsync()
     {
@@ -648,7 +691,7 @@
                 }
                 await GetGrupos();
                 await GetYears();
-                await GetEstaciones();
+                //await GetEstaciones();
             }
             else
             {
@@ -666,6 +709,7 @@
 
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
+    void ShowTooltipPrecio(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El precio se llenara automaticamente al seleccionar el producto.", options);
 
     private async Task GetData()
     {
@@ -1339,6 +1383,51 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task GetPrecios()
+    {
+        try
+        {
+            if(ordenCierre.CodDes != DestinoSeleccionado && ordenCierre.CodDes != null){
+                ZonaCliente zonaCliente = new ZonaCliente();
+                zonaCliente.desCod = ordenCierre.CodDes;
+                zonaCliente.cteCod = ordenCierre.CodCte;
+
+                var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Precios = response.Response;
+                    DestinoSeleccionado = ordenCierre.CodDes;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ChangeProducto()
+    {
+        try
+        {
+            if(ordenCierre.CodPrd != CodProductoSeleccionado && ordenCierre.CodPrd != null){
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto.Cod == ordenCierre.CodPrd).Pre;
+                CodProductoSeleccionado = ordenCierre.CodPrd;
+                Console.WriteLine("precio");
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

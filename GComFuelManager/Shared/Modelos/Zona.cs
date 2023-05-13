@@ -14,6 +14,6 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cod"), Key] public int Cod { get; set; }
         [JsonProperty("nombre")] public string Nombre { get; set; } = string.Empty;
 
-        [NotMapped] public ZonaCliente ZonaCliente { get; set; } = null!;
+        [NotMapped] public ZonaCliente? ZonaCliente { get; set; } = null!;
     }
 }

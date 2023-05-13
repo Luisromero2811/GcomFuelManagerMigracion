@@ -38,7 +38,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("lon"), MaxLength(50)]
         public string? Lon { get; set; } = string.Empty;
         [JsonProperty("codciu")]
-        public int? Codciu { get; set; } = 0;
+        public Int16? Codciu { get; set; } = 0;
         [JsonProperty("ciu"), MaxLength(50)]
         public string? Ciu { get; set; } = string.Empty;
         [JsonProperty("est"), MaxLength(50)]
