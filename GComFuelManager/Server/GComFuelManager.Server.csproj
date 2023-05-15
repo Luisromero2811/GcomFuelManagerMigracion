@@ -61,5 +61,6 @@
     <Folder Include="Controllers\SeguimientoOrdenController\" />
     <Folder Include="Controllers\ETAController\" />
     <Folder Include="Controllers\UsuarioController\" />
+    <Folder Include="Files\" />
   </ItemGroup>
 </Project>

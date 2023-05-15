@@ -1,4 +1,10 @@
-﻿<h4><b>Asignar Destino</b></h4>
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ms
+
+
+<h4><b>Cliente - Destino</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
@@ -72,14 +78,110 @@
     </div>
 </AuthorizeView>
 @code {
-    [Parameter] public Cliente ClienteDSeleccionado { get; set; } = new Cliente();
-    [Parameter] public CodDenDTO DestinoSeleccionado { get; set; } = new CodDenDTO();
-    [Parameter] public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
-    [Parameter] public IEnumerable<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
-    [Parameter] public EventCallback GetDestinosCliente { get; set; }
-    [Parameter] public EventCallback AsignarDestinosClientes { get; set; }
-    [Parameter] public IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
-    [Parameter] public RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
-    [Parameter] public bool loading { get; set; }
+    public CodDenDTO DestinoSeleccionado { get; set; } = new CodDenDTO();
+    public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
+    public IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
 
+    public IEnumerable<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+    public bool loading { get; set; } = false;
+    public Cliente ClienteDSeleccionado { get; set; } = new Cliente();
+    public RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetClientesGroup();
+        await GetDestinos();
+    }
+
+    private async Task GetDestinosCliente()
+    {
+        try
+        {
+            var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDSeleccionado.Cod}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Destinos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task AsignarDestinosClientes()
+    {
+        try
+        {
+            if (ClienteDSeleccionado == null)
+            {
+                await Swal.FireAsync("Alerta", "Seleccione un cliente.", SweetAlertIcon.Warning);
+
+            }
+            else
+            {
+                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDSeleccionado.Cod}", DestinoSeleccionado);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDSeleccionado.Den}", SweetAlertIcon.Success);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetDestinos()
+    {
+        try
+        {
+            var response = await http.Get<IList<CodDenDTO>>("api/estacion");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                DestinoClientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetClientesGroup()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Cliente>>($"api/clientes/all");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ClientesGrupo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

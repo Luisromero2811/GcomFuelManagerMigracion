@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -10,10 +11,13 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class ZonaCliente
     {
-        [JsonProperty("zonaCod")] public int zonaCod { get; set; }
-        [JsonProperty("cteCod")] public int cteCod { get; set; }
+        [Key, JsonProperty("cod")] public int Cod { get; set; }
+        [JsonProperty("zonaCod")] public int? ZonaCod { get; set; }
+        [JsonProperty("cteCod")] public int? CteCod { get; set; }
+        [JsonProperty("desCod")] public int? DesCod { get; set; }
 
-        [NotMapped] public Cliente Cliente { get; set; } = null!;
-        [NotMapped] public Zona Zona { get; set; } = null!;
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped] public Zona? Zona { get; set; } = null!;
+        [NotMapped] public Destino? Destino { get; set; } = null!;
     }
 }

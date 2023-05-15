@@ -43,11 +43,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [Route("service")]
+        [Route("service/{code:long}")]
         [HttpGet]
-        public async Task<ActionResult> GetChofer()
+        public async Task<ActionResult> GetChofer([FromRoute]long code)
         {
-            Transportista tr = new Transportista();
             try
             {
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
@@ -74,127 +73,125 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.ActiveIndicator = new ServiceReference6.NEnumOfActiveIndicatorEnum();
                     getReq.ActiveIndicator.Value = ServiceReference6.ActiveIndicatorEnum.ACTIVE;
 
-                    //Faltantes -Den=Select- -Desactivar Choferes-
-
-                    tr = context.Transportista.Where(x => x.Den == tr.Den)
-                        .DefaultIfEmpty()
-                        .FirstOrDefault();
-
                     getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
                     getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
-                    getReq.AssociatedBusinessEntityId.Id.Value = (long)Convert.ToDouble(tr.Busentid);
+                    getReq.AssociatedBusinessEntityId.Id.Value = code;
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
-                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
-
                     string busEntTyp, busEntTyp2;
 
-                    foreach (var item in respuesta.BusinessEntityAssociations)
+                    if (respuesta.BusinessEntityAssociations != null)
                     {
-                        busEntTyp = item.BusinessEntity.BusinessEntityType.Value.ToString();
-                        busEntTyp2 = item.AssociatedBusinessEntity.BusinessEntityType.Value.ToString();
-
-                        if (busEntTyp == "TRUCK_DRIVER")
+                        foreach (var item in respuesta.BusinessEntityAssociations)
                         {
+                            busEntTyp = item.BusinessEntity.BusinessEntityType.Value.ToString();
+                            busEntTyp2 = item.AssociatedBusinessEntity.BusinessEntityType.Value.ToString();
 
-                            //Creacion del objeto del chofer
-                            Chofer chofer = new Chofer()
+                            if (busEntTyp == "TRUCK_DRIVER")
                             {
-                                Den = item.BusinessEntity.BusinessEntityName,
-                                Shortden = item.BusinessEntity.BusinessEntityShortName,
-                                Codtransport = Convert.ToInt32(tr.Busentid),
-                                Dricod = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
-                                Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
-                            };
-                            //Obtención del code del chofer
-                            Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
-                                .DefaultIfEmpty()
-                                .FirstOrDefault();
-                            //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
-                            if (chofer.Activo == true)
-                            {
-                                Debug.WriteLine($"activo:{chofer.Dricod}");
-                                if (c != null)
+
+                                //Creacion del objeto del chofer
+                                Chofer chofer = new Chofer()
                                 {
-                                    Debug.WriteLine($"activo: {c.Cod}");
-                                    c.Den = chofer.Den;
-                                    c.Shortden = chofer.Shortden;
-                                    //c.Codtransport = chofer.Codtransport;
-                                    c.Dricod = chofer.Dricod;
-                                    c.Activo = chofer.Activo;
-                                    context.Update(c);
+                                    Den = item.BusinessEntity.BusinessEntityName,
+                                    Shortden = item.BusinessEntity.BusinessEntityShortName,
+                                    Codtransport = Convert.ToInt32(code),
+                                    Dricod = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
+                                    Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                };
+                                //Obtención del code del chofer
+                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
+                                    .DefaultIfEmpty()
+                                    .FirstOrDefault();
+                                //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
+                                if (chofer.Activo == true)
+                                {
+                                    Debug.WriteLine($"activo:{chofer.Dricod}");
+                                    if (c != null)
+                                    {
+                                        Debug.WriteLine($"activo: {c.Cod}");
+                                        c.Den = chofer.Den;
+                                        c.Shortden = chofer.Shortden;
+                                        //c.Codtransport = chofer.Codtransport;
+                                        c.Dricod = chofer.Dricod;
+                                        c.Activo = chofer.Activo;
+                                        context.Update(c);
+                                    }
+                                    else
+                                    {
+                                        //Agrega al nuevo chofer
+                                        context.Add(chofer);
+                                    }
                                 }
                                 else
                                 {
-                                    //Agrega al nuevo chofer
-                                    context.Add(chofer);
+                                    //Actualizamos el campo activo del chofer
+                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
+                                        .DefaultIfEmpty()
+                                        .FirstOrDefault();
+                                    if (cod != null)
+                                    {
+                                        cod.Activo = false;
+                                        context.Update(cod);
+                                    }
                                 }
                             }
-                            else
+                            if (busEntTyp2 == "TRUCK_DRIVER")
                             {
-                                //Actualizamos el campo activo del chofer
-                                var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
+
+                                //Creacion del objeto del chofer
+                                Chofer chofer = new Chofer()
+                                {
+                                    Den = item.AssociatedBusinessEntity.BusinessEntityName,
+                                    Shortden = item.AssociatedBusinessEntity.BusinessEntityShortName,
+                                    Codtransport = Convert.ToInt32(code),
+                                    Dricod = item.AssociatedBusinessEntity.BusinessEntityId.Id.Value.ToString(),
+                                    Activo = item.AssociatedBusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                };
+                                //Obtención del code del chofer
+                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
-                                if (cod != null)
+                                //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
+                                if (chofer.Activo == true)
                                 {
-                                    cod.Activo = false;
-                                    context.Update(cod);
-                                }
-                            }
-                        }
-                        if (busEntTyp2 == "TRUCK_DRIVER")
-                        {
-
-                            //Creacion del objeto del chofer
-                            Chofer chofer = new Chofer()
-                            {
-                                Den = item.AssociatedBusinessEntity.BusinessEntityName,
-                                Shortden = item.AssociatedBusinessEntity.BusinessEntityShortName,
-                                Codtransport = Convert.ToInt32(tr.Busentid),
-                                Dricod = item.AssociatedBusinessEntity.BusinessEntityId.Id.Value.ToString(),
-                                Activo = item.AssociatedBusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
-                            };
-                            //Obtención del code del chofer
-                            Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
-                                .DefaultIfEmpty()
-                                .FirstOrDefault();
-                            //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
-                            if (chofer.Activo == true)
-                            {
-                                Debug.WriteLine($"activo:{chofer.Dricod}");
-                                if (c != null)
-                                {
-                                    Debug.WriteLine($"activo: {c.Cod}");
-                                    c.Den = chofer.Den;
-                                    c.Shortden = chofer.Shortden;
-                                    //c.Codtransport = chofer.Codtransport;
-                                    c.Dricod = chofer.Dricod;
-                                    c.Activo = chofer.Activo;
-                                    context.Update(c);
+                                    Debug.WriteLine($"activo:{chofer.Dricod}");
+                                    if (c != null)
+                                    {
+                                        Debug.WriteLine($"activo: {c.Cod}");
+                                        c.Den = chofer.Den;
+                                        c.Shortden = chofer.Shortden;
+                                        //c.Codtransport = chofer.Codtransport;
+                                        c.Dricod = chofer.Dricod;
+                                        c.Activo = chofer.Activo;
+                                        context.Update(c);
+                                    }
+                                    else
+                                    {
+                                        //Agrega al nuevo chofer
+                                        context.Add(chofer);
+                                    }
                                 }
                                 else
                                 {
-                                    //Agrega al nuevo chofer
-                                    context.Add(chofer);
+                                    //Actualizamos el campo activo del chofer
+                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
+                                        .DefaultIfEmpty()
+                                        .FirstOrDefault();
+                                    if (cod != null)
+                                    {
+                                        cod.Activo = false;
+                                        context.Update(cod);
+                                    }
                                 }
                             }
-                            else
-                            {
-                                //Actualizamos el campo activo del chofer
-                                var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
-                                    .DefaultIfEmpty()
-                                    .FirstOrDefault();
-                                if (cod != null)
-                                {
-                                    cod.Activo = false;
-                                    context.Update(cod);
-                                }
-                            }
-                        }
 
+                        }
+                        return Ok(true);
                     }
+                    else
+                        return BadRequest("No se encontraron operarios para este transportista");
                 }
             catch (Exception e)
             {

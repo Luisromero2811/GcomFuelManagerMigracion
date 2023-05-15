@@ -120,7 +120,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     orden.Vendedor = userSis.Den;
                     var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
                     orden.TipoVenta = cliente.Tipven;
-                    orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
+                    if (string.IsNullOrEmpty(cliente.Tipven))
+                        orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
+                    else
+                        orden.ModeloVenta = "";
                 }
 
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);

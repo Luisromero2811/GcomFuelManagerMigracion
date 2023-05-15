@@ -101,7 +101,7 @@ namespace GComFuelManager.Client.Auth
         private async Task<string> RenovarToken(string token)
         {
             Console.WriteLine("Renovando Token");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
             var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>("api/cuentas/renovarToken");
             var nuevoToken = nuevoTokenResponse.Response!;
@@ -121,7 +121,7 @@ namespace GComFuelManager.Client.Auth
         private AuthenticationState ConstruirAuthenticationState(string token)
         {
             client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("bearer", token);
+                new AuthenticationHeaderValue("Bearer", token);
             var claims = ParsearClaimsJwt(token);
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt")));
         }

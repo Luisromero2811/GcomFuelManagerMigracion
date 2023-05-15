@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -16,10 +17,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     public class DestinoController : ControllerBase 
 	{
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserToken verifyUser;
 
-        public DestinoController(ApplicationDbContext context)
+        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser)
 		{
             this.context = context;
+            this.verifyUser = verifyUser;
         }
         
         [HttpGet]
@@ -45,7 +48,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var user = context.Usuario.FirstOrDefault(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+                var userId = verifyUser.GetName(HttpContext);
+                
+                if (string.IsNullOrEmpty(userId))
+                    return BadRequest();
+
+                var user = context.Usuario.FirstOrDefault(x => x.Usu == userId);
                 if (user == null)
                     return BadRequest();
 

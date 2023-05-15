@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using GComFuelManager.Shared.DTOs;
@@ -11,6 +12,8 @@ using System.ServiceModel;
 using ServiceReference6;
 using GComFuelManager.Shared.Modelos;
 using ServiceReference3;
+using System.Text.Json;
+using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -20,10 +23,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     public class TransportistaController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly RequestToFile toFile;
 
-        public TransportistaController(ApplicationDbContext context)
+        public TransportistaController(ApplicationDbContext context, RequestToFile toFile)
         {
             this.context = context;
+            this.toFile = toFile;
         }
 
         [HttpGet]
@@ -80,10 +85,21 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.AssociatedBusinessEntityType = new ServiceReference6.NInt();
                     getReq.AssociatedBusinessEntityType.Value = 1;
 
+                    toFile.GenerateFile(JsonConvert.SerializeObject(getReq), $"Request_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
+                    
+                    toFile.GenerateFile(JsonConvert.SerializeObject(respuesta), $"Response_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+
                     //Conexion a WebService para obtener carrId del transportista 
                     WsGetTruckCarriersRequest truckRequest = new WsGetTruckCarriersRequest();
+
+                    toFile.GenerateFile(JsonConvert.SerializeObject(truckRequest), $"Request_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+
                     var truckResponse = await truck.GetTruckCarriersAsync(truckRequest);
+
+                    toFile.GenerateFile(JsonConvert.SerializeObject(truckResponse), $"Response_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+
 
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
