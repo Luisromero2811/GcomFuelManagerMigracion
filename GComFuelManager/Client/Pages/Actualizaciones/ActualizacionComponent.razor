@@ -157,7 +157,7 @@
                 Duration = 15000
             });
             updateData = true;
-            var response = await repositorio.Get<bool>("api/transportista/service");
+            var response = await repositorio.Get<bool>($"api/transportista/service/");
             if (response.Error)
             {
                 updateData = false;
@@ -221,7 +221,7 @@
                 Duration = 16000
             });
             updateData = true;
-            var respuestaHttp = await repositorio.Get<bool>("api/vehiculo/service");
+            var respuestaHttp = await repositorio.Get<bool>($"api/vehiculo/service/");
             if (respuestaHttp.Error)
             {
                 updateData = false;
@@ -253,7 +253,7 @@
                 Duration = 16000
             });
             updateData = true;
-            var respuestaHttp = await repositorio.Get<bool>("api/chofer/service");
+            var respuestaHttp = await repositorio.Get<bool>($"api/chofer/service/");
             if (respuestaHttp.Error)
             {
                 updateData = false;

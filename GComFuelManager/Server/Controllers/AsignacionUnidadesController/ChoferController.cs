@@ -74,7 +74,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.ActiveIndicator = new ServiceReference6.NEnumOfActiveIndicatorEnum();
                     getReq.ActiveIndicator.Value = ServiceReference6.ActiveIndicatorEnum.ACTIVE;
 
-                    //Faltantes
+                    //Faltantes -Den=Select- -Desactivar Choferes-
+
+                    tr = context.Transportista.Where(x => x.Den == tr.Den)
+                        .DefaultIfEmpty()
+                        .FirstOrDefault();
 
                     getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
                     getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
