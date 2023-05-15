@@ -111,7 +111,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
                                 .DefaultIfEmpty()
                                 .FirstOrDefault();
-                            //Si el tone esta activo
+                            //Si el tonel esta activo
                             if (tonel.Activo == true)
                             {
                                 //Si el tonel no es nulo lo actualimos
