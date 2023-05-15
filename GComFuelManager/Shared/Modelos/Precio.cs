@@ -13,13 +13,13 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Precio
     {
-        [Key, JsonProperty("cod"), EpplusIgnore] public byte Cod { get; set; }
+        [Key, JsonProperty("cod"), EpplusIgnore] public Int16 Cod { get; set; }
         [JsonProperty("codZona"), EpplusIgnore] public int codZona { get; set; }
         [JsonProperty("codDes"), EpplusIgnore] public int codDes { get; set; }
         [JsonProperty("codCte"), EpplusIgnore] public int codCte { get; set; }
         [JsonProperty("codGru"), EpplusIgnore] public Int16 codGru { get; set; }
         [JsonProperty("codPrd"), EpplusIgnore] public byte codPrd { get; set; }
-        [JsonProperty("pre")] public float pre { get; set; }
+        [JsonProperty("pre")] public double Pre { get; set; }
         [JsonProperty("fchActualizacion"), EpplusIgnore] public DateTime FchActualizacion { get; set; } = DateTime.Now;
         [JsonProperty("fchDia"), EpplusIgnore] public DateTime FchDia { get; set; } = DateTime.Now;
         [JsonProperty("fecha"), DisplayName("Fecha")]
@@ -38,15 +38,15 @@ namespace GComFuelManager.Shared.Modelos
                 return FchDia.ToString("dd/MM/yyyy");
             }
         }
-        [NotMapped, DisplayName("Zona")] public string? NombreZona { get { return Zona.Nombre; } }
-        [NotMapped, DisplayName("Cliente")] public string? NombreCliente { get { return Cliente.Den; } }
-        [NotMapped, DisplayName("Producto")] public string? NombreProducto { get { return Producto.Den; } }
+        [NotMapped, DisplayName("Zona")] public string? NombreZona { get { return Zona?.Nombre; } }
+        [NotMapped, DisplayName("Cliente")] public string? NombreCliente { get { return Cliente?.Den; } }
+        [NotMapped, DisplayName("Producto")] public string? NombreProducto { get { return Producto?.Den; } }
 
         [JsonProperty("Activo"), EpplusIgnore] public bool Activo { get; set; } = true;
 
-        [NotMapped, EpplusIgnore] public Zona Zona { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Cliente Cliente { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Producto Producto { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Zona? Zona { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
     }
 }

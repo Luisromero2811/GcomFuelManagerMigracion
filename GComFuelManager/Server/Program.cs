@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Server;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -47,6 +48,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
+builder.Services.AddSingleton<RequestToFile>();
+builder.Services.AddSingleton<VerifyUserToken>();
 
 var app = builder.Build();
 
