@@ -25,7 +25,7 @@
                     <div class="col-12 row mb-3">
                         <div class="col-4 mb-2">
                             <label class="form-label">Zona</label>
-                            <InputSelect @bind-Value="zonaCliente.zonaCod" class="form-select">
+                            <InputSelect @bind-Value="zonaCliente.ZonaCod" class="form-select">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Zonas is null)
                                 {
@@ -67,7 +67,7 @@
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">Cliente</label>
-                            <InputSelect @bind-Value="zonaCliente.cteCod" class="form-select" onchange="@GetEstaciones()">
+                            <InputSelect @bind-Value="zonaCliente.CteCod" class="form-select" onchange="@GetEstaciones()">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Clientes is null)
                                 {
@@ -88,7 +88,7 @@
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">Destino</label>
-                            <InputSelect @bind-Value="zonaCliente.desCod" class="form-select">
+                            <InputSelect @bind-Value="zonaCliente.DesCod" class="form-select">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Destinos is null)
                                 {
@@ -110,8 +110,13 @@
                     </div>
                     <div class="col-12 d-flex justify-content-center">
                         <div class="col-4">
-                            <button class="col-12 btn gcom-bg-amarillo">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@SaveAsignacion">
+                                <i class="fa fa-solid fa-floppy-disk"></i>
                                 Guardar
+                                @if (loadingSave)
+                                {
+                                    <SpinnerLoading/>
+                                }
                             </button>
                         </div>
                     </div>
@@ -127,15 +132,25 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="1" />
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
+                    <Template Context="item">
+                        <div class="col">
+                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
             </Columns>
         </RadzenDataGrid>
     </div>
 </AuthorizeView>
 @code {
     private bool loading = false;
+    private bool loadingSave = false;
+    private bool isEdit = false;
+
     private Zona Zona { get; set; } = new Zona();
     private List<Zona> Zonas { get; set; } = new List<Zona>();
     private List<ZonaCliente> ZonaCliente { get; set; } = new List<ZonaCliente>();
@@ -177,6 +192,18 @@
         }
     }
 
+    private async void SetEdit(ZonaCliente item){
+        try
+        {
+            zonaCliente = item;
+            isEdit = true;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
 
     private async Task GetZonasCliente()
     {
@@ -235,6 +262,7 @@
             else
             {
                 Grupos = response.Response;
+                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -248,7 +276,7 @@
     {
         try
         {
-            if (zonaCliente.Cliente!.codgru != 0 && zonaCliente.Cliente!.codgru != GrupoSeleccionado)
+            if (zonaCliente.Cliente!.codgru != GrupoSeleccionado && zonaCliente.Cliente.codgru != null)
             {
                 var response = await http.Get<List<CodDenDTO>>($"api/cliente/{zonaCliente.Cliente!.codgru}");
                 if (response.Error)
@@ -275,9 +303,9 @@
     {
         try
         {
-            if (zonaCliente.cteCod != 0 && ClienteSeleccionado != zonaCliente.cteCod)
+            if (zonaCliente.CteCod != null && ClienteSeleccionado != zonaCliente.CteCod)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaCliente.cteCod}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaCliente.CteCod}");
                 if (response.Error)
                 {
                     var responseHttp = await response.ObtenerMensajeError();
@@ -286,8 +314,8 @@
                 else
                 {
                     Destinos = response.Response;
+                    ClienteSeleccionado = zonaCliente.CteCod;
                     StateHasChanged();
-                    ClienteSeleccionado = zonaCliente.cteCod;
                 }
             }
         }
@@ -301,20 +329,30 @@
     {
         try
         {
+            loadingSave = true;
             var response = await http.Post<ZonaCliente>("api/zona/asignacion", zonaCliente);
             if (response.Error)
             {
+                loadingSave = false;
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
+                loadingSave = false;
                 await GetZonasCliente();
                 await Swal.FireAsync("Exito", "Relacion con zona guardada.", SweetAlertIcon.Success);
+                if (isEdit == true)
+                {
+                    zonaCliente = new ZonaCliente() { Cliente = new Cliente() };
+                    isEdit = false;
+                    StateHasChanged();
+                }
             }
         }
         catch (Exception e)
         {
+            loadingSave = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }

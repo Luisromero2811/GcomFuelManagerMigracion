@@ -143,27 +143,27 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (usuario == null)
                         return BadRequest();
 
-                    var zona = context.ZonaCliente.FirstOrDefault(x => x.cteCod == usuario.CodCte && x.desCod == zonaCliente.desCod);
+                    var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
 
                     if (zona == null)
                         return BadRequest();
 
                     precios = await context.Precio.Where(x => x.codCte == usuario.CodCte
-                    && x.codDes == zonaCliente.desCod
-                    && x.codZona == zona.zonaCod)
+                    && x.codDes == zonaCliente.DesCod
+                    && x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
                 }
                 else
                 {
-                    var zona = context.ZonaCliente.FirstOrDefault(x => x.cteCod == zonaCliente.cteCod && x.desCod == zonaCliente.desCod);
+                    var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod);
 
                     if (zona == null)
                         return BadRequest();
 
-                    precios = await context.Precio.Where(x => x.codCte == zonaCliente.cteCod
-                    && x.codDes == zonaCliente.desCod
-                    && x.codZona == zona.zonaCod)
+                    precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
+                    && x.codDes == zonaCliente.DesCod
+                    && x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
                 }

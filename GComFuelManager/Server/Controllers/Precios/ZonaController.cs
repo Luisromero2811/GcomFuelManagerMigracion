@@ -36,9 +36,9 @@ namespace GComFuelManager.Server.Controllers.Precios
             try
             {
                 var zona = await context.ZonaCliente
-                    .Include(x=>x.Zona)
-                    .Include(x=>x.Cliente)
-                    .Include(x=>x.Destino)
+                    .Include(x => x.Zona)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
                     .ToListAsync();
                 return Ok(zona);
             }
@@ -71,14 +71,28 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                zonaCliente.Zona = null!;
+                zonaCliente.Cliente = null!;
+                zonaCliente.Destino = null!;
+
                 if (zonaCliente == null)
                     return BadRequest();
 
-                var relation = await context.ZonaCliente.FindAsync(zonaCliente);
+                var relation = context.ZonaCliente.FirstOrDefault(x => x.Cod == zonaCliente.Cod);
+
+                if (relation != null)
+                    if (context.ZonaCliente.Any(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod && x.ZonaCod == zonaCliente.ZonaCod))
+                        return BadRequest("Ya existe esa relacion");
+
                 if (relation == null)
                     context.Add(zonaCliente);
                 else
-                    context.Update(zonaCliente);
+                {
+                    relation.DesCod = zonaCliente.DesCod;
+                    relation.CteCod = zonaCliente.CteCod;
+                    relation.ZonaCod = zonaCliente.ZonaCod;
+                    context.Update(relation);
+                }
 
                 await context.SaveChangesAsync();
 

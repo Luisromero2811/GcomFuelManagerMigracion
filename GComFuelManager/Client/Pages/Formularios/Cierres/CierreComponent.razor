@@ -1392,8 +1392,8 @@
         {
             if(ordenCierre.CodDes != DestinoSeleccionado && ordenCierre.CodDes != null){
                 ZonaCliente zonaCliente = new ZonaCliente();
-                zonaCliente.desCod = ordenCierre.CodDes;
-                zonaCliente.cteCod = ordenCierre.CodCte;
+                zonaCliente.DesCod = ordenCierre.CodDes;
+                zonaCliente.CteCod = ordenCierre.CodCte;
 
                 var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
                 if (response.Error)
