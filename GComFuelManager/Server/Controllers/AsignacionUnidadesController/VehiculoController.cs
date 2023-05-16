@@ -42,9 +42,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [Route("service")]
+        [Route("service/{carrId:long}")]
         [HttpGet]
-        public async Task<ActionResult> GetVehiculo()
+        public async Task<ActionResult> GetVehiculo([FromRoute] long carrId)
         {
             try
             {
@@ -82,88 +82,92 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
 
-                    Transportista transportista = new Transportista();
-                    //Obtenemos el CarrID del transportista 
-                    transportista = context.Transportista
-                        .Where(x => x.Den == transportista.Den)
-                        .DefaultIfEmpty()
-                        .FirstOrDefault();
+                    //long carrId;
 
-                    long carrierId;
-    
-                    foreach (var item in respuesta.Vehicles)
+                    //Si la respuesta no es nula, si existe respuesta
+                    if (respuesta.Vehicles != null)
                     {
-                        carrierId = item.CarrierId.Id.Value;
-
-                        if (carrierId == (long)Convert.ToDouble(transportista.CarrId))
-                        {                            
-                            //Creamos el objeto del Tonel
-                            Tonel tonel = new Tonel()
-                            {
-                                Placa = item.RegistrationNumber.Trim(),
-                                Tracto = item.VehicleCode.Trim(),
-                                //Placatracto = item.RfiTagId.Trim(),
-                                Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
-                                Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
-                                Carid = item.CarrierId.Id.Value.ToString()
-                            };
-                            //Obtenemos el code del tonel
-                            Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
-                                .DefaultIfEmpty()
-                                .FirstOrDefault();
-                            //Si el tonel esta activo
-                            if (tonel.Activo == true)
-                            {
-                                //Si el tonel no es nulo lo actualimos
-                                if (t != null)
+                        //Transportista transportista = new Transportista();
+                        ////Obtenemos el CarrID del transportista 
+                        //Transportista? transportistas = context.Transportista
+                        //    .Where(x => x.Den == transportista.Den)
+                        //    .DefaultIfEmpty()
+                        //    .FirstOrDefault();
+                        foreach (var item in respuesta.Vehicles)
+                        {
+                            carrId = item.CarrierId.Id.Value;
+                            //if (carrId == (long)Convert.ToDouble(transportista.CarrId))
+                            //{
+                                //Creamos el objeto del Tonel
+                                Tonel tonel = new Tonel()
                                 {
-                                    t.Placa = item.RegistrationNumber.Trim();
-                                    t.Tracto = item.VehicleCode.Trim();
-                                    //t.Placatracto = item.RfiTagId.Trim();
-                                    t.Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "";
-                                    t.Codsyn = Convert.ToInt32(item.VehicleId.Id.Value);
-                                    t.Carid = item.CarrierId.Id.Value.ToString();
-                                    context.Update(t);
-                                }
-                                //Sino le agregamos un nuevo tonel
-                                else
-                                {
-                                    context.Add(tonel);
-                                }
-                            }
-                            else
-                            {
-                                //Actualizamos el campo activo del tonel
-                                var cod = context.Tonel.Where(x => x.Codsyn == tonel.Codsyn)
+                                    Placa = item.RegistrationNumber.Trim(),
+                                    Tracto = item.VehicleCode.Trim(),
+                                    //Placatracto = item.RfiTagId.Trim(),
+                                    Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
+                                    Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
+                                    Carid = item.CarrierId.Id.Value.ToString()
+                                };
+                                //Obtenemos el code del tonel
+                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
-                                if (cod != null)
+                                //Si el tonel esta activo
+                                if (tonel.Activo == true)
                                 {
-                                    cod.Activo = false;
-                                    context.Update(cod);
+                                    //Si el tonel no es nulo lo actualimos
+                                    if (t != null)
+                                    {
+                                        t.Placa = item.RegistrationNumber.Trim();
+                                        t.Tracto = item.VehicleCode.Trim();
+                                        //t.Placatracto = item.RfiTagId.Trim();
+                                        t.Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "";
+                                        t.Codsyn = Convert.ToInt32(item.VehicleId.Id.Value);
+                                        t.Carid = carrId.ToString();
+                                        context.Update(t);
+                                    }
+                                    //Sino le agregamos un nuevo tonel
+                                    else
+                                    {
+                                        context.Add(tonel);
+                                    }
+                                }
+                                else
+                                {
+                                    //Actualizamos el campo activo del tonel
+                                    var cod = context.Tonel.Where(x => x.Codsyn == tonel.Codsyn)
+                                        .DefaultIfEmpty()
+                                        .FirstOrDefault();
+                                    if (cod != null)
+                                    {
+                                        cod.Activo = false;
+                                        context.Update(cod);
+                                    }
                                 }
                             }
-                        }
 
-                    }
+                        }
+                        return Ok(true);
+                    //}
+                    //else
+                    //{
+                    //    return BadRequest("No se encontraron vehiculos para este transportista");
+                    //}
                 }
                 catch (Exception e)
                 {
-                    return BadRequest();
+                    return BadRequest(e.Message);
                 }
                 finally
                 {
                     client.Close();
                 }
-                return Ok();
             }
             catch (Exception e)
             {
-                return BadRequest();
+                return BadRequest(e.Message);
             }
         }
-
     }
 }
-
 //BusinessEntityService.WsGetBusinessEntityAssociationsRequest be = new BusinessEntityService.WsGetBusinessEntityAssociationsRequest();

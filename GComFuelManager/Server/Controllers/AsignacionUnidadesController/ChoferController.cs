@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.AspNetCore.Mvc;
 using GComFuelManager.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
