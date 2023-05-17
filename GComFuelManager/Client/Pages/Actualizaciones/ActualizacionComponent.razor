@@ -221,17 +221,32 @@
                 Duration = 16000
             });
             updateData = true;
-            var respuestaHttp = await repositorio.Get<bool>($"api/vehiculo/service/");
-            if (respuestaHttp.Error)
+            if (string.IsNullOrEmpty(TransportistaSeleccionado.Busentid))
             {
                 updateData = false;
-                var responseHttp = await respuestaHttp.ObtenerMensajeError();
-                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                ns.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El transportista seleccionado no pudo ser actualizado",
+                    Duration = 10000
+                });
             }
-            else
+            long carrId;
+            if (long.TryParse(TransportistaSeleccionado.CarrId, out carrId))
             {
-                await swal.FireAsync("Exito", "Las Unidades han sido actualizadas", SweetAlertIcon.Success);
-                updateData = false;
+                var respuestaHttp = await repositorio.Get<bool>($"api/vehiculo/service/{carrId}");
+                if (respuestaHttp.Error)
+                {
+                    updateData = false;
+                    var responseHttp = await respuestaHttp.ObtenerMensajeError();
+                    await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await swal.FireAsync("Exito", "Las Unidades han sido actualizadas", SweetAlertIcon.Success);
+                    updateData = false;
+                }
             }
         }
         catch (Exception e)
@@ -257,14 +272,14 @@
             {
                 updateData = false;
                 ns.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Error,
-                        Summary = "Error",
-                        Detail = "El transportista seleccionado no pudo ser actualizado.",
-                        Duration = 10000
-                    });
+                {
+                    Severity = NotificationSeverity.Error,
+                    Summary = "Error",
+                    Detail = "El transportista seleccionado no pudo ser actualizado.",
+                    Duration = 10000
+                });
             }
-            
+
             long busentid;
             if (long.TryParse(TransportistaSeleccionado.Busentid, out busentid))
             {
