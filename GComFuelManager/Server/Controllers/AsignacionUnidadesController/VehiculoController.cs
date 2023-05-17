@@ -80,8 +80,6 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     var respuesta = await svc.GetVehiclesAsync(getReq);
 
-                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
-
                     //long carrId;
 
                     //Si la respuesta no es nula, si existe respuesta
@@ -95,9 +93,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         //    .FirstOrDefault();
                         foreach (var item in respuesta.Vehicles)
                         {
-                            carrId = item.CarrierId.Id.Value;
-                            //if (carrId == (long)Convert.ToDouble(transportista.CarrId))
-                            //{
+                            //carrId = item.CarrierId.Id.Value;
+                            if (carrId == item.CarrierId.Id.Value)
+                            {
                                 //Creamos el objeto del Tonel
                                 Tonel tonel = new Tonel()
                                 {
@@ -148,12 +146,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         }
                         return Ok(true);
-                    //}
-                    //else
-                    //{
-                    //    return BadRequest("No se encontraron vehiculos para este transportista");
-                    //}
                 }
+                    else
+                {
+                    return BadRequest("No se encontraron vehiculos para este transportista");
+                }
+            }
                 catch (Exception e)
                 {
                     return BadRequest(e.Message);

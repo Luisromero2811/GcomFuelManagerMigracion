@@ -85,20 +85,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     getReq.AssociatedBusinessEntityType = new ServiceReference6.NInt();
                     getReq.AssociatedBusinessEntityType.Value = 1;
 
-                    toFile.GenerateFile(JsonConvert.SerializeObject(getReq), $"Request_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                    //toFile.GenerateFile(JsonConvert.SerializeObject(getReq), $"Request_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
                     
-                    toFile.GenerateFile(JsonConvert.SerializeObject(respuesta), $"Response_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                    //toFile.GenerateFile(JsonConvert.SerializeObject(respuesta), $"Response_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
                     //Conexion a WebService para obtener carrId del transportista 
                     WsGetTruckCarriersRequest truckRequest = new WsGetTruckCarriersRequest();
 
-                    toFile.GenerateFile(JsonConvert.SerializeObject(truckRequest), $"Request_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                    //toFile.GenerateFile(JsonConvert.SerializeObject(truckRequest), $"Request_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
                     var truckResponse = await truck.GetTruckCarriersAsync(truckRequest);
 
-                    toFile.GenerateFile(JsonConvert.SerializeObject(truckResponse), $"Response_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                    //toFile.GenerateFile(JsonConvert.SerializeObject(truckResponse), $"Response_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
 
                     foreach (var item in respuesta.BusinessEntityAssociations)
