@@ -223,7 +223,7 @@
                             </div>*@
                             <div class="col-4">
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
                                 </AuthorizeView>
 
                             </div>
@@ -257,7 +257,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenCierre" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.den" Width="200px" MinWidth="200px" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Width="200px" MinWidth="200px">
                 <Template Context="data">
                     <div class="col-12">
@@ -341,6 +341,7 @@
     bool loadingEdit = false;
     bool loadginAsignar = false;
     bool loadingAgregar = false;
+    bool loadingSend = false;
     //
     CheckChofer checkChofer = new CheckChofer();
 
@@ -490,10 +491,10 @@
                         Chofer = ChoferSeleccionado,
                         Tonel = VehiculoSeleccionado,
                         Compartimento =
-                                            (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
-                                                : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
-                                                    : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
-                                                        : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                                                    (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom
+                                                        : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom2
+                                                            : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom3
+                                                                : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque?.Fchcar
                     };
@@ -689,5 +690,64 @@
     private void Message(NotificationMessage message)
     {
         ns.Notify(message);
+    }
+
+    private async Task SendToSynthesis()
+    {
+        try
+        {
+            if (ordenes is not null || ordenes.Count == 0)
+            {
+                var confirm = await swal.FireAsync(new SweetAlertOptions
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
+
+                if (!string.IsNullOrEmpty(confirm.Value))
+                {
+                    Message(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Actualizando Transportistas",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                            Duration = 15000
+                        });
+
+                    loadingSend = true;
+
+                    var ordens = ordenes.Where(x => x.OrdenEmbarque!.Tonel != null).ToList();
+
+                    var response = await repositorio.Post<List<OrdenCierre>, bool>($"api/services/send", ordens);
+
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loadingSend = false;
+                        await swal.FireAsync("Exito", "Las ordenes fueron enviadas a synthesis.", SweetAlertIcon.Success);
+
+                        ordenes = new List<OrdenCierre>();
+                    }
+                }
+            }
+            else
+            {
+                loadingSend = false;
+                await swal.FireAsync("Alerta", "Debe de tener ordenes para poder enviar", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
     }
 }
