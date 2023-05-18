@@ -100,11 +100,11 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var v = 1;
                 List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
-                var ordenTpAsig = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.Tp == true && x.FchOrd != null
-                    && x.Bolguidid == null && x.Tonel.Transportista.Activo == true)
+                
+                ordens = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                    && x.Bolguidid == null)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -118,66 +118,7 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
 
-                ordens.AddRange(ordenTpAsig);
-
-                var ordenTpNoAsign = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.Tp == true && x.FchOrd != null
-                    && x.Codton == null && x.CompartmentId == null && x.Compartment == null)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .OrderBy(x => x.Fchpet)
-                    .Take(10000)
-                    .ToListAsync();
-
-                ordens.AddRange(ordenTpNoAsign);
-
-                if (v == 1)
-                {
-                    var ordenNoTpNoEnv = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && (x.Tp == null || x.Tp == false)
-                    && x.FchOrd != null && x.Bolguidid == null)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .OrderBy(x => x.Fchpet)
-                    .Take(10000)
-                    .ToListAsync();
-
-                    ordens.AddRange(ordenNoTpNoEnv);
-
-                    //var ordenNoTpNoAsig = await context.OrdenEmbarque
-                    //.Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && (x.Tp == null || x.Tp == false)
-                    //&& x.FchOrd != null && x.Codton == null && x.CompartmentId == null && x.Compartment == null)
-                    //.Include(x => x.Chofer)
-                    //.Include(x => x.Destino)
-                    //.ThenInclude(x => x.Cliente)
-                    //.Include(x => x.Estado)
-                    //.Include(x => x.OrdenCompra)
-                    //.Include(x => x.Tad)
-                    //.Include(x => x.Producto)
-                    //.Include(x => x.Tonel)
-                    //.ThenInclude(x => x.Transportista)
-                    //.OrderBy(x => x.Fchpet)
-                    //.Take(10000)
-                    //.ToListAsync();
-
-                    //ordens.AddRange(ordenNoTpNoAsig);
-                }
-
-                ordens.OrderBy(x => x.Bin);
+                ordens.OrderByDescending(x => x.Bin);
 
                 return Ok(ordens);
             }

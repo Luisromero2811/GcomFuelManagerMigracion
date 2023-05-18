@@ -47,17 +47,17 @@
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
                                                 {
-                                                                <option disabled> Cargando ...</option>
+                                                    <option disabled> Cargando ...</option>
                                                 }
                                                 else if (Grupos.Count() == 0)
                                                 {
-                                                                <option disabled> No hay grupos</option>
+                                                    <option disabled> No hay grupos</option>
                                                 }
                                                 else
                                                 {
                                                     foreach (var item in Grupos)
                                                     {
-                                                                                <option value="@item.Cod">@item.Den</option>
+                                                        <option value="@item.Cod">@item.Den</option>
                                                     }
                                                 }
                                             </InputSelect>
@@ -72,17 +72,17 @@
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Clientes is null)
                                                 {
-                                                                <option disabled> Cargando ...</option>
+                                                    <option disabled> Cargando ...</option>
                                                 }
                                                 else if (Clientes.Count == 0)
                                                 {
-                                                                <option disabled> No hay capacidades</option>
+                                                    <option disabled> No hay capacidades</option>
                                                 }
                                                 else
                                                 {
                                                     foreach (var item in Clientes)
                                                     {
-                                                                                <option value="@item.Cod">@item.Den</option>
+                                                        <option value="@item.Cod">@item.Den</option>
                                                     }
                                                 }
                                             </InputSelect>
@@ -94,17 +94,17 @@
                                             <option>-- Selecciona una opcion --</option>
                                             @if (años is null)
                                             {
-                                                            <option disabled> Cargando ...</option>
+                                                <option disabled> Cargando ...</option>
                                             }
                                             else if (años.Count == 0)
                                             {
-                                                            <option disabled> No hay capacidades</option>
+                                                <option disabled> No hay capacidades</option>
                                             }
                                             else
                                             {
                                                 foreach (var item in años)
                                                 {
-                                                                            <option value="@item">@item</option>
+                                                    <option value="@item">@item</option>
                                                 }
                                             }
                                         </InputSelect>
@@ -115,17 +115,17 @@
                                             <option>-- Selecciona una opcion --</option>
                                             @if (meses is null)
                                             {
-                                                            <option disabled> Cargando ...</option>
+                                                <option disabled> Cargando ...</option>
                                             }
                                             else if (meses.Count == 0)
                                             {
-                                                            <option disabled> No hay capacidades</option>
+                                                <option disabled> No hay capacidades</option>
                                             }
                                             else
                                             {
                                                 foreach (var item in meses)
                                                 {
-                                                                            <option value="@item.Cod">@item.Den.ToUpper()</option>
+                                                    <option value="@item.Cod">@item.Den.ToUpper()</option>
                                                 }
                                             }
                                         </InputSelect>
@@ -145,7 +145,9 @@
             </Authorized>
         </AuthorizeView>
 
-        <div class="col-12 d-flex justify-content-center shadow-sm">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
+            <Authorized>
+                <div class="col-12 d-flex justify-content-center shadow-sm">
             <div class="col-12">
                 <div class="col-12 card">
                     <div class="col-12 card-body">
@@ -159,11 +161,11 @@
                                         <label class="form-label">Fecha de cierre</label>
                                         @if (!IsClient)
                                         {
-                                                        <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
+                                            <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
                                         }
                                         else
                                         {
-                                                        <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
+                                            <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
                                         }
                                     </div>
                                 </div>
@@ -290,22 +292,22 @@
                                     <div class="col-12">
                                         <label class="form-label">Producto</label>
                                         @*<InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select" onchange="@ChangeProducto()">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (Precios is null)
-                                            {
-                                                    <option disabled> Cargando ...</option>
-                                            }
-                                            else if (Precios.Count == 0)
-                                            {
-                                                    <option disabled> No hay Productos</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in Precios)
-                                                {
-                                                            <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
-                                                }
-                                            }
+                                        <option>-- Selecciona una opcion --</option>
+                                        @if (Precios is null)
+                                        {
+                                        <option disabled> Cargando ...</option>
+                                        }
+                                        else if (Precios.Count == 0)
+                                        {
+                                        <option disabled> No hay Productos</option>
+                                        }
+                                        else
+                                        {
+                                        foreach (var item in Precios)
+                                        {
+                                        <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
+                                        }
+                                        }
                                         </InputSelect>*@
                                         <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
@@ -322,39 +324,39 @@
 
                                 @if (!IsDifferentVol)
                                 {
-                                                <div class="col-2 mb-1">
-                                                    <div class="col-12">
-                                                        <label class="form-label">Volumen</label>
-                                                        <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
-                                                            <option>-- Selecciona una opcion --</option>
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
                                                 @if (Cantidades is null)
                                                 {
-                                                                            <option disabled> Cargando ...</option>
+                                                    <option disabled> Cargando ...</option>
                                                 }
                                                 else if (Cantidades.Count == 0)
                                                 {
-                                                                            <option disabled> No hay capacidades</option>
+                                                    <option disabled> No hay capacidades</option>
                                                 }
                                                 else
                                                 {
                                                     foreach (var item in Cantidades)
                                                     {
-                                                                                            <option value="@item">@item</option>
+                                                        <option value="@item">@item</option>
                                                     }
                                                 }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
+                                            </InputSelect>
+                                        </div>
+                                    </div>
                                 }
 
                                 @if (IsDifferentVol)
                                 {
-                                                <div class="col-2 mb-1">
-                                                    <div class="col-12">
-                                                        <label class="form-label">Volumen</label>
-                                                        <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
-                                                    </div>
-                                                </div>
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
+                                        </div>
+                                    </div>
                                 }
 
                                 <div class="col-2 mb-1 d-flex">
@@ -389,17 +391,17 @@
                                                     <option>-- Selecciona una opcion --</option>
                                                     @if (MdVenta is null)
                                                     {
-                                                                    <option disabled> Cargando ...</option>
+                                                        <option disabled> Cargando ...</option>
                                                     }
                                                     else if (MdVenta.Count == 0)
                                                     {
-                                                                    <option disabled> No hay capacidades</option>
+                                                        <option disabled> No hay capacidades</option>
                                                     }
                                                     else
                                                     {
                                                         foreach (var item in MdVenta)
                                                         {
-                                                                                    <option value="@item">@item</option>
+                                                            <option value="@item">@item</option>
                                                         }
                                                     }
                                                 </InputSelect>
@@ -413,17 +415,17 @@
                                                     <option>-- Selecciona una opcion --</option>
                                                     @if (TpVenta is null)
                                                     {
-                                                                    <option disabled> Cargando ...</option>
+                                                        <option disabled> Cargando ...</option>
                                                     }
                                                     else if (TpVenta.Count == 0)
                                                     {
-                                                                    <option disabled> No hay modelo de venta</option>
+                                                        <option disabled> No hay modelo de venta</option>
                                                     }
                                                     else
                                                     {
                                                         foreach (var item in TpVenta)
                                                         {
-                                                                                    <option value="@item">@item</option>
+                                                            <option value="@item">@item</option>
                                                         }
                                                     }
                                                 </InputSelect>
@@ -445,17 +447,17 @@
                                             <option>-- Selecciona una opcion --</option>
                                             @if (TpPago is null)
                                             {
-                                                            <option disabled> Cargando ...</option>
+                                                <option disabled> Cargando ...</option>
                                             }
                                             else if (TpPago.Count == 0)
                                             {
-                                                            <option disabled> No hay tipos de pago</option>
+                                                <option disabled> No hay tipos de pago</option>
                                             }
                                             else
                                             {
                                                 foreach (var item in TpPago)
                                                 {
-                                                                            <option value="@item">@item</option>
+                                                    <option value="@item">@item</option>
                                                 }
                                             }
                                         </InputSelect>
@@ -489,56 +491,56 @@
                                 <div class="col-12 d-flex justify-content-center mt-3">
                                     @if (!isEdit)
                                     {
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
-                                                            <i class="fa fa-solid fa-plus"></i>
-                                                            <b>Crear cierre</b>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
+                                                <i class="fa fa-solid fa-plus"></i>
+                                                <b>Crear cierre</b>
                                                 @if (loadingCreate)
                                                 {
-                                                                            <SpinnerLoading></SpinnerLoading>
+                                                    <SpinnerLoading></SpinnerLoading>
                                                 }
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
-                                                            <i class="fa fa-solid fa-envelope"></i>
-                                                            <b>Enviar cierre</b>
+                                            </button>
+                                        </div>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
+                                                <i class="fa fa-solid fa-envelope"></i>
+                                                <b>Enviar cierre</b>
                                                 @if (loadingSend)
                                                 {
-                                                                            <SpinnerLoading></SpinnerLoading>
+                                                    <SpinnerLoading></SpinnerLoading>
                                                 }
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
-                                                            <i class="fa fa-solid fa-file-excel"></i>
-                                                            <b>Exportar Cierres</b>
+                                            </button>
+                                        </div>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                <i class="fa fa-solid fa-file-excel"></i>
+                                                <b>Exportar Cierres</b>
                                                 @if (loadingExport)
                                                 {
-                                                                            <SpinnerLoading></SpinnerLoading>
+                                                    <SpinnerLoading></SpinnerLoading>
                                                 }
-                                                        </button>
-                                                    </div>
+                                            </button>
+                                        </div>
                                     }
                                     else
                                     {
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@UpateOrden">
-                                                            <i class="fa fa-solid fa-floppy-disk"></i>
-                                                            <b>Guardar cambio</b>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@UpateOrden">
+                                                <i class="fa fa-solid fa-floppy-disk"></i>
+                                                <b>Guardar cambio</b>
                                                 @if (loadingCreate)
                                                 {
-                                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                                            <span class="visually-hidden">Loading...</span>
+                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                    <span class="visually-hidden">Loading...</span>
                                                 }
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@cancelEdit">
-                                                            <i class="fa fa-solid fa-xmark"></i>
-                                                            <b>Cancelar cambio</b>
-                                                        </button>
-                                                    </div>
+                                            </button>
+                                        </div>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@cancelEdit">
+                                                <i class="fa fa-solid fa-xmark"></i>
+                                                <b>Cancelar cambio</b>
+                                            </button>
+                                        </div>
                                     }
                                 </div>
                             </div>
@@ -548,6 +550,8 @@
                 </div>
             </div>
         </div>
+            </Authorized>
+        </AuthorizeView>
 
 
         <div class="col-12 d-flex justify-content-center">
@@ -585,19 +589,19 @@
                                 <div class="col-1">
                                     @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
                                     {
-                                                    <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
                                     }
                                     else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
                                     {
-                                                    <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
                                     }
                                     else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
                                     {
-                                                    <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
                                     }
                                     else
                                     {
-                                                    <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
                                     }
                                 </div>
                                 <div class="col-11">

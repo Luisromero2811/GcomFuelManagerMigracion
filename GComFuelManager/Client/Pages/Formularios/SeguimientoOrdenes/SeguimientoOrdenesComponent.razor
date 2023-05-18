@@ -8,31 +8,40 @@
 @using GComFuelManager.Client.Helpers;
 @using Microsoft.AspNetCore.Authorization;
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor")]
-    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor" Context="Seguimiento">
-        <!--Maquetación de formularios-->
-        <h4><b>Seguimiento de ordenes</b></h4>
-        <div class="row">
-            <div class="col-6 p-4">
-                <label class="ms-4"><b>Mostrar Ordenes:</b></label>
-                <div class="col-12 card h-100 shadow ms-4">
-                    <EditForm Model="@ordenEmbarque" class="m-4">
-                        <DataAnnotationsValidator />
-                        <div class="row">
-                            <div class="col-6">
-                                <div class="col-12">
-                                    <label class="form-label" for="form2Example17">Del:</label>
-                                    <InputDate class="form-control" @bind-Value="@fechas.DateInicio" />
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-outline">
-                                    <label class="form-label" for="form2Example17">Al:</label>
-                                    <InputDate class="form-control" @bind-Value="@fechas.DateFin" />
-                                </div>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor" Context="Seguimiento">
+    <!--Maquetación de formularios-->
+    <h4><b>Seguimiento de ordenes</b></h4>
+    <div class="row">
+        <div class="col-12 card shadow-sm">
+            <div class="col-12 card-body">
+            <label><b>Mostrar Ordenes:</b></label>
+                <EditForm Model="@ordenEmbarque" >
+                    <DataAnnotationsValidator />
+                    <div class="row col-12">
+                        <div class="col-4">
+                            <div class="col-12">
+                                <label class="form-label" for="form2Example17">Del:</label>
+                                <InputDate class="form-control" @bind-Value="@fechas.DateInicio" />
                             </div>
                         </div>
-                        <div class="row mt-4 mb-2">
-                            <div class="d-flex justify-content-center">
+                        <div class="col-4">
+                            <div class="form-outline">
+                                <label class="form-label" for="form2Example17">Al:</label>
+                                <InputDate class="form-control" @bind-Value="@fechas.DateFin" />
+                            </div>
+                        </div>
+                        <div class="col-4 d-flex mt-auto">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarOrdenFechaRadio">
+                                <i class="fa fa-solid fa-eye"></i>
+                                <b>Mostrar Ordenes</b>
+                                @if (loadingFiltro)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
+                        <div class="row col-12 mt-3">
+                            <div class="d-flex justify-content-start">
                                 <div class="form-check form-check-inline">
                                     <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
                                     <label class="form-check-label" for="SinCargar">Sin Cargar</label>
@@ -47,87 +56,74 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row d-flex g-3 mt-4">
-                            <div class="row m-2">
-                                <div class="col-sm-12 col-md-6">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarOrdenFechaRadio">
-                                        <i class="fa fa-solid fa-eye"></i>
-                                        <b>Mostrar Ordenes</b>
-                                        @if (loadingFiltro)
-                                        {
-                                            <SpinnerLoading></SpinnerLoading>
-                                        }
-                                    </button>
-                                </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar</b></button>
-                                </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@MostrarTraffic">
-                                        <i class="fa fa-solid fa-eye"></i>
-                                        <b>Tráfico</b>
-                                    </button>
-                                </div>
-                                <div class="col-sm-12 col-md-6">
-                                    <button class="btn gcom-bg-amarillo col-12 mt-3" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="row d-flex mt-3 col-12">
+                        <div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar</b></button>
                         </div>
-                        <div class="col-12 d-flex justify-content-center mt-2">
-                            <div class="col-4 d-flex">
-                                <button class="btn gcom-bg-amarillo col-12 " @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de Despacho</b></button>
-                            </div>
+                        <div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
                         </div>
-                    </EditForm>
-                </div>
+                        <div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de Despacho</b></button>
+                        </div>
+                        <div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic">
+                                <i class="fa fa-solid fa-eye"></i>
+                                <b>Tráfico</b>
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
             </div>
         </div>
-        <!--Maquetación de Tabla con Radzen-->
-        <div class="col-12 d-flex justify-content-center">
-            <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())"
-                            IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true">
-                @*<EmptyTemplate>
-                    <NoHayRegistros></NoHayRegistros>
-                    </EmptyTemplate>*@
-                <Columns>
-                    <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Width="200px" Frozen="true" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Width="200px" Frozen="true" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" MinWidth="200px">
-                        <Template Context="data">
-                            <div class="col-12">
-                                @if (Status is true)
-                                {
-                                    <p>CLOSED</p>
-                                }
-                                else
-                                {
-                                    @data?.Estado?.den
-                                }
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" MinWidth="150px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" MinWidth="305px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" MinWidth="150px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
-                        <Template Context="data">
-                            <div class="col-12">
-                                @data?.Tonel?.Tracto @data?.Tonel?.Placa
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" MinWidth="290px" />
-                </Columns>
-            </RadzenDataGrid>
-        </div>
-    </AuthorizeView>
+    </div>
+    <!--Maquetación de Tabla con Radzen-->
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())"
+                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true">
+            @*<EmptyTemplate>
+            <NoHayRegistros></NoHayRegistros>
+            </EmptyTemplate>*@
+            <Columns>
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Width="200px" Frozen="true" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Width="200px" Frozen="true" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" MinWidth="200px">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @if (Status is true)
+                            {
+                                <p>CLOSED</p>
+                            }
+                            else
+                            {
+                                @data?.Estado?.den
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" MinWidth="150px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" MinWidth="305px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" MinWidth="150px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" MinWidth="290px" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
 <style type="text/css" media="screen and (min-width:1200px)">
     .ancho {
         width: 1100px;
@@ -144,106 +140,106 @@
         width: 1000px;
     }
 </style>
-    @code {
-        //Grid
-        private RadzenDataGrid<Orden>? Grid = new RadzenDataGrid<Orden>();
+@code {
+    //Grid
+    private RadzenDataGrid<Orden>? Grid = new RadzenDataGrid<Orden>();
 
-        private ICollection<Orden> ordens { get; set; } = null!;
-        //
-        private Orden ordenEmbarque { get; set; } = new Orden();
-        //private IEnumerable<Orden> ordeness { get; set; } = new List<Orden>();
-        //Listas
-        private List<CodDenDTO> Destinos { get; set; } = null!;
+    private ICollection<Orden> ordens { get; set; } = null!;
+    //
+    private Orden ordenEmbarque { get; set; } = new Orden();
+    //private IEnumerable<Orden> ordeness { get; set; } = new List<Orden>();
+    //Listas
+    private List<CodDenDTO> Destinos { get; set; } = null!;
 
-        //Selecciones
-        private int DestinoSeleccionado = 0;
+    //Selecciones
+    private int DestinoSeleccionado = 0;
 
-        //Fechas
-        public DateTime Date { get; set; } = DateTime.Now;
-        public DateTime Date1 { get; set; } = DateTime.Now;
-        public DateTime Date2 { get; set; } = DateTime.Now;
+    //Fechas
+    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime Date1 { get; set; } = DateTime.Now;
+    public DateTime Date2 { get; set; } = DateTime.Now;
 
-        public int Estado { get; set; } = 1;
+    public int Estado { get; set; } = 1;
 
-        bool loadingFiltro = false;
-        bool Status = false;
-        FechasF fechas = new FechasF();
-        OrdenesDTO ordenes = new OrdenesDTO();
+    bool loadingFiltro = false;
+    bool Status = false;
+    FechasF fechas = new FechasF();
+    OrdenesDTO ordenes = new OrdenesDTO();
 
-        protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+    public async Task MostrarOrdenFechaRadio()
+    {
+        try
         {
+            //loadingFiltro = true;
+            //ordeness = null!;
+            //StateHasChanged();
+            Status = true;
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
 
-        }
-        public async Task MostrarOrdenFechaRadio()
-        {
-            try
-            {
-                //loadingFiltro = true;
-                //ordeness = null!;
-                //StateHasChanged();
-                Status = true;
-                var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
-
-                if (responseHttp.Error)
-                {
-                    loadingFiltro = false;
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Status = false;
-                    loadingFiltro = false;
-                    ordens = responseHttp.Response;
-                }
-            }
-            catch (Exception e)
+            if (responseHttp.Error)
             {
                 loadingFiltro = false;
-                await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
-        }
-        public async Task MostrarTraffic()
-        {
-            try
+            else
             {
                 Status = false;
-                var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
-                fechas.Estado = 4;
-                if (responseHttp.Error)
-                {
-                    loadingFiltro = false;
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Status = true;
-                    loadingFiltro = false;
-                    fechas.Estado = 4;
-                    ordens = responseHttp.Response;
-                }
-            }
-            catch (Exception e)
-            {
                 loadingFiltro = false;
-                await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                ordens = responseHttp.Response;
             }
         }
-        public async Task ExportExcel()
+        catch (Exception e)
         {
-            if (ordens != null)
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    public async Task MostrarTraffic()
+    {
+        try
+        {
+            Status = false;
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
+            fechas.Estado = 4;
+            if (responseHttp.Error)
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                var excel = new ExcelPackage();
-                var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
-                worksheet.Columns.Width = 50;
-                worksheet.Columns.AutoFit();
-                //Formación de Excel
-                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                from o in ordens
-                    //Agregar Producto, Vólumen natural, volúmen cargado, Transportista, Unidad y operador
-                select new OrdenesDTO()
+                loadingFiltro = false;
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Status = true;
+                loadingFiltro = false;
+                fechas.Estado = 4;
+                ordens = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    public async Task ExportExcel()
+    {
+        if (ordens != null)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
+            worksheet.Columns.Width = 50;
+            worksheet.Columns.AutoFit();
+            //Formación de Excel
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+            from o in ordens
+                //Agregar Producto, Vólumen natural, volúmen cargado, Transportista, Unidad y operador
+            select new OrdenesDTO()
                 {
                     Referencia = o?.Ref,
                     FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
@@ -261,35 +257,35 @@
                     Operador = o?.Chofer?.Den
 
                 }, true);
-                tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:N1"];
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                //Guardado de Excel
-                //Puede aplicar una condición si el filtro esta sin cargar usa un DTO sino usa el otro DTO para ordenes cargadas y en trayecto
-                await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
-            }
-            else
-            {
-                await swal.FireAsync("Alerta", "Debe contener datos filtrados para poder exportar", SweetAlertIcon.Warning);
-            }
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            var header = worksheet.Cells["A1:N1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            //Guardado de Excel
+            //Puede aplicar una condición si el filtro esta sin cargar usa un DTO sino usa el otro DTO para ordenes cargadas y en trayecto
+            await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
         }
-        public async Task ExportTraffic()
+        else
         {
-            if (ordens != null)
-            {
-                //Quitar errores por terminos de licencias al momento de descargar
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                //Generación Excel
-                var excel = new ExcelPackage();
-                var worksheet = excel.Workbook.Worksheets.Add("Trafico");
-                worksheet.Columns.Width = 49;
-                worksheet.Columns.AutoFit();
-                //Formación de Excel
-                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                    from o in ordens
-                    select new OrdenesDTO()
+            await swal.FireAsync("Alerta", "Debe contener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+        }
+    }
+    public async Task ExportTraffic()
+    {
+        if (ordens != null)
+        {
+            //Quitar errores por terminos de licencias al momento de descargar
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            //Generación Excel
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Trafico");
+            worksheet.Columns.Width = 49;
+            worksheet.Columns.AutoFit();
+            //Formación de Excel
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                from o in ordens
+                select new OrdenesDTO()
                     {
                         Referencia = o?.Ref,
                         FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
@@ -306,44 +302,44 @@
                         Unidad = o?.Tonel?.Veh,
                         Operador = o?.Chofer?.Den
                     }, true);
-                tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:N1"];
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                //Función para guardar el documento en formato Excel
-                await JS.GuardarComo($"Trafico_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            var header = worksheet.Cells["A1:N1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            //Función para guardar el documento en formato Excel
+            await JS.GuardarComo($"Trafico_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+        }
+        else
+        {
+            await swal.FireAsync("Alerta", "Debera tener datos filtrados para poder realizar la exportación", SweetAlertIcon.Warning);
+        }
+
+    }
+    public async Task ExportHist()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/Historial", fechas);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
             else
             {
-                await swal.FireAsync("Alerta", "Debera tener datos filtrados para poder realizar la exportación", SweetAlertIcon.Warning);
-            }
-
-        }
-        public async Task ExportHist()
-        {
-            try
-            {
-                var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/Historial", fechas);
-                if (responseHttp.Error)
-                {
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    ordens = responseHttp.Response;
-                    //Quitar errores por terminos de licencia al momento de descargar el archivo
-                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                    // Generacion Excel  //
-                    var excel = new ExcelPackage();
-                    var worksheet = excel.Workbook.Worksheets.Add("Historial");
-                    worksheet.Columns.Width = 49;
-                    worksheet.Columns.AutoFit();
-                    //Formación de Excel
-                    var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                    from o in ordens
-                    select new OrdenesDTO()
+                ordens = responseHttp.Response;
+                //Quitar errores por terminos de licencia al momento de descargar el archivo
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // Generacion Excel  //
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial");
+                worksheet.Columns.Width = 49;
+                worksheet.Columns.AutoFit();
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                from o in ordens
+                select new OrdenesDTO()
                     {
                         Referencia = o?.Ref,
                         FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
@@ -360,26 +356,26 @@
                         Unidad = o?.Tonel?.Veh,
                         Operador = o?.Chofer?.Den
                     }, true);
-                    tablebody.Style.Font.Bold = true;
-                    tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    var header = worksheet.Cells["A1:N1"];
-                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                    //Guardado de Excel
-                    await JS.GuardarComo($"HistorialDespacho_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
-                }
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                var header = worksheet.Cells["A1:N1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //Guardado de Excel
+                await JS.GuardarComo($"HistorialDespacho_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
             }
-            catch (Exception e)
-            {
-                loadingFiltro = false;
-                await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            }
-
         }
+        catch (Exception e)
+        {
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
     }
 
-    <!--Fecha de carga, estacion es destino-->
-    <!--
-            “Función recibe un nombre de archivo y un archivo en base64, crea un link de forma dinámica, y al hacer click hace que se descargue el archivo JS”
-    “Se va a encapsular la funcionalidad de guardar el archivo en otra clase aparte localizada en helpers, metido de extensión para IJS pueda mandar llamar la función de descarga de JS”
-    -->
+<!--Fecha de carga, estacion es destino-->
+<!--
+        “Función recibe un nombre de archivo y un archivo en base64, crea un link de forma dinámica, y al hacer click hace que se descargue el archivo JS”
+“Se va a encapsular la funcionalidad de guardar el archivo en otra clase aparte localizada en helpers, metido de extensión para IJS pueda mandar llamar la función de descarga de JS”
+-->

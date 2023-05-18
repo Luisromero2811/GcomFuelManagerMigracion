@@ -25,7 +25,7 @@ namespace GComFuelManager.Server.Controllers.Services
         }
 
         [HttpPost("send")]
-        public async Task<ActionResult> SendSynthesis([FromBody] List<OrdenCierre> ordens)
+        public async Task<ActionResult> SendSynthesis([FromBody] List<OrdenEmbarque> ordens)
         {
             try
             {
@@ -125,7 +125,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                     foreach (var item in ordens)
                     {
-                        var bolguid = context.OrdenEmbarque.Find(item.CodPed);
+                        var bolguid = context.OrdenEmbarque.Find(item.Cod);
                         if (bolguid == null)
                             return BadRequest();
 
@@ -133,8 +133,8 @@ namespace GComFuelManager.Server.Controllers.Services
                         {
                             request.BillOfLading.Destination.DestinationId.Id.Value = long.Parse(item.Destino!.Codsyn!);
                             request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Cliente!.Codsyn!);
-                            request.BillOfLading.StartLoadTime.Value = item.OrdenEmbarque!.Fchcar!.Value;
-                            request.BillOfLading.EndLoadTime.Value = item.OrdenEmbarque!.Fchcar.Value.AddDays(2);
+                            request.BillOfLading.StartLoadTime.Value = item.Fchcar!.Value;
+                            request.BillOfLading.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
                             var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).FirstOrDefault()!.Folio;
 
                             if (folio == 0)
@@ -146,11 +146,11 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             request.BillOfLading.PurchaseOrderRef = request.BillOfLading.CustomerReference;
 
-                            request.BillOfLading.Driver.DriverId.Id.Value = long.Parse(item.OrdenEmbarque!.Chofer!.Dricod!);
-                            request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.OrdenEmbarque.Tonel!.Transportista!.CarrId!);
+                            request.BillOfLading.Driver.DriverId.Id.Value = long.Parse(item.Chofer!.Dricod!);
+                            request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.CarrId!);
 
-                            var pedidos = ordens.Where(x => x.OrdenEmbarque!.Codton == item.OrdenEmbarque.Codton
-                            && x.OrdenEmbarque!.Codchf == item.OrdenEmbarque!.Codchf && x.OrdenEmbarque!.Fchcar == item.OrdenEmbarque!.Fchcar).ToList();
+                            var pedidos = ordens.Where(x => x!.Codton == item.Codton
+                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar).ToList();
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
@@ -196,29 +196,29 @@ namespace GComFuelManager.Server.Controllers.Services
                                 lineItem.Destination.DestinationId = new Identifier();
                                 lineItem.Destination.DestinationId.Id = new NLong();
 
-                                lineItem.TrailerId = item.OrdenEmbarque!.Tonel!.Codsyn.ToString();
-                                lineItem.CompartmentId.Value = long.Parse(p.OrdenEmbarque!.CompartmentId.ToString()!);
+                                lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
+                                lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
 
                                 lineItem.BaseNetQuantity.Value = 0M;
-                                var vol = p.OrdenEmbarque!.Compartment == 1 ? p.OrdenEmbarque!.Tonel!.Capcom
-                                    : p.OrdenEmbarque!.Compartment == 2 ? p.OrdenEmbarque!.Tonel!.Capcom2
-                                    : p.OrdenEmbarque!.Compartment == 3 ? p.OrdenEmbarque!.Tonel!.Capcom3
-                                    : p.OrdenEmbarque!.Tonel!.Capcom4;
+                                var vol = p.Compartment == 1 ? p.Tonel!.Capcom
+                                    : p.Compartment == 2 ? p.Tonel!.Capcom2
+                                    : p.Compartment == 3 ? p.Tonel!.Capcom3
+                                    : p.Tonel!.Capcom4;
                                 lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
 
                                 lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Cliente!.Codsyn!);
                                 lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
                                 lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                                lineItem.EndLoadTime.Value = item.OrdenEmbarque!.Fchcar.Value.AddDays(2);
+                                lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
 
-                                cfm.EntityKey = p.OrdenEmbarque!.Cod.ToString();
-                                cfm.Name = p.OrdenEmbarque!.Cod.ToString();
+                                cfm.EntityKey = p.Cod.ToString();
+                                cfm.Name = p.Cod.ToString();
                                 cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
                                 cfm.CustomFieldMetaDataId = new NLong();
                                 cfm.CustomFieldMetaDataId.Value = 46;
 
                                 lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
-                                lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.OrdenEmbarque!.Compartment}";
+                                lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
                                 lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
 
                                 billOfLadingLineItems.Add(lineItem);
@@ -247,11 +247,11 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                 pedidos.ForEach(x =>
                                 {
-                                    x.OrdenEmbarque!.Bolguidid = billOfLading.BolGuidId;
-                                    x.OrdenEmbarque!.Folio = folio;
+                                    x.Bolguidid = billOfLading.BolGuidId;
+                                    x.Folio = folio;
                                 });
 
-                                var ordenembarque = pedidos.Select(x => x.OrdenEmbarque).ToList();
+                                var ordenembarque = pedidos.ToList();
 
                                 context.UpdateRange(ordenembarque!);
                                 await context.SaveChangesAsync();
