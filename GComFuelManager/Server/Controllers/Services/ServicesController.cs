@@ -268,5 +268,54 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("cargadas")]
+        public async Task<ActionResult> GetOrdenesCargadas()
+        {
+            try
+            {
+                ServiceReference7.BillOfLadingServiceClient client = new ServiceReference7.BillOfLadingServiceClient(ServiceReference7.BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                client.ClientCredentials.UserName.UserName = "energasws";
+                client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(20);
+
+                ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
+
+                request.IncludeChildObjects = new ServiceReference7.NBool();
+                request.IncludeChildObjects.Value = true;
+
+                request.EndLoadDateFrom = new ServiceReference7.NDateTime();
+                request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
+
+                request.EndLoadDateTo = new ServiceReference7.NDateTime();
+                request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
+
+                request.ShipperId = new ServiceReference7.Identifier();
+                request.ShipperId.Id = new ServiceReference7.NLong();
+                request.ShipperId.Id.Value = 51004;
+
+                request.DeliveryReceiptIndicator = new ServiceReference7.NInt();
+                request.DeliveryReceiptIndicator.Value = 1;
+
+                request.BolStatus = new ServiceReference7.NEnumOfOrderStatusEnum();
+                request.BolStatus.Value = ServiceReference7.OrderStatusEnum.COMPLETED;
+
+                request.IncludeCustomFields = new ServiceReference7.NBool();
+                request.IncludeCustomFields.Value = true;
+
+                var respuesta = await client.GetBillOfLadingsAsync(request);
+
+                if (respuesta.BillOfLadings == null)
+                    return BadRequest();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

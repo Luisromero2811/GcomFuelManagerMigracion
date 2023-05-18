@@ -38,6 +38,23 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAll()
+        {
+            try
+            {
+                var grupos = context.Grupo
+                    .OrderBy(x => x.Den)
+                    .AsEnumerable();
+                return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Grupo grupo)
         {
