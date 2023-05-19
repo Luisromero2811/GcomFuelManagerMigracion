@@ -3,7 +3,7 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
         <h3>Precios</h3>
 
@@ -164,21 +164,28 @@
             </div>
         </div>
 
-
+    </Authorized>
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia" Context="Grid">
+    <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Precio" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
-                        <Template Context="item">
-                            <div class="col-12 row">
-                                <div class="col">
-                                    <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                </div>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                        <Authorized>
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
+                                <Template Context="item">
+                                    <div class="col-12 row">
+                                        <div class="col">
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </div>
+                                    </div>
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Authorized>
+                    </AuthorizeView>
                     <RadzenDataGridColumn TItem="Precio" Title="Fecha" Filterable="false" Property="FchDia" FormatString="{0:d}" />
                     <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" />
@@ -217,7 +224,6 @@
                 </Columns>
             </RadzenDataGrid>
         </div>
-
     </Authorized>
 </AuthorizeView>
 
@@ -519,7 +525,9 @@
             if (radzenUpload.HasValue)
             {
                 await radzenUpload.Upload();
-            }else{
+            }
+            else
+            {
                 await Swal.FireAsync("Alerta", "Seleccione un archivo con formato excel para poder subirlo.", SweetAlertIcon.Warning);
 
             }

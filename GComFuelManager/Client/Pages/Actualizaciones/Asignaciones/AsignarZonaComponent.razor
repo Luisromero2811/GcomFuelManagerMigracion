@@ -4,7 +4,7 @@
 @inject NotificationService ms
 
 <h3>Zona</h3>
-<AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema">
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <div class="col-10 shadow-sm card">
@@ -134,9 +134,14 @@
             <Columns>
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
                     <Template Context="item">
-                        <div class="col">
-                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                        </div>
+                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
+                            <Authorized>
+                                <div class="col">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
