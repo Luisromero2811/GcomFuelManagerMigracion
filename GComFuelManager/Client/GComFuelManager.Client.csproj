@@ -48,7 +48,6 @@
     <None Remove="Pages\Formularios\" />
     <None Remove="Repositorios\" />
     <None Remove="Shared\Layouts\" />
-    <None Remove="Pages\Formularios\SeguimientoOrdenes\" />
     <None Remove="Pages\Formularios\ETA\" />
   </ItemGroup>
   <ItemGroup>
@@ -56,7 +55,6 @@
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Shared\Layouts\" />
-    <Folder Include="Pages\Formularios\SeguimientoOrdenes\" />
     <Folder Include="Pages\Formularios\ETA\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>

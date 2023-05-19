@@ -62,7 +62,7 @@
                                                 }
                                             </InputSelect>
                                             @*<RadzenDropDown @bind-Value="@ordenCierre.CodGru" Data="Grupos" class="col-12"
-                                            TextProperty="Den" ValueProperty="Cod" Change="@GetClientes" TValue="Int16?"/>*@
+                                                TextProperty="Den" ValueProperty="Cod" Change="@GetClientes" TValue="Int16?"/>*@
                                         </div>
                                     </div>
                                     <div class="col-2">
@@ -148,258 +148,314 @@
         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center shadow-sm">
-            <div class="col-12">
-                <div class="col-12 card">
-                    <div class="col-12 card-body">
-                        <EditForm Model="ordenCierre" class="form col-12">
-                            <DataAnnotationsValidator />
+                    <div class="col-12">
+                        <div class="col-12 card">
+                            <div class="col-12 card-body">
+                                <EditForm Model="ordenCierre" class="form col-12">
+                                    <DataAnnotationsValidator />
 
-                            <div class="col-12 row">
-
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Fecha de cierre</label>
-                                        @if (!IsClient)
-                                        {
-                                            <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
-                                        }
-                                        else
-                                        {
-                                            <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
-                                        }
-                                    </div>
-                                </div>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
-                                    <Authorized>
-                                        <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label class="form-label">Grupo</label>
-                                                <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
-                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                AllowVirtualization="true" Change="@GetClientes" />
-                                                @*<InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
-                                                <option>-- Selecciona una opcion --</option>
-                                                @if (Grupos is null)
-                                                {
-                                                <option disabled> Cargando ...</option>
-                                                }
-                                                else if (Grupos.Count == 0)
-                                                {
-                                                <option disabled> No hay grupos</option>
-                                                }
-                                                else
-                                                {
-                                                foreach (var item in Grupos)
-                                                {
-                                                <option value="@item.Cod">@item.Den</option>
-                                                }
-                                                }
-                                                </InputSelect>*@
-                                            </div>
-                                        </div>
+                                    <div class="col-12 row">
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Cliente</label>
-                                                <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
-                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                AllowVirtualization="true" Change="@GetData" />
-                                                @*<InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetData()">
-                                                <option>-- Selecciona una opcion --</option>
-                                                @if (Clientes is null)
+                                                <label class="form-label">Fecha de cierre</label>
+                                                @if (!IsClient)
                                                 {
-                                                <option disabled> Cargando ...</option>
-                                                }
-                                                else if (Clientes.Count == 0)
-                                                {
-                                                <option disabled> No hay capacidades</option>
+                                                    <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
                                                 }
                                                 else
                                                 {
-                                                foreach (var item in Clientes)
-                                                {
-                                                <option value="@item.Cod">@item.Den</option>
+                                                    <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
                                                 }
-                                                }
-                                                </InputSelect>*@
                                             </div>
                                         </div>
-                                    </Authorized>
-                                </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
+                                            <Authorized>
+                                                <div class="col-4 mb-1">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Grupo</label>
+                                                        <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        AllowVirtualization="true" Change="@GetClientes" />
+                                                        @*<InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
+                                                            <option>-- Selecciona una opcion --</option>
+                                                            @if (Grupos is null)
+                                                            {
+                                                            <option disabled> Cargando ...</option>
+                                                            }
+                                                            else if (Grupos.Count == 0)
+                                                            {
+                                                            <option disabled> No hay grupos</option>
+                                                            }
+                                                            else
+                                                            {
+                                                            foreach (var item in Grupos)
+                                                            {
+                                                            <option value="@item.Cod">@item.Den</option>
+                                                            }
+                                                            }
+                                                            </InputSelect>*@
+                                                    </div>
+                                                </div>
 
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Contacto</label>
-                                        <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
-                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                        AllowVirtualization="true">
-                                            <Template Context="data">
-                                                Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                            </Template>
-                                            <ValueTemplate Context="data">
-                                                Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                            </ValueTemplate>
-                                        </RadzenDropDown>
-                                        @*<InputSelect @bind-Value="ordenCierre.CodCon" class="form-select">
-                                        <option>-- Selecciona una opcion --</option>
-                                        @if (Contactos is null)
-                                        {
-                                        <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Contactos.Count() == 0)
-                                        {
-                                        <option disabled> No hay contactos</option>
-                                        }
-                                        else
-                                        {
-                                        foreach (var item in Contactos)
-                                        {
-                                        <option value="@item.Cod">Nombre: @item.Nombre | Correo: @item.Correo</option>
-                                        }
-                                        }
-                                        </InputSelect>*@
-                                    </div>
-                                </div>
+                                                <div class="col-4 mb-1">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Cliente</label>
+                                                        <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        AllowVirtualization="true" Change="@GetData" />
+                                                        @*<InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetData()">
+                                                            <option>-- Selecciona una opcion --</option>
+                                                            @if (Clientes is null)
+                                                            {
+                                                            <option disabled> Cargando ...</option>
+                                                            }
+                                                            else if (Clientes.Count == 0)
+                                                            {
+                                                            <option disabled> No hay capacidades</option>
+                                                            }
+                                                            else
+                                                            {
+                                                            foreach (var item in Clientes)
+                                                            {
+                                                            <option value="@item.Cod">@item.Den</option>
+                                                            }
+                                                            }
+                                                            </InputSelect>*@
+                                                    </div>
+                                                </div>
+                                            </Authorized>
+                                        </AuthorizeView>
 
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Destino</label>
-                                        <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
-                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
-                                                        AllowVirtualization="true" />
-                                        @*<InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" onchange="@GetPrecios()">
-                                        <option>-- Selecciona una opcion --</option>
-                                        @if (Destino is null)
-                                        {
-                                        <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Destino.Count == 0)
-                                        {
-                                        <option disabled> No hay capacidades</option>
-                                        }
-                                        else
-                                        {
-                                        foreach (var item in Destino)
-                                        {
-                                        <option value="@item.Cod">@item.Den</option>
-                                        }
-                                        }
-                                        </InputSelect>*@
-                                    </div>
-                                </div>
-
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Producto</label>
-                                        @*<InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select" onchange="@ChangeProducto()">
-                                        <option>-- Selecciona una opcion --</option>
-                                        @if (Precios is null)
-                                        {
-                                        <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Precios.Count == 0)
-                                        {
-                                        <option disabled> No hay Productos</option>
-                                        }
-                                        else
-                                        {
-                                        foreach (var item in Precios)
-                                        {
-                                        <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
-                                        }
-                                        }
-                                        </InputSelect>*@
-                                        <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                        AllowVirtualization="true">
-                                            <Template Context="data">
-                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                            </Template>
-                                            <ValueTemplate Context="data">
-                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                            </ValueTemplate>
-                                        </RadzenDropDown>
-                                    </div>
-                                </div>
-
-                                @if (!IsDifferentVol)
-                                {
-                                    <div class="col-2 mb-1">
-                                        <div class="col-12">
-                                            <label class="form-label">Volumen</label>
-                                            <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
-                                                <option>-- Selecciona una opcion --</option>
-                                                @if (Cantidades is null)
-                                                {
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Contacto</label>
+                                                <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowVirtualization="true">
+                                                    <Template Context="data">
+                                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                                    </Template>
+                                                    <ValueTemplate Context="data">
+                                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                                    </ValueTemplate>
+                                                </RadzenDropDown>
+                                                @*<InputSelect @bind-Value="ordenCierre.CodCon" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (Contactos is null)
+                                                    {
                                                     <option disabled> Cargando ...</option>
-                                                }
-                                                else if (Cantidades.Count == 0)
-                                                {
+                                                    }
+                                                    else if (Contactos.Count() == 0)
+                                                    {
+                                                    <option disabled> No hay contactos</option>
+                                                    }
+                                                    else
+                                                    {
+                                                    foreach (var item in Contactos)
+                                                    {
+                                                    <option value="@item.Cod">Nombre: @item.Nombre | Correo: @item.Correo</option>
+                                                    }
+                                                    }
+                                                    </InputSelect>*@
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Destino</label>
+                                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
+                                                                AllowVirtualization="true" />
+                                                @*<InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" onchange="@GetPrecios()">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (Destino is null)
+                                                    {
+                                                    <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (Destino.Count == 0)
+                                                    {
                                                     <option disabled> No hay capacidades</option>
-                                                }
-                                                else
-                                                {
-                                                    foreach (var item in Cantidades)
-                                                    {
-                                                        <option value="@item">@item</option>
-                                                    }
-                                                }
-                                            </InputSelect>
-                                        </div>
-                                    </div>
-                                }
-
-                                @if (IsDifferentVol)
-                                {
-                                    <div class="col-2 mb-1">
-                                        <div class="col-12">
-                                            <label class="form-label">Volumen</label>
-                                            <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
-                                        </div>
-                                    </div>
-                                }
-
-                                <div class="col-2 mb-1 d-flex">
-                                    <div class="col-12 my-auto d-flex">
-                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
-                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                            <label class="form-label" for="CheckBox1">
-                                                Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
-                                            <label class="form-label">
-                                                Precio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                            </label>
-                                        </div>
-                                        <RadzenNumeric class="form-control col-12 disabled" @bind-Value="ordenCierre.Precio" Disabled="true" />
-                                    </div>
-                                </div>
-
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
-                                    <Authorized>
-
-                                        <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label class="form-label">Modelo de Venta</label>
-                                                <InputSelect @bind-Value="ordenCierre.ModeloVenta" class="form-select">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (MdVenta is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (MdVenta.Count == 0)
-                                                    {
-                                                        <option disabled> No hay capacidades</option>
                                                     }
                                                     else
                                                     {
-                                                        foreach (var item in MdVenta)
+                                                    foreach (var item in Destino)
+                                                    {
+                                                    <option value="@item.Cod">@item.Den</option>
+                                                    }
+                                                    }
+                                                    </InputSelect>*@
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Producto</label>
+                                                @*<InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select" onchange="@ChangeProducto()">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (Precios is null)
+                                                    {
+                                                    <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (Precios.Count == 0)
+                                                    {
+                                                    <option disabled> No hay Productos</option>
+                                                    }
+                                                    else
+                                                    {
+                                                    foreach (var item in Precios)
+                                                    {
+                                                    <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
+                                                    }
+                                                    }
+                                                    </InputSelect>*@
+                                                <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                                AllowVirtualization="true">
+                                                    <Template Context="data">
+                                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                    </Template>
+                                                    <ValueTemplate Context="data">
+                                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                    </ValueTemplate>
+                                                </RadzenDropDown>
+                                            </div>
+                                        </div>
+
+                                        @if (!IsDifferentVol)
+                                        {
+                                            <div class="col-2 mb-1">
+                                                <div class="col-12">
+                                                    <label class="form-label">Volumen</label>
+                                                    <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
+                                                        <option>-- Selecciona una opcion --</option>
+                                                        @if (Cantidades is null)
+                                                        {
+                                                            <option disabled> Cargando ...</option>
+                                                        }
+                                                        else if (Cantidades.Count == 0)
+                                                        {
+                                                            <option disabled> No hay capacidades</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            foreach (var item in Cantidades)
+                                                            {
+                                                                <option value="@item">@item</option>
+                                                            }
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                        }
+
+                                        @if (IsDifferentVol)
+                                        {
+                                            <div class="col-2 mb-1">
+                                                <div class="col-12">
+                                                    <label class="form-label">Volumen</label>
+                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
+                                                </div>
+                                            </div>
+                                        }
+
+                                        <div class="col-2 mb-1 d-flex">
+                                            <div class="col-12 my-auto d-flex">
+                                                <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
+                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
+                                                    <label class="form-label" for="CheckBox1">
+                                                        Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
+                                                    <label class="form-label">
+                                                        Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                    </label>
+                                                </div>
+                                                <RadzenNumeric class="form-control col-12 disabled" @bind-Value="ordenCierre.Precio" Disabled="true" />
+                                            </div>
+                                        </div>
+
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
+                                            <Authorized>
+
+                                                <div class="col-4 mb-1">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Modelo de Venta</label>
+                                                        <InputSelect @bind-Value="ordenCierre.ModeloVenta" class="form-select">
+                                                            <option>-- Selecciona una opcion --</option>
+                                                            @if (MdVenta is null)
+                                                            {
+                                                                <option disabled> Cargando ...</option>
+                                                            }
+                                                            else if (MdVenta.Count == 0)
+                                                            {
+                                                                <option disabled> No hay capacidades</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                foreach (var item in MdVenta)
+                                                                {
+                                                                    <option value="@item">@item</option>
+                                                                }
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-4 mb-1">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Tipo de Venta</label>
+                                                        <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
+                                                            <option>-- Selecciona una opcion --</option>
+                                                            @if (TpVenta is null)
+                                                            {
+                                                                <option disabled> Cargando ...</option>
+                                                            }
+                                                            else if (TpVenta.Count == 0)
+                                                            {
+                                                                <option disabled> No hay modelo de venta</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                foreach (var item in TpVenta)
+                                                                {
+                                                                    <option value="@item">@item</option>
+                                                                }
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-4 mb-1">
+                                                    <div class="col-12">
+                                                        <label class="form-label">Vendedor</label>
+                                                        <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" />
+                                                    </div>
+                                                </div>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Tipo de pago</label>
+                                                <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (TpPago is null)
+                                                    {
+                                                        <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (TpPago.Count == 0)
+                                                    {
+                                                        <option disabled> No hay tipos de pago</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var item in TpPago)
                                                         {
                                                             <option value="@item">@item</option>
                                                         }
@@ -407,149 +463,93 @@
                                                 </InputSelect>
                                             </div>
                                         </div>
+                                        @*<div class="col-4 mb-1">
+                                            <div class="col-12">
+                                            <label class="form-label">Fecha de llegada</label>
+                                            <InputDate class="col-12 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
+                                            </div>
+                                            </div>*@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Tipo de Venta</label>
-                                                <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (TpVenta is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (TpVenta.Count == 0)
-                                                    {
-                                                        <option disabled> No hay modelo de venta</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        foreach (var item in TpVenta)
+                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                                    <label class="form-label">
+                                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                    </label>
+                                                </div>
+                                                <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-1">
+                                            <div class="col-12">
+                                                <label class="form-label">Observaciones</label>
+                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 d-flex justify-content-center mt-3">
+                                            @if (!isEdit)
+                                            {
+                                                <div class="col-3 mx-2">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
+                                                        <i class="fa fa-solid fa-plus"></i>
+                                                        <b>Crear cierre</b>
+                                                        @if (loadingCreate)
                                                         {
-                                                            <option value="@item">@item</option>
+                                                            <SpinnerLoading></SpinnerLoading>
                                                         }
-                                                    }
-                                                </InputSelect>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label class="form-label">Vendedor</label>
-                                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" />
-                                            </div>
-                                        </div>
-                                    </Authorized>
-                                </AuthorizeView>
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Tipo de pago</label>
-                                        <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (TpPago is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (TpPago.Count == 0)
-                                            {
-                                                <option disabled> No hay tipos de pago</option>
+                                                    </button>
+                                                </div>
+                                                <div class="col-3 mx-2">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
+                                                        <i class="fa fa-solid fa-envelope"></i>
+                                                        <b>Enviar cierre</b>
+                                                        @if (loadingSend)
+                                                        {
+                                                            <SpinnerLoading></SpinnerLoading>
+                                                        }
+                                                    </button>
+                                                </div>
+                                                <div class="col-3 mx-2">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                        <i class="fa fa-solid fa-file-excel"></i>
+                                                        <b>Exportar Cierres</b>
+                                                        @if (loadingExport)
+                                                        {
+                                                            <SpinnerLoading></SpinnerLoading>
+                                                        }
+                                                    </button>
+                                                </div>
                                             }
                                             else
                                             {
-                                                foreach (var item in TpPago)
-                                                {
-                                                    <option value="@item">@item</option>
-                                                }
+                                                <div class="col-3 mx-2">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@UpateOrden">
+                                                        <i class="fa fa-solid fa-floppy-disk"></i>
+                                                        <b>Guardar cambio</b>
+                                                        @if (loadingCreate)
+                                                        {
+                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                            <span class="visually-hidden">Loading...</span>
+                                                        }
+                                                    </button>
+                                                </div>
+                                                <div class="col-3 mx-2">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@cancelEdit">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                        <b>Cancelar cambio</b>
+                                                    </button>
+                                                </div>
                                             }
-                                        </InputSelect>
+                                        </div>
                                     </div>
-                                </div>
-                                @*<div class="col-4 mb-1">
-                                <div class="col-12">
-                                <label class="form-label">Fecha de llegada</label>
-                                <InputDate class="col-12 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
-                                </div>
-                                </div>*@
 
-                                <div class="col-4 mb-1">
-                                    <div class="col-12">
-                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
-                                            <label class="form-label">
-                                                Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                            </label>
-                                        </div>
-                                        <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
-                                    </div>
-                                </div>
-
-                                <div class="col-12 mb-1">
-                                    <div class="col-12">
-                                        <label class="form-label">Observaciones</label>
-                                        <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
-                                    </div>
-                                </div>
-
-                                <div class="col-12 d-flex justify-content-center mt-3">
-                                    @if (!isEdit)
-                                    {
-                                        <div class="col-3 mx-2">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
-                                                <i class="fa fa-solid fa-plus"></i>
-                                                <b>Crear cierre</b>
-                                                @if (loadingCreate)
-                                                {
-                                                    <SpinnerLoading></SpinnerLoading>
-                                                }
-                                            </button>
-                                        </div>
-                                        <div class="col-3 mx-2">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
-                                                <i class="fa fa-solid fa-envelope"></i>
-                                                <b>Enviar cierre</b>
-                                                @if (loadingSend)
-                                                {
-                                                    <SpinnerLoading></SpinnerLoading>
-                                                }
-                                            </button>
-                                        </div>
-                                        <div class="col-3 mx-2">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
-                                                <i class="fa fa-solid fa-file-excel"></i>
-                                                <b>Exportar Cierres</b>
-                                                @if (loadingExport)
-                                                {
-                                                    <SpinnerLoading></SpinnerLoading>
-                                                }
-                                            </button>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="col-3 mx-2">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@UpateOrden">
-                                                <i class="fa fa-solid fa-floppy-disk"></i>
-                                                <b>Guardar cambio</b>
-                                                @if (loadingCreate)
-                                                {
-                                                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                    <span class="visually-hidden">Loading...</span>
-                                                }
-                                            </button>
-                                        </div>
-                                        <div class="col-3 mx-2">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@cancelEdit">
-                                                <i class="fa fa-solid fa-xmark"></i>
-                                                <b>Cancelar cambio</b>
-                                            </button>
-                                        </div>
-                                    }
-                                </div>
+                                </EditForm>
                             </div>
-
-                        </EditForm>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
             </Authorized>
         </AuthorizeView>
 
@@ -921,14 +921,14 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                {
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Bin = ordenCierres.Count == 0 ? bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                 if (response.Error)
@@ -1049,13 +1049,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
