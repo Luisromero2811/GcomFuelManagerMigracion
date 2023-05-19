@@ -70,17 +70,17 @@
                                             <label class="form-label">Cliente</label>
                                             <InputSelect @bind-Value="filtro.codCte" class="form-select">
                                                 <option>-- Selecciona una opcion --</option>
-                                                @if (Clientes is null)
+                                                @if (ClientesFiltro is null)
                                                 {
                                                     <option disabled> Cargando ...</option>
                                                 }
-                                                else if (Clientes.Count == 0)
+                                                else if (ClientesFiltro.Count == 0)
                                                 {
                                                     <option disabled> No hay capacidades</option>
                                                 }
                                                 else
                                                 {
-                                                    foreach (var item in Clientes)
+                                                    foreach (var item in ClientesFiltro)
                                                     {
                                                         <option value="@item.Cod">@item.Den</option>
                                                     }
@@ -650,6 +650,8 @@
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    private List<CodDenDTO> ClientesFiltro { get; set; } = new List<CodDenDTO>();
+
     private Cliente Cliente { get; set; } = new Cliente();
 
     private int? clienteSeleccioado { get; set; }
@@ -1349,7 +1351,7 @@
                 else
                 {
                     GrupoSeleccionadoB = GrupoSeleccionadoFiltro;
-                    Clientes = response.Response;
+                    ClientesFiltro = response.Response;
                     StateHasChanged();
                 }
             }
