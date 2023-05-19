@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,10 +57,16 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         for (int r = 1; r < worksheet.Dimension.End.Row; r++)
                         {
-                            for (int c = 1; c < worksheet.Dimension.End.Column; c++)
-                            {
-                                Debug.WriteLine($"Row:{r}, Column:{c}, data:{worksheet.Cells[r, c].Value}");
-                            }
+                            PreciosDTO precio = new PreciosDTO();
+
+                            var row = worksheet.Cells[r,1,r,worksheet.Dimension.End.Column].ToList();
+                            precio.Producto = row[0].Value.ToString();
+                            precio.Zona = row[1].Value.ToString();
+                            precio.Cliente = row[2].Value.ToString();
+                            precio.Destino = row[3].Value.ToString();
+                            precio.Fecha = row[4].Value.ToString();
+                            precio.Precio = double.Parse(row[5].Value.ToString());
+                            precios.Add(precio);
                         }
                     }
                 }
