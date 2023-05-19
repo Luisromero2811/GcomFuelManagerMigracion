@@ -43,7 +43,7 @@
                                     <div class="col-2">
                                         <div class="col-12">
                                             <label class="form-label">Grupo</label>
-                                            <InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientes()">
+                                            <InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
                                                 {
@@ -679,12 +679,12 @@
     IEnumerable<Contacto> Contactos = new List<Contacto>();
 
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
-    private Int16? GrupoSeleccionadoB = 0;
+    private short? GrupoSeleccionadoB = 0;
 
     private EmailContent emailContent { get; set; } = new EmailContent();
 
     private short? GrupoSeleccionado = 0;
-    private int GrupoSeleccionadoFiltro = 0;
+    private short GrupoSeleccionadoFiltro = 0;
     private int ClienteSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
     private int? VolumenTotal = 0;
@@ -747,7 +747,7 @@
                 await GetContactosComprador();
             }
             await GetCantidades();
-            await GetProductos();
+            //await GetProductos();
         }
         catch (Exception e)
         {
@@ -1321,6 +1321,34 @@
                 else
                 {
                     GrupoSeleccionado = ordenCierre.CodGru;
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientesFiltro()
+    {
+        try
+        {
+            if (GrupoSeleccionadoFiltro != null && GrupoSeleccionadoFiltro != GrupoSeleccionadoB)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionadoFiltro}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoB = GrupoSeleccionadoFiltro;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
