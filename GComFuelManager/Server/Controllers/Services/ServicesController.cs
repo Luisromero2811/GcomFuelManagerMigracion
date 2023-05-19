@@ -1,5 +1,7 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -11,6 +13,7 @@ namespace GComFuelManager.Server.Controllers.Services
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Obtencion de Ordenes")]
     public class ServicesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -24,7 +27,7 @@ namespace GComFuelManager.Server.Controllers.Services
             this.toFile = toFile;
         }
 
-        [HttpPost("send")]
+        [HttpPost("send"), Authorize(Roles = "Programador, Admin, Administrador Sistema")]
         public async Task<ActionResult> SendSynthesis([FromBody] List<OrdenEmbarque> ordens)
         {
             try

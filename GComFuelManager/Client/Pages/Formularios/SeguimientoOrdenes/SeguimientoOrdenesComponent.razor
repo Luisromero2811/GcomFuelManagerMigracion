@@ -14,8 +14,8 @@
     <div class="row">
         <div class="col-12 card shadow-sm">
             <div class="col-12 card-body">
-            <label><b>Mostrar Ordenes:</b></label>
-                <EditForm Model="@ordenEmbarque" >
+                <label><b>Mostrar Ordenes:</b></label>
+                <EditForm Model="@ordenEmbarque">
                     <DataAnnotationsValidator />
                     <div class="row col-12">
                         <div class="col-4">
@@ -41,7 +41,7 @@
                             </button>
                         </div>
                         <div class="row col-12 mt-3">
-                            <div class="d-flex justify-content-start">
+                            <div class="d-flex justify-content-center">
                                 <div class="form-check form-check-inline">
                                     <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
                                     <label class="form-check-label" for="SinCargar">Sin Cargar</label>
@@ -77,52 +77,53 @@
                 </EditForm>
             </div>
         </div>
-        <!--Maquetación de Tabla con Radzen-->
-        <div class="col-12 d-flex justify-content-center">
-            <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())"
-                            IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true">
-                @*<EmptyTemplate>
-                    <NoHayRegistros></NoHayRegistros>
-                    </EmptyTemplate>*@
-                <Columns>
-                    <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Width="200px" Frozen="true" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Width="200px" Frozen="true" MinWidth="200px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" MinWidth="200px">
-                        <Template Context="data">
-                            <div class="col-12">
-                                @if (Status is true)
-                                {
-                                    <p>CLOSED</p>
-                                }
-                                else
-                                {
-                                    @data?.Estado?.den
-                                }
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" MinWidth="150px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" MinWidth="305px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" MinWidth="150px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.Den" Width="290px" MinWidth="290px" />
-                    <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
-                        <Template Context="data">
-                            <div class="col-12">
-                                @data?.Tonel?.Tracto @data?.Tonel?.Placa
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" MinWidth="290px" />
-                </Columns>
-            </RadzenDataGrid>
-        </div>
-    </AuthorizeView>
+    </div>
+    <!--Maquetación de Tabla con Radzen-->
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())"
+                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true">
+            @*<EmptyTemplate>
+                <NoHayRegistros></NoHayRegistros>
+                </EmptyTemplate>*@
+            <Columns>
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Width="200px" Frozen="true" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Width="200px" Frozen="true" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" MinWidth="200px">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @if (Status is true)
+                            {
+                                <p>CLOSED</p>
+                            }
+                            else
+                            {
+                                @data?.Estado?.den
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" MinWidth="150px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" MinWidth="305px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" MinWidth="150px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.Den" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" MinWidth="290px" />
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
 <style type="text/css" media="screen and (min-width:1200px)">
     .ancho {
         width: 1100px;
@@ -239,23 +240,23 @@
             from o in ordens
                 //Agregar Producto, Vólumen natural, volúmen cargado, Transportista, Unidad y operador
             select new OrdenesDTO()
-                {
-                    Referencia = o?.Ref,
-                    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
-                    EstatusOrden = o?.Estado.den,
-                    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
-                    Bol = o?.BatchId,
-                    DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    VolNat = o?.Vol2,
-                    VolCar = o?.Vol,
-                    Transportista = o?.Tonel?.Transportista?.Den,
-                    Unidad = o?.Tonel?.Veh,
-                    Operador = o?.Chofer?.Den
+            {
+                Referencia = o?.Ref,
+                FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                EstatusOrden = o?.Estado.den,
+                FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
+                Bol = o?.BatchId,
+                DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                Cliente = o?.Destino?.Cliente?.Den,
+                Destino = o?.Destino?.Den,
+                Producto = o?.Producto?.Den,
+                VolNat = o?.Vol2,
+                VolCar = o?.Vol,
+                Transportista = o?.Tonel?.Transportista?.Den,
+                Unidad = o?.Tonel?.Veh,
+                Operador = o?.Chofer?.Den
 
-                }, true);
+            }, true);
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             var header = worksheet.Cells["A1:N1"];
@@ -285,22 +286,22 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
                 from o in ordens
                 select new OrdenesDTO()
-                    {
-                        Referencia = o?.Ref,
-                        FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
-                        EstatusOrden = "CLOSED",
-                        FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
-                        Bol = o?.BatchId,
-                        DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                        Cliente = o?.Destino?.Cliente?.Den,
-                        Destino = o?.Destino?.Den,
-                        Producto = o?.Producto?.Den,
-                        VolNat = o?.Vol2,
-                        VolCar = o?.Vol,
-                        Transportista = o?.Tonel?.Transportista?.Den,
-                        Unidad = o?.Tonel?.Veh,
-                        Operador = o?.Chofer?.Den
-                    }, true);
+                {
+                    Referencia = o?.Ref,
+                    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                    EstatusOrden = "CLOSED",
+                    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
+                    Bol = o?.BatchId,
+                    DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    VolNat = o?.Vol2,
+                    VolCar = o?.Vol,
+                    Transportista = o?.Tonel?.Transportista?.Den,
+                    Unidad = o?.Tonel?.Veh,
+                    Operador = o?.Chofer?.Den
+                }, true);
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             var header = worksheet.Cells["A1:N1"];
@@ -339,22 +340,22 @@
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
                 from o in ordens
                 select new OrdenesDTO()
-                    {
-                        Referencia = o?.Ref,
-                        FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
-                        EstatusOrden = o?.Estado.den,
-                        FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
-                        Bol = o?.BatchId,
-                        DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                        Cliente = o?.Destino?.Cliente?.Den,
-                        Destino = o?.Destino?.Den,
-                        Producto = o?.Producto?.Den,
-                        VolNat = o?.Vol2,
-                        VolCar = o?.Vol,
-                        Transportista = o?.Tonel?.Transportista?.Den,
-                        Unidad = o?.Tonel?.Veh,
-                        Operador = o?.Chofer?.Den
-                    }, true);
+                {
+                    Referencia = o?.Ref,
+                    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                    EstatusOrden = o?.Estado.den,
+                    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
+                    Bol = o?.BatchId,
+                    DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    VolNat = o?.Vol2,
+                    VolCar = o?.Vol,
+                    Transportista = o?.Tonel?.Transportista?.Den,
+                    Unidad = o?.Tonel?.Veh,
+                    Operador = o?.Chofer?.Den
+                }, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 var header = worksheet.Cells["A1:N1"];
@@ -371,7 +372,7 @@
         }
 
     }
-    }
+}
 
 <!--Fecha de carga, estacion es destino-->
 <!--
