@@ -80,17 +80,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     var respuesta = await svc.GetVehiclesAsync(getReq);
 
+                    Debug.WriteLine(JsonConvert.SerializeObject(respuesta));
                     //long carrId;
 
                     //Si la respuesta no es nula, si existe respuesta
                     if (respuesta.Vehicles != null)
                     {
-                        //Transportista transportista = new Transportista();
-                        ////Obtenemos el CarrID del transportista 
-                        //Transportista? transportistas = context.Transportista
-                        //    .Where(x => x.Den == transportista.Den)
-                        //    .DefaultIfEmpty()
-                        //    .FirstOrDefault();
                         foreach (var item in respuesta.Vehicles)
                         {
                             //carrId = item.CarrierId.Id.Value;
@@ -113,9 +108,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 //Si el tonel esta activo
                                 if (tonel.Activo == true)
                                 {
+                                Debug.WriteLine($"activo: {tonel.Carid}");
                                     //Si el tonel no es nulo lo actualimos
                                     if (t != null)
                                     {
+                                    Debug.WriteLine($"activo: {t.Cod}");
                                         t.Placa = item.RegistrationNumber.Trim();
                                         t.Tracto = item.VehicleCode.Trim();
                                         //t.Placatracto = item.RfiTagId.Trim();
