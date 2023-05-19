@@ -43,13 +43,13 @@
                                     <div class="col-2">
                                         <div class="col-12">
                                             <label class="form-label">Grupo</label>
-                                            <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
+                                            <InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientes()">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
                                                 {
                                                     <option disabled> Cargando ...</option>
                                                 }
-                                                else if (Grupos.Count == 0)
+                                                else if (Grupos.Count() == 0)
                                                 {
                                                     <option disabled> No hay grupos</option>
                                                 }
@@ -61,6 +61,8 @@
                                                     }
                                                 }
                                             </InputSelect>
+                                            @*<RadzenDropDown @bind-Value="@ordenCierre.CodGru" Data="Grupos" class="col-12"
+                                            TextProperty="Den" ValueProperty="Cod" Change="@GetClientes" TValue="Int16?"/>*@
                                         </div>
                                     </div>
                                     <div class="col-2">
@@ -145,6 +147,14 @@
         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Forms">
             <Authorized>
 
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
+            <Authorized>
+                <div class="col-12 d-flex justify-content-center shadow-sm">
+            <div class="col-12">
+                <div class="col-12 card">
+                    <div class="col-12 card-body">
+                        <EditForm Model="ordenCierre" class="form col-12">
+                            <DataAnnotationsValidator />
 
                 <div class="col-12 d-flex justify-content-center shadow-sm">
                     <div class="col-12">
@@ -157,119 +167,214 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Fecha de cierre</label>
-                                                @if (!IsClient)
+                                                <label class="form-label">Grupo</label>
+                                                <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowVirtualization="true" Change="@GetClientes" />
+                                                @*<InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (Grupos is null)
                                                 {
-                                                    <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
+                                                <option disabled> Cargando ...</option>
+                                                }
+                                                else if (Grupos.Count == 0)
+                                                {
+                                                <option disabled> No hay grupos</option>
                                                 }
                                                 else
                                                 {
-                                                    <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
+                                                foreach (var item in Grupos)
+                                                {
+                                                <option value="@item.Cod">@item.Den</option>
                                                 }
-                                            </div>
-                                        </div>
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
-                                            <Authorized>
-                                                <div class="col-4 mb-1">
-                                                    <div class="col-12">
-                                                        <label class="form-label">Grupo</label>
-                                                        <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()">
-                                                            <option>-- Selecciona una opcion --</option>
-                                                            @if (Grupos is null)
-                                                            {
-                                                                <option disabled> Cargando ...</option>
-                                                            }
-                                                            else if (Grupos.Count == 0)
-                                                            {
-                                                                <option disabled> No hay grupos</option>
-                                                            }
-                                                            else
-                                                            {
-                                                                foreach (var item in Grupos)
-                                                                {
-                                                                    <option value="@item.Cod">@item.Den</option>
-                                                                }
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-4 mb-1">
-                                                    <div class="col-12">
-                                                        <label class="form-label">Cliente</label>
-                                                        <InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetData()">
-                                                            <option>-- Selecciona una opcion --</option>
-                                                            @if (Clientes is null)
-                                                            {
-                                                                <option disabled> Cargando ...</option>
-                                                            }
-                                                            else if (Clientes.Count == 0)
-                                                            {
-                                                                <option disabled> No hay capacidades</option>
-                                                            }
-                                                            else
-                                                            {
-                                                                foreach (var item in Clientes)
-                                                                {
-                                                                    <option value="@item.Cod">@item.Den</option>
-                                                                }
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-                                            </Authorized>
-                                        </AuthorizeView>
-
-                                        <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label class="form-label">Contacto</label>
-                                                <InputSelect @bind-Value="ordenCierre.CodCon" class="form-select">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (Contactos is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (Contactos.Count() == 0)
-                                                    {
-                                                        <option disabled> No hay contactos</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        foreach (var item in Contactos)
-                                                        {
-                                                            <option value="@item.Cod">Nombre: @item.Nombre | Correo: @item.Correo</option>
-                                                        }
-                                                    }
-                                                </InputSelect>
+                                                }
+                                                </InputSelect>*@
                                             </div>
                                         </div>
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Destino</label>
-                                                @*<RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" />*@
-                                                <InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" onchange="@GetPrecios()">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (Destino is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (Destino.Count == 0)
-                                                    {
-                                                        <option disabled> No hay capacidades</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        foreach (var item in Destino)
-                                                        {
-                                                            <option value="@item.Cod">@item.Den</option>
-                                                        }
-                                                    }
-                                                </InputSelect>
+                                                <label class="form-label">Cliente</label>
+                                                <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowVirtualization="true" Change="@GetData" />
+                                                @*<InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetData()">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (Clientes is null)
+                                                {
+                                                <option disabled> Cargando ...</option>
+                                                }
+                                                else if (Clientes.Count == 0)
+                                                {
+                                                <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                foreach (var item in Clientes)
+                                                {
+                                                <option value="@item.Cod">@item.Den</option>
+                                                }
+                                                }
+                                                </InputSelect>*@
                                             </div>
                                         </div>
+
+                                <div class="col-4 mb-1">
+                                    <div class="col-12">
+                                        <label class="form-label">Contacto</label>
+                                        <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowVirtualization="true">
+                                            <Template Context="data">
+                                                Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                            </Template>
+                                            <ValueTemplate Context="data">
+                                                Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
+                                        @*<InputSelect @bind-Value="ordenCierre.CodCon" class="form-select">
+                                        <option>-- Selecciona una opcion --</option>
+                                        @if (Contactos is null)
+                                        {
+                                        <option disabled> Cargando ...</option>
+                                        }
+                                        else if (Contactos.Count() == 0)
+                                        {
+                                        <option disabled> No hay contactos</option>
+                                        }
+                                        else
+                                        {
+                                        foreach (var item in Contactos)
+                                        {
+                                        <option value="@item.Cod">Nombre: @item.Nombre | Correo: @item.Correo</option>
+                                        }
+                                        }
+                                        </InputSelect>*@
+                                    </div>
+                                </div>
+
+                                <div class="col-4 mb-1">
+                                    <div class="col-12">
+                                        <label class="form-label">Destino</label>
+                                        <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
+                                                        AllowVirtualization="true" />
+                                        @*<InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" onchange="@GetPrecios()">
+                                        <option>-- Selecciona una opcion --</option>
+                                        @if (Destino is null)
+                                        {
+                                        <option disabled> Cargando ...</option>
+                                        }
+                                        else if (Destino.Count == 0)
+                                        {
+                                        <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                        foreach (var item in Destino)
+                                        {
+                                        <option value="@item.Cod">@item.Den</option>
+                                        }
+                                        }
+                                        </InputSelect>*@
+                                    </div>
+                                </div>
+
+                                <div class="col-4 mb-1">
+                                    <div class="col-12">
+                                        <label class="form-label">Producto</label>
+                                        @*<InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select" onchange="@ChangeProducto()">
+                                        <option>-- Selecciona una opcion --</option>
+                                        @if (Precios is null)
+                                        {
+                                        <option disabled> Cargando ...</option>
+                                        }
+                                        else if (Precios.Count == 0)
+                                        {
+                                        <option disabled> No hay Productos</option>
+                                        }
+                                        else
+                                        {
+                                        foreach (var item in Precios)
+                                        {
+                                        <option value="@item.Producto!.Cod">@item.Producto.Den | $@item.Pre</option>
+                                        }
+                                        }
+                                        </InputSelect>*@
+                                        <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                        AllowVirtualization="true">
+                                            <Template Context="data">
+                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            </Template>
+                                            <ValueTemplate Context="data">
+                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
+                                    </div>
+                                </div>
+
+                                @if (!IsDifferentVol)
+                                {
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (Cantidades is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (Cantidades.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in Cantidades)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (IsDifferentVol)
+                                {
+                                    <div class="col-2 mb-1">
+                                        <div class="col-12">
+                                            <label class="form-label">Volumen</label>
+                                            <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="col-2 mb-1 d-flex">
+                                    <div class="col-12 my-auto d-flex">
+                                        <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
+                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
+                                            <label class="form-label" for="CheckBox1">
+                                                Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-4 mb-1">
+                                    <div class="col-12">
+                                        <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
+                                            <label class="form-label">
+                                                Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                            </label>
+                                        </div>
+                                        <RadzenNumeric class="form-control col-12 disabled" @bind-Value="ordenCierre.Precio" Disabled="true" />
+                                    </div>
+                                </div>
+
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
+                                    <Authorized>
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
@@ -523,6 +628,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
             </Authorized>
         </AuthorizeView>
 
@@ -651,19 +758,20 @@
     Contacto Contacto { get; set; } = new Contacto();
     IEnumerable<Contacto> Contactos = new List<Contacto>();
 
-    private List<CodDenDTO> Grupos { get; set; } = null!;
+    private IEnumerable<Grupo> Grupos { get; set; } = null!;
     private Int16? GrupoSeleccionadoB = 0;
 
     private EmailContent emailContent { get; set; } = new EmailContent();
 
-    private int GrupoSeleccionado = 0;
+    private short? GrupoSeleccionado = 0;
+    private int GrupoSeleccionadoFiltro = 0;
     private int ClienteSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
     private int? VolumenTotal = 0;
     private byte? CodProductoSeleccionado = 0;
 
     private string ProductoSeleccionado = string.Empty;
-    private IEnumerable<string> ProductList { get; set; } = new List<string>();
+    private IEnumerable<string?> ProductList { get; set; } = new List<string>();
 
     bool loading = false;
     bool isEdit = false;
@@ -674,9 +782,24 @@
     bool loadingSend = false;
     bool IsClient = false;
     bool IsDifferentVol = false;
+    bool loadingEdit = false;
     ElementReference infoIcon;
     ElementReference infoIconVolumen;
     ElementReference infoPrecio;
+
+    //protected override bool ShouldRender()
+    //{
+    //    if (ordenCierre.CodCte != clienteSeleccioado)
+    //        return true;
+
+    //    if (ordenCierre.CodDes != DestinoSeleccionado)
+    //        return true;
+
+    //    if (ordenCierre.CodGru != GrupoSeleccionado)
+    //        return true;
+
+    //    return false;
+    //}
 
     protected override async Task OnInitializedAsync()
     {
@@ -718,31 +841,29 @@
 
     private async Task GetData()
     {
-        if (ordenCierre.CodCte != clienteSeleccioado)
+        if (ordenCierre.CodCte != null || clienteSeleccioado != ordenCierre.CodCte)
         {
             await GetContactos();
             await GetEstaciones();
             clienteSeleccioado = ordenCierre.CodCte;
+            StateHasChanged();
         }
+
     }
 
     private async Task GetContactos()
     {
         try
         {
-            if (ordenCierre.CodCte != null)
+            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/{ordenCierre.CodCte}");
+            if (response.Error)
             {
-                var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/{ordenCierre.CodCte}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Contactos = response.Response;
-                    StateHasChanged();
-                }
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
             }
         }
         catch (Exception e)
@@ -765,7 +886,6 @@
             else
             {
                 Contactos = response.Response;
-                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -779,7 +899,7 @@
     {
         try
         {
-            var response = await http.Get<List<CodDenDTO>>("api/grupo");
+            var response = await http.Get<IEnumerable<Grupo>>("api/grupo/all");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -931,11 +1051,14 @@
         try
         {
             ordenCierre = orden;
+            await GetData();
+            await GetPrecios();
             if (!Cantidades.Any(x => x == ordenCierre.Volumen))
                 IsDifferentVol = true;
             else
                 IsDifferentVol = false;
             isEdit = true;
+            StateHasChanged();
         }
         catch (Exception e)
         {
@@ -1033,7 +1156,7 @@
                     }
                     else
                     {
-                        await Swal.FireAsync("Cierre cancelado", $"La orden con folio {orden.Folio} ha sido cancelada.", SweetAlertIcon.Info);
+                        await Swal.FireAsync("Cierre cancelado", $"La orden con folio ha sido cancelada.", SweetAlertIcon.Info);
                         ordenPendientes.Remove(orden.Cod);
                         await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
                         await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
@@ -1070,7 +1193,6 @@
             {
                 ordenesPendientes = JsonConvert.DeserializeObject<List<int>>(await js.GetItemLocalStorage("CIERRE"));
                 ordenCierres = null!;
-                StateHasChanged();
 
                 var response = await http.Post<List<int>, List<OrdenCierre>>("api/cierre/list", ordenesPendientes!);
 
@@ -1138,7 +1260,7 @@
             else
             {
                 ordenCierres = response.Response;
-                ProductList = ordenCierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
+                ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
             }
         }
         catch (Exception e)
@@ -1268,7 +1390,7 @@
     {
         try
         {
-            if (ordenCierre.CodGru != null && ordenCierre.CodGru != GrupoSeleccionadoB)
+            if (ordenCierre.CodGru != null && GrupoSeleccionado != ordenCierre.CodGru)
             {
                 var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenCierre.CodGru}");
                 if (response.Error)
@@ -1278,11 +1400,12 @@
                 }
                 else
                 {
-                    GrupoSeleccionadoB = ordenCierre.CodGru;
+                    GrupoSeleccionado = ordenCierre.CodGru;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
             }
+
         }
         catch (Exception e)
         {
@@ -1304,7 +1427,6 @@
             else
             {
                 Destino = response.Response;
-                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -1395,24 +1517,28 @@
     {
         try
         {
-            if(ordenCierre.CodDes != DestinoSeleccionado && ordenCierre.CodDes != null){
-                ZonaCliente zonaCliente = new ZonaCliente();
-                zonaCliente.DesCod = ordenCierre.CodDes;
-                zonaCliente.CteCod = ordenCierre.CodCte;
+            if (ordenCierre.CodDes != null && ordenCierre.CodCte != null && DestinoSeleccionado != ordenCierre.CodDes)
+            {
 
-                var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
-                if (response.Error)
-                {
-                    var responseHttp = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Precios = response.Response;
-                    DestinoSeleccionado = ordenCierre.CodDes;
-                    StateHasChanged();
-                }
             }
+
+            ZonaCliente zonaCliente = new ZonaCliente();
+            zonaCliente.DesCod = ordenCierre.CodDes;
+            zonaCliente.CteCod = ordenCierre.CodCte;
+
+            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Precios = response.Response;
+                StateHasChanged();
+                DestinoSeleccionado = ordenCierre.CodDes;
+            }
+
         }
         catch (Exception e)
         {
@@ -1424,11 +1550,14 @@
     {
         try
         {
-            if(ordenCierre.CodPrd != CodProductoSeleccionado && ordenCierre.CodPrd != null){
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto.Cod == ordenCierre.CodPrd).Pre;
+            if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
+            {
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
-                Console.WriteLine("precio");
+                StateHasChanged();
+                //Console.WriteLine("precio");
             }
+            //CodProductoSeleccionado = ordenCierre.CodPrd;
         }
         catch (Exception e)
         {

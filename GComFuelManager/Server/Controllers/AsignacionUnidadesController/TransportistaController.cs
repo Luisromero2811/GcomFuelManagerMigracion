@@ -103,47 +103,48 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
-                        var carrid = truckResponse.TruckCarriers.FirstOrDefault(x => x.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
-                        //Creacion del objeto del transportista
-                        Transportista transportista = new Transportista()
+                        if (!string.IsNullOrEmpty(item.BusinessEntity.BusinessEntityName) && !string.IsNullOrWhiteSpace(item.BusinessEntity.BusinessEntityName))
                         {
-                            Den = item.BusinessEntity.BusinessEntityName,
-                            Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
-                            Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
-                            CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString()
-                        };
-                        //Si el transportista esta activo 
-                        if (transportista.Activo == true)
-                        {
-                            Debug.WriteLine($"activo: {transportista.Busentid}");
-                            Transportista? t = context.Transportista.Where(x => x.Busentid == transportista.Busentid)
-                                .DefaultIfEmpty()
-                                .FirstOrDefault();
-                            //Si el transportista no es nulo 
-                            if (t != null)
+                            var carrid = truckResponse.TruckCarriers.FirstOrDefault(x => x.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
+                            //Creacion del objeto del transportista
+                            Transportista transportista = new Transportista()
                             {
-                                //Lo actualiza
-                                t.Den = transportista.Den;
-                                t.Activo = transportista.Activo;
-                                t.CarrId = string.IsNullOrEmpty(t.CarrId) ? string.Empty : t.CarrId;
-                                context.Update(t);
+                                Den = item.BusinessEntity.BusinessEntityName,
+                                Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
+                                Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString()
+                            };
+                            //Si el transportista esta activo 
+                            if (transportista.Activo == true)
+                            {
+                                Transportista? t = context.Transportista.Where(x => x.Busentid == transportista.Busentid)
+                                    .DefaultIfEmpty()
+                                    .FirstOrDefault();
+                                //Si el transportista no es nulo 
+                                if (t != null)
+                                {
+                                    //Lo actualiza
+                                    t.Den = transportista.Den;
+                                    t.Activo = transportista.Activo;
+                                    t.CarrId = string.IsNullOrEmpty(t.CarrId) ? string.Empty : t.CarrId;
+                                    context.Update(t);
+                                }
+                                else
+                                    //Agrega un nuevo transportista 
+                                    context.Add(transportista);
                             }
                             else
-                                //Agrega un nuevo transportista 
-                                context.Add(transportista);
-                        }
-                        else
-                        {
-                            //Actualiza el campo de activo 
-                            Debug.WriteLine($"inactivo:{transportista.Busentid}");
-                            var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId)).DefaultIfEmpty().FirstOrDefault();
-                            if (cod != null)
                             {
-                                var tinactivo = context.Transportista.Find(cod.Cod);
-                                if (tinactivo != null)
+                                //Actualiza el campo de activo 
+                                var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId)).DefaultIfEmpty().FirstOrDefault();
+                                if (cod != null)
                                 {
-                                    tinactivo.Activo = false;
-                                    context.Update(tinactivo);
+                                    var tinactivo = context.Transportista.Find(cod.Cod);
+                                    if (tinactivo != null)
+                                    {
+                                        tinactivo.Activo = false;
+                                        context.Update(tinactivo);
+                                    }
                                 }
                             }
                         }
