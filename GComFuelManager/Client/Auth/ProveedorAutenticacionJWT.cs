@@ -73,7 +73,7 @@ namespace GComFuelManager.Client.Auth
         //Condición para que el sistema verifique si debería de renovar su JWT
         private bool DebeRenovarToken(DateTime tiempoExpiracion)
         {
-            return tiempoExpiracion.Subtract(DateTime.Now) < TimeSpan.FromMinutes(20);
+            return tiempoExpiracion.Subtract(DateTime.Now) < TimeSpan.FromMinutes(30);
         }
         //Acción para renovar el Token 
         public async Task ManejarRenovacionToken()
@@ -145,24 +145,14 @@ namespace GComFuelManager.Client.Auth
         {
             await Limpiar();
             NotifyAuthenticationStateChanged(Task.FromResult(anonimo));
+            navigation.NavigateTo("/login");
         }
         public async Task Limpiar()
         {
             await js.RemoveItemLocalStorage(TOKENKEY);
             await js.RemoveItemLocalStorage(EXPIRATIONTOKENKEY);
-
-//await DestruirTiempoVidaToken();
-
             client.DefaultRequestHeaders.Authorization = null!;
         }
-        //public async Task DestruirTiempoVidaToken()
-        //{
-        //    await js.GetItemLocalStorage(TOKENKEY);
-        //    if (Logoute)
-        //    {
-
-        //    }
-        //}
     }
 }
 
