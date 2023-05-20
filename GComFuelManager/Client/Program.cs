@@ -1,20 +1,24 @@
-﻿using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
-using CurrieTechnologies.Razor.SweetAlert2;
-using GComFuelManager.Client.Repositorios;
-using Radzen;
-using Microsoft.AspNetCore.Components.Authorization;
 using GComFuelManager.Client.Auth;
+using GComFuelManager.Client.Repositorios;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Radzen;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddSingleton(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress), Timeout = TimeSpan.FromMinutes(5) });
+builder.Services.AddSingleton(sp => new HttpClient
+{
+    BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
+    Timeout = TimeSpan.FromMinutes(5),
+});
 ConfigureServices(builder.Services);
 
-
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 await builder.Build().RunAsync();
 void ConfigureServices(IServiceCollection services)
@@ -30,7 +34,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<ProveedorAutenticacionJWT>();
 
-    services.AddScoped<AuthenticationStateProvider, ProveedorAutenticacionJWT>(proveedor => 
+    services.AddScoped<AuthenticationStateProvider, ProveedorAutenticacionJWT>(proveedor =>
     proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
 
     services.AddScoped<ILoginService, ProveedorAutenticacionJWT>(proveedor =>

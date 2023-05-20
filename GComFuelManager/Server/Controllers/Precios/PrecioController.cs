@@ -55,7 +55,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     using (ExcelWorksheet worksheet = package.Workbook.Worksheets.First())
                     {
-                        for (int r = 1; r < worksheet.Dimension.End.Row; r++)
+                        for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         {
                             PreciosDTO precio = new PreciosDTO();
 

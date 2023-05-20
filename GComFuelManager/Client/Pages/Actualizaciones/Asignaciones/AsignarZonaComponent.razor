@@ -179,7 +179,7 @@
     {
         try
         {
-            var response = await http.Post<ZonaCliente>("api/zona", zonaCliente);
+            var response = await http.Post<Zona>("api/zona", Zona);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
