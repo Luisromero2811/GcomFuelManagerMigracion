@@ -20,7 +20,7 @@
                     </div>
                     <div class="col-6 d-flex justify-content-end">
                         <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                            <i class="fa-solid fa-file-excel fa"></i> Eportar
+                            <i class="fa-solid fa-file-excel fa"></i> Exportar
                             @if (loadingExport)
                             {
                                 <SpinnerLoading></SpinnerLoading>
@@ -194,7 +194,7 @@
                 ws.Columns.Width = 50;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:P1"];
+                var header = ws.Cells["A1:H1"];
                 var ordenFilter = new List<DetalleCierreDTO>();
                 foreach (var item in detalleCierres)
                     if (item.Producto == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
@@ -202,8 +202,11 @@
 
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(ordenFilter, true);
                 tablebody.Style.Font.Size = 14;
-                header.Style.Font.Size = 14;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
 
+                header.Style.Font.Size = 14;
+                
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
                 header.Style.Font.Bold = true;

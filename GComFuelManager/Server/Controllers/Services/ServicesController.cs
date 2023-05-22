@@ -13,7 +13,7 @@ namespace GComFuelManager.Server.Controllers.Services
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Obtencion de Ordenes")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Obtencion de Ordenes, Admin, Administrador Sistema, Programador")]
     public class ServicesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
