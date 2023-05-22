@@ -90,7 +90,7 @@
                 </div>
                 <div class="col-6 d-flex justify-content-end">
                     <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                        <i class="fa-solid fa-file-excel fa"></i> Eportar
+                        <i class="fa-solid fa-file-excel fa"></i> Exportar
                         @if (loadingExport)
                         {
                             <SpinnerLoading></SpinnerLoading>
@@ -312,12 +312,14 @@
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var ws = excel.Workbook.Worksheets.Add("Cierre");
-                ws.Columns.Width = 50;
+                ws.Columns.Width = 60;
                 ws.Columns.AutoFit();
 
                 var header = ws.Cells["A1:H1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(detalleCierres, true);
                 tablebody.Style.Font.Size = 14;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
                 header.Style.Font.Size = 14;
 
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;

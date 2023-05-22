@@ -457,13 +457,17 @@
 
 
         <div class="col-12 d-flex justify-content-center row">
-            @if (ordenCierres.Count != 0)
-            {
-                <div class="col-12 d-flex justify-content-start my-3">
-                    <button class="col-3 btn gcom-bg-amarillo" @onclick="@ClearList">
-                        <i class="fa-solid fa-broom-wide"></i> Limpiar
-                    </button>
-                </div>
+            @if(ordenCierres.Count != 0){
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
+                        <Authorized>
+                            <div class="col-12 d-flex justify-content-start my-3">
+                                <button class="col-3 btn gcom-bg-amarillo" @onclick="@ClearList">
+                                    <i class="fa-solid fa-broom"></i> Limpiar
+                                </button>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+
             }
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" AllowColumnPicking="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-4 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -472,16 +476,16 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
                         <Template Context="item">
                             <div class="col-12 row">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador">
                                     <Authorized>
                                         <div class="col">
                                             <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
                                         </div>
+                                        <div class="col">
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </div>
                                     </Authorized>
                                 </AuthorizeView>
-                                <div class="col">
-                                    <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                </div>
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
@@ -671,7 +675,7 @@
     }
 
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
-    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
     void ShowTooltipPrecio(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El precio se llenara automaticamente al seleccionar el producto.", options);
 
     private async Task GetData()
@@ -1125,7 +1129,7 @@
                 ws.Columns.Width = 50;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:P1"];
+                var header = ws.Cells["A1:R1"];
 
                 var ordenFilter = new List<OrdenCierre>();
                 foreach (var item in ordenCierres)
@@ -1134,6 +1138,8 @@
 
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
                 tablebody.Style.Font.Size = 14;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
                 header.Style.Font.Size = 14;
 
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
