@@ -59,5 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\js\" />
+    <Content Remove="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
   </ItemGroup>
 </Project>
