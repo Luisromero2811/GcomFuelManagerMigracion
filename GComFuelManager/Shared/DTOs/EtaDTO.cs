@@ -29,7 +29,7 @@ namespace GComFuelManager.Shared.DTOs
 
         [DisplayName("Fecha Documentacion")]
         public string? FechaDoc { get; set; } = string.Empty;
-        public string? Eta { get; set; } = string.Empty;
+        //public string? Eta { get; set; } = string.Empty;
         [DisplayName("Fecha Estimada")]
         public string? FechaEst { get; set; } = string.Empty;
         [DisplayName("Estado de Orden")]

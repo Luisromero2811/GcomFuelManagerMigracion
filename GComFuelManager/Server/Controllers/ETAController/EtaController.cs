@@ -128,11 +128,11 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          Unidad = e.Tonel.Veh,
                          Operador = e.Chofer.Den,
                          FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         Eta = e.OrdEmbDet.Eta,
+                         //Eta = e.OrdEmbDet.Eta,
                          FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                          Trayecto = "ENTREGADO",
                          Observaciones = e.OrdEmbDet!.Obs,
-                         FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd"),
+                         FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                          LitEnt = e.OrdEmbDet.Litent
                      })
 

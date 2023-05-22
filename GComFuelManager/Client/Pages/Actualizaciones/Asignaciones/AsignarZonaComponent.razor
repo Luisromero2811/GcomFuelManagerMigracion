@@ -188,6 +188,7 @@
             else
             {
                 await GetZonas();
+                await Swal.FireAsync("Exito", "Zona creada con exito.", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
