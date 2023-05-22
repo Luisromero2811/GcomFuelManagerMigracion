@@ -25,6 +25,10 @@ namespace GComFuelManager.Shared.DTOs
         public string Fecha { get; set; } = string.Empty;
         [JsonProperty("precio"), DisplayName("Precio")]
         public double Precio { get; set; } = 0;
+        [JsonProperty("producto"), DisplayName("Producto")]
+        public string Producto { get; set; } = string.Empty;
+        [JsonProperty("destino"), DisplayName("Destino")]
+        public string Destino { get; set; } = string.Empty;
         [JsonProperty("codZona"), EpplusIgnore]
         public int CodZona { get; set; } = 0;
 
