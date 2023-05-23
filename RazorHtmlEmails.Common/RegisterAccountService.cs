@@ -28,7 +28,7 @@ namespace RazorHtmlEmails.Common
         public async Task Register(EmailContent content)
         {
 
-            string body = await razorView.RenderViewToStringAsync("/Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
+            string body = await razorView.RenderViewToStringAsync("./Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
             var message = new MimeMessage();
 
             //AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
