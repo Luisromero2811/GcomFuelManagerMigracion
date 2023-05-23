@@ -154,19 +154,19 @@
                             <label class="form-label">Producto</label>
                             <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
                                 <option>-- Seleccione una opcion</option>
-                                @if (precios == null)
+                                @if (Productos == null)
                                 {
                                     <option>Cargando...</option>
                                 }
-                                else if (precios.Count == 0)
+                                else if (Productos.Count == 0)
                                 {
                                     <option>No hay productos.</option>
                                 }
                                 else
                                 {
-                                    @foreach (var item in precios)
+                                    @foreach (var item in Productos)
                                     {
-                                        <option value="@item.Producto!.Cod">@item.Producto.Den</option>
+                                        <option value="@item.Cod">@item.Den</option>
                                     }
                                 }
                             </InputSelect>
@@ -384,7 +384,7 @@
             else
             {
                 Productos = response.Response;
-                ProductList = Productos.DistinctBy(x => x.Den).Select(x => x.Den)!;
+                ProductList = response.Response.DistinctBy(x => x.Den).Select(x => x.Den)!;
             }
         }
         catch (Exception e)
