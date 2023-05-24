@@ -43,8 +43,11 @@ namespace GComFuelManager.Shared.Modelos
         public int? Codprd2 { get; set; } = 0;
         [JsonProperty("dendes"), MaxLength(256)]
         public string? Dendes { get; set; } = string.Empty;
+        //Double Formatter
         [JsonProperty("vol2")]
         public double? Vol2 { get; set; } = null!;
+        //public string FormattedDouble => Vol2.ToString("N");
+
         [JsonProperty("batchId")]
         public int? BatchId { get; set; }
         [JsonProperty("CompartmentId")]

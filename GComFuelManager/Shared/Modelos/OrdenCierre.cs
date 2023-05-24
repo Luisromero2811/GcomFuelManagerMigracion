@@ -76,7 +76,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("volumen"), DisplayName("Volumen")]
         public int? Volumen { get; set; }
-        
+
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
         

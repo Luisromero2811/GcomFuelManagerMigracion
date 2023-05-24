@@ -109,8 +109,8 @@
                 <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" Width="305px" MinWidth="305px" />
                 <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" Width="290px" MinWidth="290px" />
                 <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" Width="290px" MinWidth="290px" />
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" />
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" MinWidth="290px" FormatString="{0:N2}"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" MinWidth="290px" FormatString="{0:N2}"/>
                 <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.Den" Width="290px" MinWidth="290px" />
                 <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" MinWidth="290px">
                     <Template Context="data">
