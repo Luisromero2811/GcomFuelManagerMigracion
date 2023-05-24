@@ -99,7 +99,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}"/>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Filterable="false">
                     <Template Context="item">
                         @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)

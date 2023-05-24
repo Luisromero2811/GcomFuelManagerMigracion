@@ -10,103 +10,103 @@
 
 <div class="col-12 mt-2">
     @* <div class="col-12 row mb-2">
-    <div class="col-6">
-    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-    <div class="col-12 h-100">
-    <label><b>Editar:</b></label>
-    <div class="card shadow-sm h-100">
-    <div class="row card-body h-100">
-    <div class="col mb-3">
-    <div class="col-12">
-    <label>Destino:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault()!.CodDes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
-    AllowVirtualization="true" AllowFiltering="true"
-    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    </div>
-    <div class="col mb-3">
-    <label>Fecha de carga:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Fchcar" />
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    <div class="col mb-3">
-    <label>Producto:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.CodPrd">
-    <option>-- seleccione una opcion --</option>
-    @if (Productos is null)
-    {
-    <option disabled>Cargando...</option>
-    }
-    else if (Productos.Count == 0)
-    {
-    <option disabled>No hay Productos</option>
-    }
-    else
-    {
-    foreach (var item in Productos)
-    {
-    <option value="@item.Cod">@item.Den</option>
-    }
-    }
-    </InputSelect>
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    <div class="col-12 d-flex justify-content-end">
-    <div class="col-6 d-flex">
-    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrder">
-    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
-    </button>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </AuthorizeView>
-    </div>
-    <div class="col-6">
-    <div class="col-12 h-100">
-    <label><b>Mostrar ordenes:</b></label>
-    <div class="card shadow-sm h-100">
-    <div class="row card-body h-100">
-    <div class="col mb-3">
-    <label>Del:</label>
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-    </div>
-    <div class="col mb-3">
-    <label>A:</label>
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
-    </div>
-    <div class="col-12 d-flex justify-content-end">
-    <div class="col-6 d-flex">
-    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@MostrarOrdenFecha">
-    <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
-    </button>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>*@
+        <div class="col-6">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+        <div class="col-12 h-100">
+        <label><b>Editar:</b></label>
+        <div class="card shadow-sm h-100">
+        <div class="row card-body h-100">
+        <div class="col mb-3">
+        <div class="col-12">
+        <label>Destino:</label>
+        @if (ordenesSeleccionada.Count > 0)
+        {
+        <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault()!.CodDes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
+        AllowVirtualization="true" AllowFiltering="true"
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+        }
+        else
+        {
+        <input class="col-12 form-control disabled" disabled />
+        }
+        </div>
+        </div>
+        <div class="col mb-3">
+        <label>Fecha de carga:</label>
+        @if (ordenesSeleccionada.Count > 0)
+        {
+        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Fchcar" />
+        }
+        else
+        {
+        <input class="col-12 form-control disabled" disabled />
+        }
+        </div>
+        <div class="col mb-3">
+        <label>Producto:</label>
+        @if (ordenesSeleccionada.Count > 0)
+        {
+        <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.CodPrd">
+        <option>-- seleccione una opcion --</option>
+        @if (Productos is null)
+        {
+        <option disabled>Cargando...</option>
+        }
+        else if (Productos.Count == 0)
+        {
+        <option disabled>No hay Productos</option>
+        }
+        else
+        {
+        foreach (var item in Productos)
+        {
+        <option value="@item.Cod">@item.Den</option>
+        }
+        }
+        </InputSelect>
+        }
+        else
+        {
+        <input class="col-12 form-control disabled" disabled />
+        }
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+        <div class="col-6 d-flex">
+        <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrder">
+        <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
+        </button>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </AuthorizeView>
+        </div>
+        <div class="col-6">
+        <div class="col-12 h-100">
+        <label><b>Mostrar ordenes:</b></label>
+        <div class="card shadow-sm h-100">
+        <div class="row card-body h-100">
+        <div class="col mb-3">
+        <label>Del:</label>
+        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+        </div>
+        <div class="col mb-3">
+        <label>A:</label>
+        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+        <div class="col-6 d-flex">
+        <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@MostrarOrdenFecha">
+        <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
+        </button>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>
+        </div>*@
 
     <div class="d-flex justify-content-center">
         <div class="col-12 mt-3">
@@ -138,67 +138,76 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label>Transportista:</label>
-                                <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
-                                    <input type="text" />
-                                    <option>-- seleccione una opcion --</option>
-                                    @if (Transportistas is null)
-                                    {
-                                        <option disabled>Cargando...</option>
-                                    }
-                                    else if (Transportistas.Count == 0)
-                                    {
-                                        <option disabled>No hay Transportistas</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Transportistas)
+                                @*<InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
+                                        <input type="text" />
+                                        <option>-- seleccione una opcion --</option>
+                                        @if (Transportistas is null)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                            <option disabled>Cargando...</option>
                                         }
-                                    }
-                                </InputSelect>
+                                        else if (Transportistas.Count == 0)
+                                        {
+                                            <option disabled>No hay Transportistas</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Transportistas)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>*@
+                                <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="TransportistaSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" Change="@GetDataSelction" />
                             </div>
                             <div class="col">
                                 <label>Chofer:</label>
-                                <InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado">
-                                    <option>-- seleccione una opcion --</option>
-                                    @if (Choferes is null)
-                                    {
-                                        <option disabled>Cargando...</option>
-                                    }
-                                    else if (Choferes.Count == 0)
-                                    {
-                                        <option disabled>No hay Choferes</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Choferes)
+                                @*<InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado">
+                                        <option>-- seleccione una opcion --</option>
+                                        @if (Choferes is null)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                            <option disabled>Cargando...</option>
                                         }
-                                    }
-                                </InputSelect>
+                                        else if (Choferes.Count == 0)
+                                        {
+                                            <option disabled>No hay Choferes</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Choferes)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>*@
+                                <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
                             </div>
                             <div class="col">
                                 <label>Vehiculo:</label>
-                                <InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado">
-                                    <option>-- seleccione una opcion --</option>
-                                    @if (Vehiculos is null)
-                                    {
-                                        <option disabled>Cargando...</option>
-                                    }
-                                    else if (Vehiculos.Count == 0)
-                                    {
-                                        <option disabled>No hay vehiculos</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Vehiculos)
+                                @*<InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado">
+                                        <option>-- seleccione una opcion --</option>
+                                        @if (Vehiculos is null)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                            <option disabled>Cargando...</option>
                                         }
-                                    }
-                                </InputSelect>
+                                        else if (Vehiculos.Count == 0)
+                                        {
+                                            <option disabled>No hay vehiculos</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Vehiculos)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>*@
+                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="VehiculoSeleccionado"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
                             </div>
                         </div>
                         <div class="col-12">
@@ -230,21 +239,31 @@
                     </AuthorizeView>
                     <hr />
                     <div class="col-12 my-3">
+                        <div class="row d-flex justify-content-start">
+                            <div class="col-4">
+                                <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
+                                <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                            </div>
+                        </div>
                         <div class="row d-flex justify-content-end">
+                            @if (Synthesis)
+                            {
+                                <div class="col-4">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                    </AuthorizeView>
+                                </div>
+                            }
+
+                            @*<div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
+                                </div>
+                                <div class="col-3">
+                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
+                                </div>*@
                             <div class="col-4">
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
-                                </AuthorizeView>
-                            </div>
-                            @*<div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
-                            </div>
-                            <div class="col-3">
-                            <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
-                            </div>*@
-                            <div class="col-4">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
                                 </AuthorizeView>
 
                             </div>
@@ -261,21 +280,23 @@
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
         @*<EmptyTemplate>
-        <NoHayRegistros></NoHayRegistros>
-        </EmptyTemplate>*@
+            <NoHayRegistros></NoHayRegistros>
+            </EmptyTemplate>*@
         <Columns>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px" FormatString="{0:N2}">
                 <Template Context="data">
                     <div class="col-12">
-                        @(data?.Compartment == 1 ? data?.Tonel?.Capcom
+                        @string.Format("{0:N2}",
+                            data?.Compartment == 1 ? data?.Tonel?.Capcom
                             : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3 
+                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3
                             : data?.Compartment == 4 ? data?.Tonel?.Capcom4
-                            : data?.Vol)
+                            : data?.Vol
+                            )
                     </div>
                 </Template>
             </RadzenDataGridColumn>
@@ -299,15 +320,15 @@
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" />
             @*<RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
-            <Template Context="data">
-            <div class="col-12">
-            <div class="form-check form-switch m-2">
-            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
-            @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
-            </div>
-            </div>
-            </Template>
-            </RadzenDataGridColumn>*@
+                <Template Context="data">
+                <div class="col-12">
+                <div class="form-check form-switch m-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
+                @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
+                </div>
+                </div>
+                </Template>
+                </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -329,6 +350,9 @@
     }
 </style>
 @code {
+
+    public bool Synthesis { get; set; } = false;
+
     //grid
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
 
@@ -510,17 +534,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                    {
-                        Chofer = ChoferSeleccionado,
-                        Tonel = VehiculoSeleccionado,
-                        Compartimento =
+                {
+                    Chofer = ChoferSeleccionado,
+                    Tonel = VehiculoSeleccionado,
+                    Compartimento =
                             (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
                             : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
                             : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
                             : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
-                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                    };
+                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -542,13 +566,13 @@
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                        });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -659,21 +683,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-                {
-                    OrdenCompra = o?.OrdenCompra?.den,
-                    Referencia = o?.Folio.ToString(),
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    Volumen = o?.Vol,
-                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o?.Tonel?.Transportista?.Den,
-                    Unidad = o?.Tonel?.Veh,
-                    Compartimento = o?.Compartment,
-                    Operador = o?.Chofer?.Den,
-                    Bin = o?.Bin,
-                    Status = o?.Estado?.den
-                }, true);
+            {
+                OrdenCompra = o?.OrdenCompra?.den,
+                Referencia = o?.Folio.ToString(),
+                Cliente = o?.Destino?.Cliente?.Den,
+                Destino = o?.Destino?.Den,
+                Producto = o?.Producto?.Den,
+                Volumen = o?.Vol,
+                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                Transportista = o?.Tonel?.Transportista?.Den,
+                Unidad = o?.Tonel?.Veh,
+                Compartimento = o?.Compartment,
+                Operador = o?.Chofer?.Den,
+                Bin = o?.Bin,
+                Status = o?.Estado?.den
+            }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -728,23 +752,23 @@
             if (ordenes is not null || ordenes.Count == 0)
             {
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                    });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Actualizando Transportistas",
-                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Actualizando Transportistas",
+                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                        Duration = 15000
+                    });
 
                     loadingSend = true;
 

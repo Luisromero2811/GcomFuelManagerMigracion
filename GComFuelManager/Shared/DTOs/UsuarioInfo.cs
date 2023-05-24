@@ -24,5 +24,6 @@ namespace GComFuelManager.Shared.DTOs
         public int? CodCte { get; set; }
         public Int16? CodGru { get; set; }
         public bool IsClient { get; set; } = false;
+        public bool ShowPassword { get; set; } = false;
     }
 }

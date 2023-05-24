@@ -41,7 +41,7 @@
                         <tr>
                             <th scope="row">Volumen Aprox. Litros: </th>
                             <td>
-                                @cierre.Volumen Litros
+                                @cierre.Volumen.Value.ToString("N2") Litros
                             </td>
                         </tr>
                         <tr>
@@ -75,6 +75,7 @@
     private int? VolumenTotal { get; set; } = 0;
 
     private List<string?> ProductosEnResumen { get; set; } = null!;
+
 
     protected async override Task OnParametersSetAsync()
     {

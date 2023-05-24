@@ -24,7 +24,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("idcom")] public int? Idcom { get; set; } = 0;
         [JsonProperty("capcom")] public decimal? Capcom { get; set; } = decimal.Zero;
-
+        //public string FormattedDouble => Capcom.ToString("N");
         [JsonProperty("nrocom2")] public int? Nrocom2 { get; set; } = 0;
 
         [JsonProperty("idcom2")] public int? Idcom2 { get; set; } = 0;

@@ -10,7 +10,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Usuarios">
     <h4><b>Usuarios</b></h4>
     <!--Maquetacion formulario de usuarios-->
-    <div class="col-12 card shadow p-2">
+    <div class="col-12 card shadow p-2 mb-4">
         <div class="card-body g-3">
             <EditForm Model="@users">
                 <div class="col-12 row d-flex g-3 p-2">
@@ -22,7 +22,7 @@
                             <div class="mt-2">
                                 <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Nombre" />
                             </div>
-                           
+
                         </div>
                     </div>
                     <div class="col-4 mb-1">
@@ -42,7 +42,11 @@
                                     Contraseña <i class="fa-solid fa-circle-info fa-xs"></i>
                                 </label>
                             </div>
-                            <InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />
+                            @*<InputText class="form-control" @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" />*@
+
+                            <RadzenPassword @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" Visible="@passwordView" />
+                            <RadzenTextBox @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Password" Visible="@(passwordView == false)" />
+                            <RadzenCheckBox @bind-Value="@passwordView" />
                         </div>
                     </div>
                 </div>
@@ -129,15 +133,29 @@
 </AuthorizeView>
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia">
+    <div class="row justify-content-end mt-4 me-4 mb-3">
+        <div class="gcom-bg-amarillo d-flex justify-content-center text-wrap" style="width: 7rem;">
+            <b>Password: @displayedPassword</b>
+        </div>
+    </div><!--class="rz-my-12 ancho"-->
     <!--Maquetación de Tabla con Radzen-->
-    <div class="col-12 d-flex justify-content-center">
+    <div class="col-12 d-flex justify-content-center mb-2">
         <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
+                        GridLines="DataGridGridLines.Both" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
                         IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
                 <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px">
+                    <Template Context="user">
+                        <div class="d-flex align-items-center">
+                            @if (usuarioSeleccionado.Count == 1)
+                            {
+                                <button type="button" class="btn gcom-bg-amarillo col-12" @onclick="@(() => ShowPassword(user.Password))" id="liveToastBtn"><i class="fa fa-solid fa-eye"></i> <b>Mostrar Contraseña</b></button>
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" MinWidth="200px">
                     <Template Context="data">
                         @foreach (var i in data.Roles)
@@ -165,12 +183,19 @@
     </div>
 </AuthorizeView>
 
-
-
 @code {
     UsuarioInfo info = new UsuarioInfo();
 
     bool cargando = false;
+    bool passwordView = true;
+
+
+    private string displayedPassword = null!;
+    private void ShowPassword(string password)
+    {
+        displayedPassword = password;
+    }
+
     //Listas
     private UsuarioInfo users { get; set; } = new UsuarioInfo();
     private List<UsuarioInfo> Usuarios { get; set; } = new List<UsuarioInfo>();
@@ -206,6 +231,15 @@
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+", options);
     void ShowToolsTip(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Mínimo de 8 y máximo de 10 caracteres, sin usar letra Ñ");
+
+    private string passwordType = "password";
+
+    private void TogglePasswordVisibility(UsuarioInfo user)
+    {
+        user.ShowPassword = !user.ShowPassword;
+        passwordType = user.ShowPassword ? "text" : "password";
+    }
+
     //Obtención de roles
     public async Task GetRoles()
     {
@@ -398,5 +432,6 @@
             throw e;
         }
     }
+
 }
 
