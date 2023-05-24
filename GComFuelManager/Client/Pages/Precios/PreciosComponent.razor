@@ -73,8 +73,11 @@
                         </div>
                     </div>
                     <hr />
-                    <div class="col-12 row">
-                        <div class="col-4 mb-2">
+                    <div class="col-12">
+                        <EditForm Model="Precio" class="form col-12 row" Context="FORM">
+                            <DataAnnotationsValidator/>
+
+                            <div class="col-4 mb-2">
                             <label class="form-label">Zona</label>
                             <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
                                 <option>-- Seleccione una opcion</option>
@@ -189,7 +192,7 @@
                             <label class="form-label">Precio</label>
                             <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
                         </div>
-                        <div class="col-12 d-flex justify-content-center">
+                        <div class="col-12 d-flex justify-content-center row">
                             <div class="col-4">
                                 <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
                                     <i class="fa fa-solid fa-floppy-disk"></i>
@@ -200,7 +203,18 @@
                                     }
                                 </button>
                             </div>
+                            <div class="col-4">
+                                <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
+                                    <i class="fa fa-solid fa-paper-plane"></i>
+                                    Enviar Precios
+                                    @if (loadingSave)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
                         </div>
+                        </EditForm>
                     </div>
                 </div>
             </div>
@@ -212,7 +226,7 @@
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
@@ -261,6 +275,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" />
                 </Columns>
@@ -268,23 +283,6 @@
         </div>
     </Authorized>
 </AuthorizeView>
-
-<style type="text/css" media="screen and (min-width:1200px)">
-    .ancho {
-        width: 1100px;
-    }
-</style>
-
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1100px)">
-    .ancho {
-        width: 1000px;
-    }
-</style>
 
 @code {
     private string ProductoSeleccionado = string.Empty;

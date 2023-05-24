@@ -13,6 +13,7 @@ using GComFuelManager.Shared.DTOs;
 using MimeKit.Utils;
 using System.Net.Mail;
 using System.Net.Mime;
+using GComFuelManager.Shared.Modelos;
 
 namespace RazorHtmlEmails.Common
 {
@@ -25,7 +26,7 @@ namespace RazorHtmlEmails.Common
             this.razorView = razorView;
         }
 
-        public async Task Register(EmailContent content)
+        public async Task Register(EmailContent<OrdenCierre> content)
         {
 
             string body = await razorView.RenderViewToStringAsync("./Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
@@ -59,6 +60,6 @@ namespace RazorHtmlEmails.Common
 
     public interface IRegisterAccountService
     {
-        Task Register(EmailContent content);
+        Task Register(EmailContent<OrdenCierre> content);
     }
 }

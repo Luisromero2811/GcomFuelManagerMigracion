@@ -3,14 +3,9 @@
 @using RazorHtmlEmails.GComFuelManagerMigracion.Views.Emails.ConfirmationAccount
 @using RazorHtmlEmails.GComFuelManagerMigracion.Views.Shared
 @using System.Diagnostics;
-@model EmailContent<OrdenCierre>
+@model EmailContent<IEnumerable<Precio>>
 
 <div style="width:100%;margin-bottom:15px;display: flex;flex-direction:row;">
-    <div style="width:50%;text-align:start;display: inline;">
-        <b>
-            Folio: @Model.Lista!.FirstOrDefault()!.Folio
-        </b>
-    </div>
     <div style="width:50%;text-align:end;display: inline;">
         <b>
             Fecha: @DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
@@ -18,10 +13,10 @@
     </div>
 </div>
 @{
-    ViewData["EmailTitle"] = "Orden confirmada!";
+    ViewData["EmailTitle"] = "Compra confirmada!";
 }
 <p>
-    @Model.Lista!.FirstOrDefault()!.Cliente!.Den, ha consumido los siguientes productos.
+    @Model.Lista!.FirstOrDefault()!.Cliente!.Den, se ha confirmado la solicitud de cierre de precios de los siguientes productos.
 </p>
 
 <br />
@@ -41,13 +36,7 @@
                         Destino
                     </th>
                     <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Litros totales
-                    </th>
-                    <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
                         Precio por litro
-                    </th>
-                    <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Subtotal
                     </th>
                 </tr>
             </thead>
@@ -78,49 +67,14 @@
                             @item.Destino!.Den
                         </td>
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @item.Volumen?.ToString("N")
-                        </td>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
                             @item.Precio?.ToString("N")
-                        </td>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @((Convert.ToDouble(item.Volumen) * item.Precio)?.ToString("N"))
                         </td>
                     </tr>
                 }
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
                     <td>
-                        <b>Total</b>
-                    </td>
-                    <td>
-                        @GetTotal()?.ToString("N")
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div style="width:100%;margin-bottom:15px;display: inline-block;margin-top:25px;">
-                            <div style="width:100%;text-align:start;">
-                                <b>Tipo de pago: @Model.Lista!.FirstOrDefault()!.TipoPago</b>
-                            </div>
-                            <div style="width:100%;text-align:start;">
-                            </div>
-                            <b>Ejecutivo de cuenta: @Model.Lista!.FirstOrDefault()!.Vendedor</b>
-                            <div style="width:100%;text-align:start;">
-                                <b>Contexto: @Model.Lista!.FirstOrDefault()!.ContactoN?.Nombre, @Model.Lista!.FirstOrDefault()!.ContactoN?.Correo</b>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div colspan="4" style="width:100%;margin-top:25px;">
-                            <a style="background-color:#EABF1A; color:black; border:none; border-radius:5px;margin:10px;padding:15px 25px;box-shadow: 0px 4px 4px 0px #00000040;
-                                                                                            font-size:18px; text-decoration:none;" href="https://localhost:44333/orden/@Model.Lista.First().Folio">
-                                Ver estado de orden
-                            </a>
+                        <div style=" margin-top:50px;display:flex;">
+                            <img src="https://i.postimg.cc/Z57T1QGJ/Triptico-Energas-EDITABLE-03.png" style="width:160px;height:140px;" />
                         </div>
                     </td>
                 </tr>

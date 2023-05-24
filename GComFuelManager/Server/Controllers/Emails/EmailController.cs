@@ -41,7 +41,7 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                EmailContent emailContent = new EmailContent();
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
                 int? VolumenTotal = 0;
                 var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
                 emailContent.CC = cc;
@@ -73,7 +73,7 @@ namespace GComFuelManager.Server.Controllers.Emails
         }
 
         [HttpPost("vencimiento")]
-        public async Task<ActionResult> SendEmailVencimiento([FromBody] EmailContent content)
+        public async Task<ActionResult> SendEmailVencimiento([FromBody] EmailContent<OrdenCierre> content)
         {
             try
             {

@@ -613,7 +613,7 @@
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
     private short? GrupoSeleccionadoB = 0;
 
-    private EmailContent emailContent { get; set; } = new EmailContent();
+    private EmailContent<OrdenCierre> emailContent { get; set; } = new EmailContent<OrdenCierre>();
 
     private short? GrupoSeleccionado = 0;
     private short GrupoSeleccionadoFiltro = 0;
@@ -1215,7 +1215,7 @@
     {
         try
         {
-            var response = await http.Post<EmailContent>("api/email/vencimiento", emailContent);
+            var response = await http.Post<EmailContent<OrdenCierre>>("api/email/vencimiento", emailContent);
             if (response.Error)
             {
                 loadingSend = false;

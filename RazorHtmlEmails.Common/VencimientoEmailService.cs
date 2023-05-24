@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using GComFuelManager.Shared.DTOs;
 using System.Net.Mail;
 using System.Net.Mime;
+using GComFuelManager.Shared.Modelos;
 
 namespace RazorHtmlEmails.Common
 {
@@ -22,7 +23,7 @@ namespace RazorHtmlEmails.Common
             this.razorView = razorView;
         }
 
-        public async Task Vencimiento(EmailContent content)
+        public async Task Vencimiento(EmailContent<OrdenCierre> content)
         {
             string body = await razorView.RenderViewToStringAsync("/Views/Emails/Vencimiento/VencimientoPage.cshtml", content);
             var message = new MimeMessage();
@@ -46,6 +47,6 @@ namespace RazorHtmlEmails.Common
 
     public interface IVencimientoService
     {
-        Task Vencimiento(EmailContent content);
+        Task Vencimiento(EmailContent<OrdenCierre> content);
     }
 }
