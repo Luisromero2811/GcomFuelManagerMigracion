@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
 using RazorHtmlEmails.Common;
 using RazorHtmlEmails.GComFuelManagerMigracion.Services;
+using System.Globalization;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
+builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
 var app = builder.Build();
 

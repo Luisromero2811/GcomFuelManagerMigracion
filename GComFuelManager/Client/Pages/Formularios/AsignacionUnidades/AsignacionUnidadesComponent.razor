@@ -9,105 +9,6 @@
 <h4><b>Programación de Equipos</b></h4>
 
 <div class="col-12 mt-2">
-    @* <div class="col-12 row mb-2">
-    <div class="col-6">
-    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-    <div class="col-12 h-100">
-    <label><b>Editar:</b></label>
-    <div class="card shadow-sm h-100">
-    <div class="row card-body h-100">
-    <div class="col mb-3">
-    <div class="col-12">
-    <label>Destino:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <RadzenDropDown @bind-Value="ordenesSeleccionada.FirstOrDefault()!.CodDes" Data="Destinos" ValueProperty="Cod" TextProperty="Den"
-    AllowVirtualization="true" AllowFiltering="true"
-    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    </div>
-    <div class="col mb-3">
-    <label>Fecha de carga:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.OrdenEmbarque!.Fchcar" />
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    <div class="col mb-3">
-    <label>Producto:</label>
-    @if (ordenesSeleccionada.Count > 0)
-    {
-    <InputSelect class="form-select col-12" @bind-Value="@ordenesSeleccionada.FirstOrDefault()!.CodPrd">
-    <option>-- seleccione una opcion --</option>
-    @if (Productos is null)
-    {
-    <option disabled>Cargando...</option>
-    }
-    else if (Productos.Count == 0)
-    {
-    <option disabled>No hay Productos</option>
-    }
-    else
-    {
-    foreach (var item in Productos)
-    {
-    <option value="@item.Cod">@item.Den</option>
-    }
-    }
-    </InputSelect>
-    }
-    else
-    {
-    <input class="col-12 form-control disabled" disabled />
-    }
-    </div>
-    <div class="col-12 d-flex justify-content-end">
-    <div class="col-6 d-flex">
-    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@EditOrder">
-    <i class="fa fa-solid fa-floppy-disk"></i> <b>Guardar cambios</b>
-    </button>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </AuthorizeView>
-    </div>
-    <div class="col-6">
-    <div class="col-12 h-100">
-    <label><b>Mostrar ordenes:</b></label>
-    <div class="card shadow-sm h-100">
-    <div class="row card-body h-100">
-    <div class="col mb-3">
-    <label>Del:</label>
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-    </div>
-    <div class="col mb-3">
-    <label>A:</label>
-    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
-    </div>
-    <div class="col-12 d-flex justify-content-end">
-    <div class="col-6 d-flex">
-    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@MostrarOrdenFecha">
-    <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
-    </button>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>*@
-
     <div class="d-flex justify-content-center">
         <div class="col-12 mt-3">
             <div class="col-12 card">
@@ -138,7 +39,7 @@
                         <div class="row mb-3">
                             <div class="col">
                                 <label>Transportista:</label>
-                                <InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
+                                <InputSelect class="form-select col-12" @bind-Value="ordenEmbarque?.Tonel?.Transportista.Cod" onchange="@GetDataSelction()">
                                     <input type="text" />
                                     <option>-- seleccione una opcion --</option>
                                     @if (Transportistas is null)
@@ -257,13 +158,32 @@
 </div>
 
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
+    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true">
         @*<EmptyTemplate>
         <NoHayRegistros></NoHayRegistros>
         </EmptyTemplate>*@
         <Columns>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false">
+                <HeaderTemplate>
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                </HeaderTemplate>
+                <Template Context="data">
+                    <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                    TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Asignar" Filterable="false" Width="80px" Sortable="false">
+                <Template Context="data">
+                    <div class="col-12">
+                        <button class="btn btn-primary col-12" @onclick="@SetOrden">
+                            <i class="fa fa-solid fa-pen-to-square"></i>
+                        </button>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
@@ -273,7 +193,7 @@
                     <div class="col-12">
                         @(data?.Compartment == 1 ? data?.Tonel?.Capcom
                             : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3 
+                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3
                             : data?.Compartment == 4 ? data?.Tonel?.Capcom4
                             : data?.Vol)
                     </div>
@@ -333,7 +253,7 @@
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
-    private IList<OrdenEmbarque> ordenes { get; set; } = null!;
+    private IList<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
 
     //Listas
@@ -475,7 +395,6 @@
         try
         {
             loadingFiltro = true;
-            ordenes = null!;
             StateHasChanged();
 
             var responseHttp = await repositorio.Post<FechasF, IList<OrdenEmbarque>>($"api/pedido/filtrar", fechas);
@@ -514,10 +433,10 @@
                         Chofer = ChoferSeleccionado,
                         Tonel = VehiculoSeleccionado,
                         Compartimento =
-                            (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
-                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
-                            : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
-                            : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
+                                    (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
+                                    : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
+                                    : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
+                                    : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -580,23 +499,6 @@
         }
     }
 
-    private async Task EditOrder()
-    {
-        try
-        {
-            ordenesSeleccionada.FirstOrDefault()!.Codprd = ordenesSeleccionada.FirstOrDefault()!.Codprd;
-            ordenesSeleccionada.FirstOrDefault()!.Coddes = ordenesSeleccionada.FirstOrDefault()!.Coddes;
-            ordenesSeleccionada.FirstOrDefault()!.Fchcar = ordenesSeleccionada.FirstOrDefault()!.Fchcar;
-            await UpdateOrden();
-        }
-        catch (Exception e)
-        {
-            loadingAgregar = false;
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task UpdateOrden()
     {
         loadingAgregar = true;
@@ -612,30 +514,15 @@
             else
             {
                 loadingAgregar = false;
-                //responseOC.Response.OrdenEmbarque = response.Response;
-                //var index = ordenes.IndexOf(ordenes.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
-                //ordenes.RemoveAt(index);
-                //ordenes.Insert(index, responseOC.Response);
                 if (response.Response == null)
                     return;
 
                 var index = ordenes.IndexOf(ordenes.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
                 ordenes.RemoveAt(index);
                 ordenes.Insert(index, response.Response);
-                ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos actualizados.", Duration = 1500 });
+                ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos actualizados.", Duration = 2000 });
                 await grid!.Reload();
             }
-            //var responseOC = await repositorio.Post<OrdenEmbarque, OrdenEmbarque>("api/cierre/update", ordenesSeleccionada.FirstOrDefault()!);
-            //if (responseOC.Error)
-            //{
-            //    loadingAgregar = false;
-            //    string? message = await responseOC.ObtenerMensajeError();
-            //    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            //}
-            //else
-            //{
-
-            //}
         }
         catch (Exception e)
         {
@@ -772,6 +659,38 @@
                 loadingSend = false;
                 await swal.FireAsync("Alerta", "Debe de tener ordenes para poder enviar", SweetAlertIcon.Warning);
             }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void ToggleCheck(bool args, OrdenEmbarque orden)
+    {
+        try
+        {
+            Console.WriteLine("cambio");
+            if (args)
+                ordenesSeleccionada.Add(orden);
+            else
+                ordenesSeleccionada.Remove(orden);
+
+            Console.WriteLine(ordenesSeleccionada.Count);
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void SetOrden(OrdenEmbarque orden)
+    {
+        try
+        {
+            ordenEmbarque = orden;
         }
         catch (Exception e)
         {

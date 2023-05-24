@@ -135,7 +135,7 @@ namespace GComFuelManager.Server.Controllers.Services
                         if (string.IsNullOrEmpty(bolguid.Bolguidid))
                         {
                             request.BillOfLading.Destination.DestinationId.Id.Value = long.Parse(item.Destino!.Codsyn!);
-                            request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Cliente!.Codsyn!);
+                            request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Destino!.Cliente!.Codsyn!);
                             request.BillOfLading.StartLoadTime.Value = item.Fchcar!.Value;
                             request.BillOfLading.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
                             var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).FirstOrDefault()!.Folio;
@@ -209,7 +209,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                     : p.Tonel!.Capcom4;
                                 lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
 
-                                lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Cliente!.Codsyn!);
+                                lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
                                 lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
                                 lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
                                 lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);

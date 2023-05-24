@@ -60,6 +60,16 @@
                                     </RadzenDataGrid>
                                 </ChildContent>
                             </RadzenPanel>
+                            @if(preciosExcel.Count() > 0){
+                                <div class="col-12 d-flex justify-content-center mt-3">
+                                    <div class="col-4">
+                                        <button class="btn gcom-bg-amarillo col-12">
+                                            <i class="fa fa-solid fa-floppy-disk"></i>
+                                            Guardar
+                                        </button>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                     <hr />

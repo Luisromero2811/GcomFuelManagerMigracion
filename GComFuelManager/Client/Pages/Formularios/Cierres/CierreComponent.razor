@@ -11,7 +11,7 @@
     <Authorized>
         @*<NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>*@
 
-        <h3>Cierre de Ordenes</h3>
+        <h3><b>Cierre de Ordenes</b></h3>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FILTRO">
             <Authorized>
@@ -19,6 +19,7 @@
                     <div class="col-12">
                         <div class="col-12 card">
                             <div class="col-12 card-body">
+                                <h4><b>Buscar</b></h4>
                                 <div class="col-12 row">
                                     <div class="col-3 row">
                                         <div class="col-6">
@@ -145,10 +146,11 @@
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
             <Authorized>
-                <div class="col-12 d-flex justify-content-center shadow-sm">
+                <div class="col-12 d-flex justify-content-center shadow-sm mt-3">
                     <div class="col-12">
                         <div class="col-12 card">
                             <div class="col-12 card-body">
+                                <h4><b>Crear cierre</b></h4>
                                 <EditForm Model="ordenCierre" class="form col-12">
                                     <DataAnnotationsValidator />
 
@@ -374,12 +376,12 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
-                                                    <label class="form-label">
-                                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                    </label>
+                                                <label class="form-label" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                </label>
+                                                <div class="col-12">
+                                                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
                                                 </div>
-                                                <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
                                             </div>
                                         </div>
 
@@ -393,26 +395,29 @@
                                         <div class="col-12 d-flex justify-content-center mt-3">
                                             @if (!isEdit)
                                             {
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
-                                                        <i class="fa fa-solid fa-plus"></i>
-                                                        <b>Crear cierre</b>
-                                                        @if (loadingCreate)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
-                                                        <i class="fa fa-solid fa-envelope"></i>
-                                                        <b>Enviar cierre</b>
-                                                        @if (loadingSend)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
+                                                @if (monthFilter == false)
+                                                {
+                                                    <div class="col-3 mx-2">
+                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
+                                                            <i class="fa fa-solid fa-plus"></i>
+                                                            <b>Crear cierre</b>
+                                                            @if (loadingCreate)
+                                                            {
+                                                                <SpinnerLoading></SpinnerLoading>
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-3 mx-2">
+                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
+                                                            <i class="fa fa-solid fa-envelope"></i>
+                                                            <b>Enviar cierre</b>
+                                                            @if (loadingSend)
+                                                            {
+                                                                <SpinnerLoading></SpinnerLoading>
+                                                            }
+                                                        </button>
+                                                    </div>
+                                                }
                                                 <div class="col-3 mx-2">
                                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
                                                         <i class="fa fa-solid fa-file-excel"></i>
@@ -457,38 +462,49 @@
 
 
         <div class="col-12 d-flex justify-content-center row">
-            @if(ordenCierres.Count != 0){
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
-                        <Authorized>
-                            <div class="col-12 d-flex justify-content-start my-3">
+            @if (ordenCierres.Count != 0)
+            {
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
+                    <Authorized>
+                        <div class="col-12 d-flex justify-content-start my-3">
+                            <div class="col-4">
                                 <button class="col-3 btn gcom-bg-amarillo" @onclick="@ClearList">
-                                    <i class="fa-solid fa-broom"></i> Limpiar
+                                    <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
                             </div>
-                        </Authorized>
-                    </AuthorizeView>
+                            @*<div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo">
+                                    <i class="fa fa-solid fa-ban"></i> Cancelar Orden
+                                </button>
+                            </div>*@
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
 
             }
-            <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" AllowColumnPicking="true"
+            <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-4 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
-                        <Template Context="item">
-                            <div class="col-12 row">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador">
-                                    <Authorized>
-                                        <div class="col">
-                                            <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
-                                        </div>
-                                        <div class="col">
-                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                        </div>
-                                    </Authorized>
-                                </AuthorizeView>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
+                    @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
+                    <Template Context="item">
+                    <div class="col-12 row">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador">
+                    <Authorized>
+                    @if (item.OrdenEmbarque?.Folio == null)
+                    {
+                    <div class="col">
+                    <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                    </div>
+                    <div class="col">
+                    <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                    </div>
+                    }
+                    </Authorized>
+                    </AuthorizeView>
+                    </div>
+                    </Template>
+                    </RadzenDataGridColumn>*@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
@@ -674,9 +690,12 @@
         }
     }
 
-    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
-    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
-    void ShowTooltipPrecio(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "El precio se llenara automaticamente al seleccionar el producto.", options);
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
+    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el cierre.", options);
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) =>
+    ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
+    void ShowTooltipPrecio(ElementReference elementReference, TooltipOptions options = null!) =>
+    ts.Open(elementReference, "El precio se llenara automaticamente al seleccionar el producto.", options);
 
     private async Task GetData()
     {
@@ -890,6 +909,7 @@
         try
         {
             ordenCierre = orden;
+            await GetClientes();
             await GetData();
             await GetPrecios();
             if (!Cantidades.Any(x => x == ordenCierre.Volumen))
@@ -995,10 +1015,10 @@
                     }
                     else
                     {
-                        await Swal.FireAsync("Cierre cancelado", $"La orden con folio ha sido cancelada.", SweetAlertIcon.Info);
+                        await Swal.FireAsync("Cancelado", $"El registro ha sido cancelado.", SweetAlertIcon.Info);
                         ordenPendientes.Remove(orden.Cod);
-                        await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-                        await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
+                        //await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
+                        //await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
                         ordenCierres.Remove(orden);
                         //await GetOrdenesPendientes();
                     }
@@ -1102,12 +1122,6 @@
             {
                 ordenCierres = response.Response;
                 ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                //if(ordenCierres.Count > 0)
-                //{
-                //    ordenCierre.FchCierre = ordenCierres.FirstOrDefault().FchCierre;
-                //    ordenCierre.Folio = ordenCierres.FirstOrDefault().Folio;
-                //    ordenCierre.Vendedor= ordenCierres.FirstOrDefault().Vendedor;
-                //}
             }
         }
         catch (Exception e)
@@ -1319,11 +1333,31 @@
         {
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
-                if (ordenCierres.Count > 0 && monthFilter == false)
+                if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
                 {
-                    sameOrder = true;
-                    ordenCierre.Folio = ordenCierres.FirstOrDefault()!.Folio;
-                    ordenCierre.FchCierre = ordenCierres.FirstOrDefault()!.FchCierre;
+                    if (ordenCierre.Folio != ordenCierres.FirstOrDefault()!.Folio)
+                    {
+                        await Swal.FireAsync("Advertencia", "Los folios de las ordenes no coinciden", SweetAlertIcon.Warning);
+                        return;
+                    }
+
+                    var r = await Swal.FireAsync(new SweetAlertOptions
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
+                    if (!string.IsNullOrEmpty(r.Value))
+                    {
+                        ordenCierres = new List<OrdenCierre>();
+                    }
+                    else
+                    {
+                        return;
+                    }
                 }
 
                 if (IsClient)
@@ -1338,13 +1372,10 @@
                 else
                 {
                     Cliente = response.Response;
-                    if (sameOrder == false)
-                    {
-                        Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
 
-                        ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
-                        await PutClientes();
-                    }
+                    await PutClientes();
                     await CreateCierre();
                 }
             }
