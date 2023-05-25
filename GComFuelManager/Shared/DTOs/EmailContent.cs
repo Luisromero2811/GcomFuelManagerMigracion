@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.DTOs
 {
-    public class EmailContent
+    public class EmailContent<T>
     {
         public string Nombre { get; set; } = string.Empty;
 
@@ -19,7 +19,6 @@ namespace GComFuelManager.Shared.DTOs
 
         public string Body { get; set; } = string.Empty;
         public IEnumerable<MailboxAddress>? CC { get; set; } = null!;
-        public IEnumerable<OrdenCierre>? ordenCierres { get; set; } = null!;
-        public IEnumerable<OrdenCierre>? ordenRestante { get; set; } = null!;
+        public IEnumerable<T>? Lista { get; set; } = null!;
     }
 }

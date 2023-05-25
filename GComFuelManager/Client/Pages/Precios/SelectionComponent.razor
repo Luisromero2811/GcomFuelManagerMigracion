@@ -1,0 +1,60 @@
+﻿@inject DialogService ds
+
+<div class="col-12 card">
+    <div class="col-12 card-body">
+        <RadzenDataGrid Data="lista" TItem="string" Context="data" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="ClientesSeleccionados" AllowFiltering="true"
+        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" Style="height:400px"
+                        GridLines="DataGridGridLines.Both" AllowRowSelectOnRowClick="false" AllowSorting="true" AllowVirtualization="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="string" Sortable="false" Filterable="false" Width="60px">
+                    <HeaderTemplate>
+                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(lista.Any(i => ClientesSeleccionados != null && ClientesSeleccionados.Contains(i)))"
+                                        Change="@(args => ClientesSeleccionados = args ? lista.ToList() : new List<string>())" />
+                    </HeaderTemplate>
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Value="@(ClientesSeleccionados.Contains(data))"
+                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Title="Cliente" TItem="string" Filterable="true" Property="" Sortable="true">
+                    <Template>
+                        @context
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+        <div class="col-12">
+            <div class="col-4">
+                <button class="col-12 btn gcom-bg-amarillo" @onclick="@HandledValidClientes">
+                    Aceptar
+                </button>
+            </div>
+</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public IEnumerable<string> lista { get; set; } = new List<string>();
+    public IList<string> ClientesSeleccionados { get; set; } = new List<string>();
+
+    private void HandledValidClientes()
+    {
+        ds.Close(ClientesSeleccionados);
+    }
+
+    private async void ToggleCheck(bool args, string orden)
+    {
+        try
+        {
+            if (args)
+                ClientesSeleccionados.Add(orden);
+            else
+                ClientesSeleccionados.Remove(orden);
+
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+}

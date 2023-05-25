@@ -39,6 +39,7 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
         [NotMapped, DisplayName("Zona")] public string? NombreZona { get { return Zona?.Nombre; } }
+        [NotMapped, DisplayName("Destino")] public string? NombreDestino { get { return Destino?.Den; } }
         [NotMapped, DisplayName("Cliente")] public string? NombreCliente { get { return Cliente?.Den; } }
         [NotMapped, DisplayName("Producto")] public string? NombreProducto { get { return Producto?.Den; } }
 

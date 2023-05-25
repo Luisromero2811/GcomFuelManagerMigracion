@@ -101,7 +101,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
-                
+
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
                     && x.Bolguidid == null)
@@ -455,6 +455,7 @@ namespace GComFuelManager.Server.Controllers
                 var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Tad)
