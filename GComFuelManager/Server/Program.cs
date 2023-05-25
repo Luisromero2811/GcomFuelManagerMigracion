@@ -49,6 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
+builder.Services.AddScoped<IPreciosService, PreciosService>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));

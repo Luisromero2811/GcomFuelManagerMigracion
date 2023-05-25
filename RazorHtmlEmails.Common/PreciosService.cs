@@ -20,7 +20,7 @@ namespace RazorHtmlEmails.Common
             this.razorView = razorView;
         }
 
-        public async Task NotifyPrecio(EmailContent<IEnumerable<Precio>> content)
+        public async Task NotifyPrecio(EmailContent<Precio> content)
         {
             string body = await razorView.RenderViewToStringAsync("./Views/Emails/Precios/PreciosEmail.cshtml", content);
             var message = new MimeMessage();
@@ -38,6 +38,6 @@ namespace RazorHtmlEmails.Common
 
     public interface IPreciosService
     {
-        Task NotifyPrecio(EmailContent<IEnumerable<Precio>> precios);
+        Task NotifyPrecio(EmailContent<Precio> content);
     }
 }

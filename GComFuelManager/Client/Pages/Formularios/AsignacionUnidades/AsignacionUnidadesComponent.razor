@@ -3,7 +3,6 @@
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 @inject NotificationService ns
-@using Microsoft.AspNetCore.Authorization;
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
 
 <h4><b>Programación de Equipos</b></h4>
@@ -707,7 +706,6 @@
             else
                 ordenesSeleccionada.Remove(orden);
 
-            Console.WriteLine(ordenesSeleccionada.Count);
         }
         catch (Exception e)
         {

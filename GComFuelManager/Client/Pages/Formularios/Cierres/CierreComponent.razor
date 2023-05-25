@@ -1211,29 +1211,6 @@
         }
     }
 
-    private async Task SendEmailV()
-    {
-        try
-        {
-            var response = await http.Post<EmailContent<OrdenCierre>>("api/email/vencimiento", emailContent);
-            if (response.Error)
-            {
-                loadingSend = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                loadingSend = false;
-                await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
-            }
-        }
-        catch (Exception e)
-        {
-            loadingSend = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
 
     private async Task ShowDetails()
     {
