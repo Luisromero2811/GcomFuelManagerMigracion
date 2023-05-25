@@ -2,6 +2,8 @@
 @inject IJSRuntime js
 @inject IRepositorio http
 @inject SweetAlertService Swal
+@inject DialogService ds
+@inject NotificationService ns
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
@@ -60,137 +62,162 @@
                                     </RadzenDataGrid>
                                 </ChildContent>
                             </RadzenPanel>
+                            @if (preciosExcel.Count() > 0)
+                            {
+                                <div class="col-12 d-flex justify-content-center mt-3">
+                                    <div class="col-4">
+                                        <button class="btn gcom-bg-amarillo col-12">
+                                            <i class="fa fa-solid fa-floppy-disk"></i>
+                                            Guardar
+                                        </button>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                     <hr />
-                    <div class="col-12 row">
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Zona</label>
-                            <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
-                                <option>-- Seleccione una opcion</option>
-                                @if (Zonas == null)
-                                {
-                                    <option>Cargando...</option>
-                                }
-                                else if (Zonas.Count == 0)
-                                {
-                                    <option>No hay zonas.</option>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Zonas)
-                                    {
-                                        <option value="@item.Cod">@item.Nombre</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Grupo</label>
-                            <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
-                                <option>-- Seleccione una opcion</option>
-                                @if (Grupos == null)
-                                {
-                                    <option>Cargando...</option>
-                                }
-                                else if (Grupos.Count == 0)
-                                {
-                                    <option>No hay clientes.</option>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Grupos)
-                                    {
-                                        <option value="@item.Cod">@item.Den</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Cliente</label>
-                            <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
-                                <option>-- Seleccione una opcion</option>
-                                @if (Clientes == null)
-                                {
-                                    <option>Cargando...</option>
-                                }
-                                else if (Clientes.Count == 0)
-                                {
-                                    <option>No hay clientes.</option>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Clientes)
-                                    {
-                                        <option value="@item.Cod">@item.Den</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-1">
-                            <div class="col-12">
-                                <label class="form-label">Destino</label>
-                                <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
+                    <div class="col-12">
+                        <EditForm Model="Precio" class="form col-12 row" Context="FORM">
+                            <DataAnnotationsValidator />
+
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Zona</label>
+                                <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
                                     <option>-- Seleccione una opcion</option>
-                                    @if (Destinos == null)
+                                    @if (Zonas == null)
                                     {
                                         <option>Cargando...</option>
                                     }
-                                    else if (Destinos.Count == 0)
+                                    else if (Zonas.Count == 0)
                                     {
-                                        <option>No hay productos.</option>
+                                        <option>No hay zonas.</option>
                                     }
                                     else
                                     {
-                                        @foreach (var item in Destinos)
+                                        @foreach (var item in Zonas)
+                                        {
+                                            <option value="@item.Cod">@item.Nombre</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Grupo</label>
+                                <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
+                                    <option>-- Seleccione una opcion</option>
+                                    @if (Grupos == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Grupos.Count == 0)
+                                    {
+                                        <option>No hay clientes.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Grupos)
                                         {
                                             <option value="@item.Cod">@item.Den</option>
                                         }
                                     }
                                 </InputSelect>
                             </div>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Producto</label>
-                            <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
-                                <option>-- Seleccione una opcion</option>
-                                @if (Productos == null)
-                                {
-                                    <option>Cargando...</option>
-                                }
-                                else if (Productos.Count == 0)
-                                {
-                                    <option>No hay productos.</option>
-                                }
-                                else
-                                {
-                                    @foreach (var item in Productos)
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Cliente</label>
+                                <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
+                                    <option>-- Seleccione una opcion</option>
+                                    @if (Clientes == null)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option>Cargando...</option>
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Fecha</label>
-                            <InputDate @bind-Value="Precio.FchActualizacion" class="form-control col-12" />
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Precio</label>
-                            <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
-                        </div>
-                        <div class="col-12 d-flex justify-content-center">
-                            <div class="col-4">
-                                <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
-                                    <i class="fa fa-solid fa-floppy-disk"></i>
-                                    Guardar
-                                    @if (loadingSave)
+                                    else if (Clientes.Count == 0)
                                     {
-                                        <SpinnerLoading />
+                                        <option>No hay clientes.</option>
                                     }
-                                </button>
+                                    else
+                                    {
+                                        @foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
                             </div>
-                        </div>
+                            <div class="col-4 mb-1">
+                                <div class="col-12">
+                                    <label class="form-label">Destino</label>
+                                    <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
+                                        <option>-- Seleccione una opcion</option>
+                                        @if (Destinos == null)
+                                        {
+                                            <option>Cargando...</option>
+                                        }
+                                        else if (Destinos.Count == 0)
+                                        {
+                                            <option>No hay productos.</option>
+                                        }
+                                        else
+                                        {
+                                            @foreach (var item in Destinos)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Producto</label>
+                                <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
+                                    <option>-- Seleccione una opcion</option>
+                                    @if (Productos == null)
+                                    {
+                                        <option>Cargando...</option>
+                                    }
+                                    else if (Productos.Count == 0)
+                                    {
+                                        <option>No hay productos.</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Productos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Fecha</label>
+                                <InputDate @bind-Value="Precio.FchActualizacion" class="form-control col-12" />
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Precio</label>
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
+                            </div>
+                            <div class="col-12 d-flex justify-content-center row">
+                                <div class="col-4">
+                                    <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
+                                        <i class="fa fa-solid fa-floppy-disk"></i>
+                                        Guardar
+                                        @if (loadingSave)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn col-12 gcom-bg-amarillo" @onclick="@SendEmailPrecios">
+                                        <i class="fa fa-solid fa-paper-plane"></i>
+                                        Enviar Precios
+                                        @if (loadingSend)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
                     </div>
                 </div>
             </div>
@@ -202,8 +229,8 @@
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
@@ -226,17 +253,17 @@
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
                         </FilterTemplate>
                         <Template Context="data">
-                            <div class="col-12 d-flex">
+                            <div class="col-12 d-flex row">
                                 <div class="col-1">
-                                    @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                    @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
                                     {
                                         <div class="badge rounded-pill regular me-1">&nbsp;</div>
                                     }
-                                    else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                    else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
                                     {
                                         <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
                                     }
-                                    else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                    else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
                                     {
                                         <div class="badge rounded-pill premium me-1">&nbsp;</div>
                                     }
@@ -251,17 +278,28 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" >
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
                 </Columns>
             </RadzenDataGrid>
         </div>
     </Authorized>
 </AuthorizeView>
 
-<style type="text/css" media="screen and (min-width:1200px)">
+<style type="text/css" media="screen and (min-width:1100px)">
     .ancho {
-        width: 1100px;
+        width: 1000px;
     }
 </style>
 
@@ -270,15 +308,16 @@
         width: 1500px;
     }
 </style>
-<style type="text/css" media="screen and (min-width:1100px)">
+<style type="text/css" media="screen and (min-width:1400px)">
     .ancho {
-        width: 1000px;
+        width: 1300px;
     }
 </style>
 
 @code {
     private string ProductoSeleccionado = string.Empty;
-
+    private string CurrentCliente = string.Empty;
+    RadzenAlert alert = new RadzenAlert();
     List<Precio> precios { get; set; } = new List<Precio>();
     IEnumerable<PreciosDTO> preciosExcel { get; set; } = new List<PreciosDTO>();
 
@@ -298,12 +337,16 @@
     private int ClienteSeleccionado = 0;
 
     private int Progress = 0;
+    private int TotalEmails = 0;
+    private int CurrentEmails = 0;
 
     bool loadingUpload = false;
     bool loading = false;
     bool loadingSave = false;
+    bool loadingSend = false;
 
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
+    private IEnumerable<string?> ClientesSeleccionados { get; set; } = new List<string>();
 
     RadzenDataGrid<Precio> grid { get; set; } = new RadzenDataGrid<Precio>();
     RadzenDataGrid<PreciosDTO> gridExcel { get; set; } = new RadzenDataGrid<PreciosDTO>();
@@ -578,7 +621,7 @@
         try
         {
             await Swal.FireAsync("Exito", "Se ha completado la accion.", SweetAlertIcon.Info);
-            preciosExcel = JsonConvert.DeserializeObject<List<PreciosDTO>>(args.RawResponse);
+            preciosExcel = JsonConvert.DeserializeObject<List<PreciosDTO>>(args.RawResponse)!;
         }
         catch (Exception e)
         {
@@ -598,6 +641,136 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task SendPrecios()
+    {
+        try
+        {
+            if (precios is null)
+            {
+                await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
+                return;
+            }
+
+            if (precios.Count == 0)
+            {
+                await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
+                return;
+            }
+
+
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task SendEmailPrecios()
+    {
+        try
+        {
+            loadingSend = true;
+            if (precios is null)
+            {
+                loadingSend = false;
+
+                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
+                return;
+            }
+
+            if (precios.Count is 0)
+            {
+                loadingSend = false;
+
+                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
+                return;
+            }
+
+            ClientesSeleccionados = precios.DistinctBy(x => x.NombreCliente).Select(x => x.NombreCliente);
+
+            var clientes = await ds.OpenAsync<SelectionComponent>($"Clientes",
+            new Dictionary<string, object>() { { "lista", ClientesSeleccionados } },
+            new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+
+            if (clientes is null)
+            {
+                loadingSend = false;
+                return;
+            }
+
+            Message(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
+
+            List<Precio> listaPrecios = new List<Precio>();
+
+            foreach (var cliente in clientes)
+            {
+                listaPrecios.AddRange(precios.Where(x => x.NombreCliente!.Equals(cliente) && x.Pre != 0 && x.Activo == true));
+            }
+
+            var response = await http.Post<IEnumerable<Precio>>("api/email/precios", listaPrecios);
+            if (response.Error)
+            {
+                loadingSend = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "Los correos han sido enviados", SweetAlertIcon.Success);
+            }
+
+            alert.Dispose();
+            loadingSend = false;
+
+        }
+        catch (Exception e)
+        {
+            loadingSend = false;
+
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Message(NotificationMessage message)
+    {
+        ns.Notify(message);
+    }
+
+    private async Task ChangeStatus(Precio precio, ChangeEventArgs ea)
+    {
+        try
+        {
+            precio.Activo = (bool)ea.Value;
+            var response = await http.Post<Precio>($"api/precio", precio);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (precio.Activo)
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                else
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

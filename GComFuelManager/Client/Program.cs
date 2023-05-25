@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Radzen;
+using System.Globalization;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -41,5 +42,5 @@ void ConfigureServices(IServiceCollection services)
     proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
 
     services.AddScoped<RenovadorToken>();
-
+    services.AddSingleton(new CultureInfo("es-Mx"));
 }

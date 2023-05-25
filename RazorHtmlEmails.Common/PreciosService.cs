@@ -1,4 +1,6 @@
-﻿using MimeKit.Text;
+﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
+using MimeKit.Text;
 using MimeKit;
 using RazorHtmlEmails.GComFuelManagerMigracion.Services;
 using System;
@@ -6,30 +8,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using RazorHtmlEmails.GComFuelManagerMigracion.Views.Emails.ConfirmationAccount;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using GComFuelManager.Shared.DTOs;
-using MimeKit.Utils;
-using System.Net.Mail;
-using System.Net.Mime;
-using GComFuelManager.Shared.Modelos;
 
 namespace RazorHtmlEmails.Common
 {
-    public class CompraService : EmailSendService, ICompraService
+    public class PreciosService : EmailSendService,IPreciosService
     {
         private readonly IRazorViewToStringRenderer razorView;
 
-        public CompraService(IRazorViewToStringRenderer razorView)
+        public PreciosService(IRazorViewToStringRenderer razorView)
         {
             this.razorView = razorView;
         }
 
-        public async Task Comprar(EmailContent<OrdenCierre> content)
+        public async Task NotifyPrecio(EmailContent<Precio> content)
         {
-
-            string body = await razorView.RenderViewToStringAsync("./Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
+            string body = await razorView.RenderViewToStringAsync("./Views/Emails/Precios/PreciosEmail.cshtml", content);
             var message = new MimeMessage();
 
             message.From.Add(new MailboxAddress("Gcom Fuel Manager", "endpoint@gasamigas.com"));
@@ -38,14 +31,13 @@ namespace RazorHtmlEmails.Common
             message.Subject = content.Subject;
 
             message.Body = new TextPart(TextFormat.Html) { Text = body };
-            
+
             SendEmail(message);
         }
-
     }
 
-    public interface ICompraService
+    public interface IPreciosService
     {
-        Task Comprar(EmailContent<OrdenCierre> content);
+        Task NotifyPrecio(EmailContent<Precio> content);
     }
 }
