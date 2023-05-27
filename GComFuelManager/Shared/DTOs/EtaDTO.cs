@@ -16,6 +16,10 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Fecha de Carga")]
         public string? FechaCarga { get; set; } = string.Empty;
         public int? Bol { get; set; } = 0;
+
+        [DisplayName("Tipo de Venta")]
+        public string DeliveryRack { get; set; } = string.Empty;
+
         public string? Cliente { get; set; } = string.Empty;
         public string? Destino { get; set; } = string.Empty;
         public string? Producto { get; set; } = string.Empty;

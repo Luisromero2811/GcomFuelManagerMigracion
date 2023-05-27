@@ -1,10 +1,11 @@
-﻿using CurrieTechnologies.Razor.SweetAlert2;
+using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
 using GComFuelManager.Client.Repositorios;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Radzen;
 using System.Globalization;
 
@@ -43,4 +44,5 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<RenovadorToken>();
     services.AddSingleton(new CultureInfo("es-Mx"));
+
 }
