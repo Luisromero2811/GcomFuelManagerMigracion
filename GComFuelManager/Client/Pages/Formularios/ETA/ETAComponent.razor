@@ -167,13 +167,13 @@
     ElementReference infossIcon;
     ElementReference infosIcon;
     //Tooltips de reportes
-    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Para el caso de buscar ordenes de tipo Delivery, seleccione un conjunto de un rango de fechas", options);
-    void ShowToolsTips(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Para el caso de buscar reporte con Ordenes de Tipo de Venta RACK, solo filtrar entre fechas");
+    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de buscar ordenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
+    void ShowToolsTips(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "En caso de buscar Ordenes con Tipo de Venta RACK, solo filtre entre un rango de fechas");
 
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = null!;
-    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo" ,"Ambos" };
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo" };
 
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet

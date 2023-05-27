@@ -13,55 +13,71 @@
         <div class="col-12">
             <div class="col-12">
                 <div class="col-12 row mb-3">
-                    <div class="col-6 d-flex">
+                    <div class="col-12">
                         <b class="my-auto">
                             Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
+                            @foreach (var item in ProductList)
+                            {
+                                <h6><strong>Fulles del producto "@item": @(Convert.ToDouble(cierres.Count) / 2) - Fulles restantes del producto "@item": @(Convert.ToDouble(FullesRestantes) / 2)</strong></h6>
+                            }
                         </b>
                     </div>
-                    <div class="col-6 d-flex justify-content-end">
-                        <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                            <i class="fa-solid fa-file-excel fa"></i> Exportar
-                            @if (loadingExport)
-                            {
-                                <SpinnerLoading></SpinnerLoading>
-                            }
-                        </button>
-                    </div>
+                    @*<div class="col-6 d-flex justify-content-end">
+                            <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
+                                <i class="fa-solid fa-file-excel fa"></i> Exportar
+                                @if (loadingExport)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>*@
                 </div>
             </div>
+            <div class="row justify-content-end">
+                <div class="col-6 d-flex justify-content-end">
+                    <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
+                        <i class="fa-solid fa-file-excel fa"></i> Exportar
+                        @if (loadingExport)
+                        {
+                            <SpinnerLoading></SpinnerLoading>
+                        }
+                    </button>
+                </div>
+            </div>
+
             @*<table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">OC</th>
-                        <th scope="col">Fecha de cierre</th>
-                        <th scope="col">Destino</th>
-                        <th scope="col">Producto</th>
-                        <th scope="col">BOL</th>
-                        <th scope="col">Unidad</th>
-                        <th scope="col">Estatus</th>
-                        <th scope="col">Fecha de entrega</th>
-                    </tr>
-                </thead>
-                <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
-                    <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
+                    <thead>
                         <tr>
-                            <td>@item.Folio</td>
-                            <td>@item.FchCierre</td>
-                            <td>@item.Destino?.Den</td>
-                            <td>@item.Producto?.Den</td>
-                            <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
-                            <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
-                            <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                            <td>@item?.FchLlegada</td>
+                            <th scope="col">OC</th>
+                            <th scope="col">Fecha de cierre</th>
+                            <th scope="col">Destino</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">BOL</th>
+                            <th scope="col">Unidad</th>
+                            <th scope="col">Estatus</th>
+                            <th scope="col">Fecha de entrega</th>
                         </tr>
-                    </Virtualize>
-                </tbody>
-            </table>*@
+                    </thead>
+                    <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
+                        <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
+                            <tr>
+                                <td>@item.Folio</td>
+                                <td>@item.FchCierre</td>
+                                <td>@item.Destino?.Den</td>
+                                <td>@item.Producto?.Den</td>
+                                <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
+                                <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
+                                <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
+                                <td>@item?.FchLlegada</td>
+                            </tr>
+                        </Virtualize>
+                    </tbody>
+                </table>*@
         </div>
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                        GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" />
@@ -99,7 +115,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}"/>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Filterable="false">
                     <Template Context="item">
                         @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
@@ -118,11 +134,12 @@
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
     List<OrdenCierre>? cierres { get; set; }
+    List<Producto>? productos { get; set; }
 
     List<DetalleCierreDTO> detalleCierres { get; set; } = new List<DetalleCierreDTO>();
 
     private int? FullesRestantes { get; set; } = 0;
-
+    private int? ProductosRestantes { get; set; } = 0;
     private int index { get; set; } = 0;
     private int indexRow { get; set; } = 0;
 
@@ -140,17 +157,17 @@
 
         foreach (var item in cierres!)
         {
-                detalleCierres.Add(new DetalleCierreDTO
-                    {
-                        OC = item.Folio,
-                        FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                        Destino = item?.Destino?.Den,
-                        Producto = item?.Producto?.Den,
-                        BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                        Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                        Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                        FchLlegada = item?.FechaLlegada
-                    });
+            detalleCierres.Add(new DetalleCierreDTO
+            {
+                OC = item.Folio,
+                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                Destino = item?.Destino?.Den,
+                Producto = item?.Producto?.Den,
+                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                FchLlegada = item?.FechaLlegada
+            });
         }
     }
 
@@ -168,9 +185,13 @@
             {
                 cierres = response.Response;
                 foreach (var item in cierres)
+                {
                     if (item.OrdenEmbarque?.Folio == null)
+                    {
                         FullesRestantes++;
+                    }
 
+                }
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 
             }
@@ -206,7 +227,7 @@
                 tablebody.Style.Font.Bold = true;
 
                 header.Style.Font.Size = 14;
-                
+
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
                 header.Style.Font.Bold = true;
