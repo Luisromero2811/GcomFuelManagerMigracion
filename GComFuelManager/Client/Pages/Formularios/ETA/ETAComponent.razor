@@ -119,13 +119,35 @@
                 <div class="row g3 d-flex">
                     <div class="row">
                         <label><b>Reporte</b></label>
-                        <div class="col-md-6">
-                            <label>Fecha de inicio:</label>
+                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                            <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label>Fecha final</label>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
+                        </div>
+                        <div class="col-md-4"  @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
+                            <label>Tipo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                            <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
+                                <option>--Seleccione una opcion</option>
+                                @if (TpVenta is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (TpVenta.Count == 0)
+                                {
+                                    <option disabled> No hay tipos de venta</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in TpVenta)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+
+                            </InputSelect>
                         </div>
                     </div>
                 </div>
@@ -140,10 +162,20 @@
 </AuthorizeView>
 
 @code {
+
+    //Element References
+    ElementReference infossIcon;
+    ElementReference infosIcon;
+    //Tooltips de reportes
+    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Para el caso de buscar ordenes de tipo Delivery, seleccione un conjunto de un rango de fechas", options);
+    void ShowToolsTips(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Para el caso de buscar reporte con Ordenes de Tipo de Venta RACK, solo filtrar entre fechas");
+
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = null!;
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo" ,"Ambos" };
 
+    Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
     {

@@ -5,7 +5,7 @@
 @inject NavigationManager navigationManager
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia")]
 @inject TooltipService ts
-
+@inject NotificationService NotificationService
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Usuarios">
     <h4><b>Usuarios</b></h4>
     <!--Maquetacion formulario de usuarios-->
@@ -132,11 +132,7 @@
 </AuthorizeView>
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia">
-    <div class="row justify-content-end mt-4 me-4 mb-3">
-        <div class="gcom-bg-amarillo d-flex justify-content-center text-wrap" style="width: 7rem;">
-            <b>Password: @displayedPassword</b>
-        </div>
-    </div><!--class="rz-my-12 ancho"-->
+    <!--class="rz-my-12 ancho"-->
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center mb-2">
         <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
@@ -151,6 +147,7 @@
                             @if (usuarioSeleccionado.Count == 1)
                             {
                                 <button type="button" class="btn gcom-bg-amarillo col-12" @onclick="@(() => ShowPassword(user.Password))" id="liveToastBtn"><i class="fa fa-solid fa-eye"></i> <b>Mostrar Contraseña</b></button>
+                              
                             }
                         </div>
                     </Template>
@@ -184,17 +181,7 @@
 
 @code {
     UsuarioInfo info = new UsuarioInfo();
-
-    bool cargando = false;
     bool passwordView = true;
-
-
-    private string displayedPassword = null!;
-    private void ShowPassword(string password)
-    {
-        displayedPassword = password;
-    }
-
     //Listas
     private UsuarioInfo users { get; set; } = new UsuarioInfo();
     private List<UsuarioInfo> Usuarios { get; set; } = new List<UsuarioInfo>();
@@ -220,6 +207,8 @@
 
     ElementReference infoIcon;
     ElementReference infosIcon;
+
+
     //Ciclo de vida de inicio del componente
     protected override async Task OnInitializedAsync()
     {
@@ -233,11 +222,7 @@
 
     private string passwordType = "password";
 
-    private void TogglePasswordVisibility(UsuarioInfo user)
-    {
-        user.ShowPassword = !user.ShowPassword;
-        passwordType = user.ShowPassword ? "text" : "password";
-    }
+
 
     //Obtención de roles
     public async Task GetRoles()
@@ -369,6 +354,24 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+    private string displayedPassword = null!;
+    private async Task ShowPassword(string password)
+    {
+        displayedPassword = password;
+        await AlertaPass($"La contraseña es: {displayedPassword}", SweetAlertIcon.Info);
+    }
+    //Función privada para creación de alertas personalizadas
+    private async Task AlertaPass(string message, SweetAlertIcon icon)
+    {
+        await swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 20000,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
     //Función privada para creación de alertas personalizadas
     private async Task Alertas(string message, SweetAlertIcon icon)

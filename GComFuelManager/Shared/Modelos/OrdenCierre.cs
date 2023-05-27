@@ -74,8 +74,9 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("cliente")]
         public string? Cli { get { return Cliente != null ? Cliente.Den : string.Empty; } }
 
-        [JsonPropertyName("volumen"), DisplayName("Volumen")]
+        [JsonPropertyName("volumen"), DisplayName("Volumen"), DisplayFormat(DataFormatString = "{0:#,0.00}")]
         public int? Volumen { get; set; }
+        //public string FormattedString { get; set; } = Volumen.Value.ToString("N2");
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
