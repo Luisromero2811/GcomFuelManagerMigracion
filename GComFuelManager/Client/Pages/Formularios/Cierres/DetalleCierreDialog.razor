@@ -1,4 +1,4 @@
-﻿@*@page "/detalle/{folio}"*@
+@*@page "/detalle/{folio}"*@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject IJSRuntime js
@@ -15,10 +15,14 @@
                 <div class="col-12 row mb-3">
                     <div class="col-12">
                         <b class="my-auto">
-                            Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
-                            @foreach (var item in ProductList)
+                            Fulles: @(Math.Round(Convert.ToDouble(cierres.Sum(x => x.Volumen)) / 60000, 2)) |
+                            Fulles restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
+                            @foreach (var item in cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den))
                             {
-                                <h6><strong>Fulles del producto "@item": @(Convert.ToDouble(cierres?.Count) / 2) - Fulles restantes del producto "@item": @(Convert.ToDouble(ProductosRestantes) / 2)</strong></h6>
+                                <div>
+                                    @(item) - Fulles: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000, 2)) |
+                                    Fulles Restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
+                                </div>
                             }
                         </b>
                     </div>
@@ -38,8 +42,8 @@
         </div>
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                    GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" />
@@ -120,16 +124,16 @@
         foreach (var item in cierres!)
         {
             detalleCierres.Add(new DetalleCierreDTO
-            {
-                OC = item.Folio,
-                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                Destino = item?.Destino?.Den,
-                Producto = item?.Producto?.Den,
-                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                FchLlegada = item?.FechaLlegada
-            });
+                {
+                    OC = item.Folio,
+                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                    Destino = item?.Destino?.Den,
+                    Producto = item?.Producto?.Den,
+                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                    FchLlegada = item?.FechaLlegada
+                });
         }
     }
 
