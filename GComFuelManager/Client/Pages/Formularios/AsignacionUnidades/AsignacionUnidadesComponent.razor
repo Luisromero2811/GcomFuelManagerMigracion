@@ -255,22 +255,12 @@
     </RadzenDataGrid>
 </div>
 
-<style type="text/css" media="screen and (min-width:1100px)">
+<style type="text/css">
     .ancho {
-        width: 1000px;
+        width: @TotalWidth;
     }
 </style>
 
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1400px)">
-    .ancho {
-        width: 1300px;
-    }
-</style>
 @code {
 
     public bool Synthesis { get; set; } = false;
@@ -315,8 +305,16 @@
     //
     CheckChofer checkChofer = new CheckChofer();
 
+    int width = 0;
+    string TotalWidth = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+
         await GetDestinos();
         await GetProductos();
         await GetTransportista();

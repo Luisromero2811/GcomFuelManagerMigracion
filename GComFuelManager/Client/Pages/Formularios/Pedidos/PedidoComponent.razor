@@ -210,10 +210,6 @@
                             <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@CancelEdit">
                                 <i class="fa fa-solid fa-xmark"></i>
                                 <b>Cancelar Cambio</b>
-                                @if (loadingAgregar)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
                             </button>
                         </div>
                     }
@@ -285,22 +281,12 @@
         </RadzenDataGrid>
     </div>
 </AuthorizeView>
-<style type="text/css" media="screen and (min-width:1200px)">
+<style type="text/css">
     .ancho {
-        width: 1100px;
+        width: @TotalWidth;
     }
 </style>
 
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1100px)">
-    .ancho {
-        width: 1000px;
-    }
-</style>
 @code {
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
@@ -349,6 +335,8 @@
     ElementReference infoIconVolumen;
 
     private ClaimsPrincipal User { get; set; } = null!;
+    int width = 0;
+    string TotalWidth = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -359,6 +347,11 @@
         //await GetProductos();
         //await GetEstaciones();
         //await GetOrdenesPendientes();
+        width = await js.InvokeAsync<int>("eval","window.innerWidth") - 360;
+        Console.WriteLine(width);
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
         var authState = await auth.GetAuthenticationStateAsync();
         if (authState is not null)
             User = authState.User;

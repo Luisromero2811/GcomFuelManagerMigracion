@@ -297,20 +297,9 @@
     </Authorized>
 </AuthorizeView>
 
-<style type="text/css" media="screen and (min-width:1100px)">
+<style type="text/css">
     .ancho {
-        width: 1000px;
-    }
-</style>
-
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1400px)">
-    .ancho {
-        width: 1300px;
+        width: @TotalWidth;
     }
 </style>
 
@@ -351,8 +340,16 @@
     RadzenDataGrid<Precio> grid { get; set; } = new RadzenDataGrid<Precio>();
     RadzenDataGrid<PreciosDTO> gridExcel { get; set; } = new RadzenDataGrid<PreciosDTO>();
 
+    int width = 0;
+    string TotalWidth = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+
         await GetProductos();
         await GetPrecios();
         await GetGrupos();
