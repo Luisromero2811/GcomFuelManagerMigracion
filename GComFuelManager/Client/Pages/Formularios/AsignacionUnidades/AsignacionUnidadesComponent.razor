@@ -30,146 +30,96 @@
                     </div>
                 </div>
             </div>
-            <hr />
-            <label><b>Asignar unidades:</b></label>
-            <div class="col card shadow-sm">
-                <div class="col-12 card-body">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                        <div class="row mb-3">
-                            <div class="col-4">
-                                <label>Transportista:</label>
-                                @*<InputSelect class="form-select col-12" @bind-Value="TransportistaSeleccionado" onchange="@GetDataSelction()">
-                                        <input type="text" />
-                                        <option>-- seleccione una opcion --</option>
-                                        @if (Transportistas is null)
-                                        {
-                                            <option disabled>Cargando...</option>
-                                        }
-                                        else if (Transportistas.Count == 0)
-                                        {
-                                            <option disabled>No hay Transportistas</option>
-                                        }
-                                        else
-                                        {
-                                            foreach (var item in Transportistas)
-                                            {
-                                                <option value="@item.Cod">@item.Den</option>
-                                            }
-                                        }
-                                    </InputSelect>*@
-                                <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="TransportistaSeleccionado"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" Change="@GetDataSelction" />
-                            </div>
-                            <div class="col-4">
-                                <label>Chofer:</label>
-                                @*<InputSelect class="form-select col-12" @bind-Value="ChoferSeleccionado">
-                                        <option>-- seleccione una opcion --</option>
-                                        @if (Choferes is null)
-                                        {
-                                            <option disabled>Cargando...</option>
-                                        }
-                                        else if (Choferes.Count == 0)
-                                        {
-                                            <option disabled>No hay Choferes</option>
-                                        }
-                                        else
-                                        {
-                                            foreach (var item in Choferes)
-                                            {
-                                                <option value="@item.Cod">@item.Den</option>
-                                            }
-                                        }
-                                    </InputSelect>*@
-                                <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" />
-                            </div>
-                            <div class="col-4">
-                                <label>Vehiculo:</label>
-                                @*<InputSelect class="form-select col-12" @bind-Value="VehiculoSeleccionado">
-                                        <option>-- seleccione una opcion --</option>
-                                        @if (Vehiculos is null)
-                                        {
-                                            <option disabled>Cargando...</option>
-                                        }
-                                        else if (Vehiculos.Count == 0)
-                                        {
-                                            <option disabled>No hay vehiculos</option>
-                                        }
-                                        else
-                                        {
-                                            foreach (var item in Vehiculos)
-                                            {
-                                                <option value="@item.Cod">@item.Den</option>
-                                            }
-                                        }
-                                    </InputSelect>*@
-                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="VehiculoSeleccionado"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" />
-                            </div>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="col-12 mt-2">
+    <div class="d-flex justify-content-center">
+        <div class="col card shadow-sm">
+            <div class="col-12 card-body">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                    <label><b>Asignar unidades:</b></label>
+
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label>Transportista:</label>
+                            <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="TransportistaSeleccionado"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowVirtualization="true" Change="@GetDataSelction" />
                         </div>
-                        <div class="col-12">
-                            <div class="row d-flex justify-content-end">
-                                <div class="col-8 row">
-                                    @if (Vehiculos != null)
-                                    {
-                                        @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
-                                        {
-                                            <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
-                                                @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.CapDisponible; i++)
-                                                {
-                                                    <div class="col">
-                                                        <div class="form-check">
-                                                            <InputRadio Value="@i" class="form-check-input" id="@i" />
-                                                            <label class="form-check-label" for="@i">Com @i</label>
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </InputRadioGroup>
-                                        }
-                                    }
-                                </div>
-                                <div class="col-4">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null)">
-                                        <i class="fa fa-solid fa-truck-front"></i>
-                                        <b>Asignar</b>
-                                    </button>
-                                </div>
-                            </div>
+                        <div class="col-4">
+                            <label>Chofer:</label>
+                            <RadzenDropDownDataGrid Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
+                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    AllowVirtualization="true">
+                                <Template Context="data">
+                                    @((data as Chofer).Dricod) | $@((data as Chofer).Den)
+                                </Template>
+                                <ValueTemplate Context="data">
+                                    @((data as Chofer).Dricod) | $@((data as Chofer).Den)
+                                </ValueTemplate>
+                            </RadzenDropDownDataGrid>
                         </div>
-                    </AuthorizeView>
-                    <hr />
-                    <div class="col-12 my-3">
-                        <div class="row d-flex justify-content-start">
-                            <div class="col-4">
-                                <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
-                                <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
-                            </div>
+                        <div class="col-4">
+                            <label>Vehiculo:</label>
+                            <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="VehiculoSeleccionado"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowVirtualization="true" />
                         </div>
+                    </div>
+                    <div class="col-12">
                         <div class="row d-flex justify-content-end">
-                            @if (Synthesis)
-                            {
-                                <div class="col-4">
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
-                                    </AuthorizeView>
-                                </div>
-                            }
-
-                            @*<div class="col-3">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad"><b>Enviar a TP</b></button>
-                                </div>
-                                <div class="col-3">
-                                <button class="btn gcom-bg-rojo col-12 text-light" @onclick="@AsignarUnidad"><b>Desasignar a TP</b></button>
-                                </div>*@
-                            <div class="col-4">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
-                                </AuthorizeView>
-
+                            <div class="col-8 row">
+                                @if (Vehiculos != null)
+                                {
+                                    @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
+                                    {
+                                        <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
+                                            @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.CapDisponible; i++)
+                                            {
+                                                <div class="col">
+                                                    <div class="form-check">
+                                                        <InputRadio Value="@i" class="form-check-input" id="@i" />
+                                                        <label class="form-check-label" for="@i">Com @i</label>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </InputRadioGroup>
+                                    }
+                                }
                             </div>
+                            <div class="col-4">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null)">
+                                    <i class="fa fa-solid fa-truck-front"></i>
+                                    <b>Asignar</b>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </AuthorizeView>
+                <hr />
+                <div class="col-12 my-3">
+                    <div class="row d-flex justify-content-start">
+                        <div class="col-4">
+                            <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
+                            <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                        </div>
+                    </div>
+                    <div class="row d-flex justify-content-end">
+                        @if (Synthesis)
+                        {
+                            <div class="col-4">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                </AuthorizeView>
+                            </div>
+                        }
+                        <div class="col-4">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                            </AuthorizeView>
+
                         </div>
                     </div>
                 </div>
@@ -182,9 +132,6 @@
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
                     GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true">
-        @*<EmptyTemplate>
-            <NoHayRegistros></NoHayRegistros>
-            </EmptyTemplate>*@
         <Columns>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false">
                 <HeaderTemplate>
@@ -213,12 +160,12 @@
                 <Template Context="data">
                     <div class="col-12">
                         @string.Format("{0:N2}",
-                            data?.Compartment == 1 ? data?.Tonel?.Capcom
-                            : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3
-                            : data?.Compartment == 4 ? data?.Tonel?.Capcom4
-                            : data?.Vol
-                            )
+                        data?.Compartment == 1 ? data?.Tonel?.Capcom
+                        : data?.Compartment == 2 ? data?.Tonel?.Capcom2
+                        : data?.Compartment == 3 ? data?.Tonel?.Capcom3
+                        : data?.Compartment == 4 ? data?.Tonel?.Capcom4
+                        : data?.Vol
+                        )
                     </div>
                 </Template>
             </RadzenDataGridColumn>
@@ -241,16 +188,6 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" />
-            @*<RadzenDataGridColumn TItem="OrdenEmbarque" Title="SIMSA TRANSPORTE" Width="200px" MinWidth="200px">
-                <Template Context="data">
-                <div class="col-12">
-                <div class="form-check form-switch m-2">
-                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Tp"
-                @onchange="@((ChangeEventArgs e) => AsignarTp(data.Cod, e))">
-                </div>
-                </div>
-                </Template>
-                </RadzenDataGridColumn>*@
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -278,7 +215,7 @@
     private List<CodDenDTO> Productos { get; set; } = null!;
 
     private List<Transportista> Transportistas { get; set; } = null!;
-    private List<CodDenDTO> Choferes { get; set; } = null!;
+    private List<Chofer> Choferes { get; set; } = null!;
     private List<Tonel> Vehiculos { get; set; } = null!;
 
     //Selecciones
@@ -374,7 +311,7 @@
         try
         {
             string? busentid = Transportistas.FirstOrDefault(x => x.Cod == TransportistaSeleccionado).Busentid;
-            var response = await repositorio.Get<List<CodDenDTO>>($"api/chofer/{busentid}");
+            var response = await repositorio.Get<List<Chofer>>($"api/chofer/{busentid}");
             if (response.Error)
             {
                 var repositorioHttp = await response.ObtenerMensajeError();
@@ -455,17 +392,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = ChoferSeleccionado,
-                    Tonel = VehiculoSeleccionado,
-                    Compartimento =
-                            (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
-                            : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
-                            : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
-                            : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = ChoferSeleccionado,
+                        Tonel = VehiculoSeleccionado,
+                        Compartimento =
+                                (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
+                                : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
+                                : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
+                                : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -487,13 +424,13 @@
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                        {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -582,21 +519,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-            {
-                OrdenCompra = o?.OrdenCompra?.den,
-                Referencia = o?.Folio.ToString(),
-                Cliente = o?.Destino?.Cliente?.Den,
-                Destino = o?.Destino?.Den,
-                Producto = o?.Producto?.Den,
-                Volumen = o?.Vol,
-                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                Transportista = o?.Tonel?.Transportista?.Den,
-                Unidad = o?.Tonel?.Veh,
-                Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den,
-                Bin = o?.Bin,
-                Status = o?.Estado?.den
-            }, true);
+                {
+                    OrdenCompra = o?.OrdenCompra?.den,
+                    Referencia = o?.Folio.ToString(),
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    Volumen = o?.Vol,
+                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o?.Tonel?.Transportista?.Den,
+                    Unidad = o?.Tonel?.Veh,
+                    Compartimento = o?.Compartment,
+                    Operador = o?.Chofer?.Den,
+                    Bin = o?.Bin,
+                    Status = o?.Estado?.den
+                }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -657,23 +594,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Actualizando Transportistas",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Actualizando Transportistas",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                            Duration = 15000
+                        });
 
                     loadingSend = true;
 
@@ -732,7 +669,7 @@
         {
             ordenEmbarque = orden;
             //await grid!.SelectRow(orden);
-            await dpT.FocusAsync();
+            //await dpT.FocusAsync();
         }
         catch (Exception e)
         {

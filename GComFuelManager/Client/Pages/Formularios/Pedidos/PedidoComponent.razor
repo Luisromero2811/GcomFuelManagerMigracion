@@ -12,19 +12,19 @@
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
             <div class="col-12 px-4 mb-3">
-                <div class="col-4 row">
-                    <div class="col-10">
+                <div class="col-6 row">
+                    <div class="col-8">
                         <label class="form-label">Folio</label>
                         <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
                     </div>
-                    <div class="col-2 d-flex">
-                        <div class="col-12 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@GetFiltroCierres">
+                    <div class="col-4 d-flex row">
+                        <div class="col-6 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                        <div class="col-12 mt-auto ms-2">
-                            <button class="col-12 btn gcom-bg-amarillo px-2" @onclick="@ClearGridData">
+                        <div class="col-6 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearGridData">
                                 <i class="fa fa-solid fa-broom"></i>
                             </button>
                         </div>
@@ -45,23 +45,6 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Terminal</label>
-                            @*<InputSelect @bind-Value="ordenCierre.OrdenEmbarque!.Codtad" class="form-select">
-                            @if (Terminales is null)
-                            {
-                            <option disabled> Cargando ...</option>
-                            }
-                            else if (Terminales.Count == 0)
-                            {
-                            <option disabled> No hay terminales</option>
-                            }
-                            else
-                            {
-                            foreach (var item in Terminales)
-                            {
-                            <option value="@item.Cod">@item.Den</option>
-                            }
-                            }
-                            </InputSelect>*@
                             <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.OrdenEmbarque.Codtad"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             AllowVirtualization="true" />
@@ -197,6 +180,19 @@
                             <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>
                         </div>
                     </div>
+                    @if (!isFolio)
+                    {
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label @onmouseenter="@(args => ShowTooltip(infoFolio))" @ref="infoFolio">
+                                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
+                                <div class="col-12">
+                                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-2">
                     @if (isEditing)
@@ -336,8 +332,8 @@
     private Cliente Cliente { get; set; } = new Cliente();
     private List<int> ordenPendientes = new List<int>();
 
-    ElementReference infoIcon;
     ElementReference infoIconVolumen;
+    ElementReference infoFolio;
 
     private ClaimsPrincipal User { get; set; } = null!;
     int width = 0;
@@ -352,7 +348,7 @@
         //await GetProductos();
         //await GetEstaciones();
         //await GetOrdenesPendientes();
-        width = await js.InvokeAsync<int>("eval","window.innerWidth") - 360;
+        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
         Console.WriteLine(width);
         if (width < 0)
             width = 500;
@@ -365,10 +361,12 @@
     {
         ordenCierres = new List<OrdenCierre>();
         ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() };
-        
+
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
+    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
+    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -675,10 +673,11 @@
                 {
                     loadingConfirm = false;
                     await Swal.FireAsync("Folio", response.Response.den, SweetAlertIcon.Info);
-                    ordens = new List<OrdenEmbarque>();
+                    //ordens = new List<OrdenEmbarque>();
                     //await js.RemoveItemLocalStorage("PEDIDO");
                     //await js.RemoveItemLocalStorage("EXPIRACIONPEDIDO");
-                    ordenPendientes = new List<int>();
+                    //ordenPendientes = new List<int>();
+                    ClearGridData();
                 }
             }
             else
@@ -847,10 +846,14 @@
             }
             else
             {
-                Cliente = response.Response;
-                Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                if (string.IsNullOrEmpty(ordenCierre.Folio))
+                {
+                    Cliente = response.Response;
+                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
 
-                ordenCierre.Folio = Cliente.CodCte != null ? User.Identity?.Name?.Substring(0, 3) + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+                    ordenCierre.Folio = Cliente.CodCte != null ? User.Identity?.Name?.Substring(0, 3) + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+                }
+
                 await PutClientes();
                 await CreateCierre();
             }
