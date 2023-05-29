@@ -595,14 +595,14 @@
                 Transportista = o?.Tonel?.Transportista?.Den,
                 Unidad = o?.Tonel?.Veh,
                 Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den,
-                Bin = o?.Bin,
-                Status = o?.Estado?.den
+                Operador = o?.Chofer?.Den
+                //Bin = o?.Bin,
+                //Status = o?.Estado?.den
             }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            var header = worksheet.Cells["A1:M1"];
+            var header = worksheet.Cells["A1:K1"];
             header.Style.Fill.PatternType = ExcelFillStyle.Solid;
             header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
             //Guardado de Excel

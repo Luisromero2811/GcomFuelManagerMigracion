@@ -18,19 +18,10 @@
                             Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
                             @foreach (var item in ProductList)
                             {
-                                <h6><strong>Fulles del producto "@item": @(Convert.ToDouble(cierres.Count) / 2) - Fulles restantes del producto "@item": @(Convert.ToDouble(FullesRestantes) / 2)</strong></h6>
+                                <h6><strong>Fulles del producto "@item": @(Convert.ToDouble(cierres?.Count) / 2) - Fulles restantes del producto "@item": @(Convert.ToDouble(ProductosRestantes) / 2)</strong></h6>
                             }
                         </b>
                     </div>
-                    @*<div class="col-6 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                                <i class="fa-solid fa-file-excel fa"></i> Exportar
-                                @if (loadingExport)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
-                            </button>
-                        </div>*@
                 </div>
             </div>
             <div class="row justify-content-end">
@@ -44,35 +35,6 @@
                     </button>
                 </div>
             </div>
-
-            @*<table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">OC</th>
-                            <th scope="col">Fecha de cierre</th>
-                            <th scope="col">Destino</th>
-                            <th scope="col">Producto</th>
-                            <th scope="col">BOL</th>
-                            <th scope="col">Unidad</th>
-                            <th scope="col">Estatus</th>
-                            <th scope="col">Fecha de entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
-                        <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
-                            <tr>
-                                <td>@item.Folio</td>
-                                <td>@item.FchCierre</td>
-                                <td>@item.Destino?.Den</td>
-                                <td>@item.Producto?.Den</td>
-                                <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
-                                <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
-                                <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                                <td>@item?.FchLlegada</td>
-                            </tr>
-                        </Virtualize>
-                    </tbody>
-                </table>*@
         </div>
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
@@ -189,6 +151,11 @@
                     if (item.OrdenEmbarque?.Folio == null)
                     {
                         FullesRestantes++;
+
+                    }
+                    else
+                    {
+                        
                     }
 
                 }
