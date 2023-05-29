@@ -121,20 +121,9 @@
         </RadzenDataGrid>
     </div>
 </AuthorizeView>
-<style type="text/css" media="screen and (min-width:1200px)">
+<style type="text/css">
     .ancho {
-        width: 1100px;
-    }
-</style>
-
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1100px)">
-    .ancho {
-        width: 1000px;
+        width: @TotalWidth;
     }
 </style>
 @code {
@@ -163,10 +152,17 @@
     FechasF fechas = new FechasF();
     OrdenesDTO ordenes = new OrdenesDTO();
 
+    int width = 0;
+    string TotalWidth = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
-
+        width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
     }
+
     public async Task MostrarOrdenFechaRadio()
     {
         try

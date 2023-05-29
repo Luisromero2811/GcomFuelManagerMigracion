@@ -195,5 +195,25 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult> PostPrecioDTO([FromBody] List<PreciosDTO> precios)
+        {
+            try
+            {
+                foreach (var item in precios)
+                {
+                    
+                }
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

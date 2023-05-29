@@ -32,7 +32,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var transportistas = await context.Chofer
                     .Where(x => x.Codtransport == transportista && x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);

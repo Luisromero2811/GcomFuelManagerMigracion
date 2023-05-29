@@ -237,7 +237,7 @@
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
                                                     <label class="form-label">Volumen</label>
-                                                   
+
                                                     <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
                                                         <option>-- Selecciona una opcion --</option>
                                                         @if (Cantidades is null)
@@ -467,22 +467,33 @@
             {
                 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
                     <Authorized>
-                        <div class="col-12 d-flex justify-content-start my-3">
-                            <div class="col-4">
+                        <div class="col-12 d-flex justify-content-start my-2 row">
+                            <div class="col-6">
                                 <button class="col-4 btn gcom-bg-amarillo" @onclick="@ClearList">
                                     <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
                             </div>
-                            <div class="col-4">
-                                <b class="my-auto">
-                                   Fulles de "Producto" @(Convert.ToDouble(cierres?.Count) /2)  | Fulles restantes del "Producto" @(Convert.ToDouble(FullesRestantes) / 2): 
-                                </b>
-                            </div>
+                            @if (isFilter && ordenCierres.Count > 0)
+                            {
+                                <div class="col-12 mt-2">
+                                    <b class="my-auto">
+                                        Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Sum(x=>x.Volumen)) / 60000,2)) | 
+                                        Fulles restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000,2))
+                                        @foreach (var item in ordenCierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den))
+                                        {
+                                            <div>
+                                                @(item) - Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000,2)) |
+                                                Fulles Restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000,2))
+                                            </div>
+                                        }
+                                    </b>
+                                </div>
+                            }
                             @*<div class="col-4">
-                                <button class="col-12 btn gcom-bg-amarillo">
-                                    <i class="fa fa-solid fa-ban"></i> Cancelar Orden
-                                </button>
-                            </div>*@
+                        <button class="col-12 btn gcom-bg-amarillo">
+                        <i class="fa fa-solid fa-ban"></i> Cancelar Orden
+                        </button>
+                        </div>*@
                         </div>
                     </Authorized>
                 </AuthorizeView>
@@ -515,6 +526,7 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
@@ -547,7 +559,7 @@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" />
@@ -558,20 +570,9 @@
     </Authorized>
 </AuthorizeView>
 
-<style type="text/css" media="screen and (min-width:1200px)">
+<style type="text/css">
     .ancho {
-        width: 1100px;
-    }
-</style>
-
-<style type="text/css" media="screen and (min-width:1500px)">
-    .ancho {
-        width: 1500px;
-    }
-</style>
-<style type="text/css" media="screen and (min-width:1100px)">
-    .ancho {
-        width: 1000px;
+        width: @TotalWidth;
     }
 </style>
 
@@ -653,24 +654,18 @@
     ElementReference infoIconVolumen;
     ElementReference infoPrecio;
 
-    //protected override bool ShouldRender()
-    //{
-    //    if (ordenCierre.CodCte != clienteSeleccioado)
-    //        return true;
-
-    //    if (ordenCierre.CodDes != DestinoSeleccionado)
-    //        return true;
-
-    //    if (ordenCierre.CodGru != GrupoSeleccionado)
-    //        return true;
-
-    //    return false;
-    //}
+    int width = 0;
+    string TotalWidth = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
+
             await CheckClient();
             if (!IsClient)
             {
@@ -870,14 +865,14 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                {
-                    Codprd = ordenCierre.CodPrd,
-                    Pre = ordenCierre.Precio,
-                    Vol = ordenCierre.Volumen,
-                    Coddes = ordenCierre.CodDes,
-                    Fchpet = DateTime.Now,
-                    Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                };
+                    {
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                    };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                 if (response.Error)
@@ -999,13 +994,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1132,6 +1127,14 @@
             else
             {
                 ordenCierres = response.Response;
+                foreach (var item in ordenCierres)
+                {
+                    if (item.OrdenEmbarque?.Folio == null)
+                    {
+                        FullesRestantes++;
+                    }
+
+                }
                 ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
             }
         }
@@ -1330,14 +1333,14 @@
                     }
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Agregar pedido",
-                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                        Icon = SweetAlertIcon.Warning,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Aceptar",
-                        ShowCancelButton = true
-                    });
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();

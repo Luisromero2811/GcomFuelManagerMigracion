@@ -25,7 +25,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 var terminales = await context.Tad
                 .Where(x => x.Activo == true)
-                .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                 .ToListAsync();
                 return Ok(terminales);
             }

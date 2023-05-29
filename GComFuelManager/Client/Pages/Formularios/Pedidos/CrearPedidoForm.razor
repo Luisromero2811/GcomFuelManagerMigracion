@@ -3,14 +3,14 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
-            <EditForm Model="@ordenEmbarque" class="form col-12">
+            <EditForm Model="@ordenCierre" class="form col-12">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="row col-12 g-3 mb-3 px-4">
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Terminal</label>
-                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codtad" class="form-select">
+                            <InputSelect @bind-Value="ordenCierre.OrdenEmbarque!.Codtad" class="form-select">
                                 @if (Terminales is null)
                                 {
                                     <option disabled> Cargando ...</option>
@@ -32,7 +32,7 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Grupo</label>
-                            <InputSelect @bind-Value="ordenEmbarque.CodGru" class="form-select" onchange="@GetClientes()">
+                            <InputSelect @bind-Value="ordenCierre.CodGru" class="form-select" onchange="@GetClientes()" disabled="@isFolio">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Grupos is null)
                                 {
@@ -55,7 +55,7 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Cliente</label>
-                            <InputSelect @bind-Value="ordenEmbarque.CodCte" class="form-select" onchange="@GetEstaciones()">
+                            <InputSelect @bind-Value="ordenCierre.CodCte" class="form-select" onchange="@GetEstaciones()" disabled="@isFolio">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Clientes is null)
                                 {
@@ -78,7 +78,7 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Estacion</label>
-                            <InputSelect @bind-Value="ordenEmbarque.CodDes" class="form-select">
+                            <InputSelect @bind-Value="ordenCierre.CodDes" class="form-select" disabled="@isFolio" onchange="@GetPrecios()">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Estaciones is null)
                                 {
@@ -101,8 +101,8 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Producto</label>
-                            <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Codprd" class="form-select" disabled="true">
-                                <option> </option>
+                            <InputSelect @bind-Value="ordenCierre.OrdenEmbarque!.Codprd" class="form-select" disabled="@isFolio" onchange="@ChangeProducto()">
+                                <option>-- Selecciona una opcion --</option>
                                 @if (Productos is null)
                                 {
                                     <option disabled> Cargando ...</option>
@@ -115,7 +115,7 @@
                                 {
                                     foreach (var item in Productos)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option value="@item.Producto!.Cod">@item.Producto!.Den | @item.Pre</option>
                                     }
                                 }
                             </InputSelect>
@@ -126,7 +126,7 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
-                                <InputSelect @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" class="form-select">
+                                <InputSelect @bind-Value="ordenCierre.OrdenEmbarque!.Vol" class="form-select" disabled="@isFolio">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Cantidades is null)
                                     {
@@ -153,14 +153,14 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
-                                <InputNumber class="form-control col-12" @bind-Value="ordenEmbarque.OrdenEmbarque.Vol" />
+                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.OrdenEmbarque!.Vol" disabled="@isFolio" />
                             </div>
                         </div>
                     }
 
                     <div class="col-2 mb-1 d-flex">
                         <div class="col-12 my-auto d-flex">
-                            <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
+                            <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" Disabled="@isFolio" />
                             <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
                                 <label class="form-label" for="CheckBox1">
                                     Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -172,21 +172,21 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Fecha de carga en terminal</label>
-                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Fchcar"></InputDate>
+                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.OrdenEmbarque.Fchcar"></InputDate>
                         </div>
                     </div>
 
                     <div class="col-4 mb-1">
                         <div class="col-12">
-                            <label>Fecha de llegada</label>
-                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenEmbarque.FchLlegada"></InputDate>
+                            <label>Fecha estimada de llegada</label>
+                            <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
                         </div>
                     </div>
 
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Turno</label>
-                            <InputSelect @bind-Value="ordenEmbarque.Turno" class="form-select">
+                            <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
                                 <option>-- Selecciona una opcion --</option>
                                 @if (Turnos is null)
                                 {
@@ -209,21 +209,9 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Precio</label>
-                            <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenEmbarque.OrdenEmbarque.Pre" disabled="true"></InputNumber>
+                            <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenCierre.OrdenEmbarque!.Pre" disabled="true"></InputNumber>
                         </div>
                     </div>
-                    @*<div class="col-3 mb-1">
-                    <div class="col-12">
-                    <label>Temperatura</label>
-                    <input class="form-control col-12 disabled" disabled />
-                    </div>
-                    </div>
-                    <div class="col-3 mb-1">
-                    <div class="col-12">
-                    <label>Condiciones de pago</label>
-                    <input class="form-control col-12 disabled" disabled />
-                    </div>
-                    </div>*@
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-2">
                     @if (isEdit)
@@ -233,6 +221,19 @@
                                 <i class="fa fa-solid fa-plus"></i>
                                 <b>Guardar Cambio</b>
                                 @if (loadingAgregar)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
+                    }
+                    @if (!isFolio || !isEdit)
+                    {
+                        <div class="col-4 px-2">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@CreatePedido">
+                                <i class="fa fa-solid fa-check"></i>
+                                <b>Crear orden</b>
+                                @if (loadingConfirm)
                                 {
                                     <SpinnerLoading></SpinnerLoading>
                                 }
@@ -262,21 +263,25 @@
     //parametros
     [Parameter] public EventCallback SavePedido { get; set; }
     [Parameter] public EventCallback ConfirmPedido { get; set; }
-    [Parameter] public OrdenCierre ordenEmbarque { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() {  Producto = new Producto() } };
+    [Parameter] public EventCallback CreatePedido { get; set; }
+    [Parameter] public OrdenCierre ordenCierre { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
     [Parameter] public SweetAlertService Swal { get; set; } = null!;
     [Parameter] public IRepositorio http { get; set; } = null!;
     [Parameter] public bool isEdit { get; set; } = false;
+    [Parameter] public bool isFolio { get; set; } = false;
 
     //Seleccionables
     //private int GrupoSeleccionado;
     private Int16? GrupoSeleccionadoB = 0;
     //private int ClienteSeleccionado;
     private int? ClienteSeleccionadoB = 0;
+    private byte? CodProductoSeleccionado = 0;
+    private int? DestinoSeleccionado = 0;
 
     //listas
     [Parameter] public List<CodDenDTO> Terminales { get; set; } = null!;
     [Parameter] public List<CodDenDTO> Grupos { get; set; } = null!;
-    [Parameter] public List<CodDenDTO> Productos { get; set; } = null!;
+    [Parameter] public List<Precio> Productos { get; set; } = null!;
     [Parameter] public List<int> Cantidades { get; set; } = null!;
     public List<CodDenDTO> Clientes { get; set; } = null!;
     public List<string> Turnos { get; set; } = new List<string>() { "11:00 pm - 7:00 am", "7:00 am - 3:00 pm", "3:00 pm - 11:00 pm" };
@@ -285,10 +290,15 @@
     //loadings
     bool loadingAgregar = false;
     bool loadingConfirm = false;
-    [Parameter] public bool IsDifferentVol {get;set;} = false;
-    
+    [Parameter] public bool IsDifferentVol { get; set; } = false;
+
     ElementReference infoIcon;
     ElementReference infoIconVolumen;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        StateHasChanged();
+    }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
 
@@ -296,9 +306,9 @@
     {
         try
         {
-            if (ordenEmbarque.CodCte != 0 && ordenEmbarque.CodCte != ClienteSeleccionadoB)
+            if (ordenCierre.CodCte != null && ordenCierre.CodCte != ClienteSeleccionadoB)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ordenEmbarque.CodCte}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ordenCierre.CodCte}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -307,8 +317,8 @@
                 else
                 {
                     Estaciones = response.Response;
+                    ClienteSeleccionadoB = ordenCierre.CodCte;
                     StateHasChanged();
-                    ClienteSeleccionadoB = ordenEmbarque.CodCte;
                 }
             }
         }
@@ -323,9 +333,9 @@
     {
         try
         {
-            if (ordenEmbarque.CodGru != null && ordenEmbarque.CodGru != GrupoSeleccionadoB)
+            if (ordenCierre.CodGru != null && ordenCierre.CodGru != GrupoSeleccionadoB)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenEmbarque.CodGru}");
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenCierre.CodGru}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -333,8 +343,8 @@
                 }
                 else
                 {
-                    GrupoSeleccionadoB = ordenEmbarque.CodGru;
                     Clientes = response.Response;
+                    GrupoSeleccionadoB = ordenCierre.CodGru;
                     StateHasChanged();
                 }
             }
@@ -343,6 +353,58 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task ChangeProducto()
+    {
+        try
+        {
+            Console.WriteLine("cambio");
+            if (ordenCierre.OrdenEmbarque!.Codprd != null && CodProductoSeleccionado != ordenCierre.OrdenEmbarque!.Codprd)
+            {
+                ordenCierre.OrdenEmbarque!.Pre = Productos.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.OrdenEmbarque!.Codprd)?.Pre;
+                CodProductoSeleccionado = ordenCierre.OrdenEmbarque!.Codprd;
+                //StateHasChanged();
+                Console.WriteLine("precio");
+            }
+            //CodProductoSeleccionado = ordenCierre.CodPrd;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetPrecios()
+    {
+        try
+        {
+            if (ordenCierre.CodDes != null && ordenCierre.CodCte != null && DestinoSeleccionado != ordenCierre.CodDes)
+            {
+                ZonaCliente zonaCliente = new ZonaCliente();
+                zonaCliente.DesCod = ordenCierre.CodDes;
+                zonaCliente.CteCod = ordenCierre.CodCte;
+
+                var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    Console.WriteLine(JsonConvert.SerializeObject(Productos));
+                }
+                else
+                {
+                    Productos = response.Response;
+                    DestinoSeleccionado = ordenCierre.CodDes;
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 

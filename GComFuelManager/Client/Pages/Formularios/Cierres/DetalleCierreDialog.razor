@@ -15,22 +15,17 @@
                 <div class="col-12 row mb-3">
                     <div class="col-12">
                         <b class="my-auto">
-                            Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
-                            @foreach (var item in ProductList)
+                            Fulles: @(Math.Round(Convert.ToDouble(cierres.Sum(x => x.Volumen)) / 60000, 2)) |
+                            Fulles restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
+                            @foreach (var item in cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den))
                             {
-                                <h6><strong>Fulles del producto "@item": @(Convert.ToDouble(cierres.Count) / 2) - Fulles restantes del producto "@item": @(Convert.ToDouble(FullesRestantes) / 2)</strong></h6>
+                                <div>
+                                    @(item) - Fulles: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000, 2)) |
+                                    Fulles Restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
+                                </div>
                             }
                         </b>
                     </div>
-                    @*<div class="col-6 d-flex justify-content-end">
-                            <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                                <i class="fa-solid fa-file-excel fa"></i> Exportar
-                                @if (loadingExport)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
-                            </button>
-                        </div>*@
                 </div>
             </div>
             <div class="row justify-content-end">
@@ -44,40 +39,11 @@
                     </button>
                 </div>
             </div>
-
-            @*<table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">OC</th>
-                            <th scope="col">Fecha de cierre</th>
-                            <th scope="col">Destino</th>
-                            <th scope="col">Producto</th>
-                            <th scope="col">BOL</th>
-                            <th scope="col">Unidad</th>
-                            <th scope="col">Estatus</th>
-                            <th scope="col">Fecha de entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody style="height:500px;overflow-y:scroll;overflow-x:scroll;">
-                        <Virtualize Context="item" Items="@cierres" TItem="OrdenCierre">
-                            <tr>
-                                <td>@item.Folio</td>
-                                <td>@item.FchCierre</td>
-                                <td>@item.Destino?.Den</td>
-                                <td>@item.Producto?.Den</td>
-                                <td>@item.OrdenEmbarque?.Orden?.BatchId</td>
-                                <td>@item.OrdenEmbarque?.Tonel?.Placatracto</td>
-                                <td>@(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)</td>
-                                <td>@item?.FchLlegada</td>
-                            </tr>
-                        </Virtualize>
-                    </tbody>
-                </table>*@
         </div>
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                    GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" />
@@ -158,16 +124,16 @@
         foreach (var item in cierres!)
         {
             detalleCierres.Add(new DetalleCierreDTO
-            {
-                OC = item.Folio,
-                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                Destino = item?.Destino?.Den,
-                Producto = item?.Producto?.Den,
-                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                FchLlegada = item?.FechaLlegada
-            });
+                {
+                    OC = item.Folio,
+                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                    Destino = item?.Destino?.Den,
+                    Producto = item?.Producto?.Den,
+                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                    FchLlegada = item?.FechaLlegada
+                });
         }
     }
 
