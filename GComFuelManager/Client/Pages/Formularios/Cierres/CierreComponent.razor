@@ -237,6 +237,7 @@
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
                                                     <label class="form-label">Volumen</label>
+                                                   
                                                     <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
                                                         <option>-- Selecciona una opcion --</option>
                                                         @if (Cantidades is null)
@@ -468,9 +469,14 @@
                     <Authorized>
                         <div class="col-12 d-flex justify-content-start my-3">
                             <div class="col-4">
-                                <button class="col-3 btn gcom-bg-amarillo" @onclick="@ClearList">
+                                <button class="col-4 btn gcom-bg-amarillo" @onclick="@ClearList">
                                     <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
+                            </div>
+                            <div class="col-4">
+                                <b class="my-auto">
+                                   Fulles de "Producto" @(Convert.ToDouble(cierres?.Count) /2)  | Fulles restantes del "Producto" @(Convert.ToDouble(FullesRestantes) / 2): 
+                                </b>
                             </div>
                             @*<div class="col-4">
                                 <button class="col-12 btn gcom-bg-amarillo">
@@ -559,6 +565,10 @@
 </style>
 
 @code {
+    //Fules por producto
+    List<OrdenCierre>? cierres { get; set; }
+    private int? FullesRestantes { get; set; } = 0;
+
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
     UsuarioInfo user { get; set; } = new UsuarioInfo();
@@ -586,6 +596,7 @@
     private int añoSeleccionado { get; set; }
 
     private List<int> Cantidades { get; set; } = null!;
+
     private List<int> ordenPendientes { get; set; } = new List<int>();
 
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
@@ -842,14 +853,14 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                {
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                 if (response.Error)
@@ -971,13 +982,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1302,14 +1313,14 @@
                     }
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
+                    {
+                        Title = "Agregar pedido",
+                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                        Icon = SweetAlertIcon.Warning,
+                        CancelButtonText = "Cancelar",
+                        ConfirmButtonText = "Aceptar",
+                        ShowCancelButton = true
+                    });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();

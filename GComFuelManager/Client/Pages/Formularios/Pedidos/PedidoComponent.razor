@@ -1,4 +1,4 @@
-﻿@page "/pedidos"
+@page "/pedidos"
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject TooltipService ts
@@ -21,6 +21,11 @@
                         <div class="col-12 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@GetFiltroCierres">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                        <div class="col-12 mt-auto ms-2">
+                            <button class="col-12 btn gcom-bg-amarillo px-2" @onclick="@ClearGridData">
+                                <i class="fa fa-solid fa-broom"></i>
                             </button>
                         </div>
                     </div>
@@ -355,6 +360,12 @@
         var authState = await auth.GetAuthenticationStateAsync();
         if (authState is not null)
             User = authState.User;
+    }
+    private void ClearGridData()
+    {
+        ordenCierres = new List<OrdenCierre>();
+        ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() };
+        
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);

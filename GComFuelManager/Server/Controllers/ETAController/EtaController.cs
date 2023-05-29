@@ -102,7 +102,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 var Eta = await context.Orden.OrderBy(x => x.Destino.Den).ThenBy(x => x.Fchcar).ThenBy(x => x.Producto.Den).ThenBy(x => x.BatchId)
                     .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.Den)
                     .ThenBy(x => x.Coduni).ThenBy(x => x.Ref).ThenBy(x => x.Codprd2).ThenBy(x => x.Codest)
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true)
                     .Include(x => x.OrdEmbDet)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -119,6 +119,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          EstatusOrden = "CLOSED",
                          FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                          Bol = e.BatchId,
+                         DeliveryRack = e.Destino.Cliente.Tipven,
                          Cliente = e.Destino.Cliente.Den,
                          Destino = e.Destino.Den,
                          Producto = e.Producto.Den,
