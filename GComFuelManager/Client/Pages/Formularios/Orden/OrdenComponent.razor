@@ -102,7 +102,7 @@
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true"
                         GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" >
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true"  AllowColumnPicking="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />

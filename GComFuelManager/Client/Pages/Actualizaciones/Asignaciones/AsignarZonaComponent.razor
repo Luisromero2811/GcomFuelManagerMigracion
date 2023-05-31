@@ -130,20 +130,22 @@
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true">
+                        IsLoading="loading" @ref="@grid" AllowSorting="true"  AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
-                    <Template Context="item">
-                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
-                            <Authorized>
-                                <div class="col">
-                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                </div>
-                            </Authorized>
-                        </AuthorizeView>
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="EditarZonas">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
+                        <Template Context="item">
+                            <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
+                                <Authorized>
+                                    <div class="col">
+                                        <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                    </div>
+                                </Authorized>
+                            </AuthorizeView>
 
-                    </Template>
-                </RadzenDataGridColumn>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
