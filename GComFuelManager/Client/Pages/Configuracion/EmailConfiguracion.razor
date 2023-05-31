@@ -45,7 +45,7 @@
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true"  AllowColumnPicking="true">
                 <Columns>
                     <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
                     <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />

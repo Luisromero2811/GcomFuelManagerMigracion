@@ -21,7 +21,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Configs">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte" Context="Configs">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -62,13 +62,15 @@
                         </RadzenPanelMenuItem>
 
                     </AuthorizeView>
-                    <RadzenPanelMenuItem Path="configuracion-email" class="gcom-bg-rojo col-12" Style="border:hidden">
-                        <Template>
-                            <div class="text-white">
-                                <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
-                            </div>
-                        </Template>
-                    </RadzenPanelMenuItem>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Correos">
+                        <RadzenPanelMenuItem Path="configuracion-email" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
                 </ChildContent>
             </RadzenPanelMenuItem>
 

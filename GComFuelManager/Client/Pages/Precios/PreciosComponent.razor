@@ -230,11 +230,11 @@
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px"  AllowColumnPicking="true">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false">
                                 <Template Context="item">
                                     <div class="col-12 row">
                                         <div class="col">
@@ -281,16 +281,18 @@
                     <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" />
                     <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" >
-                        <Template Context="data">
-                            <div class="col-12">
-                                <div class="form-check form-switch m-2">
-                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                        <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar">
+                            <Template Context="data">
+                                <div class="col-12">
+                                    <div class="form-check form-switch m-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                               @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                    </div>
                                 </div>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </AuthorizeView>
                 </Columns>
             </RadzenDataGrid>
         </div>
