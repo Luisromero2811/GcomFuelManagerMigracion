@@ -498,18 +498,31 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPut("tp")]
-        public async Task<ActionResult> PutTP([FromBody] OrdenesTP ordenesTP)
+        [HttpPost("historial/envios")]
+        public async Task<ActionResult> GetDateHistorico([FromBody] FechasF fechas)
         {
             try
             {
-                var orden = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == ordenesTP.Cod);
-                orden.Tp = ordenesTP.TP;
-                context.Update(orden);
+                List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
 
-                await context.SaveChangesAsync();
+                ordens = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .OrderBy(x => x.Fchpet)
+                    .Take(10000)
+                    .ToListAsync();
 
-                return Ok();
+                ordens.OrderByDescending(x => x.Bin);
+
+                return Ok(ordens);
             }
             catch (Exception e)
             {
