@@ -45,7 +45,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
         [Route("service/{code:long}")]
         [HttpGet]
-        public async Task<ActionResult> GetChofer([FromRoute]long code)
+        public async Task<ActionResult> GetChofer([FromRoute] long code)
         {
             try
             {
@@ -107,10 +107,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
                                 if (chofer.Activo == true)
                                 {
-                                    Debug.WriteLine($"activo:{chofer.Dricod}");
                                     if (c != null)
                                     {
-                                        Debug.WriteLine($"activo: {c.Cod}");
                                         c.Den = chofer.Den;
                                         c.Shortden = chofer.Shortden;
                                         //c.Codtransport = chofer.Codtransport;
@@ -156,10 +154,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
                                 if (chofer.Activo == true)
                                 {
-                                    Debug.WriteLine($"activo:{chofer.Dricod}");
                                     if (c != null)
                                     {
-                                        Debug.WriteLine($"activo: {c.Cod}");
                                         c.Den = chofer.Den;
                                         c.Shortden = chofer.Shortden;
                                         //c.Codtransport = chofer.Codtransport;
@@ -188,26 +184,27 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             }
 
                         }
+                        await context.SaveChangesAsync();
                         return Ok(true);
                     }
                     else
                         return BadRequest("No se encontraron operarios para este transportista");
                 }
+                catch (Exception e)
+                {
+                    return BadRequest(e.Message);
+                }
+                finally
+                {
+                    client.Close();
+                }
+                return Ok();
+            }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
-            finally
-            {
-                client.Close();
-            }
-            return Ok();
         }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-    }
-}
 
     }
 }

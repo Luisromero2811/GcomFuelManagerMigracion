@@ -17,13 +17,13 @@
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
                     <div class="col-12">
-                        <div class="col-12 card">
+                        <div class="col-12 card shadow-sm">
                             <div class="col-12 card-body">
                                 <h4><b>Buscar</b></h4>
                                 <div class="col-12 row">
                                     <div class="col-3 row">
                                         <div class="col-6">
-                                            <label class="form-label">Folio</label>
+                                            <label >Folio</label>
                                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
                                         </div>
                                         <div class="col-3 d-flex">
@@ -43,7 +43,7 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="col-12">
-                                            <label class="form-label">Grupo</label>
+                                            <label >Grupo</label>
                                             <InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
@@ -66,7 +66,7 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="col-12">
-                                            <label class="form-label">Cliente</label>
+                                            <label >Cliente</label>
                                             <InputSelect @bind-Value="filtro.codCte" class="form-select">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (ClientesFiltro is null)
@@ -88,7 +88,7 @@
                                         </div>
                                     </div>
                                     <div class="col-2">
-                                        <label class="form-label">Año</label>
+                                        <label >Año</label>
                                         <InputSelect @bind-Value="añoSeleccionado" class="form-select">
                                             <option>-- Selecciona una opcion --</option>
                                             @if (años is null)
@@ -109,7 +109,7 @@
                                         </InputSelect>
                                     </div>
                                     <div class="col-2">
-                                        <label class="form-label">Mes</label>
+                                        <label >Mes</label>
                                         <InputSelect @bind-Value="mesSeleccionado" class="form-select">
                                             <option>-- Selecciona una opcion --</option>
                                             @if (meses is null)
@@ -146,9 +146,9 @@
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
             <Authorized>
-                <div class="col-12 d-flex justify-content-center shadow-sm mt-3">
+                <div class="col-12 d-flex justify-content-center mt-2">
                     <div class="col-12">
-                        <div class="col-12 card">
+                        <div class="col-12 card shadow-sm">
                             <div class="col-12 card-body">
                                 <h4><b>Crear cierre</b></h4>
                                 <EditForm Model="ordenCierre" class="form col-12">
@@ -158,7 +158,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Fecha de cierre</label>
+                                                <label >Fecha de cierre</label>
                                                 @if (!IsClient)
                                                 {
                                                     <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
@@ -173,7 +173,7 @@
                                             <Authorized>
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label class="form-label">Grupo</label>
+                                                        <label >Grupo</label>
                                                         <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
                                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                         AllowVirtualization="true" Change="@GetClientes" />
@@ -182,7 +182,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label class="form-label">Cliente</label>
+                                                        <label >Cliente</label>
                                                         <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
                                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                         AllowVirtualization="true" Change="@GetData" />
@@ -193,7 +193,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Contacto</label>
+                                                <label >Contacto</label>
                                                 <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                 AllowVirtualization="true">
@@ -209,7 +209,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Destino</label>
+                                                <label >Destino</label>
                                                 <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
                                                                 AllowVirtualization="true" />
@@ -218,7 +218,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Producto</label>
+                                                <label >Producto</label>
                                                 <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                                                 AllowVirtualization="true">
@@ -236,7 +236,7 @@
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
-                                                    <label class="form-label">Volumen</label>
+                                                    <label >Volumen</label>
 
                                                     <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
                                                         <option>-- Selecciona una opcion --</option>
@@ -264,7 +264,7 @@
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
-                                                    <label class="form-label">Volumen</label>
+                                                    <label >Volumen</label>
                                                     <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
                                                 </div>
                                             </div>
@@ -274,7 +274,7 @@
                                             <div class="col-12 my-auto d-flex">
                                                 <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                                    <label class="form-label" for="CheckBox1">
+                                                    <label  for="CheckBox1">
                                                         Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
@@ -284,7 +284,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
-                                                    <label class="form-label">
+                                                    <label >
                                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
@@ -297,7 +297,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label class="form-label">Modelo de Venta</label>
+                                                        <label >Modelo de Venta</label>
                                                         <InputSelect @bind-Value="ordenCierre.ModeloVenta" class="form-select">
                                                             <option>-- Selecciona una opcion --</option>
                                                             @if (MdVenta is null)
@@ -321,7 +321,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label class="form-label">Tipo de Venta</label>
+                                                        <label >Tipo de Venta</label>
                                                         <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
                                                             <option>-- Selecciona una opcion --</option>
                                                             @if (TpVenta is null)
@@ -345,7 +345,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label class="form-label">Vendedor</label>
+                                                        <label >Vendedor</label>
                                                         <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" />
                                                     </div>
                                                 </div>
@@ -353,7 +353,7 @@
                                         </AuthorizeView>
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Tipo de pago</label>
+                                                <label >Tipo de pago</label>
                                                 <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
                                                     <option>-- Selecciona una opcion --</option>
                                                     @if (TpPago is null)
@@ -377,7 +377,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label" @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                                <label  @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
                                                     Folio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                 </label>
                                                 <div class="col-12">
@@ -388,7 +388,7 @@
 
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
-                                                <label class="form-label">Observaciones</label>
+                                                <label >Observaciones</label>
                                                 <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
                                             </div>
                                         </div>
