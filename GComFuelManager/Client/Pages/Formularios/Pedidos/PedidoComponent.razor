@@ -250,9 +250,9 @@
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;"
-                        IsLoading="loading" @ref="@gridOC" AllowSorting="true">
+                        IsLoading="loading" @ref="@gridOC" AllowSorting="true"  AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="200px" MinWidth="200px" Visible="true">
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="200px"  Visible="true">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Acciones">
                             <div class="col-12 row">
@@ -271,13 +271,13 @@
                         </AuthorizeView>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Vol" FormatString="{0:N2}" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="200px" MinWidth="200px" Property="OrdenEmbarque.Pre" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px"  />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="200px"  />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="200px"  />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px"  Property="OrdenEmbarque.Vol" FormatString="{0:N2}" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="200px"  Property="OrdenEmbarque.Pre" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" />
             </Columns>
         </RadzenDataGrid>
     </div>

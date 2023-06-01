@@ -139,20 +139,22 @@
                         GridLines="DataGridGridLines.Both" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
                         IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
             <Columns>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" MinWidth="200px" />
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" MinWidth="200px">
-                    <Template Context="user">
-                        <div class="d-flex align-items-center">
-                            @if (usuarioSeleccionado.Count == 1)
-                            {
-                                <button type="button" class="btn gcom-bg-amarillo col-12" @onclick="@(() => ShowPassword(user.Password))" id="liveToastBtn"><i class="fa fa-solid fa-eye"></i> <b>Mostrar Contraseña</b></button>
-                              
-                            }
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" MinWidth="200px">
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px"  />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px"  />
+                <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="WatchPassword">
+                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px">
+                        <Template Context="user">
+                            <div class="d-flex align-items-center">
+                                @if (usuarioSeleccionado.Count == 1)
+                                {
+                                    <button type="button" class="btn gcom-bg-amarillo col-12" @onclick="@(() => ShowPassword(user.Password))" id="liveToastBtn"><i class="fa fa-solid fa-eye"></i> <b>Mostrar Contraseña</b></button>
+
+                                }
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" >
                     <Template Context="data">
                         @foreach (var i in data.Roles)
                         {
@@ -163,7 +165,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Actions">
-                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" MinWidth="100px">
+                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px">
                         <Template Context="data">
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">

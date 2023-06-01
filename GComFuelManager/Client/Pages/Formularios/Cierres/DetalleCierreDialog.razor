@@ -1,4 +1,4 @@
-﻿@*@page "/detalle/{folio}"*@
+@*@page "/detalle/{folio}"*@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject IJSRuntime js
@@ -43,7 +43,7 @@
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                     GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true"  AllowColumnPicking="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" />
@@ -155,8 +155,8 @@
                     if (item.OrdenEmbarque?.Folio == null)
                     {
                         FullesRestantes++;
-                    }
 
+                    }
                 }
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 

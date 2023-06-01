@@ -537,7 +537,7 @@
             }
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-4 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"  AllowColumnPicking="true">
                 <Columns>
                     @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
                     <Template Context="item">
