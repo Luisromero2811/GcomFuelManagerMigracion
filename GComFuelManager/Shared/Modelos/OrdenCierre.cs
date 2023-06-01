@@ -58,8 +58,8 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double? Precio { get; set; }
         
-        [JsonPropertyName("temperatura"), DisplayName("Temperatura")]
-        [NotMapped] public double? Temperatura { get; set; } = null!;
+        //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
+        //[NotMapped] public double? Temperatura { get; set; } = null!;
         
         [JsonPropertyName("vendedor"), DisplayName("Vendedor")]
         public string? Vendedor { get; set; } = string.Empty;
