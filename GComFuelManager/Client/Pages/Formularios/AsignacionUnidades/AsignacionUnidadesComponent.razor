@@ -54,16 +54,16 @@
                         </div>
                         <div class="col-4">
                             <label>Chofer:</label>
-                            <RadzenDropDownDataGrid Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
+                            <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     AllowVirtualization="true">
                                 <Template Context="data">
-                                    @((data as Chofer).Dricod) | $@((data as Chofer).Den)
+                                    @((data as Chofer).Dricod) | @((data as Chofer).Den)
                                 </Template>
                                 <ValueTemplate Context="data">
-                                    @((data as Chofer).Dricod) | $@((data as Chofer).Den)
+                                    @((data as Chofer).Dricod) | @((data as Chofer).Den)
                                 </ValueTemplate>
-                            </RadzenDropDownDataGrid>
+                            </RadzenDropDown>
                         </div>
                         <div class="col-4">
                             <label>Vehiculo:</label>

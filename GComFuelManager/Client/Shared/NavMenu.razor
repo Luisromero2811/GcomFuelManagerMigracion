@@ -58,17 +58,6 @@
 
                                 </AuthorizeView>
 
-                                @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="AsignarContacto">
-                                    <RadzenPanelMenuItem Path="asignar-contacto" class="gcom-bg-rojo col-12" Style="border:hidden">
-                                        <Template>
-                                            <div class="text-white">
-                                                <i class="fa fa-solid fa-address-book" aria-hidden="true"></i> Asignar Contacto
-                                            </div>
-                                        </Template>
-                                    </RadzenPanelMenuItem>
-
-                                </AuthorizeView>*@
-
                             </ChildContent>
                         </RadzenPanelMenuItem>
 
@@ -159,6 +148,17 @@
                 </Template>
             </RadzenPanelMenuItem>
         </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Configs">
+            <RadzenPanelMenuItem Path="historial/asignacion" class="gcom-bg-rojo col-12" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Historial de envios
+                    </div>
+                </Template>
+            </RadzenPanelMenuItem>
+        </AuthorizeView>
+
     </RadzenPanelMenu>
 </div>
 
