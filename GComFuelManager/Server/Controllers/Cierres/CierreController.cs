@@ -356,5 +356,58 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("vencimiento")]
+        public async Task<ActionResult> PostVencimieto([FromBody] CierreFiltroDTO fechas)
+        {
+            try
+            {
+                List<OrdenCierre> ordens = new List<OrdenCierre>();
+
+                ordens = context.OrdenCierre.Where(x => x.Folio == fechas.Folio).ToList();
+
+                if (ordens is null)
+                    return BadRequest();
+
+                ordens.ForEach(x =>
+                {
+                    x.FchVencimiento = fechas.FchFin;
+                });
+
+                context.UpdateRange(ordens);
+
+                await context.SaveChangesAsync();
+
+                var ordenes = await context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Estatus == true)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x!.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel)
+                    .ToListAsync();
+
+                return Ok(ordens);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("margen")]
+        public async Task<ActionResult> PostMargen([FromBody] CierreFiltroDTO fechas)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
