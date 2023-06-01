@@ -9,7 +9,6 @@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="VISTA">
     <Authorized>
-        @*<NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>*@
 
         <h3><b>Cierre de Ordenes</b></h3>
 
@@ -23,7 +22,7 @@
                                 <div class="col-12 row">
                                     <div class="col-3 row">
                                         <div class="col-6">
-                                            <label >Folio</label>
+                                            <label>Folio</label>
                                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
                                         </div>
                                         <div class="col-3 d-flex">
@@ -43,7 +42,7 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="col-12">
-                                            <label >Grupo</label>
+                                            <label>Grupo</label>
                                             <InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (Grupos is null)
@@ -66,7 +65,7 @@
                                     </div>
                                     <div class="col-2">
                                         <div class="col-12">
-                                            <label >Cliente</label>
+                                            <label>Cliente</label>
                                             <InputSelect @bind-Value="filtro.codCte" class="form-select">
                                                 <option>-- Selecciona una opcion --</option>
                                                 @if (ClientesFiltro is null)
@@ -88,7 +87,7 @@
                                         </div>
                                     </div>
                                     <div class="col-2">
-                                        <label >Año</label>
+                                        <label>Año</label>
                                         <InputSelect @bind-Value="añoSeleccionado" class="form-select">
                                             <option>-- Selecciona una opcion --</option>
                                             @if (años is null)
@@ -109,7 +108,7 @@
                                         </InputSelect>
                                     </div>
                                     <div class="col-2">
-                                        <label >Mes</label>
+                                        <label>Mes</label>
                                         <InputSelect @bind-Value="mesSeleccionado" class="form-select">
                                             <option>-- Selecciona una opcion --</option>
                                             @if (meses is null)
@@ -158,7 +157,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label >Fecha de cierre</label>
+                                                <label>Fecha de cierre</label>
                                                 @if (!IsClient)
                                                 {
                                                     <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
@@ -173,7 +172,7 @@
                                             <Authorized>
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label >Grupo</label>
+                                                        <label>Grupo</label>
                                                         <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
                                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                         AllowVirtualization="true" Change="@GetClientes" />
@@ -182,7 +181,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label >Cliente</label>
+                                                        <label>Cliente</label>
                                                         <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
                                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                         AllowVirtualization="true" Change="@GetData" />
@@ -193,7 +192,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label >Contacto</label>
+                                                <label>Contacto</label>
                                                 <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                                 AllowVirtualization="true">
@@ -209,7 +208,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label >Destino</label>
+                                                <label>Destino</label>
                                                 <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
                                                                 AllowVirtualization="true" />
@@ -218,7 +217,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label >Producto</label>
+                                                <label>Producto</label>
                                                 <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                                                 AllowVirtualization="true">
@@ -236,7 +235,7 @@
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
-                                                    <label >Volumen</label>
+                                                    <label>Volumen</label>
 
                                                     <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
                                                         <option>-- Selecciona una opcion --</option>
@@ -264,7 +263,7 @@
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
-                                                    <label >Volumen</label>
+                                                    <label>Volumen</label>
                                                     <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
                                                 </div>
                                             </div>
@@ -274,7 +273,7 @@
                                             <div class="col-12 my-auto d-flex">
                                                 <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                                    <label  for="CheckBox1">
+                                                    <label for="CheckBox1">
                                                         Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
@@ -284,7 +283,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
-                                                    <label >
+                                                    <label>
                                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
@@ -297,7 +296,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label >Modelo de Venta</label>
+                                                        <label>Modelo de Venta</label>
                                                         <InputSelect @bind-Value="ordenCierre.ModeloVenta" class="form-select">
                                                             <option>-- Selecciona una opcion --</option>
                                                             @if (MdVenta is null)
@@ -321,7 +320,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label >Tipo de Venta</label>
+                                                        <label>Tipo de Venta</label>
                                                         <InputSelect @bind-Value="ordenCierre.TipoVenta" class="form-select">
                                                             <option>-- Selecciona una opcion --</option>
                                                             @if (TpVenta is null)
@@ -345,7 +344,7 @@
 
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
-                                                        <label >Vendedor</label>
+                                                        <label>Vendedor</label>
                                                         <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" />
                                                     </div>
                                                 </div>
@@ -353,7 +352,7 @@
                                         </AuthorizeView>
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label >Tipo de pago</label>
+                                                <label>Tipo de pago</label>
                                                 <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
                                                     <option>-- Selecciona una opcion --</option>
                                                     @if (TpPago is null)
@@ -377,7 +376,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label  @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                                <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
                                                     Folio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                 </label>
                                                 <div class="col-12">
@@ -388,7 +387,7 @@
 
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
-                                                <label >Observaciones</label>
+                                                <label>Observaciones</label>
                                                 <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
                                             </div>
                                         </div>
@@ -468,22 +467,59 @@
                 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
                     <Authorized>
                         <div class="col-12 d-flex justify-content-start my-2 row">
-                            <div class="col-6">
-                                <button class="col-4 btn gcom-bg-amarillo" @onclick="@ClearList">
+                            <div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearList">
                                     <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
                             </div>
+                            <div class="col-4">
+                                @if (AddDaysExpiration is false)
+                                {
+                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@SetFchVencimiento">
+                                        Cambiar Vencimiento
+                                    </button>
+                                }
+                                else
+                                {
+                                    <div class="col-12 row">
+                                        <div class="col-8">
+                                            <InputDate @bind-Value="@fchVencimiento.FchFin" class="col-12 form-control" TValue="DateTime?" />
+                                        </div>
+                                        <div class="col-2">
+                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
+                                                <i class="fa fa-solid fa-check"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-2">
+                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                <i class="fa fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            @*@if(AddMargen is false){
+                                <div class="col-4">
+                                    <button class="col-12 btn gcom-bg-amarillo">
+                                        <i class="fa-solid fa-broom"></i> Agregar margen
+                                    </button>
+                                </div>
+                            }
+                            else
+                            {
+                                
+                            }*@
                             @if (isFilter && ordenCierres.Count > 0)
                             {
                                 <div class="col-12 mt-2">
                                     <b class="my-auto">
-                                        Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Sum(x=>x.Volumen)) / 60000,2)) | 
-                                        Fulles restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000,2))
+                                        Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Sum(x => x.Volumen)) / 60000, 2)) |
+                                        Fulles restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
                                         @foreach (var item in ordenCierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den))
                                         {
                                             <div>
-                                                @(item) - Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000,2)) |
-                                                Fulles Restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000,2))
+                                                @(item) - Fulles: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000, 2)) (@ordenCierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen) Lts.) |
+                                                Fulles Restantes: @(Math.Round(Convert.ToDouble(ordenCierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2)) (@ordenCierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen) Lts.)
                                             </div>
                                         }
                                     </b>
@@ -523,7 +559,7 @@
                     </Template>
                     </RadzenDataGridColumn>*@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVen" FormatString="{0:d}" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
@@ -582,6 +618,7 @@
     private int? FullesRestantes { get; set; } = 0;
 
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+    CierreFiltroDTO fchVencimiento { get; set; } = new CierreFiltroDTO();
 
     UsuarioInfo user { get; set; } = new UsuarioInfo();
 
@@ -649,6 +686,8 @@
     bool loadingEdit = false;
     bool sameOrder = false;
     bool monthFilter = false;
+    bool AddDaysExpiration = false;
+    bool AddMargen = false;
 
     ElementReference infoIcon;
     ElementReference infoIconVolumen;
@@ -896,8 +935,6 @@
                         loadingCreate = false;
                         ordenCierres.Add(responseOC.Response);
                         ordenPendientes.Add(responseOC.Response.Cod);
-                        //await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-                        //await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
                         await grid.Reload();
                     }
                 }
@@ -978,16 +1015,6 @@
 
         }
     }
-
-    //private async Task OnPreventInternalNavigation(LocationChangingContext context)
-    //{
-    //    await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-    //    await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-
-    //    //context.PreventNavigation();
-
-    //    return;
-    //}
 
     private async Task CancelPedido(OrdenCierre orden)
     {
@@ -1326,11 +1353,6 @@
             {
                 if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
                 {
-                    if (ordenCierre.Folio != ordenCierres.FirstOrDefault()!.Folio)
-                    {
-                        await Swal.FireAsync("Advertencia", "Los folios de las ordenes no coinciden", SweetAlertIcon.Warning);
-                        return;
-                    }
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
                         {
@@ -1481,6 +1503,98 @@
             ordenCierres = new List<OrdenCierre>();
             sameOrder = false;
             monthFilter = false;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void SetFchVencimiento()
+    {
+        try
+        {
+            if (ordenCierres.Count == 0)
+            {
+                await Swal.FireAsync("Alerta", "Debe de tener un cierre filtrado.", SweetAlertIcon.Warning);
+                return;
+            }
+
+            var fch = ordenCierres.FirstOrDefault();
+            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(7) : fch.FchVencimiento;
+            fchVencimiento.Folio = filtro.Folio;
+            AddDaysExpiration = true;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void SaveFechaVencimiento()
+    {
+        try
+        {
+
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchVencimiento);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordenCierres = response.Response;
+                await Swal.FireAsync("Exito", "Fecha de vencimiento modificada", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+        private async void SetMargen()
+    {
+        try
+        {
+            if (ordenCierres.Count == 0)
+            {
+                await Swal.FireAsync("Alerta", "Debe de tener un cierre filtrado.", SweetAlertIcon.Warning);
+                return;
+            }
+
+            var fch = ordenCierres.FirstOrDefault();
+            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(7) : fch.FchVencimiento;
+            fchVencimiento.Folio = filtro.Folio;
+            AddDaysExpiration = true;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void SaveMargen()
+    {
+        try
+        {
+
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchVencimiento);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordenCierres = response.Response;
+                await Swal.FireAsync("Exito", "Fecha de vencimiento modificada", SweetAlertIcon.Success);
+            }
         }
         catch (Exception e)
         {
