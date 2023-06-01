@@ -9,13 +9,13 @@
 @*<div>
         <RadzenButton Text="Mostrar Ordenes" Click="@(() => sidebar6Expanded = !sidebar7Expanded )" />
     </div>*@
-<RadzenPanel AllowCollapse="true" Class="my-4" Expand=@(() => Change("Panel expanded")) Collapse=@(() => Change("Panel collapsed"))>
+<RadzenPanel AllowCollapse="true" Text="Mostrar Ordenes:" Style="font-weight: bold;" Class="my-4" Expand=@(() => Change("Panel expanded")) Collapse=@(() => Change("Panel collapsed"))>
     <div class="col-12 mt-2 mb-2">
         <div class="d-flex justify-content-center">
             <div class="col-12 mt-3 mb-2">
                 <div class="col-12 card">
                     <div class="col-12 card-body">
-                        <label><b>Mostrar ordenes:</b></label>
+                        <label><b>Filtro entre fechas:</b></label>
                         <div class="col-12 row">
                             <div class="col-4 mb-3">
                                 <label>Del:</label>

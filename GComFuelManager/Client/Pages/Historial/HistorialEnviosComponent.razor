@@ -39,16 +39,18 @@
                     GridLines="DataGridGridLines.Both" class="rz-my-2 ancho shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true">
         <Columns>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true">
-                <HeaderTemplate>
-                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                </HeaderTemplate>
-                <Template Context="data">
-                    <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                    TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                </Template>
-            </RadzenDataGridColumn>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true">
+                    <HeaderTemplate>
+                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                        Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                    </HeaderTemplate>
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </AuthorizeView>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" />
@@ -94,12 +96,14 @@
         <div class="col card shadow-sm">
             <div class="col-12 card-body">
                 <div class="col-12 my-1">
-                    <div class="row d-flex justify-content-start">
-                        <div class="col-4">
-                            <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" />
-                            <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                        <div class="row d-flex justify-content-start">
+                            <div class="col-4">
+                                <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" />
+                                <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                            </div>
                         </div>
-                    </div>
+                    </AuthorizeView>
                     <div class="row d-flex justify-content-end">
                         @if (Synthesis)
                         {
