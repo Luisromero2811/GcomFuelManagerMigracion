@@ -59,14 +59,18 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             PreciosDTO precio = new PreciosDTO();
 
-                            var row = worksheet.Cells[r,1,r,worksheet.Dimension.End.Column].ToList();
-                            precio.Producto = row[0].Value.ToString();
-                            precio.Zona = row[1].Value.ToString();
-                            precio.Cliente = row[2].Value.ToString();
-                            precio.Destino = row[3].Value.ToString();
-                            precio.Fecha = row[4].Value.ToString();
-                            precio.Precio = double.Parse(row[5].Value.ToString());
-                            precios.Add(precio);
+                            var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+
+                            if (row.Count == 6)
+                            {
+                                precio.Producto = row[0].Value.ToString();
+                                precio.Zona = row[1].Value.ToString();
+                                precio.Cliente = row[2].Value.ToString();
+                                precio.Destino = row[3].Value.ToString();
+                                precio.Fecha = row[4].Value.ToString();
+                                precio.Precio = double.Parse(row[5].Value.ToString());
+                                precios.Add(precio);
+                            }
                         }
                     }
                 }
@@ -115,18 +119,18 @@ namespace GComFuelManager.Server.Controllers.Precios
                 else
                     context.Add(precio);
 
-                //var precioH = new PrecioHistorico
-                //{
-                //    codCte = precio.codCte,
-                //    codDes = precio.codDes,
-                //    codGru = precio.codGru,
-                //    codPrd = precio.codPrd,
-                //    codZona = precio.codZona,
-                //    FchDia = precio.FchDia,
-                //    FchActualizacion = precio.FchActualizacion
-                //};
-                
-                //context.Add(precioH);
+                var precioH = new PrecioHistorico
+                {
+                    codCte = precio.codCte,
+                    codDes = precio.codDes,
+                    codGru = (short)precio.codGru!,
+                    codPrd = precio.codPrd,
+                    codZona = precio.codZona,
+                    FchDia = precio.FchDia,
+                    FchActualizacion = precio.FchActualizacion
+                };
+
+                context.Add(precioH);
 
                 await context.SaveChangesAsync();
 
@@ -196,14 +200,57 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpPost]
+        [HttpPost("confirm/upload")]
         public async Task<ActionResult> PostPrecioDTO([FromBody] List<PreciosDTO> precios)
         {
             try
             {
                 foreach (var item in precios)
                 {
-                    
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Equals(item.Cliente));
+                    if (cliente is null)
+                        return BadRequest($"No se encontro el cliente {item.Cliente}");
+
+                    var producto = context.Producto.FirstOrDefault(x => x.Den!.Equals(item.Producto));
+                    if (producto is null)
+                        return BadRequest($"No se encontro el producto {item.Producto}");
+
+                    var zona = context.Zona.FirstOrDefault(x => x.Nombre.Equals(item.Zona));
+                    if (zona is null)
+                        return BadRequest($"No se encontro la zona {item.Zona}");
+
+                    var destino = context.Destino.FirstOrDefault(x => x.Den!.Equals(item.Destino!));
+                    if (destino is null)
+                        return BadRequest($"No se encontro el destino {item.Destino}");
+
+                    var precio = new Precio
+                    {
+                        codCte = cliente.Cod,
+                        codDes = destino.Cod,
+                        codGru = cliente.codgru,
+                        codPrd = producto.Cod,
+                        codZona = zona.Cod,
+                        FchDia = DateTime.Parse(item.Fecha),
+                        FchActualizacion = DateTime.Now,
+                        Pre = item.Precio
+                    };
+
+                    var p = context.Precio.FirstOrDefault(x => x.codGru == precio.codGru
+                    && x.codZona == precio.codZona
+                    && x.codCte == precio.codCte
+                    && x.codPrd == precio.codPrd
+                    && x.codDes == precio.codDes);
+
+                    if (p is not null)
+                    {
+                        p.Pre = precio.Pre;
+                        p.FchDia = precio.FchDia;
+                        p.FchActualizacion = DateTime.Now;
+
+                        context.Update(p);
+                    }
+                    else
+                        context.Add(precio);
                 }
 
                 await context.SaveChangesAsync();
