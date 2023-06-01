@@ -66,7 +66,7 @@
                             {
                                 <div class="col-12 d-flex justify-content-center mt-3">
                                     <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12">
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios">
                                             <i class="fa fa-solid fa-floppy-disk"></i>
                                             Guardar
                                         </button>
@@ -234,7 +234,7 @@
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false">
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1">
                                 <Template Context="item">
                                     <div class="col-12 row">
                                         <div class="col">
@@ -324,7 +324,7 @@
 
     private string Token { get; set; } = string.Empty;
 
-    private int GrupoSeleccionado = 0;
+    private short? GrupoSeleccionado = 0;
     private int ClienteSeleccionado = 0;
 
     private int Progress = 0;
@@ -507,7 +507,7 @@
     {
         try
         {
-            if (Precio.codGru != 0 && Precio.codGru != GrupoSeleccionado)
+            if (Precio.codGru != null && Precio.codGru != GrupoSeleccionado)
             {
                 var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.codGru}");
                 if (response.Error)
@@ -659,7 +659,19 @@
                 return;
             }
 
-
+            var response = await http.Post<IEnumerable<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
+            if (response.Error)
+            {
+                loadingSave = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingSave = false;
+                await Swal.FireAsync("Exito", "Se han guardado los precios exitosamente.", SweetAlertIcon.Success);
+                await GetPrecios();
+            }
 
         }
         catch (Exception e)
