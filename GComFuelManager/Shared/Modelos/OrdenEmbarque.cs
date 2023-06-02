@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,7 +14,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fchPro")] public DateTime? FchPro { get; set; }
         [JsonProperty("codtad"), Required(ErrorMessage = "El campo de terminal es requerido.")] public Int16? Codtad { get; set; } = 0;
         [JsonProperty("codprd"), Required(ErrorMessage = "El campo de producto es requerido.")] public byte? Codprd { get; set; } = 0;
-        [JsonProperty("vol"), Required(ErrorMessage = "El campo de cantidad es requerido.")] public double? Vol { get; set; } = 0;
+        [JsonProperty("vol"), Required(ErrorMessage = "El campo de cantidad es requerido."), EpplusIgnore] public double? Vol { get; set; } = 0;
+        [DisplayName("Volumen")]
+        public string Volumenes { get { return Vol.Value.ToString("N2"); } }
         [JsonProperty("codchf")] public int? Codchf { get; set; }
         [JsonProperty("coddes"), Required(ErrorMessage = "El campo de estacion es requerido.")] public int? Coddes { get; set; } = 0;
         [JsonProperty("codest")] public byte? Codest { get; set; }
