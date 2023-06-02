@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OfficeOpenXml.Attributes;
+
 namespace GComFuelManager.Shared.DTOs
 {
 	public class EtaDTO
@@ -23,10 +25,17 @@ namespace GComFuelManager.Shared.DTOs
         public string? Cliente { get; set; } = string.Empty;
         public string? Destino { get; set; } = string.Empty;
         public string? Producto { get; set; } = string.Empty;
-        [DisplayName("Volumen Natural")]
+
+        [DisplayName("Volumen Natural"), EpplusIgnore]
         public double? VolNat { get; set; } = 0;
-        [DisplayName("Volumen Cargado")]
+        [DisplayName("Volumen Natural")]
+        public string Volms { get { return VolNat.Value.ToString("N2"); } }
+
+        [DisplayName("Volumen Cargado"), EpplusIgnore]
         public double? VolCar { get; set; } = 0;
+        [DisplayName("Volumen Cargado")]
+        public string Vols { get { return VolCar.Value.ToString("N2"); } }
+
         public string? Transportista { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;
         public string? Operador { get; set; } = string.Empty;

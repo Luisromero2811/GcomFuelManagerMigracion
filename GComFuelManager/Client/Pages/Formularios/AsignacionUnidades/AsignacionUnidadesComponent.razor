@@ -9,42 +9,43 @@
 @*<div>
         <RadzenButton Text="Mostrar Ordenes" Click="@(() => sidebar6Expanded = !sidebar7Expanded )" />
     </div>*@
-<RadzenPanel AllowCollapse="true" Text="Mostrar Ordenes:" Style="font-weight: bold;" Class="my-4" Expand=@(() => Change("Panel expanded")) Collapse=@(() => Change("Panel collapsed"))>
-    <div class="col-12 mt-2 mb-2">
-        <div class="d-flex justify-content-center">
-            <div class="col-12 mt-3 mb-2">
-                <div class="col-12 card">
-                    <div class="col-12 card-body">
-                        <label><b>Filtro entre fechas:</b></label>
-                        <div class="col-12 row">
-                            <div class="col-4 mb-3">
-                                <label>Del:</label>
-                                <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-                            </div>
-                            <div class="col-4 mb-3">
-                                <label>A:</label>
-                                <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
-                            </div>
-                            <div class="col-4 d-flex mt-1">
-                                <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@MostrarOrdenFecha">
-                                    <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
-                                </button>
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia">
+    <RadzenPanel AllowCollapse="true" Text="Mostrar Ordenes:" Style="font-weight: bold;" Class="my-4" Expand=@(() => Change("Panel expanded")) Collapse=@(() => Change("Panel collapsed"))>
+        <div class="col-12 mt-2 mb-2">
+            <div class="d-flex justify-content-center">
+                <div class="col-12 mt-3 mb-2">
+                    <div class="col-12 card">
+                        <div class="col-12 card-body">
+                            <label><b>Filtro entre fechas:</b></label>
+                            <div class="col-12 row">
+                                <div class="col-4 mb-3">
+                                    <label>Del:</label>
+                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label>A:</label>
+                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
+                                </div>
+                                <div class="col-4 d-flex mt-1">
+                                    <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@MostrarOrdenFecha">
+                                        <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</RadzenPanel>
+    </RadzenPanel>
+</AuthorizeView>
 @*<hr />*@
-<div class="col-12 mt-2 mb-2">
-    <div class="d-flex justify-content-center">
-        <div class="col card shadow-sm">
-            <div class="col-12 card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+    <div class="col-12 mt-2 mb-2">
+        <div class="d-flex justify-content-center">
+            <div class="col card shadow-sm">
+                <div class="col-12 card-body">
                     <label><b>Asignar unidades:</b></label>
-
                     <div class="row mb-3">
                         <div class="col-4">
                             <label>Transportista:</label>
@@ -55,8 +56,8 @@
                         <div class="col-4">
                             <label>Chofer:</label>
                             <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true">
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowVirtualization="true">
                                 <Template Context="data">
                                     @((data as Chofer).Dricod) | @((data as Chofer).Den)
                                 </Template>
@@ -101,101 +102,103 @@
                             </div>
                         </div>
                     </div>
-                </AuthorizeView>
-                @*<div class="col-12 my-3">
-                        <div class="row d-flex justify-content-start">
-                            <div class="col-4">
-                                <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
-                                <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
-                            </div>
-                        </div>
-                        <div class="row d-flex justify-content-end">
-                            @if (Synthesis)
-                            {
-                                <div class="col-4">
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
-                                    </AuthorizeView>
-                                </div>
-                            }
-                            <div class="col-4">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
-                                </AuthorizeView>
 
+                    @*<div class="col-12 my-3">
+                            <div class="row d-flex justify-content-start">
+                                <div class="col-4">
+                                    <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
+                                    <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                                </div>
                             </div>
-                        </div>
-                    </div>*@
+                            <div class="row d-flex justify-content-end">
+                                @if (Synthesis)
+                                {
+                                    <div class="col-4">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                        </AuthorizeView>
+                                    </div>
+                                }
+                                <div class="col-4">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                                    </AuthorizeView>
+
+                                </div>
+                            </div>
+                        </div>*@
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<div class="col-12 d-flex justify-content-center mb-2 mt-2">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
-                    GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
-        <Columns>
-            <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="Edicion">
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false">
-                    <HeaderTemplate>
-                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                        Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    </HeaderTemplate>
-                    <Template Context="data">
-                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Asignar" Filterable="false" Width="80px" Sortable="false">
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Gerencia, Direccion">
+    <div class="col-12 d-flex justify-content-center mb-2 mt-2">
+        <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
+                        GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
+                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
+            <Columns>
+                <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
+                    <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" OrderIndex="1" Frozen="true">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                            Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                            TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Asignar" Filterable="false" Width="80px" Sortable="false" OrderIndex="2" Frozen="true">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <button class="btn btn-primary col-12" @onclick="@(()=>SetOrden(data))">
+                                    <i class="fa fa-solid fa-pen-to-square"></i>
+                                </button>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" OrderIndex="3"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" OrderIndex="4"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" OrderIndex="5"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="6"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" FormatString="{0:N2}" OrderIndex="7">
                     <Template Context="data">
                         <div class="col-12">
-                            <button class="btn btn-primary col-12" @onclick="@(()=>SetOrden(data))">
-                                <i class="fa fa-solid fa-pen-to-square"></i>
-                            </button>
+                            @string.Format("{0:N2}",
+                            data?.Compartment == 1 ? data?.Tonel?.Capcom
+                            : data?.Compartment == 2 ? data?.Tonel?.Capcom2
+                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3
+                            : data?.Compartment == 4 ? data?.Tonel?.Capcom4
+                            : data?.Vol
+                            )
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-            </AuthorizeView>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" FormatString="{0:N2}">
-                <Template Context="data">
-                    <div class="col-12">
-                        @string.Format("{0:N2}",
-                        data?.Compartment == 1 ? data?.Tonel?.Capcom
-                        : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                        : data?.Compartment == 3 ? data?.Tonel?.Capcom3
-                        : data?.Compartment == 4 ? data?.Tonel?.Capcom4
-                        : data?.Vol
-                        )
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px">
-                <Template Context="data">
-                    <div class="col-12">
-                        @data?.Tonel?.Tracto @data?.Tonel?.Placa
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px">
-                <Template Context="data">
-                    <div class="col-12">
-                        @data?.Chofer?.Den @data?.Chofer?.Shortden
-                    </div>
-                </Template>
-            </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" />
-        </Columns>
-    </RadzenDataGrid>
-</div>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" OrderIndex="8"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" OrderIndex="9"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" OrderIndex="10">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @data?.Tonel?.Tracto @data?.Tonel?.Placa
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" OrderIndex="11" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" OrderIndex="12">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @data?.Chofer?.Den @data?.Chofer?.Shortden
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px"  OrderIndex="13"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" OrderIndex="14"/>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
 <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia" Context="SendSynthesis">
     <div class="col-12 card mt-2 mb-3">
         <div class="col-12 card-body">

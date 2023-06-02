@@ -58,8 +58,8 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double? Precio { get; set; }
         
-        [JsonPropertyName("temperatura"), DisplayName("Temperatura")]
-        [NotMapped] public double? Temperatura { get; set; } = null!;
+        //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
+        //[NotMapped] public double? Temperatura { get; set; } = null!;
         
         [JsonPropertyName("vendedor"), DisplayName("Vendedor")]
         public string? Vendedor { get; set; } = string.Empty;
@@ -76,9 +76,9 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("cliente")]
         public string? Cli { get { return Cliente != null ? Cliente.Den : string.Empty; } }
 
-        [JsonPropertyName("volumen"), DisplayName("Volumen"), DisplayFormat(DataFormatString = "{0:#,0.00}")]
+        [JsonPropertyName("volumen"), DisplayName("Volumen"), DisplayFormat(DataFormatString = "{0:#,0.00}"), EpplusIgnore]
         public int? Volumen { get; set; }
-        //public string FormattedString { get; set; } = Volumen.Value.ToString("N2");
+        public string Volumenes { get { return Volumen.Value.ToString("N2"); } }
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
