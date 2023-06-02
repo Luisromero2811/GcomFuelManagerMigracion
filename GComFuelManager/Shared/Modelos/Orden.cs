@@ -1,6 +1,8 @@
 using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -23,8 +25,10 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codprd")]
         public byte? Codprd { get; set; } = 0; //PK
 
-        [JsonProperty("vol")]
+        [JsonProperty("vol"), EpplusIgnore]
         public double? Vol { get; set; } = null!;
+        //public string Vols { get { return Vol.Value.ToString("N2"); } }
+
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
         //Prueba
@@ -44,9 +48,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("dendes"), MaxLength(256)]
         public string? Dendes { get; set; } = string.Empty;
         //Double Formatter
-        [JsonProperty("vol2")]
+        [JsonProperty("vol2"), EpplusIgnore]
         public double? Vol2 { get; set; } = null!;
-        //public string FormattedDouble => Vol2.ToString("N");
+        public string Volumenes { get { return Vol2.Value.ToString("N2"); } }
 
         [JsonProperty("batchId")]
         public int? BatchId { get; set; }
