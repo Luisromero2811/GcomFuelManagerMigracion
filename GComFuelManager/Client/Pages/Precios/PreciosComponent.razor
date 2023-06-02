@@ -234,7 +234,7 @@
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1">
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false">
                                 <Template Context="item">
                                     <div class="col-12 row">
                                         <div class="col">
@@ -242,7 +242,7 @@
                                         </div>
                                     </div>
                                 </Template>
-                            </RadzenDataGridColumn>
+                            </RadzenDataGridColumn> 
                         </Authorized>
                     </AuthorizeView>
                     <RadzenDataGridColumn TItem="Precio" Title="Fecha" Filterable="false" Property="FchDia" FormatString="{0:d}" />

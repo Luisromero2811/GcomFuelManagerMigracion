@@ -13,13 +13,13 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class PrecioHistorico
     {
-        [Key, JsonProperty("cod"), EpplusIgnore] public byte Cod { get; set; }
+        [Key, JsonProperty("cod"), EpplusIgnore] public int? Cod { get; set; }
         [JsonProperty("codZona"), EpplusIgnore] public int codZona { get; set; }
         [JsonProperty("codGru"), EpplusIgnore] public Int16 codGru { get; set; }
         [JsonProperty("codCte"), EpplusIgnore] public int codCte { get; set; }
         [JsonProperty("codDes"), EpplusIgnore] public int codDes { get; set; }
         [JsonProperty("codPrd"), EpplusIgnore] public byte codPrd { get; set; }
-        [JsonProperty("pre")] public float pre { get; set; }
+        [JsonProperty("pre")] public double pre { get; set; }
         [JsonProperty("fchActualizacion"), EpplusIgnore] public DateTime FchActualizacion { get; set; } = DateTime.Now;
         [JsonProperty("fchDia"), EpplusIgnore] public DateTime FchDia { get; set; } = DateTime.Now;
         [JsonProperty("fecha"), DisplayName("Fecha")]
