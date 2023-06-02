@@ -121,6 +121,8 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 var precioH = new PrecioHistorico
                 {
+                    Cod = null!,
+                    pre = precio.Pre,
                     codCte = precio.codCte,
                     codDes = precio.codDes,
                     codGru = (short)precio.codGru!,
@@ -247,13 +249,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                         p.FchDia = precio.FchDia;
                         p.FchActualizacion = DateTime.Now;
 
-                        context.Update(p);
+                        //context.Update(p);
+                        await Post(p);
                     }
                     else
-                        context.Add(precio);
+                        await Post(precio);
+                        //context.Add(precio);
                 }
 
-                await context.SaveChangesAsync();
+                //await context.SaveChangesAsync();
 
                 return Ok();
             }

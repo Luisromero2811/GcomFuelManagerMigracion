@@ -7,7 +7,7 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
-    <NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>
+    @*<NavigationLock OnBeforeInternalNavigation="OnPreventInternalNavigation"></NavigationLock>*@
     <h4><b>Pedidos</b></h4>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
@@ -520,31 +520,31 @@
         }
     }
 
-    private async Task OnPreventInternalNavigation(LocationChangingContext context)
-    {
-        if (ordens.Count == 0)
-        {
-            return;
-        }
+    //private async Task OnPreventInternalNavigation(LocationChangingContext context)
+    //{
+    //    if (ordens.Count == 0)
+    //    {
+    //        return;
+    //    }
 
-        var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "Tiene ordenes pendientes por confirmar, ¿Seguro que quiere salir?"
-            });
+    //    var confirm = await Swal.FireAsync(new SweetAlertOptions
+    //        {
+    //            Icon = SweetAlertIcon.Warning,
+    //            ShowCancelButton = true,
+    //            ConfirmButtonText = "Aceptar",
+    //            CancelButtonText = "Cancelar",
+    //            Text = "Tiene ordenes pendientes por confirmar, ¿Seguro que quiere salir?"
+    //        });
 
-        if (!string.IsNullOrEmpty(confirm.Value))
-        {
-            await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenPendientes));
-            await js.SetItemLocalStorage("EXPIRACIONPEDIDO", DateTime.Today.Date.AddDays(1).ToString());
-            return;
-        }
+    //    if (!string.IsNullOrEmpty(confirm.Value))
+    //    {
+    //        await js.SetItemLocalStorage("PEDIDO", JsonConvert.SerializeObject(ordenPendientes));
+    //        await js.SetItemLocalStorage("EXPIRACIONPEDIDO", DateTime.Today.Date.AddDays(1).ToString());
+    //        return;
+    //    }
 
-        context.PreventNavigation();
-    }
+    //    context.PreventNavigation();
+    //}
 
     public async Task GetTerminales()
     {
