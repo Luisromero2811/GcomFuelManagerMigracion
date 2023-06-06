@@ -113,7 +113,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" FilterProperty="DestinosSeleccionado" Width="290px">
+                <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" Width="290px">
                     <FilterTemplate>
                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
                     </FilterTemplate>
@@ -161,7 +161,7 @@
     private IEnumerable<string?> ProductList { get; set; } = new List<string>();
 
     private string DestinosSeleccionado = string.Empty;
-    private IEnumerable<string>? DestinoList { get; set; } = new List<string>();
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
     private string ClientesSeleccionados = string.Empty;
     private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
