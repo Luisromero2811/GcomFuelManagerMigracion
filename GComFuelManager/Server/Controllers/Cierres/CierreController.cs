@@ -119,14 +119,17 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     orden.CodCte = userSis.CodCte;
                     orden.CodGru = userSis.CodGru;
                     orden.Vendedor = userSis.Den;
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
-                    orden.TipoVenta = cliente.Tipven;
-                    if (string.IsNullOrEmpty(cliente.Tipven))
-                        orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
-                    else
-                        orden.ModeloVenta = "";
                 }
-                orden.FchVencimiento = orden.FchCierre?.AddDays(7);
+                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
+
+                orden.TipoVenta = cliente.Tipven;
+
+                if (string.IsNullOrEmpty(cliente.Tipven))
+                    orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
+                else
+                    orden.ModeloVenta = string.Empty;
+
+                orden.FchVencimiento = orden.FchCierre?.AddDays(8);
                 context.Add(orden);
                 await context.SaveChangesAsync();
 
@@ -297,13 +300,16 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 foreach (var item in cierres)
                 {
-                    if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                    if(item.OrdenEmbarque is not null)
                     {
-                        var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
-                        if (o != null)
-                            cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
-                        else
-                            cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                        if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                        {
+                            var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                            if (o != null)
+                                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                            else
+                                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                        }
                     }
                 }
                 return Ok(cierres);
@@ -407,6 +413,54 @@ namespace GComFuelManager.Server.Controllers.Cierres
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("volumen/{folio}")]
+        public async Task<ActionResult> GetListadoVolumen([FromRoute] string folio)
+        {
+            try
+            {
+                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+
+                var cierres = await context.OrdenCierre.Where(x => x.Folio!.Equals(folio)).Include(x=>x.Producto).ToListAsync();
+                if (cierres is null)
+                    return BadRequest("No existe el cierre.");
+
+                var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(folio)).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
+
+                foreach (var item in cierres)
+                {
+                    var VolumenDisponible = item.Volumen;
+                    
+                    var VolumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == item.CodPrd 
+                    && x.OrdenEmbarque?.Folio is not null
+                    && x.OrdenEmbarque?.Orden is null)
+                        .Sum(x => x.OrdenEmbarque?.Vol);
+                    
+                    var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                    && x.OrdenEmbarque.Codprd == item.CodPrd
+                    && x.OrdenEmbarque?.Orden?.BatchId is not null)
+                        .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+
+                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+
+                    ProductoVolumen productoVolumen = new ProductoVolumen();
+
+                    productoVolumen.Nombre = item.Producto?.Den;
+                    productoVolumen.Disponible = VolumenTotalDisponible;
+                    productoVolumen.Congelado = VolumenCongelado;
+                    productoVolumen.Consumido = VolumenConsumido;
+
+                    volumen.Productos.Add(productoVolumen);
+                }
+
+                return Ok(volumen);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw;
             }
         }
     }

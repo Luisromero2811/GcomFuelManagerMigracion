@@ -185,7 +185,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod);
 
                     if (zona == null)
-                        return BadRequest();
+                        return BadRequest("No tiene una zona relacionada");
 
                     precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
                     && x.codDes == zonaCliente.DesCod
@@ -249,15 +249,28 @@ namespace GComFuelManager.Server.Controllers.Precios
                         p.FchDia = precio.FchDia;
                         p.FchActualizacion = DateTime.Now;
 
-                        //context.Update(p);
-                        await Post(p);
+                        context.Update(p);
                     }
                     else
-                        await Post(precio);
-                        //context.Add(precio);
+                        context.Add(precio);
+
+                    var precioH = new PrecioHistorico
+                    {
+                        Cod = null!,
+                        pre = precio.Pre,
+                        codCte = precio.codCte,
+                        codDes = precio.codDes,
+                        codGru = (short)precio.codGru!,
+                        codPrd = precio.codPrd,
+                        codZona = precio.codZona,
+                        FchDia = precio.FchDia,
+                        FchActualizacion = precio.FchActualizacion
+                    };
+
+                    context.Add(precioH);
                 }
 
-                //await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
 
                 return Ok();
             }

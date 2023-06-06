@@ -32,38 +32,39 @@
 
                         </div>
                         <div class="col-12 mt-3">
-                            <RadzenPanel AllowCollapse="true" Collapsed="true">
-                                <HeaderTemplate>
-                                    Vista previa de precios
-                                </HeaderTemplate>
-                                <ChildContent>
-                                    <RadzenDataGrid TItem="PreciosDTO" Data="@preciosExcel" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                                    GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true">
-                                        <Columns>
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="false" />
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
-                                                <FilterTemplate Context="filter">
-                                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                                </FilterTemplate>
-                                                <Template Context="data">
-                                                    <div class="col-12 d-flex">
-                                                        <div class="col-11">
-                                                            @data.Producto
-                                                        </div>
-                                                    </div>
-                                                </Template>
-                                            </RadzenDataGridColumn>
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
-                                            <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
-                                        </Columns>
-                                    </RadzenDataGrid>
-                                </ChildContent>
-                            </RadzenPanel>
                             @if (preciosExcel.Count() > 0)
                             {
+
+                                <RadzenPanel AllowCollapse="true" Collapsed="true">
+                                    <HeaderTemplate>
+                                        Vista previa de precios
+                                    </HeaderTemplate>
+                                    <ChildContent>
+                                        <RadzenDataGrid TItem="PreciosDTO" Data="@preciosExcel" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                                                    GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
+                                                    <FilterTemplate Context="filter">
+                                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                                    </FilterTemplate>
+                                                    <Template Context="data">
+                                                        <div class="col-12 d-flex">
+                                                            <div class="col-11">
+                                                                @data.Producto
+                                                            </div>
+                                                        </div>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </ChildContent>
+                                </RadzenPanel>
                                 <div class="col-12 d-flex justify-content-center mt-3">
                                     <div class="col-4">
                                         <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios">

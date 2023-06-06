@@ -200,6 +200,15 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
+            modelBuilder.Entity<OrdenPedido>()
+                .HasOne(x => x.OrdenEmbarque)
+                .WithMany()
+                .HasForeignKey(x => x.CodPed);
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Orden)
+                .WithMany()
+                .HasForeignKey(x => x.Bolguidid)
+                .HasPrincipalKey(x=>x.Bolguiid);
         }
 
 
@@ -237,5 +246,6 @@ namespace GComFuelManager.Server
         public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
         public DbSet<Zona> Zona { get; set; }
         public DbSet<ZonaCliente> ZonaCliente { get; set; }
+        public DbSet<OrdenPedido> OrdenPedido { get; set; }
     }
 }
