@@ -418,16 +418,19 @@
                                                         </button>
                                                     </div>
                                                 }
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
-                                                        <i class="fa fa-solid fa-file-excel"></i>
-                                                        <b>Exportar Cierres</b>
-                                                        @if (loadingExport)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="Export">
+                                            <div class="col-3 mx-2">
+                                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                    <i class="fa fa-solid fa-file-excel"></i>
+                                                    <b>Exportar Cierres</b>
+                                                    @if (loadingExport)
+                                                    {
+                                                        <SpinnerLoading></SpinnerLoading>
+                                                    }
+                                                </button>
+                                            </div>
+                                        </AuthorizeView>
+
                                             }
                                             else
                                             {
@@ -499,16 +502,16 @@
                                 }
                             </div>
                             @*@if(AddMargen is false){
-                                <div class="col-4">
-                                    <button class="col-12 btn gcom-bg-amarillo">
-                                        <i class="fa-solid fa-broom"></i> Agregar margen
-                                    </button>
-                                </div>
-                            }
-                            else
-                            {
-                                
-                            }*@
+                                    <div class="col-4">
+                                        <button class="col-12 btn gcom-bg-amarillo">
+                                            <i class="fa-solid fa-broom"></i> Agregar margen
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+
+                                }*@
                             @if (isFilter && ordenCierres.Count > 0)
                             {
                                 <div class="col-12 mt-2">
@@ -526,10 +529,10 @@
                                 </div>
                             }
                             @*<div class="col-4">
-                        <button class="col-12 btn gcom-bg-amarillo">
-                        <i class="fa fa-solid fa-ban"></i> Cancelar Orden
-                        </button>
-                        </div>*@
+                                <button class="col-12 btn gcom-bg-amarillo">
+                                <i class="fa fa-solid fa-ban"></i> Cancelar Orden
+                                </button>
+                                </div>*@
                         </div>
                     </Authorized>
                 </AuthorizeView>
@@ -537,33 +540,42 @@
             }
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-4 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"  AllowColumnPicking="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
                 <Columns>
                     @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" MinWidth="200px" Visible="true" Filterable="false">
-                    <Template Context="item">
-                    <div class="col-12 row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador">
-                    <Authorized>
-                    @if (item.OrdenEmbarque?.Folio == null)
-                    {
-                    <div class="col">
-                    <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
-                    </div>
-                    <div class="col">
-                    <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                    </div>
-                    }
-                    </Authorized>
-                    </AuthorizeView>
-                    </div>
-                    </Template>
-                    </RadzenDataGridColumn>*@
+                        <Template Context="item">
+                        <div class="col-12 row">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador">
+                        <Authorized>
+                        @if (item.OrdenEmbarque?.Folio == null)
+                        {
+                        <div class="col">
+                        <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-ban"></i></button>
+                        </div>
+                        <div class="col">
+                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                        }
+                        </Authorized>
+                        </AuthorizeView>
+                        </div>
+                        </Template>
+                        </RadzenDataGridColumn>*@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado">
+                        <FilterTemplate>
+                            <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data.Destino?.Den
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -596,8 +608,26 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" FilterValue="TipoVentaSeleccionado">
+                        <FilterTemplate>
+                            <RadzenDropDown Data="TipoVentaList" @bind-Value="TipoVentaSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data.TipoVenta
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" FilterValue="ClientesSeleccionado">
+                        <FilterTemplate>
+                            <RadzenDropDown Data="ClienteList" @bind-Value="ClientesSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data.Cliente?.Den
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
@@ -652,7 +682,7 @@
 
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
 
-    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrga" };
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     private List<Precio> Precios { get; set; } = new List<Precio>();
 
@@ -673,6 +703,15 @@
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string?> ProductList { get; set; } = new List<string>();
+
+    private string DestinosSeleccionado = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
+
+    private string ClientesSeleccionado = string.Empty;
+    private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
+
+    private string TipoVentaSeleccionado = string.Empty;
+    private IEnumerable<string?> TipoVentaList { get; set; } = new List<string>();
 
     bool loading = false;
     bool isEdit = false;
@@ -904,14 +943,14 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                {
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                 if (response.Error)
@@ -1021,13 +1060,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1163,6 +1202,9 @@
 
                 }
                 ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+                ClienteList = ordenCierres?.DistinctBy(x => x.Cliente?.Den).Select(x => x.Cliente?.Den)!;
+                TipoVentaList = ordenCierres?.DistinctBy(x => x.TipoVenta).Select(x => x.TipoVenta)!;
             }
         }
         catch (Exception e)
@@ -1355,14 +1397,14 @@
                 {
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
+                    {
+                        Title = "Agregar pedido",
+                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                        Icon = SweetAlertIcon.Warning,
+                        CancelButtonText = "Cancelar",
+                        ConfirmButtonText = "Aceptar",
+                        ShowCancelButton = true
+                    });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();
@@ -1557,7 +1599,7 @@
         }
     }
 
-        private async void SetMargen()
+    private async void SetMargen()
     {
         try
         {

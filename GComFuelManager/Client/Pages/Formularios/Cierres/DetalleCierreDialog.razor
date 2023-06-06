@@ -46,7 +46,7 @@
                     IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true"  AllowColumnPicking="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" Filterable="false" FormatString="{0:d}" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
@@ -87,7 +87,7 @@
                         @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" Filterable="false" FormatString="{0:d}" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
             </Columns>
         </RadzenDataGrid>

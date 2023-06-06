@@ -225,16 +225,17 @@
 
     </Authorized>
 </AuthorizeView>
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia" Context="Grid">
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px"  AllowColumnPicking="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false">
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1">
                                 <Template Context="item">
                                     <div class="col-12 row">
                                         <div class="col">
@@ -242,13 +243,13 @@
                                         </div>
                                     </div>
                                 </Template>
-                            </RadzenDataGridColumn> 
+                            </RadzenDataGridColumn>
                         </Authorized>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Filterable="false" Property="FchDia" FormatString="{0:d}" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
                         <FilterTemplate Context="filter">
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
                         </FilterTemplate>
@@ -278,11 +279,11 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" />
-                    <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" />
+                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8"/>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                        <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar">
+                        <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
                             <Template Context="data">
                                 <div class="col-12">
                                     <div class="form-check form-switch m-2">
@@ -306,6 +307,7 @@
 </style>
 
 @code {
+
     private string ProductoSeleccionado = string.Empty;
     private string CurrentCliente = string.Empty;
     RadzenAlert alert = new RadzenAlert();
@@ -715,12 +717,12 @@
             }
 
             Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = "Los correos se estan enviando.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                    Duration = 15000
-                });
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
 
             List<Precio> listaPrecios = new List<Precio>();
 
