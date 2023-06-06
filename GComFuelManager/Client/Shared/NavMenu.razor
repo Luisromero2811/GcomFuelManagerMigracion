@@ -107,7 +107,7 @@
         </AuthorizeView>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
-            <RadzenPanelMenuItem Path="asignacion/unidades" class="gcom-bg-rojo col-12" Style="border:hidden" >
+            <RadzenPanelMenuItem Path="asignacion/unidades" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
                         <i class="fa fa-solid fa-truck-droplet" aria-hidden="true"></i> Programación Equipos
@@ -118,7 +118,7 @@
         </AuthorizeView>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor">
-            <RadzenPanelMenuItem Path="seguimiento/ordenes" class="gcom-bg-rojo col-12" Style="border:hidden" >
+            <RadzenPanelMenuItem Path="seguimiento/ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
                         <i class="fa fa-solid fa-clipboard-list" aria-hidden="true"></i> Seguimiento de ordenes
@@ -129,7 +129,7 @@
         </AuthorizeView>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto">
-            <RadzenPanelMenuItem Path="eta" class="gcom-bg-rojo col-12" Style="border:hidden" >
+            <RadzenPanelMenuItem Path="eta" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
                         <i class="fa fa-solid fa-hourglass-half" aria-hidden="true"></i> ETA
@@ -140,7 +140,7 @@
         </AuthorizeView>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura" Context="Configs">
-            <RadzenPanelMenuItem Path="orden" class="gcom-bg-rojo col-12" Style="border:hidden" >
+            <RadzenPanelMenuItem Path="orden" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
                         <i class="fa fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Estado de pedido
@@ -149,14 +149,37 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Configs">
-            <RadzenPanelMenuItem Path="historial/asignacion" class="gcom-bg-rojo col-12" Style="border:hidden">
+        <!--Menú de Historiales-->
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte" Context="Config">
+            <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
-                        <i class="fa fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Historial de envios
+                        <i class="fa-solid fa-clipboard"></i> Historicos 
                     </div>
                 </Template>
+                <ChildContent>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Correos">
+                        <RadzenPanelMenuItem Path="historial/precios" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Historial de Precios
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Configs">
+                        <RadzenPanelMenuItem Path="historial/asignacion" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Historial de envios
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+                </ChildContent>
             </RadzenPanelMenuItem>
+
         </AuthorizeView>
 
     </RadzenPanelMenu>

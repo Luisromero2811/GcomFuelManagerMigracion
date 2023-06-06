@@ -13,7 +13,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Precio
     {
-        [Key, JsonProperty("cod"), EpplusIgnore] public Int16 Cod { get; set; }
+        [Key, JsonProperty("cod"), EpplusIgnore] public int? Cod { get; set; }
         [JsonProperty("codZona"), EpplusIgnore] public int codZona { get; set; }
         [JsonProperty("codDes"), EpplusIgnore] public int codDes { get; set; }
         [JsonProperty("codCte"), EpplusIgnore] public int codCte { get; set; }

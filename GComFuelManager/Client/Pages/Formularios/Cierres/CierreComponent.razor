@@ -418,16 +418,19 @@
                                                         </button>
                                                     </div>
                                                 }
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
-                                                        <i class="fa fa-solid fa-file-excel"></i>
-                                                        <b>Exportar Cierres</b>
-                                                        @if (loadingExport)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="Export">
+                                            <div class="col-3 mx-2">
+                                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                    <i class="fa fa-solid fa-file-excel"></i>
+                                                    <b>Exportar Cierres</b>
+                                                    @if (loadingExport)
+                                                    {
+                                                        <SpinnerLoading></SpinnerLoading>
+                                                    }
+                                                </button>
+                                            </div>
+                                        </AuthorizeView>
+
                                             }
                                             else
                                             {
