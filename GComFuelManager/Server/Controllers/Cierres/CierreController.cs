@@ -68,6 +68,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
+                List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
                     .Include(x => x.OrdenEmbarque)
                     .Include(x => x.Cliente)
@@ -80,19 +81,59 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.Tonel)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Estado)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
                     .ToListAsync();
 
-                foreach (var item in ordenes)
+                if (ordenes.Count > 0)
                 {
-                    if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+
+
+                    if (ordenes.FirstOrDefault()!.CodPed != 0)
                     {
-                        var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
-                        if (o != null)
-                            ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
-                        else
-                            ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                        foreach (var item in ordenes)
+                        {
+                            if (item.OrdenEmbarque is not null)
+                            {
+                                if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                                {
+                                    var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                                    if (o != null)
+                                        ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                                    else
+                                        ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio).ToList();
+                        foreach (var item1 in pedidos)
+                        {
+                            var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
+                                .Include(x => x.OrdenEmbarque)
+                                .Include(x => x.Cliente)
+                                    .Include(x => x.Producto)
+                                    .Include(x => x.Destino)
+                                    .Include(x => x.ContactoN)
+                                .Include(x => x.OrdenEmbarque)
+                                .ThenInclude(x => x.Tad)
+                                .Include(x => x.OrdenEmbarque)
+                                .ThenInclude(x => x.Tonel)
+                                .Include(x => x.OrdenEmbarque)
+                                .ThenInclude(x => x.Estado)
+                                .Include(x => x.OrdenEmbarque)
+                                .ThenInclude(x => x.Orden)
+                                .FirstOrDefaultAsync();
+
+                            cierresVolumen.Add(pedido);
+                        }
+
+                        return Ok(cierresVolumen);
                     }
                 }
+
                 return Ok(ordenes);
             }
             catch (Exception e)
@@ -300,7 +341,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 foreach (var item in cierres)
                 {
-                    if(item.OrdenEmbarque is not null)
+                    if (item.OrdenEmbarque is not null)
                     {
                         if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
                         {
@@ -417,50 +458,122 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("volumen/{folio}")]
-        public async Task<ActionResult> GetListadoVolumen([FromRoute] string folio)
+        public async Task<ActionResult<VolumenDisponibleDTO>> GetListadoVolumen([FromRoute] string folio)
         {
             try
             {
                 VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
 
-                var cierres = await context.OrdenCierre.Where(x => x.Folio!.Equals(folio)).Include(x=>x.Producto).ToListAsync();
-                if (cierres is null)
-                    return BadRequest("No existe el cierre.");
-
-                var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(folio)).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
-
-                foreach (var item in cierres)
+                if (context.OrdenPedido.Any(x => x.Folio.Equals(folio)))
                 {
-                    var VolumenDisponible = item.Volumen;
-                    
-                    var VolumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == item.CodPrd 
-                    && x.OrdenEmbarque?.Folio is not null
-                    && x.OrdenEmbarque?.Orden is null)
-                        .Sum(x => x.OrdenEmbarque?.Vol);
-                    
-                    var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                    && x.OrdenEmbarque.Codprd == item.CodPrd
-                    && x.OrdenEmbarque?.Orden?.BatchId is not null)
-                        .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+                    var cierres = await context.OrdenCierre.Where(x => x.Folio!.Equals(folio)).Include(x => x.Producto).ToListAsync();
+                    if (cierres is null)
+                        return BadRequest("No existe el cierre.");
 
-                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                    var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(folio)).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
 
-                    ProductoVolumen productoVolumen = new ProductoVolumen();
+                    foreach (var item in cierres)
+                    {
+                        var VolumenDisponible = item.Volumen;
 
-                    productoVolumen.Nombre = item.Producto?.Den;
-                    productoVolumen.Disponible = VolumenTotalDisponible;
-                    productoVolumen.Congelado = VolumenCongelado;
-                    productoVolumen.Consumido = VolumenConsumido;
+                        var VolumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque?.Orden is null)
+                            .Sum(x => x.OrdenEmbarque?.Vol);
 
-                    volumen.Productos.Add(productoVolumen);
+                        var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Orden?.BatchId is not null)
+                            .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+
+                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+
+                        ProductoVolumen productoVolumen = new ProductoVolumen();
+
+                        productoVolumen.Nombre = item.Producto?.Den;
+                        productoVolumen.Disponible = VolumenTotalDisponible;
+                        productoVolumen.Congelado = VolumenCongelado;
+                        productoVolumen.Consumido = VolumenConsumido;
+
+                        volumen.Productos.Add(productoVolumen);
+                    }
+                    return Ok(volumen);
+
                 }
+                else
+                {
+                    var ordenes = context.OrdenCierre.Where(x => x.Folio == folio)
+                        .Include(x => x.Producto)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x!.Orden).ToList();
 
+                    foreach (var item in ordenes.DistinctBy(x => x.Producto!.Den))
+                    {
+                        var VolumenDisponible = ordenes.Where(x => x.CodPrd == item.CodPrd && x.Estatus is true).Sum(x => x.Volumen);
+
+                        var VolumenCongelado = ordenes.Where(x => x.CodPrd == item.CodPrd
+                        && x.Estatus is true
+                        && x?.OrdenEmbarque?.Folio is not null
+                        && x?.OrdenEmbarque?.Orden?.BatchId is null).Sum(x => x.Volumen);
+
+                        var VolumenConsumido = ordenes.Where(x => x.CodPrd == item.CodPrd
+                        && x.Estatus is true
+                        && x?.OrdenEmbarque?.Folio is not null
+                        && x?.OrdenEmbarque?.Orden?.BatchId is not null).Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+
+                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+
+                        ProductoVolumen productoVolumen = new ProductoVolumen();
+                        productoVolumen.Nombre = item.Producto!.Den;
+                        productoVolumen.Disponible = VolumenTotalDisponible;
+                        productoVolumen.Congelado = VolumenCongelado;
+                        productoVolumen.Consumido = VolumenConsumido;
+
+                        volumen.Productos.Add(productoVolumen);
+                    }
+                    return Ok(volumen);
+                }
                 return Ok(volumen);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
                 throw;
+            }
+        }
+
+        [HttpPost("activo")]
+        public async Task<ActionResult> CheckCierreActivo([FromBody] OrdenCierre orden)
+        {
+            try
+            {
+                var producto = context.Producto.Find(orden.CodPrd);
+                var ordens = await context.OrdenCierre.Where(x=>x.FchCierre <= DateTime.Today && x.FchCierre  >= DateTime.Today.AddDays(-10))
+                    .Include(x=>x.Producto)
+                    .ToListAsync();
+                
+                foreach (var item in ordens)
+                {
+                    var volumenResult = await GetListadoVolumen(item.Folio);
+                    var volumen = volumenResult.Value;
+                    
+                    foreach (var item1 in volumen.Productos)
+                    {
+                        if(item1.Nombre == producto.Den)
+                        {
+                            if(item1.Disponible != 0)
+                            {
+                                return BadRequest("Aun tiene volumen disponible.");
+                            }
+                        }
+                    }
+                }
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }
