@@ -15,14 +15,14 @@
                 <div class="col-12 row mb-3">
                     <div class="col-12">
                         <b class="my-auto">
-                            Fulles: @(Math.Round(Convert.ToDouble(cierres.Sum(x => x.Volumen)) / 60000, 2)) |
-                            Fulles restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
-                            @foreach (var item in cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den))
+                            @if (volumenDisponible.Productos.Count > 0)
                             {
-                                <div>
-                                    @(item) - Fulles: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item)).Sum(x => x.Volumen)) / 60000, 2)) |
-                                    Fulles Restantes: @(Math.Round(Convert.ToDouble(cierres.Where(x => x.Producto.Den.Equals(item) && x.OrdenEmbarque.Folio is null).Sum(x => x.Volumen)) / 60000, 2))
-                                </div>
+                                @foreach (var item in volumenDisponible.Productos)
+                                {
+                                    <div class="col-12 row">
+                                        <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
+                                    </div>
+                                }
                             }
                         </b>
                     </div>
@@ -103,6 +103,8 @@
     List<Producto>? productos { get; set; }
 
     List<DetalleCierreDTO> detalleCierres { get; set; } = new List<DetalleCierreDTO>();
+    
+    VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
     private int? FullesRestantes { get; set; } = 0;
     private int? ProductosRestantes { get; set; } = 0;
@@ -150,13 +152,15 @@
             else
             {
                 cierres = response.Response;
-                foreach (var item in cierres)
+                var responseVolumen = await http.Get<VolumenDisponibleDTO>($"api/cierre/volumen/{folio}");
+                if (response.Error)
                 {
-                    if (item.OrdenEmbarque?.Folio == null)
-                    {
-                        FullesRestantes++;
-
-                    }
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    volumenDisponible = responseVolumen.Response;
                 }
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 
