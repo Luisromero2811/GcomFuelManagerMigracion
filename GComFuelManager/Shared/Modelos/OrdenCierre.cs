@@ -13,9 +13,9 @@ namespace GComFuelManager.Shared.Modelos
         public int Cod { get; set; }
         
         [JsonPropertyName("fchCierre"),EpplusIgnore]
-        public DateTime? FchCierre { get; set; } = DateTime.Now;
+        public DateTime? FchCierre { get; set; } = DateTime.Today;
         [JsonPropertyName("fchVencimiento"), EpplusIgnore]
-        public DateTime? FchVencimiento { get; set; } = DateTime.Now;
+        public DateTime? FchVencimiento { get; set; } = DateTime.Today;
 
         [DisplayName("Fecha de cierre"), NotMapped]
         public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
@@ -24,7 +24,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? BOL { get { return OrdenEmbarque is not null ? OrdenEmbarque.Orden is not null ? OrdenEmbarque.Orden.BatchId.ToString() : string.Empty : string.Empty; } }
 
         [DisplayName("Fecha de vencimiento"), NotMapped]
-        public string? FchVen { get { return FchVencimiento?.ToString("D"); } }
+        public string? FchVen { get { return FchVencimiento?.ToString("dd/MM/yyyy"); } }
 
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
@@ -96,7 +96,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? CodCon { get; set; }
 
         [JsonProperty("codPed"), EpplusIgnore]
-        public int? CodPed { get; set; }
+        public int? CodPed { get; set; } = 0;
 
         [EpplusIgnore, NotMapped]
         public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;

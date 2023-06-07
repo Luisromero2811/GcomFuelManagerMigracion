@@ -20,7 +20,7 @@ builder.Services.AddSingleton(sp => new HttpClient
 });
 ConfigureServices(builder.Services);
 
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 await builder.Build().RunAsync();
 void ConfigureServices(IServiceCollection services)
