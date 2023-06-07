@@ -279,5 +279,36 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
+        [HttpPost("historial")]
+        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] FechasF fechas)
+        {
+            try
+            {
+                List<PrecioHistorico> precios = new List<PrecioHistorico>();
+
+                precios = await context.PreciosHistorico
+                    .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Zona)
+                    .OrderBy(x => x.FchDia)
+                    .Take(1000)
+                    .ToListAsync();
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
+//var precios = await context.Precio
+//                  .Include(x => x.Zona)
+//                  .Include(x => x.Cliente)
+//                  .Include(x => x.Producto)
+//                  .Include(x => x.Destino)
+//                  .ToListAsync();
+
+//return Ok(precios);

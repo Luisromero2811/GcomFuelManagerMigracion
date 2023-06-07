@@ -20,6 +20,9 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("Fecha de cierre"), NotMapped]
         public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
 
+        [DisplayName("BOL")]
+        public string? BOL { get { return OrdenEmbarque is not null ? OrdenEmbarque.Orden is not null ? OrdenEmbarque.Orden.BatchId.ToString() : string.Empty : string.Empty; } }
+
         [DisplayName("Fecha de vencimiento"), NotMapped]
         public string? FchVen { get { return FchVencimiento?.ToString("dd/MM/yyyy"); } }
 

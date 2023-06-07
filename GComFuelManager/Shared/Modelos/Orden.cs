@@ -27,6 +27,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("vol"), EpplusIgnore]
         public double? Vol { get; set; } = null!;
+        //[JsonProperty("Volumen Cargado")]
         //public string Vols { get { return Vol.Value.ToString("N2"); } }
 
         [JsonProperty("fchcar")]
@@ -50,6 +51,7 @@ namespace GComFuelManager.Shared.Modelos
         //Double Formatter
         [JsonProperty("vol2"), EpplusIgnore]
         public double? Vol2 { get; set; } = null!;
+        //[JsonProperty("Volumen Natural")]
         public string Volumenes { get { return Vol2.Value.ToString("N2"); } }
 
         [JsonProperty("batchId")]

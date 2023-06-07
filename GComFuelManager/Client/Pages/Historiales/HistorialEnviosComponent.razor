@@ -207,21 +207,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-                {
-                    OrdenCompra = o?.OrdenCompra?.den,
-                    Referencia = o?.Folio.ToString(),
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    Volumen = o?.Vol,
-                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o?.Tonel?.Transportista?.Den,
-                    Unidad = o?.Tonel?.Veh,
-                    Compartimento = o?.Compartment,
-                    Operador = o?.Chofer?.Den,
-                    Bin = o?.Bin,
-                    Status = o?.Estado?.den
-                }, true);
+            {
+                OrdenCompra = o?.OrdenCompra?.den,
+                Referencia = o?.Folio.ToString(),
+                Cliente = o?.Destino?.Cliente?.Den,
+                Destino = o?.Destino?.Den,
+                Producto = o?.Producto?.Den,
+                Volumen = o?.Vol,
+                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                Transportista = o?.Tonel?.Transportista?.Den,
+                Unidad = o?.Tonel?.Veh,
+                Compartimento = o?.Compartment,
+                Operador = o?.Chofer?.Den,
+                Bin = o?.Bin,
+                Status = o?.Estado?.den
+            }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -233,7 +233,7 @@
         }
         else
         {
-            await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
+            await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
         }
     }
 
@@ -255,23 +255,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                    });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Actualizando Transportistas",
-                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Actualizando Transportistas",
+                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                        Duration = 15000
+                    });
 
                     loadingSend = true;
 
