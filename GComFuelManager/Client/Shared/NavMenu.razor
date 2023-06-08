@@ -21,7 +21,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte" Context="Configs">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes" Context="Configs">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -29,7 +29,7 @@
                     </div>
                 </Template>
                 <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes">
                         <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden" Selected=false>
                             <Template>
                                 <div class="text-white">
@@ -47,7 +47,7 @@
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
 
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="AsignarCliDest">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes" Context="AsignarCliDest">
                                     <RadzenPanelMenuItem Path="asignar-cliente-destino" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -66,10 +66,17 @@
                         <RadzenPanelMenuItem Path="configuracion-email" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
-                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo
+                                    <i class="fa fa-solid fa-envelope" aria-hidden="true"></i> Correo Interno
                                 </div>
                             </Template>
                         </RadzenPanelMenuItem>
+                        @*<RadzenPanelMenuItem Path="configuracion-emailcliente" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class=" fa fa-solid fa-at" aria-hidden="true"></i> Correo Clientes
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>*@
                     </AuthorizeView>
                 </ChildContent>
             </RadzenPanelMenuItem>

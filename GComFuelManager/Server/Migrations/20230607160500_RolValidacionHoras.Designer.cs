@@ -4,6 +4,7 @@ using GComFuelManager.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GComFuelManager.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230607160500_RolValidacionHoras")]
+    partial class RolValidacionHoras
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -709,7 +712,6 @@ namespace GComFuelManager.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Bolguiid")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
@@ -906,7 +908,7 @@ namespace GComFuelManager.Server.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Bolguidid")
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Codchf")
                         .HasColumnType("int");
@@ -973,8 +975,6 @@ namespace GComFuelManager.Server.Migrations
 
                     b.HasKey("Cod");
 
-                    b.HasIndex("Bolguidid");
-
                     b.HasIndex("Codchf");
 
                     b.HasIndex("Coddes");
@@ -990,27 +990,6 @@ namespace GComFuelManager.Server.Migrations
                     b.HasIndex("Codton");
 
                     b.ToTable("OrdenEmbarque");
-                });
-
-            modelBuilder.Entity("GComFuelManager.Shared.Modelos.OrdenPedido", b =>
-                {
-                    b.Property<int?>("Cod")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Cod"));
-
-                    b.Property<int?>("CodPed")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Folio")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Cod");
-
-                    b.HasIndex("CodPed");
-
-                    b.ToTable("OrdenPedido");
                 });
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Pipa", b =>
@@ -1762,11 +1741,6 @@ namespace GComFuelManager.Server.Migrations
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.OrdenEmbarque", b =>
                 {
-                    b.HasOne("GComFuelManager.Shared.Modelos.Orden", "Orden")
-                        .WithMany()
-                        .HasForeignKey("Bolguidid")
-                        .HasPrincipalKey("Bolguiid");
-
                     b.HasOne("GComFuelManager.Shared.Modelos.Chofer", "Chofer")
                         .WithMany()
                         .HasForeignKey("Codchf");
@@ -1807,8 +1781,6 @@ namespace GComFuelManager.Server.Migrations
 
                     b.Navigation("Estado");
 
-                    b.Navigation("Orden");
-
                     b.Navigation("OrdenCompra");
 
                     b.Navigation("Producto");
@@ -1816,15 +1788,6 @@ namespace GComFuelManager.Server.Migrations
                     b.Navigation("Tad");
 
                     b.Navigation("Tonel");
-                });
-
-            modelBuilder.Entity("GComFuelManager.Shared.Modelos.OrdenPedido", b =>
-                {
-                    b.HasOne("GComFuelManager.Shared.Modelos.OrdenEmbarque", "OrdenEmbarque")
-                        .WithMany()
-                        .HasForeignKey("CodPed");
-
-                    b.Navigation("OrdenEmbarque");
                 });
 
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Precio", b =>

@@ -47,8 +47,8 @@
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
                             IsLoading="loading" @ref="@grid" AllowSorting="true"  AllowColumnPicking="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
-                    <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="Contacto" Title="Nombres de contactos" Property="Nombre" OrderIndex="1" />
+                    <RadzenDataGridColumn TItem="Contacto" Title="Correos" Property="Correo" Width="200px" OrderIndex="2" />
                     <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
                         <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
                             <Template Context="item">
