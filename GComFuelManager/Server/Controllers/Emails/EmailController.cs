@@ -46,9 +46,14 @@ namespace GComFuelManager.Server.Controllers.Emails
             {
                 EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
                 int? VolumenTotal = 0;
-                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
-                emailContent.CC = cc;
 
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();               
+                var Cliwc = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault()!.CodCte && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                                                                        
+                emailContent.CC = cc;
+                emailContent.CC = Cliwc;
+
+                //Funcion para el volumen
                 IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
 
                 foreach (var item in cierresDistinc)
@@ -59,7 +64,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                     cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
                     VolumenTotal = 0;
                 }
-
+                //Formación y envió del correo
                 emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
                 emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
                 emailContent.Subject = "Confirmacion de compra";

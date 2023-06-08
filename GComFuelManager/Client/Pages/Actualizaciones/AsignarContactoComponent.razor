@@ -4,11 +4,11 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes")]
 
 <h4><b>Asignar Contacto</b></h4>
 <div class="col-12 d-flex justify-content-center">
-    <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador">
+    <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador, Correo de Clientes">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="BuscarContactos">*@
@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 @*</AuthorizeView>*@
-            <AuthorizeView Roles="Admin, Administrador Sistema" Context="AddContact">
+            <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="AddContact">
                 <div class="col-12 mb-3 row">
                     <div class="col-5">
                         <label class="form-label">Nombre</label>
@@ -66,7 +66,7 @@
         </div>
     </AuthorizeView>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador, Correo de Clientes">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
@@ -74,7 +74,7 @@
             <Columns>
                 <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
                 <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Acciones">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="Acciones">
                     <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
                         <Template Context="item">
                             <div class="col-12 ">
