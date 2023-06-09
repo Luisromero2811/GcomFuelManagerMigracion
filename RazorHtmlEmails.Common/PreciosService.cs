@@ -26,7 +26,7 @@ namespace RazorHtmlEmails.Common
             var message = new MimeMessage();
 
             message.From.Add(new MailboxAddress("Gcom Fuel Manager", "endpoint@gasamigas.com"));
-            message.To.Add(new MailboxAddress(content.Nombre, content.Email));
+            message.To.AddRange(content.ToList);
             message.Cc.AddRange(content.CC);
             message.Subject = content.Subject;
 

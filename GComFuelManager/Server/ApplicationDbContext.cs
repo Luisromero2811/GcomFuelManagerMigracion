@@ -209,6 +209,21 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.Bolguidid)
                 .HasPrincipalKey(x=>x.Bolguiid);
+
+            modelBuilder.Entity<AccionCorreo>()
+                .HasOne(x => x.Accion)
+                .WithMany()
+                .HasForeignKey(x => x.CodAccion);
+
+            modelBuilder.Entity<AccionCorreo>()
+                .HasOne(x => x.Contacto)
+                .WithMany()
+                .HasForeignKey(x => x.CodContacto);
+
+            modelBuilder.Entity<Contacto>()
+                .HasMany(x => x.AccionCorreos)
+                .WithOne(x=>x.Contacto)
+                .HasForeignKey(x => x.CodContacto);
         }
 
 
@@ -247,5 +262,8 @@ namespace GComFuelManager.Server
         public DbSet<Zona> Zona { get; set; }
         public DbSet<ZonaCliente> ZonaCliente { get; set; }
         public DbSet<OrdenPedido> OrdenPedido { get; set; }
+        public DbSet<Accion> Accion { get; set; }
+        public DbSet<AccionCorreo> AccionCorreo { get; set; }
+
     }
 }
