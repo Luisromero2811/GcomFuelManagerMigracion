@@ -23,5 +23,9 @@ namespace GComFuelManager.Shared.Modelos
         public bool Estado { get; set; } = true;
         [NotMapped]
         public Cliente? Cliente { get; set; } = null!;
+        [NotMapped]
+        public List<AccionCorreo>? AccionCorreos { get; set; } = null!;
+        [NotMapped]
+        public List<Accion>? Accions { get; set; } = null!;
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MimeKit;
 using MimeKit.Text;
 using RazorHtmlEmails.Common;
@@ -26,8 +27,8 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly IVencimientoService vencimientoService;
         private readonly IPreciosService preciosService;
 
-        public EmailController(ApplicationDbContext context, 
-            IRazorViewToStringRenderer razorView, 
+        public EmailController(ApplicationDbContext context,
+            IRazorViewToStringRenderer razorView,
             IRegisterAccountService registerAccount,
             IVencimientoService vencimientoService,
             IPreciosService preciosService)
@@ -46,9 +47,18 @@ namespace GComFuelManager.Server.Controllers.Emails
             {
                 EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
                 int? VolumenTotal = 0;
-                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
-                var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
-                    .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                //var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
+                //    .Include(x=>x.AccionCorreos)
+                //    .ThenInclude(x=>x.Accion)
+                //    .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
+                var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
+                && x.Accion.Nombre.Equals("Compra"))
+                    .Include(x => x.Accion)
+                    .Include(x => x.Contacto)
+                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                    .AsEnumerable();
+
                 emailContent.CC = cc;
 
                 //Funcion para el volumen
@@ -84,7 +94,7 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                var clientes = precios.DistinctBy(x => x.NombreCliente).Select(x=>x.codCte);
+                var clientes = precios.DistinctBy(x => x.NombreCliente).Select(x => x.codCte);
                 foreach (var item in clientes)
                 {
                     var list = precios.Where(x => x.codCte == item);
@@ -94,14 +104,22 @@ namespace GComFuelManager.Server.Controllers.Emails
                     var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
                     emailContent.CC = cc;
 
+                    var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == precios.FirstOrDefault().codCte && x.Contacto.Estado == true
+                        && x.Accion.Nombre.Equals("Precios"))
+                            .Include(x => x.Accion)
+                            .Include(x => x.Contacto)
+                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                            .AsEnumerable();
+
                     var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == precios.FirstOrDefault()!.codCte && x.Estado == true);
                     if (contacto is null)
                         return BadRequest("No tiene un contacto asignado");
 
-                    emailContent.Nombre = contacto.Nombre;
-                    emailContent.Email = contacto.Correo;
+                    //emailContent.Nombre = contacto.Nombre;
+                    //emailContent.Email = contacto.Correo;
                     emailContent.Subject = "Listado de precios del dia";
                     emailContent.Lista = list;
+                    emailContent.ToList = ToList;
 
                     await preciosService.NotifyPrecio(emailContent);
 
