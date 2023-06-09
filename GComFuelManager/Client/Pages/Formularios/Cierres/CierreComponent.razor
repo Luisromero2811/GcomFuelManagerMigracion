@@ -383,16 +383,16 @@
                                                         </button>
                                                     </div>
                                                 }
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
-                                                        <i class="fa fa-solid fa-file-excel"></i>
-                                                        <b>Exportar Cierres</b>
-                                                        @if (loadingExport)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
+                                        <div class="col-3 mx-2">
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                <i class="fa fa-solid fa-file-excel"></i>
+                                                <b>Exportar Cierres</b>
+                                                @if (loadingExport)
+                                                {
+                                                    <SpinnerLoading></SpinnerLoading>
+                                                }
+                                            </button>
+                                        </div>
                                             }
                                             else
                                             {
@@ -845,14 +845,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                        {
-                            Codprd = ordenCierre.CodPrd,
-                            Pre = ordenCierre.Precio,
-                            Vol = ordenCierre.Volumen,
-                            Coddes = ordenCierre.CodDes,
-                            Fchpet = DateTime.Now,
-                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                        };
+                    {
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                    };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -936,6 +936,54 @@
         }
     }
 
+    private async Task CancelPedido(OrdenCierre orden)
+    {
+        try
+        {
+            var confirm = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
+
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+
+                var responseEM = await http.Delete($"api/pedido/{orden.CodPed}/cancel");
+                if (responseEM.Error)
+                {
+                    var responseHttp = await responseEM.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    var response = await http.Delete($"api/cierre/{orden.Cod}/cancel");
+                    if (response.Error)
+                    {
+                        var responseHttp = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        await Swal.FireAsync("Cancelado", $"El registro ha sido cancelado.", SweetAlertIcon.Info);
+                        //ordenPendientes.Remove(orden.Cod);
+                        //await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
+                        //await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
+                        ordenCierres.Remove(orden);
+                        //await GetOrdenesPendientes();
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
     private async Task GetYears()
     {
         try

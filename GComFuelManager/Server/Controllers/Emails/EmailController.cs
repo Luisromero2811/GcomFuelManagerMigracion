@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -50,7 +50,9 @@ namespace GComFuelManager.Server.Controllers.Emails
                 var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
                     .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
                 emailContent.CC = cc;
+                emailContent.CC = Cliwc;
 
+                //Funcion para el volumen
                 IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
 
                 foreach (var item in cierresDistinc)
