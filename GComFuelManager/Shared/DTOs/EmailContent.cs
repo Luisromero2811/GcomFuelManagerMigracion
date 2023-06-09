@@ -19,6 +19,7 @@ namespace GComFuelManager.Shared.DTOs
 
         public string Body { get; set; } = string.Empty;
         public IEnumerable<MailboxAddress>? CC { get; set; } = null!;
+        public IEnumerable<MailboxAddress>? ToList { get; set; } = null!;
         public IEnumerable<T>? Lista { get; set; } = null!;
     }
 }
