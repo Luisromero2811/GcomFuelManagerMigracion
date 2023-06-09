@@ -40,5 +40,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? CodCte { get; set; } = string.Empty;
         [JsonProperty("consecutivo")]
         public int? Consecutivo { get;set; } = 0;
+        [JsonProperty("activo")]
+        public bool? Activo { get; set; } = true;
     }
 }

@@ -155,6 +155,34 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                {
+                    return BadRequest();
+                }
+
+                var cliente = context.Cliente.Where(x => x.Cod == cod).FirstOrDefault();
+                if (cliente == null)
+                {
+                    return NotFound();
+                }
+                cliente.Activo = status;
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [Route("service")]
         [HttpGet]
         public async Task<ActionResult> GetClienteService()

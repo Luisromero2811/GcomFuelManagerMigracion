@@ -34,11 +34,11 @@
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                     @*<Template>
-                                    @((context as CodDenDTO)?.Den)
-                                    </Template>
-                                    <ValueTemplate>
-                                    @((context as CodDenDTO)?.Den)
-                                    </ValueTemplate>*@
+                                        @((context as CodDenDTO)?.Den)
+                                        </Template>
+                                        <ValueTemplate>
+                                        @((context as CodDenDTO)?.Den)
+                                        </ValueTemplate>*@
                                 </RadzenDropDown>
                             </div>
                         </AuthorizeView>
@@ -73,6 +73,16 @@
                         IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
+                <RadzenDataGridColumn TItem="CodDenDTO" Title="Habilitar / Deshabilitar" OrderIndex="2">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                       @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                            </div>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -184,4 +194,48 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task HabilitarDeshabilitar(CodDenDTO codDenDTO, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await http.Put<bool>($"api/destino/{codDenDTO.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                gridDestino?.Reload();
+                if (status)
+                {
+                    await Message($"{codDenDTO.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{codDenDTO.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message});
+    }
+
 }
