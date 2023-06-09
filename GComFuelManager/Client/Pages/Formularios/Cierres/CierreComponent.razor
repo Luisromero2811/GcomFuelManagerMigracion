@@ -173,7 +173,7 @@
                                             <div class="col-12 my-auto d-flex">
                                                 <RadzenCheckBox @bind-Value=@IsCierreVolumen Name="CheckBox2" class="me-2" />
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipCierreVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                                    <label for="CheckBox1">
+                                                    <label for="CheckBox2">
                                                         Cierre por volumen
                                                         <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
@@ -427,64 +427,22 @@
 
 
         <div class="col-12 d-flex justify-content-center row">
-            @if (ordenCierres.Count != 0)
-            {
-                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
-                    <Authorized>
-                        <div class="col-12 d-flex justify-content-start my-2 row">
-                            <div class="col-4">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearList">
-                                    <i class="fa-solid fa-broom"></i> Limpiar Lista
-                                </button>
-                            </div>
-                            <div class="col-4">
-                                @if (AddDaysExpiration is false)
-                                {
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@SetFchVencimiento">
-                                        Cambiar Vencimiento
-                                    </button>
-                                }
-                                else
-                                {
-                                    <div class="col-12 row">
-                                        <div class="col-6">
-                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@ordenCierre.FchCierre"
-                                                      Max="@ordenCierre.FchVencimiento?.AddDays(2)"></RadzenDatePicker>
-                                        </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
-                                                <i class="fa fa-solid fa-check"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
-                                                <i class="fa fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                }
-                            </div>
-                            @if (isFilter is true && ordenCierres.Count > 0)
-                            {
-                                @if (volumenDisponible.Productos.Count > 0)
-                                {
-                                    @foreach (var item in volumenDisponible.Productos)
-                                    {
-                                        <div class="col-12 row">
-                                            <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
-                                        </div>
-                                    }
-                                }
-                            }
-                        </div>
-                    </Authorized>
-                </AuthorizeView>
-
-            }
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-2 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
                 <Columns>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false">
+                        <Template Context="data">
+                            @if (data.Activa is true)
+                            {
+                                <div class="col-12">
+                                    <button class="col-6 btn gcom-bg-amarillo" @onclick="@(()=>CloseOrden(data.Cod))">
+                                        <i class="fa-solid fa-unlock"></i>
+                                    </button>
+                                </div>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
@@ -529,6 +487,68 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
             </RadzenDataGrid>
+
+            @if (ordenCierres.Count != 0)
+            {
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
+                    <Authorized>
+                        @if (isFilter is true && ordenCierres.Count > 0)
+                        {
+                            @if (volumenDisponible.Productos.Count > 0)
+                            {
+                                <div class="col-12 row">
+                                    @foreach (var item in volumenDisponible.Productos)
+                                    {
+                                        <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
+                                    }
+                                </div>
+                            }
+                        }
+
+                        <div class="col-12 d-flex justify-content-start my-2 row">
+                            <div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearList">
+                                    <i class="fa-solid fa-broom"></i> Limpiar Lista
+                                </button>
+                            </div>
+                            <div class="col-4">
+                                @if (AddDaysExpiration is false)
+                                {
+                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@SetFchVencimiento">
+                                        Cambiar Vencimiento
+                                    </button>
+                                }
+                                else
+                                {
+                                    <div class="col-12 row">
+                                        <div class="col-6">
+                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@ordenCierre.FchCierre"
+                                                      Max="@ordenCierre.FchVencimiento?.AddDays(2)"></RadzenDatePicker>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
+                                                <i class="fa fa-solid fa-check"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                <i class="fa fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>ClosePedido(filtro.Folio))">
+                                    <i class="fa-solid fa-unlock"></i> Cerrar pedido
+                                </button>
+                            </div>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+
+            }
+
         </div>
     </Authorized>
 </AuthorizeView>
@@ -967,7 +987,7 @@
                     else
                     {
                         ordenCierres = response.Response;
-                        var responseVolumen = await http.Get<VolumenDisponibleDTO>($"api/cierre/volumen/{filtro.Folio}");
+                        var responseVolumen = await http.Post<CierreFiltroDTO,VolumenDisponibleDTO>($"api/cierre/volumen",filtro);
                         if (response.Error)
                         {
                             var message = await response.ObtenerMensajeError();
@@ -1039,22 +1059,29 @@
         {
             if (ordenCierres.Count > 0)
             {
-                loadingSend = true;
-
-
-                var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
-                if (response.Error)
+                if(ordenCierres.DistinctBy(x=>x.Folio).Count() == 1)
                 {
-                    loadingSend = false;
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    loadingSend = true;
+
+
+                    var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loadingSend = false;
+                        await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
+                        ordenCierres = new List<OrdenCierre>();
+                        ordenCierre = new OrdenCierre();
+                    }
                 }
                 else
                 {
-                    loadingSend = false;
-                    await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
-                    ordenCierres = new List<OrdenCierre>();
-                    ordenCierre = new OrdenCierre();
+                    await Swal.FireAsync("Alerta", "Se encontraron mas de un folio en el listado de ordenes. Filtre solo uno para poder enviar el correo.", SweetAlertIcon.Warning);
                 }
             }
             else
@@ -1166,52 +1193,61 @@
     {
         try
         {
-            if (string.IsNullOrEmpty(ordenCierre.Folio))
+            var responseActivo = await http.Post<OrdenCierre, bool>($"api/cierre/activo", ordenCierre);
+            if (responseActivo.Error)
             {
-                if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
-                {
-
-                    var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
-                    if (!string.IsNullOrEmpty(r.Value))
-                    {
-                        ordenCierres = new List<OrdenCierre>();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-
-                if (IsClient)
-                    ordenCierre.CodCte = user.CodCte;
-
-                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Cliente = response.Response;
-                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
-
-                    await PutClientes();
-                    await CreateCierre();
-                }
+                var message = await responseActivo.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                await CreateCierre();
+                if (string.IsNullOrEmpty(ordenCierre.Folio))
+                {
+                    if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
+                    {
+
+                        var r = await Swal.FireAsync(new SweetAlertOptions
+                            {
+                                Title = "Agregar pedido",
+                                Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                                Icon = SweetAlertIcon.Warning,
+                                CancelButtonText = "Cancelar",
+                                ConfirmButtonText = "Aceptar",
+                                ShowCancelButton = true
+                            });
+                        if (!string.IsNullOrEmpty(r.Value))
+                        {
+                            ordenCierres = new List<OrdenCierre>();
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+
+                    if (IsClient)
+                        ordenCierre.CodCte = user.CodCte;
+
+                    var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+                    if (response.Error)
+                    {
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        Cliente = response.Response;
+                        Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                        ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+
+                        await PutClientes();
+                        await CreateCierre();
+                    }
+                }
+                else
+                {
+                    await CreateCierre();
+                }
             }
         }
         catch (Exception e)
@@ -1409,6 +1445,52 @@
             {
                 ordenCierres = response.Response;
                 await Swal.FireAsync("Exito", "Fecha de vencimiento modificada", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ClosePedido(string folio)
+    {
+        try
+        {
+
+            var response = await http.Delete($"api/cierre/cerrar/pedido/{folio}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "El pedido ha sido cerrado", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task CloseOrden(int folio)
+    {
+        try
+        {
+
+            var response = await http.Delete($"api/cierre/cerrar/orden/{folio}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "El pedido ha sido cerrado", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
