@@ -448,7 +448,16 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" >
+                        <FilterTemplate Context="Destinos">
+                            <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data?.Destino?.Den
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -627,6 +636,9 @@
     private int? DestinoSeleccionado = 0;
     private int? VolumenTotal = 0;
     private byte? CodProductoSeleccionado = 0;
+
+    private string DestinosSeleccionado = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string?> ProductList { get; set; } = new List<string>();
@@ -1062,6 +1074,7 @@
                             volumenDisponible = responseVolumen.Response;
                         }
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                        DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     }
                 }
             }
@@ -1271,14 +1284,14 @@
                     {
 
                         var r = await Swal.FireAsync(new SweetAlertOptions
-                            {
-                                Title = "Agregar pedido",
-                                Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                                Icon = SweetAlertIcon.Warning,
-                                CancelButtonText = "Cancelar",
-                                ConfirmButtonText = "Aceptar",
-                                ShowCancelButton = true
-                            });
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
                         if (!string.IsNullOrEmpty(r.Value))
                         {
                             ordenCierres = new List<OrdenCierre>();

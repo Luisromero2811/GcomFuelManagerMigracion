@@ -171,7 +171,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" FilterValue="DestinosSeleccionado" OrderIndex="5">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" FilterValue="DestinosSeleccionado" OrderIndex="6">
                     <FilterTemplate Context="Destinos">
                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
                     </FilterTemplate>
@@ -181,7 +181,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" FilterValue="ProductosSeleccionado" OrderIndex="6">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" FilterValue="ProductosSeleccionado" OrderIndex="7">
                     <FilterTemplate Context="Productos">
                         <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true"></RadzenDropDown>
                     </FilterTemplate>
@@ -191,7 +191,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" FormatString="{0:N2}" Filterable="false" OrderIndex="8">
                     <Template Context="data">
                         <div class="col-12">
                             @string.Format("{0:N2}",
@@ -204,25 +204,25 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Filterable="false" Width="200px" OrderIndex="8" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" Filterable="false" OrderIndex="9" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" Filterable="false" OrderIndex="10">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Filterable="false" Width="200px" OrderIndex="9" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" Filterable="false" OrderIndex="10" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" Filterable="false" OrderIndex="11">
                     <Template Context="data">
                         <div class="col-12">
                             @data?.Tonel?.Tracto @data?.Tonel?.Placa
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Filterable="false" Width="200px" OrderIndex="11" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" Filterable="false" OrderIndex="12">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Filterable="false" Width="200px" OrderIndex="12" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" Filterable="false" OrderIndex="13">
                     <Template Context="data">
                         <div class="col-12">
                             @data?.Chofer?.Den @data?.Chofer?.Shortden
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Filterable="false" Width="200px" OrderIndex="13" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Filterable="false" Width="200px" OrderIndex="14" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Filterable="false" Width="200px" OrderIndex="14" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Filterable="false" Width="200px" OrderIndex="15" />
             </Columns>
         </RadzenDataGrid>
     </div>

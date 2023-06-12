@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
@@ -33,7 +33,6 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
         [JsonProperty("compartment")] public int? Compartment { get; set; } = 1;
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
-
 
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; }
