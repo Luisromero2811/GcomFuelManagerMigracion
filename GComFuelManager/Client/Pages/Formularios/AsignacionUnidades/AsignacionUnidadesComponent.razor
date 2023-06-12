@@ -160,6 +160,7 @@
                     </RadzenDataGridColumn>
                 </AuthorizeView>
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" Filterable="false" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="200px" Frozen="true" Filterable="false" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" FilterValue="ClienteSeleccionado" OrderIndex="4">
                     <FilterTemplate Context="filter">
                         <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -194,10 +195,10 @@
                     <Template Context="data">
                         <div class="col-12">
                             @string.Format("{0:N2}",
-                            data?.Compartment == 1 ? data?.Tonel?.Capcom
-                            : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 ? data?.Tonel?.Capcom3
-                            : data?.Compartment == 4 ? data?.Tonel?.Capcom4
+                            data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
+                            : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
+                            : data?.Compartment == 3 && data.Tonel is not null ? data?.Tonel?.Capcom3
+                            : data?.Compartment == 4 && data.Tonel is not null ? data?.Tonel?.Capcom4
                             : data?.Vol
                             )
                         </div>
