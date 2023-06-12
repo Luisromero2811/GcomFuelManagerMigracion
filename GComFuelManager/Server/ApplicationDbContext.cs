@@ -24,10 +24,17 @@ namespace GComFuelManager.Server
                     .HasOne(x => x.Destino)
                     .WithMany()
                     .HasForeignKey(x => x.Coddes);
+            //Destino
             modelBuilder.Entity<Destino>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.Codcte);
+            //OrdenCierre
+
+            //modelBuilder.Entity<OrdenEmbarque>()
+            //    .HasOne(x => x.OrdenCierre)
+            //    .WithOne(x => x.OrdenEmbarque)
+            //    .HasForeignKey<OrdenCierre>(x => x.CodPed);
 
             //Terminal
             modelBuilder.Entity<OrdenEmbarque>()

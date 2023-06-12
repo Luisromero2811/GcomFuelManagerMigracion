@@ -111,8 +111,7 @@
                         <label>Roles:</label>
                         <!--Selector multiple de Radzen-->
                         <RadzenDropDown @bind-Value="usuarioSeleccionado.FirstOrDefault()!.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
-                                        Multiple=true AllowClear=true Placeholder="Seleccione los roles" Chips=true class="col-12">
-                        </RadzenDropDown>
+                                        Multiple=true Placeholder="Seleccione los roles" Chips=true class="col-12" />
                     </div>
                 </div>
 
@@ -136,11 +135,11 @@
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center mb-2">
         <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Single"
-                        GridLines="DataGridGridLines.Both" Style="height:500px;" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
+                        GridLines="DataGridGridLines.Both" Style="height:500px;" class="mb-3" @bind-Value="@usuarioSeleccionado" ColumnResized="@(()=>grid.Reset())"
                         IsLoading="@loadingEdit" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true">
             <Columns>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px"  />
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px"  />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" />
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="WatchPassword">
                     <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px">
                         <Template Context="user">
@@ -154,13 +153,19 @@
                         </Template>
                     </RadzenDataGridColumn>
                 </AuthorizeView>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px" >
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Roles" Width="200px">
                     <Template Context="data">
-                        @foreach (var i in data.Roles)
+                        @if (usuarioSeleccionado.Count == 1)
                         {
-                            <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
-                                @i
-                            </RadzenBadge>
+                            @foreach (var i in data.Roles)
+                            {
+                                <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light" Width="20px">
+                                    @if (usuarioSeleccionado.Count == 1)
+                                    {
+                                        @i
+                                    }
+                                </RadzenBadge>
+                            }
                         }
                     </Template>
                 </RadzenDataGridColumn>

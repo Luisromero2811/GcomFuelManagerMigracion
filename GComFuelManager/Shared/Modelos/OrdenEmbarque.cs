@@ -34,7 +34,6 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("compartment")] public int? Compartment { get; set; } = 1;
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
 
-
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; }
         [NotMapped] public Producto? Producto { get; set; }
@@ -50,6 +49,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Orden? Orden { get; set; } = null!;
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
+
+        [EpplusIgnore, NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
 
     }
 }
