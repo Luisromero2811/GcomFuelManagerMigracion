@@ -1,7 +1,9 @@
-﻿using GComFuelManager.Shared.Modelos;
+﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -24,7 +26,7 @@ namespace GComFuelManager.Server.Controllers.Contactos
         {
             try
             {
-                var contactos = context.Contacto.Where(x => x.CodCte == cod).OrderBy(x => x.Nombre).AsEnumerable();
+                var contactos = await context.Contacto.Where(x => x.CodCte == cod).Include(x => x.AccionCorreos).ThenInclude(x => x.Accion).ToListAsync();
 
                 return Ok(contactos);
             }
@@ -63,6 +65,17 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 context.Add(contacto);
                 await context.SaveChangesAsync();
 
+                foreach (var item in contacto.Accions)
+                {
+                    AccionCorreo accionCorreo = new AccionCorreo();
+
+                    accionCorreo.CodAccion = item.Cod;
+                    accionCorreo.CodContacto = contacto.Cod;
+                    context.Add(accionCorreo);
+                }
+
+                await context.SaveChangesAsync();
+
                 return Ok();
             }
             catch (Exception e)
@@ -78,6 +91,26 @@ namespace GComFuelManager.Server.Controllers.Contactos
             {
                 if (contacto == null)
                     return BadRequest();
+
+                var acciones = context.AccionCorreo.Where(x => x.CodContacto == contacto.Cod).ToList();
+
+                if (acciones.Count > 0)
+                    context.RemoveRange(acciones);
+
+                await context.SaveChangesAsync();
+
+                foreach (var item in contacto.Accions)
+                {
+                    AccionCorreo accionCorreo = new AccionCorreo();
+
+                    accionCorreo.CodAccion = item.Cod;
+                    accionCorreo.CodContacto = contacto.Cod;
+                    context.Add(accionCorreo);
+                }
+
+                await context.SaveChangesAsync();
+
+                contacto.AccionCorreos = null!;
 
                 context.Update(contacto);
                 await context.SaveChangesAsync();

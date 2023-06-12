@@ -96,14 +96,14 @@
 
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
-
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO(); 
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
     List<OrdenCierre>? cierres { get; set; }
     List<Producto>? productos { get; set; }
 
     List<DetalleCierreDTO> detalleCierres { get; set; } = new List<DetalleCierreDTO>();
-    
+
     VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
     private int? FullesRestantes { get; set; } = 0;
@@ -152,7 +152,11 @@
             else
             {
                 cierres = response.Response;
-                var responseVolumen = await http.Get<VolumenDisponibleDTO>($"api/cierre/volumen/{folio}");
+                
+                filtro.Folio = folio;
+                filtro.forFolio = true;
+
+                var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
@@ -50,7 +50,6 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
 
-        [EpplusIgnore, NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
-
+        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
     }
 }
