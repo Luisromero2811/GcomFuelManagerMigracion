@@ -90,6 +90,49 @@ namespace GComFuelManager.Server.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Accion", b =>
+                {
+                    b.Property<short?>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short?>("Cod"));
+
+                    b.Property<bool>("Estatus")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Cod");
+
+                    b.ToTable("Accion");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.AccionCorreo", b =>
+                {
+                    b.Property<int?>("Cod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Cod"));
+
+                    b.Property<short?>("CodAccion")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("CodContacto")
+                        .HasColumnType("int");
+
+                    b.HasKey("Cod");
+
+                    b.HasIndex("CodAccion");
+
+                    b.HasIndex("CodContacto");
+
+                    b.ToTable("AccionCorreo");
+                });
+
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Actividad", b =>
                 {
                     b.Property<int>("Cod")
@@ -877,7 +920,9 @@ namespace GComFuelManager.Server.Migrations
 
                     b.HasIndex("CodDes");
 
-                    b.HasIndex("CodPed");
+                    b.HasIndex("CodPed")
+                        .IsUnique()
+                        .HasFilter("[CodPed] IS NOT NULL");
 
                     b.HasIndex("CodPrd");
 
@@ -1658,6 +1703,23 @@ namespace GComFuelManager.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.AccionCorreo", b =>
+                {
+                    b.HasOne("GComFuelManager.Shared.Modelos.Accion", "Accion")
+                        .WithMany()
+                        .HasForeignKey("CodAccion");
+
+                    b.HasOne("GComFuelManager.Shared.Modelos.Contacto", "Contacto")
+                        .WithMany("AccionCorreos")
+                        .HasForeignKey("CodContacto")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accion");
+
+                    b.Navigation("Contacto");
+                });
+
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Cliente", b =>
                 {
                     b.HasOne("GComFuelManager.Shared.Modelos.Grupo", null)
@@ -1752,8 +1814,8 @@ namespace GComFuelManager.Server.Migrations
                         .HasForeignKey("CodDes");
 
                     b.HasOne("GComFuelManager.Shared.Modelos.OrdenEmbarque", "OrdenEmbarque")
-                        .WithMany()
-                        .HasForeignKey("CodPed");
+                        .WithOne("OrdenCierre")
+                        .HasForeignKey("GComFuelManager.Shared.Modelos.OrdenCierre", "CodPed");
 
                     b.HasOne("GComFuelManager.Shared.Modelos.Producto", "Producto")
                         .WithMany()
@@ -1989,9 +2051,19 @@ namespace GComFuelManager.Server.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.Contacto", b =>
+                {
+                    b.Navigation("AccionCorreos");
+                });
+
             modelBuilder.Entity("GComFuelManager.Shared.Modelos.Grupo", b =>
                 {
                     b.Navigation("Clientes");
+                });
+
+            modelBuilder.Entity("GComFuelManager.Shared.Modelos.OrdenEmbarque", b =>
+                {
+                    b.Navigation("OrdenCierre");
                 });
 #pragma warning restore 612, 618
         }

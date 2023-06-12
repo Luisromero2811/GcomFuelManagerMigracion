@@ -5,19 +5,20 @@
 namespace GComFuelManager.Server.Migrations
 {
     /// <inheritdoc />
-    public partial class NewVigenciaRol : Migration
+    public partial class NewRolVigenciaAut : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"insert into AspNetRoles (Id, Name, NormalizedName)
-            values('8223408e-0935-48ad-a3c3-d11d9a76af66','Autorizador Vigencia Pedidos Completo','AUTORIZADOR VIGENCIA COMPLETO')");
+            values('de975e32-997f-49a2-9283-c17922026a17', 'Autorizador Vigencia Completo', 'AUTORIZADOR VIGENCIA COMPLETO')");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("delete AspNetRoles where Id = '8223408e-0935-48ad-a3c3-d11d9a76af66'");
+            migrationBuilder.Sql("delete AspNetRoles where Id = 'de975e32-997f-49a2-9283-c17922026a17'");
         }
     }
 }
+//de975e32-997f-49a2-9283-c17922026a17
