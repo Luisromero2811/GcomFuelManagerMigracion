@@ -257,9 +257,12 @@
                     @*Volumen: @(volumenDisponible.VolumenTotal.ToString("N2"))*@
                     @foreach (var item in volumenDisponible.Productos)
                     {
-                        <div class="col-12 row">
-                            <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
-                        </div>
+                        @if (!string.IsNullOrEmpty(item.Nombre))
+                        {
+                            <div class="col-12 row">
+                                <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
+                            </div>
+                        }
                     }
                 </b>
             </div>
@@ -836,7 +839,10 @@
                 if (response.Response.FirstOrDefault()!.CodPed == 0)
                 {
                     IsCierreVolumen = true;
-                    var responseVolumen = await http.Get<VolumenDisponibleDTO>($"api/cierre/volumen/{filtro.Folio}");
+
+                    filtro.forFolio = true;
+
+                    var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
                     if (response.Error)
                     {
                         var message = await response.ObtenerMensajeError();

@@ -522,8 +522,24 @@
                                 {
                                     <div class="col-12 row">
                                         <div class="col-6">
-                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@ordenCierre.FchCierre"
-                                                      Max="@ordenCierre.FchVencimiento?.AddDays(2)"></RadzenDatePicker>
+                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
+                                                      Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
+                                                <i class="fa fa-solid fa-check"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-3">
+                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                <i class="fa fa-solid fa-xmark"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 row">
+                                        <div class="col-6">
+                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
                                         </div>
                                         <div class="col-3">
                                             <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
@@ -1421,7 +1437,7 @@
             }
 
             var fch = ordenCierres.FirstOrDefault();
-            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(8) : fch.FchVencimiento;
+            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
             fchVencimiento.Folio = ordenCierres.FirstOrDefault().Folio;
             AddDaysExpiration = true;
         }

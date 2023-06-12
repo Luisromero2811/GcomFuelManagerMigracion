@@ -51,5 +51,6 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
 
+        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
     }
 }

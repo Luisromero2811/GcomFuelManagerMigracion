@@ -588,7 +588,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x!.Orden).ToList();
 
-                        foreach (var item in ordenes.DistinctBy(x => x.Producto!.Den))
+                        foreach (var item in ordenes.DistinctBy(x => x.Producto?.Den))
                         {
                             var VolumenDisponible = ordenes.Where(x => x.CodPrd == item.CodPrd && x.Estatus is true).Sum(x => x.Volumen);
 
@@ -605,7 +605,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
-                            productoVolumen.Nombre = item.Producto!.Den;
+                            productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
                             productoVolumen.Congelado = VolumenCongelado;
                             productoVolumen.Consumido = VolumenConsumido;
