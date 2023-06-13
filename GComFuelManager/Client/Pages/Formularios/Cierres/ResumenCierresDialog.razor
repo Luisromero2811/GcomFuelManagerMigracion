@@ -24,24 +24,27 @@
                         </tr>
                         <tr>
                             <th scope="row">Comprador: </th>
-                            <td>@cierre.Cliente!.Den</td>
+                            <td>@cierre.Cliente?.Den</td>
                         </tr>
-                        <tr>
-                            <th scope="row">Contacto: </th>
-                            <td>@cierre.ContactoN!.Nombre</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Correo: </th>
-                            <td>@cierre.ContactoN!.Correo</td>
-                        </tr>
+                        @if (cierre.ContactoN is not null)
+                        {
+                            <tr>
+                                <th scope="row">Contacto: </th>
+                                <td>@cierre.ContactoN?.Nombre</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Correo: </th>
+                                <td>@cierre.ContactoN?.Correo</td>
+                            </tr>
+                        }
                         <tr>
                             <th scope="row">Producto: </th>
-                            <td>@cierre.Producto!.Den</td>
+                            <td>@cierre.Producto?.Den</td>
                         </tr>
                         <tr>
                             <th scope="row">Volumen Aprox. Litros: </th>
                             <td>
-                                @cierre.Volumen.Value.ToString("N2") Litros
+                                @cierre.Volumen?.ToString("N2") Litros
                             </td>
                         </tr>
                         <tr>
