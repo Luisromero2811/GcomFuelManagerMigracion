@@ -3,6 +3,7 @@ using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
 using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -47,4 +48,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddSingleton(new CultureInfo("es-Mx"));
     services.AddScoped<OrdenCierreAdminValidation>();
     services.AddScoped<OrdenCierreClientValidation>();
+    services.AddScoped<PedidoOrdenValidation>();
+    services.AddScoped<OrdenEmbarqueValidation>();
+    services.AddScoped<AsignacionUnidadValidation>();
 }

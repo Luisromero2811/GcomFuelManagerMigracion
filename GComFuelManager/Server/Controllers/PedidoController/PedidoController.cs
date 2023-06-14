@@ -534,54 +534,62 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPost("cierre/{folio}")]
-        public async Task<ActionResult> PostPedidoVolumen([FromBody] OrdenEmbarque orden, [FromRoute] string folio)
+        [HttpPost("cierre/{folio?}")]
+        public async Task<ActionResult> PostPedidoVolumen([FromBody] OrdenEmbarque orden, [FromRoute] string? folio)
         {
             try
             {
 
-                var cierres = context.OrdenCierre.Where(x => x.Folio!.Equals(folio)).ToList();
-                if (cierres is null)
-                    return BadRequest("No existe el cierre.");
-
-                var pedidos = context.OrdenPedido.Where(x => x.Folio!.Equals(folio)).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToList();
-
-                var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
-                if (user == null)
-                    return NotFound();
-
-                if (cierres.Any(x => x.CodPrd == orden.Codprd))
+                if (string.IsNullOrEmpty(folio))
                 {
-
-                    var volumenDisponible = cierres.Where(x => x.CodPrd == orden.Codprd).Sum(x => x.Volumen);
-                    
-                    var volumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == orden.Codprd 
-                    && x.Folio is not null
-                    && x.OrdenEmbarque?.Orden is null)
-                        .Sum(x => x.OrdenEmbarque?.Vol);
-                    
-                    var volumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Codprd == orden.Codprd
-                    && x.Folio is not null
-                    && x.OrdenEmbarque?.Orden?.BatchId is not null)
-                        .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
-                    
-                    var volumenDisponibleTotal = volumenDisponible - (volumenConsumido + volumenCongelado);
-
-                    if (volumenDisponibleTotal < orden.Vol)
-                    {
-                        return BadRequest("No hay suficiente volumen disponible");
-                    }
+                    await Post(orden);
+                    return Ok(orden);
                 }
+                else
+                {
+                    var cierres = context.OrdenCierre.Where(x => x.Folio!.Equals(folio)).ToList();
+                    if (cierres is null)
+                        return BadRequest("No existe el cierre.");
 
-                orden.Codusu = user!.Cod;
-                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.Coddes);
-                orden.Tad = await context.Tad.FirstOrDefaultAsync(x => x.Cod == orden.Codtad);
-                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.Codprd);
-                orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
+                    var pedidos = context.OrdenPedido.Where(x => x.Folio!.Equals(folio)).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToList();
 
-                context.Add(orden);
-                await context.SaveChangesAsync();
-                return Ok(orden);
+                    var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+                    if (user == null)
+                        return NotFound();
+
+                    if (cierres.Any(x => x.CodPrd == orden.Codprd))
+                    {
+
+                        var volumenDisponible = cierres.Where(x => x.CodPrd == orden.Codprd).Sum(x => x.Volumen);
+
+                        var volumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == orden.Codprd
+                        && x.Folio is not null
+                        && x.OrdenEmbarque?.Orden is null)
+                            .Sum(x => x.OrdenEmbarque?.Vol);
+
+                        var volumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Codprd == orden.Codprd
+                        && x.Folio is not null
+                        && x.OrdenEmbarque?.Orden?.BatchId is not null)
+                            .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+
+                        var volumenDisponibleTotal = volumenDisponible - (volumenConsumido + volumenCongelado);
+
+                        if (volumenDisponibleTotal < orden.Vol)
+                        {
+                            return BadRequest("No hay suficiente volumen disponible");
+                        }
+                    }
+
+                    orden.Codusu = user!.Cod;
+                    orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.Coddes);
+                    orden.Tad = await context.Tad.FirstOrDefaultAsync(x => x.Cod == orden.Codtad);
+                    orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.Codprd);
+                    orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
+
+                    context.Add(orden);
+                    await context.SaveChangesAsync();
+                    return Ok(orden);
+                }
             }
             catch (Exception e)
             {
