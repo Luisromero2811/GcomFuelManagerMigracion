@@ -6,6 +6,8 @@
 @inject NotificationService ms
 @inject DialogService ds
 @inject TooltipService ts
+@inject OrdenCierreAdminValidation validation
+@inject OrdenCierreClientValidation clientValidation
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="VISTA">
     <Authorized>
@@ -150,9 +152,19 @@
                         <div class="col-12 card shadow-sm">
                             <div class="col-12 card-body">
                                 <h4><b>Crear cierre</b></h4>
-                                <EditForm Model="ordenCierre" class="form col-12">
-                                    <DataAnnotationsValidator />
-
+                                <EditForm Model="ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
+                                    @*<DataAnnotationsValidator />*@
+                                    <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
+                                        <Authorized>
+                                            <FluentValidationValidator @ref="_fluentValidationValidator" Validator="validation"/>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <AuthorizeView Context="Validation" Roles="Comprador">
+                                        <Authorized>
+                                            <FluentValidationValidator @ref="_fluentValidationValidator" Validator="clientValidation" />
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <ValidationSummary />
                                     <div class="col-12 row">
 
                                         <div class="col-4 mb-1">
@@ -363,7 +375,7 @@
                                                 @if (monthFilter == false)
                                                 {
                                                     <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GetFolio">
+                                                        <button class="btn gcom-bg-amarillo col-12" type="submit">
                                                             <i class="fa fa-solid fa-plus"></i>
                                                             <b>Crear cierre</b>
                                                             @if (loadingCreate)
@@ -672,6 +684,8 @@
     int width = 0;
     string TotalWidth = string.Empty;
 
+    private FluentValidationValidator? _fluentValidationValidator;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -878,14 +892,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                        {
+                            Codprd = ordenCierre.CodPrd,
+                            Pre = ordenCierre.Precio,
+                            Vol = ordenCierre.Volumen,
+                            Coddes = ordenCierre.CodDes,
+                            Fchpet = DateTime.Now,
+                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                        };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -974,13 +988,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {

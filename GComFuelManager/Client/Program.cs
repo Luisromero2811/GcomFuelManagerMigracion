@@ -1,6 +1,7 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
+using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -44,5 +45,6 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<RenovadorToken>();
     services.AddSingleton(new CultureInfo("es-Mx"));
-
+    services.AddScoped<OrdenCierreAdminValidation>();
+    services.AddScoped<OrdenCierreClientValidation>();
 }
