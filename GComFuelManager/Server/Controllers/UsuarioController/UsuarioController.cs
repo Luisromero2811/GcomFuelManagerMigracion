@@ -209,6 +209,7 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 return BadRequest(e);
             }
         }
+
     }
 }
 

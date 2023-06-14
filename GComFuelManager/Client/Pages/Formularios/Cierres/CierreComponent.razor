@@ -9,12 +9,12 @@
 @inject OrdenCierreAdminValidation validation
 @inject OrdenCierreClientValidation clientValidation
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="VISTA">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="VISTA">
     <Authorized>
 
         <h3><b>Cierre de Ordenes</b></h3>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FILTRO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FILTRO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
                     <div class="col-12">
@@ -145,7 +145,7 @@
             </Authorized>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="FORMULARIO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORMULARIO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mt-2">
                     <div class="col-12">
@@ -193,7 +193,7 @@
                                             </div>
                                         </div>
 
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORM">
                                             <Authorized>
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
@@ -216,20 +216,20 @@
                                         </AuthorizeView>
 
                                         @*<div class="col-4 mb-1">
-                                        <div class="col-12">
-                                        <label>Contacto</label>
-                                        <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
-                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowVirtualization="true">
-                                        <Template Context="data">
-                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                        </Template>
-                                        <ValueTemplate Context="data">
-                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                        </ValueTemplate>
-                                        </RadzenDropDown>
-                                        </div>
-                                        </div>*@
+                                                <div class="col-12">
+                                                    <label>Contacto</label>
+                                                    <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
+                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    AllowVirtualization="true">
+                                                        <Template Context="data">
+                                                            Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                                        </Template>
+                                                        <ValueTemplate Context="data">
+                                                            Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                                        </ValueTemplate>
+                                                    </RadzenDropDown>
+                                                </div>
+                                            </div>*@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
@@ -316,7 +316,7 @@
                                             </div>
                                         </div>
 
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador" Context="FORM">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORM">
                                             <Authorized>
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
@@ -460,7 +460,16 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado">
+                        <FilterTemplate Context="Destinos">
+                            <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data?.Destino?.Den
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -502,7 +511,7 @@
 
             @if (ordenCierres.Count != 0)
             {
-                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador" Context="Limpiar">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Limpiar">
                     <Authorized>
                         @if (isFilter is true && ordenCierres.Count > 0)
                         {
@@ -532,38 +541,43 @@
                                 }
                                 else
                                 {
-                                    <div class="col-12 row">
-                                        <div class="col-6">
-                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
-                                                      Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
+                                    <AuthorizeView Roles="Autorizador Vigencia Completo, Admin, Administrador Sistema" Context="Date1">
+                                        <div class="col-12 row">
+                                            <div class="col-6">
+                                                <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
+                                                                  Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
+                                                    <i class="fa fa-solid fa-check"></i>
+                                                </button>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                    <i class="fa fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
-                                                <i class="fa fa-solid fa-check"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
-                                                <i class="fa fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </AuthorizeView>
 
-                                    <div class="col-12 row">
-                                        <div class="col-6">
-                                            <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
+                                    <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Date2">
+                                        <div class="col-12 row">
+                                            <div class="col-6">
+                                                <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
+                                                    <i class="fa fa-solid fa-check"></i>
+                                                </button>
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                    <i class="fa fa-solid fa-xmark"></i>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
-                                                <i class="fa fa-solid fa-check"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-3">
-                                            <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
-                                                <i class="fa fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </AuthorizeView>
+
                                 }
                             </div>
                             <div class="col-4">
@@ -639,6 +653,9 @@
     private int? DestinoSeleccionado = 0;
     private int? VolumenTotal = 0;
     private byte? CodProductoSeleccionado = 0;
+
+    private string DestinosSeleccionado = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string?> ProductList { get; set; } = new List<string>();
@@ -1076,6 +1093,7 @@
                             volumenDisponible = responseVolumen.Response;
                         }
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                        DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     }
                 }
             }
@@ -1285,14 +1303,14 @@
                     {
 
                         var r = await Swal.FireAsync(new SweetAlertOptions
-                            {
-                                Title = "Agregar pedido",
-                                Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                                Icon = SweetAlertIcon.Warning,
-                                CancelButtonText = "Cancelar",
-                                ConfirmButtonText = "Aceptar",
-                                ShowCancelButton = true
-                            });
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
                         if (!string.IsNullOrEmpty(r.Value))
                         {
                             ordenCierres = new List<OrdenCierre>();

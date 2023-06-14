@@ -115,7 +115,7 @@
                                 Guardar
                                 @if (loadingSave)
                                 {
-                                    <SpinnerLoading/>
+                                    <SpinnerLoading />
                                 }
                             </button>
                         </div>
@@ -130,7 +130,7 @@
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true"  AllowColumnPicking="true">
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="EditarZonas">
                     <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
@@ -149,6 +149,16 @@
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                       @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                            </div>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -200,7 +210,8 @@
         }
     }
 
-    private async void SetEdit(ZonaCliente item){
+    private async void SetEdit(ZonaCliente item)
+    {
         try
         {
             zonaCliente = item;
@@ -365,4 +376,47 @@
             throw e;
         }
     }
+
+    private async Task HabilitarDeshabilitar(ZonaCliente zonaCliente, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await http.Put<bool>($"api/zona/{zonaCliente.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (status)
+                {
+                    await Message($"{zonaCliente.Zona?.Nombre} ha sido habilitada", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{zonaCliente.Zona?.Nombre} ha sido deshabilitada", SweetAlertIcon.Info);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton= false,
+            Timer = 1600,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
+    }
+
 }

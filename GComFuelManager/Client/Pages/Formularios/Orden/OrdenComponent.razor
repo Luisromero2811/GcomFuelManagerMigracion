@@ -102,11 +102,20 @@
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true"
                         GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true"  AllowColumnPicking="true">
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado">
+                    <FilterTemplate Context="Destinos">
+                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                    </FilterTemplate>
+                    <Template Context="data">
+                        <div>
+                            @data?.Destino?.Den
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                     <FilterTemplate Context="filter">
@@ -139,13 +148,13 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}"/>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
                     <Template Context="item">
                         @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
             </Columns>
         </RadzenDataGrid>
@@ -178,6 +187,9 @@
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
+
+    private string DestinoSeleccionado = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
     protected async override Task OnInitializedAsync()
     {
@@ -276,6 +288,7 @@
                     if (item.OrdenEmbarque?.Folio == null)
                         FullesRestantes++;
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
+                DestinoList = cierres.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                 StateHasChanged();
             }
         }
@@ -296,16 +309,16 @@
                 {
                     if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
                         detalleCierres.Add(new DetalleCierreDTO
-                            {
-                                OC = item.Folio,
-                                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                                FchLlegada = item?.FechaLlegada
-                            });
+                        {
+                            OC = item.Folio,
+                            FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                            Destino = item?.Destino?.Den,
+                            Producto = item?.Producto?.Den,
+                            BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                            Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                            Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                            FchLlegada = item?.FechaLlegada
+                        });
                 }
 
                 loadingExport = true;

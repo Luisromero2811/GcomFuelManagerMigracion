@@ -103,5 +103,34 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                {
+                    return BadRequest();
+                }
+
+                var zona = context.ZonaCliente.Where(x => x.Cod == cod).FirstOrDefault();
+
+                if (zona == null)
+                {
+                    return NotFound();
+                }
+
+                zona.Activo = status;
+
+                context.Update(zona);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
