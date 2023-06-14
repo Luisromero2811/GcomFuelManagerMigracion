@@ -121,5 +121,8 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped]
         public Grupo? Grupo { get; set; } = null!;
+
+        //[EpplusIgnore, NotMapped]
+        //public string? Page { get; set; } = string.Empty;
     }
 }

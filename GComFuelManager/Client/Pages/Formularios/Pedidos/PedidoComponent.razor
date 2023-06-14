@@ -46,7 +46,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
-            <EditForm Model="@ordenCierre" class="form col-12">
+            <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="row col-12 g-3 mb-3 px-4">
@@ -225,7 +225,7 @@
                     @if (!isFolio && !isEditing || IsCierreVolumen)
                     {
                         <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@GetFolio">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="submit">
                                 <i class="fa fa-solid fa-check"></i>
                                 <b>Crear orden</b>
                                 @if (loadingConfirm)
@@ -854,6 +854,7 @@
                     await GetEstaciones();
                     ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
                     await GetPrecios();
+                    ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
                     var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
                     if (responseDetalle.Error)
                     {
