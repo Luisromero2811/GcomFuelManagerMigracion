@@ -373,6 +373,7 @@ namespace GComFuelManager.Server.Controllers
                 orden.ForEach(x =>
                 {
                     x.Destino = null;
+                    x.Estado = null;
                     x.Tad = null!;
                     x.Chofer = null!;
                     x.Tonel = null!;
@@ -449,6 +450,8 @@ namespace GComFuelManager.Server.Controllers
                 orden.Tad = null;
                 orden.OrdenCompra = null;
                 orden.Estado = null;
+                orden.Cliente = null!;
+                orden.OrdenCierre = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();

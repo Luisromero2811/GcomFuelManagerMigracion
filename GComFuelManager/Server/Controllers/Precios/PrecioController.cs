@@ -172,7 +172,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
 
                     if (zona == null)
-                        return BadRequest();
+                        return BadRequest("No existe una relacion de precios con la zona y destino");
 
                     precios = await context.Precio.Where(x => x.codCte == usuario.CodCte
                     && x.codDes == zonaCliente.DesCod
