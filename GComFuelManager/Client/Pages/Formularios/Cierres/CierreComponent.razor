@@ -156,12 +156,12 @@
                                     @*<DataAnnotationsValidator />*@
                                     <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
                                         <Authorized>
-                                            <FluentValidationValidator @ref="_fluentValidationValidator" Validator="validation"/>
+                                            <FluentValidationValidator Validator="validation"/>
                                         </Authorized>
                                     </AuthorizeView>
                                     <AuthorizeView Context="Validation" Roles="Comprador">
                                         <Authorized>
-                                            <FluentValidationValidator @ref="_fluentValidationValidator" Validator="clientValidation" />
+                                            <FluentValidationValidator Validator="clientValidation" />
                                         </Authorized>
                                     </AuthorizeView>
                                     <ValidationSummary />
@@ -183,7 +183,7 @@
 
                                         <div class="col-4 mb-1 d-flex">
                                             <div class="col-12 my-auto d-flex">
-                                                <RadzenCheckBox @bind-Value=@IsCierreVolumen Name="CheckBox2" class="me-2" />
+                                                <RadzenCheckBox @bind-Value=@ordenCierre.IsCierreVolumen Name="CheckBox2" class="me-2" />
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipCierreVolumen(infoIconVolumen))" @ref="infoIconVolumen">
                                                     <label for="CheckBox2">
                                                         Cierre por volumen
@@ -256,7 +256,7 @@
                                             </div>
                                         </div>
 
-                                        @if (!IsDifferentVol)
+                                        @if (!ordenCierre.IsDifferentVol)
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
@@ -284,7 +284,7 @@
                                             </div>
                                         }
 
-                                        @if (IsDifferentVol)
+                                        @if (ordenCierre.IsDifferentVol)
                                         {
                                             <div class="col-2 mb-1">
                                                 <div class="col-12">
@@ -296,7 +296,7 @@
 
                                         <div class="col-2 mb-1 d-flex">
                                             <div class="col-12 my-auto d-flex">
-                                                <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" />
+                                                <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentVol Name="CheckBox1" class="me-2" />
                                                 <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoCierreVolumen))" @ref="infoCierreVolumen">
                                                     <label for="CheckBox1">
                                                         Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -863,7 +863,7 @@
             loadingCreate = true;
             isFilter = false;
 
-            if (IsCierreVolumen)
+            if (ordenCierre.IsCierreVolumen)
             {
                 var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
                 if (responseOC.Error)
