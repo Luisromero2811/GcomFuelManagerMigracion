@@ -217,12 +217,22 @@
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" Filterable="false" OrderIndex="13">
                     <Template Context="data">
                         <div class="col-12">
-                            @data?.Chofer?.Den @data?.Chofer?.Shortden
+                            @data?.Chofer?.Den
+                            @*@data?.Chofer?.Shortden*@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Filterable="false" Width="200px" OrderIndex="14" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Filterable="false" Width="200px" OrderIndex="15" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="200px" OrderIndex="15" />
+                    @*<FilterTemplate Context="Estatus">
+                        <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
+                    </FilterTemplate>
+                    <Template Context="data">
+                        <div>
+                            @data.Estado?.den
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>*@
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -293,6 +303,9 @@
 
     private string ClienteSeleccionado = string.Empty;
     private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
+
+    //private string EstatusSeleccionado = string.Empty;
+    //private IEnumerable<string?> EstatusList { get; set; } = new List<string>();
 
     //Selecciones
     private int ProductoSeleccionado = 0;
@@ -457,6 +470,7 @@
                 DestinoList = ordenes?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                 ProductList = ordenes?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                 ClienteList = ordenes?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
+                //EstatusList = ordenes?.DistinctBy(x => x.Estado?.den).Select(x => x.Estado?.den)!;
             }
         }
         catch (Exception e)
