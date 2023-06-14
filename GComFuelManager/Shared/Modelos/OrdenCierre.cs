@@ -122,7 +122,10 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped]
         public Grupo? Grupo { get; set; } = null!;
 
-        //[EpplusIgnore, NotMapped]
-        //public string? Page { get; set; } = string.Empty;
+        [EpplusIgnore, NotMapped]
+        public bool IsCierreVolumen { get; set; } = false;
+
+        [EpplusIgnore, NotMapped]
+        public bool IsDifferentVol { get; set; } = false;
     }
 }
