@@ -12,21 +12,21 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cod"), Key] public int Cod { get; set; }
         [JsonProperty("fchOrd")] public DateTime? FchOrd { get; set; }
         [JsonProperty("fchPro")] public DateTime? FchPro { get; set; }
-        [JsonProperty("codtad"), Required(ErrorMessage = "El campo de terminal es requerido.")] public Int16? Codtad { get; set; } = 0;
-        [JsonProperty("codprd"), Required(ErrorMessage = "El campo de producto es requerido.")] public byte? Codprd { get; set; } = 0;
-        [JsonProperty("vol"), Required(ErrorMessage = "El campo de cantidad es requerido."), EpplusIgnore] public double? Vol { get; set; } = 0;
+        [JsonProperty("codtad")] public Int16? Codtad { get; set; } = 1;
+        [JsonProperty("codprd")] public byte? Codprd { get; set; } = 0;
+        [JsonProperty("vol"), EpplusIgnore] public double? Vol { get; set; } = 0;
         [DisplayName("Volumen")]
         public string Volumenes { get { return Vol.Value.ToString("N2"); } }
         [JsonProperty("codchf")] public int? Codchf { get; set; }
-        [JsonProperty("coddes"), Required(ErrorMessage = "El campo de estacion es requerido.")] public int? Coddes { get; set; } = 0;
+        [JsonProperty("coddes")] public int? Coddes { get; set; } = 0;
         [JsonProperty("codest")] public byte? Codest { get; set; }
         [JsonProperty("fchpet")] public DateTime? Fchpet { get; set; }
-        [JsonProperty("fchcar"), Required(ErrorMessage = "El campo de fecha de carga es requerido.")] public DateTime? Fchcar { get; set; } = DateTime.Today;
+        [JsonProperty("fchcar")] public DateTime? Fchcar { get; set; } = DateTime.Today;
         [JsonProperty("codton")] public int? Codton { get; set; }
         [JsonProperty("bin")] public int? Bin { get; set; }
         [JsonProperty("codusu")] public int? Codusu { get; set; }
         [JsonProperty("folio")] public int? Folio { get; set; }
-        [JsonProperty("pre"), Required(ErrorMessage = "El campo de precio es requerido.")] public double? Pre { get; set; } = 0;
+        [JsonProperty("pre")] public double? Pre { get; set; } = 0;
         [JsonProperty("codordCom")] public int? CodordCom { get; set; }
         [JsonProperty("bolguidid")] public string? Bolguidid { get; set; }
         [JsonProperty("tp")] public bool? Tp { get; set; }
