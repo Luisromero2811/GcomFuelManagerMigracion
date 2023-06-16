@@ -19,10 +19,10 @@
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
                         <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowVirtualization="true" >
-                        <ValueTemplate Context="data">
-                            <InputText class="form-control col-12" @bind-Value="@filtro.Folio" />
-                        </ValueTemplate>            
+                                        AllowVirtualization="true">
+                            <ValueTemplate Context="data">
+                                <InputText class="form-control col-12" @bind-Value="@filtro.Folio" />
+                            </ValueTemplate>
                         </RadzenDropDown>
                         @*<FolioListSearch folio="@filtro.Folio">
                         </FolioListSearch>*@
@@ -50,7 +50,7 @@
         <div class="card-body">
             <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                 @*<DataAnnotationsValidator />*@
-                <FluentValidationValidator Validator="validation"/>
+                <FluentValidationValidator Validator="validation" />
                 <ValidationSummary />
                 <div class="row col-12 g-3 mb-3 px-4">
                     <div class="col-4 mb-1">
@@ -209,7 +209,7 @@
                     @if (isEditing)
                     {
                         <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@EditPedido">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@EditPedido">
                                 <i class="fa fa-solid fa-plus"></i>
                                 <b>Guardar Cambio</b>
                                 @if (loadingAgregar)
@@ -219,7 +219,7 @@
                             </button>
                         </div>
                         <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@CancelEdit">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@CancelEdit">
                                 <i class="fa fa-solid fa-xmark"></i>
                                 <b>Cancelar Cambio</b>
                             </button>
@@ -241,7 +241,7 @@
                     @if (!isEditing)
                     {
                         <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" @onclick="@ConfirmPedido">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@ConfirmPedido">
                                 <i class="fa fa-solid fa-check"></i>
                                 <b>Confirmar Pedidos</b>
                                 @if (loadingConfirm)
@@ -698,12 +698,14 @@
                 else
                 {
                     loadingAgregar = false;
+                    loadingConfirm = false;
 
                     await Swal.FireAsync("Sin ordenes", "No tiene ordenes para confirmar", SweetAlertIcon.Info);
                 }
             }
             else
             {
+                        loadingConfirm = false;
                 loadingAgregar = false;
                 await Swal.FireAsync("Advertencia", "Debe tener ordenes para poder confirmarlas", SweetAlertIcon.Warning);
             }
@@ -836,55 +838,66 @@
     {
         try
         {
-            filtro.forFolio = true;
             isFolio = true;
 
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
-            if (response.Error)
+            if (filtro != null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                if (response.Response.FirstOrDefault()!.CodPed == 0)
+                filtro.forFolio = true;
+                if (!string.IsNullOrEmpty(filtro.Folio))
                 {
-                    ordenCierre.IsCierreVolumen = true;
-
-                    filtro.forFolio = true;
-                    ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
-                    ordenCierre.CodCte = response.Response.FirstOrDefault().CodCte;
-                    await GetClientes();
-                    ordenCierre.CodDes = response.Response.FirstOrDefault().CodDes;
-                    await GetEstaciones();
-                    ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
-                    await GetPrecios();
-                    ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
-                    var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
-                    if (responseDetalle.Error)
+                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+                    if (response.Error)
                     {
-                        var message = await responseDetalle.ObtenerMensajeError();
+                        var message = await response.ObtenerMensajeError();
                         await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                     }
                     else
                     {
-                        var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                        if (response.Error)
+                        if (response.Response.FirstOrDefault()!.CodPed == 0)
                         {
-                            var message = await response.ObtenerMensajeError();
-                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            ordenCierre.IsCierreVolumen = true;
+
+                            filtro.forFolio = true;
+                            ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
+                            ordenCierre.CodCte = response.Response.FirstOrDefault().CodCte;
+                            await GetClientes();
+                            ordenCierre.CodDes = response.Response.FirstOrDefault().CodDes;
+                            await GetEstaciones();
+                            ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
+                            await GetPrecios();
+                            ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
+                            var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
+                            if (responseDetalle.Error)
+                            {
+                                var message = await responseDetalle.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
+                                if (response.Error)
+                                {
+                                    var message = await response.ObtenerMensajeError();
+                                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                }
+                                else
+                                {
+                                    volumenDisponible = responseVolumen.Response;
+                                    ordenCierres = responseDetalle.Response;
+                                }
+                            }
                         }
                         else
                         {
-                            volumenDisponible = responseVolumen.Response;
-                            ordenCierres = responseDetalle.Response;
+                            ordenCierre.IsCierreVolumen = false;
+                            ordenCierres = response.Response;
                         }
                     }
                 }
                 else
                 {
-                    ordenCierre.IsCierreVolumen = false;
-                    ordenCierres = response.Response;
+                    await Swal.FireAsync("Alerta", "Introdusca un valor valido para el folio.", SweetAlertIcon.Warning);
+                    return;
                 }
             }
         }

@@ -156,7 +156,7 @@
                                     @*<DataAnnotationsValidator />*@
                                     <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
                                         <Authorized>
-                                            <FluentValidationValidator Validator="validation"/>
+                                            <FluentValidationValidator Validator="validation" />
                                         </Authorized>
                                     </AuthorizeView>
                                     <AuthorizeView Context="Validation" Roles="Comprador">
@@ -216,20 +216,20 @@
                                         </AuthorizeView>
 
                                         @*<div class="col-4 mb-1">
-                                                <div class="col-12">
-                                                    <label>Contacto</label>
-                                                    <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
-                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                    AllowVirtualization="true">
-                                                        <Template Context="data">
-                                                            Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                                        </Template>
-                                                        <ValueTemplate Context="data">
-                                                            Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                                        </ValueTemplate>
-                                                    </RadzenDropDown>
-                                                </div>
-                                            </div>*@
+                                        <div class="col-12">
+                                        <label>Contacto</label>
+                                        <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
+                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        AllowVirtualization="true">
+                                        <Template Context="data">
+                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                        </Template>
+                                        <ValueTemplate Context="data">
+                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
+                                        </ValueTemplate>
+                                        </RadzenDropDown>
+                                        </div>
+                                        </div>*@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
@@ -385,7 +385,7 @@
                                                         </button>
                                                     </div>
                                                     <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendEmail">
+                                                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail">
                                                             <i class="fa fa-solid fa-envelope"></i>
                                                             <b>Enviar cierre</b>
                                                             @if (loadingSend)
@@ -396,7 +396,7 @@
                                                     </div>
                                                 }
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">
                                                         <i class="fa fa-solid fa-file-excel"></i>
                                                         <b>Exportar Cierres</b>
                                                         @if (loadingExport)
@@ -409,7 +409,7 @@
                                             else
                                             {
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@UpateOrden">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@UpateOrden">
                                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                                         <b>Guardar cambio</b>
                                                         @if (loadingCreate)
@@ -420,7 +420,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@cancelEdit">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@cancelEdit">
                                                         <i class="fa fa-solid fa-xmark"></i>
                                                         <b>Cancelar cambio</b>
                                                     </button>
@@ -448,7 +448,7 @@
                             @if (data.Activa is true)
                             {
                                 <div class="col-12">
-                                    <button class="col-6 btn gcom-bg-amarillo" @onclick="@(()=>CloseOrden(data.Cod))">
+                                    <button class="col-6 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(data.Cod))">
                                         <i class="fa-solid fa-unlock"></i>
                                     </button>
                                 </div>
@@ -528,60 +528,64 @@
 
                         <div class="col-12 d-flex justify-content-start my-2 row">
                             <div class="col-4">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearList">
+                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@ClearList">
                                     <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
                             </div>
                             <div class="col-4">
-                                @if (AddDaysExpiration is false)
+                                @if (!monthFilter)
                                 {
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@SetFchVencimiento">
-                                        Cambiar Vencimiento
-                                    </button>
-                                }
-                                else
-                                {
-                                    <AuthorizeView Roles="Autorizador Vigencia Completo, Admin, Administrador Sistema" Context="Date1">
-                                        <div class="col-12 row">
-                                            <div class="col-6">
-                                                <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
-                                                                  Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
-                                                    <i class="fa fa-solid fa-check"></i>
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
-                                                    <i class="fa fa-solid fa-xmark"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </AuthorizeView>
+                                    @if (AddDaysExpiration is false)
+                                    {
+                                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@SetFchVencimiento">
+                                            Cambiar Vencimiento
+                                        </button>
+                                    }
+                                    else
+                                    {
 
-                                    <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Date2">
-                                        <div class="col-12 row">
-                                            <div class="col-6">
-                                                <RadzenDatePicker @bind-Value="@fchVencimiento.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
+                                        <AuthorizeView Roles="Autorizador Vigencia Completo, Admin, Administrador Sistema" Context="Date1">
+                                            <div class="col-12 row">
+                                                <div class="col-6">
+                                                    <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
+                                                          Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button class="btn btn-success col-12" type="button" @onclick="@SaveFechaVencimiento">
+                                                        <i class="fa fa-solid fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button class="btn btn-danger col-12" type="button" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-success col-12" @onclick="@SaveFechaVencimiento">
-                                                    <i class="fa fa-solid fa-check"></i>
-                                                </button>
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="btn btn-danger col-12" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
-                                                    <i class="fa fa-solid fa-xmark"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </AuthorizeView>
+                                        </AuthorizeView>
 
+                                        <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Date2">
+                                            <div class="col-12 row">
+                                                <div class="col-6">
+                                                    <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button class="btn btn-success col-12" type="button" @onclick="@SaveFechaVencimiento">
+                                                        <i class="fa fa-solid fa-check"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button class="btn btn-danger col-12" type="button" @onclick="@(()=>AddDaysExpiration = !AddDaysExpiration)">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </AuthorizeView>
+
+                                    }
                                 }
                             </div>
                             <div class="col-4">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>ClosePedido(filtro.Folio))">
+                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>ClosePedido(filtro.Folio))">
                                     <i class="fa-solid fa-unlock"></i> Cerrar pedido
                                 </button>
                             </div>
@@ -608,6 +612,7 @@
 
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
     CierreFiltroDTO fchVencimiento { get; set; } = new CierreFiltroDTO();
+    CierreFiltroDTO fchCaducidad { get; set; } = new CierreFiltroDTO();
 
     UsuarioInfo user { get; set; } = new UsuarioInfo();
 
@@ -630,10 +635,10 @@
     private List<Producto> Productos { get; set; } = new List<Producto>();
 
     private List<CodDenDTO> meses { get; set; } = new List<CodDenDTO>();
-    private int mesSeleccionado { get; set; }
+    private int mesSeleccionado { get; set; } = 0;
 
     private List<int> años { get; set; } = new List<int>();
-    private int añoSeleccionado { get; set; }
+    private int añoSeleccionado { get; set; } = 0;
 
     private List<int> Cantidades { get; set; } = new List<int>();
 
@@ -1063,10 +1068,18 @@
 
             if (!forFolio)
             {
-                int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-                filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-                filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
-                monthFilter = true;
+                if (mesSeleccionado != 0 && añoSeleccionado != 0 && filtro.codCte != null)
+                {
+                    int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
+                    filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
+                    filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+                    monthFilter = true;
+                }
+                else
+                {
+                    await Swal.FireAsync("Alerta", "Seleccione datos validos para filtrar.", SweetAlertIcon.Warning);
+                    return;
+                }
             }
 
             if (filtro != null)
@@ -1094,6 +1107,7 @@
                         }
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                         DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+                        //StateHasChanged();
                     }
                 }
             }
@@ -1121,7 +1135,8 @@
 
                 var ordenFilter = new List<OrdenCierre>();
                 foreach (var item in ordenCierres)
-                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado)
+                       && item.Destino.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                         ordenFilter.Add(item);
 
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
@@ -1197,9 +1212,20 @@
     {
         try
         {
-            await ds.OpenAsync<TabsCierresDialogs>($"Orden {filtro.Folio}",
-            new Dictionary<string, object>() { { "folio", filtro.Folio } },
-            new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            if(filtro != null)
+            {
+                if(!string.IsNullOrEmpty(filtro.Folio))
+                {
+                    await ds.OpenAsync<TabsCierresDialogs>($"Orden {filtro.Folio}",
+                    new Dictionary<string, object>() { { "folio", filtro.Folio } },
+                    new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+                }
+                else
+                {
+                    await Swal.FireAsync("Alerta", "Introdusca un valor valido para el folio.", SweetAlertIcon.Warning);
+                    return;
+                }
+            }
         }
         catch (Exception e)
         {
@@ -1303,14 +1329,14 @@
                     {
 
                         var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
+                            {
+                                Title = "Agregar pedido",
+                                Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                                Icon = SweetAlertIcon.Warning,
+                                CancelButtonText = "Cancelar",
+                                ConfirmButtonText = "Aceptar",
+                                ShowCancelButton = true
+                            });
                         if (!string.IsNullOrEmpty(r.Value))
                         {
                             ordenCierres = new List<OrdenCierre>();
@@ -1469,6 +1495,7 @@
             }
 
             var fch = ordenCierres.FirstOrDefault();
+            fchCaducidad.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
             fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
             fchVencimiento.Folio = ordenCierres.FirstOrDefault().Folio;
             AddDaysExpiration = true;
@@ -1531,7 +1558,7 @@
         try
         {
 
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchVencimiento);
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchCaducidad);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
