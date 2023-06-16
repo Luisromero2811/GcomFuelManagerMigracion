@@ -4,7 +4,9 @@
 @inject TooltipService ts
 @inject IJSRuntime js
 @inject AuthenticationStateProvider auth
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador")]
+@inject PedidoOrdenValidation validation
+@inject OrdenEmbarqueValidation validationEmbarque
+@*@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador")]*@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
     <h4><b>Pedidos</b></h4>
@@ -47,7 +49,8 @@
     <div class="col-12 card shadow">
         <div class="card-body">
             <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
-                <DataAnnotationsValidator />
+                @*<DataAnnotationsValidator />*@
+                <FluentValidationValidator Validator="validation"/>
                 <ValidationSummary />
                 <div class="row col-12 g-3 mb-3 px-4">
                     <div class="col-4 mb-1">
@@ -63,7 +66,7 @@
                             <label>Grupo</label>
                             <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetClientes" Disabled="isFolio && !IsCierreVolumen" />
+                                            AllowVirtualization="true" Change="@GetClientes" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
                     <div class="col-4 mb-1">
@@ -71,7 +74,7 @@
                             <label>Cliente</label>
                             <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetEstaciones" Disabled="isFolio && !IsCierreVolumen" />
+                                            AllowVirtualization="true" Change="@GetEstaciones" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
                     <div class="col-4 mb-1">
@@ -79,7 +82,7 @@
                             <label>Estacion</label>
                             <RadzenDropDown Data="Estaciones" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
-                                            AllowVirtualization="true" Disabled="isFolio && !IsCierreVolumen" />
+                                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
                     <div class="col-4 mb-1">
@@ -87,7 +90,7 @@
                             <label>Producto</label>
                             <RadzenDropDown Data="Productos" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                            AllowVirtualization="true" Disabled="isFolio && !IsCierreVolumen">
+                                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
                                 <Template Context="data">
                                     @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
                                 </Template>
@@ -97,12 +100,12 @@
                             </RadzenDropDown>
                         </div>
                     </div>
-                    @if (!IsDifferentVol)
+                    @if (!ordenCierre.IsDifferentVol)
                     {
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
-                                <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select" disabled="@(isFolio && !IsCierreVolumen)">
+                                <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select" disabled="@(isFolio && !ordenCierre.IsCierreVolumen)">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Cantidades is null)
                                     {
@@ -124,19 +127,19 @@
                         </div>
                     }
 
-                    @if (IsDifferentVol)
+                    @if (ordenCierre.IsDifferentVol)
                     {
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
-                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !IsCierreVolumen)" />
+                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" />
                             </div>
                         </div>
                     }
 
                     <div class="col-2 mb-1 d-flex">
                         <div class="col-12 my-auto d-flex">
-                            <RadzenCheckBox @bind-Value=@IsDifferentVol Name="CheckBox1" class="me-2" Disabled="isFolio && !IsCierreVolumen" />
+                            <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentVol Name="CheckBox1" class="me-2" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                             <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
                                 <label class="form-label" for="CheckBox1">
                                     Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -188,7 +191,7 @@
                             <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>
                         </div>
                     </div>
-                    @if (!isFolio || IsCierreVolumen)
+                    @if (!isFolio || ordenCierre.IsCierreVolumen)
                     {
                         <div class="col-4 mb-1">
                             <div class="col-12">
@@ -222,7 +225,7 @@
                             </button>
                         </div>
                     }
-                    @if (!isFolio && !isEditing || IsCierreVolumen)
+                    @if (!isFolio && !isEditing || ordenCierre.IsCierreVolumen)
                     {
                         <div class="col-4 px-2">
                             <button class="btn gcom-bg-amarillo col-12 mx-2" type="submit">
@@ -256,7 +259,7 @@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
     <div class="col-12 d-flex justify-content-center row">
-        @if (IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
+        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
         {
             <div class="col-12 mt-2">
                 <b class="my-auto">
@@ -381,7 +384,9 @@
     {
         ordenCierres = new List<OrdenCierre>();
         ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() };
-
+        isEditing = false;
+        ordenCierre.IsCierreVolumen = false;
+        isFolio = false;
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
@@ -391,9 +396,9 @@
     private void changeEdit()
     {
         if (!Cantidades.Any(x => x == ordenCierre.Volumen))
-            IsDifferentVol = true;
+            ordenCierre.IsDifferentVol = true;
         else
-            IsDifferentVol = false;
+            ordenCierre.IsDifferentVol = false;
         isEditing = !isEditing;
     }
 
@@ -758,9 +763,9 @@
             await GetPrecios();
 
             if (!Cantidades.Any(x => x == ordenCierre.Volumen))
-                IsDifferentVol = true;
+                ordenCierre.IsDifferentVol = true;
             else
-                IsDifferentVol = false;
+                ordenCierre.IsDifferentVol = false;
             isEditing = true;
 
             StateHasChanged();
@@ -844,7 +849,7 @@
             {
                 if (response.Response.FirstOrDefault()!.CodPed == 0)
                 {
-                    IsCierreVolumen = true;
+                    ordenCierre.IsCierreVolumen = true;
 
                     filtro.forFolio = true;
                     ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
@@ -878,7 +883,7 @@
                 }
                 else
                 {
-                    IsCierreVolumen = false;
+                    ordenCierre.IsCierreVolumen = false;
                     ordenCierres = response.Response;
                 }
             }

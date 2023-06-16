@@ -3,7 +3,8 @@
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 @inject NotificationService ns
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
+@inject AsignacionUnidadValidation validation
+@*@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]*@
 
 <h4><b>Programación de Equipos</b></h4>
 @*<div>
@@ -40,93 +41,75 @@
     </RadzenPanel>
 </AuthorizeView>
 @*<hr />*@
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="FORM">
     <div class="col-12 mt-2 mb-2">
         <div class="d-flex justify-content-center">
             <div class="col card shadow-sm">
                 <div class="col-12 card-body">
                     <label><b>Asignar unidades:</b></label>
-                    <div class="row mb-3">
-                        <div class="col-4">
-                            <label>Transportista:</label>
-                            <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="TransportistaSeleccionado"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetDataSelction" />
-                        </div>
-                        <div class="col-4">
-                            <label>Chofer:</label>
-                            <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ChoferSeleccionado"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true">
-                                <Template Context="data">
-                                    @((data as Chofer).Dricod) | @((data as Chofer).Den)
-                                </Template>
-                                <ValueTemplate Context="data">
-                                    @((data as Chofer).Dricod) | @((data as Chofer).Den)
-                                </ValueTemplate>
-                            </RadzenDropDown>
-                        </div>
-                        <div class="col-4">
-                            <label>Vehiculo:</label>
-                            <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="VehiculoSeleccionado"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" />
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="row d-flex justify-content-end">
-                            <div class="col-8 row">
-                                @if (Vehiculos != null)
-                                {
-                                    @if (Vehiculos.Count > 0 && VehiculoSeleccionado != 0)
-                                    {
-                                        <InputRadioGroup @bind-Value="CompartimentoSeleccionado">
-                                            @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.CapDisponible; i++)
-                                            {
-                                                <div class="col">
-                                                    <div class="form-check">
-                                                        <InputRadio Value="@i" class="form-check-input" id="@i" />
-                                                        <label class="form-check-label" for="@i">Com @i</label>
-                                                    </div>
-                                                </div>
-                                            }
-                                        </InputRadioGroup>
-                                    }
-                                }
+                    <EditForm Model="asignacion" class="form col-12" OnInvalidSubmit="@AsignarUnidad">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="row mb-3">
+                            <div class="col-4">
+                                <label>Transportista:</label>
+                                <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" Change="@GetDataSelction" />
                             </div>
                             <div class="col-4">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null)">
-                                    <i class="fa fa-solid fa-truck-front"></i>
-                                    <b>Asignar</b>
-                                </button>
+                                <label>Chofer:</label>
+                                <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true">
+                                    <Template Context="data">
+                                        @((data as Chofer).Dricod) | @((data as Chofer).Den)
+                                    </Template>
+                                    <ValueTemplate Context="data">
+                                        @((data as Chofer).Dricod) | @((data as Chofer).Den)
+                                    </ValueTemplate>
+                                </RadzenDropDown>
+                            </div>
+                            <div class="col-4">
+                                <label>Vehiculo:</label>
+                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" />
                             </div>
                         </div>
-                    </div>
-
-                    @*<div class="col-12 my-3">
-                            <div class="row d-flex justify-content-start">
-                                <div class="col-4">
-                                    <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
-                                    <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
-                                </div>
-                            </div>
+                        <div class="col-12">
                             <div class="row d-flex justify-content-end">
-                                @if (Synthesis)
-                                {
-                                    <div class="col-4">
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
-                                        </AuthorizeView>
-                                    </div>
-                                }
+                                <div class="col-8 row">
+                                    @if (Vehiculos != null)
+                                    {
+                                        @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
+                                        {
+                                            @if (asignacion.CodTon != 0)
+                                            {
+                                                <InputRadioGroup @bind-Value="asignacion.Compartimiento">
+                                                    @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
+                                                    {
+                                                        <div class="col">
+                                                            <div class="form-check">
+                                                                <InputRadio Value="@i" class="form-check-input" id="@i" />
+                                                                <label class="form-check-label" for="@i">Com @i</label>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </InputRadioGroup>
+                                            }
+                                        }
+                                    }
+                                </div>
                                 <div class="col-4">
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
-                                    </AuthorizeView>
-
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit" disabled="@(ordenEmbarque is null)">
+                                        <i class="fa fa-solid fa-truck-front"></i>
+                                        <b>Asignar</b>
+                                    </button>
                                 </div>
                             </div>
-                        </div>*@
+                        </div>
+                    </EditForm>
                 </div>
             </div>
         </div>
@@ -290,9 +273,9 @@
     private List<CodDenDTO> Destinos { get; set; } = null!;
     private List<CodDenDTO> Productos { get; set; } = null!;
 
-    private List<Transportista> Transportistas { get; set; } = null!;
-    private List<Chofer> Choferes { get; set; } = null!;
-    private List<Tonel> Vehiculos { get; set; } = null!;
+    private List<Transportista> Transportistas { get; set; } = new List<Transportista>();
+    private List<Chofer> Choferes { get; set; } = new List<Chofer>();
+    private List<Tonel> Vehiculos { get; set; } = new List<Tonel>();
 
     //Grids
     private string ProductosSeleccionado = string.Empty;
@@ -311,7 +294,7 @@
     private int ProductoSeleccionado = 0;
     private int DestinoSeleccionado = 0;
     private int TransportistaSeleccionado = 0;
-    private int TransportistaSeleccionadoB = 0;
+    private int? TransportistaSeleccionadoB = 0;
 
     private int ChoferSeleccionado = 0;
     private int ChoferSeleccionadoB = 0;
@@ -330,6 +313,8 @@
     bool loadingSend = false;
     //
     CheckChofer checkChofer = new CheckChofer();
+    AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
+    private FluentValidationValidator? _fluentValidationValidator;
 
     int width = 0;
     string TotalWidth = string.Empty;
@@ -353,10 +338,10 @@
 
     public async Task GetDataSelction()
     {
-        if (TransportistaSeleccionado != 0 && TransportistaSeleccionado != TransportistaSeleccionadoB)
+        if (asignacion.CodTra != null && asignacion.CodTra != TransportistaSeleccionadoB)
         {
-            VehiculoSeleccionado = 0;
-            ChoferSeleccionado = 0;
+            asignacion.CodTon = 0;
+            asignacion.CodChf = 0;
             await GetChoferes();
             await GetVehiculo();
         }
@@ -404,18 +389,24 @@
     {
         try
         {
-            string? busentid = Transportistas.FirstOrDefault(x => x.Cod == TransportistaSeleccionado).Busentid;
-            var response = await repositorio.Get<List<Chofer>>($"api/chofer/{busentid}");
-            if (response.Error)
+            if (asignacion.CodTra != null)
             {
-                var repositorioHttp = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                TransportistaSeleccionadoB = TransportistaSeleccionado;
-                Choferes = response.Response;
-                StateHasChanged();
+                string? busentid = Transportistas.FirstOrDefault(x => x.Cod == asignacion.CodTra)?.Busentid;
+                if (!string.IsNullOrEmpty(busentid))
+                {
+                    var response = await repositorio.Get<List<Chofer>>($"api/chofer/{busentid}");
+                    if (response.Error)
+                    {
+                        var repositorioHttp = await response.ObtenerMensajeError();
+                        await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        TransportistaSeleccionadoB = asignacion.CodTra;
+                        Choferes = response.Response;
+                        StateHasChanged();
+                    }
+                }
             }
         }
         catch (Exception e)
@@ -427,18 +418,24 @@
     {
         try
         {
-            string? carid = Transportistas.FirstOrDefault(x => x.Cod == TransportistaSeleccionado).CarrId;
-            var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/{carid}");
-            if (response.Error)
+            if (asignacion.CodTra != null)
             {
-                var repositorioHttp = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Vehiculos = response.Response;
-                StateHasChanged();
-                TransportistaSeleccionadoB = TransportistaSeleccionado;
+                string? carid = Transportistas.FirstOrDefault(x => x.Cod == asignacion.CodTra)?.CarrId;
+                if (!string.IsNullOrEmpty(carid))
+                {
+                    var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/{carid}");
+                    if (response.Error)
+                    {
+                        var repositorioHttp = await response.ObtenerMensajeError();
+                        await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        Vehiculos = response.Response;
+                        TransportistaSeleccionadoB = asignacion.CodTra;
+                        StateHasChanged();
+                    }
+                }
             }
         }
         catch (Exception e)
@@ -467,10 +464,9 @@
                 ordenes = responseHttp.Response;
                 ordenesSeleccionada = new List<OrdenEmbarque>();
 
-                DestinoList = ordenes?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                ProductList = ordenes?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                ClienteList = ordenes?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
-                //EstatusList = ordenes?.DistinctBy(x => x.Estado?.den).Select(x => x.Estado?.den)!;
+                DestinoList = ordenes?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den);
+                ProductList = ordenes?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den);
+                ClienteList = ordenes?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den);
             }
         }
         catch (Exception e)
@@ -484,6 +480,9 @@
     {
         try
         {
+            if (asignacion.CodTon == null || asignacion.CodTra == null || asignacion.CodChf == null)
+                return;
+
             if (ordenEmbarque == null)
             {
                 await swal.FireAsync("Advertencia", "Selecciona una orden para asignar unidad", SweetAlertIcon.Warning);
@@ -491,17 +490,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = ChoferSeleccionado,
-                    Tonel = VehiculoSeleccionado,
-                    Compartimento =
-                                (CompartimentoSeleccionado == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom
-                                : (CompartimentoSeleccionado == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom2
-                                : (CompartimentoSeleccionado == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom3
-                                : Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado)!.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = asignacion.CodChf,
+                        Tonel = asignacion.CodTon,
+                        Compartimento = Vehiculos?.Count == null ? 0 :
+                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                            : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                            : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                            : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -515,7 +514,7 @@
                     {
                         ordenEmbarque.Codchf = checkChofer.Chofer;
                         ordenEmbarque.Codton = checkChofer.Tonel;
-                        ordenEmbarque.Compartment = CompartimentoSeleccionado;
+                        ordenEmbarque.Compartment = asignacion.Compartimiento;
                         ordenEmbarque.CompartmentId = checkChofer.Compartimento;
 
                         await UpdateOrden();
@@ -523,13 +522,13 @@
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                        {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -544,7 +543,7 @@
                             {
                                 ordenEmbarque.Codchf = checkChofer.Chofer;
                                 ordenEmbarque.Codton = checkChofer.Tonel;
-                                ordenEmbarque.Compartment = CompartimentoSeleccionado;
+                                ordenEmbarque.Compartment = asignacion.Compartimiento;
                                 ordenEmbarque.CompartmentId = checkChofer.Compartimento;
 
                                 await UpdateOrden();
@@ -618,21 +617,21 @@
             var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
             from o in ordenes
             select new TablaAsignacionUnidadesDTO()
-            {
-                OrdenCompra = o?.OrdenCompra?.den,
-                Referencia = o?.Folio.ToString(),
-                Cliente = o?.Destino?.Cliente?.Den,
-                Destino = o?.Destino?.Den,
-                Producto = o?.Producto?.Den,
-                Volumen = o?.Vol,
-                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                Transportista = o?.Tonel?.Transportista?.Den,
-                Unidad = o?.Tonel?.Veh,
-                Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den
-                //Bin = o?.Bin,
-                //Status = o?.Estado?.den
-            }, true);
+                {
+                    OrdenCompra = o?.OrdenCompra?.den,
+                    Referencia = o?.Folio.ToString(),
+                    Cliente = o?.Destino?.Cliente?.Den,
+                    Destino = o?.Destino?.Den,
+                    Producto = o?.Producto?.Den,
+                    Volumen = o?.Vol,
+                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                    Transportista = o?.Tonel?.Transportista?.Den,
+                    Unidad = o?.Tonel?.Veh,
+                    Compartimento = o?.Compartment,
+                    Operador = o?.Chofer?.Den
+                    //Bin = o?.Bin,
+                    //Status = o?.Estado?.den
+                }, true);
 
             tablebody.Style.Font.Bold = true;
             tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -693,23 +692,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Actualizando Transportistas",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Actualizando Transportistas",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                            Duration = 15000
+                        });
 
                     loadingSend = true;
 
