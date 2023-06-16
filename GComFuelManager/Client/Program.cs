@@ -51,4 +51,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<PedidoOrdenValidation>();
     services.AddScoped<OrdenEmbarqueValidation>();
     services.AddScoped<AsignacionUnidadValidation>();
+    services.AddScoped<UsuarioInfoValidation>();
+    services.AddScoped<CodigoClienteValidation>();
+    services.AddScoped<ContactoInternoValidation>();
 }
