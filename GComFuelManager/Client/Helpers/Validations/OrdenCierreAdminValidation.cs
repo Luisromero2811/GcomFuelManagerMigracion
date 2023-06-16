@@ -11,7 +11,7 @@ namespace GComFuelManager.Client.Helpers.Validations
             RuleFor(o => o.CodCte).NotEmpty().WithName("Cliente");
             RuleFor(o => o.CodDes).NotEmpty().WithName("Destino");
             RuleFor(o => o.CodPrd).NotEmpty().WithName("Producto");
-            RuleFor(o => o.TipoPago).NotEmpty().WithName("Tipó de pago");
+            RuleFor(o => o.TipoPago).NotEmpty().WithName("Tipo de pago");
         }
     }
 }

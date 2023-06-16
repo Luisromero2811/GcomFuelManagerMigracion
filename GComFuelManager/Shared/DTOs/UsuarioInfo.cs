@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -25,5 +26,7 @@ namespace GComFuelManager.Shared.DTOs
         public Int16? CodGru { get; set; }
         public bool IsClient { get; set; } = false;
         public bool ShowPassword { get; set; } = false;
+        [NotMapped]
+        public bool passwordView { get; set; } = true;
     }
 }
