@@ -466,6 +466,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estado)
                     .Include(x => x.OrdenCompra)
                     .Include(x => x.Chofer)
+                    .Include(x=>x.OrdenCierre)
                     .FirstOrDefaultAsync();
 
                 return Ok(ord);

@@ -308,36 +308,41 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    if (isClient)
+                    if (!string.IsNullOrEmpty(filtroDTO.Folio))
                     {
-                        cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.Folio.Contains(context.Cliente.Find(filtroDTO.codCte)!.CodCte!))
-                        .Include(x => x.Cliente)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Destino)
-                        .Include(x => x.ContactoN)
+                        if (isClient)
+                        {
+                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.Folio.Contains(context.Cliente.Find(filtroDTO.codCte)!.CodCte!))
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.ContactoN)
+                            .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tonel)
                         .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Estado)
-                    .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Tad)
-                        .ToListAsync();
+                        .ThenInclude(x => x.Estado)
+                        .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .ToListAsync();
+                        }
+                        else
+                        {
+                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.ContactoN)
+                            .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tonel)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Estado)
+                        .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .ToListAsync();
+                        }
                     }
                     else
-                    {
-                        cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
-                        .Include(x => x.Cliente)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Destino)
-                        .Include(x => x.ContactoN)
-                        .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Estado)
-                    .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Tad)
-                        .ToListAsync();
-                    }
+                        return BadRequest("Debe escribir un folio valido.");
                 }
                 foreach (var item in cierres)
                 {
