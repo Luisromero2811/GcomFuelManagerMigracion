@@ -726,8 +726,10 @@
                     {
                         loadingSend = false;
                         await swal.FireAsync("Exito", "Las ordenes fueron enviadas a synthesis.", SweetAlertIcon.Success);
-
-                        ordenes = new List<OrdenEmbarque>();
+                        ordenes = ordenes.Where(x => x.Tonel is null && x.Chofer is null).ToList();
+                        ordenesSeleccionada = new List<OrdenEmbarque>();
+                        Synthesis = false;
+                        //ordenes = new List<OrdenEmbarque>();
                     }
                 }
             }
