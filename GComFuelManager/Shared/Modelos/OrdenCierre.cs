@@ -127,5 +127,9 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped]
         public bool IsDifferentVol { get; set; } = false;
+        [EpplusIgnore, NotMapped]
+        public DateTime? FchCar { get; set; } = DateTime.Today;
+        [EpplusIgnore, NotMapped]
+        public Int16? CodTad { get; set; } = 1;
     }
 }

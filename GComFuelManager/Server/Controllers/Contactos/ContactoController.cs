@@ -65,13 +65,16 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 context.Add(contacto);
                 await context.SaveChangesAsync();
 
-                foreach (var item in contacto.Accions)
+                if(contacto.CodCte != 0)
                 {
-                    AccionCorreo accionCorreo = new AccionCorreo();
+                    foreach (var item in contacto.Accions)
+                    {
+                        AccionCorreo accionCorreo = new AccionCorreo();
 
-                    accionCorreo.CodAccion = item.Cod;
-                    accionCorreo.CodContacto = contacto.Cod;
-                    context.Add(accionCorreo);
+                        accionCorreo.CodAccion = item.Cod;
+                        accionCorreo.CodContacto = contacto.Cod;
+                        context.Add(accionCorreo);
+                    }
                 }
 
                 await context.SaveChangesAsync();

@@ -102,7 +102,7 @@
                                     }
                                 </div>
                                 <div class="col-4">
-                                    <button class="btn gcom-bg-amarillo col-12" type="submit" disabled="@(ordenEmbarque is null)">
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null)">
                                         <i class="fa fa-solid fa-truck-front"></i>
                                         <b>Asignar</b>
                                     </button>
@@ -237,7 +237,7 @@
                     {
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis" type="reset"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
                             </AuthorizeView>
                         </div>
                     }
@@ -726,8 +726,10 @@
                     {
                         loadingSend = false;
                         await swal.FireAsync("Exito", "Las ordenes fueron enviadas a synthesis.", SweetAlertIcon.Success);
-
-                        ordenes = new List<OrdenEmbarque>();
+                        ordenes = ordenes.Where(x => x.Tonel is null && x.Chofer is null).ToList();
+                        ordenesSeleccionada = new List<OrdenEmbarque>();
+                        Synthesis = false;
+                        //ordenes = new List<OrdenEmbarque>();
                     }
                 }
             }
@@ -766,6 +768,10 @@
         try
         {
             ordenEmbarque = orden;
+            if(ordenEmbarque.Tonel != null && ordenEmbarque.Chofer != null)
+            {
+                //asignacion.CodTra = Transportistas.FirstOrDefault(x=>x.CarrId == ordenEmbarque.Chofer.bu)
+            }
             //await grid!.SelectRow(orden);
             //await dpT.FocusAsync();
         }
