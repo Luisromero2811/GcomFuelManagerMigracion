@@ -62,7 +62,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 {
                     var Eta = context.Orden.FirstOrDefault(x => x.BatchId == ordEmb.Bol);
 
-                   Eta.Codest = ordEmb.Orden!.Codest;
+                   Eta!.Codest = ordEmb.Orden!.Codest;
 
                     context.Update(Eta);
 

@@ -5,7 +5,7 @@ using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Client.Helpers.Validations
 {
-	public class ContactoInternoValidation:AbstractValidator<Contacto>
+	public class ContactoInternoValidation : AbstractValidator<Contacto>
 	{
 		public ContactoInternoValidation()
 		{
