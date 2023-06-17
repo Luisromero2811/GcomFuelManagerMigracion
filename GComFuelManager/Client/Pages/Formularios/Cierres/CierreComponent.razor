@@ -544,7 +544,7 @@
                                     else
                                     {
 
-                                        <AuthorizeView Roles="Autorizador Vigencia Completo, Admin, Administrador Sistema" Context="Date1">
+                                        <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Date1">
                                             <div class="col-12 row">
                                                 <div class="col-6">
                                                     <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
@@ -563,10 +563,10 @@
                                             </div>
                                         </AuthorizeView>
 
-                                        <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Date2">
+                                        <AuthorizeView Roles="Autorizador Vigencia Completo, Admin, Administrador Sistema" Context="Date2">
                                             <div class="col-12 row">
                                                 <div class="col-6">
-                                                    <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?"></RadzenDatePicker>
+                                                    <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"></RadzenDatePicker>
                                                 </div>
                                                 <div class="col-3">
                                                     <button class="btn btn-success col-12" type="button" @onclick="@SaveFechaVencimiento">

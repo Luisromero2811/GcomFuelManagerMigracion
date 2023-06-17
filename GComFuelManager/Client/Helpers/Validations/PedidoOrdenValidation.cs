@@ -14,16 +14,8 @@ namespace GComFuelManager.Client.Helpers.Validations
             RuleFor(o => o.FchLlegada).NotEmpty().WithName("Fecha de llegada estimada");
             RuleFor(o => o.Turno).NotEmpty().WithName("Turno");
             RuleFor(o => o.Volumen).NotEmpty().WithName("Volumen");
-            RuleFor(o => o.OrdenEmbarque).SetValidator(new OrdenEmbarqueValidation());
-        }
-    }
-
-    public class OrdenEmbarqueValidation : AbstractValidator<OrdenEmbarque>
-    {
-        public OrdenEmbarqueValidation()
-        {
-            RuleFor(oe => oe.Codtad).NotEmpty().WithName("Terminal");
-            RuleFor(oe => oe.Fchcar).NotEmpty().WithName("Fecha de carga");
+            RuleFor(o => o.CodTad).NotEmpty().WithName("Terminal");
+            RuleFor(o => o.FchCar).NotEmpty().WithName("Fecha de carga");
         }
     }
 }
