@@ -57,12 +57,13 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
-                
+
                 if (ordEmb.Cod == 0)
                 {
                     var Eta = context.Orden.FirstOrDefault(x => x.BatchId == ordEmb.Bol);
-
-                   Eta.Codest = ordEmb.Orden!.Codest;
+                    if (Eta is null)
+                        return BadRequest("No se encontro la orden.");
+                    Eta.Codest = ordEmb.Orden!.Codest;
 
                     context.Update(Eta);
 
@@ -81,7 +82,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
                     context.Update(ordEmb);
                 }
-                   
+
 
                 await context.SaveChangesAsync();
 

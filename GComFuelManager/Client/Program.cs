@@ -53,4 +53,5 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<UsuarioInfoValidation>();
     services.AddScoped<CodigoClienteValidation>();
     services.AddScoped<ContactoInternoValidation>();
+    services.AddScoped<PreciosValidation>();
 }

@@ -15,13 +15,14 @@
 <!--Primer formulario para tiempo estimado de llegada del pedido-->
 <div class="col-12 card shadow">
     <div class="card-body">
-        <EditForm Model="ordenEmbarque" class="row">
+        <EditForm Model="Ordenes" class="row">
+
             <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Filter">
                 <div class="row d-flex g-3">
                     <div class="row">
                         <div class="col-6">
                             <label>Número de Bol:</label>
-                            <InputNumber class="form-control" @bind-Value="etaDto.Bol" />
+                            <InputNumber class="form-control" @bind-Value="Ordenes.Bol" />
                         </div>
                         <div class="col-1 mt-4">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@GetOrden">
@@ -40,9 +41,9 @@
                                               @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
                         </div>
                         @*<div class="col-4">
-                <label>ETA:</label>
-                <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
-                </div>*@
+                        <label>ETA:</label>
+                        <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
+                        </div>*@
                         <div class="col-4">
                             <label>Fecha de llegada estimada:</label>
                             <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
@@ -51,26 +52,26 @@
                     </div>
                 </div>
             </AuthorizeView>
-                <div class="row d-flex g-3">
-                    <div class="row">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Trayectos">
-                            <div class="col-4">
-                                <label>En trayecto:</label>
-                                <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
-                                    <option value="20">NO</option>
-                                    <option value="26">SI</option>
-                                </InputSelect>
-                            </div>
-                        </AuthorizeView>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Equipo">
-                            <div class="col-4">
-                                <label>Equipo:</label>
-                                <RadzenTextBox class="col-12" Disabled="true" @bind-Value="@Ordenes.Orden!.Tonel!.Tracto"></RadzenTextBox>
-                            </div>
-                        </AuthorizeView>
-                    </div>
+            <div class="row d-flex g-3">
+                <div class="row">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Trayectos">
+                        <div class="col-4">
+                            <label>En trayecto:</label>
+                            <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
+                                <option value="20">NO</option>
+                                <option value="26">SI</option>
+                            </InputSelect>
+                        </div>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Equipo">
+                        <div class="col-4">
+                            <label>Equipo:</label>
+                            <RadzenTextBox class="col-12" Disabled="true" @bind-Value="@Ordenes.Orden!.Tonel!.Tracto"></RadzenTextBox>
+                        </div>
+                    </AuthorizeView>
                 </div>
-        
+            </div>
+
 
 
             <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto" Context="EtaReal">
@@ -127,7 +128,7 @@
                             <label>Fecha final</label>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
                         </div>
-                        <div class="col-md-4"  @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
+                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
                             <label>Tipo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
                                 <option>--Seleccione una opcion</option>
@@ -178,13 +179,13 @@
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
-    {
-        Orden = new Orden()
         {
-            Estado = new Estado(),
-            Tonel = new Tonel()
-        }
-    };
+            Orden = new Orden()
+            {
+                Estado = new Estado(),
+                Tonel = new Tonel()
+            }
+        };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -200,6 +201,7 @@
         try
         {
             //Tiempo Estimado de Arribo
+            etaDto.Bol = Ordenes.Bol;
             var responseHttp = await repositorio.Post<EtaDTO, OrdEmbDet>($"api/Eta/Filtro", etaDto);
             if (responseHttp.Error)
             {
@@ -212,7 +214,6 @@
             else
             {
                 Ordenes = responseHttp.Response;
-                Console.WriteLine(Ordenes.Fchlleest?.Subtract(Ordenes.FchDoc.Value));
             }
         }
         catch (Exception e)
@@ -225,57 +226,36 @@
     {
         try
         {
-            Ordenes.Bol = etaDto.Bol;
-            Ordenes.Orden.BatchId = etaDto.Bol;
-            var responseHttp = await repositorio.Post<OrdEmbDet, OrdEmbDet>($"api/eta", Ordenes);
-            if (responseHttp.Error)
+
+            if (Ordenes.Bol != 0 && Ordenes.Bol != null)
             {
-                var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                if (Ordenes?.Orden?.Codest != 0)
+                {
+                    Ordenes.Orden!.BatchId = Ordenes.Bol;
+
+                    var responseHttp = await repositorio.Post<OrdEmbDet, OrdEmbDet>($"api/eta", Ordenes);
+                    if (responseHttp.Error)
+                    {
+                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        await GetOrden();
+                        await swal.FireAsync("Exito", "La orden ha sido registrada con exito", SweetAlertIcon.Success);
+                    }
+                }
+                else
+                    await swal.FireAsync("Alerta", "Selecione un valor valido para En Trayecto.", SweetAlertIcon.Warning);
             }
             else
-            {
-                await GetOrden();
-                await swal.FireAsync("Exito", "La orden ha sido registrada con exito", SweetAlertIcon.Success);
-            }
+                await swal.FireAsync("Alerta", "Ingrese un BOL valido.", SweetAlertIcon.Warning);
         }
         catch (Exception e)
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-
-    //public async Task UpdateOrdenEta()
-    //{
-    //    var responseHttp = await repositorio.Put($"api/Eta/EditarEta", Ordenes);
-    //    if (responseHttp.Error)
-    //    {
-    //        var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //    }
-    //    else
-    //    {
-    //        //navigationManager.NavigateTo("ETA");
-    //        await swal.FireAsync("Exito", "La orden ha sido modificada", SweetAlertIcon.Success);
-    //        await GetOrden();
-    //    }
-    //}
-
-    //public async Task UpdateEtaReal()
-    //{
-    //    var responseHttp = await repositorio.Put($"api/Eta/EditarEtaReal", Ordenes);
-    //    if (responseHttp.Error)
-    //    {
-    //        var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //    }
-    //    else
-    //    {
-    //        //navigationManager.NavigateTo("ETA");
-    //        await swal.FireAsync("Exito", "La orden ha sido capturada", SweetAlertIcon.Success);
-    //        await GetOrden();
-    //    }
-    //}
 
     public async Task ExportExcel()
     {
