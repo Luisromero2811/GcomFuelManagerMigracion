@@ -4,6 +4,7 @@
 @inject SweetAlertService Swal
 @inject DialogService ds
 @inject NotificationService ns
+@inject PreciosValidation validation
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
@@ -78,9 +79,10 @@
                     </div>
                     <hr />
                     <div class="col-12">
-                        <EditForm Model="Precio" class="form col-12 row" Context="FORM">
-                            <DataAnnotationsValidator />
-
+                        <EditForm Model="Precio" class="form col-12 row" Context="FORM" OnValidSubmit="@SavePrecio">
+                            @*<DataAnnotationsValidator />*@
+                            <FluentValidationValidator Validator="validation"/>
+                            <ValidationSummary />
                             <div class="col-4 mb-2">
                                 <label class="form-label">Zona</label>
                                 <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
@@ -198,7 +200,7 @@
                             </div>
                             <div class="col-12 d-flex justify-content-center row">
                                 <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" @onclick="@SavePrecio">
+                                    <button class="btn col-12 gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         Guardar
                                         @if (loadingSave)
@@ -208,7 +210,7 @@
                                     </button>
                                 </div>
                                 <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" @onclick="@SendEmailPrecios">
+                                    <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
                                         <i class="fa fa-solid fa-paper-plane"></i>
                                         Enviar Precios
                                         @if (loadingSend)
