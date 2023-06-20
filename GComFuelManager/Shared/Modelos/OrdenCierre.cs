@@ -57,9 +57,9 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
         public string? TipoPago { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("precio"), DisplayName("Precio")]
-        public double? Precio { get; set; }
+        public double? Precio { get; set; } = 0;
         
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;
@@ -123,7 +123,7 @@ namespace GComFuelManager.Shared.Modelos
         public Grupo? Grupo { get; set; } = null!;
 
         [EpplusIgnore, NotMapped]
-        public bool IsCierreVolumen { get; set; } = false;
+        public bool IsCierreVolumen { get; set; } = true;
 
         [EpplusIgnore, NotMapped]
         public bool IsDifferentVol { get; set; } = false;
@@ -131,5 +131,7 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? FchCar { get; set; } = DateTime.Today;
         [EpplusIgnore, NotMapped]
         public Int16? CodTad { get; set; } = 1;
+        [EpplusIgnore, NotMapped]
+        public bool IsAutoPrecio { get; set; } = true;
     }
 }

@@ -151,7 +151,17 @@
                     <div class="col-12">
                         <div class="col-12 card shadow-sm">
                             <div class="col-12 card-body">
-                                <h4><b>Crear cierre</b></h4>
+                                <div class="col-12 row">
+                                    <div class="col-2">
+                                        <h4><b>Crear cierre</b></h4>
+                                    </div>
+                                    <div class="col row d-flex justify-content-start">
+                                        <RadzenStack Orientation="Orientation.Horizontal">
+                                            <RadzenText Text="Precio automatico" />
+                                            <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
+                                        </RadzenStack>
+                                    </div>
+                                </div>
                                 <EditForm Model="ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                                     @*<DataAnnotationsValidator />*@
                                     <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
@@ -215,22 +225,6 @@
                                             </Authorized>
                                         </AuthorizeView>
 
-                                        @*<div class="col-4 mb-1">
-                                        <div class="col-12">
-                                        <label>Contacto</label>
-                                        <RadzenDropDown Data="Contactos" class="col-12" TextProperty="Nombre" ValueProperty="Cod" @bind-Value="ordenCierre.CodCon"
-                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowVirtualization="true">
-                                        <Template Context="data">
-                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                        </Template>
-                                        <ValueTemplate Context="data">
-                                        Nombre: @((data as Contacto).Nombre) | Correo: @((data as Contacto).Correo)
-                                        </ValueTemplate>
-                                        </RadzenDropDown>
-                                        </div>
-                                        </div>*@
-
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Destino</label>
@@ -239,22 +233,47 @@
                                                                 AllowVirtualization="true" />
                                             </div>
                                         </div>
-
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Producto</label>
-                                                <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                @if (ordenCierre.IsAutoPrecio)
+                                                {
+                                                    <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                                                 AllowVirtualization="true">
-                                                    <Template Context="data">
-                                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                                    </Template>
-                                                    <ValueTemplate Context="data">
-                                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                                    </ValueTemplate>
-                                                </RadzenDropDown>
+                                                        <Template Context="data">
+                                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                        </Template>
+                                                        <ValueTemplate Context="data">
+                                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                        </ValueTemplate>
+                                                    </RadzenDropDown>
+                                                }
+                                                else
+                                                {
+                                                    <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select">
+                                                        <option>-- Selecciona una opcion --</option>
+                                                        @if (Productos is null)
+                                                        {
+                                                            <option disabled> Cargando ...</option>
+                                                        }
+                                                        else if (Productos.Count == 0)
+                                                        {
+                                                            <option disabled> No hay capacidades</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            foreach (var item in Productos)
+                                                            {
+                                                                <option value="@item.Cod">@item.Den</option>
+                                                            }
+                                                        }
+                                                    </InputSelect>
+                                                }
+
                                             </div>
                                         </div>
+
 
                                         @if (!ordenCierre.IsDifferentVol)
                                         {
@@ -307,12 +326,24 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
-                                                    <label>
-                                                        Precio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                    </label>
-                                                </div>
-                                                <RadzenNumeric class="form-control col-12 disabled" @bind-Value="ordenCierre.Precio" Disabled="true" />
+                                                @if (ordenCierre.IsAutoPrecio)
+                                                {
+                                                    <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
+                                                        <label>
+                                                            Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                        </label>
+                                                    </div>
+                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-12 row p-0">
+                                                        <label>
+                                                            Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                                        </label>
+                                                    </div>
+                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" />
+                                                }
                                             </div>
                                         </div>
 
@@ -448,7 +479,7 @@
                             @if (data.Activa is true)
                             {
                                 <div class="col-12">
-                                    <button class="col-6 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(data.Cod))">
+                                    <button class="col-6 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(data))">
                                         <i class="fa-solid fa-unlock"></i>
                                     </button>
                                 </div>
@@ -533,7 +564,7 @@
                                 </button>
                             </div>
                             <div class="col-4">
-                                @if (!monthFilter)
+                                @if (!monthFilter || !filtro.forFolio)
                                 {
                                     @if (AddDaysExpiration is false)
                                     {
@@ -722,7 +753,7 @@
                 await GetContactosComprador();
             }
             await GetCantidades();
-            //await GetProductos();
+            await GetProductos();
         }
         catch (Exception e)
         {
@@ -743,7 +774,6 @@
     {
         if (ordenCierre.CodCte != null || clienteSeleccioado != ordenCierre.CodCte)
         {
-            await GetContactos();
             await GetEstaciones();
             clienteSeleccioado = ordenCierre.CodCte;
             StateHasChanged();
@@ -751,19 +781,19 @@
 
     }
 
-    private async Task GetContactos()
+    private async Task GetProductos()
     {
         try
         {
-            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/{ordenCierre.CodCte}");
+            var response = await http.Get<List<Producto>>("api/producto");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                Contactos = response.Response;
+                Productos = response.Response;
+                ProductList = response.Response.DistinctBy(x => x.Den).Select(x => x.Den)!;
             }
         }
         catch (Exception e)
@@ -1062,7 +1092,6 @@
         try
         {
             ordenCierres = new List<OrdenCierre>();
-            filtro.forFolio = forFolio;
             isFilter = true;
             monthFilter = false;
 
@@ -1084,6 +1113,7 @@
 
             if (filtro != null)
             {
+                filtro.forFolio = forFolio;
                 var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
                 if (response != null)
                 {
@@ -1212,9 +1242,9 @@
     {
         try
         {
-            if(filtro != null)
+            if (filtro != null)
             {
-                if(!string.IsNullOrEmpty(filtro.Folio))
+                if (!string.IsNullOrEmpty(filtro.Folio))
                 {
                     await ds.OpenAsync<TabsCierresDialogs>($"Orden {filtro.Folio}",
                     new Dictionary<string, object>() { { "folio", filtro.Folio } },
@@ -1315,61 +1345,62 @@
     {
         try
         {
-            var responseActivo = await http.Post<OrdenCierre, bool>($"api/cierre/activo", ordenCierre);
-            if (responseActivo.Error)
+            //var responseActivo = await http.Post<OrdenCierre, bool>($"api/cierre/activo", ordenCierre);
+            //if (responseActivo.Error)
+            //{
+            //    var message = await responseActivo.ObtenerMensajeError();
+            //    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            //}
+            //else
+            //{
+
+            //}
+            if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
-                var message = await responseActivo.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(ordenCierre.Folio))
+                if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
                 {
-                    if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
-                    {
 
-                        var r = await Swal.FireAsync(new SweetAlertOptions
-                            {
-                                Title = "Agregar pedido",
-                                Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                                Icon = SweetAlertIcon.Warning,
-                                CancelButtonText = "Cancelar",
-                                ConfirmButtonText = "Aceptar",
-                                ShowCancelButton = true
-                            });
-                        if (!string.IsNullOrEmpty(r.Value))
+                    var r = await Swal.FireAsync(new SweetAlertOptions
                         {
-                            ordenCierres = new List<OrdenCierre>();
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-
-                    if (IsClient)
-                        ordenCierre.CodCte = user.CodCte;
-
-                    var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
-                    if (response.Error)
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
+                    if (!string.IsNullOrEmpty(r.Value))
                     {
-                        var message = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        ordenCierres = new List<OrdenCierre>();
                     }
                     else
                     {
-                        Cliente = response.Response;
-                        Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                        ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
-
-                        await PutClientes();
-                        await CreateCierre();
+                        return;
                     }
+                }
+
+                if (IsClient)
+                    ordenCierre.CodCte = user.CodCte;
+
+                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                 }
                 else
                 {
+                    Cliente = response.Response;
+                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+
+                    await PutClientes();
                     await CreateCierre();
                 }
+            }
+            else
+            {
+                await CreateCierre();
             }
         }
         catch (Exception e)
@@ -1600,12 +1631,11 @@
         }
     }
 
-    private async Task CloseOrden(int folio)
+    private async Task CloseOrden(OrdenCierre orden)
     {
         try
         {
-
-            var response = await http.Delete($"api/cierre/cerrar/orden/{folio}");
+            var response = await http.Delete($"api/cierre/cerrar/orden/{orden.Cod}");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -1613,8 +1643,32 @@
             }
             else
             {
+                orden.Activa = false;
                 await Swal.FireAsync("Exito", "El pedido ha sido cerrado", SweetAlertIcon.Success);
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ChangePrecioType()
+    {
+        try
+        {
+            if (ordenCierre.CodPrd != null)
+            {
+                if(Precios.Any(x=>x.Producto?.Cod != ordenCierre.CodPrd))
+                {
+                    ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
+                }
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                CodProductoSeleccionado = ordenCierre.CodPrd;
+                StateHasChanged();
+            }
+
         }
         catch (Exception e)
         {
