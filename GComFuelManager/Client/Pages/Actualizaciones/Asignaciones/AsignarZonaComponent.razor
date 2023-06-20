@@ -53,7 +53,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Grupo</label>
-                                <InputSelect @bind-Value="zonaDto.grupo" class="form-select" onchange="@GetClientes()">
+                                <InputSelect @bind-Value="zonaDto.codgru" class="form-select" onchange="@GetClientes()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Grupos is null)
                                     {
@@ -305,9 +305,9 @@
     {
         try
         {
-            if (zonaCliente.Cliente!.codgru != GrupoSeleccionado && zonaCliente.Cliente.codgru != null)
+            if (zonaDto.codgru != GrupoSeleccionado && zonaDto.codgru != null)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{zonaCliente.Cliente!.codgru}");
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{zonaDto.codgru}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -315,7 +315,7 @@
                 }
                 else
                 {
-                    GrupoSeleccionado = zonaCliente.Cliente!.codgru;
+                    GrupoSeleccionado = zonaDto.codgru;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
@@ -332,9 +332,9 @@
     {
         try
         {
-            if (zonaCliente.CteCod != null && ClienteSeleccionado != zonaCliente.CteCod)
+            if (zonaDto.CteCod != null && ClienteSeleccionado != zonaDto.CteCod)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaCliente.CteCod}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaDto.CteCod}");
                 if (response.Error)
                 {
                     var responseHttp = await response.ObtenerMensajeError();
@@ -343,7 +343,7 @@
                 else
                 {
                     Destinos = response.Response;
-                    ClienteSeleccionado = zonaCliente.CteCod;
+                    ClienteSeleccionado = zonaDto.CteCod;
                     StateHasChanged();
                 }
             }

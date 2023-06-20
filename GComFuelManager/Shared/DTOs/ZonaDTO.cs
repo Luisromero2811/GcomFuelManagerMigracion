@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.DTOs
 	public class ZonaDTO
 	{
 		public int? ZonaCod { get; set; }
-		public Grupo? grupo { get; set; }
+		public short? codgru { get; set; }
 		public int? CteCod { get; set; }
 		public int? DesCod { get; set; }
         

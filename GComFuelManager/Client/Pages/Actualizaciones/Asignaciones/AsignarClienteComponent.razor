@@ -146,7 +146,7 @@
     public Grupo Grupo { get; set; } = new Grupo();
     IList<Grupo> Grupos { get; set; } = new List<Grupo>();
 
-    GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO() { grupo = new Grupo() , cliente = new Cliente() };
+    GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO();
 
     protected async override Task OnInitializedAsync()
     {

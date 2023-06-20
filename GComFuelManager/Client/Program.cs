@@ -58,5 +58,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<AsignacionZonaValidation>();
     services.AddScoped<AsignarContactoValidation>();
     services.AddScoped<AsignarZonaClienteValidation>();
+    services.AddScoped<ClienteDestinoValidation>();
 
 }

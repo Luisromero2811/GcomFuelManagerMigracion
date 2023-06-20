@@ -13,66 +13,71 @@
     <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador, Correo de Clientes">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="BuscarContactos">*@
-                <div class="col-12 mb-4 row">
-                    <div class="col-10">
-                        <label>Cliente:</label>
-                        <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" TValue="Cliente" TextProperty="Den"
-                                        AllowVirtualization="true" AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                            @*<Template>
-                            @((context as Cliente)?.Den)
-                            </Template>
-                            <ValueTemplate>
-                            @((context as Cliente)?.Den)
-                            </ValueTemplate>*@
-                        </RadzenDropDown>
-                    </div>
-                    <div class="col-2 d-flex mt-auto">
-                        <button class="col-12 mx-auto btn gcom-bg-amarillo" @onclick="@GetContactos">
-                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar contactos
-                        </button>
-                    </div>
-                </div>
-                @*</AuthorizeView>*@
-                <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="AddContact">
-                    <div class="col-12 mb-3 row">
-                        <div class="col-5">
-                            <label class="form-label">Nombre</label>
-                            <InputText class="form-control" @bind-Value="Contacto.Nombre" />
-                        </div>
-                        <div class="col-5">
-                            <label class="form-label">Correo</label>
-                            <InputText class="form-control" @bind-Value="Contacto.Correo" />
-                        </div>
-                        <div class="col-2 d-flex mt-auto">
-                            @if (!isEdit)
-                            {
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@PostContacto">
-                                    <i class="fa fa-solid fa-plus"></i> Agregar Contacto
-                                </button>
-                            }
-                            else
-                            {
-                                <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@PutContacto">
-                                    <i class="fa fa-solid fa-check"></i>
-                                </button>
-                                <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit">
-                                    <i class="fa fa-solid fa-xmark"></i>
-                                </button>
-                            }
-                        </div>
-                    </div>
-                    <div class="col-12 row p-2">
-                        <div class="col-12">
-                            <label>Acciones:</label>
-                            <!--Selector multiple de Radzen-->
-                            <RadzenDropDown @bind-Value="AccionesSeleccionadas" Data="Acciones" TextProperty="Nombre"
-                                            Multiple=true AllowClear=true Placeholder="Seleccione las acciones" Chips=true class="col-12">
+                <EditForm Model="@AsignarContactoDTO" class="form col-12" OnValidSubmit="@PostContacto" Context="validations">
+                    <FluentValidationValidator Validator="validation" />
+                    <ValidationSummary />
+                    @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="BuscarContactos">*@
+                    <div class="col-12 mb-4 row">
+                        <div class="col-10">
+                            <label>Cliente:</label>
+                            <RadzenDropDown @bind-Value="AsignarContactoDTO.cliente" Data="Clientes" TValue="Cliente" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                @*<Template>
+                                    @((context as Cliente)?.Den)
+                                    </Template>
+                                    <ValueTemplate>
+                                    @((context as Cliente)?.Den)
+                                    </ValueTemplate>*@
                             </RadzenDropDown>
                         </div>
+                        <div class="col-2 d-flex mt-auto">
+                            <button class="col-12 mx-auto btn gcom-bg-amarillo" @onclick="@GetContactos" type="button">
+                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar contactos
+                            </button>
+                        </div>
                     </div>
-                </AuthorizeView>
+                    @*</AuthorizeView>*@
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="AddContact">
+                        <div class="col-12 mb-3 row">
+                            <div class="col-5">
+                                <label class="form-label">Nombre</label>
+                                <InputText class="form-control" @bind-Value="AsignarContactoDTO.Nombre" />
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label">Correo</label>
+                                <InputText class="form-control" @bind-Value="AsignarContactoDTO.Correo" />
+                            </div>
+                            <div class="col-2 d-flex mt-auto">
+                                @if (!isEdit)
+                                {
+                                    <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                        <i class="fa fa-solid fa-plus"></i> Agregar Contacto
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@PutContacto" type="button">
+                                        <i class="fa fa-solid fa-check"></i>
+                                    </button>
+                                    <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                        <i class="fa fa-solid fa-xmark"></i>
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12 row p-2">
+                            <div class="col-12">
+                                <label>Acciones:</label>
+                                <!--Selector multiple de Radzen-->
+                                <RadzenDropDown @bind-Value="AsignarContactoDTO.accione" Data="Acciones" TextProperty="Nombre"
+                                                Multiple=true AllowClear=true Placeholder="Seleccione las acciones" Chips=true class="col-12">
+                                </RadzenDropDown>
+                            </div>
+                        </div>
+                    </AuthorizeView>
+                </EditForm>
             </div>
         </div>
     </AuthorizeView>
@@ -138,6 +143,8 @@
     IEnumerable<Accion> Acciones { get; set; } = new List<Accion>();
     List<Accion> AccionesSeleccionadas { get; set; } = new List<Accion>();
 
+    AsignarContactoDTO AsignarContactoDTO = new AsignarContactoDTO();
+
     bool loading = false;
     bool isEdit = false;
 
@@ -196,19 +203,26 @@
     {
         try
         {
-            loading = true;
-            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/cliente/{ClienteSeleccionado.Cod}");
-            if (response.Error)
+            if (AsignarContactoDTO.cliente == null)
             {
-                loading = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                await Swal.FireAsync("Error", "Seleccione un Cliente para buscar", SweetAlertIcon.Warning);
             }
             else
             {
-                loading = false;
-                Contactos = response.Response;
-                Console.WriteLine(JsonConvert.SerializeObject(Contactos));
+                loading = true;
+                var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/cliente/{AsignarContactoDTO.cliente!.Cod}");
+                if (response.Error)
+                {
+                    loading = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loading = false;
+                    Contactos = response.Response;
+                    Console.WriteLine(JsonConvert.SerializeObject(Contactos));
+                }
             }
         }
         catch (Exception e)
@@ -223,14 +237,16 @@
         try
         {
 
-            if (ClienteSeleccionado == null)
+            if (AsignarContactoDTO.cliente == null)
             {
                 await Swal.FireAsync("Error", "Seleccione un cliente para registrar un contacto.", SweetAlertIcon.Warning);
             }
             else
             {
-                Contacto.CodCte = ClienteSeleccionado.Cod;
-                Contacto.Accions = AccionesSeleccionadas;
+                Contacto.Nombre = AsignarContactoDTO.Nombre;
+                Contacto.Correo = AsignarContactoDTO.Correo;
+                Contacto.CodCte = AsignarContactoDTO.cliente.Cod;
+                Contacto.Accions = AsignarContactoDTO.accione;
                 var response = await http.Post<Contacto>($"api/contacto", Contacto);
                 if (response.Error)
                 {
@@ -242,13 +258,13 @@
                     await GetContactos();
 
                     await Swal.Mixin(new SweetAlertOptions
-                        {
-                            Position = "top-end",
-                            ShowConfirmButton = false,
-                            Timer = 1500,
-                            TimerProgressBar = true,
-                            Toast = true,
-                        }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Success, Text = $"Contacto Registrado en {ClienteSeleccionado.Den}." });
+                    {
+                        Position = "top-end",
+                        ShowConfirmButton = false,
+                        Timer = 1500,
+                        TimerProgressBar = true,
+                        Toast = true,
+                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Success, Text = $"Contacto Registrado en {AsignarContactoDTO.cliente!.Den}." });
 
                 }
             }
@@ -263,8 +279,12 @@
     {
         try
         {
-            Contacto.CodCte = ClienteSeleccionado.Cod;
-            Contacto.Accions = AccionesSeleccionadas;
+            Contacto.Nombre = AsignarContactoDTO.Nombre;
+            Contacto.Correo = AsignarContactoDTO.Correo;
+            Contacto.CodCte = AsignarContactoDTO.cliente.Cod;
+            Contacto.Accions = AsignarContactoDTO.accione;
+            //Contacto.CodCte = AsignarContactoDTO.cliente!.Cod;
+            //Contacto.Accions = AsignarContactoDTO.acciones;
             var response = await http.Put<Contacto>($"api/contacto", Contacto);
             if (response.Error)
             {
@@ -276,13 +296,13 @@
                 await GetContactos();
 
                 await Swal.Mixin(new SweetAlertOptions
-                    {
-                        Position = "top-end",
-                        ShowConfirmButton = false,
-                        Timer = 1500,
-                        TimerProgressBar = true,
-                        Toast = true,
-                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Editado." });
+                {
+                    Position = "top-end",
+                    ShowConfirmButton = false,
+                    Timer = 1500,
+                    TimerProgressBar = true,
+                    Toast = true,
+                }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Editado." });
             }
         }
         catch (Exception e)
@@ -306,13 +326,13 @@
                 await GetContactos();
 
                 await Swal.Mixin(new SweetAlertOptions
-                    {
-                        Position = "top-end",
-                        ShowConfirmButton = false,
-                        Timer = 1500,
-                        TimerProgressBar = true,
-                        Toast = true,
-                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Habilitado / Deshabilitado en {ClienteSeleccionado.Den}." });
+                {
+                    Position = "top-end",
+                    ShowConfirmButton = false,
+                    Timer = 1500,
+                    TimerProgressBar = true,
+                    Toast = true,
+                }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Habilitado / Deshabilitado en {ClienteSeleccionado.Den}." });
             }
         }
         catch (Exception e)
@@ -351,13 +371,13 @@
     private async Task Message(string message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-            {
-                Position = "top-end",
-                ShowConfirmButton = false,
-                Timer = 1500,
-                TimerProgressBar = true,
-                Toast = true,
-            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1500,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
     private async Task GetAcciones()
