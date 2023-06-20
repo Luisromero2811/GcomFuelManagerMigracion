@@ -2,7 +2,8 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-
+@inject AsignarGrupoValidation validation
+@inject AsignarGrupoClienteValidation validate
 
 <h4><b>Grupo - Cliente</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
@@ -11,88 +12,98 @@
             <div class="col-12 row card-body">
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="Admin">
                     <h5>Agregar grupo</h5>
-                    <div class="col-12 row mb-3">
-                        <div class="col-md-6 col">
-                            <label>Nombre:</label>
-                            <InputText @bind-Value="@Grupo.Den" class="form-control" />
-                        </div>
-                        <div class="col-md-5 col">
-                            <label class="">Tipo de Venta</label>
-                            <InputSelect @bind-Value="Grupo.Tipven" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (TpVenta is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (TpVenta.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in TpVenta)
+                    <EditForm Model="@Grupo" class="form col-12" OnValidSubmit="@CreateGrupos" Context="validations">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="col-12 row mb-3">
+
+                            <div class="col-md-6 col">
+                                <label>Nombre:</label>
+                                <InputText @bind-Value="@Grupo.Den" class="form-control" />
+                            </div>
+                            <div class="col-md-5 col">
+                                <label class="">Tipo de Venta</label>
+                                <InputSelect @bind-Value="Grupo.Tipven" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (TpVenta is null)
                                     {
-                                        <option value="@item">@item</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (TpVenta.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in TpVenta)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col d-flex mt-auto">
+                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+
                         </div>
-                        <div class="col d-flex mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@CreateGrupos">
-                                <i class="fa fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
+                    </EditForm>
                 </AuthorizeView>
                 <hr />
-                <div class="col-12 mb-4 row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Gruposss">
-                        <div class="col">
-                            <label>Grupo:</label>
-                            <RadzenDropDown @bind-Value="GrupoSeleccionado" TValue="Grupo" Data="Grupos" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                @*<Template>
-                                    @((context as Grupo)?.Den)
-                                    </Template>
-                                    <ValueTemplate>
-                                    @((context as Grupo)?.Den)
-                                    </ValueTemplate>*@
-                            </RadzenDropDown>
-                        </div>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="Cli">
-                        <div class="col">
-                            <label>Cliente:</label>
-                            <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                @*<Template>
-                                    @((context as Cliente)?.Den)
-                                    </Template>
-                                    <ValueTemplate>
-                                    @((context as Cliente)?.Den)
-                                    </ValueTemplate>*@
-                            </RadzenDropDown>
-                        </div>
-                    </AuthorizeView>
-                </div>
-                <div class="col-12 mb-3 d-flex justify-content-center">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="BuscarClientes">
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
-                            </button>
-                        </div>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="BotonCli">
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarClientesGroup">
-                                <i class="fa fa-solid fa-plus"></i> Agregar Cliente
-                            </button>
-                        </div>
-                    </AuthorizeView>
-                </div>
+                <EditForm Model="@CliGru" class="form col-12" OnValidSubmit="@AsignarClientesGroup" Context="vallidations">
+                    <FluentValidationValidator Validator="validate" />
+                    <ValidationSummary />
+                    <div class="col-12 mb-4 row">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Gruposss">
+                            <div class="col">
+                                <label>Grupo:</label>
+                                <RadzenDropDown @bind-Value="CliGru.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den"
+                                                AllowVirtualization="true" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                    @*<Template>
+                                        @((context as Grupo)?.Den)
+                                        </Template>
+                                        <ValueTemplate>
+                                        @((context as Grupo)?.Den)
+                                        </ValueTemplate>*@
+                                </RadzenDropDown>
+                            </div>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="Cli">
+                            <div class="col">
+                                <label>Cliente:</label>
+                                <RadzenDropDown @bind-Value="CliGru.cliente" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
+                                                AllowVirtualization="true" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                    @*<Template>
+                                        @((context as Cliente)?.Den)
+                                        </Template>
+                                        <ValueTemplate>
+                                        @((context as Cliente)?.Den)
+                                        </ValueTemplate>*@
+                                </RadzenDropDown>
+                            </div>
+                        </AuthorizeView>
+                    </div>
+                    <div class="col-12 mb-3 d-flex justify-content-center">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="BuscarClientes">
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
+                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
+                                </button>
+                            </div>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="BotonCli">
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i> Agregar Cliente
+                                </button>
+                            </div>
+                        </AuthorizeView>
+                    </div>
+                </EditForm>
             </div>
 
 
@@ -135,6 +146,8 @@
     public Grupo Grupo { get; set; } = new Grupo();
     IList<Grupo> Grupos { get; set; } = new List<Grupo>();
 
+    GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO() { grupo = new Grupo() , cliente = new Cliente() };
+
     protected async override Task OnInitializedAsync()
     {
         await GetClientesGroup();
@@ -145,15 +158,15 @@
     {
         try
         {
-            if (GrupoSeleccionado == null)
+            if (CliGru.grupo == null)
             {
                 await Swal.FireAsync("Alerta", "Seleccione un grupo.", SweetAlertIcon.Warning);
-
             }
             else
             {
-                ClienteSeleccionado.codgru = GrupoSeleccionado.Cod;
-                var response = await http.Post<Cliente>($"api/grupo/cliente", ClienteSeleccionado);
+                //Console.WriteLine(JsonConvert.SerializeObject(CliGru));
+                CliGru.cliente!.codgru = CliGru.grupo!.Cod;
+                var response = await http.Post<Cliente>($"api/grupo/cliente", CliGru.cliente);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -161,7 +174,7 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Exito", $"Cliente Asignado a {GrupoSeleccionado.Den}", SweetAlertIcon.Success);
+                    await Swal.FireAsync("Exito", $"Cliente Asignado a {CliGru.cliente.Den}", SweetAlertIcon.Success);
                 }
             }
         }
@@ -218,14 +231,15 @@
     {
         try
         {
-            if (GrupoSeleccionado == null)
+            if (CliGru.grupo == null)
             {
                 await Swal.FireAsync("Alerta", "Seleccione un grupo.", SweetAlertIcon.Warning);
 
             }
             else
             {
-                var response = await http.Get<IEnumerable<Cliente>>($"api/clientes/grupo/{GrupoSeleccionado.Cod}");
+                //CliGru.cliente!.codgru = CliGru.grupo.Cod;
+                var response = await http.Get<IEnumerable<Cliente>>($"api/clientes/grupo/{CliGru.grupo.Cod}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();

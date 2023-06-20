@@ -2,124 +2,132 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-
+@inject AsignacionZonaValidation validation
+@inject AsignarZonaClienteValidation validate
 <h3>Zona</h3>
 <AuthorizeView Roles="Admin, Administrador Sistema">
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <div class="col-10 shadow-sm card">
                 <div class="col-12 card-body row">
-                    <div class="col-12 row">
-                        <div class="col-6">
-                            <label class="form-label">Zona</label>
-                            <InputText @bind-Value="Zona.Nombre" class="form-control" />
+                    <EditForm Model="@Zona" class="form col-12" OnValidSubmit="@SaveZona" Context="validacin">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="col-12 row">
+                            <div class="col-6">
+                                <label class="form-label">Zona</label>
+                                <InputText @bind-Value="Zona.Nombre" class="form-control" />
+                            </div>
+                            <div class="col-3 d-flex">
+                                <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i>
+                                    Agregar zona
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-3 d-flex">
-                            <button class="col-12 btn gcom-bg-amarillo mt-auto" @onclick="@SaveZona">
-                                <i class="fa fa-solid fa-plus"></i>
-                                Agregar zona
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="col-12 row mb-3">
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Zona</label>
-                            <InputSelect @bind-Value="zonaCliente.ZonaCod" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Zonas is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Zonas.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Zonas)
+                    </EditForm>
+                    <EditForm Model="@zonaDto" class="form col-12" OnValidSubmit="@SaveAsignacion" Context="ZonaClientes">
+                        <FluentValidationValidator Validator="validate" />
+                        <ValidationSummary />
+                        <div class="col-12 row mb-3">
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Zona</label>
+                                <InputSelect @bind-Value="zonaDto.ZonaCod" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Zonas is null)
                                     {
-                                        <option value="@item.Cod">@item.Nombre</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Grupo</label>
-                            <InputSelect @bind-Value="zonaCliente.Cliente!.codgru" class="form-select" onchange="@GetClientes()">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Grupos is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Grupos.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Grupos)
+                                    else if (Zonas.Count == 0)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option disabled> No hay capacidades</option>
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Cliente</label>
-                            <InputSelect @bind-Value="zonaCliente.CteCod" class="form-select" onchange="@GetEstaciones()">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Clientes is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Clientes.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Clientes)
+                                    else
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        foreach (var item in Zonas)
+                                        {
+                                            <option value="@item.Cod">@item.Nombre</option>
+                                        }
                                     }
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Destino</label>
-                            <InputSelect @bind-Value="zonaCliente.DesCod" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Destinos is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Destinos.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Destinos)
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Grupo</label>
+                                <InputSelect @bind-Value="zonaDto.grupo" class="form-select" onchange="@GetClientes()">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Grupos is null)
                                     {
-                                        <option value="@item.Cod">@item.Den</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (Grupos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Grupos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Cliente</label>
+                                <InputSelect @bind-Value="zonaDto.CteCod" class="form-select" onchange="@GetEstaciones()">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Clientes is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Destino</label>
+                                <InputSelect @bind-Value="zonaDto.DesCod" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Destinos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Destinos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Destinos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-12 d-flex justify-content-center">
-                        <div class="col-4">
-                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@SaveAsignacion">
-                                <i class="fa fa-solid fa-floppy-disk"></i>
-                                Guardar
-                                @if (loadingSave)
-                                {
-                                    <SpinnerLoading />
-                                }
-                            </button>
+                        <div class="col-12 d-flex justify-content-center">
+                            <div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-floppy-disk"></i>
+                                    Guardar
+                                    @if (loadingSave)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    </EditForm>
                 </div>
             </div>
         </div>
@@ -179,6 +187,8 @@
 
     private short? GrupoSeleccionado = 0;
     private int? ClienteSeleccionado = 0;
+
+    ZonaDTO zonaDto { get; set; } = new ZonaDTO();
 
     protected async override Task OnInitializedAsync()
     {
@@ -413,10 +423,10 @@
         await Swal.Mixin(new SweetAlertOptions
         {
             Position = "top-end",
-            ShowConfirmButton= false,
+            ShowConfirmButton = false,
             Timer = 1600,
             Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
 }

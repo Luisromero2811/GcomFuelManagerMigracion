@@ -226,7 +226,7 @@
         try
         {
             Ordenes.Bol = etaDto.Bol;
-            Ordenes.Orden.BatchId = etaDto.Bol;
+            Ordenes.Orden!.BatchId = etaDto.Bol;
             var responseHttp = await repositorio.Post<OrdEmbDet, OrdEmbDet>($"api/eta", Ordenes);
             if (responseHttp.Error)
             {
