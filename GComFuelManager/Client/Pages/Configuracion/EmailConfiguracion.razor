@@ -9,8 +9,9 @@
 <h4><b>Configurar Correo</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
     <div class="col-12 d-flex justify-content-center">
-        @*<EditForm Model="@Contacto" class="form col-12" OnValidSubmit="@PostContacto" Context="validation">
-            <FluentValidationValidator Validator="validator" />*@
+        <EditForm Model="@Contacto" class="form col-12" OnValidSubmit="@PostContacto" Context="validation">
+            <FluentValidationValidator Validator="validator" />
+            <ValidationSummary/>
             <div class="col-10 card shadow-sm">
                 <div class="col-12 row card-body">
 
@@ -43,7 +44,7 @@
                     </div>
                 </div>
             </div>
-        @*</EditForm>*@
+        </EditForm>
     </div>
 </AuthorizeView>
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="Contacts">
