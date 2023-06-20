@@ -2,66 +2,70 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-
+@inject ClienteDestinoValidation validation
 
 <h4><b>Cliente - Destino</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <h5>Buscar destino</h5>
-                <div class="col-12 mb-4 row">
+                <EditForm Model="@ClienteDestinoDTO" class="form col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
+                    <FluentValidationValidator Validator="validation" />
+                    <ValidationSummary />
+                    <h5>Buscar destino</h5>
                     <div class="col-12 mb-4 row">
-                        @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
-                        <div class="col">
-                            <label>Cliente:</label>
-                            <RadzenDropDown @bind-Value="ClienteDSeleccionado" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
-                                            AllowVirtualization="true" AllowFiltering="true"
-                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                <Template>
-                                    @((context as Cliente)?.Den)
-                                </Template>
-                                <ValueTemplate>
-                                    @((context as Cliente)?.Den)
-                                </ValueTemplate>
-                            </RadzenDropDown>
-                        </div>
-                        @*</AuthorizeView>*@
-                        <AuthorizeView Roles="Admin, Administrador Sistema">
+                        <div class="col-12 mb-4 row">
+                            @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
                             <div class="col">
-                                <label>Destino:</label>
-                                <RadzenDropDown @bind-Value="DestinoSeleccionado" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
+                                <label>Cliente:</label>
+                                <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                    @*<Template>
-                                        @((context as CodDenDTO)?.Den)
-                                        </Template>
-                                        <ValueTemplate>
-                                        @((context as CodDenDTO)?.Den)
-                                        </ValueTemplate>*@
+                                    <Template>
+                                        @((context as Cliente)?.Den)
+                                    </Template>
+                                    <ValueTemplate>
+                                        @((context as Cliente)?.Den)
+                                    </ValueTemplate>
                                 </RadzenDropDown>
                             </div>
-                        </AuthorizeView>
+                            @*</AuthorizeView>*@
+                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                                <div class="col">
+                                    <label>Destino:</label>
+                                    <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
+                                                    AllowVirtualization="true" AllowFiltering="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                        @*<Template>
+                                            @((context as CodDenDTO)?.Den)
+                                            </Template>
+                                            <ValueTemplate>
+                                            @((context as CodDenDTO)?.Den)
+                                            </ValueTemplate>*@
+                                    </RadzenDropDown>
+                                </div>
+                            </AuthorizeView>
 
-                    </div>
-                    <div class="col-12 mb-3 d-flex justify-content-center">
-                        @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">*@
-                        <div class="col d-flex mt-auto">
-                            <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
-                            </button>
                         </div>
-                        @*</AuthorizeView>*@
-                        <AuthorizeView Roles="Admin, Administrador Sistema">
+                        <div class="col-12 mb-3 d-flex justify-content-center">
+                            @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">*@
                             <div class="col d-flex mt-auto">
-                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@AsignarDestinosClientes">
-                                    <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente" type="button">
+                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
                                 </button>
                             </div>
-                        </AuthorizeView>
+                            @*</AuthorizeView>*@
+                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                                <div class="col d-flex mt-auto">
+                                    <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
+                                        <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                                    </button>
+                                </div>
+                            </AuthorizeView>
 
+                        </div>
                     </div>
-                </div>
+                </EditForm>
             </div>
         </div>
     </div>
@@ -97,6 +101,9 @@
     public Cliente ClienteDSeleccionado { get; set; } = new Cliente();
     public RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
 
+    CodDenDTO CodDenDTO { get; set; } = new CodDenDTO() { cliente = new Cliente(), destino = new Destino() };
+    ClienteDestinoDTO ClienteDestinoDTO { get; set; } = new ClienteDestinoDTO();
+
     protected async override Task OnInitializedAsync()
     {
         await GetClientesGroup();
@@ -107,15 +114,22 @@
     {
         try
         {
-            var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDSeleccionado.Cod}");
-            if (response.Error)
+            if (ClienteDestinoDTO.cliente == null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                await Swal.FireAsync("Error", "Seleccione un cliente para poder filtrar", SweetAlertIcon.Warning);
             }
             else
             {
-                Destinos = response.Response;
+                var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDestinoDTO.cliente.Cod}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Destinos = response.Response;
+                }
             }
         }
         catch (Exception e)
@@ -135,7 +149,7 @@
             }
             else
             {
-                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDSeleccionado.Cod}", DestinoSeleccionado);
+                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDestinoDTO.cliente.Cod}", ClienteDestinoDTO.destino);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -143,7 +157,7 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDSeleccionado.Den}", SweetAlertIcon.Success);
+                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDestinoDTO.cliente.Den}", SweetAlertIcon.Success);
                 }
             }
         }
@@ -235,7 +249,7 @@
             ShowConfirmButton = false,
             Timer = 1800,
             Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message});
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
     }
 
 }
