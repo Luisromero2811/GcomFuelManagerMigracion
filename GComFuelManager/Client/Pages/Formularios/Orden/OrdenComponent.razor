@@ -307,7 +307,8 @@
 
                 foreach (var item in cierres!)
                 {
-                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                        && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado)))
                         detalleCierres.Add(new DetalleCierreDTO
                         {
                             OC = item.Folio,
