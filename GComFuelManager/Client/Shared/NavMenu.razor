@@ -29,6 +29,24 @@
                     </div>
                 </Template>
                 <ChildContent>
+                    @*auth*@
+                    <RadzenPanelMenuItem>
+                        <Template>
+                            <div class="text-white">
+                                <i class="fa-solid fa-server"></i> Datos
+                            </div>
+                        </Template>
+                        <ChildContent>
+                            <RadzenPanelMenuItem Path="datos/tonel" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                <Template>
+                                    <div class="text-white">
+                                        <i class="fa-solid fa-truck-moving"></i> Toneles
+                                    </div>
+                                </Template>
+                            </RadzenPanelMenuItem>
+                        </ChildContent>
+                    </RadzenPanelMenuItem>
+                    @*auth*@
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes">
                         <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden" Selected=false>
                             <Template>
