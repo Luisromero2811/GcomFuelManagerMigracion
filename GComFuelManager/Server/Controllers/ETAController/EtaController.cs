@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GComFuelManager.Server.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

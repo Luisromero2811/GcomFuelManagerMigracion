@@ -402,7 +402,7 @@
         isFolio = false;
     }
 
-    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introdusca una cantidad diferente.", options);
+    void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
     ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
@@ -909,7 +909,7 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Alerta", "Introdusca un valor valido para el folio.", SweetAlertIcon.Warning);
+                    await Swal.FireAsync("Alerta", "Introduzca un valor valido para el folio.", SweetAlertIcon.Warning);
                     return;
                 }
             }

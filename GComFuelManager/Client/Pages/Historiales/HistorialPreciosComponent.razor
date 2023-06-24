@@ -152,6 +152,8 @@
     //grids
     RadzenDataGrid<PrecioHistorico> grid { get; set; } = new RadzenDataGrid<PrecioHistorico>();
 
+    List<HistorialPrecioDTO> historialPrecio { get; set; } = new List<HistorialPrecioDTO>();
+
     protected override async Task OnInitializedAsync()
     {
         //width = await js.InvokeAsync<int>("eval", "window-innerWidth") - 360;
@@ -193,41 +195,92 @@
         }
     }
 
+    //public async Task GenerateExcel()
+    //{
+    //    if (preciosL != null)
+    //    {
+    //        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+    //        var excel = new ExcelPackage();
+    //        var worksheet = excel.Workbook.Worksheets.Add("Historial de Precios");
+    //        worksheet.Columns.Width = 60;
+    //        worksheet.Columns.AutoFit();
+
+    //        //Formación del excel
+    //        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+    //            from o in preciosL
+    //            select new HistorialPrecioDTO()
+    //            {
+    //                Fecha = o.FchDia.ToString("dd/MM/yyyy"),
+    //                Pre = o.pre,
+    //                Producto = o?.Producto?.Den,
+    //                Destino = o.Destino?.Den,
+    //                Zona = o.Zona?.Nombre,
+    //                Cliente = o.Cliente?.Den
+    //            }, true);
+    //        tablebody.Style.Font.Bold = true;
+    //        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+    //        var header = worksheet.Cells["A1:F1"];
+    //        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+    //        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+    //        //Guardado del Excel
+    //        await js.GuardarComo($"HistorialPrecios_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+    //    }
+    //    else
+    //    {
+    //        await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+    //    }
+    //}
     public async Task GenerateExcel()
     {
-        if (preciosL != null)
+        try
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var excel = new ExcelPackage();
-            var worksheet = excel.Workbook.Worksheets.Add("Historial de Precios");
-            worksheet.Columns.Width = 60;
-            worksheet.Columns.AutoFit();
-
-            //Formación del excel
-            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                from o in preciosL
-                select new HistorialPrecioDTO()
+            if (preciosL.Count != 0)
+            {
+                foreach (var item in preciosL)
                 {
-                    Fecha = o.FchDia.ToString("dd/MM/yyyy"),
-                    Pre = o.pre,
-                    Producto = o?.Producto?.Den,
-                    Destino = o.Destino?.Den,
-                    Zona = o.Zona?.Nombre,
-                    Cliente = o.Cliente?.Den
-                }, true);
-            tablebody.Style.Font.Bold = true;
-            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            var header = worksheet.Cells["A1:F1"];
-            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-            //Guardado del Excel
-            await js.GuardarComo($"HistorialPrecios_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                    && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado))
+                        && (item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
+                        historialPrecio.Add(new HistorialPrecioDTO
+                        {
+                            Fecha = item.FchDia.ToString("dd/MM/yyyy"),
+                            Pre = item.pre,
+                            Producto = item.Producto?.Den,
+                            Destino = item.Destino?.Den,
+                            Zona = item.Zona?.Nombre,
+                            Cliente = item.Cliente?.Den
+                        });
+                }
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial de Precios");
+                worksheet.Columns.Width = 60;
+                worksheet.Columns.AutoFit();
+
+                //Formacion del excel
+                var header = worksheet.Cells["A1:F1"];
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<HistorialPrecioDTO>(historialPrecio, true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                //Guardar en excel
+                await js.GuardarComo($"HistorialPrecios_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                historialPrecio.Clear();
+            }
+            else
+            {
+                await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            }
         }
-        else
+        catch (Exception e)
         {
-            await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
 
 }
 

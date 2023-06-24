@@ -1177,8 +1177,8 @@
 
                 var ordenFilter = new List<OrdenCierre>();
                 foreach (var item in ordenCierres)
-                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado)
-                       && item.Destino.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                       && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado)))
                         ordenFilter.Add(item);
 
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
@@ -1264,7 +1264,7 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Alerta", "Introdusca un valor valido para el folio.", SweetAlertIcon.Warning);
+                    await Swal.FireAsync("Alerta", "Introduzca un valor valido para el folio.", SweetAlertIcon.Warning);
                     return;
                 }
             }
