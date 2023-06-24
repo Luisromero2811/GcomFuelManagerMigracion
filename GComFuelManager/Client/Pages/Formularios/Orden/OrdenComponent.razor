@@ -1,4 +1,4 @@
-﻿@page "/orden/{folio?}"
+@page "/orden/{folio?}"
 @page "/orden"
 
 @inject IRepositorio http
@@ -6,167 +6,271 @@
 @inject IJSRuntime js
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
-    <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
+    <Authorized>
+        <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
 
-        <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
-            <div class="col-12">
-                <div class="col-12 card">
-                    <div class="col-12 card-body">
-                        <div class="col-12 row">
-                            <div class="col-4 row">
-                                <div class="col-6">
-                                    <label class="form-label">Folio</label>
-                                    <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
-                                </div>
-                                <div class="col-6 d-flex">
-                                    <div class="col-12 mt-auto">
-                                        <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
-                                            <i class="fa fa-solid fa-magnifying-glass"></i>
-                                        </button>
+            <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
+                <div class="col-12">
+                    <div class="col-12 card">
+                        <div class="col-12 card-body">
+                            <div class="col-12 row">
+                                <div class="col-4 row">
+                                    <div class="col-6">
+                                        <label class="form-label">Folio</label>
+                                        <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
+                                    </div>
+                                    <div class="col-6 d-flex">
+                                        <div class="col-12 mt-auto">
+                                            <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
+                                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-3">
-                                <label class="form-label">Año</label>
-                                <InputSelect @bind-Value="añoSeleccionado" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (años is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (años.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in años)
-                                        {
-                                            <option value="@item">@item</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label">Mes</label>
-                                <InputSelect @bind-Value="mesSeleccionado" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (meses is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (meses.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in meses)
-                                        {
-                                            <option value="@item.Cod">@item.Den.ToUpper()</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div class="col-1 d-flex ">
-                                <div class="col-12 mt-auto">
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
-                                        <i class="fa fa-solid fa-magnifying-glass"></i>
-                                    </button>
-                                </div>
+                                <AuthorizeView Context="MonthFilter" Roles="Cliente Lectura">
+                                    <Authorized>
+                                        <div class="col-3">
+                                            <label class="form-label">Año</label>
+                                            <InputSelect @bind-Value="añoSeleccionado" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (años is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (años.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in años)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="col-4">
+                                            <label class="form-label">Mes</label>
+                                            <InputSelect @bind-Value="mesSeleccionado" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (meses is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (meses.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in meses)
+                                                    {
+                                                        <option value="@item.Cod">@item.Den.ToUpper()</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="col-1 d-flex ">
+                                            <div class="col-12 mt-auto">
+                                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
+                                                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12">
-            <div class="col-12 row mb-3">
-                <div class="col-6 d-flex">
-                    <b class="my-auto">
-                        Fulles: @(Convert.ToDouble(cierres?.Count) / 2) | Fulles restantes: @(Convert.ToDouble(FullesRestantes) / 2)
-                    </b>
-                </div>
-                <div class="col-6 d-flex justify-content-end">
-                    <button class="btn gcom-bg-amarillo col-6" @onclick="@GenerateExcel">
-                        <i class="fa-solid fa-file-excel fa"></i> Exportar
-                        @if (loadingExport)
+            <div class="col-12">
+                <div class="col-12 row mb-3">
+                    <div class="col-12 d-flex">
+                        @if (cierres.Count > 0)
                         {
-                            <SpinnerLoading></SpinnerLoading>
+                            @if (volumenDisponible.Productos.Count > 0)
+                            {
+                                <div class="col-12 row">
+                                    @foreach (var item in volumenDisponible.Productos)
+                                    {
+                                        <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                    }
+                                </div>
+                            }
                         }
-                    </button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true"
-                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
-            <Columns>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado">
-                    <FilterTemplate Context="Destinos">
-                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data?.Destino?.Den
+            <RadzenTabs RenderMode="TabRenderMode.Client" @bind-SelectedIndex="SelectedTab">
+                <Tabs>
+                    <RadzenTabsItem Text="Resumen">
+                        <div class="col-12 d-flex justify-content-start mt-2">
+                            <button class="btn gcom-bg-amarillo col-3 mt-auto" @onclick="@(()=>GenerateExcel(false))">
+                                <i class="fa-solid fa-file-excel fa"></i> Exportar
+                                @if (loadingExport)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
                         </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
-                    <FilterTemplate Context="filter">
-                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div class="col-12 row">
-                            <div class="col-1">
-                                @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                        <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true"
+                                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado">
+                                    <FilterTemplate Context="Destinos">
+                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>
+                                    <Template Context="data">
+                                        <div>
+                                            @data?.Destino?.Den
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                                    <FilterTemplate Context="filter">
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>
+                                    <Template Context="data">
+                                        <div class="col-12 row">
+                                            <div class="col-1">
+                                                @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                                {
+                                                    <div class="badge rounded-pill regular">&nbsp;</div>
+                                                }
+                                                else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                                {
+                                                    <div class="badge rounded-pill regular-vdm">&nbsp;</div>
+                                                }
+                                                else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                                {
+                                                    <div class="badge rounded-pill premium">&nbsp;</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="badge rounded-pill diesel">&nbsp;</div>
+                                                }
+                                            </div>
+                                            <div class="col-11">
+                                                @data.Producto?.Den
+                                            </div>
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
+                                    <Template Context="item">
+                                        @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Detalle" Visible="isDetail && !monthFilter">
+                        <div class="col-12 d-flex justify-content-start mt-2">
+                            <button class="btn gcom-bg-amarillo col-3 mt-auto" @onclick="@(()=>GenerateExcel(true))">
+                                <i class="fa-solid fa-file-excel fa"></i> Exportar
+                                @if (loadingExport)
                                 {
-                                    <div class="badge rounded-pill regular">&nbsp;</div>
+                                    <SpinnerLoading></SpinnerLoading>
                                 }
-                                else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
-                                {
-                                    <div class="badge rounded-pill regular-vdm">&nbsp;</div>
-                                }
-                                else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
-                                {
-                                    <div class="badge rounded-pill premium">&nbsp;</div>
-                                }
-                                else
-                                {
-                                    <div class="badge rounded-pill diesel">&nbsp;</div>
-                                }
-                            </div>
-                            <div class="col-11">
-                                @data.Producto?.Den
-                            </div>
+                            </button>
                         </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
-                    <Template Context="item">
-                        @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
-            </Columns>
-        </RadzenDataGrid>
+                        <RadzenDataGrid TItem="OrdenCierre" Data="@cierresD" AllowColumnResize="true" AllowVirtualization="true"
+                                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado">
+                                    <FilterTemplate Context="Destinos">
+                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>
+                                    <Template Context="data">
+                                        <div>
+                                            @data?.Destino?.Den
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                                    <FilterTemplate Context="filter">
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>
+                                    <Template Context="data">
+                                        <div class="col-12 row">
+                                            <div class="col-1">
+                                                @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                                {
+                                                    <div class="badge rounded-pill regular">&nbsp;</div>
+                                                }
+                                                else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                                {
+                                                    <div class="badge rounded-pill regular-vdm">&nbsp;</div>
+                                                }
+                                                else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                                {
+                                                    <div class="badge rounded-pill premium">&nbsp;</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="badge rounded-pill diesel">&nbsp;</div>
+                                                }
+                                            </div>
+                                            <div class="col-11">
+                                                @data.Producto?.Den
+                                            </div>
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" FormatString="{0:N2}" Filterable="false">
+                                    <Template Context="item">
+                                        <div class="col-12">
+                                            @string.Format("{0:N2}",
+                                            item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                            : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                            : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                            : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                            : item?.Volumen
+                                            )
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
+                                    <Template Context="item">
+                                        @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Filterable="false" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
 
-    </RadzenStack>
+        </RadzenStack>
+    </Authorized>
 </AuthorizeView>
 @code {
     [Parameter] public string? folio { get; set; } = string.Empty;
 
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
-    List<OrdenCierre>? cierres { get; set; }
+    List<OrdenCierre>? cierres { get; set; } = new List<OrdenCierre>();
+    List<OrdenCierre>? cierresD { get; set; } = new List<OrdenCierre>();
 
     private int? FullesRestantes { get; set; } = 0;
 
@@ -184,12 +288,18 @@
 
     bool loadingExport = false;
     bool loading = false;
+    bool isDetail = false;
+    bool monthFilter = false;
+
+    int SelectedTab = 0;
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
 
     private string DestinoSeleccionado = string.Empty;
     private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
+
+    VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
     protected async override Task OnInitializedAsync()
     {
@@ -237,59 +347,78 @@
         }
     }
 
-    private async Task GetFolioCierres()
-    {
-        try
-        {
-            var response = await http.Get<List<OrdenCierre>>($"api/cierre/{folio}");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                cierres = response.Response;
-                foreach (var item in cierres)
-                    if (item.OrdenEmbarque?.Folio == null)
-                        FullesRestantes++;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     private async Task GetFiltroCierres(bool forFolio)
     {
         try
         {
             filtro.forFolio = forFolio;
+            monthFilter = false;
 
             if (!forFolio)
             {
-                int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-                filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-                filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+                if (mesSeleccionado != 0 && añoSeleccionado != 0)
+                {
+                    int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
+                    filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
+                    filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
+                    monthFilter = true;
+                }
+                else
+                {
+                    await Swal.FireAsync("Alerta", "Seleccione datos validos para filtrar.", SweetAlertIcon.Warning);
+                    return;
+                }
             }
 
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
-            if (response.Error)
+            if (filtro != null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                cierres = response.Response;
-                FullesRestantes = 0;
-                foreach (var item in cierres)
-                    if (item.OrdenEmbarque?.Folio == null)
-                        FullesRestantes++;
-                ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
-                DestinoList = cierres.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                StateHasChanged();
+                filtro.forFolio = forFolio;
+                var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+                if (response != null)
+                {
+                    if (response.Error)
+                    {
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        cierres = response.Response;
+
+                        if (cierres.Any(x => x.CodPed == 0))
+                            isDetail = true;
+                        else
+                            isDetail = false;
+
+                        if (isDetail && !monthFilter)
+                        {
+                            var responseD = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
+                            if (responseD.Error)
+                            {
+                                var message = await responseD.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                cierresD = responseD.Response;
+                            }
+                        }
+
+                        var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
+                        if (response.Error)
+                        {
+                            var message = await response.ObtenerMensajeError();
+                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        }
+                        else
+                        {
+                            volumenDisponible = responseVolumen.Response;
+                        }
+                        ProductList = cierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                        DestinoList = cierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+                        //StateHasChanged();
+                    }
+                }
             }
         }
         catch (Exception e)
@@ -298,29 +427,47 @@
         }
     }
 
-    private async Task GenerateExcel()
+    private async Task GenerateExcel(bool isDetail)
     {
         try
         {
-            if (cierres != null)
+            List<OrdenCierre> lista = new List<OrdenCierre>();
+
+            if (isDetail)
+                lista = cierresD;
+            else
+                lista = cierres;
+
+            if (lista != null)
             {
 
-                foreach (var item in cierres!)
+                foreach (var item in lista!)
                 {
-                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
-                        && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado)))
+                    if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado)
+                    && (item.Destino.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado)))
                         detalleCierres.Add(new DetalleCierreDTO
-                        {
-                            OC = item.Folio,
-                            FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                            Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                            Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                            FchLlegada = item?.FechaLlegada
-                        });
+                            {
+                                OC = item.Folio,
+                                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                                FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
+                                Observaciones = item?.Observaciones,
+                                Precio = item?.Precio?.ToString("N"),
+                                Volumen = string.Format("{0:N2}",
+                                                  item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                                : item?.Volumen
+                                            ),
+                                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                                FchLlegada = item?.FechaLlegada
+                            });
                 }
+
 
                 loadingExport = true;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -329,7 +476,7 @@
                 ws.Columns.Width = 60;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:H1"];
+                var header = ws.Cells["A1:L1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(detalleCierres, true);
                 tablebody.Style.Font.Size = 14;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -340,7 +487,10 @@
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
                 header.Style.Font.Bold = true;
 
-                await js.GuardarComo($"Detalle_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                if (isDetail)
+                    await js.GuardarComo($"Estado_Detalle_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                else
+                    await js.GuardarComo($"Estado_Resumen_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
                 loadingExport = false;
                 detalleCierres.Clear();
             }

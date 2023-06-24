@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -58,18 +59,76 @@ namespace GComFuelManager.Shared.Modelos
 
         public string Veh { get { return $"{Tracto} {Placa}"; } }
 
-        public int CapDisponible { get
+        public int CapDisponible
+        {
+            get
             {
                 int c = 0;
-                if (Capcom != null)
+                if (Idcom != null && Idcom != 0)
                     c++;
-                if (Capcom2 != null)
+                if (Capcom2 != null && Idcom2 != 0)
                     c++;
-                if (Capcom3 != null)
+                if (Capcom3 != null && Idcom3 != 0)
                     c++;
-                if(Capcom4 != null)
+                if (Capcom4 != null && Idcom4 != 0)
                     c++;
                 return c;
-            } }
+            }
+        }
+
+        [NotMapped,EpplusIgnore]
+        public List<CapTonel> Capacidades
+        {
+            get
+            {
+                CapTonel capTonel = new CapTonel();
+                List<CapTonel> capTonels = new List<CapTonel>();
+
+                if(Nrocom != null && Nrocom != 0)
+                {
+                    capTonel.CapCom = Capcom;
+                    capTonel.IdCom = Idcom;
+                    capTonel.NroCom = Nrocom;
+                    capTonels.Add(capTonel);
+                    capTonel = new CapTonel();
+                }
+
+                if (Nrocom2 != null && Nrocom2 != 0)
+                {
+                    capTonel.CapCom = Capcom2;
+                    capTonel.IdCom = Idcom2;
+                    capTonel.NroCom = Nrocom2;
+                    capTonels.Add(capTonel);
+                    capTonel = new CapTonel();
+                }
+
+                if (Nrocom3 != null && Nrocom3 != 0)
+                {
+                    capTonel.CapCom = Capcom3;
+                    capTonel.IdCom = Idcom3;
+                    capTonel.NroCom = Nrocom3;
+                    capTonels.Add(capTonel);
+                    capTonel = new CapTonel();
+                }
+
+                if (Nrocom4 != null && Nrocom4 != 0)
+                {
+                    capTonel.CapCom = Capcom4;
+                    capTonel.IdCom = Idcom4;
+                    capTonel.NroCom = Nrocom4;
+                    capTonels.Add(capTonel);
+                    capTonel = new CapTonel();
+                }
+
+                return capTonels;
+            }
+        }
+    }
+
+    public class CapTonel
+    {
+        [Key] public int? IdCom { get; set; } = 0;
+        public decimal? CapCom { get; set; } = 0;
+        public int? NroCom { get; set; } = 0;
     }
 }

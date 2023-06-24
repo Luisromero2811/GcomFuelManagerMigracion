@@ -169,27 +169,27 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (usuario == null)
                         return BadRequest();
 
-                    var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
+                    //var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
 
-                    if (zona == null)
-                        return BadRequest("No existe una relacion de precios con la zona y destino");
+                    //if (zona == null)
+                    //    return BadRequest("No existe una relacion de precios con la zona y destino");
 
                     precios = await context.Precio.Where(x => x.codCte == usuario.CodCte
-                    && x.codDes == zonaCliente.DesCod
-                    && x.codZona == zona.ZonaCod)
+                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
                 }
                 else
                 {
-                    var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod);
+                    //var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod);
 
-                    if (zona == null)
-                        return BadRequest("No tiene una zona relacionada");
+                    //if (zona == null)
+                    //    return BadRequest("No tiene una zona relacionada");
 
                     precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod
-                    && x.codZona == zona.ZonaCod)
+                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
                 }
@@ -304,11 +304,3 @@ namespace GComFuelManager.Server.Controllers.Precios
         }
     }
 }
-//var precios = await context.Precio
-//                  .Include(x => x.Zona)
-//                  .Include(x => x.Cliente)
-//                  .Include(x => x.Producto)
-//                  .Include(x => x.Destino)
-//                  .ToListAsync();
-
-//return Ok(precios);
