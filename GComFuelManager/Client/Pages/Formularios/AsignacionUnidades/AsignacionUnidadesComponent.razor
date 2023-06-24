@@ -207,15 +207,15 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Filterable="false" Width="200px" OrderIndex="14" />
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="200px" OrderIndex="15" />
-                    @*<FilterTemplate Context="Estatus">
-                        <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data.Estado?.den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>*@
+                @*<FilterTemplate Context="Estatus">
+                            <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
+                        </FilterTemplate>
+                        <Template Context="data">
+                            <div>
+                                @data.Estado?.den
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>*@
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -276,6 +276,8 @@
     private List<Transportista> Transportistas { get; set; } = new List<Transportista>();
     private List<Chofer> Choferes { get; set; } = new List<Chofer>();
     private List<Tonel> Vehiculos { get; set; } = new List<Tonel>();
+
+    List<TablaAsignacionUnidadesDTO> asignacionUnidadesDTO { get; set; } = new List<TablaAsignacionUnidadesDTO>();
 
     //Grids
     private string ProductosSeleccionado = string.Empty;
@@ -464,9 +466,9 @@
                 ordenes = responseHttp.Response;
                 ordenesSeleccionada = new List<OrdenEmbarque>();
 
-                DestinoList = ordenes?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den);
-                ProductList = ordenes?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den);
-                ClienteList = ordenes?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den);
+                DestinoList = ordenes?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
+                ProductList = ordenes?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
+                ClienteList = ordenes?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
             }
         }
         catch (Exception e)
@@ -490,17 +492,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                    {
-                        Chofer = asignacion.CodChf,
-                        Tonel = asignacion.CodTon,
-                        Compartimento = Vehiculos?.Count == null ? 0 :
+                {
+                    Chofer = asignacion.CodChf,
+                    Tonel = asignacion.CodTon,
+                    Compartimento = Vehiculos?.Count == null ? 0 :
                                                 (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
                                             : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
                                             : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
                                             : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                    };
+                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                };
                 var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
                 if (responseHttp.Error)
@@ -522,13 +524,13 @@
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                        });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -605,45 +607,62 @@
 
     private async Task GenerateExcel()
     {
-        if (ordenes != null)
+        try
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var excel = new ExcelPackage();
-            var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
-            worksheet.Columns.Width = 60;
-            worksheet.Columns.AutoFit();
-
-            //Formación de Excel
-            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-            from o in ordenes
-            select new TablaAsignacionUnidadesDTO()
+            if (ordenes.Count != 0)
+            {
+                foreach (var item in ordenes!)
                 {
-                    OrdenCompra = o?.OrdenCompra?.den,
-                    Referencia = o?.Folio.ToString(),
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    Volumen = o?.Vol,
-                    FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                    Transportista = o?.Tonel?.Transportista?.Den,
-                    Unidad = o?.Tonel?.Veh,
-                    Compartimento = o?.Compartment,
-                    Operador = o?.Chofer?.Den
-                    //Bin = o?.Bin,
-                    //Status = o?.Estado?.den
-                }, true);
+                    //Console.WriteLine(JsonConvert.SerializeObject(item));
+                    if ((item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado))
+                       && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                       && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                        asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
+                        {
+                            OrdenCompra = item?.OrdenCompra?.den,
+                            Referencia = item?.OrdenCierre?.Folio,
+                            Cliente = item?.Destino?.Cliente?.Den,
+                            Destino = item?.Destino?.Den,
+                            Producto = item?.Producto?.Den,
+                            Volumen = item?.Vol,
+                            FechaCarga = item?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                            Transportista = item?.Tonel?.Transportista?.Den,
+                            Unidad = item?.Tonel?.Veh,
+                            Compartimento = item?.Compartment,
+                            Operador = item?.Chofer?.Den,
+                            Bin = item?.Bin,
+                            //Status = item?.Estado?.den
+                        });
+                }
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Asignacion de Unidades");
+                worksheet.Columns.Width = 60;
+                worksheet.Columns.AutoFit();
 
-            tablebody.Style.Font.Bold = true;
-            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            var header = worksheet.Cells["A1:K1"];
-            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-            //Guardado de Excel
-            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                //Formación de Excel
+
+                var header = worksheet.Cells["A1:L1"];
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<TablaAsignacionUnidadesDTO>(asignacionUnidadesDTO, true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                //Guardado de Excel
+                await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                asignacionUnidadesDTO.Clear();
+            }
+            else
+            {
+                await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
+            }
         }
-        else
+        catch (Exception e)
         {
-            await swal.FireAsync("Alerta", "Debe tener datos filtrador para poder exportar", SweetAlertIcon.Warning);
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
@@ -692,23 +711,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                    });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Actualizando Transportistas",
-                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Actualizando Transportistas",
+                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
+                        Duration = 15000
+                    });
 
                     loadingSend = true;
 
@@ -768,7 +787,7 @@
         try
         {
             ordenEmbarque = orden;
-            if(ordenEmbarque.Tonel != null && ordenEmbarque.Chofer != null)
+            if (ordenEmbarque.Tonel != null && ordenEmbarque.Chofer != null)
             {
                 //asignacion.CodTra = Transportistas.FirstOrDefault(x=>x.CarrId == ordenEmbarque.Chofer.bu)
             }
@@ -782,3 +801,23 @@
         }
     }
 }
+
+
+@*//var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+    //from o in ordenes
+    //select new TablaAsignacionUnidadesDTO()
+    //    {
+    //        OrdenCompra = o?.OrdenCompra?.den,
+    //        Referencia = o?.Folio.ToString(),
+    //        Cliente = o?.Destino?.Cliente?.Den,
+    //        Destino = o?.Destino?.Den,
+    //        Producto = o?.Producto?.Den,
+    //        Volumen = o?.Vol,
+    //        FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+    //        Transportista = o?.Tonel?.Transportista?.Den,
+    //        Unidad = o?.Tonel?.Veh,
+    //        Compartimento = o?.Compartment,
+    //        Operador = o?.Chofer?.Den
+    //        //Bin = o?.Bin,
+    //        //Status = o?.Estado?.den
+    //    }, true);*@

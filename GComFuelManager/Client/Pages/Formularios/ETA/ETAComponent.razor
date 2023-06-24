@@ -16,7 +16,6 @@
 <div class="col-12 card shadow">
     <div class="card-body">
         <EditForm Model="Ordenes" class="row">
-
             <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Filter">
                 <div class="row d-flex g-3">
                     <div class="row">
@@ -41,9 +40,9 @@
                                               @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
                         </div>
                         @*<div class="col-4">
-                        <label>ETA:</label>
-                        <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
-                        </div>*@
+                            <label>ETA:</label>
+                            <RadzenDatePicker @bind-Value="time" ShowTime="true" TimeOnly="true" DateFormat="HHmm" class="col-12"/>
+                            </div>*@
                         <div class="col-4">
                             <label>Fecha de llegada estimada:</label>
                             <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
@@ -179,13 +178,13 @@
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
         {
-            Orden = new Orden()
-            {
-                Estado = new Estado(),
-                Tonel = new Tonel()
-            }
-        };
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -201,7 +200,7 @@
         try
         {
             //Tiempo Estimado de Arribo
-            etaDto.Bol = Ordenes.Bol;
+            etaDto.Bol = Ordenes.Bol;   
             var responseHttp = await repositorio.Post<EtaDTO, OrdEmbDet>($"api/Eta/Filtro", etaDto);
             if (responseHttp.Error)
             {
@@ -209,7 +208,7 @@
                 Ordenes = new OrdEmbDet() { Orden = new Orden() { Estado = new Estado(), Tonel = new Tonel() } };
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
 
-                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                await swal.FireAsync("Error", respuestaHttp + " " + "Debe ingresar un BOL Valido", SweetAlertIcon.Error);
             }
             else
             {

@@ -35,15 +35,15 @@
 </div>
 
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
+    <RadzenDataGrid TItem="OrdenEmbarque" Data="@orden" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
                     GridLines="DataGridGridLines.Both" class="rz-my-2 ancho shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true">
         <Columns>
             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true" OrderIndex="1">
                     <HeaderTemplate>
-                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                        Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(orden.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                        Change="@(args => ordenesSeleccionada = args ? orden.ToList() : new List<OrdenEmbarque>())" />
                     </HeaderTemplate>
                     <Template Context="data">
                         <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
@@ -51,8 +51,8 @@
                     </Template>
                 </RadzenDataGridColumn>
             </AuthorizeView>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" Filterable="false"  OrderIndex="2"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" FilterValue="ClienteSeleccionado"  OrderIndex="3">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" Filterable="false" OrderIndex="2" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" FilterValue="ClienteSeleccionado" OrderIndex="3">
                 <FilterTemplate Context="Cliente">
                     <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
                 </FilterTemplate>
@@ -62,9 +62,9 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" FilterValue="DestinoSeleccionado"  OrderIndex="4">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" FilterValue="DestinosSeleccionado" OrderIndex="4">
                 <FilterTemplate Context="Destinos">
-                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -72,9 +72,9 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" FilterValue="ProductoSeleccionado">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" FilterValue="ProductosSeleccionado">
                 <FilterTemplate Context="Productos">
-                    <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="ProductoList" @bind-Value="ProductosSeleccionado" AllowClear="true"></RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -95,10 +95,10 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" Filterable="false"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="OrdenEmbarque.Tonel.Transportista.Den" Width="200px" MinWidth="200px" FilterValue="TransportistaSeleccionado">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" Filterable="false" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.Den" Width="200px" MinWidth="200px" FilterValue="TransportistasSeleccionado">
                 <FilterTemplate Context="Transportista">
-                    <RadzenDropDown Data="TransportistaList" @bind-Value="TransportistaSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="TransportistaList" @bind-Value="TransportistasSeleccionado" AllowClear="true"></RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -113,7 +113,7 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" MinWidth="200px" Filterable="false"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="OrdenEmbarque.Compartment" Width="200px" MinWidth="200px" Filterable="false" />
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" MinWidth="200px" Filterable="false">
                 <Template Context="data">
                     <div class="col-12">
@@ -121,8 +121,8 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" Filterable="false"/>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" Filterable="false"/>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" MinWidth="200px" Filterable="false" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="OrdenEmbarque.Estado.den" Width="200px" MinWidth="200px" Filterable="false" />
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -151,7 +151,7 @@
                         }
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerarExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
                             </AuthorizeView>
 
                         </div>
@@ -177,11 +177,14 @@
     private ElementReference dpT;
 
     private OrdenEmbarque ordenEmbarque { get; set; } = null!;
-    private IList<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    //private IList<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    private IList<OrdenEmbarque> orden { get; set; } = new List<OrdenEmbarque>();
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
 
     FechasF fechas = new FechasF();
 
+    List<TablaAsignacionUnidadesDTO> asignacionUnidadesDTO { get; set; } = new List<TablaAsignacionUnidadesDTO>();
+    List<HistorialOrdenDTO> historialOrdens { get; set; } = new List<HistorialOrdenDTO>();
     //loadings
     bool loadingFiltro = false;
     bool loadingEdit = false;
@@ -192,13 +195,13 @@
     private string ClienteSeleccionado = string.Empty;
     private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
 
-    private string DestinoSeleccionado = string.Empty;
+    private string DestinosSeleccionado = string.Empty;
     private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
-    private string ProductoSeleccionado = string.Empty;
+    private string ProductosSeleccionado = string.Empty;
     private IEnumerable<string?> ProductoList { get; set; } = new List<string>();
 
-    private string TransportistaSeleccionado = string.Empty;
+    private string TransportistasSeleccionado = string.Empty;
     private IEnumerable<string?> TransportistaList { get; set; } = new List<string>();
 
     int width = 0;
@@ -230,13 +233,13 @@
             else
             {
                 loadingFiltro = false;
-                ordenes = responseHttp.Response;
+                orden = responseHttp.Response;
                 ordenesSeleccionada = new List<OrdenEmbarque>();
 
-                DestinoList = ordenes?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                ProductoList = ordenes?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                ClienteList = ordenes?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
-                TransportistaList = ordenes?.DistinctBy(x => x.Tonel?.Transportista?.Den).Select(x => x.Tonel?.Transportista?.Den)!;
+                DestinoList = orden?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
+                ProductoList = orden?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
+                ClienteList = orden?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
+                TransportistaList = orden?.DistinctBy(x => x?.Tonel?.Transportista?.Den).Select(x => x?.Tonel?.Transportista?.Den)!;
             }
         }
         catch (Exception e)
@@ -246,47 +249,110 @@
         }
     }
 
-    private async Task GenerateExcel()
+    //private async Task GenerarExcel()
+    //{
+    //    if (orden.Count != 0)
+    //    {
+    //        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+    //        var excel = new ExcelPackage();
+    //        var worksheet = excel.Workbook.Worksheets.Add("Historial de envios");
+    //        worksheet.Columns.Width = 60;
+    //        worksheet.Columns.AutoFit();
+
+    //        //Formación de Excel
+    //        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+    //        from item in orden
+    //        select new HistorialOrdenDTO()
+    //        {
+    //            OrdenCompra = item!.OrdenCompra?.den,
+    //            Cliente = item!.Destino?.Cliente?.Den,
+    //            Producto = item!.Producto?.Den,
+    //            Destino = item!.Destino?.Den,
+    //            Volumen = item!.Vol,
+    //            FechaCarga = item!.Fchcar!.Value.ToString("dd/MM/yyyy"),
+    //            Transportista = item!.Tonel?.Transportista?.Den,
+    //            Unidad = item!.Tonel?.Veh,
+    //            Compartimento = item!.Compartment,
+    //            Operador = item!.Chofer?.Den,
+    //            Bin = item!.Bin
+    //        }, true);
+
+    //        tablebody.Style.Font.Bold = true;
+    //        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+    //        var header = worksheet.Cells["A1:K1"];
+    //        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+    //        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+    //        //Guardado de Excel
+    //        await js.GuardarComo($"HistorialEnvios_{DateTime.Now.ToString("dd/MM/yyyy hh:MM:yyyy")}.xlsx", excel.GetAsByteArray());
+    //    }
+    //    else
+    //    {
+    //        await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+    //    }
+    //}
+    //Console.WriteLine(JsonConvert.SerializeObject(DestinosSeleccionado));
+    //Console.WriteLine(JsonConvert.SerializeObject(ClienteSeleccionado));
+    //Console.WriteLine(JsonConvert.SerializeObject(ProductosSeleccionado));
+    //Console.WriteLine(JsonConvert.SerializeObject(TransportistasSeleccionado));
+
+    private async Task GenerarExcel()
     {
-        if (ordenes != null)
+        try
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var excel = new ExcelPackage();
-            var worksheet = excel.Workbook.Worksheets.Add("Historial de envios");
-            worksheet.Columns.Width = 60;
-            worksheet.Columns.AutoFit();
-
-            //Formación de Excel
-            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-            from o in ordenes
-            select new TablaAsignacionUnidadesDTO()
+            if (orden.Count != 0)
             {
-                OrdenCompra = o?.OrdenCompra?.den,
-                Referencia = o?.Folio.ToString(),
-                Cliente = o?.Destino?.Cliente?.Den,
-                Destino = o?.Destino?.Den,
-                Producto = o?.Producto?.Den,
-                Volumen = o?.Vol,
-                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                Transportista = o?.Tonel?.Transportista?.Den,
-                Unidad = o?.Tonel?.Veh,
-                Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den,
-                Bin = o?.Bin,
-                Status = o?.Estado?.den
-            }, true);
+                foreach (var item in orden!)
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(item));
 
-            tablebody.Style.Font.Bold = true;
-            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            var header = worksheet.Cells["A1:O1"];
-            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-            //Guardado de Excel
-            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                    if ((item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado))
+                       //   && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                       //   && (item.Tonel!.Transportista!.Den == TransportistasSeleccionado || string.IsNullOrEmpty(TransportistasSeleccionado))
+                       && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado))
+                       )
+                        historialOrdens.Add(new HistorialOrdenDTO
+                        {
+                            OrdenCompra = item.OrdenCompra?.den,
+                            Cliente = item!.Destino?.Cliente?.Den,
+                            Producto = item!.Producto?.Den,
+                            Destino = item!.Destino?.Den,
+                            Volumen = item!.Vol,
+                            FechaCarga = item!.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                            Transportista = item!.Tonel?.Transportista?.Den,
+                            Unidad = item!.Tonel?.Veh,
+                            Compartimento = item!.Compartment,
+                            Operador = item!.Chofer?.Den,
+                            Bin = item!.Bin
+                        });
+                }
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial de Envios");
+                worksheet.Columns.Width = 60;
+                worksheet.Columns.AutoFit();
+
+                var header = worksheet.Cells["A1:K1"];
+                //Formación del Excel
+
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<HistorialOrdenDTO>(historialOrdens, true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                //Guardado en Excel
+                await js.GuardarComo($"HistorialEnvios_{DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+                asignacionUnidadesDTO.Clear();
+            }
+            else
+            {
+                await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            }
         }
-        else
+        catch (Exception e)
         {
-            await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
@@ -343,7 +409,7 @@
                         loadingSend = false;
                         await swal.FireAsync("Exito", "Las ordenes fueron enviadas a synthesis.", SweetAlertIcon.Success);
 
-                        ordenes = new List<OrdenEmbarque>();
+                        orden = new List<OrdenEmbarque>();
                     }
                 }
             }
@@ -377,3 +443,47 @@
         }
     }
 }
+
+ @*private async Task GenerateExcel()
+    {
+        if (ordenes != null)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Historial de envios");
+            worksheet.Columns.Width = 60;
+            worksheet.Columns.AutoFit();
+
+            //Formación de Excel
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+            from o in ordenes
+            select new TablaAsignacionUnidadesDTO()
+            {
+                OrdenCompra = o?.OrdenCompra?.den,
+                Referencia = o?.Folio.ToString(),
+                Cliente = o?.Destino?.Cliente?.Den,
+                Destino = o?.Destino?.Den,
+                Producto = o?.Producto?.Den,
+                Volumen = o?.Vol,
+                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
+                Transportista = o?.Tonel?.Transportista?.Den,
+                Unidad = o?.Tonel?.Veh,
+                Compartimento = o?.Compartment,
+                Operador = o?.Chofer?.Den,
+                Bin = o?.Bin,
+                Status = o?.Estado?.den
+            }, true);
+
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            var header = worksheet.Cells["A1:O1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            //Guardado de Excel
+            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+        }
+        else
+        {
+            await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+        }
+    }*@
