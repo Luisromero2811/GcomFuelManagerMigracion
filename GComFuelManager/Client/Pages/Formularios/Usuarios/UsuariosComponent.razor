@@ -118,17 +118,28 @@
                                         Multiple=true Placeholder="Seleccione los roles" Chips=true class="col-12" />
                     </div>
                 </div>
-
-                <div class="col-12 d-flex justify-content-center mt-2 p-2">
-                    <div class="col-6 row">
-                        <div class="col-6">
-                            <button class="btn gcom-bg-amarillo col-12" type="submit"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
+                <div class="col-12 mt-2 mb-3">
+                    <div class="col-12 mb-2">
+                        <div class="row d-flex justify-content-start">
+                            <div class="col-4">
+                                <RadzenCheckBox @bind-Value="info.ShowUsersActions" Name="CheckBox1" class="mx-3" />
+                                <RadzenLabel Text="Mostrar acciones" Component="CheckBox1" />
+                            </div>
                         </div>
-                        <div class="col-6">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser" type="button"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                        <div class="row d-flex justify-content-center">
+                            @if (info.ShowUsersActions)
+                            {
+                                <div class="col-4">
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
+                                </div>
+                                <div class="col-4">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser" type="button"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
+
             </EditForm>
         </div>
     </div>
@@ -202,6 +213,9 @@
 </AuthorizeView>
 
 @code {
+
+    public bool ShowUsersActions { get; set; } = false;
+
     UsuarioInfo info { get; set; } = new UsuarioInfo();
     bool passwordView = true;
     //Listas
