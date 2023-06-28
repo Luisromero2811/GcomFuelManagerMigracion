@@ -379,6 +379,8 @@
     int width = 0;
     string TotalWidth = string.Empty;
 
+    int count = 0;
+
     protected override async Task OnInitializedAsync()
     {
         await GetFolios();
@@ -396,6 +398,7 @@
     }
     private void ClearGridData()
     {
+        count = 0;
         ordenCierres = new List<OrdenCierre>();
         ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() };
         isEditing = false;
@@ -899,6 +902,7 @@
                                 {
                                     volumenDisponible = responseVolumen.Response;
                                     ordenCierres = responseDetalle.Response;
+                                    count = 0;
                                 }
                             }
                         }
@@ -1040,7 +1044,7 @@
                         Coddes = ordenCierre.CodDes,
                         Fchpet = DateTime.Now,
                         Fchcar = ordenCierre.FchCar,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
                     };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
@@ -1077,6 +1081,7 @@
                         {
                             ordenCierres.Add(responseOC.Response);
                             await gridOC.Reload();
+                            count++;
                         }
                     }
                 }
