@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ServiceReference2;
 using System.Diagnostics;
@@ -561,8 +562,106 @@ namespace GComFuelManager.Server.Controllers.Services
                 var respuesta = await client.GetBillOfLadingsAsync(request);
 
                 if (respuesta.BillOfLadings == null)
-                    return BadRequest();
+                    return BadRequest("Sin ordenes");
 
+                if (respuesta.BillOfLadings.Length > 0)
+                {
+                    var BOL = respuesta.BillOfLadings;
+                    foreach (var item in BOL)
+                    {
+                        Orden orden = new Orden();
+
+                        orden.Ref = item.CustomerReference;
+                        orden.Codchfsyn = item.Driver.DriverId.Id.Value;
+                        orden.Bolguiid = item.BolGuidId;
+                        orden.Dendes = item.Destination.DestinationName;
+                        orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
+
+                        if(item.SealNumber is not null)
+                        {
+                            foreach (var seal in item.SealNumber)
+                            {
+                                orden.SealNumber += seal + ",";
+                                orden.SealNumber = orden.SealNumber.Trim(',');
+                            }
+                            orden.SealNumber = orden.SealNumber?.Replace("\t", "");
+                            orden.SealNumber = orden.SealNumber?.Trim(',');
+                        }
+
+                        foreach (var line in item.LineItems)
+                        {
+                            if(line.BaseGravity is not null)
+                            {
+                                orden.Liniteid = line.BolLineItemId.Id.Value;
+                                if (!context.Orden.Any(x => x.Liniteid == orden.Liniteid))
+                                {
+                                    orden.CompartmentId = Convert.ToInt32(line.CompartmentId.Value);
+                                    orden.Codprdsyn = line.OrderedProduct.ProductId.Id.Value;
+                                    orden.Vol = Convert.ToDouble(line.BaseNetQuantity.Value);
+                                    orden.Fchcar = line.EndLoadTime.Value;
+                                    orden.Coduni = Convert.ToInt32(line.TrailerId);
+                                    orden.Codprd2syn = line.BaseProduct.ProductId.Id.Value;
+                                    orden.Vol2 = Convert.ToDouble(line.BaseGrossQuantity.Value);
+
+                                    var des = context.Destino.FirstOrDefault(x => x.Codsyn == line.Destination.DestinationId.Id.Value.ToString());
+                                    if (des is not null)
+                                    {
+                                        orden.Coddes = des.Cod;
+                                        orden.Dendes = des.Den?.Replace("'", "");
+                                    }
+                                    else
+                                    {
+                                        des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
+                                        orden.Coddes = des.Cod;
+                                        orden.Dendes = des.Den?.Replace("'", "");
+                                    }
+
+                                    foreach (var cfi in line.CustomFieldInstances)
+                                    {
+                                        if (cfi.CustomFieldMetaData.Name.Equals("tm_batch_id"))
+                                            orden.BatchId = Convert.ToInt32(cfi.FieldStringValue);
+                                        else if (cfi.CustomFieldMetaData.Name.Equals(".ExternalOrderId"))
+                                            orden.Ref = cfi.FieldStringValue;
+                                    }
+
+                                    var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
+                                    
+                                    if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
+
+                                    orden.Coduni = tonel.Cod;
+
+                                    var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                                    
+                                    if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+                                    
+                                    var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+                                    
+                                    if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
+
+                                    orden.Codchf = cho.Cod;
+
+                                    var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
+
+                                    if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
+
+                                    orden.Codprd = prd.Cod;
+
+                                    var prd2 = context.Producto.FirstOrDefault(x=>x.Codsyn == orden.Codprd2syn.ToString());
+
+                                    if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
+
+                                    orden.Codprd2 = prd2.Cod;
+
+                                    orden.Fch = DateTime.Now;
+                                    orden.Codest = 20;
+
+                                    context.Add(orden);
+                                }
+                            }
+                        }
+                    }
+                    await context.SaveChangesAsync();
+                }
                 return Ok();
 
             }
@@ -612,8 +711,106 @@ namespace GComFuelManager.Server.Controllers.Services
                 var respuesta = await client.GetBillOfLadingsAsync(request);
 
                 if (respuesta.BillOfLadings == null)
-                    return BadRequest();
+                    return BadRequest("Sin ordenes");
 
+                if (respuesta.BillOfLadings.Length > 0)
+                {
+                    var BOL = respuesta.BillOfLadings;
+                    foreach (var item in BOL)
+                    {
+                        Orden orden = new Orden();
+
+                        orden.Ref = item.CustomerReference;
+                        orden.Codchfsyn = item.Driver.DriverId.Id.Value;
+                        orden.Bolguiid = item.BolGuidId;
+                        orden.Dendes = item.Destination.DestinationName;
+                        orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
+
+                        if (item.SealNumber is not null)
+                        {
+                            foreach (var seal in item.SealNumber)
+                            {
+                                orden.SealNumber += seal + ",";
+                                orden.SealNumber = orden.SealNumber.Trim(',');
+                            }
+                            orden.SealNumber = orden.SealNumber?.Replace("\t", "");
+                            orden.SealNumber = orden.SealNumber?.Trim(',');
+                        }
+
+                        foreach (var line in item.LineItems)
+                        {
+                            if (line.BaseGravity is not null)
+                            {
+                                orden.Liniteid = line.BolLineItemId.Id.Value;
+                                if (!context.Orden.Any(x => x.Liniteid == orden.Liniteid))
+                                {
+                                    orden.CompartmentId = Convert.ToInt32(line.CompartmentId.Value);
+                                    orden.Codprdsyn = line.OrderedProduct.ProductId.Id.Value;
+                                    orden.Vol = Convert.ToDouble(line.BaseNetQuantity.Value);
+                                    orden.Fchcar = line.EndLoadTime.Value;
+                                    orden.Coduni = Convert.ToInt32(line.TrailerId);
+                                    orden.Codprd2syn = line.BaseProduct.ProductId.Id.Value;
+                                    orden.Vol2 = Convert.ToDouble(line.BaseGrossQuantity.Value);
+
+                                    var des = context.Destino.FirstOrDefault(x => x.Codsyn == line.Destination.DestinationId.Id.Value.ToString());
+                                    if (des is not null)
+                                    {
+                                        orden.Coddes = des.Cod;
+                                        orden.Dendes = des.Den?.Replace("'", "");
+                                    }
+                                    else
+                                    {
+                                        des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
+                                        orden.Coddes = des.Cod;
+                                        orden.Dendes = des.Den?.Replace("'", "");
+                                    }
+
+                                    foreach (var cfi in line.CustomFieldInstances)
+                                    {
+                                        if (cfi.CustomFieldMetaData.Name.Equals("tm_batch_id"))
+                                            orden.BatchId = Convert.ToInt32(cfi.FieldStringValue);
+                                        else if (cfi.CustomFieldMetaData.Name.Equals(".ExternalOrderId"))
+                                            orden.Ref = cfi.FieldStringValue;
+                                    }
+
+                                    var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
+
+                                    if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
+
+                                    orden.Coduni = tonel.Cod;
+
+                                    var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+
+                                    if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+
+                                    var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+
+                                    if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
+
+                                    orden.Codchf = cho.Cod;
+
+                                    var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
+
+                                    if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
+
+                                    orden.Codprd = prd.Cod;
+
+                                    var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
+
+                                    if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
+
+                                    orden.Codprd2 = prd2.Cod;
+
+                                    orden.Fch = DateTime.Now;
+                                    orden.Codest = 14;
+
+                                    context.Add(orden);
+                                }
+                            }
+                        }
+                    }
+                    await context.SaveChangesAsync();
+                }
                 return Ok();
 
             }
@@ -623,5 +820,99 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
         #endregion
+
+        [HttpPost]
+        [Route("simulacion/synthesis")]
+        public async Task<ActionResult> Siumulacion([FromBody] List<OrdenEmbarque> ordenes)
+        {
+            try
+            {
+                ordenes.ForEach(x =>
+                {
+                    x.Producto = null;
+                    x.Chofer = null;
+                    x.Destino = null;
+                    x.Tonel = null;
+                    x.Tad = null;
+                    x.OrdenCompra = null;
+                    x.Estado = null;
+                    x.Cliente = null!;
+                    x.OrdenCierre = null!;
+
+                    Random rand = new Random();
+                    int randomNumber = rand.Next(1, 100001);
+                    
+                    x.Folio = randomNumber;
+                });
+
+                context.UpdateRange(ordenes);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("simulacion/cargadas")]
+        public async Task<ActionResult> SimulacionObtener()
+        {
+            try
+            {
+                var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid == null)
+                    .Include(x=>x.Destino)
+                    .ToListAsync();
+                
+                if (ordenes is null)
+                    return NoContent();
+
+                ordenes.ForEach(x =>
+                {
+                    Guid guid = Guid.NewGuid();
+
+                    x.Bolguidid = guid.ToString();
+
+                    context.Update(x);
+                });
+
+                foreach (var item in ordenes)
+                {
+                    Random random = new Random();
+
+                    Orden orden = new Orden()
+                    {
+                        Ref = "ENER-" + item.Folio,
+                        Codchf = item.Codchf,
+                        Coddes = item.Coddes,
+                        Codest = 20,
+                        Codprd = item.Codprd,
+                        Coduni = item.Codton,
+                        Bolguiid = item.Bolguidid,
+                        BatchId = random.Next(1, 100001),
+                        Fch = DateTime.Now,
+                        Fchcar = item.Fchcar,
+                        Codprd2 = item.Codprd,
+                        Vol = item.Vol,
+                        Vol2 = item.Vol,
+                        Dendes = item.Destino?.Den,
+                        CompartmentId = item.CompartmentId,
+                        Liniteid = random.Next(1,100001)
+                    };
+
+                    context.Add(orden);
+                }
+
+                await context.SaveChangesAsync();
+                
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

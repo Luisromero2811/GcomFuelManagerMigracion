@@ -61,6 +61,10 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("SealNumber"), MaxLength(128)]
         public string? SealNumber { get; set; } = string.Empty;
 
+        [NotMapped] public long Codprdsyn { get; set; } = 0;
+        [NotMapped] public long Codprd2syn { get; set; } = 0;
+        [NotMapped] public long Codchfsyn { get; set; } = 0;
+
         //Prop de nav Estado
         [NotMapped] public Estado? Estado { get; set; } = null!;
         [NotMapped] public Destino? Destino { get; set; } = null!;

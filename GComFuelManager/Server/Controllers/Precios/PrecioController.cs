@@ -144,8 +144,8 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpPost("productos")]
-        public async Task<ActionResult> GetPrecios([FromBody] ZonaCliente? zonaCliente)
+        [HttpPost("productos/{folio?}")]
+        public async Task<ActionResult> GetPrecios([FromBody] ZonaCliente? zonaCliente, [FromRoute] string? folio)
         {
             try
             {
@@ -187,11 +187,37 @@ namespace GComFuelManager.Server.Controllers.Precios
                     //if (zona == null)
                     //    return BadRequest("No tiene una zona relacionada");
 
-                    precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
+                    if (string.IsNullOrEmpty(folio))
+                    {
+                        precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
+                        && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                        //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
+                    }
+                    else
+                    {
+                        var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                            .Include(x=>x.Cliente)
+                            .ToListAsync();
+                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x=>x);
+
+                        foreach (var item in ordenesUnic)
+                        {
+                            var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
+                            Precio precio = new Precio()
+                            {
+                                Pre = item.Precio,
+                                codCte = item.CodCte,
+                                codDes = item.CodDes,
+                                codPrd = item.CodPrd,
+                                codGru = item.Cliente?.codgru,
+                                codZona = zona?.CteCod,
+                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
+                            };
+                            precios.Add(precio);
+                        }
+                    }
                 }
 
                 return Ok(precios);

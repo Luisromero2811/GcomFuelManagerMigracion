@@ -206,6 +206,31 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet]
+        [Route("service/all")]
+        public async Task<ActionResult> GetAllChofers()
+        {
+            try
+            {
+                var i = 1;
+                var transportistas = context.Transportista.Where(x=>x.Activo == true).ToList();
+                foreach (var item in transportistas)
+                {
+                    long busentid;
+                    if (long.TryParse(item.Busentid, out busentid))
+                    {
+                        Debug.WriteLine($"{i}:{item.Den}");
+                        await GetChofer(busentid);
+                        i++;
+                    }
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
 
