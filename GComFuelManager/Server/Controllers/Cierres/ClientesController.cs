@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.ServiceModel;
-using ServiceReference6;
+//using ServiceReference6;
+using ServiceReference8;
 using System.Drawing;
 using System;
 
@@ -202,21 +203,21 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
 
-                    getReq.IncludeChildObjects = new ServiceReference6.NBool();
+                    getReq.IncludeChildObjects = new NBool();
                     getReq.IncludeChildObjects.Value = false;
 
-                    getReq.BusinessEntityType = new ServiceReference6.NInt();
+                    getReq.BusinessEntityType = new NInt();
                     getReq.BusinessEntityType.Value = 4;
 
-                    getReq.AssociatedBusinessEntityId = new ServiceReference6.Identifier();
-                    getReq.AssociatedBusinessEntityId.Id = new ServiceReference6.NLong();
+                    getReq.AssociatedBusinessEntityId = new Identifier();
+                    getReq.AssociatedBusinessEntityId.Id = new NLong();
                     getReq.AssociatedBusinessEntityId.Id.Value = 51004;
 
-                    getReq.AssociatedBusinessEntityType = new ServiceReference6.NInt();
+                    getReq.AssociatedBusinessEntityType = new NInt();
                     getReq.AssociatedBusinessEntityType.Value = 1;
 
-                    getReq.ActiveIndicator = new ServiceReference6.NEnumOfActiveIndicatorEnum();
-                    getReq.ActiveIndicator.Value = ServiceReference6.ActiveIndicatorEnum.ACTIVE;
+                    getReq.ActiveIndicator = new NEnumOfActiveIndicatorEnum();
+                    getReq.ActiveIndicator.Value = ActiveIndicatorEnum.ACTIVE;
 
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
@@ -247,7 +248,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Den = items.DestinationName,
                                     Codsyn = items.DestinationId.Id.Value.ToString(),
                                     Codcte = c.Cod,
-                                    Activo = items.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Activo = items.ActiveIndicator.Value == ActiveIndicatorEnum.ACTIVE ? true : false,
                                     Dir = items.Address.Address1,
                                     Ciu = items.Address.City,
                                     Est = items.Address.State != null ? items.Address.State : "N/A",
@@ -311,7 +312,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Den = itemss.DestinationName,
                                     Codsyn = itemss.DestinationId.Id.Value.ToString(),
                                     Codcte = cli?.Cod,
-                                    Activo = itemss.ActiveIndicator.Value == ServiceReference6.ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Activo = itemss.ActiveIndicator.Value == ActiveIndicatorEnum.ACTIVE ? true : false,
                                     Dir = itemss.Address.Address1,
                                     Ciu = itemss.Address.City,
                                     Est = itemss.Address.State != null ? itemss.Address.State : "N/A",

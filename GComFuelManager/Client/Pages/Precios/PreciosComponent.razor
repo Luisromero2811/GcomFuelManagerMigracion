@@ -196,7 +196,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Precio</label>
-                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
+                                <InputNumber TValue="double?" @bind-Value="Precio.Pre" class="form-control col-12" />
                             </div>
                             <div class="col-12 d-flex justify-content-center row">
                                 <div class="col-4">
@@ -330,7 +330,7 @@
     private string Token { get; set; } = string.Empty;
 
     private short? GrupoSeleccionado = 0;
-    private int ClienteSeleccionado = 0;
+    private int? ClienteSeleccionado = 0;
 
     private int Progress = 0;
     private int TotalEmails = 0;

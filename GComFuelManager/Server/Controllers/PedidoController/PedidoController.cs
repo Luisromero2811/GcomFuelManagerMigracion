@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security.Claims;
 
@@ -403,17 +405,21 @@ namespace GComFuelManager.Server.Controllers
                 }
                 orden.ForEach(x =>
                 {
-                    x.Destino = null;
-                    x.Estado = null;
+                    x.Destino = null!;
+                    x.Estado = null!;
                     x.Tad = null!;
                     x.Chofer = null!;
                     x.Tonel = null!;
                     x.Producto = null;
+                    x.OrdenCierre = null!;
+                    x.Cliente = null!;
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;
-                    context.Update(x);
+                    Debug.WriteLine(JsonConvert.SerializeObject(x));
                 });
+                
+                context.UpdateRange(orden);
                 await context.SaveChangesAsync();
                 return Ok(newFolio);
             }

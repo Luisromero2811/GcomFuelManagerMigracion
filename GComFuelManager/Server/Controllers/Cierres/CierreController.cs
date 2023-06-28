@@ -83,6 +83,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.Estado)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
+                    .ThenInclude(x => x.Estado)
                     .ToListAsync();
 
                 if (ordenes.Count > 0)
@@ -468,7 +469,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
-                
+
                 var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 if (user == null)
                     return NotFound();
@@ -484,10 +485,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (!filtro.forFolio)
                 {
-                    var cierres = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin 
+                    var cierres = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && x.Estatus == true && x.CodCte == filtro.codCte)
-                        .Include(x => x.Producto).Include(x=>x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x=>x.Orden).ToListAsync();
-                    
+                        .Include(x => x.Producto).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
+
                     if (cierres is null)
                         return new VolumenDisponibleDTO();
 
@@ -526,7 +527,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             if (volumen.Productos.Any(x => x.Nombre.Equals(item.Producto.Den)))
                             {
-                                
+
                                 volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Disponible += productoVolumen.Disponible;
                                 volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Congelado += productoVolumen.Congelado;
                                 volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Consumido += productoVolumen.Consumido;
@@ -546,7 +547,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
                                             : item?.OrdenEmbarque?.Vol : 0;
 
-                            var VolumenConsumido = item.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null 
+                            var VolumenConsumido = item.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null
                                 ? item.OrdenEmbarque?.Orden?.Vol : 0;
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
@@ -581,7 +582,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             return BadRequest("No existe el cierre.");
 
                         var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(filtro.Folio))
-                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).Include(x => x.OrdenEmbarque).ThenInclude(x=>x.Tonel).ToListAsync();
+                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).ToListAsync();
 
                         foreach (var item in cierres)
                         {
