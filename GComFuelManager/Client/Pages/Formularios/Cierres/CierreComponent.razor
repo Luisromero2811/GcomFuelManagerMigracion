@@ -239,8 +239,8 @@
                                                 @if (ordenCierre.IsAutoPrecio)
                                                 {
                                                     <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                                AllowVirtualization="true">
+                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                                    AllowVirtualization="true">
                                                         <Template Context="data">
                                                             @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
                                                         </Template>
@@ -426,16 +426,18 @@
                                                         </button>
                                                     </div>
                                                 }
-                                                <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">
-                                                        <i class="fa fa-solid fa-file-excel"></i>
-                                                        <b>Exportar Cierres</b>
-                                                        @if (loadingExport)
-                                                        {
-                                                            <SpinnerLoading></SpinnerLoading>
-                                                        }
-                                                    </button>
-                                                </div>
+                                                @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia" Context="Exportacion">
+                                                        <div class="col-3 mx-2">
+                                                            <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">
+                                                                <i class="fa fa-solid fa-file-excel"></i>
+                                                                <b>Exportar Cierres</b>
+                                                                @if (loadingExport)
+                                                                {
+                                                                    <SpinnerLoading></SpinnerLoading>
+                                                                }
+                                                            </button>
+                                                        </div>
+                                                    </AuthorizeView>*@
                                             }
                                             else
                                             {
@@ -554,7 +556,7 @@
 
             @if (ordenCierres.Count != 0)
             {
-                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Limpiar">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Listado">
                     <Authorized>
                         @if (isFilter is true && ordenCierres.Count > 0)
                         {
@@ -568,14 +570,17 @@
                                 </div>
                             }
                         }
-
-                        <div class="col-12 d-flex justify-content-start my-2 row">
-                            <div class="col-4">
+                    </Authorized>
+                </AuthorizeView>
+                <div class="col-12 d-flex justify-content-start my-2 row">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="General">
+                        <Authorized>
+                            <div class="col-3">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@ClearList">
                                     <i class="fa-solid fa-broom"></i> Limpiar Lista
                                 </button>
                             </div>
-                            <div class="col-4">
+                            <div class="col-3">
                                 @if (!monthFilter || !filtro.forFolio)
                                 {
                                     @if (AddDaysExpiration is false)
@@ -591,7 +596,7 @@
                                             <div class="col-12 row">
                                                 <div class="col-6">
                                                     <RadzenDatePicker @bind-Value="@fchCaducidad.FchFin" class="col-12" TValue="DateTime?" Min="@fchVencimiento.FchFin"
-                                                          Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
+                                                                      Max="@fchVencimiento.FchFin?.AddDays(2)"></RadzenDatePicker>
                                                 </div>
                                                 <div class="col-3">
                                                     <button class="btn btn-success col-12" type="button" @onclick="@SaveFechaVencimiento">
@@ -627,17 +632,29 @@
                                     }
                                 }
                             </div>
-                            <div class="col-4">
+                            <div class="col-3">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>ClosePedido(filtro.Folio))">
                                     <i class="fa-solid fa-unlock"></i> Cerrar pedido
                                 </button>
                             </div>
-                        </div>
-                    </Authorized>
-                </AuthorizeView>
-
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia" Context="Exportaciones">
+                        <Authorized>
+                            <div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">
+                                    <i class="fa fa-solid fa-file-excel"></i>
+                                    <b>Exportar Cierres</b>
+                                    @if (loadingExport)
+                                    {
+                                        <SpinnerLoading></SpinnerLoading>
+                                    }
+                                </button>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
             }
-
         </div>
     </Authorized>
 </AuthorizeView>
@@ -939,14 +956,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                        {
-                            Codprd = ordenCierre.CodPrd,
-                            Pre = ordenCierre.Precio,
-                            Vol = ordenCierre.Volumen,
-                            Coddes = ordenCierre.CodDes,
-                            Fchpet = DateTime.Now,
-                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                        };
+                    {
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                    };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -1035,13 +1052,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1170,7 +1187,7 @@
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var ws = excel.Workbook.Worksheets.Add("Cierre");
-                ws.Columns.Width = 50;
+                ws.Columns.Width = 65;
                 ws.Columns.AutoFit();
 
                 var header = ws.Cells["A1:R1"];
@@ -1373,14 +1390,14 @@
                 {
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
+                    {
+                        Title = "Agregar pedido",
+                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                        Icon = SweetAlertIcon.Warning,
+                        CancelButtonText = "Cancelar",
+                        ConfirmButtonText = "Aceptar",
+                        ShowCancelButton = true
+                    });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();
@@ -1672,7 +1689,7 @@
         {
             if (ordenCierre.CodPrd != null)
             {
-                if(Precios.Any(x=>x.Producto?.Cod != ordenCierre.CodPrd))
+                if (Precios.Any(x => x.Producto?.Cod != ordenCierre.CodPrd))
                 {
                     ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
                 }

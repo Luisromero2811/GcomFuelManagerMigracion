@@ -1,0 +1,204 @@
+﻿@page "/datos/clientes"
+
+@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ns
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
+
+<h4><b>Clientes</b></h4>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <EditForm Model="@CliGru" class="form col-12" Context="Porcentaje">
+                    <div class="col-12 row mb-3">
+                        <div class="col-10">
+                            <label>Porcentaje</label>
+                            <InputText class="form-control" @bind-Value="@Cliente.Den"/>
+                        </div>
+                        <div class="col-2 d-flex mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa-solid fa-percent"></i>
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+                <hr />
+                <EditForm Model="@CliGru" class="form col-12" Context="GruposClientes">
+                    <div class="col-12 mb-4 row">
+                        <div class="col-10">
+                            <label>Grupo:</label>
+                            <RadzenDropDown @bind-Value="CliGru.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den" AllowVirtualization="true"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                        </div>
+                        <div class="col-2 d-flex mt-auto">
+                            <button class="mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
+                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="ClientGrid">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px; "
+                        IsLoading="loading" @ref="@grid" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="Cliente" Title="Nombre del Cliente" Property="Den" OrderIndex="1" />
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="GridAction">
+                    <RadzenDataGridColumn TItem="Cliente" Title="Habilitar/Deshabilitar" Width="480px" OrderIndex="2">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.precioSemanal"
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))" />
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+
+@code {
+    public bool loading { get; set; } = false;
+    public RadzenDataGrid<Cliente> grid { get; set; } = new RadzenDataGrid<Cliente>();
+
+    IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
+
+    IList<Grupo> Grupos { get; set; } = new List<Grupo>();
+    Grupo Grupo { get; set; } = new Grupo();
+
+    IEnumerable<Cliente> Clientes { get; set; } = new List<Cliente>();
+    Cliente Cliente { get; set; } = new Cliente();
+
+    GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetGrupos();
+        await GetClientesGrupos();
+    }
+
+    private async Task GetGrupos()
+    {
+        try
+        {
+            var response = await repositorio.Get<IList<Grupo>>("api/grupo");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetClientes()
+    {
+        try
+        {
+            if (CliGru.grupo == null)
+            {
+                await Swal.FireAsync("Alerta", "¡Seleccione un grupo por favor!", SweetAlertIcon.Warning);
+            }
+            else
+            {
+                var response = await repositorio.Get<IEnumerable<Cliente>>($"api/clientes/grupo/{CliGru.grupo.Cod}");
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Clientes = response.Response;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetClientesGrupos()
+    {
+        try
+        {
+            var response = await repositorio.Get<IEnumerable<Cliente>>($"api/clientes/all");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ClientesGrupo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    private async Task HabilitarDeshabilitar(Cliente cliente, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await repositorio.Put<bool>($"api/clientes/{cliente.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (status)
+                {
+                    await Message($"{cliente.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{cliente.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1700,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
+}
+
+}
+

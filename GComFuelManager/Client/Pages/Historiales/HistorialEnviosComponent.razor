@@ -96,15 +96,7 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="200px" MinWidth="200px" Filterable="false" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.Den" Width="200px" MinWidth="200px" FilterValue="TransportistasSeleccionado">
-                <FilterTemplate Context="Transportista">
-                    <RadzenDropDown Data="TransportistaList" @bind-Value="TransportistasSeleccionado" AllowClear="true"></RadzenDropDown>
-                </FilterTemplate>
-                <Template Context="data">
-                    <div>
-                        @data?.Tonel?.Transportista?.Den
-                    </div>
-                </Template>
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.Den" Width="200px" MinWidth="200px" Filterable="false">
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="200px" MinWidth="200px" Filterable="false">
                 <Template Context="data">
@@ -239,7 +231,6 @@
                 DestinoList = orden?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
                 ProductoList = orden?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
                 ClienteList = orden?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
-                TransportistaList = orden?.DistinctBy(x => x?.Tonel?.Transportista?.Den).Select(x => x?.Tonel?.Transportista?.Den)!;
             }
         }
         catch (Exception e)
@@ -443,47 +434,3 @@
         }
     }
 }
-
- @*private async Task GenerateExcel()
-    {
-        if (ordenes != null)
-        {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var excel = new ExcelPackage();
-            var worksheet = excel.Workbook.Worksheets.Add("Historial de envios");
-            worksheet.Columns.Width = 60;
-            worksheet.Columns.AutoFit();
-
-            //Formación de Excel
-            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-            from o in ordenes
-            select new TablaAsignacionUnidadesDTO()
-            {
-                OrdenCompra = o?.OrdenCompra?.den,
-                Referencia = o?.Folio.ToString(),
-                Cliente = o?.Destino?.Cliente?.Den,
-                Destino = o?.Destino?.Den,
-                Producto = o?.Producto?.Den,
-                Volumen = o?.Vol,
-                FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                Transportista = o?.Tonel?.Transportista?.Den,
-                Unidad = o?.Tonel?.Veh,
-                Compartimento = o?.Compartment,
-                Operador = o?.Chofer?.Den,
-                Bin = o?.Bin,
-                Status = o?.Estado?.den
-            }, true);
-
-            tablebody.Style.Font.Bold = true;
-            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            var header = worksheet.Cells["A1:O1"];
-            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-            //Guardado de Excel
-            await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
-        }
-        else
-        {
-            await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
-        }
-    }*@

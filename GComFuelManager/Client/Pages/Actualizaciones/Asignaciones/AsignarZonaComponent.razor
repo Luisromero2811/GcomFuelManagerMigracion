@@ -157,16 +157,18 @@
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
-                    <Template Context="data">
-                        <div class="col-12">
-                            <div class="form-check form-switch m-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                       @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Accion">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                </div>
                             </div>
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
             </Columns>
         </RadzenDataGrid>
     </div>

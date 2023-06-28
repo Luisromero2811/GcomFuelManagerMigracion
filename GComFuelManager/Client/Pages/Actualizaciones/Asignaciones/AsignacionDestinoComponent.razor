@@ -77,16 +77,18 @@
                         IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
-                <RadzenDataGridColumn TItem="CodDenDTO" Title="Habilitar / Deshabilitar" OrderIndex="2">
-                    <Template Context="data">
-                        <div class="col-12">
-                            <div class="form-check form-switch m-2">
-                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                       @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Aciones">
+                    <RadzenDataGridColumn TItem="CodDenDTO" Title="Habilitar / Deshabilitar" OrderIndex="2">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                </div>
                             </div>
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
             </Columns>
         </RadzenDataGrid>
     </div>
