@@ -15,7 +15,7 @@ namespace GComFuelManager.Shared.DTOs
         public string? Fecha { get; set; } = string.Empty;
 
         [DisplayName("Precio")]
-        public double Pre { get; set; } = 0;
+        public double? Pre { get; set; } = 0;
 
         [DisplayName("Producto")]
         public string? Producto { get; set; } = string.Empty;

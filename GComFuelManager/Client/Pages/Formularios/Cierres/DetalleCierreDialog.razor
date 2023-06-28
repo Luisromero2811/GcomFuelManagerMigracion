@@ -95,7 +95,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Filterable="false">
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false">
                     <Template Context="item">
                         @(item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
                     </Template>

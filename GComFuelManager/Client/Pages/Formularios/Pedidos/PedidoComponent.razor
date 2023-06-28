@@ -88,7 +88,7 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Producto</label>
-                            <RadzenDropDown Data="Productos" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                            <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
                                 <Template Context="data">
@@ -344,7 +344,8 @@
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
     private List<CodDenDTO> Clientes { get; set; } = null!;
     private List<CodDenDTO> Estaciones { get; set; } = null!;
-    private List<Precio> Productos { get; set; } = null!;
+    private List<Precio> Precios { get; set; } = null!;
+    private List<Producto> Productos { get; set; } = null!;
     private List<Precio> ProductosDisponibles { get; set; } = null!;
     private IEnumerable<CodDenDTO> Destino { get; set; } = null!;
     private List<int> Cantidades { get; set; } = null!;
@@ -688,6 +689,7 @@
         {
             if (ordenCierres.Count != 0)
             {
+                ordens = new List<OrdenEmbarque>();
                 foreach (var item in ordenCierres)
                     if (item.OrdenEmbarque!.CodordCom == null && item.OrdenEmbarque.Codtad != 0)
                         ordens.Add(item.OrdenEmbarque!);
@@ -974,7 +976,7 @@
         {
             if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
             {
-                ordenCierre.Precio = Productos.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 //StateHasChanged();
             }
@@ -994,8 +996,8 @@
             ZonaCliente zonaCliente = new ZonaCliente();
             zonaCliente.DesCod = ordenCierre.CodDes;
             zonaCliente.CteCod = ordenCierre.CodCte;
-
-            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
+            var precioFolio = isFolio ? filtro.Folio : string.Empty;
+            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -1003,7 +1005,7 @@
             }
             else
             {
-                Productos = response.Response;
+                Precios = response.Response;
                 DestinoSeleccionado = ordenCierre.CodDes;
                 StateHasChanged();
             }
