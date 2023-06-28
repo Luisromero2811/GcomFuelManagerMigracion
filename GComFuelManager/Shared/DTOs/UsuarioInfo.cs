@@ -28,5 +28,7 @@ namespace GComFuelManager.Shared.DTOs
         public bool ShowPassword { get; set; } = false;
         [NotMapped]
         public bool passwordView { get; set; } = true;
+        [NotMapped]
+        public bool ShowUsersActions { get; set; } = false;
     }
 }

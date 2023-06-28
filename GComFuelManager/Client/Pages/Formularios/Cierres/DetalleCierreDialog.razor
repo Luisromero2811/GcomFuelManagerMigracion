@@ -202,7 +202,7 @@
                 ws.Columns.Width = 50;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:H1"];
+                var header = ws.Cells["A1:L1"];
                 var ordenFilter = new List<DetalleCierreDTO>();
                 foreach (var item in detalleCierres)
                     if (item.Producto == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))

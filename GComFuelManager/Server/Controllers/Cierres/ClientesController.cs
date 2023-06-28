@@ -171,6 +171,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     return NotFound();
                 }
                 cliente.Activo = status;
+                cliente.precioSemanal = status;
 
                 context.Update(cliente);
                 await context.SaveChangesAsync();
