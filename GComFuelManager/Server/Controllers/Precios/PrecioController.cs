@@ -179,6 +179,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                     //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
+
+                    precios.ForEach(x =>
+                    {
+                        var porcentaje = context.Porcentaje.FirstOrDefault();
+                        var aumento = (porcentaje.Porcen / 100) + 1;
+                        x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                    });
                 }
                 else
                 {
@@ -194,6 +201,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
+                        precios.ForEach(x =>
+                        {
+                            var porcentaje = context.Porcentaje.FirstOrDefault();
+                            var aumento = (porcentaje.Porcen / 100) + 1;
+                            x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                        });
                     }
                     else
                     {
