@@ -276,6 +276,6 @@ namespace GComFuelManager.Server
         public DbSet<OrdenPedido> OrdenPedido { get; set; }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<AccionCorreo> AccionCorreo { get; set; }
-
+        public DbSet<Porcentaje> Porcentaje { get; set; }
     }
 }

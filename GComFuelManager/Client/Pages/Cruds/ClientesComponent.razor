@@ -5,46 +5,50 @@
 @inject IJSRuntime js
 @inject NotificationService ns
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
 
 <h4><b>Clientes</b></h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <EditForm Model="@porcentaje" class="form col-12" Context="Porcentaje">
-                    <div class="col-12 row mb-3">
-                        <div class="col-10">
-                            <label>Porcentaje</label>
-                            <InputNumber class="form-control" @bind-Value="@porcentaje.Porcen"/>
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Percent">
+                    <EditForm Model="@porcentaje" class="form col-12" Context="Porcentaje">
+                        <div class="col-12 row mb-3">
+                            <div class="col-10">
+                                <label>Porcentaje</label>
+                                <InputNumber class="form-control" @bind-Value="@porcentaje.Porcen" />
+                            </div>
+                            <div class="col-2 d-flex mt-auto">
+                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@SendPercent" type="submit">
+                                    <i class="fa-solid fa-percent"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-2 d-flex mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                <i class="fa-solid fa-percent"></i>
-                            </button>
-                        </div>
-                    </div>
-                </EditForm>
+                    </EditForm>
+                </AuthorizeView>
                 <hr />
-                <EditForm Model="@CliGru" class="form col-12" Context="GruposClientes">
-                    <div class="col-12 mb-4 row">
-                        <div class="col-10">
-                            <label>Grupo:</label>
-                            <RadzenDropDown @bind-Value="CliGru.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den" AllowVirtualization="true"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="ShowClient">
+                    <EditForm Model="@CliGru" class="form col-12" Context="GruposClientes">
+                        <div class="col-12 mb-4 row">
+                            <div class="col-10">
+                                <label>Grupo:</label>
+                                <RadzenDropDown @bind-Value="CliGru.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den" AllowVirtualization="true"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12" />
+                            </div>
+                            <div class="col-2 d-flex mt-auto">
+                                <button class="mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
+                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-2 d-flex mt-auto">
-                            <button class="mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
-                            </button>
-                        </div>
-                    </div>
-                </EditForm>
+                    </EditForm>
+                </AuthorizeView>
             </div>
         </div>
     </div>
 </AuthorizeView>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="ClientGrid">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="ClientGrid">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px; "
@@ -199,8 +203,35 @@
             Timer = 1700,
             TimerProgressBar = true,
             Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message});
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
+    private async Task SendPercent()
+    {
+        try
+        {
+            if (porcentaje.Porcen != 0 && porcentaje.Porcen != null)
+            {
+                var responseHttp = await repositorio.Post<Porcentaje, Porcentaje>($"api/porcentaje", porcentaje);
+                if (responseHttp.Error)
+                {
+                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", "El porcentaje ha sido registrado con exito", SweetAlertIcon.Success);
+                }
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "Ingrese un porcentaje valido", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }
 
