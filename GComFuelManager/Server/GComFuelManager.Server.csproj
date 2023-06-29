@@ -48,6 +48,7 @@
     <None Remove="Controllers\AsignacionUnidadesController\" />
     <None Remove="Controllers\SeguimientoOrdenController\" />
     <None Remove="Controllers\UsuarioController\" />
+    <None Remove="Controllers\Porcentajes\" />
   </ItemGroup>
 
 
@@ -60,5 +61,6 @@
     <Folder Include="Controllers\SeguimientoOrdenController\" />
     <Folder Include="Controllers\UsuarioController\" />
     <Folder Include="Files\" />
+    <Folder Include="Controllers\Porcentajes\" />
   </ItemGroup>
 </Project>
