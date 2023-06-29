@@ -21,7 +21,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes" Context="Configs">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="Configs">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -30,7 +30,7 @@
                 </Template>
                 <ChildContent>
                     @*auth*@
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte" Context="Tonele">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
                         <RadzenPanelMenuItem>
                             <Template>
                                 <div class="text-white">
@@ -38,20 +38,24 @@
                                 </div>
                             </Template>
                             <ChildContent>
-                                <RadzenPanelMenuItem Path="datos/tonel" class="gcom-bg-rojo col-12" Style="border:hidden">
-                                    <Template>
-                                        <div class="text-white">
-                                            <i class="fa-solid fa-truck-moving"></i> Toneles
-                                        </div>
-                                    </Template>
-                                </RadzenPanelMenuItem>
-                                <RadzenPanelMenuItem Path="datos/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
-                                    <Template>
-                                        <div class="text-white">
-                                            <i class="fa-solid fa-business-time"></i> Clientes
-                                        </div>
-                                    </Template>
-                                </RadzenPanelMenuItem>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia" Context="Acceso">
+                                    <RadzenPanelMenuItem Path="datos/tonel" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-truck-moving"></i> Toneles
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia" Context="Percent">
+                                    <RadzenPanelMenuItem Path="datos/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-business-time"></i> Clientes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
                             </ChildContent>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>

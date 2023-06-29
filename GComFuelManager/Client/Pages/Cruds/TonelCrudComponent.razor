@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-4 d-flex">
                     <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@GetToneles">
-                        Buscar
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
                     </button>
                 </div>
             </div>
@@ -30,19 +30,21 @@
                             GridLines="DataGridGridLines.Both" class="rz-my-2" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                 <Columns>
-                    <RadzenDataGridColumn TItem="Tonel" Title="Asignar" Filterable="false" Width="80px" Sortable="false" Frozen="true">
-                        <Template Context="data">
-                            <div class="col-12">
-                                <button class="btn btn-primary col-12" @onclick="@(()=>SetTonel(data))">
-                                    <i class="fa fa-solid fa-pen-to-square"></i>
-                                </button>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Tonel" Title="Placa" Property="Placa" Frozen="true" Filterable="true" />
-                    <RadzenDataGridColumn TItem="Tonel" Title="Tracto" Property="Tracto" Filterable="true" />
-                    <RadzenDataGridColumn TItem="Tonel" Title="Placa-Tracto" Property="Placatracto" Filterable="true" />
-                    <RadzenDataGridColumn TItem="Tonel" Title="Capacidad" Filterable="false">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte">
+                        <RadzenDataGridColumn TItem="Tonel" Title="Asignar" Filterable="false" Width="80px" Sortable="false" Frozen="true" OrderIndex="1">
+                            <Template Context="data">
+                                <div class="col-12">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetTonel(data))">
+                                        <i class="fa fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </AuthorizeView>
+                    <RadzenDataGridColumn TItem="Tonel" Title="Placa" Property="Placa" Frozen="true" Filterable="true" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Tracto" Property="Tracto" Filterable="true" OrderIndex="3" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Placa-Tracto" Property="Placatracto" Filterable="true" OrderIndex="4" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Capacidad" Filterable="false" OrderIndex="5">
                         <Template Context="data">
                             @foreach (var item in data.Capacidades)
                             {
@@ -55,7 +57,8 @@
         </div>
     </div>
 </div>
-@if(Tonel.Cod != 0){
+@if (Tonel.Cod != 0)
+{
     <div class="col-12 card mb-4 mt-3">
         <div class="col-12 card-body">
             <div class="col-12">
@@ -201,7 +204,7 @@
     {
         try
         {
-            if(capTonels.Count > 1)
+            if (capTonels.Count > 1)
             {
                 var array = capTonels.ToArray();
                 var index = capTonels.FindIndex(x => x.IdCom == capTonel.IdCom);
