@@ -26,19 +26,29 @@ namespace GComFuelManager.Server.Controllers
             this.context = context;
         }
 
+        [HttpGet]
+        public async Task<ActionResult> Get()
+        {
+            try
+            {
+                var porcentaje = context.Porcentaje.FirstOrDefault();
+                return Ok(porcentaje);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> SendPercent([FromBody] Porcentaje porcentaje)
         {
             try
             {
                 if (porcentaje.Cod == null)
-                {
                     context.Add(porcentaje);
-                }
                 else
-                {
                     context.Update(porcentaje);
-                }
 
                 await context.SaveChangesAsync();
 

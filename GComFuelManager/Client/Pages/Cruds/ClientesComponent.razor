@@ -90,8 +90,30 @@
 
     protected async override Task OnInitializedAsync()
     {
+        await GetPorcentaje();
         await GetGrupos();
-        await GetClientesGrupos();
+    }
+
+    private async Task GetPorcentaje()
+    {
+        try
+        {
+            var response = await repositorio.Get<Porcentaje>("api/porcentaje");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                porcentaje = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
     }
 
     private async Task GetGrupos()
@@ -143,26 +165,6 @@
         }
     }
 
-    private async Task GetClientesGrupos()
-    {
-        try
-        {
-            var response = await repositorio.Get<IEnumerable<Cliente>>($"api/clientes/all");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ClientesGrupo = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
     private async Task HabilitarDeshabilitar(Cliente cliente, ChangeEventArgs tp)
     {
         try

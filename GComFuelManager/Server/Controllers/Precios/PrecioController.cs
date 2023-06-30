@@ -114,11 +114,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                 precio.Cliente = null!;
                 precio.FchActualizacion = DateTime.Now;
 
-                if (precio.Cod != 0)
+                if (precio.Cod != null)
                     context.Update(precio);
                 else
-                    context.Add(precio);
+                {
+                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd))
+                        return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
+                    context.Add(precio);
+                }
                 var precioH = new PrecioHistorico
                 {
                     Cod = null!,
