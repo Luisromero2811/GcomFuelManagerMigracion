@@ -225,7 +225,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
-                        var clienteId = respuesta.BusinessEntityAssociations.FirstOrDefault(x => x.BusinessEntity.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
+                        //var clienteId = respuesta.BusinessEntityAssociations.FirstOrDefault(x => x.BusinessEntity.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
                         //Construcción del objeto del cliente
                         Cliente cliente = new Cliente()
                         {

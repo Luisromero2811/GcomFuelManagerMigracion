@@ -1,4 +1,4 @@
-﻿@page "/datos/clientes"
+﻿@page "/porcentaje/clientes"
 
 @inject IRepositorio repositorio
 @inject SweetAlertService Swal
@@ -90,8 +90,30 @@
 
     protected async override Task OnInitializedAsync()
     {
+        await GetPorcentaje();
         await GetGrupos();
-        await GetClientesGrupos();
+    }
+
+    private async Task GetPorcentaje()
+    {
+        try
+        {
+            var response = await repositorio.Get<Porcentaje>("api/porcentaje/cliente");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                porcentaje = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
     }
 
     private async Task GetGrupos()
@@ -143,26 +165,6 @@
         }
     }
 
-    private async Task GetClientesGrupos()
-    {
-        try
-        {
-            var response = await repositorio.Get<IEnumerable<Cliente>>($"api/clientes/all");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ClientesGrupo = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
     private async Task HabilitarDeshabilitar(Cliente cliente, ChangeEventArgs tp)
     {
         try
@@ -212,7 +214,7 @@
         {
             if (porcentaje.Porcen != 0 && porcentaje.Porcen != null)
             {
-                var responseHttp = await repositorio.Post<Porcentaje, Porcentaje>($"api/porcentaje", porcentaje);
+                var responseHttp = await repositorio.Post<Porcentaje, Porcentaje>($"api/porcentaje/cliente", porcentaje);
                 if (responseHttp.Error)
                 {
                     var respuestaHttp = await responseHttp.ObtenerMensajeError();

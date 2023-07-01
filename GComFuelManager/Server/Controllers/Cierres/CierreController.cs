@@ -768,5 +768,102 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("disponibles")]
+        public async Task<ActionResult> GetCierresDisponiles([FromBody] CierreFiltroDTO filtroDTO)
+        {
+            try
+            {
+                if (filtroDTO is null)
+                    return BadRequest();
+
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
+
+                var cierresDis = await context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
+                && x.Activa == true && x.CodPed == 0)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .ToListAsync();
+
+                if (cierresDis is null)
+                    return Ok(cierres);
+
+                Porcentaje porcentaje = new Porcentaje();
+                var por = context.Porcentaje.FirstOrDefault(x => x.Accion == "cierre");
+                if (por != null)
+                    porcentaje = por;
+
+                foreach (var item in cierresDis)
+                {
+                    if (context.OrdenPedido.Any(x => x.Folio.Equals(item.Folio)))
+                    {
+                        var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(item.Folio))
+                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
+
+                        var VolumenDisponible = item.Volumen;
+
+                        var VolumenCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque?.Orden is null)
+                            .Sum(item => item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
+                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
+                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())
+                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
+                                        : item?.OrdenEmbarque?.Vol);
+
+                        var countCongelado = pedidos.Where(x => x.OrdenEmbarque?.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque?.Orden is null).Count();
+
+                        var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Orden?.BatchId is not null)
+                            .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
+
+                        var countConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
+
+                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+
+                        var sumVolumen = (VolumenConsumido + VolumenCongelado) != 0 ? (VolumenConsumido + VolumenCongelado) : 1;
+                        var sumCount = (countCongelado + countConsumido) != 0 ? (countCongelado + countConsumido) : 1;
+
+                        var PromedioCargas = sumVolumen / sumCount;
+
+                        ProductoVolumen productoVolumen = new ProductoVolumen();
+
+                        productoVolumen.Nombre = item.Producto?.Den;
+                        productoVolumen.Disponible = VolumenTotalDisponible;
+                        productoVolumen.Congelado = VolumenCongelado;
+                        productoVolumen.Consumido = VolumenConsumido;
+                        productoVolumen.Total = VolumenDisponible;
+                        productoVolumen.PromedioCarga = PromedioCargas;
+
+                        //if (item.VolumenDisponible.Productos.Any(x => x.Nombre.Equals(item.Producto.Den)))
+                        //{
+
+                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Disponible += productoVolumen.Disponible;
+                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Congelado += productoVolumen.Congelado;
+                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Consumido += productoVolumen.Consumido;
+                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Total += productoVolumen.Total;
+                        //}
+                        //else
+                        item.VolumenDisponible?.Productos?.Add(productoVolumen);
+
+                    }
+                    //if (item.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga >=
+                        //(item.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible * (porcentaje.Porcen/100)))
+                        cierres.Add(item);
+                }
+
+                return Ok(cierres);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
