@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using GComFuelManager.Shared.DTOs;
+using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -133,5 +134,8 @@ namespace GComFuelManager.Shared.Modelos
         public Int16? CodTad { get; set; } = 1;
         [EpplusIgnore, NotMapped]
         public bool IsAutoPrecio { get; set; } = true;
+
+        [EpplusIgnore, NotMapped]
+        public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO(); 
     }
 }

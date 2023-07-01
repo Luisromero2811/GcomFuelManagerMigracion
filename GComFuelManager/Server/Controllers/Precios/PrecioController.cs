@@ -186,7 +186,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     precios.ForEach(x =>
                     {
-                        var porcentaje = context.Porcentaje.FirstOrDefault();
+                        var porcentaje = context.Porcentaje.FirstOrDefault(x=>x.Accion == "cliente");
                         var aumento = (porcentaje.Porcen / 100) + 1;
                         x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
                     });
@@ -207,7 +207,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         .ToListAsync();
                         precios.ForEach(x =>
                         {
-                            var porcentaje = context.Porcentaje.FirstOrDefault();
+                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                             var aumento = (porcentaje.Porcen / 100) + 1;
                             x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
                         });

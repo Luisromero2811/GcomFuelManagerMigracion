@@ -17,21 +17,31 @@ namespace GComFuelManager.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-	public class PorcentajeController : ControllerBase
-	{
+    public class PorcentajeController : ControllerBase
+    {
         private readonly ApplicationDbContext context;
 
         public PorcentajeController(ApplicationDbContext context)
-		{
+        {
             this.context = context;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        [Route("{accion}")]
+        public async Task<ActionResult> Get([FromRoute] string accion)
         {
             try
             {
-                var porcentaje = context.Porcentaje.FirstOrDefault();
+                Porcentaje? porcentaje = new Porcentaje();
+
+                if (string.IsNullOrEmpty(accion))
+                    return BadRequest();
+
+                var result = context.Porcentaje.FirstOrDefault(x => x.Accion == accion);
+                
+                if (result != null)
+                    porcentaje = result;
+
                 return Ok(porcentaje);
             }
             catch (Exception e)
@@ -41,14 +51,21 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> SendPercent([FromBody] Porcentaje porcentaje)
+        [Route("{accion}")]
+        public async Task<ActionResult> SendPercent([FromBody] Porcentaje porcentaje, [FromRoute] string accion)
         {
             try
             {
-                if (porcentaje.Cod == null)
-                    context.Add(porcentaje);
-                else
+                if (string.IsNullOrEmpty(accion))
+                    return BadRequest();
+
+                if (porcentaje.Cod != null)
                     context.Update(porcentaje);
+                else
+                {
+                    porcentaje.Accion = accion;
+                    context.Add(porcentaje);
+                }
 
                 await context.SaveChangesAsync();
 
@@ -60,6 +77,6 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-	}
+    }
 }
 

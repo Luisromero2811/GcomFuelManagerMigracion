@@ -47,19 +47,37 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia" Context="Percent">
-                                    <RadzenPanelMenuItem Path="datos/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
-                                        <Template>
-                                            <div class="text-white">
-                                                <i class="fa-solid fa-business-time"></i> Clientes
-                                            </div>
-                                        </Template>
-                                    </RadzenPanelMenuItem>
-                                </AuthorizeView>
                             </ChildContent>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
                     @*auth*@
+                    <RadzenPanelMenuItem>
+                        <Template>
+                            <div class="text-white">
+                                <i class="fa-solid fa-percent"></i> Porcentajes
+                            </div>
+                        </Template>
+                        <ChildContent>
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia" Context="Acceso">
+                                <RadzenPanelMenuItem Path="porcentaje/cierre" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                    <Template>
+                                        <div class="text-white">
+                                            <i class="fa-solid fa-store-slash"></i> Calculo de cierre
+                                        </div>
+                                    </Template>
+                                </RadzenPanelMenuItem>
+                            </AuthorizeView>
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia" Context="Percent">
+                                <RadzenPanelMenuItem Path="porcentaje/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                    <Template>
+                                        <div class="text-white">
+                                            <i class="fa-solid fa-business-time"></i> Precio semanal
+                                        </div>
+                                    </Template>
+                                </RadzenPanelMenuItem>
+                            </AuthorizeView>
+                        </ChildContent>
+                    </RadzenPanelMenuItem>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes">
                         <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden" Selected=false>
                             <Template>
@@ -175,6 +193,16 @@
                 </Template>
             </RadzenPanelMenuItem>
 
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador">
+            <RadzenPanelMenuItem Path="cerrar" class="gcom-bg-rojo" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa-solid fa-folder-closed"></i> Cerrar pedidos
+                    </div>
+                </Template>
+            </RadzenPanelMenuItem>
         </AuthorizeView>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura" Context="Configs">
