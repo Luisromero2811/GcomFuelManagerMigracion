@@ -914,5 +914,19 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet]
+        public async Task<ActionResult> CerrarOrdenes()
+        {
+            try
+            {
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

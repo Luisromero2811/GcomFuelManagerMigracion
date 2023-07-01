@@ -192,7 +192,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Fecha</label>
-                                <InputDate @bind-Value="Precio.FchActualizacion" class="form-control col-12" />
+                                <InputDate @bind-Value="Precio.FchDia" class="form-control col-12" />
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Precio</label>
@@ -652,13 +652,13 @@
     {
         try
         {
-            if (precios is null)
+            if (preciosExcel is null)
             {
                 await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
                 return;
             }
 
-            if (precios.Count == 0)
+            if (preciosExcel.Count() == 0)
             {
                 await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
                 return;
@@ -713,7 +713,7 @@
             new Dictionary<string, object>() { { "lista", ClientesSeleccionados } },
             new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
 
-            if (clientes is null)
+            if (clientes is null || clientes.Count == 0)
             {
                 loadingSend = false;
                 return;
