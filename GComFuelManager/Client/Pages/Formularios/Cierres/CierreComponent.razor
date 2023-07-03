@@ -9,12 +9,12 @@
 @inject OrdenCierreAdminValidation validation
 @inject OrdenCierreClientValidation clientValidation
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="VISTA">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
     <Authorized>
 
         <h3><b>Cierre de Ordenes</b></h3>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FILTRO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="FILTRO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
                     <div class="col-12">

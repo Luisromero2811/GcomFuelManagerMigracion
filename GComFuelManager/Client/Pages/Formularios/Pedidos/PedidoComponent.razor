@@ -8,7 +8,7 @@
 
 @*@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador")]*@
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador">
     <h4><b>Pedidos</b></h4>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
@@ -45,7 +45,7 @@
     </div>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Create">
+<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
             <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
@@ -257,7 +257,7 @@
     </div>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador">
     <div class="col-12 d-flex justify-content-center row">
         @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
         {
@@ -282,7 +282,7 @@
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="200px" Visible="true" Frozen="true">
                     <Template Context="item">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador" Context="Acciones">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
                             <div class="col-12 row">
                                 @if (item.OrdenEmbarque!.CodordCom is null)
                                 {

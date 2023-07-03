@@ -4,8 +4,8 @@
 @inject IJSRuntime JS
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor")]
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor" Context="Seguimiento">
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo")]
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo" Context="Seguimiento">
     <!--Maquetación de formularios-->
     <h4><b>Seguimiento de ordenes</b></h4>
     <div class="row">

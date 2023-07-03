@@ -49,11 +49,13 @@
                             }
                         </div>
                         <div class="col-4 d-flex row">
-                            <div class="col-6 my-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(cierre))">
-                                    <i class="fa-solid fa-unlock"></i> Cerrar Orden
-                                </button>
-                            </div>
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador" Context="ACCIONES">
+                                <div class="col-6 my-auto">
+                                    <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(cierre))">
+                                        <i class="fa-solid fa-unlock"></i> Cerrar Orden
+                                    </button>
+                                </div>
+                            </AuthorizeView>
                             <div class="col-6 my-auto">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(cierre.Folio))">
                                     <i class="fa-solid fa-eye"></i> Ver Cargas de Orden
