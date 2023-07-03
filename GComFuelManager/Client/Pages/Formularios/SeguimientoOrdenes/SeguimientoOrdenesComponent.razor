@@ -4,8 +4,8 @@
 @inject IJSRuntime JS
 @inject HttpClient Http
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor")]
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor" Context="Seguimiento">
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo")]
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo" Context="Seguimiento">
     <!--Maquetación de formularios-->
     <h4><b>Seguimiento de ordenes</b></h4>
     <div class="row">
@@ -85,8 +85,8 @@
                 <NoHayRegistros></NoHayRegistros>
                 </EmptyTemplate>*@
             <Columns>
-                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="200px" />
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="200px" />
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="200px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="200px" Frozen="true"/>
                 <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
