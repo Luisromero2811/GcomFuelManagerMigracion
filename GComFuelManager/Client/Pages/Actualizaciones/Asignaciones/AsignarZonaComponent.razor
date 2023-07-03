@@ -4,6 +4,9 @@
 @inject NotificationService ms
 @inject AsignacionZonaValidation validation
 @inject AsignarZonaClienteValidation validate
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+
 <h3>Zona</h3>
 <AuthorizeView Roles="Admin, Administrador Sistema">
     <Authorized>

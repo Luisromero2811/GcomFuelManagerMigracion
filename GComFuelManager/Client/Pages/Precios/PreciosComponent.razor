@@ -6,6 +6,8 @@
 @inject NotificationService ns
 @inject PreciosValidation validation
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia")]
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
         <h3>Precios</h3>

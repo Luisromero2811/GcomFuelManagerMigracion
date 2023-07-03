@@ -6,6 +6,8 @@
 @inject NotificationService ms
 @inject ContactoInternoValidation validator
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia")]
+
 <h4><b>Configurar Correo</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
     <div class="col-12 d-flex justify-content-center">
