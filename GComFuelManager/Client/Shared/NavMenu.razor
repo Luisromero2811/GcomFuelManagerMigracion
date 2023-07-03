@@ -47,6 +47,15 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Percent">
+                                    <RadzenPanelMenuItem Path="datos/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-business-time"></i> Clientes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
                             </ChildContent>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>

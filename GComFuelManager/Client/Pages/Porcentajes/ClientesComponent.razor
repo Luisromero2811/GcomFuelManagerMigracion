@@ -7,12 +7,12 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
 
-<h4><b>Clientes</b></h4>
+<h4><b>Clientes de formulación</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Percent">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Percent">
                     <EditForm Model="@porcentaje" class="form col-12" Context="Porcentaje">
                         <div class="col-12 row mb-3">
                             <div class="col-10">
@@ -55,7 +55,7 @@
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="Cliente" Title="Nombre del Cliente" Property="Den" OrderIndex="1" />
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="GridAction">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="GridAction">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar/Deshabilitar" Width="480px" OrderIndex="2">
                         <Template Context="data">
                             <div class="col-12">
