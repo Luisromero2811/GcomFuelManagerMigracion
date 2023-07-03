@@ -184,12 +184,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                         .Include(x => x.Producto)
                         .ToListAsync();
 
-                    precios.ForEach(x =>
+                    if (context.Cliente.FirstOrDefault(x=>x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                     {
-                        var porcentaje = context.Porcentaje.FirstOrDefault(x=>x.Accion == "cliente");
-                        var aumento = (porcentaje.Porcen / 100) + 1;
-                        x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                    });
+                        precios.ForEach(x =>
+                        {
+                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                            var aumento = (porcentaje.Porcen / 100) + 1;
+                            x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                        });
+                    }
                 }
                 else
                 {
@@ -205,12 +208,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
-                        precios.ForEach(x =>
+                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                         {
-                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                            var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                        });
+                            precios.ForEach(x =>
+                            {
+                                var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                                var aumento = (porcentaje.Porcen / 100) + 1;
+                                x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                            });
+                        }
                     }
                     else
                     {

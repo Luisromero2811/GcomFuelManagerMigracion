@@ -126,6 +126,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 .ThenInclude(x => x.Estado)
                                 .Include(x => x.OrdenEmbarque)
                                 .ThenInclude(x => x.Orden)
+                                .ThenInclude(x => x.Estado)
                                 .FirstOrDefaultAsync();
 
                             cierresVolumen.Add(pedido);
@@ -854,8 +855,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     }
                     //if (item.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga >=
-                        //(item.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible * (porcentaje.Porcen/100)))
-                        cierres.Add(item);
+                    //(item.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible * (porcentaje.Porcen/100)))
+                    cierres.Add(item);
                 }
 
                 return Ok(cierres);
