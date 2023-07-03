@@ -142,9 +142,9 @@
                         </Template>
                     </RadzenDataGridColumn>
                 </AuthorizeView>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Frozen="true" Filterable="false" Sortable="false" OrderIndex="3" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="200px" Frozen="true" Filterable="false" OrderIndex="3" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" FilterValue="ClienteSeleccionado" OrderIndex="4">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenEmbarque.OrdenCompra.den" Width="200px" Filterable="false" OrderIndex="3" Frozen="true"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="200px"  Filterable="false" OrderIndex="3" Frozen="true"/>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" FilterValue="ClienteSeleccionado" OrderIndex="4">
                     <FilterTemplate Context="filter">
                         <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
                     </FilterTemplate>
