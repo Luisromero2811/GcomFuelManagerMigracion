@@ -6,6 +6,8 @@
 @inject NotificationService ms
 @inject DialogService ds
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador, Direccion, Gerencia")]
+
 <h3>Cerrar Pedidos</h3>
 
 <div class="col-12 card shadow-sm">

@@ -4,6 +4,8 @@
 @inject NotificationService ms
 @inject ClienteDestinoValidation validation
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+
 <h4><b>Cliente - Destino</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
     <div class="col-12 d-flex justify-content-center">

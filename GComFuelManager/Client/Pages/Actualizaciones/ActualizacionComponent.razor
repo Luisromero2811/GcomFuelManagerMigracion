@@ -6,6 +6,8 @@
 
 @page "/actualizacion"
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Programador, Gestion de Transporte")]
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Gestion de Transporte">
     <Authorized>
         <h4><b>Actualizacion de registros</b></h4>

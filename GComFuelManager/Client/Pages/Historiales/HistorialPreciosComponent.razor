@@ -4,7 +4,7 @@
 @inject SweetAlertService swal
 @inject NotificationService ns
 @using GComFuelManager.Shared.DTOs
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito, Contador")]
 
 <h4><b>Historial de Precios</b></h4>
 
@@ -34,7 +34,7 @@
         </div>
     </div>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia" Context="Grid">
+<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador" Context="Grid">
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="PrecioHistorico" Data="@preciosL" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"

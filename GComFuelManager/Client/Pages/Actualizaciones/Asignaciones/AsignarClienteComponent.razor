@@ -5,6 +5,8 @@
 @inject AsignarGrupoValidation validation
 @inject AsignarGrupoClienteValidation validate
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+
 <h4><b>Grupo - Cliente</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
     <div class="col-12 d-flex justify-content-center">
