@@ -4,6 +4,9 @@
 @inject NotificationService ms
 @inject AsignacionZonaValidation validation
 @inject AsignarZonaClienteValidation validate
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
+
 <h3>Zona</h3>
 <AuthorizeView Roles="Admin, Administrador Sistema">
     <Authorized>
@@ -134,7 +137,7 @@
     </Authorized>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"

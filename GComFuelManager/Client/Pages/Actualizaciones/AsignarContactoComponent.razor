@@ -6,11 +6,11 @@
 @inject NotificationService ms
 @inject AsignarContactoValidation validation
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes")]
 
 <h4><b>Asignar Contacto</b></h4>
 <div class="col-12 d-flex justify-content-center">
-    <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador, Correo de Clientes">
+    <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 <EditForm Model="@AsignarContactoDTO" class="form col-12" OnValidSubmit="@PostContacto" Context="validations">
@@ -82,7 +82,7 @@
         </div>
     </AuthorizeView>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Analista Credito, Contador, Correo de Clientes">
+<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"

@@ -6,6 +6,8 @@
 @inject DialogService ds
 @inject TooltipService ts
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia")]
+
 <h3>Datos Toneles</h3>
 
 <div class="col-12 card">

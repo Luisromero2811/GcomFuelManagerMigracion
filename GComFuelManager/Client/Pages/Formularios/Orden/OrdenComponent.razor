@@ -5,6 +5,8 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Cliente Lectura, Direccion, Gerencia")]
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
     <Authorized>
         <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
