@@ -503,52 +503,53 @@
                     //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                     FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                 };
-                var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
-                if (responseHttp.Error)
+                ordenEmbarque.Codchf = checkChofer.Chofer;
+                ordenEmbarque.Codton = checkChofer.Tonel;
+                ordenEmbarque.Compartment = asignacion.Compartimiento;
+                ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+
+                var response = await repositorio.Post<OrdenEmbarque>($"api/pedido/verificar/carga", ordenEmbarque);
+                if (response.Error)
                 {
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
                 }
                 else
                 {
-                    if (responseHttp.Response == 0)
-                    {
-                        ordenEmbarque.Codchf = checkChofer.Chofer;
-                        ordenEmbarque.Codton = checkChofer.Tonel;
-                        ordenEmbarque.Compartment = asignacion.Compartimiento;
-                        ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+                    var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
-                        await UpdateOrden();
+                    if (responseHttp.Error)
+                    {
+                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
                     }
                     else
                     {
-                        var confirm = await swal.FireAsync(new SweetAlertOptions
+                        if (responseHttp.Response == 0)
+                            await UpdateOrden();
+                        else
                         {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            var confirm = await swal.FireAsync(new SweetAlertOptions
+                                {
+                                    Icon = SweetAlertIcon.Warning,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar",
+                                    CancelButtonText = "Cancelar",
+                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                                });
 
-                        if (!string.IsNullOrEmpty(confirm.Value))
-                        {
-                            var response = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
-
-                            if (response.Error)
+                            if (!string.IsNullOrEmpty(confirm.Value))
                             {
-                                var message = await response.ObtenerMensajeError();
-                                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                ordenEmbarque.Codchf = checkChofer.Chofer;
-                                ordenEmbarque.Codton = checkChofer.Tonel;
-                                ordenEmbarque.Compartment = asignacion.Compartimiento;
-                                ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+                                var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
 
-                                await UpdateOrden();
+                                if (responseDes.Error)
+                                {
+                                    var message = await responseDes.ObtenerMensajeError();
+                                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                }
+                                else
+                                    await UpdateOrden();
                             }
                         }
                     }
