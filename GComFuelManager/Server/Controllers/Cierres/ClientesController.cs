@@ -172,6 +172,35 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     return NotFound();
                 }
                 cliente.Activo = status;
+                //cliente.precioSemanal = status;
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        //Cambiar la formulacion 
+        [HttpPut("status/{cod:int}")]
+        public async Task<ActionResult> ChangesStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                {
+                    return BadRequest();
+                }
+
+                var cliente = context.Cliente.Where(x => x.Cod == cod).FirstOrDefault();
+                if (cliente == null)
+                {
+                    return NotFound();
+                }
+                //cliente.Activo = status;
                 cliente.precioSemanal = status;
 
                 context.Update(cliente);
@@ -184,7 +213,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
-
         [Route("service")]
         [HttpGet]
         public async Task<ActionResult> GetClienteService()

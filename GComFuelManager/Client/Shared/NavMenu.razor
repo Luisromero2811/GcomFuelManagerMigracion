@@ -21,7 +21,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="Configs">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial, Analista Credito, Contador" Context="Configs">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -60,7 +60,7 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
                     @*auth*@
-                <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Ejecutivo de Cuenta Comercial">
+                <AuthorizeView Roles="Admin, Administrador Sistema">
                     <RadzenPanelMenuItem>
                         <Template>
                             <div class="text-white">
@@ -68,7 +68,7 @@
                             </div>
                         </Template>
                         <ChildContent>
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte" Context="Acceso">
+                            <AuthorizeView Roles="Admin, Administrador Sistema" Context="Acceso">
                                 <RadzenPanelMenuItem Path="porcentaje/cierre" class="gcom-bg-rojo col-12" Style="border:hidden">
                                     <Template>
                                         <div class="text-white">
@@ -77,7 +77,7 @@
                                     </Template>
                                 </RadzenPanelMenuItem>
                             </AuthorizeView>
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia" Context="Percent">
+                            @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia" Context="Percent">
                                 <RadzenPanelMenuItem Path="porcentaje/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
                                     <Template>
                                         <div class="text-white">
@@ -85,7 +85,7 @@
                                         </div>
                                     </Template>
                                 </RadzenPanelMenuItem>
-                            </AuthorizeView>
+                            </AuthorizeView>*@
                         </ChildContent>
                     </RadzenPanelMenuItem>
                 </AuthorizeView>
@@ -143,7 +143,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia" Context="Pricing">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador" Context="Pricing">
             <RadzenPanelMenuItem Path="precios" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -227,7 +227,7 @@
         </AuthorizeView>
 
         <!--Menú de Historiales-->
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Precios" Context="Config">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Precios, Analista Credito, Contador" Context="Config">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -235,7 +235,7 @@
                     </div>
                 </Template>
                 <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Precios" Context="Correos">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito, Contador" Context="Correos">
                         <RadzenPanelMenuItem Path="historial/precios" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">

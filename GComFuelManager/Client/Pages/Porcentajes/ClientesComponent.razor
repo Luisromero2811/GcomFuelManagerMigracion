@@ -170,7 +170,7 @@
         try
         {
             var status = (bool)tp.Value!;
-            var response = await repositorio.Put<bool>($"api/clientes/{cliente.Cod}", status);
+            var response = await repositorio.Put<bool>($"api/clientes/status/{cliente.Cod}", status);
 
             if (response.Error)
             {
