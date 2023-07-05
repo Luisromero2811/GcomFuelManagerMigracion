@@ -236,7 +236,8 @@
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
+                            @bind-Settings="@Settings">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
@@ -352,6 +353,9 @@
     int width = 0;
     string TotalWidth = string.Empty;
 
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
     protected override async Task OnInitializedAsync()
     {
         width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
@@ -365,6 +369,15 @@
         await GetZonas();
 
         Token = "Bearer " + await js.GetItemLocalStorage("TOKENKEY");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
+        }
     }
 
     private void OnProgress(UploadProgressArgs e)
@@ -784,6 +797,36 @@
                     Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
                 else
                     Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settingsPrecios", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settingsPrecios");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
             }
         }
         catch (Exception e)
