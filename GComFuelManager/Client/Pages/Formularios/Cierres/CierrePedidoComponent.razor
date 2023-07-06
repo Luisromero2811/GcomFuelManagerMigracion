@@ -46,6 +46,8 @@
                                 <div class="col-12">
                                     <p><b>Total:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Total?.ToString("N2")</p>
                                     <p><b class="text-success">Disponible:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible?.ToString("N2")</p>
+                                    <p><b class="text-primary">En espera de carga:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Congelado?.ToString("N2")</p>
+                                    <p><b class="text-warning">Cargado:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Consumido?.ToString("N2")</p>
                                     <p><b class="text-danger">Promedio de carga:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga?.ToString("N2")</p>
                                 </div>
                             }

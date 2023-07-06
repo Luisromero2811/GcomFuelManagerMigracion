@@ -43,7 +43,8 @@
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                     GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true"  AllowColumnPicking="true">
+                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true"
+                    @bind-Settings="@Settings">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" Filterable="false" FormatString="{0:d}" />
@@ -86,7 +87,8 @@
                     <Template Context="item">
                         <div class="col-12">
                             @string.Format("{0:N2}",
-                        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
+                        : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
                         : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
                         : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
@@ -109,8 +111,11 @@
 
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
-    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO(); 
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
     List<OrdenCierre>? cierres { get; set; }
     List<Producto>? productos { get; set; }
@@ -144,10 +149,10 @@
                     FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
                     Precio = item.Precio.ToString(),
                     Volumen = item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom.ToString()
-                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2.ToString()
-                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3.ToString()
-                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4.ToString()
-                        : item?.Volumen.ToString(),
+                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2.ToString()
+                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3.ToString()
+                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4.ToString()
+                                : item?.Volumen.ToString(),
                     Observaciones = item?.Observaciones,
                     FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
                     Destino = item?.Destino?.Den,
@@ -157,6 +162,15 @@
                     Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
                     FchLlegada = item?.FechaLlegada
                 });
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
         }
     }
 
@@ -173,7 +187,7 @@
             else
             {
                 cierres = response.Response;
-                
+
                 filtro.Folio = folio;
                 filtro.forFolio = true;
 
@@ -234,6 +248,36 @@
             {
                 loadingExport = false;
                 await Swal.FireAsync("Alerta", "No hay datos que exportar.", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settings", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settings");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
             }
         }
         catch (Exception e)
