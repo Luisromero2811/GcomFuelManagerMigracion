@@ -241,7 +241,7 @@
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1">
+                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
                                 <Template Context="item">
                                     <div class="col-12 row">
                                         <div class="col">
@@ -252,9 +252,9 @@
                             </RadzenDataGridColumn>
                         </Authorized>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px"/>
                     <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4" Width="100px"/>
                     <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
                         <FilterTemplate Context="filter">
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -286,7 +286,7 @@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7"/>
+                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7" Width="100px"/>
                     <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8"/>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                         <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
