@@ -6,7 +6,7 @@
 @inject NotificationService ms
 @inject DialogService ds
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador, Direccion, Gerencia")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador, Direccion, Gerencia, Cierre Pedidos")]
 
 <h3>Cerrar Pedidos</h3>
 
@@ -51,7 +51,7 @@
                             }
                         </div>
                         <div class="col-4 d-flex row">
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Comprador" Context="ACCIONES">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Cierre Pedidos, Comprador" Context="ACCIONES">
                                 <div class="col-6 my-auto">
                                     <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(cierre))">
                                         <i class="fa-solid fa-unlock"></i> Cerrar Orden
