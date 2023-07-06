@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="col-2">
                                         <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
-                                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar folios
                                         </button>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                                     <div class="col-6 d-flex">
                                         <div class="col-12 mt-auto">
                                             <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
-                                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedido
                                             </button>
                                         </div>
                                     </div>
@@ -119,7 +119,7 @@
                                         <div class="col-1 d-flex ">
                                             <div class="col-12 mt-auto">
                                                 <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
-                                                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedidos
                                                 </button>
                                             </div>
                                         </div>
@@ -162,7 +162,7 @@
                             </button>
                         </div>
                         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
-                                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px; width:1300px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px"/>
@@ -232,7 +232,7 @@
                             </button>
                         </div>
                         <RadzenDataGrid TItem="OrdenCierre" Data="@cierresD" AllowColumnResize="true" AllowVirtualization="true"
-                                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px; width:1300px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px"/>
@@ -309,6 +309,13 @@
         </RadzenStack>
     </Authorized>
 </AuthorizeView>
+
+<style type="text/css">
+    .ancho {
+        width: @TotalWidth;
+    }
+</style>
+
 @code {
     [Parameter] public string? folio { get; set; } = string.Empty;
 
@@ -356,8 +363,15 @@
 
     VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
+    int width = 0;
+    string TotalWidth = string.Empty;
+
     protected async override Task OnInitializedAsync()
     {
+        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
         var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
         months.RemoveAt(months.IndexOf(months.Last()));
         var i = 1;

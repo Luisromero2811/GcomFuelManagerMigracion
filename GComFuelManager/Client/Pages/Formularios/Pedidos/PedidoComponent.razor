@@ -441,7 +441,6 @@
         await GetGrupos();
         await GetCantidades();
         width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-        Console.WriteLine(width);
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
