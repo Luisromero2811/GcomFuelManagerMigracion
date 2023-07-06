@@ -16,10 +16,53 @@
                     <div class="col-12 card">
                         <div class="col-12 card-body">
                             <div class="col-12 row">
+                                <div class="col-12 row">
+                                    <div class="col-8">
+                                        <label><b>Filtro de folios</b></label>
+                                    </div>
+                                </div>
+                                <div class="col-12 row">
+                                    <div class="col-3 mb-2">
+                                        <div class="col-12">
+                                            <label class="form-label">Grupo</label>
+                                            <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
+                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            AllowVirtualization="true" Change="@GetClientesFiltro" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 mb-2">
+                                        <div class="col-12">
+                                            <label class="form-label">Cliente</label>
+                                            <RadzenDropDown Data="@ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ClienteSeleccionadoFiltro"
+                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            AllowVirtualization="true" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 mb-2">
+                                        <label class="form-label">Del:</label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
+                                    </div>
+                                    <div class="col-3 mb-2">
+                                        <label class="form-label">A:</label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
+                                    </div>
+                                    <div class="col-2">
+                                        <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
+                                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
                                 <div class="col-4 row">
                                     <div class="col-6">
                                         <label class="form-label">Folio</label>
-                                        <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
+                                        @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
+                                        <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowVirtualization="true">
+                                            <ValueTemplate Context="data">
+                                                <InputText class="form-control col-12" @bind-Value="@filtro.Folio" />
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </div>
                                     <div class="col-6 d-flex">
                                         <div class="col-12 mt-auto">
@@ -294,6 +337,16 @@
     bool monthFilter = false;
 
     int SelectedTab = 0;
+    private short GrupoSeleccionadoFiltro = 0;
+    private short GrupoSeleccionadoFiltroB = 0;
+    private int ClienteSeleccionadoFiltro = 0;
+
+    private IEnumerable<Grupo> Grupos { get; set; } = null!;
+    private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
+
+
+    private List<string> Folios { get; set; } = new List<string>();
+    CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
@@ -315,6 +368,7 @@
             i++;
         }
         await GetYears();
+        await GetGrupos();
 
     }
 
@@ -458,12 +512,12 @@
                                 Observaciones = item?.Observaciones,
                                 Precio = item?.Precio?.ToString("N"),
                                 Volumen = string.Format("{0:N2}",
-                                                  item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                                                : item?.Volumen
-                                            ),
+                                                          item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                                        : item?.Volumen
+                                                    ),
                                 Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
                                 Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
                                 FchLlegada = item?.FechaLlegada
@@ -505,6 +559,78 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetFoliosFiltro()
+    {
+        try
+        {
+            var response = await http.Post<CierreFiltroDTO, List<string>>($"api/cierre/folios/{ClienteSeleccionadoFiltro}", fechas);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Folios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientesFiltro()
+    {
+        try
+        {
+            if (GrupoSeleccionadoFiltro != 0 && GrupoSeleccionadoFiltroB != GrupoSeleccionadoFiltro)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionadoFiltro}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoFiltroB = GrupoSeleccionadoFiltro;
+                    ClientesFiltro = response.Response;
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetGrupos()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Grupo>>("api/grupo/all");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 }

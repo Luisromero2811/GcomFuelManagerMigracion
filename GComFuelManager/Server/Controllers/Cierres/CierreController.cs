@@ -115,9 +115,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
                                 .Include(x => x.OrdenEmbarque)
                                 .Include(x => x.Cliente)
-                                    .Include(x => x.Producto)
-                                    .Include(x => x.Destino)
-                                    .Include(x => x.ContactoN)
+                                .Include(x => x.Producto)
+                                .Include(x => x.Destino)
+                                .Include(x => x.ContactoN)
                                 .Include(x => x.OrdenEmbarque)
                                 .ThenInclude(x => x.Tad)
                                 .Include(x => x.OrdenEmbarque)
@@ -127,6 +127,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 .Include(x => x.OrdenEmbarque)
                                 .ThenInclude(x => x.Orden)
                                 .ThenInclude(x => x.Estado)
+                                .DefaultIfEmpty()
                                 .FirstOrDefaultAsync();
 
                             cierresVolumen.Add(pedido);
@@ -884,7 +885,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var orden = context.Orden.Where(x => x.BatchId == Bol).Include(x=>x.OrdenEmbarque).ThenInclude(x=>x.OrdenCierre).FirstOrDefault();
+                var orden = context.Orden.Where(x => x.BatchId == Bol).Include(x => x.OrdenEmbarque).ThenInclude(x => x.OrdenCierre).FirstOrDefault();
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
 

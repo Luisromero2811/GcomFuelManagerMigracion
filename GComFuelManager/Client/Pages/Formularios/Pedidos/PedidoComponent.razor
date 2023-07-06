@@ -30,7 +30,7 @@
                     <div class="col-3 mb-2">
                         <div class="col-12">
                             <label class="form-label">Cliente</label>
-                            <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ClienteSeleccionadoFiltro"
+                            <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ClienteSeleccionadoFiltro"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             AllowVirtualization="true" />
                         </div>
@@ -414,7 +414,8 @@
     private int ClienteSeleccionadoFiltro = 0;
 
     private Cliente Cliente { get; set; } = new Cliente();
-    private Cliente ClientesFiltro { get; set; } = new Cliente();
+        private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
+
     private List<int> ordenPendientes = new List<int>();
 
     ElementReference infoIconVolumen;
@@ -1233,7 +1234,7 @@
                 else
                 {
                     GrupoSeleccionadoFiltroB = GrupoSeleccionadoFiltro;
-                    Clientes = response.Response;
+                    ClientesFiltro = response.Response;
                     StateHasChanged();
                 }
             }
