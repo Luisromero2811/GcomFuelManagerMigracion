@@ -119,7 +119,8 @@
     <div class="col-12 d-flex justify-content-center mb-2 mt-2">
         <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
+                        @bind-Settings="@Settings">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
                     <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" OrderIndex="1" Frozen="true">
@@ -321,6 +322,9 @@
     int width = 0;
     string TotalWidth = string.Empty;
 
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
     protected override async Task OnInitializedAsync()
     {
         width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
@@ -331,6 +335,15 @@
         await GetDestinos();
         await GetProductos();
         await GetTransportista();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
+        }
     }
 
     void Change(string text)
@@ -503,52 +516,53 @@
                     //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                     FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                 };
-                var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
-                if (responseHttp.Error)
+                ordenEmbarque.Codchf = checkChofer.Chofer;
+                ordenEmbarque.Codton = checkChofer.Tonel;
+                ordenEmbarque.Compartment = asignacion.Compartimiento;
+                ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+
+                var response = await repositorio.Post<OrdenEmbarque>($"api/pedido/verificar/carga", ordenEmbarque);
+                if (response.Error)
                 {
-                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
                 }
                 else
                 {
-                    if (responseHttp.Response == 0)
-                    {
-                        ordenEmbarque.Codchf = checkChofer.Chofer;
-                        ordenEmbarque.Codton = checkChofer.Tonel;
-                        ordenEmbarque.Compartment = asignacion.Compartimiento;
-                        ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+                    var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
 
-                        await UpdateOrden();
+                    if (responseHttp.Error)
+                    {
+                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
                     }
                     else
                     {
-                        var confirm = await swal.FireAsync(new SweetAlertOptions
+                        if (responseHttp.Response == 0)
+                            await UpdateOrden();
+                        else
                         {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            var confirm = await swal.FireAsync(new SweetAlertOptions
+                                {
+                                    Icon = SweetAlertIcon.Warning,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar",
+                                    CancelButtonText = "Cancelar",
+                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                                });
 
-                        if (!string.IsNullOrEmpty(confirm.Value))
-                        {
-                            var response = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
-
-                            if (response.Error)
+                            if (!string.IsNullOrEmpty(confirm.Value))
                             {
-                                var message = await response.ObtenerMensajeError();
-                                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                ordenEmbarque.Codchf = checkChofer.Chofer;
-                                ordenEmbarque.Codton = checkChofer.Tonel;
-                                ordenEmbarque.Compartment = asignacion.Compartimiento;
-                                ordenEmbarque.CompartmentId = checkChofer.Compartimento;
+                                var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
 
-                                await UpdateOrden();
+                                if (responseDes.Error)
+                                {
+                                    var message = await responseDes.ObtenerMensajeError();
+                                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                }
+                                else
+                                    await UpdateOrden();
                             }
                         }
                     }
@@ -801,24 +815,34 @@
             throw e;
         }
     }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settingsAsignacion", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settingsAsignacion");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }
-
-
-@*//var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-    //from o in ordenes
-    //select new TablaAsignacionUnidadesDTO()
-    //    {
-    //        OrdenCompra = o?.OrdenCompra?.den,
-    //        Referencia = o?.Folio.ToString(),
-    //        Cliente = o?.Destino?.Cliente?.Den,
-    //        Destino = o?.Destino?.Den,
-    //        Producto = o?.Producto?.Den,
-    //        Volumen = o?.Vol,
-    //        FechaCarga = o?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-    //        Transportista = o?.Tonel?.Transportista?.Den,
-    //        Unidad = o?.Tonel?.Veh,
-    //        Compartimento = o?.Compartment,
-    //        Operador = o?.Chofer?.Den
-    //        //Bin = o?.Bin,
-    //        //Status = o?.Estado?.den
-    //    }, true);*@
