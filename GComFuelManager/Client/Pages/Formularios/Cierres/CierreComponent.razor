@@ -476,7 +476,8 @@
         <div class="col-12 d-flex justify-content-center row">
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-2 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
+                            @bind-Settings="@Settings">
                 <Columns>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px">
                         <Template Context="data">
@@ -753,6 +754,9 @@
 
     private FluentValidationValidator? _fluentValidationValidator;
 
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -789,6 +793,15 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
         }
     }
 
@@ -1705,6 +1718,36 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settingsCierre", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settingsCierre");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }
