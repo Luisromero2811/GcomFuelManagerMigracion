@@ -770,6 +770,27 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpPost("folios/{cliente}")]
+        public async Task<ActionResult> GetFoliosValidosFiltro([FromBody] CierreFiltroDTO filtroDTO, [FromRoute] int cliente)
+        {
+            try
+            {
+                List<string?> folios = new List<string?>();
+
+                folios = context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
+                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente && x.CodPed == 0)
+                    .Select(x => x.Folio)
+                    .Distinct()
+                    .ToList();
+
+                return Ok(folios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost("disponibles")]
         public async Task<ActionResult> GetCierresDisponiles([FromBody] CierreFiltroDTO filtroDTO)
         {
@@ -842,15 +863,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         productoVolumen.Total = VolumenDisponible;
                         productoVolumen.PromedioCarga = PromedioCargas;
 
-                        //if (item.VolumenDisponible.Productos.Any(x => x.Nombre.Equals(item.Producto.Den)))
-                        //{
-
-                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Disponible += productoVolumen.Disponible;
-                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Congelado += productoVolumen.Congelado;
-                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Consumido += productoVolumen.Consumido;
-                        //    item.VolumenDisponible.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Total += productoVolumen.Total;
-                        //}
-                        //else
                         item.VolumenDisponible?.Productos?.Add(productoVolumen);
 
                     }
@@ -865,6 +877,32 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpGet("bol/{bol}")]
+        public async Task<ActionResult> GetPrecioByBol([FromRoute] int Bol)
+        {
+            try
+            {
+                var orden = context.Orden.Where(x => x.BatchId == Bol).Include(x=>x.OrdenEmbarque).ThenInclude(x=>x.OrdenCierre).FirstOrDefault();
+                if (orden is null)
+                    return BadRequest($"No se encontro el BOL. BOL: {Bol}");
+
+                PrecioBol precio = new PrecioBol()
+                {
+                    Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio
+                };
+                return Ok(precio);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        public class PrecioBol
+        {
+            public double? Precio { get; set; } = 0;
         }
     }
 }

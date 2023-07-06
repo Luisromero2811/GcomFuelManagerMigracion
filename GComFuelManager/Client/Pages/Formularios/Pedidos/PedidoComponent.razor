@@ -12,8 +12,45 @@
     <h4><b>Pedidos</b></h4>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
-            <div class="col-12 px-4 mb-3">
-                <div class="col-6 row">
+            <div class="col-12 mb-3 row">
+                <div class="col-12 row">
+                    <div class="col-8">
+                        <label><b>Filtro de folios</b></label>
+                    </div>
+                </div>
+                <div class="col-12 row">
+                    <div class="col-3 mb-2">
+                        <div class="col-12">
+                            <label class="form-label">Grupo</label>
+                            <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowVirtualization="true" Change="@GetClientesFiltro" />
+                        </div>
+                    </div>
+                    <div class="col-3 mb-2">
+                        <div class="col-12">
+                            <label class="form-label">Cliente</label>
+                            <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ClienteSeleccionadoFiltro"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowVirtualization="true" />
+                        </div>
+                    </div>
+                    <div class="col-3 mb-2">
+                        <label class="form-label">Del:</label>
+                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
+                    </div>
+                    <div class="col-3 mb-2">
+                        <label class="form-label">A:</label>
+                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
+                    </div>
+                    <div class="col-2">
+                        <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
+                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-4 row">
                     <div class="col-8">
                         <label class="form-label">Folio</label>
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
@@ -298,8 +335,8 @@
                         </AuthorizeView>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="200px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="200px" Frozen="true" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="200px" Frozen="true" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="200px" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="200px" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="200px" />
@@ -372,8 +409,12 @@
     private int? DestinoSeleccionado = 0;
     private Int16? GrupoSeleccionado = 0;
     private int? ClienteSeleccionado = 0;
+    private short GrupoSeleccionadoFiltro = 0;
+    private short GrupoSeleccionadoFiltroB = 0;
+    private int ClienteSeleccionadoFiltro = 0;
 
     private Cliente Cliente { get; set; } = new Cliente();
+    private Cliente ClientesFiltro { get; set; } = new Cliente();
     private List<int> ordenPendientes = new List<int>();
 
     ElementReference infoIconVolumen;
@@ -387,6 +428,8 @@
 
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
+    CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
     protected override async Task OnInitializedAsync()
     {
@@ -1150,6 +1193,56 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetFoliosFiltro()
+    {
+        try
+        {
+            var response = await http.Post<CierreFiltroDTO,List<string>>($"api/cierre/folios/{ClienteSeleccionadoFiltro}",fechas);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Folios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientesFiltro()
+    {
+        try
+        {
+            if (GrupoSeleccionadoFiltro != 0 && GrupoSeleccionadoFiltroB != GrupoSeleccionadoFiltro)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{GrupoSeleccionadoFiltro}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionadoFiltroB = GrupoSeleccionadoFiltro;
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 }
