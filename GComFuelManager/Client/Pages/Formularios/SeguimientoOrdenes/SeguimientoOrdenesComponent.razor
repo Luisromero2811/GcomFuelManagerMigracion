@@ -86,9 +86,9 @@
                 <NoHayRegistros></NoHayRegistros>
                 </EmptyTemplate>*@
             <Columns>
-                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="200px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="200px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="200px" Filterable="false">
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
                             @if (Status is true)
@@ -102,8 +102,8 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="150px" Filterable="false" />
-                <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="305px" Filterable="false" />
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fch" FormatString="{0:d}" Width="140px" Filterable="false" />
+                <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="110px" Filterable="false" />
                 <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" Filterable="false" />
                 <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" FilterValue="ClientesSeleccionados" Width="305px">
                     <FilterTemplate>
@@ -135,10 +135,10 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="290px" FormatString="{0:N2}" Filterable="false" />
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="290px" FormatString="{0:N2}" Filterable="false" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="160px" FormatString="{0:N2}" Filterable="false" />
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="180px" FormatString="{0:N2}" Filterable="false" />
                 <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.Den" Width="290px" Filterable="false" />
-                <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="290px" Filterable="false">
+                <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="200px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
                             @data?.Tonel?.Tracto @data?.Tonel?.Placa
