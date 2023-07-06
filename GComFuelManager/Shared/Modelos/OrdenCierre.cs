@@ -30,10 +30,10 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
         
-        [JsonPropertyName("contacto"), DisplayName("Contacto")]
+        [JsonPropertyName("contacto"), EpplusIgnore]
         public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
         
-        [JsonPropertyName("email"), DisplayName("Correo")]
+        [JsonPropertyName("email"), EpplusIgnore]
         public string? Email { get { return ContactoN != null ? ContactoN.Correo : string.Empty; } }
         
         [JsonPropertyName("codPrd"), EpplusIgnore]
@@ -50,7 +50,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] 
         public Cliente? Cliente { get; set; } = null!;
         
-        [JsonPropertyName("modeloVenta"), DisplayName("Modelo de Venta")]
+        [JsonPropertyName("modeloVenta"), EpplusIgnore]
         public string? ModeloVenta { get; set; } = string.Empty;
 
         [JsonPropertyName("tipoVenta"), DisplayName("Tipo de Venta")]
