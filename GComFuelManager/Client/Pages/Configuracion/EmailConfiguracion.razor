@@ -13,7 +13,7 @@
     <div class="col-12 d-flex justify-content-center">
         <EditForm Model="@Contacto" class="form col-12" OnValidSubmit="@PostContacto" Context="validation">
             <FluentValidationValidator Validator="validator" />
-            <ValidationSummary/>
+            <ValidationSummary />
             <div class="col-10 card shadow-sm">
                 <div class="col-12 row card-body">
 
@@ -44,7 +44,16 @@
                             }
                         </div>
                     </div>
+                    <div class="col-12 row p-2">
+                        <div class="col-12">
+                            <label>Acciones:</label>
+                            <!--Selector Multiple de Radzen-->
+                            <RadzenDropDown @bind-Value="Contacto.accione" Data="Acciones" TextProperty="Nombre"
+                                            Multiple=true AllowClear=true Placeholder="Seleccione las acciones" Chips=true class="col-12"></RadzenDropDown>
+                        </div>
+                    </div>
                 </div>
+             
             </div>
         </EditForm>
     </div>
@@ -55,10 +64,22 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="Contacto" Title="Nombres de contactos" Property="Nombre" OrderIndex="1" />
+                <RadzenDataGridColumn TItem="Contacto" Title="Nombres de contactos" Property="Nombre" Width="220px" OrderIndex="1" />
                 <RadzenDataGridColumn TItem="Contacto" Title="Correos" Property="Correo" Width="200px" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="180px" OrderIndex="3">
+                    <Template Context="data">
+                        <div class="col-12">
+                            @foreach (var item in data.AccionCorreos)
+                            {
+                                <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
+                                    @item.Accion?.Nombre
+                                </RadzenBadge>
+                            }
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios">
-                    <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
+                    <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="200px" OrderIndex="4">
                         <Template Context="item">
                             <div class="col-12 ">
                                 <div class="col">
@@ -67,7 +88,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">
+                    <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
                         <Template Context="data">
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">
@@ -78,8 +99,6 @@
                         </Template>
                     </RadzenDataGridColumn>
                 </AuthorizeView>
-
-
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -92,7 +111,11 @@
     IEnumerable<Cliente> Clientes = new List<Cliente>();
 
     Contacto Contacto { get; set; } = new Contacto();
-    List<Contacto> Contactos = new List<Contacto>();
+    IEnumerable<Contacto> Contactos = new List<Contacto>();
+
+    IEnumerable<Accion> Acciones { get; set; } = new List<Accion>();
+    List<Accion> AccionesSeleccionadas { get; set; } = new List<Accion>();
+    AsignarContactoDTO asignarContactoDTO = new AsignarContactoDTO();
 
     bool loading = false;
     bool isEdit = false;
@@ -100,6 +123,7 @@
     protected async override Task OnInitializedAsync()
     {
         await GetContactos();
+        await GetAcciones();
     }
 
     private void cancelEdit()
@@ -112,8 +136,13 @@
     {
         try
         {
+            AccionesSeleccionadas = new List<Accion>();
             isEdit = true;
             Contacto = contacto;
+            foreach (var item in contacto.AccionCorreos)
+            {
+                AccionesSeleccionadas.Add(item.Accion);
+            }
         }
         catch (Exception e)
         {
@@ -126,7 +155,7 @@
         try
         {
             loading = true;
-            var response = await http.Get<List<Contacto>>("api/contacto/cliente/0");
+            var response = await http.Get<IEnumerable<Contacto>>("api/contacto/cliente/0");
             if (response.Error)
             {
                 loading = false;
@@ -150,7 +179,10 @@
     {
         try
         {
-            var response = await http.Post<Contacto>($"api/contacto", Contacto);
+            //Contacto.Nombre = asignarContactoDTO.Nombre;
+            //Contacto.Correo = asignarContactoDTO.Correo;
+            //Contacto.Accions = asignarContactoDTO.acciones;
+            var response = await http.Post<Contacto>($"api/contacto/internos", Contacto);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -181,7 +213,10 @@
     {
         try
         {
-            var response = await http.Put<Contacto>($"api/contacto", Contacto);
+            //Contacto.Nombre = asignarContactoDTO.Nombre;
+            //Contacto.Correo = asignarContactoDTO.Correo;
+            //Contacto.Accions = asignarContactoDTO.accione;
+            var response = await http.Post<Contacto>($"api/contacto/internos", Contacto);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -275,4 +310,26 @@
             Toast = true,
         }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
+
+    private async Task GetAcciones()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Accion>>("api/acciones");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Acciones = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }

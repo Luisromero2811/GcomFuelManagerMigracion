@@ -27,5 +27,7 @@ namespace GComFuelManager.Shared.Modelos
         public List<AccionCorreo>? AccionCorreos { get; set; } = null!;
         [NotMapped]
         public List<Accion>? Accions { get; set; } = null!;
+        [NotMapped]
+        public List<Accion> accione { get; set; } = new List<Accion>();
     }
 }
