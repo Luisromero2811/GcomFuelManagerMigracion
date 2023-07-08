@@ -179,9 +179,6 @@
     {
         try
         {
-            //Contacto.Nombre = asignarContactoDTO.Nombre;
-            //Contacto.Correo = asignarContactoDTO.Correo;
-            //Contacto.Accions = asignarContactoDTO.acciones;
             var response = await http.Post<Contacto>($"api/contacto/internos", Contacto);
             if (response.Error)
             {
@@ -213,9 +210,6 @@
     {
         try
         {
-            //Contacto.Nombre = asignarContactoDTO.Nombre;
-            //Contacto.Correo = asignarContactoDTO.Correo;
-            //Contacto.Accions = asignarContactoDTO.accione;
             var response = await http.Post<Contacto>($"api/contacto/internos", Contacto);
             if (response.Error)
             {
