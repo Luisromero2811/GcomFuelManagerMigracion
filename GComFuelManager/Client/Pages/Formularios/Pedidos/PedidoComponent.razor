@@ -35,23 +35,24 @@
                                             AllowVirtualization="true" />
                         </div>
                     </div>
-                    <div class="col-3 mb-2">
+                    <div class="col-2 mb-2">
                         <label class="form-label">Del:</label>
                         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
                     </div>
-                    <div class="col-3 mb-2">
+                    <div class="col-2 mb-2">
                         <label class="form-label">A:</label>
                         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
                     </div>
-                    <div class="col-2">
+                    <div class="col-2 mt-2">
+                        <label class="form-label"></label>
                         <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
                             <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
                         </button>
                     </div>
                 </div>
 
-                <div class="col-4 row">
-                    <div class="col-8">
+                <div class="col-12 row">
+                    <div class="col-4">
                         <label class="form-label">Folio</label>
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
                         <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
@@ -64,18 +65,18 @@
                         @*<FolioListSearch folio="@filtro.Folio">
                         </FolioListSearch>*@
                     </div>
-                    <div class="col-4 d-flex row">
-                        <div class="col-6 mt-auto">
+                    @*<div class="col-4 d-flex row mb-2">*@
+                        <div class="col-2 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                        <div class="col-6 mt-auto">
+                        <div class="col-2 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearGridData">
                                 <i class="fa fa-solid fa-broom"></i>
                             </button>
                         </div>
-                    </div>
+                    @*</div>*@
                 </div>
             </div>
         </div>
@@ -318,7 +319,7 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="110px" Visible="true" Frozen="true">
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="140px" Visible="true" Frozen="true">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
                             <div class="col-12 row">

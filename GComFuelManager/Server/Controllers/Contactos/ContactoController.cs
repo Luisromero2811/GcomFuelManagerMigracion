@@ -60,6 +60,7 @@ namespace GComFuelManager.Server.Controllers.Contactos
             try
             {
                 if (contacto == null)
+
                     return BadRequest();
 
                 context.Add(contacto);
@@ -86,7 +87,70 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 return BadRequest(e.Message);
             }
         }
+        [HttpPost("internos")]
+        public async Task<ActionResult> PostInterno([FromBody] Contacto contacto)
+        {
+            try
+            {
+                if (contacto.Cod == 0)
+                {
+                    if (contacto == null)
 
+                        return BadRequest();
+
+                    else
+
+                        context.Add(contacto);
+                    await context.SaveChangesAsync();
+
+                    foreach (var item in contacto.accione)
+                    {
+                        AccionCorreo accionCorreo = new AccionCorreo();
+
+                        accionCorreo.CodAccion = item.Cod;
+                        accionCorreo.CodContacto = contacto.Cod;
+                        context.Add(accionCorreo);
+                    }
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    if (contacto == null)
+                        return BadRequest();
+
+                    var acciones = context.AccionCorreo.Where(x => x.CodContacto == contacto.Cod).ToList();
+
+                    if (acciones.Count > 0)
+                        context.RemoveRange(acciones);
+
+                    await context.SaveChangesAsync();
+                    if (contacto.Cod != 0)
+                    {
+                        foreach (var item in contacto.accione)
+                        {
+                            AccionCorreo accionCorreo = new AccionCorreo();
+
+                            accionCorreo.CodAccion = item.Cod;
+                            accionCorreo.CodContacto = contacto.Cod;
+                            context.Add(accionCorreo);
+                        }
+                    }
+                    await context.SaveChangesAsync();
+
+                    contacto.AccionCorreos = null!;
+
+                    context.Update(contacto);
+                    await context.SaveChangesAsync();
+
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         [HttpPut]
         public async Task<ActionResult> Put([FromBody] Contacto contacto)
         {
