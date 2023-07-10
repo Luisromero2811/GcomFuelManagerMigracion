@@ -1,0 +1,259 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ms
+@inject ClienteDestinoValidation validation
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+
+<h4><b>Cliente - Destino</b></h4>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <EditForm Model="@ClienteDestinoDTO" class="form col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
+                    <FluentValidationValidator Validator="validation" />
+                    <ValidationSummary />
+                    <h5>Buscar destino</h5>
+                    <div class="col-12 mb-4 row">
+                        <div class="col-12 mb-4 row">
+                            @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
+                            <div class="col">
+                                <label>Cliente:</label>
+                                <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
+                                                AllowVirtualization="true" AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                    <Template>
+                                        @((context as Cliente)?.Den)
+                                    </Template>
+                                    <ValueTemplate>
+                                        @((context as Cliente)?.Den)
+                                    </ValueTemplate>
+                                </RadzenDropDown>
+                            </div>
+                            @*</AuthorizeView>*@
+                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                                <div class="col">
+                                    <label>Destino:</label>
+                                    <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
+                                                    AllowVirtualization="true" AllowFiltering="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                        @*<Template>
+                                            @((context as CodDenDTO)?.Den)
+                                            </Template>
+                                            <ValueTemplate>
+                                            @((context as CodDenDTO)?.Den)
+                                            </ValueTemplate>*@
+                                    </RadzenDropDown>
+                                </div>
+                            </AuthorizeView>
+
+                        </div>
+                        <div class="col-12 mb-3 d-flex justify-content-center">
+                            @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">*@
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetDestinosCliente" type="button">
+                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Destinos
+                                </button>
+                            </div>
+                            @*</AuthorizeView>*@
+                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                                <div class="col d-flex mt-auto">
+                                    <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
+                                        <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                                    </button>
+                                </div>
+                            </AuthorizeView>
+
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Aciones">
+                    <RadzenDataGridColumn TItem="CodDenDTO" Title="Habilitar / Deshabilitar" OrderIndex="2">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+@code {
+    public CodDenDTO DestinoSeleccionado { get; set; } = new CodDenDTO();
+    public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
+    public IEnumerable<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
+
+    public IEnumerable<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+    public bool loading { get; set; } = false;
+    public Cliente ClienteDSeleccionado { get; set; } = new Cliente();
+    public RadzenDataGrid<CodDenDTO>? gridDestino { get; set; } = new RadzenDataGrid<CodDenDTO>();
+
+    CodDenDTO CodDenDTO { get; set; } = new CodDenDTO() { cliente = new Cliente(), destino = new Destino() };
+    ClienteDestinoDTO ClienteDestinoDTO { get; set; } = new ClienteDestinoDTO();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetClientesGroup();
+        await GetDestinos();
+    }
+
+    private async Task GetDestinosCliente()
+    {
+        try
+        {
+            if (ClienteDestinoDTO.cliente == null)
+            {
+                await Swal.FireAsync("Error", "Seleccione un cliente para poder filtrar", SweetAlertIcon.Warning);
+            }
+            else
+            {
+                var response = await http.Get<IList<CodDenDTO>>($"api/estacion/{ClienteDestinoDTO.cliente.Cod}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Destinos = response.Response;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task AsignarDestinosClientes()
+    {
+        try
+        {
+            if (ClienteDSeleccionado == null)
+            {
+                await Swal.FireAsync("Alerta", "Seleccione un cliente.", SweetAlertIcon.Warning);
+
+            }
+            else
+            {
+                var response = await http.Post<CodDenDTO>($"api/clientes/asignar/{ClienteDestinoDTO.cliente.Cod}", ClienteDestinoDTO.destino);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Destino Asignado a {ClienteDestinoDTO.cliente.Den}", SweetAlertIcon.Success);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetDestinos()
+    {
+        try
+        {
+            var response = await http.Get<IList<CodDenDTO>>("api/estacion");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                DestinoClientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetClientesGroup()
+    {
+        try
+        {
+            var response = await http.Get<IEnumerable<Cliente>>($"api/clientes/all");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ClientesGrupo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task HabilitarDeshabilitar(CodDenDTO codDenDTO, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await http.Put<bool>($"api/destino/{codDenDTO.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                gridDestino?.Reload();
+                if (status)
+                {
+                    await Message($"{codDenDTO.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{codDenDTO.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+}

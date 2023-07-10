@@ -1,0 +1,14 @@
+{
+  "MasterBeIds": null,
+  "CarrierName": null,
+  "ScacCode": null,
+  "ActiveIndicator": null,
+  "LocationId": null,
+  "LoadSystemType": null,
+  "PopulateBusinessEntityLocations": null,
+  "PopulateBusinessEntityAssocations": null,
+  "AddressInfo": null,
+  "Properties": null,
+  "Extensions": null,
+  "IncludeChildObjects": null
+}

@@ -20,16 +20,21 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("cve"), MaxLength(10)]
         public string? Cve { get; set; } = string.Empty;
         [JsonProperty("fch")]
-        public DateTime? Fch { get; set; } = DateTime.MinValue;
+        public DateTime? Fch { get; set; } = DateTime.Now;
         [JsonProperty("tip")]
-        public int? Tip { get; set; } = 0;
+        public byte? Tip { get; set; } = 0;
         [JsonProperty("est")]
-        public int? Est { get; set; } = 0;
+        public byte? Est { get; set; } = 0;
         [JsonProperty("privilegio"), MaxLength(256)]
         public string? Privilegio { get; set; } = string.Empty;
         [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
-
-        [NotMapped] public Cliente? Cliente { get; set; }
+        public bool Activo { get; set; } = true;
+        [JsonProperty("codCte")]
+        public int? CodCte { get; set; }
+        [JsonProperty("codGru")]
+        public Int16? CodGru { get; set; }
+        [JsonProperty("isClient")]
+        public bool IsClient { get; set; } = false;
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
     }
 }

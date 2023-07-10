@@ -1,6 +1,15 @@
 ﻿using GComFuelManager.Server;
-using Microsoft.AspNetCore.ResponseCompression;
+using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.IdentityModel.Tokens;
+using RazorHtmlEmails.Common;
+using RazorHtmlEmails.GComFuelManagerMigracion.Services;
+using System.Globalization;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +29,44 @@ builder.Services.AddControllersWithViews()
     });
 builder.Services.AddRazorPages();
 
+builder.Services.AddIdentity<IdentityUsuario, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["jwtkey"]!)),
+        ClockSkew = TimeSpan.Zero
+    });
+
+builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
+builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
+builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
+builder.Services.AddScoped<IPreciosService, PreciosService>();
+builder.Services.AddSingleton<RequestToFile>();
+builder.Services.AddSingleton<VerifyUserToken>();
+builder.Services.AddSingleton(new CultureInfo("es-Mx"));
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
+    options.Secure = CookieSecurePolicy.Always;
+});
+
 var app = builder.Build();
+
+using(var scope = app.Services.CreateScope())
+{
+    var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    applicationDbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -41,6 +87,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapControllers();

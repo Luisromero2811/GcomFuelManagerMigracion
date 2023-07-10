@@ -55,7 +55,7 @@ namespace GComFuelManager.Client.Repositorios
             return new HttpResponseWrapper<TResponse>(default!, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
         public async Task<T> DeserializarRespuesta<T>(HttpResponseMessage httpResponse, JsonSerializerOptions jsonSerializerOptions)
-		{
+        {
             var respuestaString = await httpResponse.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(respuestaString, jsonSerializerOptions)!;
         }
@@ -97,6 +97,6 @@ namespace GComFuelManager.Client.Repositorios
             //Encapsulamos la respuesta de la peticion
             return new HttpResponseWrapper<object>(null!, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
-}
+    }
 }
 

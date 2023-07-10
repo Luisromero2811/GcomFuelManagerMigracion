@@ -18,11 +18,12 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codusu")]
         public int? Codusu { get; set; } = 0;
         [JsonProperty("codforpag")]
-        public string? Codforpag { get; set; } = string.Empty;
+        public int? Codforpag { get; set; } = 0;
         [JsonProperty("tem"), MaxLength(50)]
         public string? Tem { get; set; } = string.Empty;
         [JsonProperty("codgru")]
-        public Int16? Codgru { get; set; } = 0;
+        public Int16? codgru { get; set; } = null!;
+
         [JsonProperty("email"), MaxLength(30)]
         public string? Email { get; set; } = string.Empty;
         [JsonProperty("con"), MaxLength(50)]
@@ -35,7 +36,14 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Esenergas { get; set; } = false;
         [JsonProperty("tipven"), MaxLength(16)]
         public string? Tipven { get; set; } = string.Empty;
+        [JsonProperty("codCte")]
+        public string? CodCte { get; set; } = string.Empty;
+        [JsonProperty("consecutivo")]
+        public int? Consecutivo { get;set; } = 0;
+        [JsonProperty("activo")]
+        public bool? Activo { get; set; } = true;
+        [JsonProperty("precioSemanal")]
+        public bool? precioSemanal { get; set; } = false;
 
-        [NotMapped] public Grupo? Grupo { get; set; } = null!;
     }
 }

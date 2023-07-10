@@ -1,0 +1,120 @@
+﻿@*@page "/detalle/{folio}"*@
+@inject IRepositorio http
+@inject SweetAlertService Swal
+
+<RadzenStack Gap="1rem">
+    @if (cierres == null)
+    {
+        <p>Cargando...</p>
+    }
+    else if (cierres.Count == 0)
+    {
+        <p>No hay ordenes ligadas a este folio.</p>
+    }
+    else
+    {
+        foreach (var cierre in cierresDistinc)
+        {
+            <div class="col-12">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th scope="row">Fecha: </th>
+                            <td>@cierre.FchCierre</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Comprador: </th>
+                            <td>@cierre.Cliente?.Den</td>
+                        </tr>
+                        @if (cierre.ContactoN is not null)
+                        {
+                            <tr>
+                                <th scope="row">Contacto: </th>
+                                <td>@cierre.ContactoN?.Nombre</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Correo: </th>
+                                <td>@cierre.ContactoN?.Correo</td>
+                            </tr>
+                        }
+                        <tr>
+                            <th scope="row">Producto: </th>
+                            <td>@cierre.Producto?.Den</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Volumen Aprox. Litros: </th>
+                            <td>
+                                @cierre.Volumen?.ToString("N2") Litros
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Volumen Aprox. Fulles: </th>
+                            <td>
+                                @(Math.Round(Convert.ToDecimal(cierre.Volumen) / 60000,1)) Fulles
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Precio: </th>
+                            <td>$ @cierre.Precio</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        }
+    }
+</RadzenStack>
+
+@code {
+    [Parameter] public string folio { get; set; } = string.Empty;
+
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+
+    OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
+
+    List<OrdenCierre>? cierres { get; set; }
+
+    IEnumerable<OrdenCierre>? cierresDistinc { get; set; }
+
+    private int? VolumenTotal { get; set; } = 0;
+
+    private List<string?> ProductosEnResumen { get; set; } = null!;
+
+
+    protected async override Task OnParametersSetAsync()
+    {
+        await GetFiltroCierres();
+    }
+
+    private async Task GetFiltroCierres()
+    {
+        try
+        {
+            filtro.Folio = folio;
+            filtro.forFolio = true;
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                cierres = response.Response;
+                cierresDistinc = cierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in cierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

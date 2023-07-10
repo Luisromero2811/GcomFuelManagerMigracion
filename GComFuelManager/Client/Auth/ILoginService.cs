@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GComFuelManager.Shared.DTOs;
+using System;
 namespace GComFuelManager.Client.Auth
 {
-	public class ILoginService
+	public interface ILoginService
 	{
-		public ILoginService()
-		{
-		}
+		Task Login(UserTokenDTO token);
+		Task Logoute();
+		Task ManejarRenovacionToken();
 	}
 }
 

@@ -1,0 +1,290 @@
+﻿@page "/datos/tonel"
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ms
+@inject DialogService ds
+@inject TooltipService ts
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia")]
+
+<h3>Datos Toneles</h3>
+
+<div class="col-12 card">
+    <div class="col-12 row card-body">
+        <div class="col-12">
+            <div class="col-12 row">
+                <div class="col-6">
+                    <label>Transportista:</label>
+                    <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" @bind-Value="Transportista"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowVirtualization="true" />
+                </div>
+                <div class="col-4 d-flex">
+                    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@GetToneles">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 d-flex justify-content-center my-2">
+            <RadzenDataGrid TItem="Tonel" Data="@Toneles" AllowColumnResize="true" AllowPickAllColumns="true" FilterMode="FilterMode.Simple"
+                            GridLines="DataGridGridLines.Both" class="rz-my-2" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+                <Columns>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte">
+                        <RadzenDataGridColumn TItem="Tonel" Title="Asignar" Filterable="false" Width="80px" Sortable="false" Frozen="true" OrderIndex="1">
+                            <Template Context="data">
+                                <div class="col-12">
+                                    <button class="btn btn-primary col-12" @onclick="@(()=>SetTonel(data))">
+                                        <i class="fa fa-solid fa-pen-to-square"></i>
+                                    </button>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </AuthorizeView>
+                    <RadzenDataGridColumn TItem="Tonel" Title="Placa" Property="Placa" Frozen="true" Filterable="true" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Tracto" Property="Tracto" Filterable="true" OrderIndex="3" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Placa-Tracto" Property="Placatracto" Filterable="true" OrderIndex="4" />
+                    <RadzenDataGridColumn TItem="Tonel" Title="Capacidad" Filterable="false" OrderIndex="5">
+                        <Template Context="data">
+                            @foreach (var item in data.Capacidades)
+                            {
+                                <p>Nro:@item.NroCom Capacidad: @item.CapCom</p>
+                            }
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </div>
+</div>
+@if (Tonel.Cod != 0)
+{
+    <div class="col-12 card mb-4 mt-3">
+        <div class="col-12 card-body">
+            <div class="col-12">
+                <EditForm Model="Tonel" class="col-12 row">
+                    <ValidationSummary />
+                    <div class="col-4">
+                        <label>Placa</label>
+                        <InputText @bind-Value="Tonel.Placa" class="form-control col-12" />
+                    </div>
+                    <div class="col-4">
+                        <label>Tracto</label>
+                        <InputText @bind-Value="Tonel.Tracto" class="form-control col-12" />
+                    </div>
+                    <div class="col-4">
+                        <label>Placa - Tracto</label>
+                        <InputText @bind-Value="Tonel.Placatracto" class="form-control col-12" />
+                    </div>
+                    <div class="col-12 row mt-2">
+                        <label>Compartimientos</label>
+                        @{
+                            int i = 1;
+                        }
+                        @foreach (var item in capTonels)
+                        {
+                            @if (item.IdCom != 0)
+                            {
+
+                                <div class="col-3 my-2">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            compartimiento @(i++)
+                                        </div>
+                                        <div class="card-body">
+
+                                            <div class="col-12">
+                                                <p class="col-12"><b>id:</b> @item.IdCom</p>
+                                                <p class="col-12"><b>compartimiento:</b> @item.NroCom</p>
+                                                <p class="col-12"><b>capacidad:</b> <InputNumber @bind-Value="@item.CapCom" class="form-control" /></p>
+                                            </div>
+                                            <div class="col-12 row my-2 d-flex justify-content-center">
+                                                <div class="col-3">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>Prev(item))">
+                                                        <i class="fa-solid fa-arrow-left"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="col-3">
+                                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>Next(item))">
+                                                        <i class="fa-solid fa-arrow-right"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="col-12 row">
+                        <div class="col-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@UpdateToel">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    List<Transportista> Transportistas { get; set; } = new List<Transportista>();
+    List<Tonel> Toneles { get; set; } = new List<Tonel>();
+    List<CapTonel> capTonels { get; set; } = new List<CapTonel>();
+
+    Tonel Tonel { get; set; } = new Tonel();
+    Transportista Transportista { get; set; } = new Transportista();
+
+    RadzenDataGrid<Tonel> grid { get; set; } = new RadzenDataGrid<Tonel>();
+
+    bool loading = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTransportista();
+    }
+
+    public async Task GetTransportista()
+    {
+        var response = await http.Get<List<Transportista>>("api/transportista");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Transportistas = response.Response;
+        }
+    }
+
+    private async Task GetToneles()
+    {
+        try
+        {
+            if (Transportista.CarrId != null)
+            {
+                if (!string.IsNullOrEmpty(Transportista.CarrId))
+                {
+                    var response = await http.Get<List<Tonel>>($"api/vehiculo/{Transportista.CarrId}");
+                    if (response.Error)
+                    {
+                        var repositorioHttp = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        Toneles = response.Response;
+                    }
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task SetTonel(Tonel tonel)
+    {
+        try
+        {
+            Tonel = tonel;
+            capTonels = Tonel.Capacidades;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task Next(CapTonel capTonel)
+    {
+        try
+        {
+            if (capTonels.Count > 1)
+            {
+                var array = capTonels.ToArray();
+                var index = capTonels.FindIndex(x => x.IdCom == capTonel.IdCom);
+                if (index < capTonels.Count - 1)
+                {
+                    var cap = array[index + 1];
+                    array[index] = cap;
+                    array[index + 1] = capTonel;
+                    capTonels = array.ToList();
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task Prev(CapTonel capTonel)
+    {
+        try
+        {
+            var index = capTonels.FindIndex(x => x.IdCom == capTonel.IdCom);
+            if (index != 0)
+            {
+                var array = capTonels.ToArray();
+                if (index > 0)
+                {
+                    var cap = array[index - 1];
+                    array[index] = cap;
+                    array[index - 1] = capTonel;
+                    capTonels = array.ToList();
+                    StateHasChanged();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task UpdateToel()
+    {
+        try
+        {
+            var responseEdit = await http.Post<Tonel>($"api/vehiculo", Tonel);
+            if (responseEdit.Error)
+            {
+                var responseHttp = await responseEdit.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var response = await http.Post<List<CapTonel>, Tonel>($"api/vehiculo/compartimientos/{Tonel.Cod}", capTonels);
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    var index = Toneles.IndexOf(Toneles.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                    Toneles.RemoveAt(index);
+                    Toneles.Insert(index, response.Response);
+                    grid!.Reload();
+                    Tonel = new Tonel();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+}

@@ -1,9 +1,10 @@
-﻿@layout FullPageComponent
-@using GComFuelManager.Client.Auth;
 @page "/login"
-@inject NavigationManager navigationManager
-@inject SweetAlertService swal
 
+@layout FullPageComponent
+@inject NavigationManager navigation
+@inject SweetAlertService swal
+@inject IRepositorio http
+@inject ILoginService login
 
 <div class="col-12 card shadow">
 
@@ -30,17 +31,23 @@
                                         </div>
                                         <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example17">Ingrese su Usuario:</label>
-                                            <InputText class="form-control" placeholder="Nombre de usuario" @bind-Value="usu"/>
-                                            <ValidationMessage For="@(()=>usu)" />
+                                            <InputText class="form-control" placeholder="Nombre de usuario" @bind-Value="usuario.Username" />
+                                            <ValidationMessage For="@(()=>usuario.Username)" />
                                         </div>
 
-                                        <div class="form-outline mb-2">
+                                        <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example27">Ingrese su contraseña:</label>
-                                            <InputText type="password" class="form-control" placeholder="@placeholderPswd" @bind-Value="cve"/>
-                                            <ValidationMessage For="@(()=>cve)" />
+                                            <InputText type="password" class="form-control" placeholder="Contraseña" @bind-Value="usuario.Password" />
+                                            <ValidationMessage For="@(()=>usuario.Password)" />
                                         </div>
-                                        <div class="col-12 mt-4 d-flex justify-content-center" >
-                                            <button class="btn gcom-bg-amarillo btn-lg px-5" type="button">Ingresar</button>
+                                        <div class="col-12 mt-4 d-flex justify-content-center">
+                                            <button class="btn gcom-bg-amarillo btn-lg px-5" type="button" @onclick="@LoguearUsuario">
+                                                Ingresar
+                                                @if (loading)
+                                                {
+                                                    <SpinnerLoading></SpinnerLoading>
+                                                }
+                                            </button>
                                         </div>
 
                                     </EditForm>
@@ -57,14 +64,34 @@
 
 
 @code {
-    private Usuario usuario { get; set; } = new Usuario();
-    private string usu = string.Empty;
-    private string cve = string.Empty;
-    string placeholderPswd = "**********";
+    private UserLogin usuario { get; set; } = new UserLogin();
+    private bool loading = false;
+
+
     private async Task LoguearUsuario()
     {
-        //Mandamos al usuario, lo construimos y retornamos con su token
-
+        try
+        {
+            loading = true;
+            var response = await http.Post<UserLogin, UserTokenDTO>("api/cuentas/login", usuario);
+            if (response.Error)
+            {
+                loading = false;
+                string? message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos.", SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                await login.Login(response.Response);
+                navigation.NavigateTo("");
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }
 

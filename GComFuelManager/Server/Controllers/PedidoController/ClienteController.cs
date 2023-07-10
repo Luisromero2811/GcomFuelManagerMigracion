@@ -1,4 +1,6 @@
 ﻿using GComFuelManager.Shared.DTOs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +9,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ClienteController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -22,8 +25,8 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var grupos = await context.Cliente
-                    .Where(x => x.Codgru == grupo)
-                    .Select(x => new CodDenDTO {Cod = x.Cod, Den = x.Den! })
+                    .Where(x => x.codgru == grupo && x.Activo == true)
+                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(grupos);

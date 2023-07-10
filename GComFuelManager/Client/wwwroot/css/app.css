@@ -153,33 +153,18 @@ a, .btn-link {
     background-color: #F0F0F0;
 }
 
-.view {
-    margin: auto;
-    width: 1000px;
+.diesel{
+    background-color: #AEAAA9;
 }
 
-.wrapper {
-    position: relative;
-    overflow: auto;
-    white-space: nowrap;
+.regular{
+    background-color: #528234;
 }
 
-.sticky-col {
-    position: -webkit-sticky;
-    position: sticky;
-    background-color: white !important;
+.regular-vdm{
+    background-color: #8FD154;
 }
 
-.first-col {
-    width: 100px;
-    min-width: 100px;
-    max-width: 100px;
-    left: 0px;
-}
-
-.second-col {
-    width: 150px;
-    min-width: 150px;
-    max-width: 150px;
-    left: 100px;
+.premium{
+    background-color: #AC0608;
 }

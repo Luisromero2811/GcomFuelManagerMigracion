@@ -1,0 +1,437 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService ms
+@inject AsignacionZonaValidation validation
+@inject AsignarZonaClienteValidation validate
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
+
+<h3>Zona</h3>
+<AuthorizeView Roles="Admin, Administrador Sistema">
+    <Authorized>
+        <div class="col-12 d-flex justify-content-center">
+            <div class="col-10 shadow-sm card">
+                <div class="col-12 card-body row">
+                    <EditForm Model="@Zona" class="form col-12" OnValidSubmit="@SaveZona" Context="validacin">
+                        <FluentValidationValidator Validator="validation" />
+                        <ValidationSummary />
+                        <div class="col-12 row">
+                            <div class="col-6">
+                                <label class="form-label">Zona</label>
+                                <InputText @bind-Value="Zona.Nombre" class="form-control" />
+                            </div>
+                            <div class="col-3 d-flex">
+                                <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i>
+                                    Agregar zona
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                    <EditForm Model="@zonaDto" class="form col-12" OnValidSubmit="@SaveAsignacion" Context="ZonaClientes">
+                        <FluentValidationValidator Validator="validate" />
+                        <ValidationSummary />
+                        <div class="col-12 row mb-3">
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Zona</label>
+                                <InputSelect @bind-Value="zonaDto.ZonaCod" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Zonas is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Zonas.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Zonas)
+                                        {
+                                            <option value="@item.Cod">@item.Nombre</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Grupo</label>
+                                <InputSelect @bind-Value="zonaDto.codgru" class="form-select" onchange="@GetClientes()">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Grupos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Grupos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Grupos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Cliente</label>
+                                <InputSelect @bind-Value="zonaDto.CteCod" class="form-select" onchange="@GetEstaciones()">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Clientes is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label class="form-label">Destino</label>
+                                <InputSelect @bind-Value="zonaDto.DesCod" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Destinos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Destinos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Destinos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex justify-content-center">
+                            <div class="col-4">
+                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-floppy-disk"></i>
+                                    Guardar
+                                    @if (loadingSave)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+    <div class="col-12 d-flex justify-content-center">
+        <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
+            <Columns>
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="EditarZonas">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
+                        <Template Context="item">
+                            <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
+                                <Authorized>
+                                    <div class="col">
+                                        <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                    </div>
+                                </Authorized>
+                            </AuthorizeView>
+
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
+                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Accion">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
+                        <Template Context="data">
+                            <div class="col-12">
+                                <div class="form-check form-switch m-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                </div>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</AuthorizeView>
+@code {
+    private bool loading = false;
+    private bool loadingSave = false;
+    private bool isEdit = false;
+
+    private Zona Zona { get; set; } = new Zona();
+    private List<Zona> Zonas { get; set; } = new List<Zona>();
+    private List<ZonaCliente> ZonaCliente { get; set; } = new List<ZonaCliente>();
+    private RadzenDataGrid<ZonaCliente> grid { get; set; } = new RadzenDataGrid<ZonaCliente>();
+    private ZonaCliente zonaCliente { get; set; } = new ZonaCliente() { Cliente = new Cliente() };
+    private List<Grupo> Grupos { get; set; } = new List<Grupo>();
+    private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
+    private List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+
+    private short? GrupoSeleccionado = 0;
+    private int? ClienteSeleccionado = 0;
+
+    ZonaDTO zonaDto { get; set; } = new ZonaDTO();
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetZonas();
+        await GetGrupos();
+        await GetZonasCliente();
+    }
+
+    private async Task SaveZona()
+    {
+        try
+        {
+            var response = await http.Post<Zona>("api/zona", Zona);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await GetZonas();
+                await Swal.FireAsync("Exito", "Zona creada con exito.", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async void SetEdit(ZonaCliente item)
+    {
+        try
+        {
+            zonaCliente = item;
+            isEdit = true;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetZonasCliente()
+    {
+        try
+        {
+            var response = await http.Get<List<ZonaCliente>>("api/zona/all");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ZonaCliente = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetZonas()
+    {
+        try
+        {
+            var response = await http.Get<List<Zona>>("api/zona");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Zonas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetGrupos()
+    {
+        try
+        {
+            var response = await http.Get<List<Grupo>>("api/grupo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task GetClientes()
+    {
+        try
+        {
+            if (zonaDto.codgru != GrupoSeleccionado && zonaDto.codgru != null)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{zonaDto.codgru}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    GrupoSeleccionado = zonaDto.codgru;
+                    Clientes = response.Response;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetEstaciones()
+    {
+        try
+        {
+            if (zonaDto.CteCod != null && ClienteSeleccionado != zonaDto.CteCod)
+            {
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaDto.CteCod}");
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Destinos = response.Response;
+                    ClienteSeleccionado = zonaDto.CteCod;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SaveAsignacion()
+    {
+        try
+        {
+            loadingSave = true;
+            var response = await http.Post<ZonaCliente>("api/zona/asignacion", zonaCliente);
+            if (response.Error)
+            {
+                loadingSave = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingSave = false;
+                await GetZonasCliente();
+                await Swal.FireAsync("Exito", "Relacion con zona guardada.", SweetAlertIcon.Success);
+                if (isEdit == true)
+                {
+                    zonaCliente = new ZonaCliente() { Cliente = new Cliente() };
+                    isEdit = false;
+                    StateHasChanged();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loadingSave = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task HabilitarDeshabilitar(ZonaCliente zonaCliente, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await http.Put<bool>($"api/zona/{zonaCliente.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (status)
+                {
+                    await Message($"{zonaCliente.Zona?.Nombre} ha sido habilitada", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{zonaCliente.Zona?.Nombre} ha sido deshabilitada", SweetAlertIcon.Info);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1600,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
+    }
+
+}
