@@ -56,7 +56,6 @@
     <Folder Include="Auth\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
-    <Folder Include="Pages\Formularios\ETA\" />
     <Folder Include="wwwroot\js\" />
   </ItemGroup>
   <ItemGroup>
