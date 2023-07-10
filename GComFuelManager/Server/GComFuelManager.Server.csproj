@@ -50,17 +50,9 @@
     <None Remove="Controllers\UsuarioController\" />
     <None Remove="Controllers\Porcentajes\" />
   </ItemGroup>
-
-
-  <ItemGroup>
-    <Content Include="imgs\gcom_unilogo.png" />
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\AsignacionUnidadesController\" />
     <Folder Include="Controllers\SeguimientoOrdenController\" />
-    <Folder Include="Controllers\UsuarioController\" />
-    <Folder Include="Files\" />
-    <Folder Include="Controllers\Porcentajes\" />
   </ItemGroup>
 </Project>
