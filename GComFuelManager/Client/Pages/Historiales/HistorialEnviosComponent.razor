@@ -240,52 +240,6 @@
         }
     }
 
-    //private async Task GenerarExcel()
-    //{
-    //    if (orden.Count != 0)
-    //    {
-    //        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-    //        var excel = new ExcelPackage();
-    //        var worksheet = excel.Workbook.Worksheets.Add("Historial de envios");
-    //        worksheet.Columns.Width = 60;
-    //        worksheet.Columns.AutoFit();
-
-    //        //Formación de Excel
-    //        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-    //        from item in orden
-    //        select new HistorialOrdenDTO()
-    //        {
-    //            OrdenCompra = item!.OrdenCompra?.den,
-    //            Cliente = item!.Destino?.Cliente?.Den,
-    //            Producto = item!.Producto?.Den,
-    //            Destino = item!.Destino?.Den,
-    //            Volumen = item!.Vol,
-    //            FechaCarga = item!.Fchcar!.Value.ToString("dd/MM/yyyy"),
-    //            Transportista = item!.Tonel?.Transportista?.Den,
-    //            Unidad = item!.Tonel?.Veh,
-    //            Compartimento = item!.Compartment,
-    //            Operador = item!.Chofer?.Den,
-    //            Bin = item!.Bin
-    //        }, true);
-
-    //        tablebody.Style.Font.Bold = true;
-    //        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-    //        var header = worksheet.Cells["A1:K1"];
-    //        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-    //        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-    //        //Guardado de Excel
-    //        await js.GuardarComo($"HistorialEnvios_{DateTime.Now.ToString("dd/MM/yyyy hh:MM:yyyy")}.xlsx", excel.GetAsByteArray());
-    //    }
-    //    else
-    //    {
-    //        await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
-    //    }
-    //}
-    //Console.WriteLine(JsonConvert.SerializeObject(DestinosSeleccionado));
-    //Console.WriteLine(JsonConvert.SerializeObject(ClienteSeleccionado));
-    //Console.WriteLine(JsonConvert.SerializeObject(ProductosSeleccionado));
-    //Console.WriteLine(JsonConvert.SerializeObject(TransportistasSeleccionado));
-
     private async Task GenerarExcel()
     {
         try
