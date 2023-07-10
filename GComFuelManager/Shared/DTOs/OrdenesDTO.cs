@@ -33,7 +33,6 @@ namespace GComFuelManager.Shared.DTOs
         public double? VolCar { get; set; } = 0;
         //[DisplayName("Volumen Cargado")]
         //public string Volms { get { return VolCar.Value.ToString("N2"); } }
-
         public string Transportista { get; set; } = string.Empty;
         public string Unidad { get; set; } = string.Empty;
         public string Operador { get; set; } = string.Empty;
