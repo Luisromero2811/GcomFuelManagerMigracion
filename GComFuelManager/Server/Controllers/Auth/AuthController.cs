@@ -13,7 +13,7 @@ using System.Text;
 namespace GComFuelManager.Server.Controllers.Auth
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/cuentas")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUsuario> userManager;
