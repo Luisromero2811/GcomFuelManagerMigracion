@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Destino")] public string? Destino { get; set; } = string.Empty;
         [DisplayName("Producto")] public string? Producto { get; set; } = string.Empty;
         [DisplayName("Precio")] public string? Precio { get; set; } = string.Empty;
-        [DisplayName("Volumen")] public string? Volumen { get; set; } = string.Empty;
+        [DisplayName("Volumen"), DisplayFormat(DataFormatString = "#,##0.00")] public double? Volumen { get; set; } = 0;
         [DisplayName("Unidad")] public string? Unidad { get; set; } = string.Empty;
         [DisplayName("Estatus")] public string? Estatus { get; set; } = string.Empty;
         [DisplayName("Fecha de llegada")] public string? FchLlegada { get; set; } = string.Empty;

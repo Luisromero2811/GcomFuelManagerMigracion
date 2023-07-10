@@ -283,5 +283,6 @@ namespace GComFuelManager.Server
         public DbSet<Accion> Accion { get; set; }
         public DbSet<AccionCorreo> AccionCorreo { get; set; }
         public DbSet<Porcentaje> Porcentaje { get; set; }
+        public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
     }
 }
