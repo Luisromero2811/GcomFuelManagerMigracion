@@ -192,60 +192,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpPost("update")]
-        public async Task<ActionResult> PutOrden([FromBody] OrdenCierre orden)
-        {
-            try
-            {
-                orden.Producto = null;
-                orden.Destino = null;
-                orden.Cliente = null;
-                orden.ContactoN = null!;
-                orden.OrdenEmbarque = null!;
-
-                context.Update(orden);
-                await context.SaveChangesAsync();
-
-                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
-                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
-                orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
-                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
-                var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
-                orden.OrdenEmbarque = Embarque;
-
-                return Ok(orden);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpDelete("{cod:int}/cancel")]
-        public async Task<ActionResult> CancelCierre([FromRoute] int cod)
-        {
-            try
-            {
-                var orden = await context.OrdenCierre.FirstOrDefaultAsync(x => x.Cod == cod);
-
-                if (orden == null)
-                {
-                    return NotFound();
-                }
-
-                orden.Estatus = false;
-
-                context.Update(orden);
-                await context.SaveChangesAsync();
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpPost("list")]
         public async Task<ActionResult> PostList(List<int> list)
         {
@@ -405,59 +351,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ToListAsync();
 
                 return Ok(ordens);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpPost("vencimiento")]
-        public async Task<ActionResult> PostVencimieto([FromBody] CierreFiltroDTO fechas)
-        {
-            try
-            {
-                List<OrdenCierre> ordens = new List<OrdenCierre>();
-
-                ordens = context.OrdenCierre.Where(x => x.Folio == fechas.Folio).ToList();
-
-                if (ordens is null)
-                    return BadRequest();
-
-                ordens.ForEach(x =>
-                {
-                    x.FchVencimiento = fechas.FchFin;
-                });
-
-                context.UpdateRange(ordens);
-
-                await context.SaveChangesAsync();
-
-                var ordenes = await context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Estatus == true)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x!.Destino)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x!.Producto)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tad)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel)
-                    .ToListAsync();
-
-                return Ok(ordens);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpPost("margen")]
-        public async Task<ActionResult> PostMargen([FromBody] CierreFiltroDTO fechas)
-        {
-            try
-            {
-                return Ok();
             }
             catch (Exception e)
             {
@@ -692,55 +585,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         return BadRequest($"El producto {item.Producto?.Den} aun cuenta con ordenes disponibles. Folio: {item.Folio}");
                     }
                 }
-
-                return Ok(true);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpDelete("cerrar/pedido/{folio}")]
-        public async Task<ActionResult> ClosePedido([FromRoute] string folio)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(folio))
-                    return BadRequest("Folio vacio o no valido");
-
-                var ordens = context.OrdenCierre.Where(x => x.Folio.Equals(folio)).ToList();
-
-                foreach (var item in ordens)
-                {
-                    await CloseOrden(item.Cod);
-                }
-
-                return Ok(true);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpDelete("cerrar/orden/{cod:int}")]
-        public async Task<ActionResult> CloseOrden([FromRoute] int cod)
-        {
-            try
-            {
-                if (cod == 0)
-                    return BadRequest("Orden no valida");
-
-                var orden = context.OrdenCierre.Find(cod);
-
-                if (orden is null)
-                    return BadRequest("No se encontro la orden");
-
-                orden.Activa = false;
-
-                context.Update(orden);
-                await context.SaveChangesAsync();
 
                 return Ok(true);
             }

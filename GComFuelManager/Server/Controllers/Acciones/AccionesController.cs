@@ -31,25 +31,5 @@ namespace GComFuelManager.Server.Controllers.Acciones
                 return BadRequest(e.Message);
             }
         }
-
-        [HttpPost]
-        public async Task<ActionResult> Post([FromBody] AccionCorreo accion)
-        {
-            try
-            {
-                if (accion.Cod is null)
-                    context.Add(accion);
-                else
-                    context.Update(accion);
-
-                await context.SaveChangesAsync();
-
-                return Ok(accion);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
     }
 }
