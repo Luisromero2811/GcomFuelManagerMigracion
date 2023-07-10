@@ -351,5 +351,20 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("programado")]
+        public async Task<ActionResult> GetDateHistorialPrecioProgramado([FromBody] FechasF fechas)
+        {
+            try
+            {
+                List<PrecioHistorico> precios = new List<PrecioHistorico>();
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -55,12 +55,11 @@ namespace GComFuelManager.Shared.Modelos
         public string Volumenes { get { return Vol2 != null ? Vol2?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("batchId")]
-        public int? BatchId { get; set; }
+        public Int64? BatchId { get; set; }
         [JsonProperty("CompartmentId")]
         public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
         public string? SealNumber { get; set; } = string.Empty;
-
         [NotMapped] public long Codprdsyn { get; set; } = 0;
         [NotMapped] public long Codprd2syn { get; set; } = 0;
         [NotMapped] public long Codchfsyn { get; set; } = 0;

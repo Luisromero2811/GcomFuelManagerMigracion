@@ -38,11 +38,11 @@
     <Authorized>
         <div class="col-12 d-flex justify-content-center">
             <RadzenDataGrid TItem="PrecioHistorico" Data="@preciosL" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture">
                 <Columns>
-                    <RadzenDataGridColumn TItem="PrecioHistorico" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="1" Frozen="true"/>
-                    <RadzenDataGridColumn TItem="PrecioHistorico" Title="Precio" Property="pre" Filterable="false" OrderIndex="2" Frozen="true"/>
+                    <RadzenDataGridColumn TItem="PrecioHistorico" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="1" Frozen="true" />
+                    <RadzenDataGridColumn TItem="PrecioHistorico" Title="Precio" Property="pre" Filterable="false" OrderIndex="2" Frozen="true" />
                     <RadzenDataGridColumn TItem="PrecioHistorico" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="3" Frozen="true">
                         <FilterTemplate Context="filter">
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -119,16 +119,7 @@
     </div>
 </div>
 
-<style type="text/css">
-    .ancho{
-        width: @TotalWidth;
-    }
-</style>
-
 @code {
-    //Variables
-    string TotalWidth = string.Empty;
-    int width = 0;
 
     FechasF fechas = new FechasF();
     PrecioHistorico Precio { get; set; } = new PrecioHistorico();
@@ -153,16 +144,6 @@
     RadzenDataGrid<PrecioHistorico> grid { get; set; } = new RadzenDataGrid<PrecioHistorico>();
 
     List<HistorialPrecioDTO> historialPrecio { get; set; } = new List<HistorialPrecioDTO>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        //width = await js.InvokeAsync<int>("eval", "window-innerWidth") - 360;
-        //if (width < 0)
-        //{
-        //    width = 500;
-        //    TotalWidth = $"{width}px";
-        //}
-    }
 
     public async Task MostrarOrdenFecha()
     {
@@ -195,41 +176,6 @@
         }
     }
 
-    //public async Task GenerateExcel()
-    //{
-    //    if (preciosL != null)
-    //    {
-    //        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-    //        var excel = new ExcelPackage();
-    //        var worksheet = excel.Workbook.Worksheets.Add("Historial de Precios");
-    //        worksheet.Columns.Width = 60;
-    //        worksheet.Columns.AutoFit();
-
-    //        //Formación del excel
-    //        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-    //            from o in preciosL
-    //            select new HistorialPrecioDTO()
-    //            {
-    //                Fecha = o.FchDia.ToString("dd/MM/yyyy"),
-    //                Pre = o.pre,
-    //                Producto = o?.Producto?.Den,
-    //                Destino = o.Destino?.Den,
-    //                Zona = o.Zona?.Nombre,
-    //                Cliente = o.Cliente?.Den
-    //            }, true);
-    //        tablebody.Style.Font.Bold = true;
-    //        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-    //        var header = worksheet.Cells["A1:F1"];
-    //        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-    //        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-    //        //Guardado del Excel
-    //        await js.GuardarComo($"HistorialPrecios_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
-    //    }
-    //    else
-    //    {
-    //        await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
-    //    }
-    //}
     public async Task GenerateExcel()
     {
         try
@@ -242,14 +188,14 @@
                     && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado))
                         && (item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
                         historialPrecio.Add(new HistorialPrecioDTO
-                        {
-                            Fecha = item.FchDia.ToString("dd/MM/yyyy"),
-                            Pre = item.pre,
-                            Producto = item.Producto?.Den,
-                            Destino = item.Destino?.Den,
-                            Zona = item.Zona?.Nombre,
-                            Cliente = item.Cliente?.Den
-                        });
+                            {
+                                Fecha = item.FchDia.ToString("dd/MM/yyyy"),
+                                Pre = item.pre,
+                                Producto = item.Producto?.Den,
+                                Destino = item.Destino?.Den,
+                                Zona = item.Zona?.Nombre,
+                                Cliente = item.Cliente?.Den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
