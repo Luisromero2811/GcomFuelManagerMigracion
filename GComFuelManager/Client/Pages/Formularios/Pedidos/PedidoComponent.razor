@@ -52,7 +52,7 @@
                 </div>
 
                 <div class="col-12 row">
-                    <div class="col-4">
+                    <div class="col-3">
                         <label class="form-label">Folio</label>
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
                         <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
@@ -65,18 +65,18 @@
                         @*<FolioListSearch folio="@filtro.Folio">
                         </FolioListSearch>*@
                     </div>
-                    @*<div class="col-4 d-flex row mb-2">*@
-                        <div class="col-2 mt-auto">
+                    <div class="col-3 d-flex row mb-2">
+                        <div class="col-6 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                        <div class="col-2 mt-auto">
+                        <div class="col-6 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearGridData">
                                 <i class="fa fa-solid fa-broom"></i>
                             </button>
                         </div>
-                    @*</div>*@
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,6 +86,17 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
+            <div class="col-12 row">
+                <div class="col-2">
+                    <h4><b>Crear orden</b></h4>
+                </div>
+                <div class="col row d-flex justify-content-start">
+                    <RadzenStack Orientation="Orientation.Horizontal">
+                        <RadzenText Text="Precio automatico" />
+                        <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
+                    </RadzenStack>
+                </div>
+            </div>
             <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                 @*<DataAnnotationsValidator />*@
                 <FluentValidationValidator Validator="validation" />
@@ -263,19 +274,6 @@
                             </button>
                         </div>
                     }
-                    @if (!isFolio && !isEditing || ordenCierre.IsCierreVolumen)
-                    {
-                        <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="submit">
-                                <i class="fa fa-solid fa-check"></i>
-                                <b>Crear orden</b>
-                                @if (loadingConfirm)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
-                            </button>
-                        </div>
-                    }
                     @if (!isEditing)
                     {
                         <div class="col-4 px-2">
@@ -288,6 +286,20 @@
                                 }
                             </button>
                         </div>
+
+                        @if (!isFolio || ordenCierre.IsCierreVolumen)
+                        {
+                            <div class="col-4 px-2">
+                                <button class="btn gcom-bg-amarillo col-12 mx-2" type="submit">
+                                    <i class="fa fa-solid fa-check"></i>
+                                    <b>Crear orden</b>
+                                    @if (loadingConfirm)
+                                    {
+                                        <SpinnerLoading></SpinnerLoading>
+                                    }
+                                </button>
+                            </div>
+                        }
                     }
                 </div>
             </EditForm>
@@ -1240,6 +1252,29 @@
                     ClientesFiltro = response.Response;
                     StateHasChanged();
                 }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ChangePrecioType()
+    {
+        try
+        {
+            if (ordenCierre.CodPrd != null)
+            {
+                if (Precios.Any(x => x.Producto?.Cod != ordenCierre.CodPrd))
+                {
+                    ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
+                }
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                CodProductoSeleccionado = ordenCierre.CodPrd;
+                StateHasChanged();
             }
 
         }
