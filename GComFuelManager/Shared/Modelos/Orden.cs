@@ -55,7 +55,7 @@ namespace GComFuelManager.Shared.Modelos
         public string Volumenes { get { return Vol2 != null ? Vol2?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("batchId")]
-        public Int64? BatchId { get; set; }
+        public int? BatchId { get; set; }
         [JsonProperty("CompartmentId")]
         public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
