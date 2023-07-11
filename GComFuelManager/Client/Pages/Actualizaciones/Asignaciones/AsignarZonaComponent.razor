@@ -364,6 +364,9 @@
         try
         {
             loadingSave = true;
+            zonaCliente.DesCod = zonaDto.DesCod;
+            zonaCliente.CteCod = zonaDto.CteCod;
+            zonaCliente.ZonaCod = zonaDto.ZonaCod;
             var response = await http.Post<ZonaCliente>("api/zona/asignacion", zonaCliente);
             if (response.Error)
             {

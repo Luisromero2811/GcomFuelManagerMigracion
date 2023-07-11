@@ -150,7 +150,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                orden.OrdenEmbarque = null;
+                orden.OrdenEmbarque = null!;
+                orden.Cliente = null!;
+                orden.Producto = null!;
+                orden.Destino = null!;
                 var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 if (user == null)
                     return NotFound();
