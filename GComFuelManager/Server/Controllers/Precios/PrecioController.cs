@@ -184,7 +184,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         .Include(x => x.Producto)
                         .ToListAsync();
 
-                    if (context.Cliente.FirstOrDefault(x=>x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                    if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                     {
                         precios.ForEach(x =>
                         {
@@ -221,9 +221,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                     else
                     {
                         var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
-                            .Include(x=>x.Cliente)
+                            .Include(x => x.Cliente)
                             .ToListAsync();
-                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x=>x);
+                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
 
                         foreach (var item in ordenesUnic)
                         {
@@ -274,7 +274,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino}");
 
-                    var precio = new Precio
+                    var precio = new PrecioProgramado
                     {
                         codCte = cliente.Cod,
                         codDes = destino.Cod,
@@ -286,7 +286,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         Pre = item.Precio
                     };
 
-                    var p = context.Precio.FirstOrDefault(x => x.codGru == precio.codGru
+                    var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
                     && x.codZona == precio.codZona
                     && x.codCte == precio.codCte
                     && x.codPrd == precio.codPrd
@@ -298,10 +298,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                         p.FchDia = precio.FchDia;
                         p.FchActualizacion = DateTime.Now;
 
-                        context.Update(p);
+                        context.PrecioProgramado.Update(p);
                     }
                     else
-                        context.Add(precio);
+                        context.PrecioProgramado.Add(precio);
 
                     var precioH = new PrecioHistorico
                     {
@@ -352,14 +352,50 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpPost("programado")]
-        public async Task<ActionResult> GetDateHistorialPrecioProgramado([FromBody] FechasF fechas)
+        [HttpGet("programado")]
+        public async Task<ActionResult> GetDateHistorialPrecioProgramado()
         {
             try
             {
-                List<PrecioHistorico> precios = new List<PrecioHistorico>();
+                if (DateTime.Today.AddHours(1).AddMinutes(50) >= DateTime.Now && DateTime.Today.AddHours(2).AddMinutes(20) <= DateTime.Now)
+                {
+                    List<PrecioProgramado> precios = new List<PrecioProgramado>();
+                    precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
 
-                return Ok(precios);
+                    if (precios.Count > 0)
+                    {
+                        foreach (var item in precios)
+                        {
+                            var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
+                            if (precio is null)
+                            {
+                                var precioN = new Precio
+                                {
+                                    codCte = item.Cod,
+                                    codDes = item.Cod,
+                                    codGru = item.codGru,
+                                    codPrd = item.codPrd,
+                                    codZona = item.Cod,
+                                    FchDia = item.FchDia,
+                                    FchActualizacion = DateTime.Now,
+                                    Pre = item.Pre
+                                };
+                                context.Add(precioN);
+                            }
+                            else
+                            {
+                                precio.Pre = item.Pre;
+                                precio.FchActualizacion = DateTime.Now;
+                                context.Update(precio);
+                            }
+                        }
+
+                        await context.SaveChangesAsync();
+                    }
+                    return Ok(precios);
+                }
+
+                return NoContent();
             }
             catch (Exception e)
             {
