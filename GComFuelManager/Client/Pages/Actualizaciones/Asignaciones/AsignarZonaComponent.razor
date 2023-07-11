@@ -38,20 +38,20 @@
                                 <InputSelect @bind-Value="zonaDto.ZonaCod" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Zonas is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Zonas.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Zonas)
                                         {
-                                            <option value="@item.Cod">@item.Nombre</option>
+                                        <option disabled> Cargando ...</option>
                                         }
-                                    }
+                                        else if (Zonas.Count == 0)
+                                        {
+                                        <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Zonas)
+                                            {
+                                            <option value="@item.Cod">@item.Nombre</option>
+                                            }
+                                        }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
@@ -59,20 +59,20 @@
                                 <InputSelect @bind-Value="zonaDto.codgru" class="form-select" onchange="@GetClientes()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Grupos is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Grupos.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Grupos)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                        <option disabled> Cargando ...</option>
                                         }
-                                    }
+                                        else if (Grupos.Count == 0)
+                                        {
+                                        <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Grupos)
+                                            {
+                                            <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
@@ -80,20 +80,20 @@
                                 <InputSelect @bind-Value="zonaDto.CteCod" class="form-select" onchange="@GetEstaciones()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Clientes is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Clientes.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Clientes)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                        <option disabled> Cargando ...</option>
                                         }
-                                    }
+                                        else if (Clientes.Count == 0)
+                                        {
+                                        <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Clientes)
+                                            {
+                                            <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
@@ -101,20 +101,20 @@
                                 <InputSelect @bind-Value="zonaDto.DesCod" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Destinos is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Destinos.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Destinos)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                        <option disabled> Cargando ...</option>
                                         }
-                                    }
+                                        else if (Destinos.Count == 0)
+                                        {
+                                        <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Destinos)
+                                            {
+                                            <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
                                 </InputSelect>
                             </div>
                         </div>
@@ -124,9 +124,9 @@
                                     <i class="fa fa-solid fa-floppy-disk"></i>
                                     Guardar
                                     @if (loadingSave)
-                                    {
+                                        {
                                         <SpinnerLoading />
-                                    }
+                                        }
                                 </button>
                             </div>
                         </div>
@@ -149,7 +149,7 @@
                             <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
                                 <Authorized>
                                     <div class="col">
-                                        <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        <button class="btn btn-primary col-12" @onclick="@(() => SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                     </div>
                                 </Authorized>
                             </AuthorizeView>
@@ -186,6 +186,7 @@
     private List<ZonaCliente> ZonaCliente { get; set; } = new List<ZonaCliente>();
     private RadzenDataGrid<ZonaCliente> grid { get; set; } = new RadzenDataGrid<ZonaCliente>();
     private ZonaCliente zonaCliente { get; set; } = new ZonaCliente() { Cliente = new Cliente() };
+    //
     private List<Grupo> Grupos { get; set; } = new List<Grupo>();
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     private List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();

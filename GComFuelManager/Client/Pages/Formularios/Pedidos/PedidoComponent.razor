@@ -319,7 +319,7 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="140px" Visible="true" Frozen="true">
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="170px" Visible="true" Frozen="true">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
                             <div class="col-12 row">

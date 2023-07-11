@@ -21,7 +21,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial, Analista Credito, Contador" Context="Configs">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial" Context="Configs">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -30,7 +30,7 @@
                 </Template>
                 <ChildContent>
                     @*auth*@
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia">
                         <RadzenPanelMenuItem>
                             <Template>
                                 <div class="text-white">
@@ -60,7 +60,7 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
                     @*auth*@
-                <AuthorizeView Roles="Admin, Administrador Sistema">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
                     <RadzenPanelMenuItem>
                         <Template>
                             <div class="text-white">
@@ -206,7 +206,7 @@
 
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Cierre Pedidos">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Cierre Pedidos">
             <RadzenPanelMenuItem Path="cerrar" class="gcom-bg-rojo" Style="border:hidden">
                 <Template>
                     <div class="text-white">
