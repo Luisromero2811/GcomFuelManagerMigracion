@@ -237,11 +237,26 @@ namespace GComFuelManager.Server
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenCierre>(x => x.CodPed);
 
-            //modelBuilder.Entity<Orden>()
-            //    .HasOne(x => x.OrdenEmbarque)
-            //    .WithMany()
-            //    .HasPrincipalKey(x => x.Bolguidid)
-            //    .HasForeignKey(x => x.Bolguiid);
+            //Precio - Zona
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Zona)
+                .WithMany()
+                .HasForeignKey(x => x.codZona);
+            //Precio - cliente
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.codCte);
+            //Precio - Producto
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.codPrd);
+            //Precio - Destino
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.codDes);
         }
 
 

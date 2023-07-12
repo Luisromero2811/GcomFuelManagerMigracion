@@ -256,6 +256,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                List<PrecioProgramado> prec = new List<PrecioProgramado>();
                 foreach (var item in precios)
                 {
                     var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Equals(item.Cliente));
@@ -273,50 +274,75 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var destino = context.Destino.FirstOrDefault(x => x.Den!.Equals(item.Destino!));
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino}");
-
-                    var precio = new PrecioProgramado
+                    
+                    if (DateTime.Parse(item.Fecha) >= DateTime.Today)
                     {
-                        codCte = cliente.Cod,
-                        codDes = destino.Cod,
-                        codGru = cliente.codgru,
-                        codPrd = producto.Cod,
-                        codZona = zona.Cod,
-                        FchDia = DateTime.Parse(item.Fecha),
-                        FchActualizacion = DateTime.Now,
-                        Pre = item.Precio
-                    };
+                        var precio = new PrecioProgramado
+                        {
+                            codCte = cliente.Cod,
+                            codDes = destino.Cod,
+                            codGru = cliente.codgru,
+                            codPrd = producto.Cod,
+                            codZona = zona.Cod,
+                            FchDia = DateTime.Parse(item.Fecha),
+                            FchActualizacion = DateTime.Now,
+                            Pre = item.Precio
+                        };
 
-                    var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
-                    && x.codZona == precio.codZona
-                    && x.codCte == precio.codCte
-                    && x.codPrd == precio.codPrd
-                    && x.codDes == precio.codDes);
-
-                    if (p is not null)
-                    {
-                        p.Pre = precio.Pre;
-                        p.FchDia = precio.FchDia;
-                        p.FchActualizacion = DateTime.Now;
-
-                        context.PrecioProgramado.Update(p);
+                        prec.Add(precio);
                     }
-                    else
-                        context.PrecioProgramado.Add(precio);
-
-                    var precioH = new PrecioHistorico
+                    else if(DateTime.Parse(item.Fecha) == DateTime.Today)
                     {
-                        Cod = null!,
-                        pre = precio.Pre,
-                        codCte = precio.codCte,
-                        codDes = precio.codDes,
-                        codGru = (short)precio.codGru!,
-                        codPrd = precio.codPrd,
-                        codZona = precio.codZona,
-                        FchDia = precio.FchDia,
-                        FchActualizacion = precio.FchActualizacion
-                    };
+                        var precio = new Precio
+                        {
+                            codCte = cliente.Cod,
+                            codDes = destino.Cod,
+                            codGru = cliente.codgru,
+                            codPrd = producto.Cod,
+                            codZona = zona.Cod,
+                            FchDia = DateTime.Parse(item.Fecha),
+                            FchActualizacion = DateTime.Now,
+                            Pre = item.Precio
+                        };
 
-                    context.Add(precioH);
+                        var p = context.Precio.FirstOrDefault(x => x.codGru == precio.codGru
+                        && x.codZona == precio.codZona
+                        && x.codCte == precio.codCte
+                        && x.codPrd == precio.codPrd
+                        && x.codDes == precio.codDes);
+
+                        if (p is not null)
+                        {
+                            p.Pre = precio.Pre;
+                            p.FchDia = precio.FchDia;
+                            p.FchActualizacion = DateTime.Now;
+
+                            context.Update(p);
+                        }
+                        else
+                            context.Add(precio);
+
+                        var precioH = new PrecioHistorico
+                        {
+                            Cod = null!,
+                            pre = precio.Pre,
+                            codCte = precio.codCte,
+                            codDes = precio.codDes,
+                            codGru = (short)precio.codGru!,
+                            codPrd = precio.codPrd,
+                            codZona = precio.codZona,
+                            FchDia = precio.FchDia,
+                            FchActualizacion = precio.FchActualizacion
+                        };
+
+                        context.Add(precioH);
+                    }
+                }
+
+                if(prec.Count > 0)
+                {
+                    context.PrecioProgramado.ExecuteDelete();
+                    context.AddRange(prec);
                 }
 
                 await context.SaveChangesAsync();
@@ -357,45 +383,130 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                if (DateTime.Today.AddHours(1).AddMinutes(50) >= DateTime.Now && DateTime.Today.AddHours(2).AddMinutes(20) <= DateTime.Now)
+                var fchInicio = DateTime.Today.AddHours(1).AddMinutes(50);
+                var fchHoy = DateTime.Now;
+                var fchFin = DateTime.Today.AddHours(2).AddMinutes(20);
+                if (fchInicio <= fchHoy && fchFin >= fchHoy)
                 {
-                    List<PrecioProgramado> precios = new List<PrecioProgramado>();
-                    precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
-
-                    if (precios.Count > 0)
-                    {
-                        foreach (var item in precios)
-                        {
-                            var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
-                            if (precio is null)
-                            {
-                                var precioN = new Precio
-                                {
-                                    codCte = item.Cod,
-                                    codDes = item.Cod,
-                                    codGru = item.codGru,
-                                    codPrd = item.codPrd,
-                                    codZona = item.Cod,
-                                    FchDia = item.FchDia,
-                                    FchActualizacion = DateTime.Now,
-                                    Pre = item.Pre
-                                };
-                                context.Add(precioN);
-                            }
-                            else
-                            {
-                                precio.Pre = item.Pre;
-                                precio.FchActualizacion = DateTime.Now;
-                                context.Update(precio);
-                            }
-                        }
-
-                        await context.SaveChangesAsync();
-                    }
-                    return Ok(precios);
+                    
                 }
 
+                List<PrecioProgramado> precios = new List<PrecioProgramado>();
+                precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
+
+                if (precios.Count > 0)
+                {
+                    foreach (var item in precios)
+                    {
+                        var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
+                        if (precio is null)
+                        {
+                            var precioN = new Precio
+                            {
+                                codCte = item.Cod,
+                                codDes = item.Cod,
+                                codGru = item.codGru,
+                                codPrd = item.codPrd,
+                                codZona = item.Cod,
+                                FchDia = item.FchDia,
+                                FchActualizacion = DateTime.Now,
+                                Pre = item.Pre
+                            };
+                            context.Add(precioN);
+                        }
+                        else
+                        {
+                            precio.Pre = item.Pre;
+                            precio.FchActualizacion = DateTime.Now;
+                            context.Update(precio);
+                        }
+
+                        var precioH = new PrecioHistorico
+                        {
+                            Cod = null!,
+                            pre = item.Pre,
+                            codCte = item.codCte,
+                            codDes = item.codDes,
+                            codGru = (short)item.codGru!,
+                            codPrd = item.codPrd,
+                            codZona = item.codZona,
+                            FchDia = item.FchDia,
+                            FchActualizacion = item.FchActualizacion
+                        };
+
+                        context.Add(precioH);
+                    }
+
+                    await context.SaveChangesAsync();
+                }
+                return Ok(precios);
+
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("programados/lista")]
+        public async Task<ActionResult> GetPreciosProgramados()
+        {
+            try
+            {
+                var precios = await context.PrecioProgramado
+                    .Where(x=>x.FchDia >= DateTime.Today)
+                    .Include(x=>x.Zona)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ToListAsync();
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("programado")]
+        public async Task<ActionResult> PostProgramado([FromBody] Precio precio)
+        {
+            try
+            {
+                precio.Producto = null!;
+                precio.Zona = null!;
+                precio.Destino = null!;
+                precio.Cliente = null!;
+                precio.FchActualizacion = DateTime.Now;
+
+                var precioPro = new PrecioProgramado
+                {
+                    Cod = precio.Cod,
+                    codCte = precio.codCte,
+                    codDes = precio.codDes,
+                    codGru = precio.codGru,
+                    codPrd = precio.codPrd,
+                    codZona = precio.Cod,
+                    FchDia = DateTime.Parse(precio.Fecha),
+                    FchActualizacion = DateTime.Now,
+                    Pre = precio.Pre
+                };
+
+                if (precio.Cod != null)
+                    context.Update(precioPro);
+                else
+                {
+                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.FchDia == precio.FchDia))
+                        return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
+
+                    context.Add(precioPro);
+                }
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
