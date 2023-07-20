@@ -782,7 +782,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 List<string?> folios = new List<string?>();
 
                 folios = context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
-                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente && x.CodPed == 0)
+                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente)
                     .Select(x => x.Folio)
                     .Distinct()
                     .ToList();

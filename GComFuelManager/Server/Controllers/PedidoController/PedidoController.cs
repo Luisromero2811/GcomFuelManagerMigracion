@@ -670,7 +670,7 @@ namespace GComFuelManager.Server.Controllers
                 if (cierres is null)
                     return BadRequest("No existe el cierre.");
 
-                var pedidos = context.OrdenPedido.Where(x => x.Folio!.Equals(folio.Folio))
+                var pedidos = context.OrdenPedido.Where(x => x.Folio!.Equals(folio.Folio) && x.CodPed != 0 && !string.IsNullOrEmpty(x.Folio))
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
                     .Include(x => x.OrdenEmbarque)
@@ -690,7 +690,7 @@ namespace GComFuelManager.Server.Controllers
                     var VolumenCongelado = pedidos.Where(x => x.OrdenEmbarque.Codprd == orden.Codprd
                     && x.OrdenEmbarque.OrdenCierre.Estatus is true
                     && x?.OrdenEmbarque?.Folio is not null
-                    && x?.OrdenEmbarque?.Orden?.BatchId is null).Sum(item =>
+                    && x?.OrdenEmbarque?.Orden is null).Sum(item =>
                     item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
                                     : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
                                     : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())

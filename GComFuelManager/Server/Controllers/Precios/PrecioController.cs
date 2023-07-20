@@ -417,6 +417,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         else
                         {
                             precio.Pre = item.Pre;
+                            precio.FchDia = item.FchDia;
                             precio.FchActualizacion = DateTime.Now;
                             context.Update(precio);
                         }

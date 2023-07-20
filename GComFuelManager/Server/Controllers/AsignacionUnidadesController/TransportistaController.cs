@@ -56,11 +56,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
                 TruckCarrierServiceClient truck = new TruckCarrierServiceClient(TruckCarrierServiceClient.EndpointConfiguration.BasicHttpBinding_TruckCarrierService);
                 truck.ClientCredentials.UserName.UserName = "energasws";
                 truck.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 truck.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
                 try

@@ -222,7 +222,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
-                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(100);
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 try
                 {
