@@ -41,7 +41,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("consecutivo")]
         public int? Consecutivo { get;set; } = 0;
         [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
+        public bool Activo { get; set; } = true;
         [JsonProperty("precioSemanal")]
         public bool? precioSemanal { get; set; } = false;
 

@@ -1,40 +1,15 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using GComFuelManager.Server.Identity;
-using Microsoft.AspNetCore.Http;
+﻿using GComFuelManager.Server.Identity;
 using Microsoft.AspNetCore.Identity;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace GComFuelManager.Server.Helpers
 {
-    public class VerifyUserToken
+    public class VerifyUserId
     {
-        public string GetName(HttpContext httpContext)
-        {
-            string bearerToken = null;
-
-            var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
-
-            if (authHeader != null && authHeader.StartsWith("Bearer "))
-            {
-                bearerToken = authHeader.Substring("Bearer ".Length);
-            }
-
-            var handler = new JwtSecurityTokenHandler();
-
-            if (handler.CanReadToken(bearerToken))
-            {
-                var token = handler.ReadJwtToken(bearerToken);
-
-                var userId = token.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
-                return userId;
-            }
-
-            return "";
-        }
-
         public async Task<string> GetId(HttpContext httpContext, UserManager<IdentityUsuario> userManager)
         {
             string Id = string.Empty;
-
+            
             var authHeader = httpContext.Request.Headers["Authorization"].FirstOrDefault();
 
             if (authHeader != null && authHeader.StartsWith("Bearer "))

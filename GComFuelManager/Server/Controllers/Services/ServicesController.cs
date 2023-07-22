@@ -1,12 +1,15 @@
 ﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference2;
+using ServiceReference7;
+//using ServiceReference2;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -20,12 +23,14 @@ namespace GComFuelManager.Server.Controllers.Services
         private readonly ApplicationDbContext context;
         private readonly VerifyUserToken verify;
         private readonly RequestToFile toFile;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile)
+        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             this.verify = verify;
             this.toFile = toFile;
+            this.userManager = userManager;
         }
 
         #region envio de synthesis
@@ -35,12 +40,11 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService1);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
-
-                WsSaveBillOfLadingRequest request = new WsSaveBillOfLadingRequest();
 
                 if (ordens is null)
                 {
@@ -49,88 +53,91 @@ namespace GComFuelManager.Server.Controllers.Services
                 else
                 {
 
-                    request.BillOfLading = new BillOfLading();
-
-                    request.EnableExplicitRevisioning = new NBool();
-                    request.EnableExplicitRevisioning.Value = true;
-
-                    request.GenerateBolFromOrder = new NBool();
-                    request.GenerateBolFromOrder.Value = false;
-
-                    request.BillOfLading.DeliveryReceiptIndicator = new NInt();
-                    request.BillOfLading.DeliveryReceiptIndicator.Value = 1;
-
-                    request.BillOfLading.LoadType = new NEnumOfLoadTypeEnum();
-                    request.BillOfLading.LoadType.Value = LoadTypeEnum.SCHED;
-
-                    request.BillOfLading.LoadSystem = new NEnumOfLoadSystemEnum();
-                    request.BillOfLading.LoadSystem.Value = LoadSystemEnum.UNKNOWN;
-
-                    request.BillOfLading.Terminal = new Location();
-                    request.BillOfLading.Terminal.LocationId = new Identifier();
-                    request.BillOfLading.Terminal.LocationId.Id = new NLong();
-                    request.BillOfLading.Terminal.LocationId.Id.Value = 1100;
-
-                    request.BillOfLading.Shipper = new BusinessEntity();
-                    request.BillOfLading.Shipper.BusinessEntityId = new Identifier();
-                    request.BillOfLading.Shipper.BusinessEntityId.Id = new NLong();
-                    request.BillOfLading.Shipper.BusinessEntityId.Id.Value = 51004;
-
-                    request.BillOfLading.Stockholder = new BusinessEntity();
-                    request.BillOfLading.Stockholder.BusinessEntityId = new Identifier();
-                    request.BillOfLading.Stockholder.BusinessEntityId.Id = new NLong();
-                    request.BillOfLading.Stockholder.BusinessEntityId.Id.Value = 51004;
-
-                    request.BillOfLading.UnitOfMeasure = new NEnumOfUnitOfMeasureEnum();
-                    request.BillOfLading.UnitOfMeasure.Value = UnitOfMeasureEnum.L;
-
-                    request.BillOfLading.Comments = new FlexComment[1];
-                    request.BillOfLading.Comments[0] = new FlexComment();
-                    request.BillOfLading.Comments[0].CommentText = "Synthesis Web Service Innovacion";
-
-                    request.BillOfLading.ModeOfTransport = new NEnumOfModeOfTransportEnum();
-                    request.BillOfLading.ModeOfTransport.Value = ModeOfTransportEnum.TRUCK;
-
-                    var username = verify.GetName(HttpContext);
-                    if (string.IsNullOrEmpty(username))
-                        return BadRequest();
-
-                    request.BillOfLading.CreatedBy = $"energasws {username}";
-
-                    request.BillOfLading.HeaderId = new NLong();
-                    request.BillOfLading.HeaderId.Value = 50383;
-
-                    request.BillOfLading.ActivityId = new NLong();
-                    request.BillOfLading.ActivityId.Value = 1009;
-
-                    request.BillOfLading.RevisionNumber = new NInt();
-                    request.BillOfLading.RevisionNumber.Value = 1;
-
-                    request.BillOfLading.SeqNum = new NInt();
-                    request.BillOfLading.SeqNum.Value = 10;
-
-                    request.BillOfLading.Destination = new Destination();
-                    request.BillOfLading.Destination.DestinationId = new Identifier();
-                    request.BillOfLading.Destination.DestinationId.Id = new NLong();
-
-                    request.BillOfLading.Customer = new BusinessEntity();
-                    request.BillOfLading.Customer.BusinessEntityId = new Identifier();
-                    request.BillOfLading.Customer.BusinessEntityId.Id = new NLong();
-
-                    request.BillOfLading.StartLoadTime = new NDateTime();
-                    request.BillOfLading.EndLoadTime = new NDateTime();
-                    request.BillOfLading.BolStatus = new NInt();
-
-                    request.BillOfLading.TruckCarrier = new TruckCarrier();
-                    request.BillOfLading.TruckCarrier.BusinessEntityId = new Identifier();
-                    request.BillOfLading.TruckCarrier.BusinessEntityId.Id = new NLong();
-
-                    request.BillOfLading.Driver = new Driver();
-                    request.BillOfLading.Driver.DriverId = new Identifier();
-                    request.BillOfLading.Driver.DriverId.Id = new NLong();
-
                     foreach (var item in ordens)
                     {
+
+                        WsSaveBillOfLadingRequest request = new WsSaveBillOfLadingRequest();
+
+                        request.BillOfLading = new BillOfLading();
+
+                        request.EnableExplicitRevisioning = new NBool();
+                        request.EnableExplicitRevisioning.Value = true;
+
+                        request.GenerateBolFromOrder = new NBool();
+                        request.GenerateBolFromOrder.Value = false;
+
+                        request.BillOfLading.DeliveryReceiptIndicator = new NInt();
+                        request.BillOfLading.DeliveryReceiptIndicator.Value = 1;
+
+                        request.BillOfLading.LoadType = new NEnumOfLoadTypeEnum();
+                        request.BillOfLading.LoadType.Value = LoadTypeEnum.SCHED;
+
+                        request.BillOfLading.LoadSystem = new NEnumOfLoadSystemEnum();
+                        request.BillOfLading.LoadSystem.Value = LoadSystemEnum.UNKNOWN;
+
+                        request.BillOfLading.Terminal = new Location();
+                        request.BillOfLading.Terminal.LocationId = new Identifier();
+                        request.BillOfLading.Terminal.LocationId.Id = new NLong();
+                        request.BillOfLading.Terminal.LocationId.Id.Value = 1100;
+
+                        request.BillOfLading.Shipper = new BusinessEntity();
+                        request.BillOfLading.Shipper.BusinessEntityId = new Identifier();
+                        request.BillOfLading.Shipper.BusinessEntityId.Id = new NLong();
+                        request.BillOfLading.Shipper.BusinessEntityId.Id.Value = 51004;
+
+                        request.BillOfLading.Stockholder = new BusinessEntity();
+                        request.BillOfLading.Stockholder.BusinessEntityId = new Identifier();
+                        request.BillOfLading.Stockholder.BusinessEntityId.Id = new NLong();
+                        request.BillOfLading.Stockholder.BusinessEntityId.Id.Value = 51004;
+
+                        request.BillOfLading.UnitOfMeasure = new NEnumOfUnitOfMeasureEnum();
+                        request.BillOfLading.UnitOfMeasure.Value = UnitOfMeasureEnum.L;
+
+                        request.BillOfLading.Comments = new FlexComment[1];
+                        request.BillOfLading.Comments[0] = new FlexComment();
+                        request.BillOfLading.Comments[0].CommentText = "Synthesis Web Service Innovacion";
+
+                        request.BillOfLading.ModeOfTransport = new NEnumOfModeOfTransportEnum();
+                        request.BillOfLading.ModeOfTransport.Value = ModeOfTransportEnum.TRUCK;
+
+                        var username = verify.GetName(HttpContext);
+                        if (string.IsNullOrEmpty(username))
+                            return BadRequest();
+
+                        request.BillOfLading.CreatedBy = $"energasws {username}";
+
+                        request.BillOfLading.HeaderId = new NLong();
+                        request.BillOfLading.HeaderId.Value = 50383;
+
+                        request.BillOfLading.ActivityId = new NLong();
+                        request.BillOfLading.ActivityId.Value = 1009;
+
+                        request.BillOfLading.RevisionNumber = new NInt();
+                        request.BillOfLading.RevisionNumber.Value = 1;
+
+                        request.BillOfLading.SeqNum = new NInt();
+                        request.BillOfLading.SeqNum.Value = 10;
+
+                        request.BillOfLading.Destination = new Destination();
+                        request.BillOfLading.Destination.DestinationId = new Identifier();
+                        request.BillOfLading.Destination.DestinationId.Id = new NLong();
+
+                        request.BillOfLading.Customer = new BusinessEntity();
+                        request.BillOfLading.Customer.BusinessEntityId = new Identifier();
+                        request.BillOfLading.Customer.BusinessEntityId.Id = new NLong();
+
+                        request.BillOfLading.StartLoadTime = new NDateTime();
+                        request.BillOfLading.EndLoadTime = new NDateTime();
+                        request.BillOfLading.BolStatus = new NInt();
+
+                        request.BillOfLading.TruckCarrier = new TruckCarrier();
+                        request.BillOfLading.TruckCarrier.BusinessEntityId = new Identifier();
+                        request.BillOfLading.TruckCarrier.BusinessEntityId.Id = new NLong();
+
+                        request.BillOfLading.Driver = new Driver();
+                        request.BillOfLading.Driver.DriverId = new Identifier();
+                        request.BillOfLading.Driver.DriverId.Id = new NLong();
+
                         var bolguid = context.OrdenEmbarque.Find(item.Cod);
                         if (bolguid == null)
                             return BadRequest();
@@ -145,7 +152,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             if (folio == 0)
                                 return BadRequest();
-                            folio = folio + 1;
+                            folio++;
                             request.BillOfLading.CustomerReference = $"ENER-{folio}";
 
                             request.BillOfLading.BolStatus.Value = 34; // 34=SCHEDULED;12 = DRAFT;24 = PENDING
@@ -156,7 +163,8 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.CarrId!);
 
                             var pedidos = ordens.Where(x => x!.Codton == item.Codton
-                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar).ToList();
+                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar 
+                            && string.IsNullOrEmpty(x.Bolguidid) && x.Codest == 3).ToList();
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
@@ -251,16 +259,26 @@ namespace GComFuelManager.Server.Controllers.Services
                             {
                                 BillOfLading billOfLading = response.BillOfLadings[0];
 
-                                pedidos.ForEach(x =>
-                                {
-                                    x.Bolguidid = billOfLading.BolGuidId;
-                                    x.Folio = folio;
-                                });
+                                //pedidos.ForEach(x =>
+                                //{
+                                //    x.Bolguidid = billOfLading.BolGuidId;
+                                //    x.Folio = folio;
+                                //});
 
-                                var ordenembarque = pedidos.ToList();
+                                //var ordenembarque = pedidos.ToList();
 
-                                context.UpdateRange(ordenembarque!);
-                                await context.SaveChangesAsync();
+                                //context.UpdateRange(ordenembarque!);
+
+                                item.Bolguidid = billOfLading.BolGuidId;
+                                item.Folio = folio;
+
+                                context.Update(item);
+
+                                var id = await verify.GetId(HttpContext, userManager);
+                                if (string.IsNullOrEmpty(id))
+                                    return BadRequest();
+
+                                await context.SaveChangesAsync(id,10);
                             }
                         }
                     }
@@ -288,6 +306,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 WsSaveBillOfLadingRequest request = new WsSaveBillOfLadingRequest();
 
@@ -507,7 +526,12 @@ namespace GComFuelManager.Server.Controllers.Services
                             var ordenembarque = pedidos.ToList();
 
                             context.UpdateRange(ordenembarque!);
-                            await context.SaveChangesAsync();
+
+                            var id = await verify.GetId(HttpContext, userManager);
+                            if (string.IsNullOrEmpty(id))
+                                return BadRequest();
+
+                            await context.SaveChangesAsync(id,21);
                         }
                     }
 
@@ -533,7 +557,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
-                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(20);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
 
@@ -577,7 +601,7 @@ namespace GComFuelManager.Server.Controllers.Services
                         orden.Dendes = item.Destination.DestinationName;
                         orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
 
-                        if(item.SealNumber is not null)
+                        if (item.SealNumber is not null)
                         {
                             foreach (var seal in item.SealNumber)
                             {
@@ -590,7 +614,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         foreach (var line in item.LineItems)
                         {
-                            if(line.BaseGravity is not null)
+                            if (line.BaseGravity is not null)
                             {
                                 orden.Liniteid = line.BolLineItemId.Id.Value;
                                 if (!context.Orden.Any(x => x.Liniteid == orden.Liniteid))
@@ -625,17 +649,17 @@ namespace GComFuelManager.Server.Controllers.Services
                                     }
 
                                     var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
-                                    
+
                                     if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
 
                                     orden.Coduni = tonel.Cod;
 
                                     var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
-                                    
+
                                     if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
-                                    
+
                                     var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
-                                    
+
                                     if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
 
                                     orden.Codchf = cho.Cod;
@@ -646,7 +670,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                     orden.Codprd = prd.Cod;
 
-                                    var prd2 = context.Producto.FirstOrDefault(x=>x.Codsyn == orden.Codprd2syn.ToString());
+                                    var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
 
                                     if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
 
@@ -682,7 +706,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
-                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(20);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
 
@@ -821,6 +845,7 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
+        #region Simulacion Synthesis#
         [HttpPost]
         [Route("simulacion/synthesis")]
         public async Task<ActionResult> Siumulacion([FromBody] List<OrdenEmbarque> ordenes)
@@ -841,7 +866,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                     Random rand = new Random();
                     int randomNumber = rand.Next(1, 100001);
-                    
+
                     x.Folio = randomNumber;
                 });
 
@@ -855,7 +880,9 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+        #endregion#
 
+        #region Simulacion Cargadas#
         [HttpGet]
         [Route("simulacion/cargadas")]
         public async Task<ActionResult> SimulacionObtener()
@@ -863,9 +890,9 @@ namespace GComFuelManager.Server.Controllers.Services
             try
             {
                 var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid == null)
-                    .Include(x=>x.Destino)
+                    .Include(x => x.Destino)
                     .ToListAsync();
-                
+
                 if (ordenes is null)
                     return NoContent();
 
@@ -899,14 +926,14 @@ namespace GComFuelManager.Server.Controllers.Services
                         Vol2 = item.Vol,
                         Dendes = item.Destino?.Den,
                         CompartmentId = item.CompartmentId,
-                        Liniteid = random.Next(1,100001)
+                        Liniteid = random.Next(1, 100001)
                     };
 
                     context.Add(orden);
                 }
 
                 await context.SaveChangesAsync();
-                
+
                 return NoContent();
             }
             catch (Exception e)
@@ -914,6 +941,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+        #endregion#
 
         [HttpGet]
         public async Task<ActionResult> CerrarOrdenes()

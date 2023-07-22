@@ -53,9 +53,22 @@
                                             </button>
                                         </div>
                                     </div>
-                                </AuthorizeView>
-                                <div class="col-4 row">
-                                    <div class="col-6">
+                                    <div class="col-3 mb-2">
+                                        <label class="form-label">Del:</label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
+                                    </div>
+                                    <div class="col-3 mb-2">
+                                        <label class="form-label">A:</label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
+                                    </div>
+                                    <div class="col-3">
+                                        <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
+                                            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar folios
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-12 row">
+                                    <div class="col-3">
                                         <label class="form-label">Folio</label>
                                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
                                         <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
@@ -66,7 +79,7 @@
                                             </ValueTemplate>
                                         </RadzenDropDown>
                                     </div>
-                                    <div class="col-6 d-flex">
+                                    <div class="col-3 d-flex">
                                         <div class="col-12 mt-auto">
                                             <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
                                                 <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedido
@@ -74,6 +87,8 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-12 row">
                                 <AuthorizeView Context="MonthFilter" Roles="Cliente Lectura">
                                     <Authorized>
                                         <div class="col-3">
@@ -97,7 +112,7 @@
                                                 }
                                             </InputSelect>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-3">
                                             <label class="form-label">Mes</label>
                                             <InputSelect @bind-Value="mesSeleccionado" class="form-select">
                                                 <option>-- Selecciona una opcion --</option>
@@ -118,7 +133,7 @@
                                                 }
                                             </InputSelect>
                                         </div>
-                                        <div class="col-1 d-flex ">
+                                        <div class="col-3 d-flex ">
                                             <div class="col-12 mt-auto">
                                                 <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
                                                     <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedidos

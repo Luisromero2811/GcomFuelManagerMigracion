@@ -13,12 +13,12 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fchOrd")] public DateTime? FchOrd { get; set; }
         [JsonProperty("fchPro")] public DateTime? FchPro { get; set; }
         [JsonProperty("codtad")] public Int16? Codtad { get; set; } = 1;
-        [JsonProperty("codprd")] public byte? Codprd { get; set; } = 0;
+        [JsonProperty("codprd")] public byte? Codprd { get; set; }
         [JsonProperty("vol"), EpplusIgnore] public double? Vol { get; set; } = 0;
         [DisplayName("Volumen")]
         public string Volumenes { get { return Vol.Value.ToString("N2"); } }
         [JsonProperty("codchf")] public int? Codchf { get; set; }
-        [JsonProperty("coddes")] public int? Coddes { get; set; } = 0;
+        [JsonProperty("coddes")] public int? Coddes { get; set; }
         [JsonProperty("codest")] public byte? Codest { get; set; }
         [JsonProperty("fchpet")] public DateTime? Fchpet { get; set; }
         [JsonProperty("fchcar")] public DateTime? Fchcar { get; set; } = DateTime.Today;

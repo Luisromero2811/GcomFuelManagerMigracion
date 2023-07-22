@@ -11,6 +11,9 @@ using ServiceReference6;
 using ServiceReference3;
 using GComFuelManager.Shared.Modelos;
 using Newtonsoft.Json;
+using GComFuelManager.Server.Helpers;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -20,10 +23,14 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     public class ChoferController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ChoferController(ApplicationDbContext context)
+        public ChoferController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
+            this.verifyUser = verifyUser;
+            this.userManager = userManager;
         }
         [HttpGet("{transportista:int}")]
         public async Task<ActionResult> Get(int transportista)
@@ -52,7 +59,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
-                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
 
                 try
                 {
@@ -184,7 +192,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             }
 
                         }
-                        await context.SaveChangesAsync();
+
+                        var id = await verifyUser.GetId(HttpContext, userManager);
+                        if (string.IsNullOrEmpty(id))
+                            return BadRequest();
+
+                        await context.SaveChangesAsync(id,13);
                         return Ok(true);
                     }
                     else
