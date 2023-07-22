@@ -60,7 +60,6 @@ namespace GComFuelManager.Shared.Modelos
         public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
         public string? SealNumber { get; set; } = string.Empty;
-
         [NotMapped] public long Codprdsyn { get; set; } = 0;
         [NotMapped] public long Codprd2syn { get; set; } = 0;
         [NotMapped] public long Codchfsyn { get; set; } = 0;

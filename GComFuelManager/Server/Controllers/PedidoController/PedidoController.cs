@@ -390,7 +390,7 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
+        
         [Route("binNumber")]
         [HttpGet]
         public async Task<ActionResult> GetLastBin()
