@@ -14,6 +14,8 @@ using GComFuelManager.Shared.Modelos;
 using ServiceReference3;
 using System.Text.Json;
 using GComFuelManager.Server.Helpers;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -24,11 +26,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     {
         private readonly ApplicationDbContext context;
         private readonly RequestToFile toFile;
+        private readonly VerifyUserId verifyUser;
+        private readonly UserManager<IdentityUsuario> UserManager;
 
-        public TransportistaController(ApplicationDbContext context, RequestToFile toFile)
+        public TransportistaController(ApplicationDbContext context, RequestToFile toFile, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager)
         {
             this.context = context;
             this.toFile = toFile;
+            this.verifyUser = verifyUser;
+            this.UserManager = UserManager;
         }
 
         [HttpGet]
@@ -56,11 +62,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
                 TruckCarrierServiceClient truck = new TruckCarrierServiceClient(TruckCarrierServiceClient.EndpointConfiguration.BasicHttpBinding_TruckCarrierService);
                 truck.ClientCredentials.UserName.UserName = "energasws";
                 truck.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 truck.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
                 try
@@ -149,8 +157,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             }
                         }
                     }
+
+                    var id = await verifyUser.GetId(HttpContext, UserManager);
+                    if (string.IsNullOrEmpty(id))
+                        return BadRequest();
+
                     //Guarda los cambios
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 12);
 
                 }
                 catch (Exception e)

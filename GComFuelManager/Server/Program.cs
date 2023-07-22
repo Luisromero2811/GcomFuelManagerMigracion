@@ -52,6 +52,7 @@ builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
 builder.Services.AddScoped<IPreciosService, PreciosService>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
+builder.Services.AddSingleton<VerifyUserId>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
 builder.Services.Configure<CookiePolicyOptions>(options =>

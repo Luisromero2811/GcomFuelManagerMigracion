@@ -11,6 +11,7 @@ using GComFuelManager.Shared.Modelos;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Security.Claims;
+using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.UsuarioController
 {
@@ -21,11 +22,13 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserId verifyUser;
 
-        public UsuarioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        public UsuarioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {
             this.context = context;
             this.userManager = userManager;
+            this.verifyUser = verifyUser;
         }
         [HttpGet("list")]
         public async Task<ActionResult> GetUsers()
@@ -95,7 +98,12 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     CodGru = info.CodGru
                 };
                 context.Add(newUserSistema);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 17);
                 var newUserAsp = new IdentityUsuario { UserName = newUserSistema.Usu, UserCod = newUserSistema.Cod };
                 var result = await userManager.CreateAsync(newUserAsp, newUserSistema.Cve);
                 //Si el resultado no fue exitoso
@@ -145,7 +153,12 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 updateUserSistema.IsClient = info.IsClient;
                 //Actualizacion de registros
                 context.Update(updateUserSistema);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 18);
                 //Actualizar Usuario de Identity AspNet
                 var updateUserAsp = await userManager.FindByIdAsync(info.Id);
 
@@ -199,9 +212,15 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     return NotFound();
                 }
                 usuario.Activo = info.Activo;
+                var state = usuario.Activo ? 20 : 19;
                 //Función para actualizar el estado activo del usuario
                 context.Update(usuario);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, state);
                 return Ok();
             }
             catch (Exception e)

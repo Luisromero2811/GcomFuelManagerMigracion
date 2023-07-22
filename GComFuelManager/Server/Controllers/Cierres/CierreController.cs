@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Identity;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,11 +18,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
     public class CierreController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
 
-        public CierreController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        public CierreController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {
             this.context = context;
             UserManager = userManager;
+            this.verifyUser = verifyUser;
         }
 
         public UserManager<IdentityUsuario> UserManager { get; }
@@ -150,7 +153,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                orden.OrdenEmbarque = null;
+                orden.OrdenEmbarque = null!;
+                orden.Cliente = null!;
+                orden.Producto = null!;
+                orden.Destino = null!;
                 var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 if (user == null)
                     return NotFound();
@@ -175,7 +181,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 orden.FchVencimiento = orden.FchCierre?.AddDays(8);
                 context.Add(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,1);
 
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
@@ -431,7 +442,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 context.UpdateRange(ordens);
 
-                await context.SaveChangesAsync();
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,5);
 
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Estatus == true)
                     .Include(x => x.OrdenEmbarque)
@@ -740,7 +755,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Activa = false;
 
                 context.Update(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 16);
 
                 return Ok(true);
             }
@@ -779,7 +799,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 List<string?> folios = new List<string?>();
 
                 folios = context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
-                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente && x.CodPed == 0)
+                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente)
                     .Select(x => x.Folio)
                     .Distinct()
                     .ToList();

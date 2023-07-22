@@ -12,6 +12,9 @@ using System.ServiceModel;
 using ServiceReference8;
 using System.Drawing;
 using System;
+using GComFuelManager.Server.Helpers;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -21,10 +24,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
     public class ClientesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ClientesController(ApplicationDbContext context)
+        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager)
         {
             this.context = context;
+            this.verifyUser = verifyUser;
+            userManager = UserManager;
         }
 
         [HttpGet]
@@ -175,7 +182,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 //cliente.precioSemanal = status;
 
                 context.Update(cliente);
-                await context.SaveChangesAsync();
+
+                var state = cliente.Activo! ? 22 : 23;
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,state);
 
                 return Ok();
             }
@@ -219,10 +232,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
-                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(100);
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 try
                 {
@@ -327,7 +345,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         else
                         {
                             context.Add(cliente);
-                            await context.SaveChangesAsync();
+                            await context.SaveChangesAsync(id, 11);
                             //Obtención del código del cliente
                             Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
                                 .DefaultIfEmpty()
@@ -391,7 +409,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                     }
 
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 11);
                     return Ok(true);
                 }
                 catch (Exception e)
