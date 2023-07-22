@@ -1,8 +1,10 @@
 ﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -21,12 +23,14 @@ namespace GComFuelManager.Server.Controllers.Services
         private readonly ApplicationDbContext context;
         private readonly VerifyUserToken verify;
         private readonly RequestToFile toFile;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile)
+        public ServicesController(ApplicationDbContext context, VerifyUserToken verify, RequestToFile toFile, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
             this.verify = verify;
             this.toFile = toFile;
+            this.userManager = userManager;
         }
 
         #region envio de synthesis
@@ -269,8 +273,12 @@ namespace GComFuelManager.Server.Controllers.Services
                                 item.Folio = folio;
 
                                 context.Update(item);
-                                
-                                 await context.SaveChangesAsync();
+
+                                var id = await verify.GetId(HttpContext, userManager);
+                                if (string.IsNullOrEmpty(id))
+                                    return BadRequest();
+
+                                await context.SaveChangesAsync(id,10);
                             }
                         }
                     }
@@ -518,7 +526,12 @@ namespace GComFuelManager.Server.Controllers.Services
                             var ordenembarque = pedidos.ToList();
 
                             context.UpdateRange(ordenembarque!);
-                            await context.SaveChangesAsync();
+
+                            var id = await verify.GetId(HttpContext, userManager);
+                            if (string.IsNullOrEmpty(id))
+                                return BadRequest();
+
+                            await context.SaveChangesAsync(id,21);
                         }
                     }
 

@@ -1,7 +1,10 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,10 +18,14 @@ namespace GComFuelManager.Server.Controllers.Contactos
     public class ContactoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> UserManager;
+        private readonly VerifyUserId verifyUser;
 
-        public ContactoController(ApplicationDbContext context)
+        public ContactoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser)
         {
             this.context = context;
+            this.UserManager = UserManager;
+            this.verifyUser = verifyUser;
         }
 
         [HttpGet("cliente/{cod:int}")]
@@ -78,7 +85,11 @@ namespace GComFuelManager.Server.Controllers.Contactos
                     }
                 }
 
-                await context.SaveChangesAsync();
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 24);
 
                 return Ok();
             }
@@ -92,6 +103,10 @@ namespace GComFuelManager.Server.Controllers.Contactos
         {
             try
             {
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
                 if (contacto.Cod == 0)
                 {
                     if (contacto == null)
@@ -101,7 +116,7 @@ namespace GComFuelManager.Server.Controllers.Contactos
                     else
 
                         context.Add(contacto);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 24);
 
                     foreach (var item in contacto.accione)
                     {
@@ -135,12 +150,12 @@ namespace GComFuelManager.Server.Controllers.Contactos
                             context.Add(accionCorreo);
                         }
                     }
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 25);
 
                     contacto.AccionCorreos = null!;
 
                     context.Update(contacto);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 25);
 
                 }
                 await context.SaveChangesAsync();
@@ -181,7 +196,12 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 contacto.AccionCorreos = null!;
 
                 context.Update(contacto);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 25);
 
                 return Ok();
             }
@@ -207,7 +227,12 @@ namespace GComFuelManager.Server.Controllers.Contactos
                 contacto.Estado = status;
 
                 context.Update(contacto);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 25);
 
                 return Ok();
             }

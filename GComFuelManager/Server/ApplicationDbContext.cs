@@ -3,6 +3,7 @@ using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 
 namespace GComFuelManager.Server
 {
@@ -11,6 +12,70 @@ namespace GComFuelManager.Server
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public virtual async Task<int> SaveChangesAsync(string? id, int? accion)
+        {
+            if (!string.IsNullOrEmpty(id) && accion != 0)
+                OnBeforeSaveChanges(id, accion);
+            var Results = await base.SaveChangesAsync();
+            return Results;
+        }
+
+        private void OnBeforeSaveChanges(string? id, int? accion)
+        {
+            ChangeTracker.DetectChanges();
+            var AccEntries = new List<ActividadDTO>();
+            foreach (var item in ChangeTracker.Entries())
+            {
+                if (item.Entity is ActividadRegistrada || item.State == EntityState.Detached || item.State == EntityState.Unchanged)
+                    continue;
+
+                var actividad = new ActividadDTO(item);
+
+                actividad.TableName = item.Entity.GetType().Name; //obtiene el nombre de la tabla
+                actividad.UserId = id;
+                actividad.AuditType = accion;
+
+                AccEntries.Add(actividad);
+
+                foreach (var prop in item.Properties)
+                {
+                    string propName = prop.Metadata.Name;
+
+                    //si la propiedad actual es una clave principal, agréguela al diccionario de claves principales y sáltela.
+                    if (prop.Metadata.IsPrimaryKey())
+                    {
+                        actividad.KeyValues[propName] = prop.CurrentValue!;
+                    }
+
+                    //en el switch detectamos el estado de la entidad (Agregado, Eliminado o Modificado)
+                    //y por cada caso agregamos nuevos datos a cada campo de la tabla auditoria
+                    switch (item.State)
+                    {
+                        case EntityState.Deleted:
+                            actividad.OldValues[propName] = prop.OriginalValue!;
+                            break;
+                        case EntityState.Modified:
+                            if (prop.IsModified)
+                            {
+                                actividad.ChangedColumns.Add(propName);
+                                actividad.OldValues[propName] = prop.OriginalValue!;
+                                actividad.NewValues[propName] = prop.CurrentValue!;
+                            }
+                            break;
+                        case EntityState.Added:
+                            actividad.NewValues[propName] = prop.CurrentValue!;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            //convertimos todas las Entradas de Auditoría a Auditorías y guardamos los cambios en el metodo original: var result = await base.SaveChangesAsync();
+            foreach (var item in AccEntries)
+                ActividadRegistrada.Add(item.ToAudit());
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -62,7 +127,7 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Tonel>()
                 .HasOne(x => x.Transportista)
                 .WithMany()
-                .HasPrincipalKey(x=>x.CarrId)
+                .HasPrincipalKey(x => x.CarrId)
                 .IsRequired(false)
                 .HasForeignKey(x => x.Carid)
                 .IsRequired(false);
@@ -78,9 +143,9 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.Codcte);
             //Estado
             modelBuilder.Entity<OrdenEmbarque>()
-                .HasOne(x=>x.Estado)
+                .HasOne(x => x.Estado)
                 .WithMany()
-                .HasForeignKey(x=>x.Codest);
+                .HasForeignKey(x => x.Codest);
             //Relaciones Tabla de OrdEmbDet
             modelBuilder.Entity<OrdEmbDet>()
                 .HasOne(x => x.Orden)
@@ -213,9 +278,9 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.CodPed);
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
-                .WithOne(x=>x.OrdenEmbarque)
+                .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenEmbarque>(x => x.Bolguidid)
-                .HasPrincipalKey<Orden>(x=>x.Bolguiid);
+                .HasPrincipalKey<Orden>(x => x.Bolguiid);
 
             modelBuilder.Entity<AccionCorreo>()
                 .HasOne(x => x.Accion)
@@ -229,7 +294,7 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<Contacto>()
                 .HasMany(x => x.AccionCorreos)
-                .WithOne(x=>x.Contacto)
+                .WithOne(x => x.Contacto)
                 .HasForeignKey(x => x.CodContacto);
 
             modelBuilder.Entity<OrdenEmbarque>()
@@ -299,5 +364,6 @@ namespace GComFuelManager.Server
         public DbSet<AccionCorreo> AccionCorreo { get; set; }
         public DbSet<Porcentaje> Porcentaje { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
+        public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
     }
 }

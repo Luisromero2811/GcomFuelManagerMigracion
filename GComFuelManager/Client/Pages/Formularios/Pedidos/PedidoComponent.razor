@@ -430,7 +430,7 @@
     private int ClienteSeleccionadoFiltro = 0;
 
     private Cliente Cliente { get; set; } = new Cliente();
-        private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
+    private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
 
     private List<int> ordenPendientes = new List<int>();
 
@@ -587,75 +587,6 @@
         }
     }
 
-    private async Task GetOrdenesPendientes()
-    {
-        try
-        {
-            List<int>? ordenesPendientes = new List<int>();
-            try
-            {
-                if (await js.GetItemLocalStorage("PEDIDO") != null)
-                {
-                    ordenesPendientes = JsonConvert.DeserializeObject<List<int>>(await js.GetItemLocalStorage("PEDIDO"));
-                    ordens = null!;
-                    StateHasChanged();
-                }
-            }
-            catch (Exception e)
-            {
-                await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            }
-
-            DateTime expiration;
-            if (DateTime.TryParse(await js.GetItemLocalStorage("EXPIRACIONPEDIDO"), out expiration))
-            {
-                if (DateTime.Today.Date < expiration)
-                {
-                    var response = await http.Post<List<int>, List<OrdenEmbarque>>("api/pedido/list", ordenesPendientes);
-
-                    if (response.Error)
-                    {
-                        var message = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        ordens = response.Response;
-                        ordenPendientes = ordenesPendientes;
-                    }
-                }
-                else
-                {
-                    try
-                    {
-                        foreach (var item in ordenesPendientes)
-                        {
-                            var response = await http.Delete($"api/pedido/{item}/cancel");
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                        }
-                        ordens = new List<OrdenEmbarque>();
-                        await js.RemoveItemLocalStorage("PEDIDO");
-                        await js.RemoveItemLocalStorage("EXPIRACIONPEDIDO");
-                    }
-                    catch (Exception e)
-                    {
-                        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                        throw e;
-                    }
-                }
-            }
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     public async Task GetTerminales()
     {
         try
@@ -720,44 +651,6 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
-        }
-    }
-
-    private async Task SavePedido()
-    {
-        loadingAgregar = true;
-        try
-        {
-            if (ordenEmbarque.Codtad != 0 && ordenCierre.CodPrd != 0 && ordenCierre.CodDes != 0 && ordenCierre.Volumen != 0)
-            {
-                ordenEmbarque.Codest = 9;
-                ordenEmbarque.Fchpet = DateTime.Now;
-                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
-                if (response.Error)
-                {
-                    loadingAgregar = false;
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    loadingAgregar = false;
-                    if (response.Response is not null)
-                    {
-                        ordens.Add(response.Response);
-                    }
-                }
-            }
-            else
-            {
-                await Swal.FireAsync("Advertencia", "Revise que no falte ningun campo en el formulario por llenar.", SweetAlertIcon.Warning);
-                loadingAgregar = false;
-            }
-        }
-        catch (Exception e)
-        {
-            loadingAgregar = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
@@ -1018,8 +911,8 @@
                 {
                     Cliente = response.Response;
                     Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-
-                    ordenCierre.Folio = Cliente.CodCte != null ? User.Identity?.Name?.Substring(0, 3) + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+                    var userCod = User.Identity?.Name?.Substring(0, 3);
+                    ordenCierre.Folio = $"{userCod}{Cliente.Consecutivo}";
                 }
 
                 await PutClientes();

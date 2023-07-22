@@ -1,7 +1,10 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -19,10 +22,15 @@ namespace GComFuelManager.Server.Controllers
     public class PedidoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserToken verifyUser;
+        private readonly string Id = string.Empty;
 
-        public PedidoController(ApplicationDbContext context)
+        public PedidoController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
         {
             this.context = context;
+            this.userManager = userManager;
+            this.verifyUser = verifyUser;
         }
 
         [HttpGet]
@@ -85,7 +93,12 @@ namespace GComFuelManager.Server.Controllers
 
                 pedido.Codest = 14;
                 context.Update(pedido);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,4);
 
                 return Ok();
             }
@@ -350,8 +363,8 @@ namespace GComFuelManager.Server.Controllers
         }
 
         //Method para realizar (agregar) pedido
-        [HttpPost]
-        public async Task<ActionResult> Post(OrdenEmbarque orden)
+        //[HttpPost]
+        private async Task<ActionResult> Post(OrdenEmbarque orden)
         {
             try
             {
@@ -365,7 +378,11 @@ namespace GComFuelManager.Server.Controllers
                 orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
 
                 context.Add(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+                await context.SaveChangesAsync(id,2);
                 return Ok(orden);
             }
             catch (Exception e)
@@ -420,7 +437,12 @@ namespace GComFuelManager.Server.Controllers
                 });
                 
                 context.UpdateRange(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+                
+                await context.SaveChangesAsync(id,15);
                 return Ok(newFolio);
             }
             catch (Exception e)
@@ -630,7 +652,12 @@ namespace GComFuelManager.Server.Controllers
                     orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
 
                     context.Add(orden);
-                    await context.SaveChangesAsync();
+
+                    var id = await verifyUser.GetId(HttpContext, userManager);
+                    if (string.IsNullOrEmpty(id))
+                        return BadRequest();
+
+                    await context.SaveChangesAsync(id,2);
                     return Ok(orden);
                 }
             }

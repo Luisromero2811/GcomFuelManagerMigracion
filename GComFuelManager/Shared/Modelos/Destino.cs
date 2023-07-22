@@ -32,7 +32,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("esenergas")]
         public bool? Esenergas { get; set; } = false;
         [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
+        public bool Activo { get; set; } = true;
         [JsonProperty("lat"), MaxLength(50)]
         public string? Lat { get; set; } = string.Empty;
         [JsonProperty("lon"), MaxLength(50)]

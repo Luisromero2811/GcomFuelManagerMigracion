@@ -12,6 +12,8 @@ using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 using GComFuelManager.Shared.GamoModels;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -22,11 +24,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 	{
         private readonly ApplicationDbContext context;
         private readonly VerifyUserToken verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser)
+        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser, UserManager<IdentityUsuario> userManager)
 		{
             this.context = context;
             this.verifyUser = verifyUser;
+            this.userManager = userManager;
         }
         
         [HttpGet]
@@ -89,6 +93,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 destino.Activo = status;
 
                 context.Update(destino);
+                var acc = destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
                 await context.SaveChangesAsync();
 
                 return Ok();

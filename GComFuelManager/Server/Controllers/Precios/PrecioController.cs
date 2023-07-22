@@ -108,6 +108,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var acc = 0;
                 precio.Producto = null!;
                 precio.Zona = null!;
                 precio.Destino = null!;
@@ -115,13 +116,17 @@ namespace GComFuelManager.Server.Controllers.Precios
                 precio.FchActualizacion = DateTime.Now;
 
                 if (precio.Cod != null)
+                {
                     context.Update(precio);
+                    acc = 6;
+                }
                 else
                 {
                     if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precio);
+                    acc = 3;
                 }
                 var precioH = new PrecioHistorico
                 {
@@ -137,8 +142,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                 };
 
                 context.Add(precioH);
-
-                await context.SaveChangesAsync();
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+                await context.SaveChangesAsync(id,acc);
 
                 return Ok();
             }
@@ -345,7 +352,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     context.AddRange(prec);
                 }
 
-                await context.SaveChangesAsync();
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,8);
 
                 return Ok();
             }
