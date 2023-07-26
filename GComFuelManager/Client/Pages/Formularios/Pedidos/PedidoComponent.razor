@@ -331,9 +331,10 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowColumnPicking="true">
             <Columns>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="170px" Visible="true" Frozen="true">
-                    <Template Context="item">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="170px" Visible="true" Frozen="true">
+                        <Template Context="item">
+
                             <div class="col-12 row">
                                 @if (item.OrdenEmbarque!.CodordCom is null)
                                 {
@@ -345,12 +346,12 @@
                                     </div>
                                 }
                             </div>
-                        </AuthorizeView>
-                    </Template>
-                </RadzenDataGridColumn>
 
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="80px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="90px" Frozen="true"/>
+                        </Template>
+                    </RadzenDataGridColumn>
+                </AuthorizeView>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="80px" Frozen="true" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="90px" Frozen="true" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" />
