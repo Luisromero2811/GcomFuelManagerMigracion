@@ -10,6 +10,9 @@ using ServiceReference1;
 using Newtonsoft.Json;
 using GComFuelManager.Shared.Modelos;
 using System.Numerics;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -19,10 +22,14 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
     public class VehiculoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> UserManager;
+        private readonly VerifyUserId verifyUser;
 
-        public VehiculoController(ApplicationDbContext context)
+        public VehiculoController(ApplicationDbContext context,UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser)
         {
             this.context = context;
+            UserManager = UserManager;
+            this.verifyUser = verifyUser;
         }
         [HttpGet("{transportista:int}")]
         public async Task<ActionResult> Get(int transportista)
@@ -53,6 +60,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
                 try
                 {
@@ -191,7 +199,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             }
 
                         }
-                        await context.SaveChangesAsync();
+
+                        var id = await verifyUser.GetId(HttpContext, UserManager);
+                        if (string.IsNullOrEmpty(id))
+                            return BadRequest();
+
+                        await context.SaveChangesAsync(id, 14);
                         return Ok(true);
                     }
                     else
@@ -223,7 +236,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 context.Update(tonel);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,7);
 
                 return Ok();
             }
@@ -273,7 +291,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     }
                 }
                 context.Update(tonel);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 7);
 
                 return Ok(tonel);
             }

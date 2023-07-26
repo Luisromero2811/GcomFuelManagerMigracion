@@ -1,8 +1,11 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +17,14 @@ namespace GComFuelManager.Server.Controllers
     public class GrupoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public GrupoController(ApplicationDbContext context)
+        public GrupoController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
+            this.verifyUser = verifyUser;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -62,7 +69,12 @@ namespace GComFuelManager.Server.Controllers
             {
                 grupo.Fch = DateTime.Now;
                 context.Add(grupo);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id,28);
                 return Ok();
             }
             catch (Exception e)

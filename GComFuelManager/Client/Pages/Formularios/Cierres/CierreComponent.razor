@@ -403,61 +403,26 @@
                                         </div>
 
                                         <div class="col-12 d-flex justify-content-center mt-3">
-                                            @if (!isEdit)
-                                            {
-                                                @if (monthFilter == false)
-                                                {
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" type="submit">
-                                                            <i class="fa fa-solid fa-plus"></i>
-                                                            <b>Crear cierre</b>
-                                                            @if (loadingCreate)
-                                                            {
-                                                                <SpinnerLoading></SpinnerLoading>
-                                                            }
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-3 mx-2">
-                                                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail">
-                                                            <i class="fa fa-solid fa-envelope"></i>
-                                                            <b>Enviar cierre</b>
-                                                            @if (loadingSend)
-                                                            {
-                                                                <SpinnerLoading></SpinnerLoading>
-                                                            }
-                                                        </button>
-                                                    </div>
-                                                }
-                                                @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia" Context="Exportacion">
-                                                        <div class="col-3 mx-2">
-                                                            <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">
-                                                                <i class="fa fa-solid fa-file-excel"></i>
-                                                                <b>Exportar Cierres</b>
-                                                                @if (loadingExport)
-                                                                {
-                                                                    <SpinnerLoading></SpinnerLoading>
-                                                                }
-                                                            </button>
-                                                        </div>
-                                                    </AuthorizeView>*@
-                                            }
-                                            else
+                                            @if (monthFilter == false)
                                             {
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@UpateOrden">
-                                                        <i class="fa fa-solid fa-floppy-disk"></i>
-                                                        <b>Guardar cambio</b>
+                                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                                        <i class="fa fa-solid fa-plus"></i>
+                                                        <b>Crear cierre</b>
                                                         @if (loadingCreate)
                                                         {
-                                                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                                            <span class="visually-hidden">Loading...</span>
+                                                            <SpinnerLoading></SpinnerLoading>
                                                         }
                                                     </button>
                                                 </div>
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@cancelEdit">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                        <b>Cancelar cambio</b>
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail">
+                                                        <i class="fa fa-solid fa-envelope"></i>
+                                                        <b>Enviar cierre</b>
+                                                        @if (loadingSend)
+                                                        {
+                                                            <SpinnerLoading></SpinnerLoading>
+                                                        }
                                                     </button>
                                                 </div>
                                             }
@@ -1023,96 +988,6 @@
         ordenCierre = new OrdenCierre();
     }
 
-    private async Task UpateOrden()
-    {
-        try
-        {
-            loadingCreate = true;
-
-            var responseEM = await http.Put<OrdenCierre>($"api/pedido/cierre/update/{ordenCierre.CodPed}", ordenCierre);
-            if (responseEM.Error)
-            {
-                loadingCreate = false;
-                var message = await responseEM.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                var response = await http.Post<OrdenCierre, OrdenCierre>("api/cierre/update", ordenCierre);
-                if (response.Error)
-                {
-                    loadingCreate = false;
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    loadingCreate = false;
-                    var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
-                    ordenCierres.RemoveAt(index);
-                    ordenCierres.Insert(index, response.Response);
-                    ms.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos del cierre {ordenCierre.Folio} actualizados.", Duration = 1500 });
-                    await grid.Reload();
-                    cancelEdit();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            loadingCreate = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-
-        }
-    }
-
-    private async Task CancelPedido(OrdenCierre orden)
-    {
-        try
-        {
-            var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
-
-            if (!string.IsNullOrEmpty(confirm.Value))
-            {
-
-                var responseEM = await http.Delete($"api/pedido/{orden.CodPed}/cancel");
-                if (responseEM.Error)
-                {
-                    var responseHttp = await responseEM.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    var response = await http.Delete($"api/cierre/{orden.Cod}/cancel");
-                    if (response.Error)
-                    {
-                        var responseHttp = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        await Swal.FireAsync("Cancelado", $"El registro ha sido cancelado.", SweetAlertIcon.Info);
-                        //ordenPendientes.Remove(orden.Cod);
-                        //await js.SetItemLocalStorage("EXPIRACIONCIERRE", DateTime.Today.Date.AddDays(1).ToString());
-                        //await js.SetItemLocalStorage("CIERRE", JsonConvert.SerializeObject(ordenPendientes));
-                        ordenCierres.Remove(orden);
-                        //await GetOrdenesPendientes();
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
     private async Task GetYears()
     {
         try

@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Security.Claims;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using GComFuelManager.Server.Helpers;
 
 namespace GComFuelManager.Server.Controllers.ETAController
 {
@@ -23,11 +24,13 @@ namespace GComFuelManager.Server.Controllers.ETAController
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserId verifyUser;
 
-        public EtaController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        public EtaController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {
             this.context = context;
             this.userManager = userManager;
+            this.verifyUser = verifyUser;
         }
         //Filtro para ordenes por Bol 
         [HttpPost("Filtro")]
@@ -57,7 +60,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
-
+                var acc = 0;
                 if (ordEmb.Cod == 0)
                 {
                     var Eta = context.Orden.FirstOrDefault(x => x.BatchId == ordEmb.Bol);
@@ -69,6 +72,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     ordEmb.Orden = null!;
                     context.Add(ordEmb);
+                    acc = 29;
                 }
 
                 else
@@ -81,10 +85,14 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
                     ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
                     context.Update(ordEmb);
+                    acc = 30;
                 }
 
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(id,acc);
 
                 return Ok(ordEmb);
             }
