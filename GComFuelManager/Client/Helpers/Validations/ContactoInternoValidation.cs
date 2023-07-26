@@ -11,7 +11,6 @@ namespace GComFuelManager.Client.Helpers.Validations
 		{
 			RuleFor(x => x.Nombre).NotEmpty().WithName("Nombre");
 			RuleFor(x => x.Correo).NotEmpty().WithName("Correo");
-			RuleFor(x => x.accione).NotEmpty().WithName("Acciones");
 		}
 	}
 }

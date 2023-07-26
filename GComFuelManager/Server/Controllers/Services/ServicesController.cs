@@ -606,7 +606,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             foreach (var seal in item.SealNumber)
                             {
                                 orden.SealNumber += seal + ",";
-                                orden.SealNumber = orden.SealNumber.Trim(',');
+                                orden.SealNumber = orden.SealNumber.Trim();
                             }
                             orden.SealNumber = orden.SealNumber?.Replace("\t", "");
                             orden.SealNumber = orden.SealNumber?.Trim(',');
@@ -755,7 +755,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             foreach (var seal in item.SealNumber)
                             {
                                 orden.SealNumber += seal + ",";
-                                orden.SealNumber = orden.SealNumber.Trim(',');
+                                orden.SealNumber = orden.SealNumber.Trim();
                             }
                             orden.SealNumber = orden.SealNumber?.Replace("\t", "");
                             orden.SealNumber = orden.SealNumber?.Trim(',');
