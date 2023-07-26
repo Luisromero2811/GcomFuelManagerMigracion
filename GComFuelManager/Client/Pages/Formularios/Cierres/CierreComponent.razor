@@ -444,18 +444,20 @@
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
                             @bind-Settings="@Settings">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px">
-                        <Template Context="data">
-                            @if (data.Activa is true)
-                            {
-                                <div class="col-12">
-                                    <button class="col-6 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(data))">
-                                        <i class="fa-solid fa-unlock"></i>
-                                    </button>
-                                </div>
-                            }
-                        </Template>
-                    </RadzenDataGridColumn>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
+                        <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px">
+                            <Template Context="data">
+                                @if (data.Activa is true)
+                                {
+                                    <div class="col-12">
+                                        <button class="col-6 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(data))">
+                                            <i class="fa-solid fa-unlock"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </AuthorizeView>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px"/>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false"/>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px"/>
