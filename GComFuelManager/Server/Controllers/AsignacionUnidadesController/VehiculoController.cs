@@ -28,7 +28,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         public VehiculoController(ApplicationDbContext context,UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser)
         {
             this.context = context;
-            UserManager = UserManager;
+            this.UserManager = UserManager;
             this.verifyUser = verifyUser;
         }
         [HttpGet("{transportista:int}")]
