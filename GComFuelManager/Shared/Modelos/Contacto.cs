@@ -18,7 +18,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("correo")]
         public string Correo { get; set; } = string.Empty;
         [JsonProperty("codCte")]
-        public int? CodCte { get; set; } = 0;
+        public int? CodCte { get; set; }
         [JsonProperty("estado")]
         public bool Estado { get; set; } = true;
         [NotMapped]
@@ -26,8 +26,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped]
         public List<AccionCorreo>? AccionCorreos { get; set; } = null!;
         [NotMapped]
-        public List<Accion>? Accions { get; set; } = null!;
-        [NotMapped]
-        public List<Accion> accione { get; set; } = new List<Accion>();
+        public List<Accion>? Accions { get; set; } = new List<Accion>();
     }
 }

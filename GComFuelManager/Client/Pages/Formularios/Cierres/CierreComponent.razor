@@ -8,6 +8,7 @@
 @inject TooltipService ts
 @inject OrdenCierreAdminValidation validation
 @inject OrdenCierreClientValidation clientValidation
+@inject AuthenticationStateProvider auth
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden")]
 
@@ -335,7 +336,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" />
+                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" TValue="double?" />
                                                 }
                                                 else
                                                 {
@@ -344,7 +345,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" />
+                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" />
                                                 }
                                             </div>
                                         </div>
@@ -442,7 +443,7 @@
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-2 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                            @bind-Settings="@Settings">
+            @bind-Settings="@Settings">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
                         <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px">
@@ -503,7 +504,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
                         <Template Context="item">
                             <div class="col-12">
@@ -518,9 +519,9 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
                 </Columns>
             </RadzenDataGrid>
@@ -725,6 +726,8 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
+    private ClaimsPrincipal User { get; set; } = null!;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -733,6 +736,10 @@
             if (width < 0)
                 width = 500;
             TotalWidth = $"{width}px";
+
+            var authState = await auth.GetAuthenticationStateAsync();
+            if (authState is not null)
+                User = authState.User;
 
             await CheckClient();
             if (!IsClient)
@@ -939,14 +946,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                        {
+                            Codprd = ordenCierre.CodPrd,
+                            Pre = ordenCierre.Precio,
+                            Vol = ordenCierre.Volumen,
+                            Coddes = ordenCierre.CodDes,
+                            Fchpet = DateTime.Now,
+                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                        };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -1267,30 +1274,20 @@
     {
         try
         {
-            //var responseActivo = await http.Post<OrdenCierre, bool>($"api/cierre/activo", ordenCierre);
-            //if (responseActivo.Error)
-            //{
-            //    var message = await responseActivo.ObtenerMensajeError();
-            //    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            //}
-            //else
-            //{
-
-            //}
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
                 if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
                 {
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Agregar pedido",
-                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                        Icon = SweetAlertIcon.Warning,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Aceptar",
-                        ShowCancelButton = true
-                    });
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();
@@ -1314,7 +1311,22 @@
                 {
                     Cliente = response.Response;
                     Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+
+                    if (string.IsNullOrEmpty(Cliente.CodCte))
+                        ms.Notify(new NotificationMessage()
+                            {
+                                Severity = NotificationSeverity.Warning,
+                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno en base al nombre de usuario",
+                                Duration = 5000
+                            });
+
+                    var userCod = User.Identity?.Name?.Substring(0, 3);
+                    if (string.IsNullOrEmpty(userCod))
+                        userCod = string.Empty;
+
+                    var codcte = string.IsNullOrEmpty(Cliente.CodCte) ? userCod : Cliente.CodCte;
+
+                    ordenCierre.Folio = $"{codcte}{Convert.ToString(Cliente.Consecutivo)}";
 
                     await PutClientes();
                     await CreateCierre();
@@ -1353,7 +1365,7 @@
     {
         try
         {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check/cliente");
+            var response = await http.Get<UsuarioInfo>("api/cuentas/check");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();

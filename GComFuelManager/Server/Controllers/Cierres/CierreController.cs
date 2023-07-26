@@ -174,7 +174,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 orden.TipoVenta = cliente.Tipven;
 
-                if (string.IsNullOrEmpty(cliente.Tipven))
+                if (!string.IsNullOrEmpty(cliente.Tipven))
                     orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
                 else
                     orden.ModeloVenta = string.Empty;
@@ -186,7 +186,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,1);
+                await context.SaveChangesAsync(id, 1);
 
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
