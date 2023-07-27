@@ -116,5 +116,33 @@ namespace GComFuelManager.Server.Controllers.Auth
                 Expiration = expiration,
             };
         }
+
+        [HttpGet("check/user"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<ActionResult> GetClient()
+        {
+            try
+            {
+                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                //Si el usuario no existe
+                if (usuario == null)
+                    return NotFound();
+
+                var user = new UsuarioInfo();
+
+                var isClient = await userManager.IsInRoleAsync(usuario, "Correo de Clientes");
+
+                user.IsClient = isClient;
+
+                if (isClient)
+                    user.CodCte = context.Usuario.Find(usuario.UserCod)!.CodCte;
+
+                return Ok(user);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
     }
 }
