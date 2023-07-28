@@ -29,92 +29,92 @@
                             </div>
                         </div>
                     </EditForm>
-                    <EditForm Model="@zonaDto" class="form col-12" OnValidSubmit="@SaveAsignacion" Context="ZonaClientes">
+                    <EditForm Model="@Zsona" class="form col-12" OnValidSubmit="@SaveAsignacion" Context="ZonaClientes">
                         <FluentValidationValidator Validator="validate" />
                         <ValidationSummary />
                         <div class="col-12 row mb-3">
                             <div class="col-4 mb-2">
                                 <label class="form-label">Zona</label>
-                                <InputSelect @bind-Value="zonaDto.ZonaCod" class="form-select">
+                                <InputSelect @bind-Value="Zsona.ZonaCod" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Zonas is null)
-                                        {
+                                    {
                                         <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Zonas.Count == 0)
-                                        {
+                                    }
+                                    else if (Zonas.Count == 0)
+                                    {
                                         <option disabled> No hay capacidades</option>
-                                        }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Zonas)
                                         {
-                                            foreach (var item in Zonas)
-                                            {
                                             <option value="@item.Cod">@item.Nombre</option>
-                                            }
                                         }
+                                    }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Grupo</label>
-                                <InputSelect @bind-Value="zonaDto.codgru" class="form-select" onchange="@GetClientes()">
+                                <InputSelect @bind-Value="Zsona.Codgru" class="form-select" onchange="@GetClientes()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Grupos is null)
-                                        {
+                                    {
                                         <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Grupos.Count == 0)
-                                        {
+                                    }
+                                    else if (Grupos.Count == 0)
+                                    {
                                         <option disabled> No hay capacidades</option>
-                                        }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Grupos)
                                         {
-                                            foreach (var item in Grupos)
-                                            {
                                             <option value="@item.Cod">@item.Den</option>
-                                            }
                                         }
+                                    }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Cliente</label>
-                                <InputSelect @bind-Value="zonaDto.CteCod" class="form-select" onchange="@GetEstaciones()">
+                                <InputSelect @bind-Value="Zsona.CteCod" class="form-select" onchange="@GetEstaciones()">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Clientes is null)
-                                        {
+                                    {
                                         <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Clientes.Count == 0)
-                                        {
+                                    }
+                                    else if (Clientes.Count == 0)
+                                    {
                                         <option disabled> No hay capacidades</option>
-                                        }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Clientes)
                                         {
-                                            foreach (var item in Clientes)
-                                            {
                                             <option value="@item.Cod">@item.Den</option>
-                                            }
                                         }
+                                    }
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Destino</label>
-                                <InputSelect @bind-Value="zonaDto.DesCod" class="form-select">
+                                <InputSelect @bind-Value="Zsona.DesCod" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Destinos is null)
-                                        {
+                                    {
                                         <option disabled> Cargando ...</option>
-                                        }
-                                        else if (Destinos.Count == 0)
-                                        {
+                                    }
+                                    else if (Destinos.Count == 0)
+                                    {
                                         <option disabled> No hay capacidades</option>
-                                        }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Destinos)
                                         {
-                                            foreach (var item in Destinos)
-                                            {
                                             <option value="@item.Cod">@item.Den</option>
-                                            }
                                         }
+                                    }
                                 </InputSelect>
                             </div>
                         </div>
@@ -124,9 +124,9 @@
                                     <i class="fa fa-solid fa-floppy-disk"></i>
                                     Guardar
                                     @if (loadingSave)
-                                        {
+                                    {
                                         <SpinnerLoading />
-                                        }
+                                    }
                                 </button>
                             </div>
                         </div>
@@ -182,18 +182,24 @@
     private bool isEdit = false;
 
     private Zona Zona { get; set; } = new Zona();
+
     private List<Zona> Zonas { get; set; } = new List<Zona>();
     private List<ZonaCliente> ZonaCliente { get; set; } = new List<ZonaCliente>();
+    private List<ZonaDTO> ZonasClientes { get; set; } = new List<ZonaDTO>();
+
+
     private RadzenDataGrid<ZonaCliente> grid { get; set; } = new RadzenDataGrid<ZonaCliente>();
-    private ZonaCliente zonaCliente { get; set; } = new ZonaCliente() { Cliente = new Cliente() };
-    //
+    //private ZonaCliente zonaCliente { get; set; } = new ZonaCliente() { Cliente = new Cliente() };
+    private ZonaDTO zonasCliente { get; set; } = new ZonaDTO() { Cliente = new Cliente() };
+    //Listas de obtencion de datos
     private List<Grupo> Grupos { get; set; } = new List<Grupo>();
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     private List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
-
+    //Elementos seleccionados
     private short? GrupoSeleccionado = 0;
     private int? ClienteSeleccionado = 0;
 
+    ZonaCliente Zsona { get; set; } = new ZonaCliente() { Cliente = new Cliente() };
     ZonaDTO zonaDto { get; set; } = new ZonaDTO();
 
     protected async override Task OnInitializedAsync()
@@ -230,7 +236,11 @@
     {
         try
         {
-            zonaCliente = item;
+            Zsona.Codgru = Zsona.Cliente.codgru;
+            Zsona = item;
+            StateHasChanged();
+            Zsona.Codgru = Zsona.Cliente.codgru;
+            Zsona = item;
             isEdit = true;
         }
         catch (Exception e)
@@ -311,9 +321,9 @@
     {
         try
         {
-            if (zonaDto.codgru != GrupoSeleccionado && zonaDto.codgru != null)
+            if (Zsona.Codgru != GrupoSeleccionado && Zsona.Codgru != null)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{zonaDto.codgru}");
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Zsona.Codgru}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -321,7 +331,7 @@
                 }
                 else
                 {
-                    GrupoSeleccionado = zonaDto.codgru;
+                    GrupoSeleccionado = Zsona.Codgru;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
@@ -338,9 +348,9 @@
     {
         try
         {
-            if (zonaDto.CteCod != null && ClienteSeleccionado != zonaDto.CteCod)
+            if (Zsona.CteCod != null && ClienteSeleccionado != Zsona.CteCod)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{zonaDto.CteCod}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Zsona.CteCod}");
                 if (response.Error)
                 {
                     var responseHttp = await response.ObtenerMensajeError();
@@ -349,7 +359,7 @@
                 else
                 {
                     Destinos = response.Response;
-                    ClienteSeleccionado = zonaDto.CteCod;
+                    ClienteSeleccionado = Zsona.CteCod;
                     StateHasChanged();
                 }
             }
@@ -365,10 +375,10 @@
         try
         {
             loadingSave = true;
-            zonaCliente.DesCod = zonaDto.DesCod;
-            zonaCliente.CteCod = zonaDto.CteCod;
-            zonaCliente.ZonaCod = zonaDto.ZonaCod;
-            var response = await http.Post<ZonaCliente>("api/zona/asignacion", zonaCliente);
+            zonaDto.DesCod = zonaDto.DesCod;
+            zonaDto.CteCod = zonaDto.CteCod;
+            zonaDto.ZonaCod = zonaDto.ZonaCod;
+            var response = await http.Post<ZonaCliente>("api/zona/asignacion", Zsona);
             if (response.Error)
             {
                 loadingSave = false;
@@ -382,7 +392,7 @@
                 await Swal.FireAsync("Exito", "Relacion con zona guardada.", SweetAlertIcon.Success);
                 if (isEdit == true)
                 {
-                    zonaCliente = new ZonaCliente() { Cliente = new Cliente() };
+                    Zsona = new ZonaCliente() { Cliente = new Cliente() };
                     isEdit = false;
                     StateHasChanged();
                 }
