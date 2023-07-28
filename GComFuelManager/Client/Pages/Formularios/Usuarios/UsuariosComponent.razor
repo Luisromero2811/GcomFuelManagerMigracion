@@ -129,11 +129,14 @@
                         <div class="row d-flex justify-content-center">
                             @if (info.ShowUsersActions)
                             {
-                                <div class="col-4">
+                                <div class="col-3">
                                     <button class="btn gcom-bg-amarillo col-12" type="submit"><i class="fa-solid fa-user-plus"></i> <b>Agregar</b></button>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-3" @onmouseenter="@(args => ShowTip(Icon))" @ref="Icon">
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@EditUser" type="button"><i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b></button>
+                                </div>
+                                <div class="col-3">
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ClearFormData" type="button"><i class="fa fa-solid fa-broom"></i> <b>Limpiar Formulario</b></button>
                                 </div>
                             }
                         </div>
@@ -243,6 +246,7 @@
 
     ElementReference infoIcon;
     ElementReference infosIcon;
+    ElementReference Icon;
 
     private RadzenDropDown<List<string>> dropdown = new RadzenDropDown<List<string>>();
 
@@ -256,10 +260,14 @@
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Mínimo 8 y máximo 10 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+", options);
     void ShowToolsTip(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Mínimo de 8 y máximo de 10 caracteres, sin usar letra Ñ");
+    void ShowTip(ElementReference elementReference, TooltipService opts = null!) => ts.Open(elementReference, "Boton exclusivo para la edición del usuario");
 
     private string passwordType = "password";
 
-
+    private void ClearFormData()
+    {
+        info = new UsuarioInfo();
+    }
 
     //Obtención de roles
     public async Task GetRoles()
