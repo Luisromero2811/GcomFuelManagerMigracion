@@ -157,28 +157,30 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Cliente = null!;
                 orden.Producto = null!;
                 orden.Destino = null!;
-                var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
-                if (user == null)
-                    return NotFound();
-
-                if (await UserManager.IsInRoleAsync(user, "Comprador"))
+                if (!orden.isGroup)
                 {
-                    var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-                    if (userSis == null)
+                    var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                    if (user == null)
                         return NotFound();
-                    orden.CodCte = userSis.CodCte;
-                    orden.CodGru = userSis.CodGru;
-                    orden.Vendedor = userSis.Den;
+
+                    if (await UserManager.IsInRoleAsync(user, "Comprador"))
+                    {
+                        var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                        if (userSis == null)
+                            return NotFound();
+                        orden.CodCte = userSis.CodCte;
+                        orden.CodGru = userSis.CodGru;
+                        orden.Vendedor = userSis.Den;
+                    }
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
+
+                    orden.TipoVenta = cliente.Tipven;
+
+                    if (!string.IsNullOrEmpty(cliente.Tipven))
+                        orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
+                    else
+                        orden.ModeloVenta = string.Empty;
                 }
-                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
-
-                orden.TipoVenta = cliente.Tipven;
-
-                if (!string.IsNullOrEmpty(cliente.Tipven))
-                    orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
-                else
-                    orden.ModeloVenta = string.Empty;
-
                 orden.FchVencimiento = orden.FchCierre?.AddDays(8);
                 context.Add(orden);
 
@@ -188,10 +190,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 await context.SaveChangesAsync(id, 1);
 
-                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
+                if (!orden.isGroup)
+                {
+                    orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
+                    orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
+                }
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
-                orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
-                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
+                //orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
                 var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
                 orden.OrdenEmbarque = Embarque;
 
@@ -446,7 +451,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,5);
+                await context.SaveChangesAsync(id, 5);
 
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Estatus == true)
                     .Include(x => x.OrdenEmbarque)
@@ -827,6 +832,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
+                    .Include(x => x.Grupo)
                     .ToListAsync();
 
                 if (cierresDis is null)

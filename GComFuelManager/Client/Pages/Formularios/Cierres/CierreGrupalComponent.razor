@@ -1,4 +1,4 @@
-@page "/cierres"
+﻿@page "/cierre-grupo"
 
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -6,8 +6,7 @@
 @inject NotificationService ms
 @inject DialogService ds
 @inject TooltipService ts
-@inject OrdenCierreAdminValidation validation
-@inject OrdenCierreClientValidation clientValidation
+@inject CierreGrupoValidation validation
 @inject AuthenticationStateProvider auth
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden")]
@@ -15,7 +14,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
     <Authorized>
 
-        <h3><b>Cierre de Ordenes</b></h3>
+        <h3><b>Cierre por grupo</b></h3>
 
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="FILTRO">
             <Authorized>
@@ -158,26 +157,10 @@
                                     <div class="col-2">
                                         <h4><b>Crear cierre</b></h4>
                                     </div>
-                                    <div class="col row d-flex justify-content-start">
-                                        <RadzenStack Orientation="Orientation.Horizontal">
-                                            <RadzenText Text="Precio automatico" />
-                                            <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
-                                        </RadzenStack>
-                                    </div>
                                 </div>
                                 <EditForm Model="ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                                     @*<DataAnnotationsValidator />*@
-                                    <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
-                                        <Authorized>
-                                            <FluentValidationValidator Validator="validation" />
-                                        </Authorized>
-                                    </AuthorizeView>
-                                    <AuthorizeView Context="Validation" Roles="Comprador">
-                                        <Authorized>
-                                            <FluentValidationValidator Validator="clientValidation" />
-                                        </Authorized>
-                                    </AuthorizeView>
-                                    <ValidationSummary />
+                                    <FluentValidationValidator Validator="validation" />
                                     <div class="col-12 row">
 
                                         <div class="col-4 mb-1">
@@ -194,18 +177,6 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-4 mb-1 d-flex">
-                                            <div class="col-12 my-auto d-flex">
-                                                <RadzenCheckBox @bind-Value=@ordenCierre.IsCierreVolumen Name="CheckBox2" class="me-2" />
-                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipCierreVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                                    <label for="CheckBox2">
-                                                        Cierre por volumen
-                                                        <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-
                                         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORM">
                                             <Authorized>
                                                 <div class="col-4 mb-1">
@@ -213,16 +184,7 @@
                                                         <label>Grupo</label>
                                                         <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
                                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                        AllowVirtualization="true" Change="@GetClientes" />
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-4 mb-1">
-                                                    <div class="col-12">
-                                                        <label>Cliente</label>
-                                                        <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
-                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                                        AllowVirtualization="true" Change="@GetData" />
+                                                                        AllowVirtualization="true" />
                                                     </div>
                                                 </div>
                                             </Authorized>
@@ -230,123 +192,44 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label>Destino</label>
-                                                <RadzenDropDown Data="Destino" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
-                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
-                                                                AllowVirtualization="true" />
+                                                <label>Producto</label>
+                                                <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select">
+                                                    <option>-- Selecciona una opcion --</option>
+                                                    @if (Productos is null)
+                                                    {
+                                                        <option disabled> Cargando ...</option>
+                                                    }
+                                                    else if (Productos.Count == 0)
+                                                    {
+                                                        <option disabled> No hay capacidades</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        foreach (var item in Productos)
+                                                        {
+                                                            <option value="@item.Cod">@item.Den</option>
+                                                        }
+                                                    }
+                                                </InputSelect>
+
                                             </div>
                                         </div>
+
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label>Producto</label>
-                                                @if (ordenCierre.IsAutoPrecio)
-                                                {
-                                                    <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                                    AllowVirtualization="true">
-                                                        <Template Context="data">
-                                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                                        </Template>
-                                                        <ValueTemplate Context="data">
-                                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                                        </ValueTemplate>
-                                                    </RadzenDropDown>
-                                                }
-                                                else
-                                                {
-                                                    <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select">
-                                                        <option>-- Selecciona una opcion --</option>
-                                                        @if (Productos is null)
-                                                        {
-                                                            <option disabled> Cargando ...</option>
-                                                        }
-                                                        else if (Productos.Count == 0)
-                                                        {
-                                                            <option disabled> No hay capacidades</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            foreach (var item in Productos)
-                                                            {
-                                                                <option value="@item.Cod">@item.Den</option>
-                                                            }
-                                                        }
-                                                    </InputSelect>
-                                                }
-
+                                                <label>Volumen</label>
+                                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
                                             </div>
                                         </div>
 
-
-                                        @if (!ordenCierre.IsDifferentVol)
-                                        {
-                                            <div class="col-2 mb-1">
-                                                <div class="col-12">
-                                                    <label>Volumen</label>
-
-                                                    <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select">
-                                                        <option>-- Selecciona una opcion --</option>
-                                                        @if (Cantidades is null)
-                                                        {
-                                                            <option disabled> Cargando ...</option>
-                                                        }
-                                                        else if (Cantidades.Count == 0)
-                                                        {
-                                                            <option disabled> No hay capacidades</option>
-                                                        }
-                                                        else
-                                                        {
-                                                            foreach (var item in Cantidades)
-                                                            {
-                                                                <option value="@item">@item.ToString("N2")</option>
-                                                            }
-                                                        }
-                                                    </InputSelect>
-                                                </div>
-                                            </div>
-                                        }
-
-                                        @if (ordenCierre.IsDifferentVol)
-                                        {
-                                            <div class="col-2 mb-1">
-                                                <div class="col-12">
-                                                    <label>Volumen</label>
-                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" />
-                                                </div>
-                                            </div>
-                                        }
-
-                                        <div class="col-2 mb-1 d-flex">
-                                            <div class="col-12 my-auto d-flex">
-                                                <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentVol Name="CheckBox1" class="me-2" />
-                                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoCierreVolumen))" @ref="infoCierreVolumen">
-                                                    <label for="CheckBox1">
-                                                        Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                        <div class="col-4 mb-1">
+                                            <div class="col-12">
+                                                <div class="col-12 row p-0">
+                                                    <label>
+                                                        Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                @if (ordenCierre.IsAutoPrecio)
-                                                {
-                                                    <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipPrecio(infoPrecio))" @ref="infoPrecio">
-                                                        <label>
-                                                            Precio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                        </label>
-                                                    </div>
-                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" TValue="double?" />
-                                                }
-                                                else
-                                                {
-                                                    <div class="col-12 row p-0">
-                                                        <label>
-                                                            Precio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                        </label>
-                                                    </div>
-                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" />
-                                                }
+                                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" />
                                             </div>
                                         </div>
 
@@ -459,10 +342,10 @@
                             </Template>
                         </RadzenDataGridColumn>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado">
                         <FilterTemplate Context="Destinos">
@@ -737,32 +620,7 @@
                 width = 500;
             TotalWidth = $"{width}px";
 
-            var authState = await auth.GetAuthenticationStateAsync();
-            if (authState is not null)
-                User = authState.User;
-
-            await CheckClient();
-            if (!IsClient)
-            {
-                var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
-                months.RemoveAt(months.IndexOf(months.Last()));
-                var i = 1;
-                foreach (var item in months)
-                {
-
-                    meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
-                    i++;
-                }
-                await GetGrupos();
-                await GetYears();
-                //await GetEstaciones();
-            }
-            else
-            {
-                await GetDestinoComprador();
-                await GetContactosComprador();
-            }
-            await GetCantidades();
+            await GetGrupos();
             await GetProductos();
         }
         catch (Exception e)
@@ -916,7 +774,7 @@
         {
             loadingCreate = true;
             isFilter = false;
-
+            ordenCierre.isGroup = true;
             if (ordenCierre.IsCierreVolumen)
             {
                 var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
@@ -1192,34 +1050,6 @@
         }
     }
 
-    public async Task GetClientes()
-    {
-        try
-        {
-            if (ordenCierre.CodGru != null && GrupoSeleccionado != ordenCierre.CodGru)
-            {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenCierre.CodGru}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    GrupoSeleccionado = ordenCierre.CodGru;
-                    Clientes = response.Response;
-                    StateHasChanged();
-                }
-            }
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     public async Task GetClientesFiltro()
     {
         try
@@ -1240,28 +1070,6 @@
                 }
             }
 
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
-    public async Task GetDestinoComprador()
-    {
-        try
-        {
-            var response = await http.Get<List<CodDenDTO>>($"api/destino/comprador");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Destino = response.Response;
-            }
         }
         catch (Exception e)
         {
@@ -1298,66 +1106,17 @@
                     }
                 }
 
-                if (IsClient)
-                    ordenCierre.CodCte = user.CodCte;
-
-                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Cliente = response.Response;
-                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-
-                    if (string.IsNullOrEmpty(Cliente.CodCte))
-                        ms.Notify(new NotificationMessage()
-                            {
-                                Severity = NotificationSeverity.Warning,
-                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno en base al nombre de usuario",
-                                Duration = 5000
-                            });
-
-                    var userCod = User.Identity?.Name?.Substring(0, 3);
-                    if (string.IsNullOrEmpty(userCod))
-                        userCod = string.Empty;
-
-                    var codcte = string.IsNullOrEmpty(Cliente.CodCte) ? userCod : Cliente.CodCte;
-
-                    ordenCierre.Folio = $"{codcte}{Convert.ToString(Cliente.Consecutivo)}";
-
-                    await PutClientes();
-                    await CreateCierre();
-                }
-            }
-            else
-            {
+                var guid = Guid.NewGuid().ToString().Split("-");
+                ordenCierre.Folio = $"G-{guid[0]}";
                 await CreateCierre();
             }
+            else
+                await CreateCierre();
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
-        }
-    }
-
-    private async Task PutClientes()
-    {
-        try
-        {
-            var response = await http.Put<Cliente>("api/clientes", Cliente);
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
