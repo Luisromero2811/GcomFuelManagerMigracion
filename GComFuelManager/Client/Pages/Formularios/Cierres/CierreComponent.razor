@@ -10,7 +10,7 @@
 @inject OrdenCierreClientValidation clientValidation
 @inject AuthenticationStateProvider auth
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Validador Precio Automatico")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
     <Authorized>
@@ -158,12 +158,16 @@
                                     <div class="col-2">
                                         <h4><b>Crear cierre</b></h4>
                                     </div>
-                                    <div class="col row d-flex justify-content-start">
-                                        <RadzenStack Orientation="Orientation.Horizontal">
-                                            <RadzenText Text="Precio automatico" />
-                                            <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
-                                        </RadzenStack>
-                                    </div>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Validador Precio Automatico" Context="Precio">
+                                        <Authorized>
+                                            <div class="col row d-flex justify-content-start">
+                                                <RadzenStack Orientation="Orientation.Horizontal">
+                                                    <RadzenText Text="Precio automatico" />
+                                                    <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
+                                                </RadzenStack>
+                                            </div>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </div>
                                 <EditForm Model="ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                                     @*<DataAnnotationsValidator />*@
@@ -406,7 +410,7 @@
                                         <div class="col-12 d-flex justify-content-center mt-3">
                                             @if (monthFilter == false)
                                             {
-                                                <div class="col-3 mx-2">
+                                                <div class="col-3 mx-2" @onmouseenter="@(args => ShowToolTipVigencia(infoVigencia))" @ref="infoVigencia">
                                                     <button class="btn gcom-bg-amarillo col-12" type="submit">
                                                         <i class="fa fa-solid fa-plus"></i>
                                                         <b>Crear cierre</b>
@@ -719,6 +723,7 @@
     ElementReference infoIconVolumen;
     ElementReference infoCierreVolumen;
     ElementReference infoPrecio;
+    ElementReference infoVigencia;
 
     int width = 0;
     string TotalWidth = string.Empty;
@@ -790,7 +795,9 @@
     ts.Open(elementReference, "El precio se llenara automaticamente al seleccionar el producto.", options);
     void ShowTooltipCierreVolumen(ElementReference elementReference, TooltipOptions options = null!) =>
     ts.Open(elementReference, "Seleccione para realizar un cierre por volumen.", options);
-
+    void ShowToolTipVigencia(ElementReference elementReference, TooltipOptions options = null!) =>
+    ts.Open(elementReference, "La vigencia del cierre es por solo 7 días", options);
+ 
     private async Task GetData()
     {
         if (ordenCierre.CodCte != null || clienteSeleccioado != ordenCierre.CodCte)
