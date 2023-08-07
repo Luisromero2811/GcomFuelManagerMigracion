@@ -282,7 +282,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino}");
                     
-                    if (DateTime.Parse(item.Fecha) >= DateTime.Today)
+                    if (DateTime.Parse(item.Fecha) > DateTime.Today)
                     {
                         var precio = new PrecioProgramado
                         {

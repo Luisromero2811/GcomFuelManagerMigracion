@@ -38,10 +38,17 @@
                 <Template Context="cierre">
                     <div class="col-12 row">
                         <div class="col-8">
-                            <p><b>Folio: @cierre.Folio</b></p>
-                            <p><b>Cliente: @cierre.Cliente.Den</b></p>
-                            <p><b>Producto: @cierre.Producto?.Den</b></p>
-                            @if (cierre.VolumenDisponible?.Productos.Count > 0)
+                            <p><b>Folio: @cierre?.Folio</b></p>
+                            @if(cierre.CodCte == null)
+                            {
+
+                            }
+                            else
+                            {
+                                <p><b>Cliente: @cierre?.Cliente?.Den</b></p>
+                            }
+                            <p><b>Producto: @cierre?.Producto?.Den</b></p>
+                            @if (cierre?.VolumenDisponible?.Productos.Count > 0)
                             {
                                 <div class="col-12">
                                     <p><b>Total:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Total?.ToString("N2")</p>
@@ -97,7 +104,7 @@
                 CierresCompleta = response.Response;
                 if(Cierres.Count > 0)
                 {
-                    Clientes = Cierres.DistinctBy(x => x.Cliente.Den).Select(x => x.Cliente.Den);
+                    Clientes = Cierres.Where(x=>x.Cliente != null).DistinctBy(x => x.Cliente.Den).Select(x => x.Cliente.Den);
                 }
             }
         }

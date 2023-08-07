@@ -322,6 +322,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.codDes);
+            //Cierre - grupo
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Grupo)
+                .WithOne()
+                .HasForeignKey<OrdenCierre>(x => x.CodGru);
         }
 
 

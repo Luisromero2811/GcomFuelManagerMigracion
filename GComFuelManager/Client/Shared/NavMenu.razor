@@ -163,11 +163,31 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden">
+            <RadzenPanelMenuItem Path="cierre-grupo" class="gcom-bg-rojo" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-store-slash" aria-hidden="true"></i> Cierre por grupo
+                    </div>
+                </Template>
+            </RadzenPanelMenuItem>
+        </AuthorizeView>
+
         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
             <RadzenPanelMenuItem Path="pedidos" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
                         <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Ordenes
+                    </div>
+                </Template>
+            </RadzenPanelMenuItem>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+            <RadzenPanelMenuItem Path="confirm-ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Confirmar ordenes de clientes
                     </div>
                 </Template>
             </RadzenPanelMenuItem>

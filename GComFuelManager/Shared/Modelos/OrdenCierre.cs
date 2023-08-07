@@ -136,6 +136,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool IsAutoPrecio { get; set; } = true;
 
         [EpplusIgnore, NotMapped]
-        public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO(); 
+        public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO();
+        [EpplusIgnore, NotMapped]
+        public bool isGroup { get; set; } = false;
     }
 }
