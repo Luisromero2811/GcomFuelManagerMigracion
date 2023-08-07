@@ -63,7 +63,7 @@
                             </ValueTemplate>
                         </RadzenDropDown>
                         @*<FolioListSearch folio="@filtro.Folio">
-                        </FolioListSearch>*@
+                            </FolioListSearch>*@
                     </div>
                     <div class="col-3 d-flex row mb-2">
                         <div class="col-6 mt-auto">
@@ -330,34 +330,38 @@
             </div>
         }
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" @bind-Settings="@Settings"
-                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowColumnPicking="true">
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
+                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
-                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Width="170px" Visible="true" Frozen="true">
-                        <Template Context="item">
-
-                            <div class="col-12 row">
-                                @if (item.OrdenEmbarque!.CodordCom is null)
-                                {
-                                    <div class="col">
-                                        <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                    </div>
-                                    <div class="col">
-                                        <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
-                                    </div>
-                                }
-                            </div>
-
-                        </Template>
-                    </RadzenDataGridColumn>
-                </AuthorizeView>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="80px" Frozen="true" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="90px" Frozen="true" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
+                @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
+                    <Authorized>*@
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Frozen="true" Width="170px" OrderIndex="1">
+                    <Template Context="item">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
+                            <Authorized>
+                                <div class="col-12 row">
+                                    @if (item.OrdenEmbarque!.CodordCom is null)
+                                    {
+                                        <div class="col">
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </div>
+                                        <div class="col">
+                                            <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
+                                        </div>
+                                    }
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+                    </Template>
+                </RadzenDataGridColumn>
+                @*</Authorized>
+                    </AuthorizeView>*@
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Frozen="true" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" Frozen="true" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" OrderIndex="5" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" OrderIndex="6" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
 
                     <Template Context="item">
                         <div class="col-12">
@@ -372,8 +376,8 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" />
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -550,13 +554,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1007,17 +1011,17 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codest = 9,
-                        Codtad = ordenCierre.CodTad,
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Fchcar = ordenCierre.FchCar,
-                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                    };
+                {
+                    Codest = 9,
+                    Codtad = ordenCierre.CodTad,
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Fchcar = ordenCierre.FchCar,
+                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)
@@ -1112,7 +1116,7 @@
     {
         try
         {
-            var response = await http.Post<CierreFiltroDTO,List<string>>($"api/cierre/folios/{ClienteSeleccionadoFiltro}",fechas);
+            var response = await http.Post<CierreFiltroDTO, List<string>>($"api/cierre/folios/{ClienteSeleccionadoFiltro}", fechas);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

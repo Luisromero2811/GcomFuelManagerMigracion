@@ -8,7 +8,7 @@
 @using System.Text.Json;
 @using GComFuelManager.Client.Helpers;
 @inject TooltipService ts
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador")]
 
 
 <h4><b>ETA</b></h4>
@@ -16,7 +16,7 @@
 <div class="col-12 card shadow">
     <div class="card-body">
         <EditForm Model="Ordenes" class="row">
-            <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Filter">
+            <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Filter">
                 <div class="row d-flex g-3">
                     <div class="row">
                         <div class="col-6">
@@ -73,7 +73,7 @@
 
 
 
-            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto" Context="EtaReal">
+            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador" Context="EtaReal">
                 <!--btn look-->
                 <div class="row d-flex g-3">
                     <div class="row justify-content-end">
@@ -97,7 +97,7 @@
                     </div>
                 </div>
             </AuthorizeView>
-            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador" Context="Actions">
+            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador, Comprador" Context="Actions">
                 <div class="row d-flex g-3">
                     <div class="row justify-content-end">
                         <div class="col-3 mt-3 mb-3" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
