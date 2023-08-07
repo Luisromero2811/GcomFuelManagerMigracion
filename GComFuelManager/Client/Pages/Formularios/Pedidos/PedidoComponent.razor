@@ -276,16 +276,6 @@
                     }
                     @if (!isEditing)
                     {
-                        <div class="col-4 px-2">
-                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@ConfirmPedido">
-                                <i class="fa fa-solid fa-check"></i>
-                                <b>Confirmar Pedidos</b>
-                                @if (loadingConfirm)
-                                {
-                                    <SpinnerLoading></SpinnerLoading>
-                                }
-                            </button>
-                        </div>
 
                         @if (!isFolio || ordenCierre.IsCierreVolumen)
                         {
@@ -300,6 +290,18 @@
                                 </button>
                             </div>
                         }
+
+                        <div class="col-4 px-2">
+                            <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@ConfirmPedido">
+                                <i class="fa fa-solid fa-check"></i>
+                                <b>Confirmar Pedidos</b>
+                                @if (loadingConfirm)
+                                {
+                                    <SpinnerLoading></SpinnerLoading>
+                                }
+                            </button>
+                        </div>
+
                     }
                 </div>
             </EditForm>
