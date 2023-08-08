@@ -57,6 +57,16 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador">
+            <RadzenPanelMenuItem Path="pedidos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Ordenes
+                    </div>
+                </Template>
+            </RadzenPanelMenuItem>
+        </AuthorizeView>
+
         <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura" Context="Configs">
             <RadzenPanelMenuItem Path="orden" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>

@@ -81,11 +81,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                     //if (zona == null)
                     //    return BadRequest("No existe una relacion de precios con la zona y destino");
 
-                    precios = await context.Precio.Where(x => x.codCte == usuario.CodCte
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
-                        .Include(x => x.Producto)
-                        .ToListAsync();
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                            .Include(x => x.Cliente)
+                            .ToListAsync();
+                    var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
+
+                    foreach (var item in ordenesUnic)
+                    {
+                        var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
+                        Precio precio = new Precio()
+                        {
+                            Pre = item.Precio,
+                            codCte = item.CodCte,
+                            codDes = item.CodDes,
+                            codPrd = item.CodPrd,
+                            codGru = item.Cliente?.codgru,
+                            codZona = zona?.CteCod,
+                            Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
+                        };
+                        precios.Add(precio);
+                    }
 
                     if (context.Cliente.FirstOrDefault(x=>x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                     {

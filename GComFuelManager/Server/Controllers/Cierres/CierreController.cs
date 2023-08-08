@@ -233,7 +233,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (usuario == null)
                     return NotFound();
 
-                var isClient = await UserManager.IsInRoleAsync(usuario, "Cliente Lectura");
+                var isClient = await UserManager.IsInRoleAsync(usuario, "Comprador");
 
                 if (isClient)
                     filtroDTO.codCte = context.Usuario.Find(usuario.UserCod)!.CodCte;
@@ -261,7 +261,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         if (isClient)
                         {
-                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.Folio.Contains(context.Cliente.Find(filtroDTO.codCte)!.CodCte!))
+                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.CodCte == filtroDTO.codCte)
                             .Include(x => x.Cliente)
                             .Include(x => x.Producto)
                             .Include(x => x.Destino)
@@ -601,11 +601,30 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 List<string?> folios = new List<string?>();
 
-                folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true)
+                var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (user == null)
+                    return NotFound();
+
+                if (await UserManager.IsInRoleAsync(user, "Comprador"))
+                {
+                    var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                    if (userSis == null)
+                        return NotFound();
+
+                    folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == userSis.CodCte)
                     .Select(x => x.Folio)
                     .Distinct()
                     .ToList();
+                }
+                else
+                {
+                    folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true)
+                    .Select(x => x.Folio)
+                    .Distinct()
+                    .ToList();
+                }
 
                 return Ok(folios);
             }
@@ -748,6 +767,35 @@ namespace GComFuelManager.Server.Controllers.Cierres
         public class PrecioBol
         {
             public double? Precio { get; set; } = 0;
+        }
+
+        [HttpPost("update")]
+        public async Task<ActionResult> PutOrden([FromBody] OrdenCierre orden)
+        {
+            try
+            {
+                orden.Producto = null;
+                orden.Destino = null;
+                orden.Cliente = null;
+                orden.ContactoN = null!;
+                orden.OrdenEmbarque = null!;
+
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
+                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
+                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
+                orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
+                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
+                var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
+                orden.OrdenEmbarque = Embarque;
+
+                return Ok(orden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
