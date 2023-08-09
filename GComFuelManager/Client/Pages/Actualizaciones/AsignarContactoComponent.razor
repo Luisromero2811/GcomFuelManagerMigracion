@@ -155,9 +155,6 @@
     List<Accion> AccionesSeleccionadas { get; set; } = new List<Accion>();
 
     AsignarContactoDTO AsignarContactoDTO = new AsignarContactoDTO();
-    UsuarioInfo user { get; set; } = new UsuarioInfo();
-
-    private ClaimsPrincipal User { get; set; } = null!;
 
     bool loading = false;
     bool isEdit = false;
@@ -165,19 +162,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        var authState = await auth.GetAuthenticationStateAsync();
-        if (authState is not null)
-            User = authState.User;
-
-        await CheckClient();
         await GetClientes();
-        if (IsClient)
-        {
-            ClienteSeleccionado = Clientes.FirstOrDefault(x => x.Cod == user.CodCte);
-            Contacto.Cliente = ClienteSeleccionado;
-            Contacto.CodCte = user.CodCte;
-            await GetContactos();
-        }
         await GetAcciones();
     }
 
@@ -422,29 +407,6 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    public async Task CheckClient()
-    {
-        try
-        {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                IsClient = response.Response.IsClient;
-                user = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 }
