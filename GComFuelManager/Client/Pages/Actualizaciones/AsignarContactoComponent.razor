@@ -164,9 +164,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-
-        await CheckClient();
-        Contacto.CodCte = user.CodCte;
         await GetContactos();
         await GetAcciones();
     }
@@ -222,25 +219,18 @@
     {
         try
         {
-            if (Contacto.CodCte is null || Contacto.CodCte == 0)
+            loading = true;
+            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/cliente");
+            if (response.Error)
             {
-                await Swal.FireAsync("Error", "Seleccione un Cliente para buscar", SweetAlertIcon.Warning);
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                loading = true;
-                var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/cliente/{Contacto.CodCte}");
-                if (response.Error)
-                {
-                    loading = false;
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    loading = false;
-                    Contactos = response.Response;
-                }
+                loading = false;
+                Contactos = response.Response;
             }
         }
         catch (Exception e)
@@ -256,7 +246,6 @@
         {
             if (Contacto.Cod == null || Contacto.Cod == 0)
             {
-                Contacto.CodCte = user.CodCte;
                 var response = await http.Post<Contacto>($"api/contacto", Contacto);
                 if (response.Error)
                 {
@@ -404,29 +393,6 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    public async Task CheckClient()
-    {
-        try
-        {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check/user");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                IsClient = response.Response.IsClient;
-                user = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 }

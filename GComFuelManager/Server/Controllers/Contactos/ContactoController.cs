@@ -1,7 +1,9 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,18 +17,25 @@ namespace GComFuelManager.Server.Controllers.Contactos
     public class ContactoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ContactoController(ApplicationDbContext context)
+        public ContactoController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
+            this.userManager = userManager;
         }
 
-        [HttpGet("cliente/{cod:int}")]
-        public async Task<ActionResult> GetByCliente([FromRoute] int cod)
+        [HttpGet("cliente")]
+        public async Task<ActionResult> GetByCliente()
         {
             try
             {
-                var contactos = await context.Contacto.Where(x => x.CodCte == cod).Include(x => x.AccionCorreos).ThenInclude(x => x.Accion).ToListAsync();
+
+                var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (user == null)
+                    return NotFound();
+                var usersis = context.Usuario.Find(user.UserCod);
+                var contactos = await context.Contacto.Where(x => x.CodCte == usersis.CodCte).Include(x => x.AccionCorreos).ThenInclude(x => x.Accion).ToListAsync();
 
                 return Ok(contactos);
             }
@@ -59,9 +68,17 @@ namespace GComFuelManager.Server.Controllers.Contactos
         {
             try
             {
-                if (contacto == null)
 
+                var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (user == null)
+                    return NotFound();
+                
+                var usersis = context.Usuario.Find(user.UserCod);
+
+                if (contacto == null)
                     return BadRequest();
+                
+                contacto.CodCte = usersis.CodCte;
 
                 context.Add(contacto);
                 await context.SaveChangesAsync();
