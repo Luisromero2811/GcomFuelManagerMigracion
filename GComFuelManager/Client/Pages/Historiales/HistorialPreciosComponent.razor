@@ -186,15 +186,15 @@
                 {
                     if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
                     && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado))
-                        && (item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
+                        && (item.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
                         historialPrecio.Add(new HistorialPrecioDTO
                             {
                                 Fecha = item.FchDia.ToString("dd/MM/yyyy"),
-                                Pre = item.pre,
-                                Producto = item.Producto?.Den,
-                                Destino = item.Destino?.Den,
-                                Zona = item.Zona?.Nombre,
-                                Cliente = item.Cliente?.Den
+                                Pre = item?.pre,
+                                Producto = item?.Producto?.Den,
+                                Destino = item?.Destino?.Den,
+                                Zona = item?.Zona?.Nombre,
+                                Cliente = item?.Cliente?.Den
                             });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
