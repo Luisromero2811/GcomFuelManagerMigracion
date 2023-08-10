@@ -50,6 +50,9 @@
         </AuthorizeView>
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="80px" Filterable="false" OrderIndex="4" Frozen="true" />
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" OrderIndex="5" Frozen="true">
+            <FilterTemplate Context="Cliente">
+                <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
+            </FilterTemplate>
             <Template Context="data">
                 <div>
                     @data.Destino?.Cliente?.Den
@@ -57,6 +60,9 @@
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" OrderIndex="6">
+            <FilterTemplate Context="Destinos">
+                <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true"></RadzenDropDown>
+            </FilterTemplate>
             <Template Context="data">
                 <div>
                     @data?.Destino?.Den
@@ -64,6 +70,9 @@
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="7">
+            <FilterTemplate Context="Productos">
+                <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+            </FilterTemplate>
             <Template Context="data">
                 <div>
                     @data?.Producto?.Den
@@ -122,6 +131,15 @@
 
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
 
+    private string ClienteSeleccionado = string.Empty;
+    private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
+
+    private string DestinosSeleccionados = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
+
+    private string ProductoSeleccionado = string.Empty;
+    private IEnumerable<string?> ProductoList { get; set; } = new List<string>();
+ 
     int width = 0;
     string TotalWidth = string.Empty;
 
@@ -186,6 +204,10 @@
                 loading = false;
                 OrdenEmbarques = responseHttp.Response;
                 OrdenesSeleccionadas = new List<OrdenEmbarque>();
+
+                DestinoList = OrdenEmbarques?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
+                ProductoList = OrdenEmbarques?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
+                ClienteList = OrdenEmbarques?.DistinctBy(x => x?.Cliente?.Den).Select(x => x?.Cliente?.Den)!;
             }
         }
         catch (Exception e)
@@ -232,12 +254,12 @@
                     loadingConfirm = false;
 
                     ns.Notify(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Enviando correos",
-                            Detail = "Se estan enviando los correos de autorizacion. Permanesca en esta pantalla hasta terminar el proceso.",
-                            Duration = 10000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando correos",
+                        Detail = "Se estan enviando los correos de autorizacion. Permanesca en esta pantalla hasta terminar el proceso.",
+                        Duration = 10000
+                    });
                     var responseEmail = await http.Post<IList<OrdenEmbarque>>("api/email/confirmorden", OrdenesSeleccionadas);
                     if (responseEmail.Error)
                     {
