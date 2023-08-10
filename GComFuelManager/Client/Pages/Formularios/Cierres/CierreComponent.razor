@@ -680,7 +680,7 @@
 
     private List<int> Cantidades { get; set; } = new List<int>();
 
-    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrga" };
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     private List<Precio> Precios { get; set; } = new List<Precio>();
 
@@ -1374,7 +1374,7 @@
     {
         try
         {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check/user");
+            var response = await http.Get<UsuarioInfo>("api/cuentas/check");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
