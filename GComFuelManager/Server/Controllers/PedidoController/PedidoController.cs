@@ -144,6 +144,40 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("filtrar/pendientes")]
+        public async Task<ActionResult> GetOrdenPendiente([FromBody] FechasF fechas)
+        {
+            try
+            {
+                List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
+
+                ordens = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 9 && x.Bolguidid == null
+                    && !string.IsNullOrEmpty(x.OrdenCierre.Folio) )
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenCierre)
+                    .OrderBy(x => x.Fchpet)
+                    .Take(10000)
+                    .ToListAsync();
+
+                ordens.OrderByDescending(x => x.Bin);
+
+                return Ok(ordens);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         //Method para obtener pedidos mediante rango de fechas y checbox seleccionado
         //REALIZAR TRES CONDICIONES, UNA POR CADA RADIOBUTTON, QUE SEA EN TRUE SE HARÁ EL MISMO FILTRO POR FECHAS EN WHERE AÑADIENDO LOS CAMPOS QUE UTILIZAN CADA CLAUSULA
         [HttpPost("filtro")]
