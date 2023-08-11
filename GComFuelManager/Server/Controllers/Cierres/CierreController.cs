@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Identity;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,11 +18,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
     public class CierreController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
 
-        public CierreController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        public CierreController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {
             this.context = context;
             UserManager = userManager;
+            this.verifyUser = verifyUser;
         }
 
         public UserManager<IdentityUsuario> UserManager { get; }
@@ -175,7 +178,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 orden.FchVencimiento = orden.FchCierre?.AddDays(8);
                 context.Add(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 1);
 
                 orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
                 orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
@@ -185,6 +193,31 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.OrdenEmbarque = Embarque;
 
                 return Ok(orden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{cod:int}/cancel")]
+        public async Task<ActionResult> CancelCierre([FromRoute] int cod)
+        {
+            try
+            {
+                var orden = await context.OrdenCierre.FirstOrDefaultAsync(x => x.Cod == cod);
+
+                if (orden == null)
+                {
+                    return NotFound();
+                }
+
+                orden.Estatus = false;
+
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {

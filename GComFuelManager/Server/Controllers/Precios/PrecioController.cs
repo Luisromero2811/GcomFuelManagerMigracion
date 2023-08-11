@@ -76,40 +76,54 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (usuario == null)
                         return BadRequest();
 
-                    //var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
-
-                    //if (zona == null)
-                    //    return BadRequest("No existe una relacion de precios con la zona y destino");
-
-                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
-                            .Include(x => x.Cliente)
-                            .ToListAsync();
-                    var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
-
-                    foreach (var item in ordenesUnic)
+                    if (string.IsNullOrEmpty(folio))
                     {
-                        var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                        Precio precio = new Precio()
+                        precios = await context.Precio.Where(x => x.codDes == zonaCliente.DesCod && x.Activo == true)
+                        //&& x.codZona == zona.ZonaCod)
+                        .Include(x => x.Producto)
+                        .ToListAsync();
+                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                         {
-                            Pre = item.Precio,
-                            codCte = item.CodCte,
-                            codDes = item.CodDes,
-                            codPrd = item.CodPrd,
-                            codGru = item.Cliente?.codgru,
-                            codZona = zona?.CteCod,
-                            Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
-                        };
-                        precios.Add(precio);
+                            precios.ForEach(x =>
+                            {
+                                var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                                var aumento = (porcentaje.Porcen / 100) + 1;
+                                x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                            });
+                        }
                     }
-
-                    if (context.Cliente.FirstOrDefault(x=>x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                    else
                     {
-                        precios.ForEach(x =>
+                        var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                                .Include(x => x.Cliente)
+                                .ToListAsync();
+                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
+
+                        foreach (var item in ordenesUnic)
                         {
-                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                            var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                        });
+                            var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
+                            Precio precio = new Precio()
+                            {
+                                Pre = item.Precio,
+                                codCte = item.CodCte,
+                                codDes = item.CodDes,
+                                codPrd = item.CodPrd,
+                                codGru = item.Cliente?.codgru,
+                                codZona = zona?.CteCod,
+                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
+                            };
+                            precios.Add(precio);
+                        }
+
+                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                        {
+                            precios.ForEach(x =>
+                            {
+                                var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                                var aumento = (porcentaje.Porcen / 100) + 1;
+                                x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                            });
+                        }
                     }
                 }
                 else

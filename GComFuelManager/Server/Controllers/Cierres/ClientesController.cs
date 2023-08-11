@@ -12,6 +12,9 @@ using System.ServiceModel;
 using ServiceReference8;
 using System.Drawing;
 using System;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
+using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -21,10 +24,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
     public class ClientesController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public ClientesController(ApplicationDbContext context)
+        public ClientesController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -41,12 +46,31 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpGet("{cod:int}")]
-        public async Task<ActionResult> GetByCod([FromRoute] int cod)
+        [HttpGet("one")]
+        public async Task<ActionResult> GetByCod()
         {
             try
             {
-                var clientes = context.Cliente.Find(cod);
+                Cliente clientes = new Cliente();
+                
+                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                //Si el usuario no existe
+                if (usuario == null)
+                    return NotFound();
+
+                var isClient = await userManager.IsInRoleAsync(usuario, "Comprador");
+                if (isClient)
+                {
+                    var user = context.Usuario.Find(usuario.UserCod);
+                    
+                    if (user is null)
+                        return BadRequest("No existe el usuario.");
+                    if (!user.IsClient)
+                        return BadRequest("No es cliente.");
+
+                    clientes = context.Cliente.Find(user!.CodCte!);
+                }
+                
                 return Ok(clientes);
             }
             catch (Exception e)

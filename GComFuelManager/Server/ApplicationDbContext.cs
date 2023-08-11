@@ -3,6 +3,7 @@ using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 
 namespace GComFuelManager.Server
 {
@@ -10,6 +11,69 @@ namespace GComFuelManager.Server
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
+        }
+
+        public virtual async Task<int> SaveChangesAsync(string? id, int? accion)
+        {
+            if (!string.IsNullOrEmpty(id) && accion != 0)
+                OnBeforeSaveChanges(id, accion);
+            var Results = await base.SaveChangesAsync();
+            return Results;
+        }
+
+        private void OnBeforeSaveChanges(string? id, int? accion)
+        {
+            ChangeTracker.DetectChanges();
+            var AccEntries = new List<ActividadDTO>();
+            foreach (var item in ChangeTracker.Entries())
+            {
+                if (item.Entity is ActividadRegistrada || item.State == EntityState.Detached || item.State == EntityState.Unchanged)
+                    continue;
+
+                var actividad = new ActividadDTO(item);
+
+                actividad.TableName = item.Entity.GetType().Name; //obtiene el nombre de la tabla
+                actividad.UserId = id;
+                actividad.AuditType = accion;
+
+                AccEntries.Add(actividad);
+
+                foreach (var prop in item.Properties)
+                {
+                    string propName = prop.Metadata.Name;
+
+                    //si la propiedad actual es una clave principal, agréguela al diccionario de claves principales y sáltela.
+                    if (prop.Metadata.IsPrimaryKey())
+                    {
+                        actividad.KeyValues[propName] = prop.CurrentValue!;
+                    }
+
+                    //en el switch detectamos el estado de la entidad (Agregado, Eliminado o Modificado)
+                    //y por cada caso agregamos nuevos datos a cada campo de la tabla auditoria
+                    switch (item.State)
+                    {
+                        case EntityState.Deleted:
+                            actividad.OldValues[propName] = prop.OriginalValue!;
+                            break;
+                        case EntityState.Modified:
+                            if (prop.IsModified)
+                            {
+                                actividad.ChangedColumns.Add(propName);
+                                actividad.OldValues[propName] = prop.OriginalValue!;
+                                actividad.NewValues[propName] = prop.CurrentValue!;
+                            }
+                            break;
+                        case EntityState.Added:
+                            actividad.NewValues[propName] = prop.CurrentValue!;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            //convertimos todas las Entradas de Auditoría a Auditorías y guardamos los cambios en el metodo original: var result = await base.SaveChangesAsync();
+            foreach (var item in AccEntries)
+                ActividadRegistrada.Add(item.ToAudit());
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -265,5 +329,7 @@ namespace GComFuelManager.Server
         public DbSet<Accion> Accion { get; set; }
         public DbSet<AccionCorreo> AccionCorreo { get; set; }
         public DbSet<Porcentaje> Porcentaje { get; set; }
+        public DbSet<OrdEmbDet> OrdEmbDet { get; set; }
+        public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
     }
 }

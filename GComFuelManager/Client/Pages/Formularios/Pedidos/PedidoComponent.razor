@@ -22,11 +22,11 @@
                     <div class="col-6 row">
                         <div class="col-4 mb-2">
                             <label class="form-label">Del:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
+                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchInicio"  />
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">A:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
+                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchFin" />
                         </div>
                         <div class="col-4 mt-2">
                             <label class="form-label"></label>
@@ -862,7 +862,7 @@
                 return;
             }
 
-            var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+            var response = await http.Get<Cliente>($"api/clientes/one");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

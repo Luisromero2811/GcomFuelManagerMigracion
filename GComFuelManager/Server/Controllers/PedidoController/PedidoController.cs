@@ -1,7 +1,10 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -19,10 +22,14 @@ namespace GComFuelManager.Server.Controllers
     public class PedidoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly VerifyUserId verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
 
-        public PedidoController(ApplicationDbContext context)
+        public PedidoController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
         {
             this.context = context;
+            this.verifyUser = verifyUser;
+            this.userManager = userManager;
         }
 
         [HttpGet]
@@ -190,7 +197,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         //Method para realizar (agregar) pedido
-        [HttpPost]
+        //[HttpPost]
         public async Task<ActionResult> Post(OrdenEmbarque orden)
         {
             try
@@ -205,7 +212,11 @@ namespace GComFuelManager.Server.Controllers
                 orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
 
                 context.Add(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+                await context.SaveChangesAsync(id, 2);
                 return Ok(orden);
             }
             catch (Exception e)
@@ -258,9 +269,14 @@ namespace GComFuelManager.Server.Controllers
                     x.FchOrd = DateTime.Today.Date;
                     Debug.WriteLine(JsonConvert.SerializeObject(x));
                 });
-                
                 context.UpdateRange(orden);
-                await context.SaveChangesAsync();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 15);
+
                 return Ok(newFolio);
             }
             catch (Exception e)
@@ -470,7 +486,12 @@ namespace GComFuelManager.Server.Controllers
                     orden.Tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Cod == orden.Codton);
 
                     context.Add(orden);
-                    await context.SaveChangesAsync();
+
+                    var id = await verifyUser.GetId(HttpContext, userManager);
+                    if (string.IsNullOrEmpty(id))
+                        return BadRequest();
+
+                    await context.SaveChangesAsync(id, 2);
                     return Ok(orden);
                 }
             }
@@ -562,6 +583,35 @@ namespace GComFuelManager.Server.Controllers
 
                 await context.SaveChangesAsync();
                 return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{cod:int}/cancel")]
+        public async Task<ActionResult> PutCancel([FromRoute] int cod)
+        {
+            try
+            {
+                OrdenEmbarque? pedido = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == cod);
+
+                if (pedido is null)
+                {
+                    return NotFound();
+                }
+
+                pedido.Codest = 14;
+                context.Update(pedido);
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 4);
+
+                return Ok();
             }
             catch (Exception e)
             {
