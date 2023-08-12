@@ -1,4 +1,4 @@
-﻿@page "/cierre-grupo"
+@page "/cierre-grupo"
 
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -328,8 +328,8 @@
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
             @bind-Settings="@Settings">
                 <Columns>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
-                        <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
+                        <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px" OrderIndex="1">
                             <Template Context="data">
                                 @if (data.Activa is true)
                                 {
@@ -342,12 +342,12 @@
                             </Template>
                         </RadzenDataGridColumn>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" OrderIndex="2"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" OrderIndex="7">
                         <FilterTemplate Context="Destinos">
                             <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
                         </FilterTemplate>
@@ -357,7 +357,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="8">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
                         </FilterTemplate>
@@ -387,8 +387,8 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" OrderIndex="9"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="10">
                         <Template Context="item">
                             <div class="col-12">
                                 @string.Format("{0:N2}",
@@ -402,10 +402,10 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" OrderIndex="11"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" OrderIndex="12"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" OrderIndex="13"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" OrderIndex="14"/>
                 </Columns>
             </RadzenDataGrid>
 
