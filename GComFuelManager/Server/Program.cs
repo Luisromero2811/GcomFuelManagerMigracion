@@ -60,6 +60,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
     options.Secure = CookieSecurePolicy.Always;
+   
 });
 
 var app = builder.Build();
@@ -81,6 +82,12 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+//Politica CRS para evitar ataques XSS
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; upgrade-insecure-requests; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self'");
+    await next();
+});
 
 app.UseHttpsRedirection();
 

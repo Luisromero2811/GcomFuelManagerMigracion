@@ -257,7 +257,7 @@
                     {
                         Severity = NotificationSeverity.Info,
                         Summary = "Enviando correos",
-                        Detail = "Se estan enviando los correos de autorizacion. Permanesca en esta pantalla hasta terminar el proceso.",
+                        Detail = "Se estan enviando los correos de autorizacion. Permanezca en esta pantalla hasta terminar el proceso.",
                         Duration = 10000
                     });
                     var responseEmail = await http.Post<IList<OrdenEmbarque>>("api/email/confirmorden", OrdenesSeleccionadas);
