@@ -1,4 +1,4 @@
-﻿@page "/cierre-grupo"
+@page "/cierre-grupo"
 
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -9,9 +9,9 @@
 @inject CierreGrupoValidation validation
 @inject AuthenticationStateProvider auth
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
     <Authorized>
 
         <h3><b>Cierre por grupo</b></h3>
@@ -147,7 +147,7 @@
             </Authorized>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORMULARIO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORMULARIO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mt-2">
                     <div class="col-12">
@@ -680,28 +680,6 @@
         }
     }
 
-    private async Task GetContactosComprador()
-    {
-        try
-        {
-            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/comprador");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Contactos = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     public async Task GetGrupos()
     {
         try
@@ -1120,29 +1098,6 @@
         }
     }
 
-    public async Task CheckClient()
-    {
-        try
-        {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check/user");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                IsClient = response.Response.IsClient;
-                user = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task GetPrecios()
     {
         try
@@ -1237,52 +1192,6 @@
         {
 
             var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchVencimiento);
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ordenCierres = response.Response;
-                await Swal.FireAsync("Exito", "Fecha de vencimiento modificada", SweetAlertIcon.Success);
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
-    private async void SetMargen()
-    {
-        try
-        {
-            if (ordenCierres.Count == 0)
-            {
-                await Swal.FireAsync("Alerta", "Debe de tener un cierre filtrado.", SweetAlertIcon.Warning);
-                return;
-            }
-
-            var fch = ordenCierres.FirstOrDefault();
-            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(8) : fch.FchVencimiento;
-            fchVencimiento.Folio = filtro.Folio;
-            AddDaysExpiration = true;
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
-    private async void SaveMargen()
-    {
-        try
-        {
-
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchCaducidad);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
