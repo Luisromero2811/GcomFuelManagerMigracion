@@ -10,9 +10,9 @@
 @inject OrdenCierreClientValidation clientValidation
 @inject AuthenticationStateProvider auth
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Validador Precio Automatico")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Validador Precio Automatico")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
     <Authorized>
 
         <h3><b>Cierre de Ordenes</b></h3>
@@ -148,7 +148,7 @@
             </Authorized>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORMULARIO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="FORMULARIO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mt-2">
                     <div class="col-12">
@@ -171,16 +171,7 @@
                                 </div>
                                 <EditForm Model="ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
                                     @*<DataAnnotationsValidator />*@
-                                    <AuthorizeView Context="Validation" Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador">
-                                        <Authorized>
-                                            <FluentValidationValidator Validator="validation" />
-                                        </Authorized>
-                                    </AuthorizeView>
-                                    <AuthorizeView Context="Validation" Roles="Comprador">
-                                        <Authorized>
-                                            <FluentValidationValidator Validator="clientValidation" />
-                                        </Authorized>
-                                    </AuthorizeView>
+                                    <FluentValidationValidator Validator="validation" />
                                     <ValidationSummary />
                                     <div class="col-12 row">
 
@@ -447,9 +438,9 @@
             <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-2 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                            @bind-Settings="@Settings">
+            @bind-Settings="@Settings">
                 <Columns>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Comprador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
                         <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar" Filterable="false" Frozen="true" Width="110px" OrderIndex="1">
                             <Template Context="data">
                                 @if (data.Activa is true)
@@ -652,8 +643,6 @@
     CierreFiltroDTO fchVencimiento { get; set; } = new CierreFiltroDTO();
     CierreFiltroDTO fchCaducidad { get; set; } = new CierreFiltroDTO();
 
-    UsuarioInfo user { get; set; } = new UsuarioInfo();
-
     OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
     List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
 
@@ -748,27 +737,17 @@
             if (authState is not null)
                 User = authState.User;
 
-            await CheckClient();
-            if (!IsClient)
+            var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
+            months.RemoveAt(months.IndexOf(months.Last()));
+            var i = 1;
+            foreach (var item in months)
             {
-                var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
-                months.RemoveAt(months.IndexOf(months.Last()));
-                var i = 1;
-                foreach (var item in months)
-                {
 
-                    meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
-                    i++;
-                }
-                await GetGrupos();
-                await GetYears();
-                //await GetEstaciones();
+                meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
+                i++;
             }
-            else
-            {
-                await GetDestinoComprador();
-                await GetContactosComprador();
-            }
+            await GetGrupos();
+            await GetYears();
             await GetCantidades();
             await GetProductos();
         }
@@ -797,7 +776,7 @@
     ts.Open(elementReference, "Seleccione para realizar un cierre por volumen.", options);
     void ShowToolTipVigencia(ElementReference elementReference, TooltipOptions options = null!) =>
     ts.Open(elementReference, "La vigencia del cierre es por solo 7 días", options);
- 
+
     private async Task GetData()
     {
         if (ordenCierre.CodCte != null || clienteSeleccioado != ordenCierre.CodCte)
@@ -822,28 +801,6 @@
             {
                 Productos = response.Response;
                 ProductList = response.Response.DistinctBy(x => x.Den).Select(x => x.Den)!;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
-    private async Task GetContactosComprador()
-    {
-        try
-        {
-            var response = await http.Get<IEnumerable<Contacto>>($"api/contacto/comprador");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Contactos = response.Response;
             }
         }
         catch (Exception e)
@@ -955,14 +912,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                        {
+                            Codprd = ordenCierre.CodPrd,
+                            Pre = ordenCierre.Precio,
+                            Vol = ordenCierre.Volumen,
+                            Coddes = ordenCierre.CodDes,
+                            Fchpet = DateTime.Now,
+                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                        };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -1257,28 +1214,6 @@
         }
     }
 
-    public async Task GetDestinoComprador()
-    {
-        try
-        {
-            var response = await http.Get<List<CodDenDTO>>($"api/destino/comprador");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Destino = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     public async Task GetFolio()
     {
         try
@@ -1289,14 +1224,14 @@
                 {
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Agregar pedido",
-                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                        Icon = SweetAlertIcon.Warning,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Aceptar",
-                        ShowCancelButton = true
-                    });
+                        {
+                            Title = "Agregar pedido",
+                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                            Icon = SweetAlertIcon.Warning,
+                            CancelButtonText = "Cancelar",
+                            ConfirmButtonText = "Aceptar",
+                            ShowCancelButton = true
+                        });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();
@@ -1306,9 +1241,6 @@
                         return;
                     }
                 }
-
-                if (IsClient)
-                    ordenCierre.CodCte = user.CodCte;
 
                 var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
                 if (response.Error)
@@ -1323,11 +1255,11 @@
 
                     if (string.IsNullOrEmpty(Cliente.CodCte))
                         ms.Notify(new NotificationMessage()
-                        {
-                            Severity = NotificationSeverity.Warning,
-                            Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno en base al nombre de usuario",
-                            Duration = 5000
-                        });
+                            {
+                                Severity = NotificationSeverity.Warning,
+                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno en base al nombre de usuario",
+                                Duration = 5000
+                            });
 
                     var userCod = User.Identity?.Name?.Substring(0, 3);
                     if (string.IsNullOrEmpty(userCod))
@@ -1370,38 +1302,10 @@
         }
     }
 
-    public async Task CheckClient()
-    {
-        try
-        {
-            var response = await http.Get<UsuarioInfo>("api/cuentas/check/user");
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                IsClient = response.Response.IsClient;
-                user = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task GetPrecios()
     {
         try
         {
-            if (ordenCierre.CodDes != null && ordenCierre.CodCte != null && DestinoSeleccionado != ordenCierre.CodDes)
-            {
-
-            }
-
             ZonaCliente zonaCliente = new ZonaCliente();
             zonaCliente.DesCod = ordenCierre.CodDes;
             zonaCliente.CteCod = ordenCierre.CodCte;

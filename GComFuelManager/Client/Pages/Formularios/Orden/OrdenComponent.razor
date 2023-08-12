@@ -5,9 +5,9 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Cliente Lectura, Direccion, Gerencia")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
     <Authorized>
         <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
 
@@ -15,7 +15,7 @@
                 <div class="col-12">
                     <div class="col-12 card">
                         <div class="col-12 card-body">
-                            <AuthorizeView Roles="Admin, Administrador Sistema" Context="Filtros">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Filtros">
                                 <div class="col-12 row">
                                     <div class="col-12 row">
                                         <div class="col-8">
@@ -89,61 +89,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-12 row">
-                            <AuthorizeView Context="MonthFilter" Roles="Cliente Lectura">
-                                <Authorized>
-                                    <div class="col-3">
-                                        <label class="form-label">Año</label>
-                                        <InputSelect @bind-Value="añoSeleccionado" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (años is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (años.Count == 0)
-                                            {
-                                                <option disabled> No hay capacidades</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in años)
-                                                {
-                                                    <option value="@item">@item</option>
-                                                }
-                                            }
-                                        </InputSelect>
-                                    </div>
-                                    <div class="col-3">
-                                        <label class="form-label">Mes</label>
-                                        <InputSelect @bind-Value="mesSeleccionado" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (meses is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (meses.Count == 0)
-                                            {
-                                                <option disabled> No hay capacidades</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in meses)
-                                                {
-                                                    <option value="@item.Cod">@item.Den.ToUpper()</option>
-                                                }
-                                            }
-                                        </InputSelect>
-                                    </div>
-                                    <div class="col-3 d-flex ">
-                                        <div class="col-12 mt-auto">
-                                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
-                                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedidos
-                                            </button>
-                                        </div>
-                                    </div>
-                                </Authorized>
-                            </AuthorizeView>
                         </div>
                     </div>
                 </div>
