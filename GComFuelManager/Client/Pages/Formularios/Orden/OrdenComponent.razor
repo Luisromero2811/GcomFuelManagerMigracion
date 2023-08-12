@@ -45,7 +45,7 @@
                                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                             AllowVirtualization="true">
                                                 <ValueTemplate Context="data">
-                                                    <InputText class="form-control col-12" @bind-Value="@filtro.Folio" />
+                                                    <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLength="10"/>
                                                 </ValueTemplate>
                                             </RadzenDropDown>
                                         </div>
