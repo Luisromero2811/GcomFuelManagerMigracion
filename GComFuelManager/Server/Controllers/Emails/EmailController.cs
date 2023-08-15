@@ -164,7 +164,7 @@ namespace GComFuelManager.Server.Controllers.Emails
 
                     //emailContent.Nombre = contacto.Nombre;
                     //emailContent.Email = contacto.Correo;
-                    emailContent.Subject = "Listado de precios del dia";
+                    emailContent.Subject = "Autorizacion de orden";
                     emailContent.Lista = list;
                     emailContent.ToList = ToList;
 
