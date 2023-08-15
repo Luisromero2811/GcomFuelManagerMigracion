@@ -1,0 +1,15 @@
+﻿@page "/logout"
+@using GComFuelManager.Client.Auth;
+@inject ILoginService loginService
+@inject NavigationManager navigationManager
+
+<p>Deslogueando...</p>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await loginService.Logoute();
+        navigationManager.NavigateTo("/login");
+    }
+}
+
