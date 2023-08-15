@@ -97,10 +97,14 @@
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
                                 <Template Context="data">
-                                    @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                    @((data as Precio).Producto.Den)
+                                    @*| $@((data as Precio).Pre*@
+    
                                 </Template>
                                 <ValueTemplate Context="data">
-                                    @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                    @((data as Precio).Producto.Den)
+                                    @*| $@((data as Precio).Pre*@
+    
                                 </ValueTemplate>
                             </RadzenDropDown>
                         </div>
