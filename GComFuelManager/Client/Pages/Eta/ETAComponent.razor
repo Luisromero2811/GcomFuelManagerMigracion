@@ -33,7 +33,7 @@
             </AuthorizeView>
             <div class="row d-flex g-3">
                 <div class="row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Trayectos">
+                    @*<AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Trayectos">
                         <div class="col-4">
                             <label>En trayecto:</label>
                             <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
@@ -41,7 +41,7 @@
                                 <option value="26">SI</option>
                             </InputSelect>
                         </div>
-                    </AuthorizeView>
+                    </AuthorizeView>*@
                     <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Equipo">
                         <div class="col-4">
                             <label>Equipo:</label>
@@ -73,7 +73,7 @@
                 <div class="row g-3 mt-1 mb-2">
                     <div class="col-6">
                         <label>Observaciones</label>
-                        <InputTextArea class="form-control" @bind-Value="Ordenes.Obs"></InputTextArea>
+                        <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLength="250" Placeholder="Máximo 250 caracteres"></InputTextArea>
                     </div>
                 </div>
             </AuthorizeView>

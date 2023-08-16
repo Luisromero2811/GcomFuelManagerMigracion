@@ -54,11 +54,11 @@
                         <div class="col-12 mb-3 row">
                             <div class="col-5">
                                 <label class="form-label">Nombre</label>
-                                <InputText class="form-control" @bind-Value="Contacto.Nombre" />
+                                <InputText class="form-control" @bind-Value="Contacto.Nombre" MaxLength="26" PlaceHolder="Maximo 26 caracteres"/>
                             </div>
                             <div class="col-5">
                                 <label class="form-label">Correo</label>
-                                <InputText class="form-control" @bind-Value="Contacto.Correo" />
+                                <InputText class="form-control" @bind-Value="Contacto.Correo" MaxLength="70"/>
                             </div>
                             <div class="col-2 d-flex mt-auto">
                                 @if (!isEdit)
