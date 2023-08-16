@@ -38,6 +38,11 @@ namespace GComFuelManager.Shared.Modelos
                 return FchDia.ToString("dd/MM/yyyy");
             }
         }
+        [EpplusIgnore, NotMapped]
+        public bool PrecioOverDate
+        {
+            get { return FchDia < DateTime.Today; }
+        }
         [NotMapped, DisplayName("Zona")] public string? NombreZona { get { return Zona?.Nombre; } }
         [NotMapped, DisplayName("Destino")] public string? NombreDestino { get { return Destino?.Den; } }
         [NotMapped, DisplayName("Cliente")] public string? NombreCliente { get { return Cliente?.Den; } }

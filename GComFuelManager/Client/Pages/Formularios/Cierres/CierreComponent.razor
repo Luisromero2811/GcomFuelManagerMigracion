@@ -39,7 +39,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Fecha de cierre</label>
-                                                <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" ShowTime="false" DateFormat="dd/MM/yyyy"/>
+                                                <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" ShowTime="false" DateFormat="dd/MM/yyyy" />
                                             </div>
                                         </div>
 
@@ -142,7 +142,7 @@
                                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                     </label>
                                                 </div>
-                                                <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true"/>
+                                                <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" />
                                             </div>
                                         </div>
 
@@ -481,6 +481,12 @@
 
             if (ordenCierre.IsCierreVolumen)
             {
+                foreach (var item in Precios)
+                {
+                    if (item.PrecioOverDate)
+                        if (ordenCierre.Precio == item.Pre)
+                            ordenCierre.PrecioOverDate = true;
+                }
                 var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
                 if (responseOC.Error)
                 {
@@ -516,7 +522,12 @@
                             Fchpet = DateTime.Now,
                             Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
                         };
-
+                    foreach (var item in Precios)
+                    {
+                        if (item.PrecioOverDate)
+                            if (ordenCierre.Precio == item.Pre)
+                                ordenCierre.PrecioOverDate = true;
+                    }
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
                     {

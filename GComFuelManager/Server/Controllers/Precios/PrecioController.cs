@@ -82,15 +82,16 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
-                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+
+                        precios.ForEach(x =>
                         {
-                            precios.ForEach(x =>
+                            if (x.FchDia != DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                             {
                                 var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                                 var aumento = (porcentaje.Porcen / 100) + 1;
                                 x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                            });
-                        }
+                            }
+                        });
                     }
                     else
                     {
@@ -140,22 +141,23 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
-                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+
+                        precios.ForEach(x =>
                         {
-                            precios.ForEach(x =>
+                            if (x.FchDia != DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                             {
                                 var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                                 var aumento = (porcentaje.Porcen / 100) + 1;
                                 x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                            });
-                        }
+                            }
+                        });
                     }
                     else
                     {
                         var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
-                            .Include(x=>x.Cliente)
+                            .Include(x => x.Cliente)
                             .ToListAsync();
-                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x=>x);
+                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
 
                         foreach (var item in ordenesUnic)
                         {
@@ -183,6 +185,6 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        
+
     }
 }

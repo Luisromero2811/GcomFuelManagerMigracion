@@ -12,8 +12,8 @@ namespace GComFuelManager.Shared.Modelos
     {
         [Key, JsonPropertyName("cod"), EpplusIgnore]
         public int Cod { get; set; }
-        
-        [JsonPropertyName("fchCierre"),EpplusIgnore]
+
+        [JsonPropertyName("fchCierre"), EpplusIgnore]
         public DateTime? FchCierre { get; set; } = DateTime.Today;
         [JsonPropertyName("fchVencimiento"), EpplusIgnore]
         public DateTime? FchVencimiento { get; set; } = DateTime.Today;
@@ -29,27 +29,27 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("contacto"), EpplusIgnore]
         public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
-        
+
         [JsonPropertyName("email"), EpplusIgnore]
         public string? Email { get { return ContactoN != null ? ContactoN.Correo : string.Empty; } }
-        
+
         [JsonPropertyName("codPrd"), EpplusIgnore]
         public byte? CodPrd { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Producto? Producto { get; set; } = null!;
         [DisplayName("producto")]
         public string? Pro { get { return Producto != null ? Producto.Den : string.Empty; } }
-        
+
         [JsonPropertyName("codCte"), EpplusIgnore]
         public int? CodCte { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Cliente? Cliente { get; set; } = null!;
-        
+
         [JsonPropertyName("modeloVenta"), EpplusIgnore]
         public string? ModeloVenta { get; set; } = string.Empty;
 
@@ -61,17 +61,17 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double? Precio { get; set; } = 0;
-        
+
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;
-        
+
         [JsonPropertyName("vendedor"), DisplayName("Vendedor")]
         public string? Vendedor { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("codDes"), EpplusIgnore]
         public int? CodDes { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Destino? Destino { get; set; } = null!;
 
         [DisplayName("destino")]
@@ -86,7 +86,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("estatus"), EpplusIgnore]
         public bool? Estatus { get; set; } = true;
 
@@ -136,6 +136,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool IsAutoPrecio { get; set; } = true;
 
         [EpplusIgnore, NotMapped]
-        public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO(); 
+        public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO();
+        [EpplusIgnore, NotMapped]
+        public bool PrecioOverDate { get; set; }
     }
 }
