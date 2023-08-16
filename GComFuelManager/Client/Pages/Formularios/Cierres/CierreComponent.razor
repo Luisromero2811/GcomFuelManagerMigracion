@@ -28,7 +28,7 @@
                                     <div class="col-3 row">
                                         <div class="col-6">
                                             <label>Folio</label>
-                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" />
+                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10"/>
                                         </div>
                                         <div class="col-3 d-flex">
                                             <div class="col-12 mt-auto">
@@ -340,7 +340,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" />
+                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" MaxLenght="20"/>
                                                 }
                                             </div>
                                         </div>
@@ -394,7 +394,7 @@
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
                                                 <label>Observaciones</label>
-                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" />
+                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260"/>
                                             </div>
                                         </div>
 
