@@ -885,6 +885,12 @@
 
             if (ordenCierre.IsCierreVolumen)
             {
+                foreach (var item in Precios)
+                {
+                    if (item.PrecioOverDate)
+                        if (ordenCierre.Precio == item.Pre)
+                            ordenCierre.PrecioOverDate = true;
+                }
                 var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
                 if (responseOC.Error)
                 {
@@ -901,6 +907,12 @@
             }
             else
             {
+                foreach (var item in Precios)
+                {
+                    if (item.PrecioOverDate)
+                        if (ordenCierre.Precio == item.Pre)
+                            ordenCierre.PrecioOverDate = true;
+                }
                 var responseBIN = await http.Get<int>("api/pedido/binNumber");
                 if (responseBIN.Error)
                 {

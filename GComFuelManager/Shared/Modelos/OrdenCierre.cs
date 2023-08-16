@@ -139,5 +139,7 @@ namespace GComFuelManager.Shared.Modelos
         public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO();
         [EpplusIgnore, NotMapped]
         public bool isGroup { get; set; } = false;
+        [EpplusIgnore, NotMapped]
+        public bool PrecioOverDate { get; set; }
     }
 }

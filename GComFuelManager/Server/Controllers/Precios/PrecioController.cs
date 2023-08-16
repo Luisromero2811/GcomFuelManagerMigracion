@@ -145,7 +145,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
-                await context.SaveChangesAsync(id,acc);
+                await context.SaveChangesAsync(id, acc);
 
                 return Ok();
             }
@@ -191,15 +191,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                         .Include(x => x.Producto)
                         .ToListAsync();
 
-                    if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                    precios.ForEach(x =>
                     {
-                        precios.ForEach(x =>
+                        if (x.FchDia < DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                         {
                             var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                             var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                        });
-                    }
+                            x.Pre = x.FchDia < DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                        }
+                    });
                 }
                 else
                 {
@@ -215,15 +215,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == zona.ZonaCod)
                         .Include(x => x.Producto)
                         .ToListAsync();
-                        if (context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                        precios.ForEach(x =>
                         {
-                            precios.ForEach(x =>
+                            if (x.FchDia < DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                             {
                                 var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                                 var aumento = (porcentaje.Porcen / 100) + 1;
-                                x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
-                            });
-                        }
+                                x.Pre = x.FchDia < DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                            }
+                        });
                     }
                     else
                     {
@@ -281,7 +281,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var destino = context.Destino.FirstOrDefault(x => x.Den!.Equals(item.Destino!));
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino}");
-                    
+
                     if (DateTime.Parse(item.Fecha) > DateTime.Today)
                     {
                         var precio = new PrecioProgramado
@@ -298,7 +298,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                         prec.Add(precio);
                     }
-                    else if(DateTime.Parse(item.Fecha) == DateTime.Today)
+                    else if (DateTime.Parse(item.Fecha) == DateTime.Today)
                     {
                         var precio = new Precio
                         {
@@ -346,7 +346,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     }
                 }
 
-                if(prec.Count > 0)
+                if (prec.Count > 0)
                 {
                     context.PrecioProgramado.ExecuteDelete();
                     context.AddRange(prec);
@@ -356,7 +356,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,8);
+                await context.SaveChangesAsync(id, 8);
 
                 return Ok();
             }
@@ -399,7 +399,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 var fchFin = DateTime.Today.AddHours(2).AddMinutes(20);
                 if (fchInicio <= fchHoy && fchFin >= fchHoy)
                 {
-                    
+
                 }
 
                 List<PrecioProgramado> precios = new List<PrecioProgramado>();
@@ -467,8 +467,8 @@ namespace GComFuelManager.Server.Controllers.Precios
             try
             {
                 var precios = await context.PrecioProgramado
-                    .Where(x=>x.FchDia >= DateTime.Today)
-                    .Include(x=>x.Zona)
+                    .Where(x => x.FchDia >= DateTime.Today)
+                    .Include(x => x.Zona)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
