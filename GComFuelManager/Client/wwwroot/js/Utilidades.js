@@ -5,7 +5,7 @@
 
     function resetTimer() {
         clearTimeout(timer);
-        timer = setTimeout(logout, 4*100000);
+        timer = setTimeout(logout, 4*10000);
     }
     function logout() {
         dotnetHelper.invokeMethodAsync("Logoute");
