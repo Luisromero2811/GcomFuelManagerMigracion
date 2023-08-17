@@ -1,4 +1,4 @@
-﻿@page "/precios"
+@page "/precios"
 @inject IJSRuntime js
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -198,7 +198,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Precio</label>
-                                <InputNumber TValue="double?" @bind-Value="Precio.Pre" class="form-control col-12" MaxLenght="10"/>
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" MaxLenght="10"/>
                             </div>
                             <div class="col-12 d-flex justify-content-center row">
                                 <div class="col-4">
@@ -240,7 +240,7 @@
             <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                             IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                            @bind-Settings="@Settings">
+                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions">
                 <Columns>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                         <Authorized>
@@ -312,7 +312,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                        @bind-Settings="@Settings">
+                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -435,6 +435,8 @@
 
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
 
     protected override async Task OnInitializedAsync()
     {
@@ -660,7 +662,7 @@
     {
         try
         {
-            if (Precio.codCte != 0 && ClienteSeleccionado != Precio.codCte)
+            if (Precio.codCte != null && ClienteSeleccionado != Precio.codCte)
             {
                 var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.codCte}");
                 if (response.Error)
