@@ -60,7 +60,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? TipoPago { get; set; } = string.Empty;
 
         [JsonPropertyName("precio"), DisplayName("Precio")]
-        public double? Precio { get; set; } = 0;
+        public double Precio { get; set; } = 0;
         
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;
@@ -139,5 +139,7 @@ namespace GComFuelManager.Shared.Modelos
         public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO();
         [EpplusIgnore, NotMapped]
         public bool isGroup { get; set; } = false;
+        [EpplusIgnore, NotMapped]
+        public bool PrecioOverDate { get; set; }
     }
 }

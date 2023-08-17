@@ -200,6 +200,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
                 orden.OrdenEmbarque = Embarque;
 
+                if (orden.PrecioOverDate)
+                {
+                    CierrePrecioDespuesFecha cierreprecio = new CierrePrecioDespuesFecha()
+                    {
+                        CodCie = orden.Cod,
+                        CodCte = orden.CodCte,
+                        CodPrd = orden.CodPrd,
+                        Precio = orden.Precio
+                    };
+                    context.Add(cierreprecio);
+                    await context.SaveChangesAsync();
+                }
+
                 return Ok(orden);
             }
             catch (Exception e)

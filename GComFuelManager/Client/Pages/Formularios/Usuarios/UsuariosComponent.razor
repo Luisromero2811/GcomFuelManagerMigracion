@@ -152,9 +152,9 @@
     <!--class="rz-my-12 ancho"-->
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center mb-2">
-        <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+        <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" AllowPaging="true"
                         GridLines="DataGridGridLines.Both" Style="height:500px;" class="mb-3" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="@loadingEdit" @ref="@grid" AllowSorting="true" AllowColumnPicking="false">
+                        IsLoading="@loadingEdit" @ref="@grid" AllowSorting="true" AllowColumnPicking="false" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Acciones">
                     <Authorized>
@@ -249,6 +249,8 @@
     ElementReference Icon;
 
     private RadzenDropDown<List<string>> dropdown = new RadzenDropDown<List<string>>();
+
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
 
     //Ciclo de vida de inicio del componente
     protected override async Task OnInitializedAsync()
