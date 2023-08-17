@@ -1,4 +1,4 @@
-@page "/cierres"
+@page "/cierre/pedido"
 
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -331,7 +331,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" TValue="double?" />
+                                                    <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" TValue="double" />
                                                 }
                                                 else
                                                 {
@@ -340,7 +340,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double?" />
+                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double" />
                                                 }
                                             </div>
                                         </div>
@@ -1348,7 +1348,7 @@
         {
             if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
             {
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 StateHasChanged();
             }
@@ -1523,7 +1523,7 @@
                 {
                     ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
                 }
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 StateHasChanged();
             }
