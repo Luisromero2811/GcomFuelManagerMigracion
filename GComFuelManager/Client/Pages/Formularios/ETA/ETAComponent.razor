@@ -7,6 +7,7 @@
 @using System.IO;
 @using System.Text.Json;
 @using GComFuelManager.Client.Helpers;
+@using System.Globalization; 
 @inject TooltipService ts
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador")]
 
@@ -21,7 +22,7 @@
                     <div class="row">
                         <div class="col-6">
                             <label>Número de Bol:</label>
-                            <InputNumber class="form-control" @bind-Value="Ordenes.Bol" />
+                            <InputNumber class="form-control" @bind-Value="Ordenes.Bol" MaxLenght="20"/>
                         </div>
                         <div class="col-1 mt-4">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@GetOrden">
@@ -87,7 +88,7 @@
                     </div>
                     <div class="col-6">
                         <label>Cantidad de litros recibidos:</label>
-                        <InputNumber class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" />
+                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" Format="n" MaxLenght="30"/>
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">

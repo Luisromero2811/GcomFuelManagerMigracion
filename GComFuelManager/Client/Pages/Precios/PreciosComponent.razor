@@ -1,4 +1,4 @@
-﻿@page "/precios"
+@page "/precios"
 @inject IJSRuntime js
 @inject IRepositorio http
 @inject SweetAlertService Swal
@@ -198,7 +198,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label class="form-label">Precio</label>
-                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" MaxLenght="10"/>
                             </div>
                             <div class="col-12 d-flex justify-content-center row">
                                 <div class="col-4">

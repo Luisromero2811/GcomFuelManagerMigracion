@@ -1,4 +1,4 @@
-﻿function timerInactivo(dotnetHelper) {
+function timerInactivo(dotnetHelper) {
     var timer;
     document.onmousemove = resetTimer;
     document.onkeypress = resetTimer;
