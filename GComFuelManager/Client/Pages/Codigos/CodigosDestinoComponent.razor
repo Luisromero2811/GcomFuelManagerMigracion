@@ -36,15 +36,16 @@
                     IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
     @bind-Settings="@Settings" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
         <Columns>
-            <RadzenDataGridColumn TItem="Destino" Title="Destino" Property="Den" Filterable="true" Width="120px" OrderIndex="2" />
-            <RadzenDataGridColumn TItem="Destino" Title="Codigo de synthesis" Property="Codsyn" Filterable="false" Width="120px" OrderIndex="3" />
-            <RadzenDataGridColumn TItem="Destino" Title="Codigo de tuxpan" Property="CodGamo" Filterable="false" OrderIndex="4">
+            <RadzenDataGridColumn TItem="Destino" Title="Destino" Property="Den" Filterable="true" OrderIndex="2" />
+            <RadzenDataGridColumn TItem="Destino" Title="Direccion" Property="Dir" Filterable="false" OrderIndex="3" />
+            <RadzenDataGridColumn TItem="Destino" Title="Codigo de synthesis" Property="Codsyn" Filterable="false" Width="100px" OrderIndex="3" />
+            <RadzenDataGridColumn TItem="Destino" Title="Codigo de tuxpan" Property="CodGamo" Filterable="false" Width="100px" OrderIndex="4">
                 <EditTemplate Context="destino">
                     <RadzenNumeric @bind-Value="destino.CodGamo" Style="width:100%;display:block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
             <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
-                <RadzenDataGridColumn TItem="Destino" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="156px" Title="Editar">
+                <RadzenDataGridColumn TItem="Destino" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100px" Title="Editar">
                     <Template Context="data">
                         <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" Click="@( args => SetEditRow(data))">
                         </RadzenButton>
