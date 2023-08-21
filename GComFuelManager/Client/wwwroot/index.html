@@ -8,10 +8,13 @@
           content="base-uri 'self';
                default-src 'self';
                img-src data: https:
-                             data:;
+                             data:
+                             'self'
+                             blob:;
                object-src 'none';
                script-src 'self'
-                          'unsafe-eval';
+                          'unsafe-eval'
+                          'unsafe-inline';
                style-src 'self'
                          'unsafe-inline';
                upgrade-insecure-requests;">
