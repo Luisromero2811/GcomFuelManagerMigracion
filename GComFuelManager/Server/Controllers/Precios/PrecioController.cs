@@ -61,14 +61,16 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                             var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
 
-                            if (row.Count == 6)
+                            if (row.Count == 8)
                             {
                                 precio.Producto = row[0].Value.ToString();
                                 precio.Zona = row[1].Value.ToString();
                                 precio.Cliente = row[2].Value.ToString();
                                 precio.Destino = row[3].Value.ToString();
-                                precio.Fecha = row[4].Value.ToString();
-                                precio.Precio = double.Parse(row[5].Value.ToString());
+                                precio.CodSyn = row[4].Value.ToString();
+                                precio.CodTux = row[5].Value.ToString();
+                                precio.Fecha = row[6].Value.ToString();
+                                precio.Precio = double.Parse(row[7].Value.ToString());
                                 precios.Add(precio);
                             }
                         }
