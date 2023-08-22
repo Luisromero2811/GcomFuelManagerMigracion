@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Diagnostics;
 using System.ServiceModel;
-//using ServiceReference6;
-using ServiceReference8;
+using ServiceReference6;
+//using ServiceReference8;
 using System.Drawing;
 using System;
 using GComFuelManager.Server.Helpers;
@@ -53,7 +53,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = context.Cliente.Find(cod);
+                Cliente? clientes = context.Cliente.FirstOrDefault(x => x.Cod == cod);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -188,7 +188,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,state);
+                await context.SaveChangesAsync(id, state);
 
                 return Ok();
             }
@@ -236,7 +236,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -268,7 +268,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
                     //Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
-
+                    //return Ok(respuesta.BusinessEntityAssociations);
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
                         //var clienteId = respuesta.BusinessEntityAssociations.FirstOrDefault(x => x.BusinessEntity.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
@@ -298,6 +298,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Dir = items.Address.Address1,
                                     Ciu = items.Address.City,
                                     Est = items.Address.State != null ? items.Address.State : "N/A",
+                                    CodGamo = long.Parse(string.IsNullOrEmpty(items.DestinationCode) ? "0" : items.DestinationCode)
                                 };
                                 //Obtención del Cod del Destino 
                                 Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
@@ -309,7 +310,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}");
+                                        Debug.WriteLine($"activo: {d.Cod}, nombre {d.Den}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -318,7 +319,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
+                                        d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
+                                        Debug.WriteLine($"antes");
                                         context.Update(d);
+
+                                        Debug.WriteLine($"completo");
+
                                     }
                                     else
                                     {
@@ -362,6 +368,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Dir = itemss.Address.Address1,
                                     Ciu = itemss.Address.City,
                                     Est = itemss.Address.State != null ? itemss.Address.State : "N/A",
+                                    CodGamo = long.Parse(string.IsNullOrEmpty(itemss.DestinationCode) ? "0" : itemss.DestinationCode)
                                 };
                                 //Obtención del code del destino 
                                 Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
@@ -373,7 +380,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo 
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}");
+                                        Debug.WriteLine($"activo: {d.Cod}, nombre {d.Den}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -382,7 +389,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
+                                        d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
+                                        Debug.WriteLine($"antes");
+
                                         context.Update(d);
+                                        Debug.WriteLine($"completo");
+
                                     }
                                     else
                                     {
