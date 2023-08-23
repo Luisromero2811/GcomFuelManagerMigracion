@@ -49,6 +49,10 @@
                                                         GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                         IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true">
                                             <Columns>
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Synthesis" Property="CodSyn" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Tuxpan" Property="CodTux" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
@@ -64,8 +68,6 @@
                                                     </Template>
                                                 </RadzenDataGridColumn>
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
                                             </Columns>
                                         </RadzenDataGrid>
                                     </ChildContent>
@@ -823,7 +825,7 @@
                 await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
                 return;
             }
-
+            ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Subiendo precios", Detail = $"Los precios se estan subiendo, esto podria tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.", Duration = 10000 });
             var response = await http.Post<IEnumerable<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
             if (response.Error)
             {
