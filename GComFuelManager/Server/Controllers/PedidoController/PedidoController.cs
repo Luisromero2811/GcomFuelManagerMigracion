@@ -87,9 +87,7 @@ namespace GComFuelManager.Server.Controllers
                 OrdenEmbarque? pedido = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == cod);
 
                 if (pedido is null)
-                {
                     return NotFound();
-                }
 
                 pedido.Codest = 14;
                 context.Update(pedido);
@@ -467,7 +465,6 @@ namespace GComFuelManager.Server.Controllers
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;
-                    Debug.WriteLine(JsonConvert.SerializeObject(x));
                 });
                 
                 context.UpdateRange(orden);
