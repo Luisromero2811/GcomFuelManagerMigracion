@@ -31,7 +31,9 @@
                             </RadzenUpload>
                         </div>
                         <div class="col-2 d-flex">
-                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile"> <i class="fa-solid fa-upload"></i> subir</button>
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile">
+                            <i class="fa-solid fa-upload"></i>
+                            subir</button>
 
                         </div>
                         <div class="col-12 mt-3">
@@ -322,7 +324,9 @@
                                             <Template Context="item">
                                                 <div class="col-12 row">
                                                     <div class="col">
-                                                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))">
+                                                        @*<i class="fa fa-solid fa-pen-to-square"></i>*@
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </Template>

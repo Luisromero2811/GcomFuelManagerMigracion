@@ -86,9 +86,9 @@
                         <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
                                           @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
                     </div>
-                    <div class="col-6">
-                        <label>Cantidad de litros recibidos:</label>
-                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" Format="n" MaxLenght="30"/>
+                    <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
+                        <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" Format="n2" MaxLenght="30"/>
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">
@@ -167,9 +167,11 @@
     //Element References
     ElementReference infossIcon;
     ElementReference infosIcon;
+    ElementReference infoIcons;
     //Tooltips de reportes
     void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de buscar ordenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
-    void ShowToolsTips(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "En caso de buscar Ordenes con Tipo de Venta RACK, solo filtre entre un rango de fechas");
+    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de buscar Ordenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
+    void ShowToolTips(ElementReference elementReference, TooltipOptions option = null!) => ts.Open(elementReference, "Favor de de utilzar formato de separadores de miles. Ejemplo: 11.000,00 = Once mil", option);
 
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
@@ -283,7 +285,7 @@
                   , true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:S1"];
+                var header = worksheet.Cells["A1:T1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 //Guardar Excell

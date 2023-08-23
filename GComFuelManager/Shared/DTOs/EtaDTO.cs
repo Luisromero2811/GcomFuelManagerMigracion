@@ -50,9 +50,11 @@ namespace GComFuelManager.Shared.DTOs
         public string? Observaciones { get; set; } = string.Empty;
         [DisplayName("Fecha Real de Llegada")]
         public string? FechaRealEta { get; set; } = string.Empty;
-        [DisplayName("Litros Entregados")]
-        public double? LitEnt { get; set; } = 0;
 
+        [DisplayName("Litros Entregados"), EpplusIgnore]
+        public double? LitEnt { get; set; } = 0;
+        [DisplayName("Litros Entregados")]
+        public string EntLit { get { return LitEnt.Value.ToString("N2"); } } 
     }
 }
 
