@@ -11,26 +11,22 @@ namespace GComFuelManager.Shared.DTOs
 {
     public class PreciosDTO
     {
-        [JsonProperty("zona"),DisplayName("Zona")]
+        [DisplayName("Zona")]
         public string Zona { get; set; } = string.Empty;
-        [JsonProperty("cod"), EpplusIgnore]
-        public int Cod { get; set; } = 0;
-        [JsonProperty("codCte"), DisplayName("Identificador Cliente")]
-        public int CodCte { get; set; } = 0;
-        [JsonProperty("codPrd"), EpplusIgnore]
-        public int CodPrd { get; set; } = 0;
-        [JsonProperty("cliente"), DisplayName("Cliente")]
+        [DisplayName("Cliente")]
         public string Cliente { get; set; } = string.Empty;
-        [JsonProperty("fecha"), DisplayName("Fecha")]
+        [DisplayName("Fecha")]
         public string Fecha { get; set; } = string.Empty;
-        [JsonProperty("precio"), DisplayName("Precio")]
+        [DisplayName("Precio")]
         public double Precio { get; set; } = 0;
-        [JsonProperty("producto"), DisplayName("Producto")]
+        [DisplayName("Producto")]
         public string Producto { get; set; } = string.Empty;
-        [JsonProperty("destino"), DisplayName("Destino")]
+        [DisplayName("Destino")]
         public string Destino { get; set; } = string.Empty;
-        [JsonProperty("codZona"), EpplusIgnore]
-        public int CodZona { get; set; } = 0;
+        [DisplayName("Codigo Synthesis")]
+        public string CodSyn { get; set; } = string.Empty;
+        [DisplayName("Codigo Tuxpan")]
+        public string CodTux { get; set; } = string.Empty;
 
     }
 }

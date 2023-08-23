@@ -16,7 +16,7 @@
         <div class="col-12 row">
             <div class="col-4 mb-3">
                 <label>Del:</label>
-                <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="yyyy-MM-dd" @bind-Value="@fechas.FchInicio"/>
+                <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="yyyy-MM-dd" @bind-Value="@fechas.FchInicio" />
             </div>
             <div class="col-4 mb-3">
                 <label>A:</label>
@@ -33,13 +33,13 @@
             <div class="col-12">
                 <label>Filtro clientes:</label>
                 <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" Change="@ChangeCliente" />
-                </div>
+            </div>
             <RadzenDataList Data="@Cierres" Style="height:500px;overflow-y:scroll;" TItem="OrdenCierre">
                 <Template Context="cierre">
                     <div class="col-12 row">
                         <div class="col-8">
                             <p><b>Folio: @cierre?.Folio</b></p>
-                            @if(cierre.CodCte == null)
+                            @if (cierre.CodCte == null)
                             {
 
                             }
@@ -93,7 +93,7 @@
     {
         try
         {
-            var response = await http.Post<CierreFiltroDTO,List<OrdenCierre>>("api/cierre/disponibles",fechas);
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/disponibles", fechas);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -102,9 +102,10 @@
             {
                 Cierres = response.Response;
                 CierresCompleta = response.Response;
-                if(Cierres.Count > 0)
+                Console.WriteLine(JsonConvert.SerializeObject(CierresCompleta));
+                if (Cierres.Count > 0)
                 {
-                    Clientes = Cierres.Where(x=>x.Cliente != null).DistinctBy(x => x.Cliente.Den).Select(x => x.Cliente.Den);
+                    Clientes = Cierres.Where(x => x.Cliente != null).DistinctBy(x => x.Cliente.Den).Select(x => x.Cliente.Den);
                 }
             }
         }
@@ -120,10 +121,14 @@
         try
         {
             Console.WriteLine(ClienteSeleccionado);
+            Console.WriteLine(CierresCompleta);
             if (string.IsNullOrEmpty(ClienteSeleccionado))
                 Cierres = CierresCompleta;
             else
-                Cierres = CierresCompleta.Where(x => x.Cliente.Den == ClienteSeleccionado).ToList();
+            {
+                var CierresSinClienteNull = CierresCompleta.Where(x => x.Cliente != null).ToList();
+                Cierres = CierresSinClienteNull.Where(x => x.Cliente.Den == ClienteSeleccionado).ToList();
+            }
             StateHasChanged();
         }
         catch (Exception e)

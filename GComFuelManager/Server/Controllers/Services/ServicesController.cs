@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference7;
-//using ServiceReference2;
+//using ServiceReference7;
+using ServiceReference2;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -40,7 +40,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService1);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
@@ -302,7 +302,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -553,34 +553,34 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                ServiceReference7.BillOfLadingServiceClient client = new ServiceReference7.BillOfLadingServiceClient(ServiceReference7.BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
-                ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
+                WsGetBillOfLadingsRequest request = new WsGetBillOfLadingsRequest();
 
-                request.IncludeChildObjects = new ServiceReference7.NBool();
+                request.IncludeChildObjects = new NBool();
                 request.IncludeChildObjects.Value = true;
 
-                request.EndLoadDateFrom = new ServiceReference7.NDateTime();
+                request.EndLoadDateFrom = new NDateTime();
                 request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
 
-                request.EndLoadDateTo = new ServiceReference7.NDateTime();
+                request.EndLoadDateTo = new NDateTime();
                 request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
 
-                request.ShipperId = new ServiceReference7.Identifier();
-                request.ShipperId.Id = new ServiceReference7.NLong();
+                request.ShipperId = new Identifier();
+                request.ShipperId.Id = new NLong();
                 request.ShipperId.Id.Value = 51004;
 
-                request.DeliveryReceiptIndicator = new ServiceReference7.NInt();
+                request.DeliveryReceiptIndicator = new NInt();
                 request.DeliveryReceiptIndicator.Value = 1;
 
-                request.BolStatus = new ServiceReference7.NEnumOfOrderStatusEnum();
-                request.BolStatus.Value = ServiceReference7.OrderStatusEnum.COMPLETED;
+                request.BolStatus = new NEnumOfOrderStatusEnum();
+                request.BolStatus.Value = OrderStatusEnum.COMPLETED;
 
-                request.IncludeCustomFields = new ServiceReference7.NBool();
+                request.IncludeCustomFields = new NBool();
                 request.IncludeCustomFields.Value = true;
 
                 var respuesta = await client.GetBillOfLadingsAsync(request);
@@ -702,34 +702,34 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                ServiceReference7.BillOfLadingServiceClient client = new ServiceReference7.BillOfLadingServiceClient(ServiceReference7.BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
-                ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
+                WsGetBillOfLadingsRequest request = new WsGetBillOfLadingsRequest();
 
-                request.IncludeChildObjects = new ServiceReference7.NBool();
+                request.IncludeChildObjects = new NBool();
                 request.IncludeChildObjects.Value = true;
 
-                request.EndLoadDateFrom = new ServiceReference7.NDateTime();
+                request.EndLoadDateFrom = new NDateTime();
                 request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
 
-                request.EndLoadDateTo = new ServiceReference7.NDateTime();
+                request.EndLoadDateTo = new NDateTime();
                 request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
 
-                request.ShipperId = new ServiceReference7.Identifier();
-                request.ShipperId.Id = new ServiceReference7.NLong();
+                request.ShipperId = new Identifier();
+                request.ShipperId.Id = new NLong();
                 request.ShipperId.Id.Value = 51004;
 
-                request.DeliveryReceiptIndicator = new ServiceReference7.NInt();
+                request.DeliveryReceiptIndicator = new NInt();
                 request.DeliveryReceiptIndicator.Value = 1;
 
-                request.BolStatus = new ServiceReference7.NEnumOfOrderStatusEnum();
-                request.BolStatus.Value = ServiceReference7.OrderStatusEnum.REJECTED;
+                request.BolStatus = new NEnumOfOrderStatusEnum();
+                request.BolStatus.Value = OrderStatusEnum.REJECTED;
 
-                request.IncludeCustomFields = new ServiceReference7.NBool();
+                request.IncludeCustomFields = new NBool();
                 request.IncludeCustomFields.Value = true;
 
                 var respuesta = await client.GetBillOfLadingsAsync(request);

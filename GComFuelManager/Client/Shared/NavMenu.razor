@@ -47,6 +47,15 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia" Context="Acceso">
+                                    <RadzenPanelMenuItem Path="datos/codigos/destino" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-truck-moving"></i> Destinos
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
                                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Percent">
                                     <RadzenPanelMenuItem Path="porcentaje/clientes" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
