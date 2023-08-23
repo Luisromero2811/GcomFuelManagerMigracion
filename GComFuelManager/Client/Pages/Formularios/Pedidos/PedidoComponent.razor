@@ -879,7 +879,8 @@
                     Cliente = response.Response;
                     Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
                     var userCod = User.Identity?.Name?.Substring(0, 3);
-                    ordenCierre.Folio = $"{userCod}{Cliente.Consecutivo}";
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
                 }
 
                 await PutClientes();

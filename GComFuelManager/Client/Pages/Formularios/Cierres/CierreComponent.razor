@@ -8,6 +8,7 @@
 @inject TooltipService ts
 @inject OrdenCierreAdminValidation validation
 @inject OrdenCierreClientValidation clientValidation
+@inject AuthenticationStateProvider auth
 
 @attribute [Authorize(Roles = "Administrador Sistema, Comprador")]
 
@@ -72,13 +73,13 @@
                                                     <Template Context="data">
                                                         @((data as Precio).Producto.Den)
                                                         @*| $@((data as Precio).Pre*@
-    
+
 
                                                     </Template>
                                                     <ValueTemplate Context="data">
                                                         @((data as Precio).Producto.Den)
                                                         @*| $@((data as Precio).Pre*@
-    
+
                                                     </ValueTemplate>
                                                 </RadzenDropDown>
 
@@ -390,6 +391,8 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
+    private ClaimsPrincipal User { get; set; } = null!;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -402,6 +405,10 @@
             await GetDestinoComprador();
             await GetCantidades();
             await GetProductos();
+
+            var authState = await auth.GetAuthenticationStateAsync();
+            if (authState is not null)
+                User = authState.User;
         }
         catch (Exception e)
         {
@@ -791,7 +798,22 @@
                 {
                     Cliente = response.Response;
                     Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                    ordenCierre.Folio = Cliente.CodCte != null ? Cliente.CodCte + Convert.ToString(Cliente.Consecutivo) : string.Empty;
+
+                    if (string.IsNullOrEmpty(Cliente.CodCte))
+                        ms.Notify(new NotificationMessage()
+                            {
+                                Severity = NotificationSeverity.Warning,
+                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno automaticamente para este cierre.",
+                                Duration = 10000
+                            });
+
+                    var userCod = User.Identity?.Name?.Substring(0, 3);
+                    if (string.IsNullOrEmpty(userCod))
+                        userCod = string.Empty;
+
+                    var codcte = string.IsNullOrEmpty(Cliente.CodCte) ? userCod : Cliente.CodCte;
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    ordenCierre.Folio = $"P-{codcte}{Convert.ToString(Cliente.Consecutivo)}-{guid[0]}";
 
                     await PutClientes();
                     await CreateCierre();
