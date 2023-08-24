@@ -1269,8 +1269,8 @@
                         ms.Notify(new NotificationMessage()
                             {
                                 Severity = NotificationSeverity.Warning,
-                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno en base al nombre de usuario",
-                                Duration = 5000
+                                Detail = "Este cliente no cuenta con una clave para generar un folio, por lo que se generara uno automaticamente para este cierre.",
+                                Duration = 10000
                             });
 
                     var userCod = User.Identity?.Name?.Substring(0, 3);
@@ -1278,8 +1278,8 @@
                         userCod = string.Empty;
 
                     var codcte = string.IsNullOrEmpty(Cliente.CodCte) ? userCod : Cliente.CodCte;
-
-                    ordenCierre.Folio = $"{codcte}{Convert.ToString(Cliente.Consecutivo)}";
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    ordenCierre.Folio = $"P-{codcte}{Convert.ToString(Cliente.Consecutivo)}-{guid[0]}";
 
                     await PutClientes();
                     await CreateCierre();

@@ -70,7 +70,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.CodSyn = row[4].Value.ToString();
                                 precio.CodTux = row[5].Value.ToString();
                                 precio.Fecha = row[6].Value.ToString();
-                                precio.Precio = double.Parse(row[7].Value.ToString());
+                                precio.Precio = Math.Round(double.Parse(row[7].Value.ToString()),4);
                                 precios.Add(precio);
                             }
                         }
@@ -268,7 +268,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PrecioProgramado> prec = new List<PrecioProgramado>();
                 foreach (var item in precios)
                 {
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Equals(item.Cliente));
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"","").Equals(item.Cliente));
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
@@ -280,7 +280,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (zona is null)
                         return BadRequest($"No se encontro la zona {item.Zona}");
 
-                    var destino = context.Destino.FirstOrDefault(x => x.Den!.Equals(item.Destino!));
+                    var destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn);
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino}");
 
@@ -335,11 +335,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             Cod = null!,
                             pre = precio.Pre,
-                            codCte = precio.codCte,
-                            codDes = precio.codDes,
-                            codGru = (short)precio.codGru!,
-                            codPrd = precio.codPrd,
-                            codZona = precio.codZona,
+                            codCte = precio.codCte == null ? 0 : precio.codCte,
+                            codDes = precio.codDes == null ? 0 : precio.codDes!,
+                            codGru = precio.codGru == null ? (short)0 : (short)precio.codGru!,
+                            codPrd = precio.codPrd == null ? 0 : precio.codPrd,
+                            codZona = precio.codZona == null ? 0 : precio.codZona,
                             FchDia = precio.FchDia,
                             FchActualizacion = precio.FchActualizacion
                         };
