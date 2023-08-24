@@ -557,7 +557,7 @@
 
     private List<int> Cantidades { get; set; } = new List<int>();
 
-    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrga" };
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     private List<Precio> Precios { get; set; } = new List<Precio>();
 
@@ -620,6 +620,17 @@
                 width = 500;
             TotalWidth = $"{width}px";
 
+            var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
+            months.RemoveAt(months.IndexOf(months.Last()));
+            var i = 1;
+            foreach (var item in months)
+            {
+
+                meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
+                i++;
+            }
+            await GetYears();
+            await GetCantidades();
             await GetGrupos();
             await GetProductos();
         }
@@ -782,14 +793,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                        {
-                            Codprd = ordenCierre.CodPrd,
-                            Pre = ordenCierre.Precio,
-                            Vol = ordenCierre.Volumen,
-                            Coddes = ordenCierre.CodDes,
-                            Fchpet = DateTime.Now,
-                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                        };
+                    {
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                    };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -1066,14 +1077,14 @@
                 {
 
                     var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
+                    {
+                        Title = "Agregar pedido",
+                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
+                        Icon = SweetAlertIcon.Warning,
+                        CancelButtonText = "Cancelar",
+                        ConfirmButtonText = "Aceptar",
+                        ShowCancelButton = true
+                    });
                     if (!string.IsNullOrEmpty(r.Value))
                     {
                         ordenCierres = new List<OrdenCierre>();
