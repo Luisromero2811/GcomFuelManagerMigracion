@@ -27,7 +27,7 @@
                                     <div class="col-3 row">
                                         <div class="col-6">
                                             <label>Folio</label>
-                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10"/>
+                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
                                         </div>
                                         <div class="col-3 d-flex">
                                             <div class="col-12 mt-auto">
@@ -166,14 +166,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Fecha de cierre</label>
-                                                @if (!IsClient)
-                                                {
-                                                    <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
-                                                }
-                                                else
-                                                {
-                                                    <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
-                                                }
+                                                <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
                                             </div>
                                         </div>
 
@@ -238,7 +231,7 @@
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
                                                         <label>Vendedor</label>
-                                                        <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" MaxLenght="100"/>
+                                                        <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" MaxLenght="100" />
                                                     </div>
                                                 </div>
                                             </Authorized>
@@ -282,7 +275,7 @@
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
                                                 <label>Observaciones</label>
-                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260"/>
+                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260" />
                                             </div>
                                         </div>
 
@@ -342,11 +335,11 @@
                             </Template>
                         </RadzenDataGridColumn>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" OrderIndex="2"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" OrderIndex="7">
                         <FilterTemplate Context="Destinos">
                             <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
@@ -387,7 +380,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" OrderIndex="9"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" OrderIndex="9" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="10">
                         <Template Context="item">
                             <div class="col-12">
@@ -402,10 +395,10 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" OrderIndex="11"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" OrderIndex="12"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" OrderIndex="13"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" OrderIndex="14"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" OrderIndex="11" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" OrderIndex="12" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" OrderIndex="13" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" OrderIndex="14" />
                 </Columns>
             </RadzenDataGrid>
 
@@ -980,7 +973,10 @@
                 {
                     loadingSend = true;
 
-
+                    ordenCierres.ForEach(x =>
+                    {
+                        x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
+                    });
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
                     if (response.Error)
                     {
