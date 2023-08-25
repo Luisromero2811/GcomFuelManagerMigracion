@@ -30,7 +30,7 @@
                 </Template>
                 <ChildContent>
                     @*auth*@
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
                         <RadzenPanelMenuItem>
                             <Template>
                                 <div class="text-white">
@@ -38,7 +38,7 @@
                                 </div>
                             </Template>
                             <ChildContent>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia" Context="Acceso">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Acceso">
                                     <RadzenPanelMenuItem Path="datos/tonel" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -47,7 +47,7 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Gestion de Transporte, Direccion, Gerencia" Context="Acceso">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Acceso">
                                     <RadzenPanelMenuItem Path="datos/codigos/destino" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -192,7 +192,7 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
             <RadzenPanelMenuItem Path="confirm-ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
                 <Template>
                     <div class="text-white">
