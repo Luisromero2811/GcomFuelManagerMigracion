@@ -27,7 +27,7 @@
                                     <div class="col-3 row">
                                         <div class="col-6">
                                             <label>Folio</label>
-                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10"/>
+                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
                                         </div>
                                         <div class="col-3 d-flex">
                                             <div class="col-12 mt-auto">
@@ -166,14 +166,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Fecha de cierre</label>
-                                                @if (!IsClient)
-                                                {
-                                                    <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
-                                                }
-                                                else
-                                                {
-                                                    <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" />
-                                                }
+                                                <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
                                             </div>
                                         </div>
 
@@ -238,7 +231,7 @@
                                                 <div class="col-4 mb-1">
                                                     <div class="col-12">
                                                         <label>Vendedor</label>
-                                                        <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" MaxLenght="100"/>
+                                                        <InputText class="form-control col-12" @bind-Value="ordenCierre.Vendedor" MaxLenght="100" />
                                                     </div>
                                                 </div>
                                             </Authorized>
@@ -282,7 +275,7 @@
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
                                                 <label>Observaciones</label>
-                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260"/>
+                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260" />
                                             </div>
                                         </div>
 
@@ -982,7 +975,10 @@
                 {
                     loadingSend = true;
 
-
+                    ordenCierres.ForEach(x =>
+                    {
+                        x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
+                    });
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
                     if (response.Error)
                     {
