@@ -55,12 +55,28 @@ namespace GComFuelManager.Server.Controllers.Emails
                 //    .Include(x=>x.AccionCorreos)
                 //    .ThenInclude(x=>x.Accion)
                 //    .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
-                var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
-                && x.Accion.Nombre.Equals("Compra"))
-                    .Include(x => x.Accion)
-                    .Include(x => x.Contacto)
-                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                    .AsEnumerable();
+                IEnumerable<MailboxAddress> ToList = new List<MailboxAddress>();
+                if (ordenCierres.FirstOrDefault()!.isGroup)
+                    foreach (var i in ordenCierres)
+                    {
+                        var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
+                        foreach (var item in ctes)
+                        {
+                            ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
+                        && x.Accion.Nombre.Equals("Compra"))
+                            .Include(x => x.Accion)
+                            .Include(x => x.Contacto)
+                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                            .AsEnumerable();
+                        }
+                    }
+                else
+                    ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
+                    && x.Accion.Nombre.Equals("Compra"))
+                        .Include(x => x.Accion)
+                        .Include(x => x.Contacto)
+                        .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                        .AsEnumerable();
 
                 emailContent.CC = cc;
 

@@ -63,14 +63,14 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                             if (row.Count == 8)
                             {
-                                precio.Producto = row[0].Value.ToString();
-                                precio.Zona = row[1].Value.ToString();
-                                precio.Cliente = row[2].Value.ToString();
-                                precio.Destino = row[3].Value.ToString();
-                                precio.CodSyn = row[4].Value.ToString();
-                                precio.CodTux = row[5].Value.ToString();
-                                precio.Fecha = row[6].Value.ToString();
-                                precio.Precio = Math.Round(double.Parse(row[7].Value.ToString()),4);
+                                precio.Producto = row[0].Value?.ToString();
+                                precio.Zona = row[1].Value?.ToString();
+                                precio.Cliente = row[2].Value?.ToString();
+                                precio.Destino = row[3].Value?.ToString();
+                                precio.CodSyn = row[4].Value?.ToString();
+                                precio.CodTux = row[5].Value?.ToString();
+                                precio.Fecha = row[6].Value?.ToString();
+                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()),4);
                                 precios.Add(precio);
                             }
                         }
@@ -268,21 +268,29 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PrecioProgramado> prec = new List<PrecioProgramado>();
                 foreach (var item in precios)
                 {
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"","").Equals(item.Cliente));
+                    var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"","").Equals(codcte));
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
-                    var producto = context.Producto.FirstOrDefault(x => x.Den!.Equals(item.Producto));
+                    var codprd = string.Empty;
+                    var arrprd = item.Producto.Split(" ");
+                    if (arrprd.Count() > 1)
+                        codprd = arrprd[0];
+                    else
+                        codprd = item.Producto;
+
+                    var producto = context.Producto.FirstOrDefault(x => x.Den!.Contains(codprd));
                     if (producto is null)
                         return BadRequest($"No se encontro el producto {item.Producto}");
 
-                    var zona = context.Zona.FirstOrDefault(x => x.Nombre.Equals(item.Zona));
-                    if (zona is null)
-                        return BadRequest($"No se encontro la zona {item.Zona}");
+                    var codzona = string.IsNullOrEmpty(item.Zona) ? "Sin Zona" : item.Zona;
+                    var zona = context.Zona.FirstOrDefault(x => x.Nombre.Equals(codzona));
 
-                    var destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn);
+                    var coddes = string.IsNullOrEmpty(item.CodSyn) ? string.Empty : item.CodSyn;
+                    var destino = context.Destino.FirstOrDefault(x => x.Codsyn == coddes);
                     if (destino is null)
-                        return BadRequest($"No se encontro el destino {item.Destino}");
+                        return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
 
                     if (DateTime.Parse(item.Fecha) > DateTime.Today)
                     {
