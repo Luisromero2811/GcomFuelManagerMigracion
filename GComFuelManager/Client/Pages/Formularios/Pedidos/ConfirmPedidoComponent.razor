@@ -4,6 +4,8 @@
 @inject IJSRuntime js
 @inject NotificationService ns
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+
 <h3>Confirmar orden de clientes</h3>
 
 <div class="col-12 d-flex justify-content-center">
@@ -34,9 +36,9 @@
 <RadzenDataGrid TItem="OrdenEmbarque" Data="@OrdenEmbarques" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
                 GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="OrdenesSeleccionadas" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-@bind-Settings="@Settings" AllowGrouping="true" HideGroupedColumn="true">
+                @bind-Settings="@Settings" AllowGrouping="true" HideGroupedColumn="true">
     <Columns>
-        <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
+        <AuthorizeView Roles="Admin, Administrador Usuario, Ejecutivo de Cuenta Comercial" Context="EdicionUnidades">
             <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" OrderIndex="1" Frozen="true">
                 <HeaderTemplate>
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(OrdenEmbarques.Any(i => OrdenesSeleccionadas!= null && OrdenesSeleccionadas.Contains(i)))"
@@ -98,20 +100,23 @@
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="120px" OrderIndex="15" />
     </Columns>
 </RadzenDataGrid>
-<div class="card col-12 shadow-sm">
-    <div class="col-12 row card-body">
-        <div class="col-3">
-            <button class="btn col-12 gcom-bg-amarillo" @onclick="@ConfirmPedido">
-                <i class="fa fa-solid fa-check"></i>
-                <b>Confirmar Ordenes</b>
-                @if (loadingConfirm)
-                {
-                    <SpinnerLoading></SpinnerLoading>
-                }
-            </button>
+<AuthorizeView Roles="Admin, Administrador Usuario, Ejecutivo de Cuenta Comercial" Context="AccionConfirm">
+    <div class="card col-12 shadow-sm">
+        <div class="col-12 row card-body">
+            <div class="col-3">
+                <button class="btn col-12 gcom-bg-amarillo" @onclick="@ConfirmPedido">
+                    <i class="fa fa-solid fa-check"></i>
+                    <b>Confirmar Ordenes</b>
+                    @if (loadingConfirm)
+                    {
+                        <SpinnerLoading></SpinnerLoading>
+                    }
+                </button>
+            </div>
         </div>
     </div>
-</div>
+</AuthorizeView>
+
 <style type="text/css">
     .ancho {
         width: @TotalWidth;
@@ -139,7 +144,7 @@
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string?> ProductoList { get; set; } = new List<string>();
- 
+
     int width = 0;
     string TotalWidth = string.Empty;
 
