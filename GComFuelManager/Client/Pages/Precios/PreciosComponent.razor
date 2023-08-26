@@ -316,7 +316,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions">
+                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -325,7 +325,7 @@
                                                 <div class="col-12 row">
                                                     <div class="col">
                                                         <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))">
-                                                        @*<i class="fa fa-solid fa-pen-to-square"></i>*@
+                                                            <i class="fa fa-solid fa-pen-to-square"></i>
                                                         </button>
                                                     </div>
                                                 </div>
