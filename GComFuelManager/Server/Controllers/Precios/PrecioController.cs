@@ -70,7 +70,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.CodSyn = row[4].Value?.ToString();
                                 precio.CodTux = row[5].Value?.ToString();
                                 precio.Fecha = row[6].Value?.ToString();
-                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()),4);
+                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
                                 precios.Add(precio);
                             }
                         }
@@ -199,7 +199,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                             var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento),4) : Math.Round(x.Pre,4);
+                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                         }
                     });
                 }
@@ -269,7 +269,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 foreach (var item in precios)
                 {
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"","").Equals(codcte));
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte));
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
@@ -323,7 +323,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         };
 
                         var p = context.Precio.FirstOrDefault(x => x.codGru == precio.codGru
-                        && x.codZona == precio.codZona
+                        //&& x.codZona == precio.codZona
                         && x.codCte == precio.codCte
                         && x.codPrd == precio.codPrd
                         && x.codDes == precio.codDes);
@@ -407,11 +407,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                 var fchInicio = DateTime.Today.AddHours(1).AddMinutes(50);
                 var fchHoy = DateTime.Now;
                 var fchFin = DateTime.Today.AddHours(2).AddMinutes(20);
-                if (fchInicio <= fchHoy && fchFin >= fchHoy)
-                {
-
-                }
-
+                List<Precio> preciosDia = new List<Precio>();
+                List<PrecioHistorico> precioHistoricos = new List<PrecioHistorico>();
+                //if (fchInicio <= fchHoy && fchFin >= fchHoy)
+                //{
                 List<PrecioProgramado> precios = new List<PrecioProgramado>();
                 precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
 
@@ -424,16 +423,17 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             var precioN = new Precio
                             {
-                                codCte = item.Cod,
-                                codDes = item.Cod,
-                                codGru = item.codGru,
+                                codCte = item.codCte,
+                                codDes = item.codDes,
+                                codGru = item?.codGru,
                                 codPrd = item.codPrd,
-                                codZona = item.Cod,
+                                codZona = item?.codZona,
                                 FchDia = item.FchDia,
                                 FchActualizacion = DateTime.Now,
                                 Pre = item.Pre
                             };
-                            context.Add(precioN);
+                            preciosDia.Add(precioN);
+                            //context.Add(precioN);
                         }
                         else
                         {
@@ -449,19 +449,22 @@ namespace GComFuelManager.Server.Controllers.Precios
                             pre = item.Pre,
                             codCte = item.codCte,
                             codDes = item.codDes,
-                            codGru = (short)item.codGru!,
+                            codGru = item?.codGru,
                             codPrd = item.codPrd,
                             codZona = item.codZona,
                             FchDia = item.FchDia,
                             FchActualizacion = item.FchActualizacion
                         };
-
-                        context.Add(precioH);
+                        precioHistoricos.Add(precioH);
+                        //context.Add(precioH);
                     }
+                    await context.AddRangeAsync(preciosDia);
+                    await context.AddRangeAsync(precioHistoricos);
 
                     await context.SaveChangesAsync();
                 }
                 return Ok(precios);
+                //}
 
                 return NoContent();
             }
@@ -477,7 +480,7 @@ namespace GComFuelManager.Server.Controllers.Precios
             try
             {
                 var precios = await context.PrecioProgramado
-                    .Where(x => x.FchDia >= DateTime.Today)
+                    .Where(x => x.FchDia > DateTime.Today)
                     .Include(x => x.Zona)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)

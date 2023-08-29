@@ -32,8 +32,9 @@
                         </div>
                         <div class="col-2 d-flex">
                             <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile">
-                            <i class="fa-solid fa-upload"></i>
-                            subir</button>
+                                <i class="fa-solid fa-upload"></i>
+                                subir
+                            </button>
 
                         </div>
                         <div class="col-12 mt-3">
@@ -892,11 +893,9 @@
             List<Precio> listaPrecios = new List<Precio>();
 
             foreach (var cliente in clientes)
-            {
                 listaPrecios.AddRange(precios.Where(x => x.NombreCliente!.Equals(cliente) && x.Pre != 0 && x.Activo == true));
-            }
 
-            var response = await http.Post<IEnumerable<Precio>>("api/email/precios", listaPrecios);
+            var response = await http.Post<IEnumerable<Precio>, List<Cliente>>("api/email/precios", listaPrecios);
             if (response.Error)
             {
                 loadingSend = false;
@@ -906,6 +905,14 @@
             }
             else
             {
+                if (response.Response.Count > 0)
+                {
+                    var ctes = string.Empty;
+                    foreach (var item in response.Response)
+                        ctes += item.Den + ", ";
+
+                    await Swal.FireAsync("Alerta", $"Clientes sin correo enviado({response.Response.Count}): <li>{ctes}</<li>", SweetAlertIcon.Warning);
+                }
                 await Swal.FireAsync("Exito", "Los correos han sido enviados", SweetAlertIcon.Success);
             }
 

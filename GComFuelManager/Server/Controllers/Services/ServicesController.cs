@@ -244,13 +244,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             if (request.BillOfLading.LineItems != null)
                             {
-                                toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFileXML($"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}",request);
 
                                 response = await client.SaveBillOfLadingAsync(request);
 
-                                toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
-
-
+                                toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFileXMLResponse($"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
                             }
                             else
                                 return BadRequest();
@@ -502,12 +502,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         if (request.BillOfLading.LineItems != null)
                         {
-                            toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFileXML($"Request_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", request);
 
                             response = await client.SaveBillOfLadingAsync(request);
 
-                            toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
-
+                            toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFileXMLResponse( $"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
 
                         }
                         else
