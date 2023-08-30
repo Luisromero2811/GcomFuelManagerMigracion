@@ -28,7 +28,7 @@
                                     <div class="col-3 row">
                                         <div class="col-6">
                                             <label>Folio</label>
-                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10"/>
+                                            <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
                                         </div>
                                         <div class="col-3 d-flex">
                                             <div class="col-12 mt-auto">
@@ -340,7 +340,7 @@
                                                             Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                                         </label>
                                                     </div>
-                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double" MaxLenght="20"/>
+                                                    <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Precio" TValue="double" MaxLenght="20" />
                                                 }
                                             </div>
                                         </div>
@@ -394,7 +394,7 @@
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
                                                 <label>Observaciones</label>
-                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260"/>
+                                                <InputTextArea class="form-control col-12" @bind-Value="ordenCierre.Observaciones" MaxLenght="260" />
                                             </div>
                                         </div>
 
@@ -1113,14 +1113,31 @@
     {
         try
         {
+            ms.Notify(new NotificationMessage()
+                {
+                    Summary = "Enviando correos",
+                    Detail = "Se estan enviando los corresos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
+                    Duration = 10000,
+                    Severity = NotificationSeverity.Info
+                });
             if (ordenCierres.Count > 0)
             {
-                if (ordenCierres.DistinctBy(x => x.Folio).Count() == 1)
+                var clientes = ordenCierres.DistinctBy(x => x.CodCte).Select(x => x.CodCte);
+                var count = 0;
+                var total = clientes.Count();
+                foreach (var item in clientes)
                 {
+                    count++;
                     loadingSend = true;
-
-
-                    var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
+                    ms.Notify(new NotificationMessage()
+                        {
+                            Summary = "Enviando correos",
+                            Detail = $"Enviando {count} de {total} correos",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Info
+                        });
+                    var ordenes = ordenCierres.Where(x => x.CodCte == item).ToList();
+                    var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
                         loadingSend = false;
@@ -1130,15 +1147,18 @@
                     else
                     {
                         loadingSend = false;
-                        await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
-                        ordenCierres = new List<OrdenCierre>();
-                        ordenCierre = new OrdenCierre();
+                        ms.Notify(new NotificationMessage()
+                            {
+                                Summary = "Enviando correos",
+                                Detail = $"Correo enviado",
+                                Duration = 10000,
+                                Severity = NotificationSeverity.Success
+                            });
                     }
                 }
-                else
-                {
-                    await Swal.FireAsync("Alerta", "Se encontraron mas de un folio en el listado de ordenes. Filtre solo uno para poder enviar el correo.", SweetAlertIcon.Warning);
-                }
+                await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos exitosamente.", SweetAlertIcon.Success);
+                ordenCierres = new List<OrdenCierre>();
+                ordenCierre = new OrdenCierre();
             }
             else
             {
@@ -1238,29 +1258,14 @@
     {
         try
         {
+            if (ordenCierres.Count > 0)
+                if (ordenCierres.Any(x => x.CodCte == ordenCierre.CodCte))
+                    ordenCierre.Folio = ordenCierres.FirstOrDefault(x => x.CodCte == ordenCierre.CodCte)?.Folio;
+                else
+                    ordenCierre.Folio = string.Empty;
+
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
-                if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
-                {
-
-                    var r = await Swal.FireAsync(new SweetAlertOptions
-                        {
-                            Title = "Agregar pedido",
-                            Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                            Icon = SweetAlertIcon.Warning,
-                            CancelButtonText = "Cancelar",
-                            ConfirmButtonText = "Aceptar",
-                            ShowCancelButton = true
-                        });
-                    if (!string.IsNullOrEmpty(r.Value))
-                    {
-                        ordenCierres = new List<OrdenCierre>();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
 
                 var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
                 if (response.Error)
@@ -1294,9 +1299,7 @@
                 }
             }
             else
-            {
                 await CreateCierre();
-            }
         }
         catch (Exception e)
         {
