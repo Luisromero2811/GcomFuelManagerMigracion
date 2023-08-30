@@ -1128,7 +1128,7 @@
                             Duration = 10000,
                             Severity = NotificationSeverity.Info
                         });
-                    var ordenes = ordenCierres.Where(x => x.CodCte == item).ToList();
+                    var ordenes = ordenCierres.Where(x => x.CodCte == item && x.Activa == true).ToList();
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
