@@ -51,19 +51,27 @@
             </RadzenDataGridColumn>
         </AuthorizeView>
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="80px" Filterable="false" OrderIndex="4" Frozen="true" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" OrderIndex="5" Frozen="true">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" FilterValue="ClienteSeleccionado" Property="Destino.Cliente.Den" Width="200px" OrderIndex="5" Frozen="true">
             <FilterTemplate Context="Cliente">
-                <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
-                    @data.Destino?.Cliente?.Den
+                    @data?.Destino?.Cliente?.Den
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" OrderIndex="6">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" FilterValue="DestinosSeleccionados" OrderIndex="6">
             <FilterTemplate Context="Destinos">
-                <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="DestinosSeleccionados" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
@@ -71,9 +79,13 @@
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="7">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="7" FilterValue="ProductoSeleccionado">
             <FilterTemplate Context="Productos">
-                <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
@@ -212,7 +224,7 @@
 
                 DestinoList = OrdenEmbarques?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
                 ProductoList = OrdenEmbarques?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
-                ClienteList = OrdenEmbarques?.DistinctBy(x => x?.Cliente?.Den).Select(x => x?.Cliente?.Den)!;
+                ClienteList = OrdenEmbarques?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
             }
         }
         catch (Exception e)
