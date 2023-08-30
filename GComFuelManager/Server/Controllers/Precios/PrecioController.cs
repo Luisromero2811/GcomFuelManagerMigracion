@@ -89,7 +89,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             {
                                 var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                                 var aumento = (porcentaje.Porcen / 100) + 1;
-                                x.Pre = x.FchDia != DateTime.Today ? (x.Pre * aumento) : x.Pre;
+                                x.Pre = x.FchDia != DateTime.Today ? Math.Round((x.Pre * aumento),4) : Math.Round(x.Pre,4);
                             }
                         });
                     }

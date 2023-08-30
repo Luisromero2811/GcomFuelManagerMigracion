@@ -530,7 +530,7 @@
                                 BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
                                 FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
                                 Observaciones = item?.Observaciones,
-                                Precio = item?.Precio?.ToString("N"),
+                                Precio = item?.Precio.ToString("N"),
                                 Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
                                                : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
                                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())

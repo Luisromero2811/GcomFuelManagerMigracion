@@ -197,7 +197,7 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Precio</label>
-                            <InputNumber class="form-control col-12" TValue="double?" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>
+                            <InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>
                         </div>
                     </div>
                     @if (!isFolio || ordenCierre.IsCierreVolumen)
@@ -879,7 +879,8 @@
                     Cliente = response.Response;
                     Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
                     var userCod = User.Identity?.Name?.Substring(0, 3);
-                    ordenCierre.Folio = $"{userCod}{Cliente.Consecutivo}";
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
                 }
 
                 await PutClientes();
@@ -916,7 +917,7 @@
         {
             if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
             {
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 //StateHasChanged();
             }
@@ -1154,7 +1155,7 @@
                 {
                     ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
                 }
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd)?.Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 StateHasChanged();
             }
