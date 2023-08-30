@@ -78,6 +78,10 @@
                                         <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios">
                                             <i class="fa fa-solid fa-floppy-disk"></i>
                                             Guardar
+                                            @if (loadingSend)
+                                            {
+                                                <SpinnerLoading />
+                                            }
                                         </button>
                                     </div>
                                 </div>
@@ -827,16 +831,46 @@
                 return;
             }
             ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Subiendo precios", Detail = $"Los precios se estan subiendo, esto podria tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.", Duration = 10000 });
-            var response = await http.Post<IEnumerable<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
+            loadingSend = true;
+            var response = await http.Post<IEnumerable<PreciosDTO>, List<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
             if (response.Error)
             {
-                loadingSave = false;
+                loadingSend = false;
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                loadingSave = false;
+                loadingSend = false;
+
+                if(response.Response.Count > 0)
+                {
+                    ns.Notify(new NotificationMessage {
+                        Severity = NotificationSeverity.Info, 
+                        Summary = "Generando reporte", 
+                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.", 
+                        Duration = 15000 });
+
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    var excel = new ExcelPackage();
+
+                    var ws = excel.Workbook.Worksheets.Add("Precios");
+                    var header = ws.Cells["A1:H1"];
+
+                    var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(response.Response, true);
+
+                    tablebody.Style.Font.Size = 14;
+                    header.Style.Font.Size = 14;
+                    header.Style.Font.Bold = true;
+                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    header.Style.Fill.BackgroundColor.SetColor(Color.Black);
+                    header.Style.Font.Color.SetColor(Color.White);
+
+                    ws.Columns.AutoFit();
+
+                    await js.GuardarComo($"Destinos_sin_precio_{DateTime.Now.ToString("dd MM yyyy HH mm ss")}.xlsx", excel.GetAsByteArray());
+                }
+
                 await Swal.FireAsync("Exito", "Se han guardado los precios exitosamente.", SweetAlertIcon.Success);
                 await GetPrecios();
             }

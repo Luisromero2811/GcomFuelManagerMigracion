@@ -368,7 +368,23 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 await context.SaveChangesAsync(id, 8);
 
-                return Ok();
+                List<Destino> destinos = new List<Destino>();
+                List<PreciosDTO> destinosSinPre = new List<PreciosDTO>();
+                destinos = context.Destino.ToList();
+                foreach (var item in destinos)
+                    if (!context.PrecioProgramado.Any(x => x.codDes == item.Cod))
+                    {
+                        PreciosDTO dTO = new PreciosDTO()
+                        {
+                            Destino = item.Den,
+                            Cliente = item.Cliente?.Den,
+                            CodSyn = item.Codsyn,
+                            CodTux = item.CodGamo.ToString()
+                        };
+                        destinosSinPre.Add(dTO);
+                    }
+
+                return Ok(destinosSinPre);
             }
             catch (Exception e)
             {
