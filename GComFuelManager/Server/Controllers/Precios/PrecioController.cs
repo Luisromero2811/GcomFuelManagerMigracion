@@ -163,96 +163,82 @@ namespace GComFuelManager.Server.Controllers.Precios
             try
             {
                 List<Precio> precios = new List<Precio>();
+                List<PrecioProgramado> preciosPro = new List<PrecioProgramado>();
+                var LimiteDate = DateTime.Today.AddHours(16);
 
-                var userId = verifyUser.GetName(HttpContext);
-
-                if (string.IsNullOrEmpty(userId))
-                    return BadRequest();
-
-                var user = await userManager.FindByNameAsync(userId);
-
-                if (user == null)
-                    return BadRequest();
-
-                var role = await userManager.IsInRoleAsync(user, "Comprador");
-
-                if (role == true)
+                if (!string.IsNullOrEmpty(folio))
                 {
-                    var usuario = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-                    if (usuario == null)
-                        return BadRequest();
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                            .Include(x => x.Cliente)
+                            .ToListAsync();
+                    var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
 
-                    //var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == usuario.CodCte && x.DesCod == zonaCliente.DesCod);
+                    foreach (var item in ordenesUnic)
+                    {
+                        var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
+                        Precio precio = new Precio()
+                        {
+                            Pre = item.Precio,
+                            codCte = item.CodCte,
+                            codDes = item.CodDes,
+                            codPrd = item.CodPrd,
+                            codGru = item.Cliente?.codgru,
+                            codZona = zona?.CteCod,
+                            Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
+                        };
+                        precios.Add(precio);
+                    }
+                    return Ok(precios);
+                }
 
-                    //if (zona == null)
-                    //    return BadRequest("No existe una relacion de precios con la zona y destino");
-
-                    precios = await context.Precio.Where(x => x.codCte == usuario.CodCte
+                if (DateTime.Now > LimiteDate &&
+                    DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
+                    DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    preciosPro = await context.PrecioProgramado.Where(x => x.codCte == zonaCliente.CteCod
                     && x.codDes == zonaCliente.DesCod && x.Activo == true)
                     //&& x.codZona == zona.ZonaCod)
-                        .Include(x => x.Producto)
-                        .ToListAsync();
-
-                    precios.ForEach(x =>
+                    .Include(x => x.Producto)
+                    .ToListAsync();
+                    preciosPro.ForEach(x =>
                     {
-                        if (x.FchDia < DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
+                        if (x.FchDia < DateTime.Today
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Saturday 
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Sunday
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Monday
+                        || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
                         {
                             var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                             var aumento = (porcentaje.Porcen / 100) + 1;
                             x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                         }
                     });
+                    return Ok(precios);
                 }
                 else
                 {
-                    //var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == zonaCliente.CteCod && x.DesCod == zonaCliente.DesCod);
-
-                    //if (zona == null)
-                    //    return BadRequest("No tiene una zona relacionada");
-
-                    if (string.IsNullOrEmpty(folio))
+                    precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
+                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.codZona == zona.ZonaCod)
+                    .Include(x => x.Producto)
+                    .ToListAsync();
+                    precios.ForEach(x =>
                     {
-                        precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                        && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                        //&& x.codZona == zona.ZonaCod)
-                        .Include(x => x.Producto)
-                        .ToListAsync();
-                        precios.ForEach(x =>
+                        if (x.FchDia < DateTime.Today
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Saturday 
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Sunday 
+                        && DateTime.Today.DayOfWeek != DayOfWeek.Monday
+                        || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true
+                        )
                         {
-                            if (x.FchDia < DateTime.Today || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
-                            {
-                                var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                                var aumento = (porcentaje.Porcen / 100) + 1;
-                                x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
-                            }
-                        });
-                    }
-                    else
-                    {
-                        var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
-                            .Include(x => x.Cliente)
-                            .ToListAsync();
-                        var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
-
-                        foreach (var item in ordenesUnic)
-                        {
-                            var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                            Precio precio = new Precio()
-                            {
-                                Pre = item.Precio,
-                                codCte = item.CodCte,
-                                codDes = item.CodDes,
-                                codPrd = item.CodPrd,
-                                codGru = item.Cliente?.codgru,
-                                codZona = zona?.CteCod,
-                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
-                            };
-                            precios.Add(precio);
+                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                            var aumento = (porcentaje.Porcen / 100) + 1;
+                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                         }
-                    }
-                }
+                    });
 
-                return Ok(precios);
+                    return Ok(precios);
+                }
             }
             catch (Exception e)
             {
