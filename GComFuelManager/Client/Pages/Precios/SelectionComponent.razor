@@ -2,11 +2,14 @@
 
 <div class="col-12 card">
     <div class="col-12 card-body">
-        <RadzenDataGrid Data="lista" TItem="string" Context="data" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="ClientesSeleccionados" AllowFiltering="true"
-        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterMode="FilterMode.Simple" Style="height:400px"
-                        GridLines="DataGridGridLines.Both" AllowRowSelectOnRowClick="false" AllowSorting="true" AllowVirtualization="true">
+        <div class="col-12">
+            <RadzenTextBox @bind-Value="FilterText" Placeholder="Buscar cliente..."/>
+        </div>
+        <RadzenDataGrid Data="@ClienteFiltrado" TItem="string" Context="data" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="ClientesSeleccionados"
+        Style="height:400px" AllowPaging="true" ShowPagingSummary="true"
+                        GridLines="DataGridGridLines.Both" AllowRowSelectOnRowClick="false" AllowVirtualization="true">
             <Columns>
-                <RadzenDataGridColumn TItem="string" Sortable="false" Filterable="false" Width="60px">
+                <RadzenDataGridColumn TItem="string" Width="60px">
                     <HeaderTemplate>
                         <RadzenCheckBox TriState="false" TValue="bool" Value="@(lista.Any(i => ClientesSeleccionados != null && ClientesSeleccionados.Contains(i)))"
                                         Change="@(args => ClientesSeleccionados = args ? lista.ToList() : new List<string>())" />
@@ -16,7 +19,7 @@
                                         TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn Title="Cliente" TItem="string" Filterable="true" Property="" Sortable="true">
+                <RadzenDataGridColumn Title="Cliente" TItem="string" Property=".">
                     <Template>
                         @context
                     </Template>
@@ -36,6 +39,8 @@
 @code {
     [Parameter] public IEnumerable<string> lista { get; set; } = new List<string>();
     public IList<string> ClientesSeleccionados { get; set; } = new List<string>();
+    private string FilterText = string.Empty;
+    private IEnumerable<string> ClienteFiltrado => lista.Where(x => string.IsNullOrEmpty(FilterText) || x.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
 
     private void HandledValidClientes()
     {
