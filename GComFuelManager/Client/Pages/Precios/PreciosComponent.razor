@@ -860,6 +860,7 @@
                     var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(response.Response, true);
 
                     tablebody.Style.Font.Size = 14;
+                    header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                     header.Style.Font.Size = 14;
                     header.Style.Font.Bold = true;
                     header.Style.Fill.PatternType = ExcelFillStyle.Solid;
