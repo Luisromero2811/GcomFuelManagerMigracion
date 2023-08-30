@@ -140,11 +140,11 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" FilterMode="FilterMode.Simple" Culture="CultureInfo.CurrentCulture" SelectionMode="DataGridSelectionMode.Single">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="EditarZonas">
-                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Acciones" OrderIndex="1" Filterable="false">
                         <Template Context="item">
                             <AuthorizeView Roles="Admin, Administrador Sistema" Context="Actions">
                                 <Authorized>
@@ -157,11 +157,11 @@
                         </Template>
                     </RadzenDataGridColumn>
                 </AuthorizeView>
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" />
-                <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" />
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Zona" Property="Zona.Nombre" OrderIndex="2" Filterable="false"/>
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Cliente" Property="Cliente.Den" OrderIndex="3" Filterable="true"/>
+                <RadzenDataGridColumn TItem="ZonaCliente" Title="Destino" Property="Destino.Den" OrderIndex="4" Filterable="true"/>
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="Accion">
-                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
+                    <RadzenDataGridColumn TItem="ZonaCliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5" Filterable="false">
                         <Template Context="data">
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">

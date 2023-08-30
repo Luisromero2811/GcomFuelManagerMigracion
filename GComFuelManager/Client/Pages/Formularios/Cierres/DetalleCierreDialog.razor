@@ -54,7 +54,11 @@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
                     <FilterTemplate Context="filter">
-                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                            <ValueTemplate Context="data">
+                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                            </ValueTemplate>
+                        </RadzenDropDown>
                     </FilterTemplate>
                     <Template Context="data">
                         <div class="col-12 row">

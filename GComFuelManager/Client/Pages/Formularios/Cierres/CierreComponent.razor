@@ -461,7 +461,11 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" OrderIndex="7">
                         <FilterTemplate Context="Destinos">
-                            <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                            <RadzenDropDown Data="DestinoList" AllowFiltering="true" @bind-Value="DestinosSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                <ValueTemplate Context="data">
+                                    <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="190"/>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </FilterTemplate>
                         <Template Context="data">
                             <div>
@@ -471,7 +475,11 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="8">
                         <FilterTemplate>
-                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                            <RadzenDropDown Data="ProductList" AllowFiltering="true" @bind-Value="ProductoSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                <ValueTemplate Context="data">
+                                    <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </FilterTemplate>
                         <Template Context="data">
                             <div class="col-12 d-flex">

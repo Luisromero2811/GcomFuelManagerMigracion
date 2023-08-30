@@ -154,7 +154,7 @@
     <div class="col-12 d-flex justify-content-center mb-2">
         <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" AllowPaging="true"
                         GridLines="DataGridGridLines.Both" Style="height:500px;" class="mb-3" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="@loadingEdit" @ref="@grid" AllowSorting="true" AllowColumnPicking="false" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions">
+                        IsLoading="@loadingEdit" @ref="@grid" AllowSorting="true" AllowColumnPicking="false" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions" FilterMode="FilterMode.Simple" AllowFiltering="true">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Acciones">
                     <Authorized>
@@ -169,10 +169,10 @@
                         </RadzenDataGridColumn>
                     </Authorized>
                 </AuthorizeView>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" OrderIndex="3" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" OrderIndex="2" Filterable="true"/>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" OrderIndex="3" Filterable="true"/>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="WatchPassword">
-                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" OrderIndex="4">
+                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" OrderIndex="4" Filterable="false">
                         <Template Context="user">
                             <div class="d-flex align-items-center">
                                 @if (usuarioSeleccionado.Count == 1)
@@ -199,7 +199,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Actions">
-                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" OrderIndex="6">
+                    <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" OrderIndex="6" Filterable="false">
                         <Template Context="data">
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">
