@@ -213,7 +213,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                         }
                     });
-                    return Ok(precios);
+                    return Ok(preciosPro);
                 }
                 else
                 {
