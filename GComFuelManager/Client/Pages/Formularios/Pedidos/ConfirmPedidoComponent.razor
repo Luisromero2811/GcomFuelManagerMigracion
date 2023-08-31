@@ -4,6 +4,8 @@
 @inject IJSRuntime js
 @inject NotificationService ns
 
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+
 <h3>Confirmar orden de clientes</h3>
 
 <div class="col-12 d-flex justify-content-center">
@@ -34,9 +36,9 @@
 <RadzenDataGrid TItem="OrdenEmbarque" Data="@OrdenEmbarques" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
                 GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="OrdenesSeleccionadas" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-@bind-Settings="@Settings" AllowGrouping="true" HideGroupedColumn="true">
+                @bind-Settings="@Settings" AllowGrouping="true" HideGroupedColumn="true">
     <Columns>
-        <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
+        <AuthorizeView Roles="Admin, Administrador Usuario, Ejecutivo de Cuenta Comercial" Context="EdicionUnidades">
             <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" OrderIndex="1" Frozen="true">
                 <HeaderTemplate>
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(OrdenEmbarques.Any(i => OrdenesSeleccionadas!= null && OrdenesSeleccionadas.Contains(i)))"
@@ -49,19 +51,27 @@
             </RadzenDataGridColumn>
         </AuthorizeView>
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="80px" Filterable="false" OrderIndex="4" Frozen="true" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" OrderIndex="5" Frozen="true">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" FilterValue="ClienteSeleccionado" Property="Destino.Cliente.Den" Width="200px" OrderIndex="5" Frozen="true">
             <FilterTemplate Context="Cliente">
-                <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
-                    @data.Destino?.Cliente?.Den
+                    @data?.Destino?.Cliente?.Den
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" OrderIndex="6">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" FilterValue="DestinosSeleccionados" OrderIndex="6">
             <FilterTemplate Context="Destinos">
-                <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="DestinosSeleccionados" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
@@ -69,9 +79,13 @@
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="7">
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" OrderIndex="7" FilterValue="ProductoSeleccionado">
             <FilterTemplate Context="Productos">
-                <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
             </FilterTemplate>
             <Template Context="data">
                 <div>
@@ -98,20 +112,23 @@
         <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="120px" OrderIndex="15" />
     </Columns>
 </RadzenDataGrid>
-<div class="card col-12 shadow-sm">
-    <div class="col-12 row card-body">
-        <div class="col-3">
-            <button class="btn col-12 gcom-bg-amarillo" @onclick="@ConfirmPedido">
-                <i class="fa fa-solid fa-check"></i>
-                <b>Confirmar Ordenes</b>
-                @if (loadingConfirm)
-                {
-                    <SpinnerLoading></SpinnerLoading>
-                }
-            </button>
+<AuthorizeView Roles="Admin, Administrador Usuario, Ejecutivo de Cuenta Comercial" Context="AccionConfirm">
+    <div class="card col-12 shadow-sm">
+        <div class="col-12 row card-body">
+            <div class="col-3">
+                <button class="btn col-12 gcom-bg-amarillo" @onclick="@ConfirmPedido">
+                    <i class="fa fa-solid fa-check"></i>
+                    <b>Confirmar Ordenes</b>
+                    @if (loadingConfirm)
+                    {
+                        <SpinnerLoading></SpinnerLoading>
+                    }
+                </button>
+            </div>
         </div>
     </div>
-</div>
+</AuthorizeView>
+
 <style type="text/css">
     .ancho {
         width: @TotalWidth;
@@ -139,7 +156,7 @@
 
     private string ProductoSeleccionado = string.Empty;
     private IEnumerable<string?> ProductoList { get; set; } = new List<string>();
- 
+
     int width = 0;
     string TotalWidth = string.Empty;
 
@@ -207,7 +224,7 @@
 
                 DestinoList = OrdenEmbarques?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
                 ProductoList = OrdenEmbarques?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
-                ClienteList = OrdenEmbarques?.DistinctBy(x => x?.Cliente?.Den).Select(x => x?.Cliente?.Den)!;
+                ClienteList = OrdenEmbarques?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
             }
         }
         catch (Exception e)

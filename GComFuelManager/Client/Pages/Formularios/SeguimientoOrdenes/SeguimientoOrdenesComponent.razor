@@ -109,7 +109,11 @@
                 <RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" Filterable="false" />
                 <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" FilterValue="ClientesSeleccionados" Width="305px">
                     <FilterTemplate>
-                        <RadzenDropDown Data="ClienteList" @bind-Value="ClientesSeleccionados" AllowClear="true"></RadzenDropDown>
+                        <RadzenDropDown Data="ClienteList" @bind-Value="ClientesSeleccionados" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                            <ValueTemplate Context="data">
+                                <InputText class="form-control col-12" @bind-Value="ClientesSeleccionados" MaxLength="190" />
+                            </ValueTemplate>
+                        </RadzenDropDown>
                     </FilterTemplate>
                     <Template Context="data">
                         <div>
@@ -119,7 +123,11 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" Width="290px">
                     <FilterTemplate>
-                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                            <ValueTemplate Context="data">
+                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180"/>
+                            </ValueTemplate>
+                        </RadzenDropDown>
                     </FilterTemplate>
                     <Template Context="data">
                         <div>
@@ -129,7 +137,11 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" FilterValue="ProductosSeleccionado" Width="290px">
                     <FilterTemplate>
-                        <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true"></RadzenDropDown>
+                        <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                            <ValueTemplate Context="data">
+                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190"/>
+                            </ValueTemplate>
+                        </RadzenDropDown>
                     </FilterTemplate>
                     <Template Context="data">
                         <div>

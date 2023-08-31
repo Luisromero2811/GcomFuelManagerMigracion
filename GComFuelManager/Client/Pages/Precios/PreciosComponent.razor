@@ -248,8 +248,8 @@
                     <div class="col-12 d-flex justify-content-center">
                         <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions">
+                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
+                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" PageSizeOptions="@pageSizeOptions">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -266,11 +266,11 @@
                                 </AuthorizeView>
                                 <RadzenDataGridColumn TItem="Precio" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" OrderIndex="3" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
-                                    <FilterTemplate Context="filter">
+                                <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
+                                <RadzenDataGridColumn TItem="Precio" Title="Producto" Property="Producto.Den" OrderIndex="5" Filterable="true">
+                                    @*<FilterTemplate Context="filter">
                                         <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                    </FilterTemplate>
+                                    </FilterTemplate>*@
                                     <Template Context="data">
                                         <div class="col-12 d-flex row">
                                             <div class="col-1">
@@ -297,11 +297,11 @@
                                         </div>
                                     </Template>
                                 </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8" />
+                                <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="true" OrderIndex="6" />
+                                <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="true" OrderIndex="7" Width="100px" />
+                                <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="true" OrderIndex="8" />
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
+                                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9" Filterable="false">
                                         <Template Context="data">
                                             <div class="col-12">
                                                 <div class="form-check form-switch m-2">
@@ -320,74 +320,74 @@
                     <div class="col-12 d-flex justify-content-center">
                         <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true">
-                            <Columns>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                    <Authorized>
-                                        <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
-                                            <Template Context="item">
-                                                <div class="col-12 row">
-                                                    <div class="col">
-                                                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))">
-                                                            <i class="fa fa-solid fa-pen-to-square"></i>
-                                                        </button>
+                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
+                                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
+                                <Columns>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <Authorized>
+                                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
+                                                <Template Context="item">
+                                                    <div class="col-12 row">
+                                                        <div class="col">
+                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))">
+                                                                <i class="fa fa-solid fa-pen-to-square"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                    </Authorized>
-                                </AuthorizeView>
-                                <RadzenDataGridColumn TItem="Precio" Title="Fecha de aplicacion" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
-                                    <FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                    </FilterTemplate>
-                                    <Template Context="data">
-                                        <div class="col-12 d-flex row">
-                                            <div class="col-1">
-                                                @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
-                                                {
-                                                    <div class="badge rounded-pill regular me-1">&nbsp;</div>
-                                                }
-                                                else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
-                                                {
-                                                    <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
-                                                }
-                                                else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
-                                                {
-                                                    <div class="badge rounded-pill premium me-1">&nbsp;</div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="badge rounded-pill diesel me-1">&nbsp;</div>
-                                                }
-                                            </div>
-                                            <div class="col-11">
-                                                @data.Producto?.Den
-                                            </div>
-                                        </div>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8" />
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <RadzenDataGridColumn TItem="Precio" Title="Fecha de aplicacion" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px" />
+                                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
+                                    <RadzenDataGridColumn TItem="Precio" Title="Producto" Filterable="true" Property="Producto.Den" OrderIndex="5">
+                                        @*<FilterTemplate Context="filter">
+                                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        </FilterTemplate>*@
                                         <Template Context="data">
-                                            <div class="col-12">
-                                                <div class="form-check form-switch m-2">
-                                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                            <div class="col-12 d-flex row">
+                                                <div class="col-1">
+                                                    @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
+                                                    {
+                                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                                                    }
+                                                    else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
+                                                    {
+                                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                                                    }
+                                                    else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
+                                                    {
+                                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                                                    }
+                                                </div>
+                                                <div class="col-11">
+                                                    @data.Producto?.Den
                                                 </div>
                                             </div>
                                         </Template>
                                     </RadzenDataGridColumn>
-                                </AuthorizeView>
-                            </Columns>
-                        </RadzenDataGrid>
-                    </div>
+                                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="true" OrderIndex="6" />
+                                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="true" OrderIndex="7" Width="100px" />
+                                    <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="true" OrderIndex="8" />
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                                        <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9" Filterable="false">
+                                            <Template Context="data">
+                                                <div class="col-12">
+                                                    <div class="form-check form-switch m-2">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
+                                                               @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                                    </div>
+                                                </div>
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </AuthorizeView>
+                                </Columns>
+                            </RadzenDataGrid>
+</div>
                 </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
