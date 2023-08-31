@@ -150,7 +150,7 @@
                                 }
                             </button>
                         </div>
-                        <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                             <Columns>
@@ -159,7 +159,11 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado" Width="240px">
                                     <FilterTemplate Context="Destinos">
-                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                            <ValueTemplate Context="data">
+                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190"/>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </FilterTemplate>
                                     <Template Context="data">
                                         <div>
@@ -170,7 +174,11 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" Width="140px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Width="260px">
                                     <FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                            <ValueTemplate Context="data">
+                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </FilterTemplate>
                                     <Template Context="data">
                                         <div class="col-12 row">
@@ -229,7 +237,11 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado" Width="240px">
                                     <FilterTemplate Context="Destinos">
-                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                            <ValueTemplate Context="data">
+                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190"/>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </FilterTemplate>
                                     <Template Context="data">
                                         <div>
@@ -240,7 +252,11 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Placatracto" Filterable="false" Width="140px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Width="260px">
                                     <FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                            <ValueTemplate Context="data">
+                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </FilterTemplate>
                                     <Template Context="data">
                                         <div class="col-12 row">

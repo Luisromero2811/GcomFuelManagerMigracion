@@ -96,12 +96,12 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true">
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" FilterMode="FilterMode.Simple">
             <Columns>
-                <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" />
-                <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3">
+                <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" Filterable="true" />
+                <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" Filterable="true"/>
+                <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
                             @foreach (var item in data.AccionCorreos)
@@ -114,7 +114,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="Acciones">
-                    <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="200px" OrderIndex="4">
+                    <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="200px" OrderIndex="4" Filterable="false">
                         <Template Context="item">
                             <div class="col-12 ">
                                 <div class="col">
@@ -123,7 +123,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
+                    <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5" Filterable="false">
                         <Template Context="data">
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">
