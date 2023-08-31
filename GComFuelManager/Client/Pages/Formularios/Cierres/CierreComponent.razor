@@ -1136,7 +1136,7 @@
                             Duration = 10000,
                             Severity = NotificationSeverity.Info
                         });
-                    var ordenes = ordenCierres.Where(x => x.CodCte == item).ToList();
+                    var ordenes = ordenCierres.Where(x => x.CodCte == item && x.Activa == true).ToList();
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
@@ -1342,6 +1342,14 @@
             else
             {
                 Precios = response.Response;
+                if (Precios.Count == 0)
+                    ms.Notify(new NotificationMessage()
+                        {
+                            Summary = "Precios",
+                            Detail = $"No se han encontrado precios para este destino.",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Warning
+                        });
                 StateHasChanged();
                 DestinoSeleccionado = ordenCierre.CodDes;
             }
