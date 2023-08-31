@@ -75,7 +75,7 @@
                                 </RadzenPanel>
                                 <div class="col-12 d-flex justify-content-center mt-3">
                                     <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios">
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios" disabled="@loadingSend">
                                             <i class="fa fa-solid fa-floppy-disk"></i>
                                             Guardar
                                             @if (loadingSend)
