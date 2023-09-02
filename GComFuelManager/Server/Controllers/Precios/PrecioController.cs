@@ -191,6 +191,25 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return Ok(precios);
                 }
 
+                precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
+                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.codZona == zona.ZonaCod)
+                    .Include(x => x.Producto)
+                    .ToListAsync();
+
+                precios.ForEach(x =>
+                {
+                    if (x.FchDia < DateTime.Today
+                    && DateTime.Today.DayOfWeek != DayOfWeek.Saturday
+                    && DateTime.Today.DayOfWeek != DayOfWeek.Sunday
+                    && DateTime.Today.DayOfWeek != DayOfWeek.Monday)
+                    {
+                        var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
+                        var aumento = (porcentaje.Porcen / 100) + 1;
+                        x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
+                    }
+                });
+
                 if (DateTime.Now > LimiteDate &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
@@ -200,45 +219,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                     //&& x.codZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
-                    preciosPro.ForEach(x =>
-                    {
-                        if (x.FchDia < DateTime.Today
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Saturday 
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Sunday
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Monday
-                        || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true)
-                        {
-                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                            var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
-                        }
-                    });
-                    return Ok(preciosPro);
-                }
-                else
-                {
-                    precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
-                    .Include(x => x.Producto)
-                    .ToListAsync();
-                    precios.ForEach(x =>
-                    {
-                        if (x.FchDia < DateTime.Today
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Saturday 
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Sunday 
-                        && DateTime.Today.DayOfWeek != DayOfWeek.Monday
-                        || context.Cliente.FirstOrDefault(x => x.Cod == zonaCliente.CteCod)?.precioSemanal is true
-                        )
-                        {
-                            var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                            var aumento = (porcentaje.Porcen / 100) + 1;
-                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
-                        }
-                    });
 
-                    return Ok(precios);
+                    foreach (var item in preciosPro)
+                    {
+                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
+                        if (!precios.Any(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd))
+                        {
+                            precios.Add(new Precio()
+                            {
+                                Pre = item.Pre,
+                                codCte = item.codCte,
+                                codDes = item.codDes,
+                                codPrd = item.codPrd,
+                                codGru = item.Cliente?.codgru,
+                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
+                            });
+                        }
+                    }
                 }
+
+                return Ok(precios);
             }
             catch (Exception e)
             {
