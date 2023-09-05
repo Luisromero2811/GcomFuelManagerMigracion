@@ -162,6 +162,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
+                    .Include(x=>x.OrdenPedido)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
