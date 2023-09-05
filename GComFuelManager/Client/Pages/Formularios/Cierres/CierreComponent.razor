@@ -240,7 +240,10 @@
                                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
                                                                     AllowVirtualization="true">
                                                         <Template Context="data">
-                                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                            <div>
+                                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                                <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())"/>
+                                                            </div>
                                                         </Template>
                                                         <ValueTemplate Context="data">
                                                             @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
