@@ -222,7 +222,8 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     foreach (var item in preciosPro)
                     {
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
+                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).Pre = item.Pre;
+                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
                         if (!precios.Any(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd))
                         {
                             precios.Add(new Precio()
