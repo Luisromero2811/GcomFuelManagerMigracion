@@ -31,25 +31,25 @@ namespace GComFuelManager.Server.Controllers.Precios
             this.verifyUser = verifyUser;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> GetPrecios()
-        {
-            try
-            {
-                var precios = await context.Precio
-                    .Include(x => x.Zona)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .ToListAsync();
+        //[HttpGet]
+        //public async Task<ActionResult> GetPrecios()
+        //{
+        //    try
+        //    {
+        //        var precios = await context.Precio
+        //            .Include(x => x.Zona)
+        //            .Include(x => x.Cliente)
+        //            .Include(x => x.Producto)
+        //            .Include(x => x.Destino)
+        //            .ToListAsync();
 
-                return Ok(precios);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        return Ok(precios);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpPost("productos/{folio?}")]
         public async Task<ActionResult> GetPrecios([FromBody] ZonaCliente? zonaCliente, [FromRoute] string? folio)
@@ -60,20 +60,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PrecioProgramado> preciosPro = new List<PrecioProgramado>();
                 var LimiteDate = DateTime.Today.AddHours(16);
 
-                var userId = verifyUser.GetName(HttpContext);
-
-                if (string.IsNullOrEmpty(userId))
-                    return BadRequest();
-
-                var user = await userManager.FindByNameAsync(userId);
-
+                var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 if (user == null)
-                    return BadRequest();
+                    return NotFound();
 
-
-                var usuario = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-                if (usuario == null)
-                    return BadRequest();
+                var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                if (userSis == null)
+                    return NotFound();
 
                 if (!string.IsNullOrEmpty(folio))
                 {
@@ -100,7 +93,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return Ok(precios);
                 }
 
-                precios = await context.Precio.Where(x => x.codDes == zonaCliente.DesCod && x.Activo == true)
+                precios = await context.Precio.Where(x => x.codCte == userSis.CodCte && x.codDes == zonaCliente.DesCod && x.Activo == true)
                     //&& x.codZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
@@ -114,7 +107,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                         var aumento = (porcentaje.Porcen / 100) + 1;
-                        x.Pre = x.FchDia != DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
+                        x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                     }
                 });
 
@@ -122,14 +115,18 @@ namespace GComFuelManager.Server.Controllers.Precios
                     DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    preciosPro = await context.PrecioProgramado.Where(x => x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    preciosPro = await context.PrecioProgramado.Where(x => x.codCte == userSis.CodCte
+                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
                     //&& x.codZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
+
                     foreach (var item in preciosPro)
                     {
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
-                        if (!precios.Any(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd))
+                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).Pre = item.Pre;
+                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
+                        var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                        if (pre is null)
                         {
                             precios.Add(new Precio()
                             {

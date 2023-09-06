@@ -286,7 +286,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (!filtroDTO.forFolio)
                 {
-                    cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte
+                    cierres = await context.OrdenCierre.Where(x => x.CodCte == filtroDTO.codCte && x.Confirmada == true
                     && x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin && x.Estatus == true)
                         .Include(x => x.Cliente)
                         .Include(x => x.Producto)
@@ -305,9 +305,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     if (!string.IsNullOrEmpty(filtroDTO.Folio))
                     {
-                        if (isClient)
-                        {
-                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.CodCte == filtroDTO.codCte)
+                        cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.CodCte == filtroDTO.codCte)
                             .Include(x => x.Cliente)
                             .Include(x => x.Producto)
                             .Include(x => x.Destino)
@@ -319,22 +317,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Tad)
                             .ToListAsync();
-                        }
-                        else
-                        {
-                            cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
-                            .Include(x => x.Cliente)
-                            .Include(x => x.Producto)
-                            .Include(x => x.Destino)
-                            .Include(x => x.ContactoN)
-                            .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Tonel)
-                        .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Estado)
-                        .Include(x => x.OrdenEmbarque)
-                            .ThenInclude(x => x.Tad)
-                            .ToListAsync();
-                        }
+                        foreach (var item in cierres)
+                            if (!item.Confirmada)
+                                return BadRequest("El cierre aun no esta autorizado");
                     }
                     else
                         return BadRequest("Debe escribir un folio valido.");
@@ -651,26 +636,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (user == null)
                     return NotFound();
 
-                if (await UserManager.IsInRoleAsync(user, "Comprador"))
-                {
-                    var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-                    if (userSis == null)
-                        return NotFound();
+                var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                if (userSis == null)
+                    return NotFound();
 
-                    folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == userSis.CodCte)
-                    .Select(x => x.Folio)
-                    .Distinct()
-                    .ToList();
-                }
-                else
-                {
-                    folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true)
-                    .Select(x => x.Folio)
-                    .Distinct()
-                    .ToList();
-                }
+                folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == userSis.CodCte && x.Confirmada == true && x.Estatus == true)
+                .Select(x => x.Folio)
+                .Distinct()
+                .ToList();
 
                 return Ok(folios);
             }

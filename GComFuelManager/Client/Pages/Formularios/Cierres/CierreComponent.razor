@@ -40,7 +40,7 @@
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label>Fecha de cierre</label>
-                                                <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" Disabled="true" ShowTime="false" DateFormat="dd/MM/yyyy" />
+                                                <RadzenDatePicker class="col-12" @bind-Value="ordenCierre.FchCierre" ShowTime="false" DateFormat="dd/MM/yyyy" />
                                             </div>
                                         </div>
 
@@ -863,7 +863,6 @@
 
             ZonaCliente zonaCliente = new ZonaCliente();
             zonaCliente.DesCod = ordenCierre.CodDes;
-            zonaCliente.CteCod = ordenCierre.CodCte;
 
             var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
             if (response.Error)
