@@ -1082,6 +1082,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 cierres.ForEach(x =>
                 {
+                    x.Cliente = null!;
+                    x.Destino = null!;
+                    x.OrdenEmbarque = null!;
+                    x.Grupo = null!;
+                    x.Producto = null!;
+                    x.VolumenDisponible = null!;
                     x.Confirmada = true;
                 });
 
@@ -1093,7 +1099,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 await context.SaveChangesAsync(id, 32);
 
-                return Ok();
+                return NoContent();
             }
             catch (Exception e)
             {

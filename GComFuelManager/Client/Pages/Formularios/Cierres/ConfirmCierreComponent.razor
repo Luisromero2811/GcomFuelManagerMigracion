@@ -249,7 +249,7 @@
         {
             if (OrdenesSeleccionadas.Count != 0)
             {
-                var response = await http.Post<IList<OrdenCierre>, OrdenCompra>("api/pedido/confirm", OrdenesSeleccionadas);
+                var response = await http.Post<IList<OrdenCierre>>("api/pedido/confirm", OrdenesSeleccionadas);
                 if (response.Error)
                 {
                     loadingConfirm = false;
