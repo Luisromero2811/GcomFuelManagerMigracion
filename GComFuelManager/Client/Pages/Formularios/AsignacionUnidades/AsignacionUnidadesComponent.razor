@@ -575,7 +575,10 @@
                                     await swal.FireAsync("Error", message, SweetAlertIcon.Error);
                                 }
                                 else
+                                {
                                     await UpdateOrden();
+                                    //ordenesSeleccionada = new List<OrdenEmbarque>();
+                                }
                             }
                         }
                     }
@@ -815,11 +818,7 @@
         try
         {
             ordenEmbarque = orden;
-            if (ordenEmbarque.Tonel != null && ordenEmbarque.Chofer != null)
-            {
-                //asignacion.CodTra = Transportistas.FirstOrDefault(x=>x.CarrId == ordenEmbarque.Chofer.bu)
-            }
-            //await grid!.SelectRow(orden);
+            await grid!.SelectRow(orden);
             //await dpT.FocusAsync();
         }
         catch (Exception e)

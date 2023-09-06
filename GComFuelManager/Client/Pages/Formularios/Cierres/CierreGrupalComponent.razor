@@ -335,26 +335,26 @@
                             </Template>
                         </RadzenDataGridColumn>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" OrderIndex="2"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Frozen="true" Width="140px" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4" />
                     @*<RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5"/>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6"/>*@
                     @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" OrderIndex="7">
-                        <FilterTemplate Context="Destinos">
-                            <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
-                        </FilterTemplate>
-                        <Template Context="data">
-                            <div>
-                                @data?.Destino?.Den
-                            </div>
-                        </Template>
+                    <FilterTemplate Context="Destinos">
+                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                    </FilterTemplate>
+                    <Template Context="data">
+                    <div>
+                    @data?.Destino?.Den
+                    </div>
+                    </Template>
                     </RadzenDataGridColumn>*@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
                         <FilterTemplate>
                             <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                 <ValueTemplate Context="data">
-                                    <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                    <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
                                 </ValueTemplate>
                             </RadzenDropDown>
                         </FilterTemplate>
@@ -384,7 +384,7 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" OrderIndex="6"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" OrderIndex="6" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
                         <Template Context="item">
                             <div class="col-12">
@@ -399,10 +399,10 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" OrderIndex="8"/>
+                    @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Tipo de venta" Property="TipoVenta" Filterable="false" Width="140px" OrderIndex="8" />*@
                     @*<RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Property="Cliente.Den" Filterable="false" OrderIndex="12"/>*@
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" OrderIndex="9"/>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" OrderIndex="10"/>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vendedor" Property="Vendedor" Visible="!IsClient" Filterable="false" Width="140px" OrderIndex="8" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" OrderIndex="9" />
                 </Columns>
             </RadzenDataGrid>
 
@@ -437,11 +437,11 @@
                                 {
                                     @if (AddDaysExpiration is false)
                                     {
-                                            <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Vencimientos">
-                                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@SetFchVencimiento">
-                                                    Cambiar Vencimiento
-                                                </button>
-                                            </AuthorizeView>
+                                        <AuthorizeView Roles="Autorizador Vigencia Pedidos, Admin, Administrador Sistema" Context="Vencimientos">
+                                            <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@SetFchVencimiento">
+                                                Cambiar Vencimiento
+                                            </button>
+                                        </AuthorizeView>
                                     }
                                     else
                                     {
@@ -792,14 +792,14 @@
                 {
                     var bin = responseBIN.Response;
                     OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
-                    };
+                        {
+                            Codprd = ordenCierre.CodPrd,
+                            Pre = ordenCierre.Precio,
+                            Vol = ordenCierre.Volumen,
+                            Coddes = ordenCierre.CodDes,
+                            Fchpet = DateTime.Now,
+                            Bin = ordenCierres.Count == 0 ? ++bin : ordenCierres.Count % 2 != 0 ? ++bin : bin
+                        };
 
                     var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido", ordenEmbarque);
                     if (response.Error)
@@ -973,19 +973,41 @@
     {
         try
         {
+            ms.Notify(new NotificationMessage()
+                {
+                    Summary = "Enviando correos",
+                    Detail = "Se estan enviando los corresos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
+                    Duration = 10000,
+                    Severity = NotificationSeverity.Info
+                });
+
             if (ordenCierres.Count > 0)
             {
-                if (ordenCierres.DistinctBy(x => x.Folio).Count() == 1)
+                ordenCierres.ForEach(x =>
                 {
-                    loadingSend = true;
+                    x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
+                });
 
-                    ordenCierres.ForEach(x =>
-                    {
-                        x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
-                    });
-                    var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenCierres);
+                var grupos = ordenCierres.DistinctBy(x => x.CodGru).Select(x => x.CodGru);
+                var count = 0;
+                var total = grupos.Count();
+
+                foreach (var item in grupos)
+                {
+                    count++;
+                    loadingSend = true;
+                    ms.Notify(new NotificationMessage()
+                        {
+                            Summary = "Enviando correos",
+                            Detail = $"Enviando {count} de {total} correos",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Info
+                        });
+                    var ordenes = ordenCierres.Where(x => x.CodGru == item && x.Activa == true).ToList();
+                    var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
+                        count--;
                         loadingSend = false;
                         var message = await response.ObtenerMensajeError();
                         await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
@@ -993,15 +1015,18 @@
                     else
                     {
                         loadingSend = false;
-                        await Swal.FireAsync("Exito", "Correo enviado", SweetAlertIcon.Success);
-                        ordenCierres = new List<OrdenCierre>();
-                        ordenCierre = new OrdenCierre();
+                        ms.Notify(new NotificationMessage()
+                            {
+                                Summary = "Enviando correos",
+                                Detail = $"Correo enviado",
+                                Duration = 10000,
+                                Severity = NotificationSeverity.Success
+                            });
                     }
                 }
-                else
-                {
-                    await Swal.FireAsync("Alerta", "Se encontraron mas de un folio en el listado de ordenes. Filtre solo uno para poder enviar el correo.", SweetAlertIcon.Warning);
-                }
+                await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos exitosamente.", SweetAlertIcon.Info);
+                ordenCierres = new List<OrdenCierre>();
+                ordenCierre = new OrdenCierre();
             }
             else
             {
@@ -1073,29 +1098,14 @@
     {
         try
         {
+            if (ordenCierres.Count > 0)
+                if (ordenCierres.Any(x => x.CodGru == ordenCierre.CodGru))
+                    ordenCierre.Folio = ordenCierres.FirstOrDefault(x => x.CodGru == ordenCierre.CodGru)?.Folio;
+                else
+                    ordenCierre.Folio = string.Empty;
+
             if (string.IsNullOrEmpty(ordenCierre.Folio))
             {
-                if (ordenCierres.Count > 0 && string.IsNullOrEmpty(ordenCierre.Folio))
-                {
-
-                    var r = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Title = "Agregar pedido",
-                        Text = "Ya tiene una orden en lista, ¿Desea crear una nueva orden?",
-                        Icon = SweetAlertIcon.Warning,
-                        CancelButtonText = "Cancelar",
-                        ConfirmButtonText = "Aceptar",
-                        ShowCancelButton = true
-                    });
-                    if (!string.IsNullOrEmpty(r.Value))
-                    {
-                        ordenCierres = new List<OrdenCierre>();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
 
                 var guid = Guid.NewGuid().ToString().Split("-");
                 ordenCierre.Folio = $"G-{guid[0]}";
