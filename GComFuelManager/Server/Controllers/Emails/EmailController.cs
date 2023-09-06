@@ -52,6 +52,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 int? VolumenTotal = 0;
                 IEnumerable<MailboxAddress> ToList = new List<MailboxAddress>();
                 if (ordenCierres.FirstOrDefault()!.isGroup)
+                {
                     foreach (var i in ordenCierres)
                     {
                         var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
@@ -65,7 +66,12 @@ namespace GComFuelManager.Server.Controllers.Emails
                             .AsEnumerable();
                         }
                     }
+
+                    if (ToList is null || ToList.Count() == 0)
+                        return BadRequest($"{ordenCierres.FirstOrDefault().Grupo.Den}, No cuenta con un correo activo o registrado");
+                }
                 else
+                {
                     ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
                     && x.Accion.Nombre.Equals("Compra"))
                         .Include(x => x.Accion)
@@ -73,8 +79,9 @@ namespace GComFuelManager.Server.Controllers.Emails
                         .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
                         .AsEnumerable();
 
-                if (ToList is null || ToList.Count() == 0)
-                    return BadRequest("No cuenta con un correo activo o registrado");
+                    if (ToList is null || ToList.Count() == 0)
+                        return BadRequest($"{ordenCierres.FirstOrDefault().Cliente.Den}, No cuenta con un correo activo o registrado");
+                }
 
                 var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
                 //var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
@@ -132,7 +139,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
                            .ToListAsync();
 
-                    if(ToList is not null && ToList?.Count > 0)
+                    if (ToList is not null && ToList?.Count > 0)
                     {
                         var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
                         emailContent.CC = cc;
