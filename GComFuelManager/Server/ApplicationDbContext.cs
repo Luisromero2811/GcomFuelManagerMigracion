@@ -306,6 +306,27 @@ namespace GComFuelManager.Server
             //    .WithMany()
             //    .HasPrincipalKey(x => x.Bolguidid)
             //    .HasForeignKey(x => x.Bolguiid);
+
+            //Precio - Zona
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Zona)
+                .WithMany()
+                .HasForeignKey(x => x.codZona);
+            //Precio - cliente
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.codCte);
+            //Precio - Producto
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.codPrd);
+            //Precio - Destino
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.codDes);
         }
 
         public DbSet<Chofer> Chofer { get; set; }
@@ -332,5 +353,7 @@ namespace GComFuelManager.Server
         public DbSet<OrdEmbDet> OrdEmbDet { get; set; }
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
         public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
+        public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
+
     }
 }
