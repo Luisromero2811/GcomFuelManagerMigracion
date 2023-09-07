@@ -77,6 +77,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                 else
                 {
+                    
+                    if (ordEmb.Litent > 0)
+                        ordEmb.Orden.Codest = 10;
+
                     ordEmb.Orden!.Estado = null!;
 
                     context.Update(ordEmb.Orden);

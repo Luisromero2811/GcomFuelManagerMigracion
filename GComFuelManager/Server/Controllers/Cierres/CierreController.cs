@@ -87,6 +87,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
                     .ThenInclude(x => x.Estado)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .ThenInclude(x => x.OrdEmbDet)
                     .ToListAsync();
 
                 if (ordenes.Count > 0)
@@ -112,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     }
                     else
                     {
-                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio).ToList();
+                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio && x.CodPed != null).ToList();
                         foreach (var item1 in pedidos)
                         {
                             var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)

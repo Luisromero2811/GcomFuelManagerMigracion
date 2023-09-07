@@ -32,7 +32,7 @@
         <div class="col-12">
             <div class="col-12">
                 <label>Filtro clientes:</label>
-                <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" Change="@ChangeCliente" />
+                <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" Change="@ChangeCliente" AllowClear="true"/>
             </div>
             <RadzenDataList Data="@Cierres" Style="height:500px;overflow-y:scroll;" TItem="OrdenCierre">
                 <Template Context="cierre">
@@ -56,6 +56,12 @@
                                     <p><b class="text-primary">En espera de carga:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Congelado?.ToString("N2")</p>
                                     <p><b class="text-warning">Cargado:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Consumido?.ToString("N2")</p>
                                     <p><b class="text-danger">Promedio de carga:</b> @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga?.ToString("N2")</p>
+                                </div>
+                            }
+                            else
+                            {
+                                <div>
+                                    <p><b>Total:</b> @cierre?.Volumenes</p>
                                 </div>
                             }
                         </div>

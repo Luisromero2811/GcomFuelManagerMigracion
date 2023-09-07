@@ -189,7 +189,7 @@ namespace GComFuelManager.Server.Controllers.Emails
 
                     var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == ordenEmbarques.FirstOrDefault()!.OrdenCierre.CodCte && x.Estado == true);
                     if (contacto is null)
-                        return BadRequest("No tiene un contacto asignado");
+                        return BadRequest($"{ordenEmbarques.FirstOrDefault(x=>x.OrdenCierre.CodCte == item).Cliente.Den} No tiene un contacto asignado");
 
                     //emailContent.Nombre = contacto.Nombre;
                     //emailContent.Email = contacto.Correo;

@@ -1125,12 +1125,12 @@
                 });
             if (ordenCierres.Count > 0)
             {
-                count++;
                 var clientes = ordenCierres.DistinctBy(x => x.CodCte).Select(x => x.CodCte);
                 var count = 0;
                 var total = clientes.Count();
                 foreach (var item in clientes)
                 {
+                    count++;
                     loadingSend = true;
                     ms.Notify(new NotificationMessage()
                         {
@@ -1160,7 +1160,7 @@
                             });
                     }
                 }
-                await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos exitosamente.", SweetAlertIcon.Success);
+                await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos.", SweetAlertIcon.Success);
                 ordenCierres = new List<OrdenCierre>();
                 ordenCierre = new OrdenCierre();
             }

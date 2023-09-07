@@ -102,9 +102,13 @@
                                     }
                                 </div>
                                 <div class="col-4">
-                                    <button class="btn gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null)">
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null || SendAsignacion)">
                                         <i class="fa fa-solid fa-truck-front"></i>
                                         <b>Asignar</b>
+                                        @if (SendAsignacion)
+                                        {
+                                            <SpinnerLoading />
+                                        }
                                     </button>
                                 </div>
                             </div>
@@ -327,6 +331,7 @@
     bool loadginAsignar = false;
     bool loadingAgregar = false;
     bool loadingSend = false;
+    bool SendAsignacion = false;
     //
     CheckChofer checkChofer = new CheckChofer();
     AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
@@ -508,6 +513,7 @@
     {
         try
         {
+            SendAsignacion = true;
             if (asignacion.CodTon == null || asignacion.CodTra == null || asignacion.CodChf == null)
                 return;
 
@@ -540,6 +546,7 @@
                 {
                     var message = await response.ObtenerMensajeError();
                     await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    SendAsignacion = false;
                 }
                 else
                 {
@@ -549,6 +556,7 @@
                     {
                         var respuestaHttp = await responseHttp.ObtenerMensajeError();
                         await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                        SendAsignacion = false;
                     }
                     else
                     {
@@ -573,17 +581,22 @@
                                 {
                                     var message = await responseDes.ObtenerMensajeError();
                                     await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                    SendAsignacion = false;
                                 }
                                 else
                                 {
                                     await UpdateOrden();
+                                    await MostrarOrdenFecha();
+                                    SendAsignacion = false;
                                     //ordenesSeleccionada = new List<OrdenEmbarque>();
                                 }
                             }
                         }
+                        SendAsignacion = false;
                     }
                 }
             }
+            SendAsignacion = false;
         }
         catch (Exception e)
         {
