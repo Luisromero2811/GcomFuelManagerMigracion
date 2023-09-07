@@ -97,6 +97,12 @@
                         <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLenght="260" Placeholder="Máximo de 260 caracteres"></InputTextArea>
                     </div>
                 </div>
+                <div class="row g-3 mt-1 mb-2">
+                    <div class="col-6">
+                        <label>Entregado</label>
+                        <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLenght="260" Placeholder="Máximo de 260 caracteres"></InputTextArea>
+                    </div>
+                </div>
             </AuthorizeView>
             <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador, Comprador" Context="Actions">
                 <div class="row d-flex g-3">
