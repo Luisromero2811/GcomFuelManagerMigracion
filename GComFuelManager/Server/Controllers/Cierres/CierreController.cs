@@ -87,6 +87,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
                     .ThenInclude(x => x.Estado)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .ThenInclude(x => x.OrdEmbDet)
                     .ToListAsync();
 
                 if (ordenes.Count > 0)
@@ -112,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     }
                     else
                     {
-                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio).ToList();
+                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio && x.CodPed != null).ToList();
                         foreach (var item1 in pedidos)
                         {
                             var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
@@ -1047,6 +1050,65 @@ namespace GComFuelManager.Server.Controllers.Cierres
         public class PrecioBol
         {
             public double? Precio { get; set; } = 0;
+        }
+
+        [HttpPost("filtrar/pendientes")]
+        public async Task<ActionResult> GetCierresPendentes([FromBody] FechasF fechas)
+        {
+            try
+            {
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                cierres = await context.OrdenCierre.Where(x => x.FchCierre >= fechas.DateInicio && x.FchCierre <= fechas.DateFin && x.Confirmada == false
+                && x.Activa == true && x.Estatus == true)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Grupo)
+                    .OrderBy(x => x.FchCierre)
+                    .Take(1000)
+                    .ToListAsync();
+
+                return Ok(cierres);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw;
+            }
+        }
+
+        [HttpPost("confirm")]
+        public async Task<ActionResult> ConfirmCierresPendentes([FromBody] List<OrdenCierre> cierres)
+        {
+            try
+            {
+
+                cierres.ForEach(x =>
+                {
+                    x.Cliente = null!;
+                    x.Destino = null!;
+                    x.OrdenEmbarque = null!;
+                    x.Grupo = null!;
+                    x.Producto = null!;
+                    x.VolumenDisponible = null!;
+                    x.Confirmada = true;
+                });
+
+                context.UpdateRange(cierres);
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 32);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw;
+            }
         }
     }
 }

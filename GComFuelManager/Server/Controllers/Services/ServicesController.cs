@@ -867,7 +867,8 @@ namespace GComFuelManager.Server.Controllers.Services
 
                     Random rand = new Random();
                     int randomNumber = rand.Next(1, 100001);
-
+                    Guid guid = Guid.NewGuid();
+                    x.Bolguidid = guid.ToString();
                     x.Folio = randomNumber;
                 });
 
@@ -890,21 +891,12 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid == null)
+                var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid != null)
                     .Include(x => x.Destino)
                     .ToListAsync();
 
                 if (ordenes is null)
                     return NoContent();
-
-                ordenes.ForEach(x =>
-                {
-                    Guid guid = Guid.NewGuid();
-
-                    x.Bolguidid = guid.ToString();
-
-                    context.Update(x);
-                });
 
                 foreach (var item in ordenes)
                 {

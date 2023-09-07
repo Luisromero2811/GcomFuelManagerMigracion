@@ -83,8 +83,11 @@
                                 </div>
                                 <div class="col-3 d-flex">
                                     <div class="col-12 mt-auto">
-                                        <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))">
+                                        <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))" disabled="@loadingBuscar">
                                             <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedido
+                                            @if(loadingBuscar){
+                                                <SpinnerLoading/>
+                                            }
                                         </button>
                                     </div>
                                 </div>
@@ -184,7 +187,8 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false" Width="130px">
                                     <Template Context="item">
-                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
+                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den 
+                                        : item?.OrdenEmbarque?.Estado != null ? item?.OrdenEmbarque?.Estado?.den : "Activa")
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Width="170px" Filterable="false" />
@@ -320,6 +324,7 @@
 
     bool loadingExport = false;
     bool loading = false;
+    bool loadingBuscar = false;
     bool isDetail = false;
     bool monthFilter = false;
 
@@ -403,7 +408,7 @@
         {
             filtro.forFolio = forFolio;
             monthFilter = false;
-
+            loadingBuscar = true;
             if (!forFolio)
             {
                 if (mesSeleccionado != 0 && añoSeleccionado != 0)
@@ -430,6 +435,7 @@
                     {
                         var message = await response.ObtenerMensajeError();
                         await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        loadingBuscar = false;
                     }
                     else
                     {
@@ -447,6 +453,7 @@
                             {
                                 var message = await responseD.ObtenerMensajeError();
                                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                loadingBuscar = false;
                             }
                             else
                             {
@@ -459,6 +466,7 @@
                         {
                             var message = await response.ObtenerMensajeError();
                             await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            loadingBuscar = false;
                         }
                         else
                         {
@@ -470,6 +478,7 @@
                     }
                 }
             }
+            loadingBuscar = false;
         }
         catch (Exception e)
         {

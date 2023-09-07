@@ -141,7 +141,7 @@
             Contacto = contacto;
             foreach (var item in contacto.AccionCorreos)
             {
-                AccionesSeleccionadas.Add(item.Accion);
+                Contacto.Accions.Add(item.Accion);
             }
         }
         catch (Exception e)

@@ -134,11 +134,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     Cod = null!,
                     pre = precio.Pre,
-                    codCte = precio.codCte,
-                    codDes = precio.codDes,
-                    codGru = (short)precio.codGru!,
-                    codPrd = precio.codPrd,
-                    codZona = precio.codZona,
+                    codCte = precio?.codCte,
+                    codDes = precio?.codDes,
+                    codGru = precio?.codGru,
+                    codPrd = precio?.codPrd,
+                    codZona = precio?.codZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = precio.FchActualizacion
                 };
@@ -224,7 +224,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).Pre = item.Pre;
                         precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
-                        if (!precios.Any(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd))
+                        var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                        if (pre is null)
                         {
                             precios.Add(new Precio()
                             {
@@ -278,6 +279,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var destino = context.Destino.FirstOrDefault(x => x.Codsyn == coddes);
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+
+                    if (item.Precio == null || item.Precio == 0)
+                        return BadRequest($"El destino {destino.Den} no tiene un precio con valor");
 
                     if (DateTime.Parse(item.Fecha) > DateTime.Today)
                     {
@@ -516,8 +520,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     codDes = precio.codDes,
                     codGru = precio.codGru,
                     codPrd = precio.codPrd,
-                    codZona = precio.Cod,
-                    FchDia = DateTime.Parse(precio.Fecha),
+                    codZona = precio.codZona,
+                    FchDia = precio.FchDia,
                     FchActualizacion = DateTime.Now,
                     Pre = precio.Pre
                 };
