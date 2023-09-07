@@ -543,7 +543,7 @@
                                 <div class="col-12 row">
                                     @foreach (var item in volumenDisponible.Productos)
                                     {
-                                        <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                        <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Solicitado : @(item.Solicitud?.ToString("N")) | Programado : @(item.Programado?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
                                     }
                                 </div>
                             }
