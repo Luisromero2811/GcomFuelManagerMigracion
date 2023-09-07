@@ -184,7 +184,8 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false" Width="130px">
                                     <Template Context="item">
-                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den)
+                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den 
+                                        : item?.OrdenEmbarque?.Estado != null ? item?.OrdenEmbarque?.Estado?.den : "Activa")
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Width="170px" Filterable="false" />

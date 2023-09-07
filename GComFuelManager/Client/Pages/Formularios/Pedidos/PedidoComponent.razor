@@ -280,7 +280,7 @@
                         @if (!isFolio || ordenCierre.IsCierreVolumen)
                         {
                             <div class="col-4 px-2">
-                                <button class="btn gcom-bg-amarillo col-12 mx-2" type="submit">
+                                <button class="btn gcom-bg-amarillo col-12 mx-2 @(SendOrden ? "disabled" : "" )" type="submit" disabled="@SendOrden">
                                     <i class="fa fa-solid fa-check"></i>
                                     <b>Crear orden</b>
                                     @if (loadingConfirm)
@@ -427,6 +427,7 @@
     bool isFolio = false;
     bool isEditing = false;
     bool IsCierreVolumen = false;
+    bool SendOrden = false;
 
     private byte? CodProductoSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
@@ -906,11 +907,13 @@
     {
         try
         {
+            SendOrden = true;
             var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                SendOrden = false;
             }
             else
             {
@@ -925,7 +928,9 @@
 
                 await PutClientes();
                 await CreateCierre();
+                SendOrden = false;
             }
+            SendOrden = false;
         }
         catch (Exception e)
         {

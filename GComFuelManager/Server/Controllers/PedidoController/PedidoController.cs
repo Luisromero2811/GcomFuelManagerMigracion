@@ -117,7 +117,7 @@ namespace GComFuelManager.Server.Controllers
 
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null)
+                    && x.Bolguidid == null && x.Folio == null && x.OrdenPedido != null)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -129,6 +129,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchpet)
+                    .Include(x=>x.OrdenPedido)
                     .Take(10000)
                     .ToListAsync();
 
@@ -463,6 +464,7 @@ namespace GComFuelManager.Server.Controllers
                     x.Producto = null;
                     x.OrdenCierre = null!;
                     x.Cliente = null!;
+                    x.OrdenPedido = null!;
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;

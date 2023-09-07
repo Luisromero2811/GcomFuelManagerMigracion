@@ -112,7 +112,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     }
                     else
                     {
-                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio).ToList();
+                        var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenes.FirstOrDefault()!.Folio && x.CodPed != null).ToList();
                         foreach (var item1 in pedidos)
                         {
                             var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
