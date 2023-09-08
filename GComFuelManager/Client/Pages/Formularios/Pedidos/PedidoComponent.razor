@@ -59,11 +59,11 @@
                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         AllowVirtualization="true">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10"/>
+                                <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
                             </ValueTemplate>
                         </RadzenDropDown>
                         @*<FolioListSearch folio="@filtro.Folio">
-                            </FolioListSearch>*@
+                        </FolioListSearch>*@
                     </div>
                     <div class="col-3 d-flex row mb-2">
                         <div class="col-6 mt-auto">
@@ -200,14 +200,14 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Fecha de carga en terminal</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false"/>
+                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
 
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Fecha estimada de llegada</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false"/>
+                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
 
@@ -283,7 +283,7 @@
                                 <button class="btn gcom-bg-amarillo col-12 mx-2 @(SendOrden ? "disabled" : "" )" type="submit" disabled="@SendOrden">
                                     <i class="fa fa-solid fa-check"></i>
                                     <b>Crear orden</b>
-                                    @if (loadingConfirm)
+                                    @if (SendOrden)
                                     {
                                         <SpinnerLoading></SpinnerLoading>
                                     }
@@ -321,7 +321,7 @@
                         @if (!string.IsNullOrEmpty(item.Nombre))
                         {
                             <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Solicitado : @(item.Solicitud?.ToString("N")) | Programado : @(item.Programado?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
                             </div>
 
                         }
@@ -329,25 +329,28 @@
                 </b>
             </div>
         }
-        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
+        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                    <Authorized>*@
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Frozen="true" Width="170px" OrderIndex="1">
+                <Authorized>*@
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
                             <Authorized>
                                 <div class="col-12 row">
-                                    @if (item.OrdenEmbarque!.CodordCom is null && item.Estatus == true)
+                                    @if (item.OrdenEmbarque is not null && item.Estatus == true)
                                     {
-                                        <div class="col">
-                                            <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                        </div>
-                                        <div class="col">
-                                            <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
-                                        </div>
+                                        @if (item.OrdenEmbarque.CodordCom == null)
+                                        {
+                                            <div class="col">
+                                                <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                            </div>
+                                            <div class="col">
+                                                <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
+                                            </div>
+                                        }
                                     }
                                 </div>
                             </Authorized>
@@ -355,12 +358,12 @@
                     </Template>
                 </RadzenDataGridColumn>
                 @*</Authorized>
-                    </AuthorizeView>*@
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Frozen="true" Filterable="false" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" Frozen="true" OrderIndex="3" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" OrderIndex="5" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" OrderIndex="6" Filterable="false"/>
+                </AuthorizeView>*@
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Width="300px" OrderIndex="5" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="280px" OrderIndex="6" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
 
                     <Template Context="item">
@@ -376,8 +379,16 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false"/>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Width="130px" Filterable="false" OrderIndex="10">
+                    <Template Context="item">
+                        <div class="col-12">
+                            @(item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den :
+                                item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den : "Sin estado")
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -555,13 +566,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -840,7 +851,7 @@
                 filtro.forFolio = true;
                 if (!string.IsNullOrEmpty(filtro.Folio))
                 {
-                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar/activo", filtro);
                     if (response.Error)
                     {
                         var message = await response.ObtenerMensajeError();
@@ -848,46 +859,50 @@
                     }
                     else
                     {
-                        if (response.Response.FirstOrDefault()!.CodPed == 0)
-                        {
-                            ordenCierre.IsCierreVolumen = true;
+                        if (response.Response.Count > 0)
+                            if (response.Response.FirstOrDefault()!.CodPed == 0)
+                            {
+                                ordenCierre.IsCierreVolumen = true;
 
-                            filtro.forFolio = true;
-                            ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
-                            ordenCierre.CodCte = response.Response.FirstOrDefault().CodCte;
-                            await GetClientes();
-                            ordenCierre.CodDes = response.Response.FirstOrDefault().CodDes;
-                            await GetEstaciones();
-                            ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
-                            await GetPrecios();
-                            ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
-                            var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
-                            if (responseDetalle.Error)
-                            {
-                                var message = await responseDetalle.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                                if (response.Error)
+                                filtro.forFolio = true;
+                                ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
+                                ordenCierre.CodCte = response.Response.FirstOrDefault().CodCte;
+                                await GetClientes();
+                                ordenCierre.CodDes = response.Response.FirstOrDefault().CodDes;
+                                await GetEstaciones();
+                                ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
+                                await GetPrecios();
+                                ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
+                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
+                                if (responseDetalle.Error)
                                 {
-                                    var message = await response.ObtenerMensajeError();
+                                    var message = await responseDetalle.ObtenerMensajeError();
                                     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                                 }
                                 else
                                 {
-                                    volumenDisponible = responseVolumen.Response;
-                                    ordenCierres = responseDetalle.Response;
-                                    count = 0;
+                                    var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/activo", filtro);
+                                    if (response.Error)
+                                    {
+                                        var message = await response.ObtenerMensajeError();
+                                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                    }
+                                    else
+                                    {
+                                        volumenDisponible = responseVolumen.Response;
+                                        ordenCierres = responseDetalle.Response;
+                                        count = 0;
+                                    }
                                 }
                             }
-                        }
+                            else
+                            {
+                                ordenCierre.IsCierreVolumen = false;
+                                ordenCierres = response.Response;
+                            }
                         else
-                        {
-                            ordenCierre.IsCierreVolumen = false;
-                            ordenCierres = response.Response;
-                        }
+                            await Swal.FireAsync("", "No se encontraron pedidos activos en este folio.", SweetAlertIcon.Info);
+
                     }
                 }
                 else
@@ -908,28 +923,33 @@
         try
         {
             SendOrden = true;
-            var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
-            if (response.Error)
+            if (ordenCierre.FchCar > DateTime.Today && ordenCierre.FchLlegada > DateTime.Today)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                SendOrden = false;
+                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    SendOrden = false;
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(ordenCierre.Folio))
+                    {
+                        Cliente = response.Response;
+                        Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                        var userCod = User.Identity?.Name?.Substring(0, 3);
+                        var guid = Guid.NewGuid().ToString().Split("-");
+                        ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                    }
+
+                    await PutClientes();
+                    await CreateCierre();
+                    SendOrden = false;
+                }
             }
             else
-            {
-                if (string.IsNullOrEmpty(ordenCierre.Folio))
-                {
-                    Cliente = response.Response;
-                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                    var userCod = User.Identity?.Name?.Substring(0, 3);
-                    var guid = Guid.NewGuid().ToString().Split("-");
-                    ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
-                }
-
-                await PutClientes();
-                await CreateCierre();
-                SendOrden = false;
-            }
+                await Swal.FireAsync("", "La fecha de cara y de llegada no pueden ser la misma fecha del dia actual.", SweetAlertIcon.Warning);
             SendOrden = false;
         }
         catch (Exception e)
@@ -1017,17 +1037,17 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                {
-                    Codest = 9,
-                    Codtad = ordenCierre.CodTad,
-                    Codprd = ordenCierre.CodPrd,
-                    Pre = ordenCierre.Precio,
-                    Vol = ordenCierre.Volumen,
-                    Coddes = ordenCierre.CodDes,
-                    Fchpet = DateTime.Now,
-                    Fchcar = ordenCierre.FchCar,
-                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                };
+                    {
+                        Codest = 9,
+                        Codtad = ordenCierre.CodTad,
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Fchcar = ordenCierre.FchCar,
+                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                    };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)
