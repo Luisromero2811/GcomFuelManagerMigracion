@@ -405,7 +405,7 @@
                                             @if (monthFilter == false)
                                             {
                                                 <div class="col-3 mx-2" @onmouseenter="@(args => ShowToolTipVigencia(infoVigencia))" @ref="infoVigencia">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="submit" disabled="@loadingCreate">
                                                         <i class="fa fa-solid fa-plus"></i>
                                                         <b>Crear cierre</b>
                                                         @if (loadingCreate)
@@ -415,7 +415,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail" disabled="@loadingSend">
                                                         <i class="fa fa-solid fa-envelope"></i>
                                                         <b>Enviar cierre</b>
                                                         @if (loadingSend)
