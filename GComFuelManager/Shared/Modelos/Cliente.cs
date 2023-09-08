@@ -45,5 +45,13 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("precioSemanal")]
         public bool? precioSemanal { get; set; } = false;
 
+        [NotMapped]
+        public string? MdVenta { get; set; } = string.Empty;
+        [NotMapped]
+        public string? MVenta { get { return Tipven == "Rack" ? "Rack" : "Delivery"; } }
+
+
+        [NotMapped] public Grupo? grupo { get; set; } = null!;
+
     }
 }
