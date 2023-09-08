@@ -271,7 +271,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                 item.Bolguidid = billOfLading.BolGuidId;
                                 item.Folio = folio;
-
+                                item.Codest = 22;
                                 context.Update(item);
 
                                 var id = await verify.GetId(HttpContext, userManager);
@@ -870,6 +870,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     Guid guid = Guid.NewGuid();
                     x.Bolguidid = guid.ToString();
                     x.Folio = randomNumber;
+                    x.Codest = 22;
                 });
 
                 context.UpdateRange(ordenes);

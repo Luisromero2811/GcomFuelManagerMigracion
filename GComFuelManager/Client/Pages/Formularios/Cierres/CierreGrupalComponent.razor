@@ -283,7 +283,7 @@
                                             @if (monthFilter == false)
                                             {
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="submit" disabled="@SendCierre">
                                                         <i class="fa fa-solid fa-plus"></i>
                                                         <b>Crear cierre</b>
                                                         @if (loadingCreate)
@@ -293,7 +293,7 @@
                                                     </button>
                                                 </div>
                                                 <div class="col-3 mx-2">
-                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail">
+                                                    <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail" disabled="@loadingSend">
                                                         <i class="fa fa-solid fa-envelope"></i>
                                                         <b>Enviar cierre</b>
                                                         @if (loadingSend)
@@ -594,6 +594,7 @@
     bool AddDaysExpiration = false;
     bool AddMargen = false;
     bool IsCierreVolumen = false;
+    bool SendCierre = false;
 
     ElementReference infoIcon;
     ElementReference infoIconVolumen;
@@ -1098,6 +1099,7 @@
     {
         try
         {
+            SendCierre = true;
             if (ordenCierres.Count > 0)
                 if (ordenCierres.Any(x => x.CodGru == ordenCierre.CodGru))
                     ordenCierre.Folio = ordenCierres.FirstOrDefault(x => x.CodGru == ordenCierre.CodGru)?.Folio;
@@ -1113,9 +1115,11 @@
             }
             else
                 await CreateCierre();
+            SendCierre = false;
         }
         catch (Exception e)
         {
+            SendCierre = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
