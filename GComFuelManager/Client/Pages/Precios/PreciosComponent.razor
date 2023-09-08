@@ -48,17 +48,19 @@
                                     <ChildContent>
                                         <RadzenDataGrid TItem="PreciosDTO" Data="@preciosExcel" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                                                         GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                        IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true">
+                                                        IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true" FilterMode="FilterMode.Simple">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Synthesis" Property="CodSyn" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Tuxpan" Property="CodTux" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="true" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
                                                     <FilterTemplate Context="filter">
-                                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                                            <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180"/>
+                                                        </RadzenDropDown>
                                                     </FilterTemplate>
                                                     <Template Context="data">
                                                         <div class="col-12 d-flex">
