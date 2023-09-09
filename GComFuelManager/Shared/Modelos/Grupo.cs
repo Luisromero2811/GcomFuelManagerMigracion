@@ -24,13 +24,9 @@ namespace GComFuelManager.Shared.Modelos
 
 		[JsonProperty("tipven"), MaxLength(16)]
 		public string? Tipven { get; set; } = string.Empty;
-
-		[NotMapped]
 		public string? MdVenta { get; set; } = string.Empty;
-		[NotMapped]
-		public string? MVenta { get { return Tipven == "Rack" ? "Rack" : "Delivery"; } }
 
-		[ForeignKey("codgru")]
+        [ForeignKey("codgru")]
 		public List<Cliente> Clientes { get; set; } = new List<Cliente>();
 	}
 }
