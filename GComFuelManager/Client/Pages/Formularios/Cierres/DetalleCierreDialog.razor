@@ -20,7 +20,7 @@
                                 @foreach (var item in volumenDisponible.Productos)
                                 {
                                     <div class="col-12 row">
-                                        <p>@(item.Nombre) | Disponible : @(item.Disponible?.ToString("N2")) | Espera Carga : @(item.Congelado?.ToString("N2")) | Consumido : @(item.Consumido?.ToString("N2"))</p>
+                                        <p>@(item.Nombre) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"),"{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
                                     </div>
                                 }
                             }
@@ -90,7 +90,7 @@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" FormatString="{0:N2}" Filterable="false">
                     <Template Context="item">
                         <div class="col-12">
-                            @string.Format("{0:N2}",
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                         item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
                         : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2

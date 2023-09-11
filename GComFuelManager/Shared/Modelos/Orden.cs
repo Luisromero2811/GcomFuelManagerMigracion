@@ -52,7 +52,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("vol2"), EpplusIgnore]
         public double? Vol2 { get; set; } = null!;
         //[JsonProperty("Volumen Natural")]
-        public string Volumenes { get { return Vol2 != null ? Vol2?.ToString("N2") : string.Empty; } }
+        public string Volumenes { get { return Vol2 != null ?  Vol2?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("batchId")]
         public int? BatchId { get; set; }

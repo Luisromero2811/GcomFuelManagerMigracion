@@ -272,7 +272,15 @@
                         </RadzenPanelMenuItem>
 
                     </AuthorizeView>
-
+                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Configs">
+                        <RadzenPanelMenuItem Path="historial/asignacion" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Historial de envios
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
                 </ChildContent>
             </RadzenPanelMenuItem>
         </AuthorizeView>
@@ -282,7 +290,7 @@
             <RadzenPanelMenuItem Path="cerrar" class="gcom-bg-rojo" Style="border:hidden">
                 <Template>
                     <div class="text-white">
-                        <i class="fa-solid fa-folder-closed"></i> Cerrar pedidos
+                        <i class="fa-solid fa-folder-closed"></i> Cierre de pedidos
                     </div>
                 </Template>
             </RadzenPanelMenuItem>

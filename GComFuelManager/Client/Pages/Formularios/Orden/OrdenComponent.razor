@@ -107,7 +107,7 @@
                                 <div class="col-12 row">
                                     @foreach (var item in volumenDisponible.Productos)
                                     {
-                                        <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Solicitado : @(item.Solicitud?.ToString("N")) | Programado : @(item.Programado?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado :@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
                                     }
                                 </div>
                             }
@@ -184,7 +184,13 @@
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="80px" />
-                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" Width="130px" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}"  Width="130px" >
+                                    <Template Context="data">
+                                        <div class="col-12"> 
+                                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen)
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false" Width="130px">
                                     <Template Context="item">
                                         @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den 
@@ -266,7 +272,7 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
                                     <Template Context="item">
                                         <div class="col-12">
-                                            @string.Format("{0:N2}",
+                                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                                             item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
                                             item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
                                             : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
@@ -514,7 +520,7 @@
                                 FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
                                 Observaciones = item?.Observaciones,
                                 Precio = item?.Precio.ToString("N"),
-                                Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
+                                Volumen =  item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
                                                    : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
                                                    : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())
                                                    : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3.ToString())

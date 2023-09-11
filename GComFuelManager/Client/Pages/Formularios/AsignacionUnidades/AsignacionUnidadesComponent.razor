@@ -194,7 +194,7 @@
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" OrderIndex="8">
                     <Template Context="data">
                         <div class="col-12">
-                            @string.Format("{0:N2}",
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                             data?.Orden is not null ? data?.Orden?.Vol :
                             data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
                             : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
