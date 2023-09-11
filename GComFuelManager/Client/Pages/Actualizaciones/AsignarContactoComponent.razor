@@ -96,8 +96,8 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" FilterMode="FilterMode.Simple">
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>grid!.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" FilterMode="FilterMode.Simple" @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions">
             <Columns>
                 <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" OrderIndex="1" Filterable="true" />
                 <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" Filterable="true"/>
@@ -162,11 +162,63 @@
     bool isEdit = false;
     bool IsClient = false;
 
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    int width = 0;
+    bool isClose = false;
+    string TotalWidth = string.Empty;
+
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
     protected async override Task OnInitializedAsync()
     {
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        if(width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+
         await GetContactos();
         await GetAcciones();
     }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settingsContactos", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settingsContactos");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 
     private void cancelEdit()
     {
@@ -257,13 +309,13 @@
                     await GetContactos();
 
                     await Swal.Mixin(new SweetAlertOptions
-                        {
-                            Position = "top-end",
-                            ShowConfirmButton = false,
-                            Timer = 1500,
-                            TimerProgressBar = true,
-                            Toast = true,
-                        }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Success, Text = $"Contacto Registrado." });
+                    {
+                        Position = "top-end",
+                        ShowConfirmButton = false,
+                        Timer = 1500,
+                        TimerProgressBar = true,
+                        Toast = true,
+                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Success, Text = $"Contacto Registrado." });
 
                 }
             }
@@ -291,13 +343,13 @@
                 await GetContactos();
 
                 await Swal.Mixin(new SweetAlertOptions
-                    {
-                        Position = "top-end",
-                        ShowConfirmButton = false,
-                        Timer = 1500,
-                        TimerProgressBar = true,
-                        Toast = true,
-                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Editado." });
+                {
+                    Position = "top-end",
+                    ShowConfirmButton = false,
+                    Timer = 1500,
+                    TimerProgressBar = true,
+                    Toast = true,
+                }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Editado." });
             }
         }
         catch (Exception e)
@@ -321,13 +373,13 @@
                 await GetContactos();
 
                 await Swal.Mixin(new SweetAlertOptions
-                    {
-                        Position = "top-end",
-                        ShowConfirmButton = false,
-                        Timer = 1500,
-                        TimerProgressBar = true,
-                        Toast = true,
-                    }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Habilitado / Deshabilitado." });
+                {
+                    Position = "top-end",
+                    ShowConfirmButton = false,
+                    Timer = 1500,
+                    TimerProgressBar = true,
+                    Toast = true,
+                }).FireAsync(new SweetAlertOptions { Icon = SweetAlertIcon.Info, Text = $"Contacto Habilitado / Deshabilitado." });
             }
         }
         catch (Exception e)
@@ -366,13 +418,13 @@
     private async Task Message(string message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-            {
-                Position = "top-end",
-                ShowConfirmButton = false,
-                Timer = 1500,
-                TimerProgressBar = true,
-                Toast = true,
-            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1500,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
     private async Task GetAcciones()

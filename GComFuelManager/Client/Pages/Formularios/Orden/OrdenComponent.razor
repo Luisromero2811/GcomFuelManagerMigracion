@@ -152,7 +152,7 @@
                         </div>
                         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+                                        IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" PageSizeOptions="@pageSizeOptions">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" Frozen="true" />
@@ -373,9 +373,21 @@
     string TotalWidth = string.Empty;
     UsuarioInfo user { get; set; } = new UsuarioInfo();
 
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    bool isClosed = false;
+
     protected async override Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        //width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClosed = bool.Parse(cm);
+
+        if (isClosed)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -522,26 +534,26 @@
                     if (item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado)
                     && (item.Destino.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado)))
                         detalleCierres.Add(new DetalleCierreDTO
-                            {
-                                OC = item.Folio,
-                                FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                                FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
-                                Observaciones = item?.Observaciones,
-                                Precio = item?.Precio.ToString("N"),
-                                Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
+                        {
+                            OC = item.Folio,
+                            FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
+                            Destino = item?.Destino?.Den,
+                            Producto = item?.Producto?.Den,
+                            BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
+                            FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
+                            Observaciones = item?.Observaciones,
+                            Precio = item?.Precio.ToString("N"),
+                            Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
                                                : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
                                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())
                                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3.ToString())
                                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4.ToString())
                                                : item?.Volumen
                                                         ,
-                                Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                                Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                                FchLlegada = item?.FechaLlegada
-                            });
+                            Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
+                            Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
+                            FchLlegada = item?.FechaLlegada
+                        });
                 }
 
 
