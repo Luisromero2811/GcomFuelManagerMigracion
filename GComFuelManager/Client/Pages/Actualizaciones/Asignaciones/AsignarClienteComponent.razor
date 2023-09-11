@@ -232,6 +232,7 @@
                 //Console.WriteLine(JsonConvert.SerializeObject(CliGru));
                 CliGru.cliente!.codgru = CliGru.grupo!.Cod;
                 CliGru.cliente!.Tipven = CliGru.Tipven;
+                CliGru.cliente!.MdVenta = CliGru.Mdpven;
                 var response = await http.Post<Cliente>($"api/grupo/cliente", CliGru.cliente);
                 if (response.Error)
                 {
@@ -240,7 +241,7 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Exito", $"Cliente Asignado a {CliGru.cliente.Den}", SweetAlertIcon.Success);
+                    await Swal.FireAsync("Exito", $"Cliente {CliGru.cliente.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
                 }
             }
         }

@@ -185,6 +185,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                //editar registros de orden con el nuevo campo de folio en 0 al remplazar los registros
                 if (fechas.Estado == 1)
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--

@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-//using ServiceReference7;
-using ServiceReference2;
+using ServiceReference7;
+//using ServiceReference2;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -163,7 +163,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.CarrId!);
 
                             var pedidos = ordens.Where(x => x!.Codton == item.Codton
-                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar 
+                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar
                             && string.IsNullOrEmpty(x.Bolguidid) && x.Codest == 3).ToList();
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
@@ -245,7 +245,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (request.BillOfLading.LineItems != null)
                             {
                                 toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
-                                toFile.GenerateFileXML($"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}",request);
+                                toFile.GenerateFileXML($"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", request);
 
                                 response = await client.SaveBillOfLadingAsync(request);
 
@@ -278,7 +278,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                 if (string.IsNullOrEmpty(id))
                                     return BadRequest();
 
-                                await context.SaveChangesAsync(id,10);
+                                await context.SaveChangesAsync(id, 10);
                             }
                         }
                     }
@@ -508,7 +508,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             response = await client.SaveBillOfLadingAsync(request);
 
                             toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
-                            toFile.GenerateFileXMLResponse( $"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
+                            toFile.GenerateFileXMLResponse($"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
 
                         }
                         else
@@ -532,7 +532,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (string.IsNullOrEmpty(id))
                                 return BadRequest();
 
-                            await context.SaveChangesAsync(id,21);
+                            await context.SaveChangesAsync(id, 21);
                         }
                     }
 
@@ -650,37 +650,58 @@ namespace GComFuelManager.Server.Controllers.Services
                                     }
 
                                     var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
+                                    if (tonel is null)
+                                    {
+                                        orden.Coduni = 0;
+                                        tonel = new Tonel() { Carid = string.Empty };
+                                    }
+                                    else
+                                        //if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
 
-                                    if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
-
-                                    orden.Coduni = tonel.Cod;
+                                        orden.Coduni = tonel.Cod;
 
                                     var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                                    if (tran is null)
+                                        tran = new Transportista() { Busentid = "0" };
 
-                                    if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+                                    //if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
 
                                     var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+                                    if (cho is null)
+                                        orden.Codchf = 0;
+                                    else
+                                        //if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
 
-                                    if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
-
-                                    orden.Codchf = cho.Cod;
+                                        orden.Codchf = cho.Cod;
 
                                     var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
+                                    if (prd is null)
+                                        orden.Codprd = 0;
+                                    else
+                                        //if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
 
-                                    if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
-
-                                    orden.Codprd = prd.Cod;
+                                        orden.Codprd = prd.Cod;
 
                                     var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
+                                    if (prd2 is null)
+                                        orden.Codprd2 = 0;
+                                    else
+                                        //if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
 
-                                    if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
-
-                                    orden.Codprd2 = prd2.Cod;
+                                        orden.Codprd2 = prd2.Cod;
 
                                     orden.Fch = DateTime.Now;
                                     orden.Codest = 20;
 
-                                    context.Add(orden);
+                                    string[] refs = orden.Ref.Split("-");
+                                    string[] folio = refs[1].Split("_");
+                                    if (!string.IsNullOrEmpty(folio[0]))
+                                        orden.Folio = int.Parse(folio[0]);
+                                    else
+                                        orden.Folio = 0;
+
+                                    if (orden.Codchf != 0 && orden.Codprd != 0 && orden.Codprd2 != 0 && orden.Coduni != 0)
+                                        context.Add(orden);
                                 }
                             }
                         }
@@ -829,12 +850,25 @@ namespace GComFuelManager.Server.Controllers.Services
                                     orden.Fch = DateTime.Now;
                                     orden.Codest = 14;
 
+                                    string[] refs = orden.Ref.Split("-");
+                                    string[] folio = refs[1].Split("_");
+                                    if (!string.IsNullOrEmpty(folio[0]))
+                                        orden.Folio = int.Parse(folio[0]);
+                                    else
+                                        orden.Folio = 0;
+
+                                    if (orden.Folio == null)
+                                        orden.Folio = 0;
+
                                     context.Add(orden);
                                 }
                             }
                         }
                     }
                     await context.SaveChangesAsync();
+
+
+
                 }
                 return Ok();
 
@@ -920,7 +954,8 @@ namespace GComFuelManager.Server.Controllers.Services
                         Vol2 = item.Vol,
                         Dendes = item.Destino?.Den,
                         CompartmentId = item.CompartmentId,
-                        Liniteid = random.Next(1, 100001)
+                        Liniteid = random.Next(1, 100001),
+                        Folio = item.Folio
                     };
 
                     context.Add(orden);

@@ -1294,6 +1294,7 @@
                     ordenCierre.CodPrd = Precios.FirstOrDefault()?.Producto?.Cod;
                 }
                 ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
+                ordenCierre.fchPrecio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).FchDia;
                 CodProductoSeleccionado = ordenCierre.CodPrd;
                 StateHasChanged();
             }

@@ -141,5 +141,6 @@ namespace GComFuelManager.Shared.Modelos
         public bool isGroup { get; set; } = false;
         [EpplusIgnore, NotMapped]
         public bool PrecioOverDate { get; set; }
+        public DateTime? fchPrecio { get; set; } = DateTime.Now;
     }
 }

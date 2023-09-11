@@ -53,6 +53,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
+                //activar todos los clientes cuando se borren y vuelvan a insertar los registros
                 Cliente? clientes = context.Cliente.FirstOrDefault(x => x.Cod == cod);
                 return Ok(clientes);
             }
