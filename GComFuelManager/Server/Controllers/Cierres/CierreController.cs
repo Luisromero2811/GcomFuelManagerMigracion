@@ -576,7 +576,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                             var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque.Codest == 3 && x.OrdenEmbarque.FchOrd != null
-                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x=>x.OrdenEmbarque.Vol);
+                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
 
                             var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque.Codest == 9 && x.OrdenEmbarque.FchOrd == null
                             && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
@@ -1106,6 +1106,80 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Distinct()
                     .ToList();
 
+                return Ok(folios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("folios/detalle")]
+        public async Task<ActionResult> GetFoliosValidosActivos([FromBody] CierreFiltroDTO filtro)
+        {
+            try
+            {
+                List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
+
+                if (!filtro.forFolio)
+                    folios = await context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto
+                    })
+                    .ToListAsync();
+                else
+                {
+                    if (filtro.codCte != null && filtro.codGru != null)
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Destino)
+                        .Include(x => x.Producto)
+                        .Select(x => new FolioDetalleDTO()
+                        {
+                            Folio = x.Folio,
+                            Cliente = x.Cliente,
+                            Destino = x.Destino,
+                            Producto = x.Producto
+                        })
+                        .ToListAsync();
+                    else if (filtro.codGru != null)
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto
+                    })
+                    .ToListAsync();
+                    else
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto
+                    })
+                    .ToListAsync();
+                }
                 return Ok(folios);
             }
             catch (Exception e)

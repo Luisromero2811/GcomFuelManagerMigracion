@@ -222,20 +222,23 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     foreach (var item in preciosPro)
                     {
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).Pre = item.Pre;
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
-                        var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
-                        if (pre is null)
+                        if (item.FchDia > DateTime.Today)
                         {
-                            precios.Add(new Precio()
+                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
+                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).FchDia = item.FchDia;
+                            var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                            if (pre is null)
                             {
-                                Pre = item.Pre,
-                                codCte = item.codCte,
-                                codDes = item.codDes,
-                                codPrd = item.codPrd,
-                                codGru = item.Cliente?.codgru,
-                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
-                            });
+                                precios.Add(new Precio()
+                                {
+                                    Pre = item.Pre,
+                                    codCte = item.codCte,
+                                    codDes = item.codDes,
+                                    codPrd = item.codPrd,
+                                    codGru = item.Cliente?.codgru,
+                                    Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
+                                });
+                            }
                         }
                     }
                 }
