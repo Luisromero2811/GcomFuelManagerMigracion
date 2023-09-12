@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -17,15 +19,19 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? Fch { get; set; } = DateTime.Now;
         [JsonProperty("fchDoc")]
         public DateTime? FchDoc { get; set; } = DateTime.Now;
-        [JsonProperty("eta"), MaxLength(4)] 
+        [JsonProperty("eta"), MaxLength(4)]
         public string? Eta { get; set; }
 
         [JsonProperty("fchlleest")]
         public DateTime? Fchlleest { get; set; } = DateTime.Now;
         [JsonProperty("fchrealledes")]
         public DateTime? Fchrealledes { get; set; } = DateTime.Today;
+
         [JsonProperty("litent")]
         public double? Litent { get; set; } = 0;
+        //[DisplayName("Litros entregados")]
+        //public string Litros { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Litent); } }
+
         [JsonProperty("obs"), MaxLength(256)]
         public string? Obs { get; set; } = string.Empty;
         [JsonProperty("bol")]

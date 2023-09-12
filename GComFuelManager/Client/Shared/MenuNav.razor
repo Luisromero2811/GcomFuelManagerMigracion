@@ -73,14 +73,14 @@
                                                     </RadzenMenuItem>
                                                 </AuthorizeView>
                                                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Percent">
-                                            <RadzenMenuItem Path="porcentaje/clientes" class="gcom-bg-rojo col-12" >
-                                            <Template>
-                                            <div class="text-white">
-                                            <i class="fa-solid fa-business-time"></i> Clientes  <i class="fa-solid fa-truck-moving"></i>
-                                            </div>
-                                            </Template>
-                                            </RadzenMenuItem>
-                                            </AuthorizeView>*@
+                                                    <RadzenMenuItem Path="porcentaje/clientes" class="gcom-bg-rojo col-12" >
+                                                    <Template>
+                                                    <div class="text-white">
+                                                    <i class="fa-solid fa-business-time"></i> Clientes  <i class="fa-solid fa-truck-moving"></i>
+                                                    </div>
+                                                    </Template>
+                                                    </RadzenMenuItem>
+                                                    </AuthorizeView>*@
                                             </ChildContent>
                                         </RadzenMenuItem>
                                     </AuthorizeView>
@@ -156,12 +156,12 @@
                                             </Template>
                                         </RadzenMenuItem>
                                         @*<RadzenMenuItem Path="configuracion-emailcliente" class="gcom-bg-rojo col-12" >
-                                    <Template>
-                                    <div class="text-white">
-                                    <i class=" fa fa-solid fa-at" aria-hidden="true"></i> Correo Clientes
-                                    </div>
-                                    </Template>
-                                    </RadzenMenuItem>*@
+                                            <Template>
+                                            <div class="text-white">
+                                            <i class=" fa fa-solid fa-at" aria-hidden="true"></i> Correo Clientes
+                                            </div>
+                                            </Template>
+                                            </RadzenMenuItem>*@
                                     </AuthorizeView>
                                 </ChildContent>
                             </RadzenMenuItem>
@@ -270,14 +270,14 @@
                                     </AuthorizeView>
 
                                     @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
-                                <RadzenMenuItem Path="confirm-cierre" class="gcom-bg-rojo col-12" >
-                                <Template>
-                                <div class="text-white">
-                                <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Confirmar pedidos de clientes
-                                </div>
-                                </Template>
-                                </RadzenMenuItem>
-                                </AuthorizeView>*@
+                                        <RadzenMenuItem Path="confirm-cierre" class="gcom-bg-rojo col-12" >
+                                        <Template>
+                                        <div class="text-white">
+                                        <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Confirmar pedidos de clientes
+                                        </div>
+                                        </Template>
+                                        </RadzenMenuItem>
+                                        </AuthorizeView>*@
 
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
                                         <RadzenMenuItem Path="confirm-ordenes" class="gcom-bg-rojo col-12">
@@ -340,7 +340,7 @@
             }
             else
             {
-                <div class="col-8"/>
+                <div class="col-8" />
             }
             <div class="col-3 d-flex">
                 <div class="col-6 text-center my-auto d-flex justify-content-end">
@@ -376,4 +376,4 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-    }
+}
