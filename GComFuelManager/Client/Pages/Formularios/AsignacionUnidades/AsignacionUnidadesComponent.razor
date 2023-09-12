@@ -278,7 +278,7 @@
 
 @code {
     public bool Synthesis { get; set; } = false;
-
+    bool isClose = false;
     //grid
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
     private ElementReference dpT;
@@ -345,7 +345,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+         width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+    
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -565,13 +567,13 @@
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
-                                {
-                                    Icon = SweetAlertIcon.Warning,
-                                    ShowCancelButton = true,
-                                    ConfirmButtonText = "Aceptar",
-                                    CancelButtonText = "Cancelar",
-                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                                });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                             if (!string.IsNullOrEmpty(confirm.Value))
                             {
