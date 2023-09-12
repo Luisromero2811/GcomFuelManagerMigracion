@@ -80,9 +80,10 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("cliente")]
         public string? Cli { get { return Cliente != null ? Cliente.Den : string.Empty; } }
 
-        [JsonPropertyName("volumen"), DisplayName("Volumen"), DisplayFormat(DataFormatString = "{0:#,0.00}"), EpplusIgnore]
+        [JsonPropertyName("volumen"), DisplayName("Volumen"), EpplusIgnore]
         public int? Volumen { get; set; }
-        public string Volumenes { get { return Volumen.Value.ToString("N2"); } }
+        [DisplayName("Volumen")]
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
