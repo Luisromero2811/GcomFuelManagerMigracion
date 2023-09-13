@@ -66,14 +66,14 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public long? Codchfsyn { get; set; } = 0;
 
         //Prop de nav Estado
-        [NotMapped] public Estado? Estado { get; set; } = new Estado();
-        [NotMapped] public Destino? Destino { get; set; } = new Destino();
-        [NotMapped] public Producto? Producto { get; set; } = new Producto();
+        [NotMapped] public Estado? Estado { get; set; } = null!;
+        [NotMapped] public Destino? Destino { get; set; } = null!;
+        [NotMapped] public Producto? Producto { get; set; } = null!;
 
-        [NotMapped] public Tonel? Tonel { get; set; } = new Tonel();
-        [NotMapped] public Chofer? Chofer { get; set; } = new Chofer();
-        [NotMapped] public OrdEmbDet? OrdEmbDet { get; set; } = new OrdEmbDet();
-        [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = new OrdenEmbarque();
+        [NotMapped] public Tonel? Tonel { get; set; } = null!;
+        [NotMapped] public Chofer? Chofer { get; set; } = null!;
+        [NotMapped] public OrdEmbDet? OrdEmbDet { get; set; } = null!;
+        [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         public int? Folio { get; set; } = 0;
 
     }

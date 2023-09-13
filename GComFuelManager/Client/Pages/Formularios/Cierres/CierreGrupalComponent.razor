@@ -433,7 +433,7 @@
                                 </button>
                             </div>
                             <div class="col-3">
-                                @if (!monthFilter || !filtro.forFolio)
+                                @if (!monthFilter || filtro.forFolio)
                                 {
                                     @if (AddDaysExpiration is false)
                                     {
@@ -486,11 +486,14 @@
                                     }
                                 }
                             </div>
-                            <div class="col-3">
-                                <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>ClosePedido(filtro.Folio))">
-                                    <i class="fa-solid fa-unlock"></i> Cerrar pedido
-                                </button>
-                            </div>
+                            @if (!monthFilter)
+                            {
+                                <div class="col-3">
+                                    <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>ClosePedido(filtro.Folio))">
+                                        <i class="fa-solid fa-unlock"></i> Cerrar pedido
+                                    </button>
+                                </div>
+                            }
                         </Authorized>
                     </AuthorizeView>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia" Context="Exportaciones">
@@ -603,6 +606,7 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     private FluentValidationValidator? _fluentValidationValidator;
 
@@ -615,7 +619,15 @@
     {
         try
         {
-            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
             if (width < 0)
                 width = 500;
             TotalWidth = $"{width}px";
@@ -901,16 +913,33 @@
                     else
                     {
                         ordenCierres = response.Response;
-                        var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                        if (response.Error)
+                        if (monthFilter)
                         {
-                            var message = await response.ObtenerMensajeError();
-                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/mes", filtro);
+                            if (response.Error)
+                            {
+                                var message = await response.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                volumenDisponible = responseVolumen.Response;
+                            }
                         }
                         else
                         {
-                            volumenDisponible = responseVolumen.Response;
+                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
+                            if (response.Error)
+                            {
+                                var message = await response.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                volumenDisponible = responseVolumen.Response;
+                            }
                         }
+
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                         DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                         //StateHasChanged();
@@ -1023,11 +1052,14 @@
                                 Duration = 10000,
                                 Severity = NotificationSeverity.Success
                             });
+                        var orderlist = ordenes;
+                        foreach (var o in orderlist)
+                            ordenCierres.Remove(o);
                     }
                 }
                 await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos.", SweetAlertIcon.Info);
-                ordenCierres = new List<OrdenCierre>();
-                ordenCierre = new OrdenCierre();
+                //ordenCierres = new List<OrdenCierre>();
+                //ordenCierre = new OrdenCierre();
             }
             else
             {

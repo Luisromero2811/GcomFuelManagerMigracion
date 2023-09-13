@@ -14,5 +14,6 @@ namespace GComFuelManager.Shared.DTOs
         public int? codCte { get; set; }
         public short? codGru { get; set; }
         public bool forFolio { get; set; } = false;
+        public bool byMonth { get; set; } = false;
     }
 }

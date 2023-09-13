@@ -51,8 +51,8 @@
                                     <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
                                     <label class="form-check-label" for="Trayecto">En Trayecto</label>
                                 </div>
-                                <div class="form-check form-check-inline"> 
-                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)"/>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
                                     <label class="form-check-label" for="Canceladas">Canceladas</label>
                                 </div>
                             </div>
@@ -77,19 +77,19 @@
             </div>
         </div>
     </div>
-  
+
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-                        @bind-Settings="@Settings">
+        @bind-Settings="@Settings">
             @*<EmptyTemplate>
-                <NoHayRegistros></NoHayRegistros>
-                </EmptyTemplate>*@
+            <NoHayRegistros></NoHayRegistros>
+            </EmptyTemplate>*@
             <Columns>
-                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true" />
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true" />
                 <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
@@ -125,7 +125,7 @@
                     <FilterTemplate>
                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180"/>
+                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180" />
                             </ValueTemplate>
                         </RadzenDropDown>
                     </FilterTemplate>
@@ -139,7 +139,7 @@
                     <FilterTemplate>
                         <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190"/>
+                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190" />
                             </ValueTemplate>
                         </RadzenDropDown>
                     </FilterTemplate>
@@ -209,13 +209,22 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
     protected override async Task OnInitializedAsync()
     {
-        width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -309,22 +318,22 @@
                         && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                         && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                            EstatusOrden = item?.Estado.den,
-                            FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                            Bol = item?.BatchId,
-                            DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item?.Vol2,
-                            VolCar = item?.Vol,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den
-                        });
+                            {
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                                EstatusOrden = item?.Estado.den,
+                                FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                                Bol = item?.BatchId,
+                                DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item?.Vol2,
+                                VolCar = item?.Vol,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -368,22 +377,22 @@
                         && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                         && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                            EstatusOrden = "CLOSED",
-                            FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                            Bol = item?.BatchId,
-                            DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item?.Vol2,
-                            VolCar = item?.Vol,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den
-                        });
+                            {
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                                EstatusOrden = "CLOSED",
+                                FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                                Bol = item?.BatchId,
+                                DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item?.Vol2,
+                                VolCar = item?.Vol,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -439,23 +448,23 @@
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
                 from o in ordens
                 select new OrdenesDTO()
-                {
-                    Referencia = o?.Ref,
-                    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
-                    EstatusOrden = o?.Estado.den,
-                    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
-                    Bol = o?.BatchId,
-                    DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                    Cliente = o?.Destino?.Cliente?.Den,
-                    Destino = o?.Destino?.Den,
-                    Producto = o?.Producto?.Den,
-                    VolNat = o?.Vol2,
-                    VolCar = o?.Vol,
-                    Transportista = o?.Tonel?.Transportista?.Den,
-                    Unidad = o?.Tonel?.Veh,
-                    Operador = o?.Chofer?.Den
+                    {
+                        Referencia = o?.Ref,
+                        FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                        EstatusOrden = o?.Estado.den,
+                        FechaCarga = o?.Fch?.ToString("yyyy-MM-dd"),
+                        Bol = o?.BatchId,
+                        DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                        Cliente = o?.Destino?.Cliente?.Den,
+                        Destino = o?.Destino?.Den,
+                        Producto = o?.Producto?.Den,
+                        VolNat = o?.Vol2,
+                        VolCar = o?.Vol,
+                        Transportista = o?.Tonel?.Transportista?.Den,
+                        Unidad = o?.Tonel?.Veh,
+                        Operador = o?.Chofer?.Den
 
-                }, true);
+                    }, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 var header = worksheet.Cells["A1:N1"];

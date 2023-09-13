@@ -98,20 +98,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     if (ordenes.FirstOrDefault()!.CodPed != 0)
                     {
-                        foreach (var item in ordenes)
-                        {
-                            if (item.OrdenEmbarque is not null)
-                            {
-                                if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
-                                {
-                                    var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
-                                    if (o != null)
-                                        ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
-                                    else
-                                        ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
-                                }
-                            }
-                        }
+                        //foreach (var item in ordenes)
+                        //{
+                        //    if (item.OrdenEmbarque is not null)
+                        //    {
+                        //        if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                        //        {
+                        //            var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                        //            if (o != null)
+                        //                ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                        //            else
+                        //                ordenes.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                        //        }
+                        //    }
+                        //}
                     }
                     else
                     {
@@ -325,6 +325,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .ThenInclude(x => x.Estado)
                         .Include(x => x.OrdenEmbarque)
                         .ThenInclude(x => x.Tad)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
                         .ToListAsync();
 
                 }
@@ -338,30 +340,32 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.Destino)
                             .Include(x => x.ContactoN)
                             .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Tonel)
-                        .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Estado)
-                        .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tonel)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Estado)
+                            .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Tad)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Orden)
                             .ToListAsync();
                     }
                     else
                         return BadRequest("Debe escribir un folio valido.");
                 }
-                foreach (var item in cierres)
-                {
-                    if (item.OrdenEmbarque is not null)
-                    {
-                        if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
-                        {
-                            var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
-                            if (o != null)
-                                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
-                            else
-                                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
-                        }
-                    }
-                }
+                //foreach (var item in cierres)
+                //{
+                //    if (item.OrdenEmbarque is not null)
+                //    {
+                //        if (item.OrdenEmbarque!.Folio != 0 && item.OrdenEmbarque!.Folio != null)
+                //        {
+                //            var o = await context.Orden.Where(y => y.Ref!.Contains(item.OrdenEmbarque!.Folio.ToString()!)).Include(x => x.Estado).FirstOrDefaultAsync();
+                //            if (o != null)
+                //                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = o;
+                //            else
+                //                cierres.FirstOrDefault(x => x.Cod == item.Cod)!.OrdenEmbarque!.Orden = null!;
+                //        }
+                //    }
+                //}
                 return Ok(cierres);
             }
             catch (Exception e)
@@ -571,15 +575,16 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol);
 
                             var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                            && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Orden?.BatchId is not null)
                                 .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
-                            var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque.Codest == 3 && x.OrdenEmbarque.FchOrd != null
-                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
+                            var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Codest == 3 && x.OrdenEmbarque.FchOrd != null
+                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null && x.OrdenEmbarque.Codprd == item.CodPrd).Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque.Codest == 9 && x.OrdenEmbarque.FchOrd == null
-                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
+                            var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Codest == 9 && x.OrdenEmbarque.FchOrd == null
+                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null && x.OrdenEmbarque.Codprd == item.CodPrd).Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
 
@@ -618,7 +623,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol : 0;
 
                             var VolumenConsumido = item.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null
-                                ? item.OrdenEmbarque?.Orden?.Vol : 0;
+                            && item.OrdenEmbarque?.Orden?.Codest != 14
+                            ? item.OrdenEmbarque?.Orden?.Vol : 0;
 
                             var VolumenProgramado = item?.OrdenEmbarque?.Codest == 3 && item.OrdenEmbarque.FchOrd != null &&
                                 item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
@@ -639,10 +645,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             if (volumen.Productos.Any(x => x.Nombre.Equals(item.Producto.Den)))
                             {
-                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den)).Disponible += productoVolumen.Disponible;
-                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den)).Congelado += productoVolumen.Congelado;
-                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den)).Consumido += productoVolumen.Consumido;
-                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den)).Total += productoVolumen.Total;
+                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Disponible += productoVolumen.Disponible;
+                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Congelado += productoVolumen.Congelado;
+                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Consumido += productoVolumen.Consumido;
+                                volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Total += productoVolumen.Total;
                                 volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Programado += productoVolumen.Programado;
                                 volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Solicitud += productoVolumen.Solicitud;
                             }
@@ -679,15 +685,18 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
                             && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
                             && x.OrdenEmbarque?.Orden?.BatchId is not null)
                                 .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                             var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
                             && x.OrdenEmbarque.FchOrd is not null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
@@ -733,16 +742,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol);
 
                             var VolumenConsumido = ordenes.Where(x => x.CodPrd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
                             && x.Estatus is true
                             && x?.OrdenEmbarque?.Folio is not null
                             && x?.OrdenEmbarque?.Orden?.BatchId is not null).Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                             var VolumenProgramado = ordenes.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
                             && x.OrdenEmbarque.FchOrd is not null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenSolicitado = ordenes.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
@@ -762,6 +774,73 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                         return Ok(volumen);
                     }
+                }
+                return Ok(volumen);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+                throw;
+            }
+        }
+
+        [HttpPost("volumen/mes")]
+        public async Task<ActionResult<VolumenDisponibleDTO>> GetListadoVolumenMes([FromBody] CierreFiltroDTO filtro)
+        {
+            try
+            {
+                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+
+                var cierres = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                && x.Estatus == true && x.CodCte == filtro.codCte)
+                    .Include(x => x.Producto).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
+
+                if (cierres is null)
+                    return new VolumenDisponibleDTO();
+
+                foreach (var item in cierres)
+                {
+                    var VolumenDisponible = item.CodPed == 0 ? item.Volumen : 0;
+
+                    var VolumenCongelado = item?.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden is null ?
+                                      item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
+                                    : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
+                                    : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())
+                                    : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
+                                    : item?.OrdenEmbarque?.Vol : 0;
+
+                    var VolumenConsumido = item?.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null
+                    && item.OrdenEmbarque?.Orden?.Codest != 14
+                    ? item.OrdenEmbarque?.Orden?.Vol : 0;
+
+                    var VolumenProgramado = item?.OrdenEmbarque?.Codest == 3 && item.OrdenEmbarque.FchOrd != null &&
+                        item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
+
+                    var VolumenSolicitado = item?.OrdenEmbarque?.Codest == 9 && item.OrdenEmbarque.FchOrd == null &&
+                        item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
+
+                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+
+                    ProductoVolumen productoVolumen = new ProductoVolumen();
+                    productoVolumen.Nombre = item?.Producto!.Den;
+                    productoVolumen.Disponible = VolumenTotalDisponible;
+                    productoVolumen.Congelado = VolumenCongelado;
+                    productoVolumen.Consumido = VolumenConsumido;
+                    productoVolumen.Total = VolumenDisponible;
+                    productoVolumen.Solicitud = VolumenSolicitado;
+                    productoVolumen.Programado = VolumenProgramado;
+
+                    if (volumen.Productos.Any(x => x.Nombre.Equals(item.Producto.Den)))
+                    {
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Disponible += productoVolumen.Disponible;
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Congelado += productoVolumen.Congelado;
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Consumido += productoVolumen.Consumido;
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Total += productoVolumen.Total;
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Programado += productoVolumen.Programado;
+                        volumen.Productos.FirstOrDefault(x => x.Nombre!.Equals(item.Producto!.Den))!.Solicitud += productoVolumen.Solicitud;
+                    }
+                    else
+                        volumen.Productos.Add(productoVolumen);
                 }
                 return Ok(volumen);
             }
@@ -807,15 +886,18 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol);
 
                             var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                            && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Orden?.BatchId is not null)
                                 .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
-                            var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque.Codest == 3 && x.OrdenEmbarque.FchOrd != null
-                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
+                            var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Codest == 3 && x.OrdenEmbarque.FchOrd != null
+                            && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque.Codest == 9 && x.OrdenEmbarque.FchOrd == null
-                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque.Vol);
+                            var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Codest == 9 && x.OrdenEmbarque.FchOrd == null
+                            && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
 
@@ -853,7 +935,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
                                             : item?.OrdenEmbarque?.Vol : 0;
 
-                            var VolumenConsumido = item.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null
+                            var VolumenConsumido = item.OrdenEmbarque?.Folio is not null && item.OrdenEmbarque?.Orden?.BatchId is not null && item.OrdenEmbarque.Orden.Codest != 14
                                 ? item.OrdenEmbarque?.Orden?.Vol : 0;
 
                             var VolumenProgramado = item?.OrdenEmbarque?.Codest == 3 && item.OrdenEmbarque.FchOrd != null &&
@@ -914,16 +996,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol);
 
                             var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                            && x.OrdenEmbarque.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Orden?.BatchId is not null)
                                 .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                             var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
                             && x.OrdenEmbarque.FchOrd is not null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
@@ -969,16 +1054,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                             : item?.OrdenEmbarque?.Vol);
 
                             var VolumenConsumido = ordenes.Where(x => x.CodPrd == item.CodPrd
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
                             && x.Estatus is true
                             && x?.OrdenEmbarque?.Folio is not null
                             && x?.OrdenEmbarque?.Orden?.BatchId is not null).Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                             var VolumenProgramado = ordenes.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
                             && x.OrdenEmbarque.FchOrd is not null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
                             var VolumenSolicitado = ordenes.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
                             && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
@@ -1264,20 +1352,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         && x.OrdenEmbarque?.Orden is null).Count();
 
                         var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Orden?.Codest != 14
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null)
                             .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                         var countConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
-                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Orden?.Codest != 14
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
 
                         var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                        double? PromedioCargas = 0;
+                        var sumVolumen = VolumenConsumido + VolumenCongelado;
+                        var sumCount = countCongelado + countConsumido;
 
-                        var sumVolumen = (VolumenConsumido + VolumenCongelado) != 0 ? (VolumenConsumido + VolumenCongelado) : 1;
-                        var sumCount = (countCongelado + countConsumido) != 0 ? (countCongelado + countConsumido) : 1;
-
-                        var PromedioCargas = sumVolumen / sumCount;
+                        if (sumVolumen != 0 && sumCount != 0)
+                            PromedioCargas = sumVolumen / sumCount;
 
                         ProductoVolumen productoVolumen = new ProductoVolumen();
 
@@ -1357,20 +1448,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         && x.OrdenEmbarque?.Orden is null).Count();
 
                         var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                            && x.OrdenEmbarque?.Orden?.Codest != 14
                         && x.OrdenEmbarque.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null)
                             .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                         var countConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
+                        && x.OrdenEmbarque?.Orden?.Codest != 14
                         && x.OrdenEmbarque.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
 
                         var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
 
-                        var sumVolumen = (VolumenConsumido + VolumenCongelado) != 0 ? (VolumenConsumido + VolumenCongelado) : 1;
-                        var sumCount = (countCongelado + countConsumido) != 0 ? (countCongelado + countConsumido) : 1;
+                        double? PromedioCargas = 0;
+                        var sumVolumen = VolumenConsumido + VolumenCongelado;
+                        var sumCount = countCongelado + countConsumido;
 
-                        var PromedioCargas = sumVolumen / sumCount;
+                        if (sumVolumen != 0 && sumCount != 0)
+                            PromedioCargas = sumVolumen / sumCount;
 
                         ProductoVolumen productoVolumen = new ProductoVolumen();
 
