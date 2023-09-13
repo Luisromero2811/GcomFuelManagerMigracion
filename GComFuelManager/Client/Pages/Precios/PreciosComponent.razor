@@ -6,7 +6,7 @@
 @inject NotificationService ns
 @inject PreciosValidation validation
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
@@ -222,16 +222,20 @@
                                         }
                                     </button>
                                 </div>
-                                <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
-                                        <i class="fa fa-solid fa-paper-plane"></i>
-                                        Enviar Precios
-                                        @if (loadingSend)
-                                        {
-                                            <SpinnerLoading />
-                                        }
-                                    </button>
-                                </div>
+                                <AuthorizeView Roles="Envio Precios, Admin, Administrador Sistema" Context="SendPrecios">
+                                    <Authorized>
+                                        <div class="col-4">
+                                            <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
+                                                <i class="fa fa-solid fa-paper-plane"></i>
+                                                Enviar Precios
+                                                @if (loadingSend)
+                                                {
+                                                    <SpinnerLoading />
+                                                }
+                                            </button>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
                             </div>
                         </EditForm>
                     </div>
@@ -251,7 +255,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" PageSizeOptions="@pageSizeOptions">
+                                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" PageSizeOptions="@pageSizeOptions">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -271,8 +275,8 @@
                                 <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Producto" Property="Producto.Den" OrderIndex="5" Filterable="true">
                                     @*<FilterTemplate Context="filter">
-                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                    </FilterTemplate>*@
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        </FilterTemplate>*@
                                     <Template Context="data">
                                         <div class="col-12 d-flex row">
                                             <div class="col-1">
@@ -308,7 +312,7 @@
                                             <div class="col-12">
                                                 <div class="form-check form-switch m-2">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
                                                 </div>
                                             </div>
                                         </Template>
@@ -323,7 +327,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
+                                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -344,8 +348,8 @@
                                 <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Producto" Filterable="true" Property="Producto.Den" OrderIndex="5">
                                     @*<FilterTemplate Context="filter">
-                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                    </FilterTemplate>*@
+                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                        </FilterTemplate>*@
                                     <Template Context="data">
                                         <div class="col-12 d-flex row">
                                             <div class="col-1">
@@ -381,7 +385,7 @@
                                             <div class="col-12">
                                                 <div class="form-check form-switch m-2">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
                                                 </div>
                                             </div>
                                         </Template>
@@ -857,12 +861,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Generando reporte",
-                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Generando reporte",
+                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                        Duration = 15000
+                    });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -932,12 +936,12 @@
             }
 
             Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                    Duration = 15000
-                });
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
 
             List<Precio> listaPrecios = new List<Precio>();
 
