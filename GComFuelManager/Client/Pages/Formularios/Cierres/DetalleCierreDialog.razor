@@ -42,9 +42,9 @@
         </div>
 
         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                    GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true"
-                    @bind-Settings="@Settings">
+                        GridLines="DataGridGridLines.Both" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true"
+        @bind-Settings="@Settings">
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" Filterable="false" FormatString="{0:d}" />
@@ -56,7 +56,7 @@
                     <FilterTemplate Context="filter">
                         <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
                             </ValueTemplate>
                         </RadzenDropDown>
                     </FilterTemplate>
@@ -96,7 +96,7 @@
                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
                         : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
                         : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                        : item?.Volumen
+                        : item?.OrdenEmbarque?.Orden?.Vol
                         )
                         </div>
                     </Template>
@@ -115,6 +115,7 @@
 
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
+    [Parameter] public string? producto { get; set; } = string.Empty;
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
@@ -152,12 +153,12 @@
                     OC = item.Folio,
                     FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
                     Precio = item.Precio.ToString(),
-                    Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
-                            : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4.ToString())
-                            : item?.Volumen,
+                    Volumen = item?.OrdenEmbarque?.Orden is null ? item?.OrdenEmbarque?.Vol
+                    : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
+                    : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
+                    : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())
+                    : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
+                    : item?.OrdenEmbarque?.Orden?.Vol,
                     Observaciones = item?.Observaciones,
                     FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
                     Destino = item?.Destino?.Den,
@@ -208,6 +209,8 @@
                 }
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 
+                if (!string.IsNullOrEmpty(producto))
+                    ProductoSeleccionado = producto;
             }
         }
         catch (Exception e)

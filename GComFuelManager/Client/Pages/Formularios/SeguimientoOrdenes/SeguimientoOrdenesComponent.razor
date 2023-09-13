@@ -77,19 +77,19 @@
             </div>
         </div>
     </div>
-  
+
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-                        @bind-Settings="@Settings">
+        @bind-Settings="@Settings">
             @*<EmptyTemplate>
-                <NoHayRegistros></NoHayRegistros>
-                </EmptyTemplate>*@
+            <NoHayRegistros></NoHayRegistros>
+            </EmptyTemplate>*@
             <Columns>
-                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true"/>
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true"/>
+                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true" />
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true" />
                 <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
@@ -125,7 +125,7 @@
                     <FilterTemplate>
                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180"/>
+                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180" />
                             </ValueTemplate>
                         </RadzenDropDown>
                     </FilterTemplate>
@@ -139,7 +139,7 @@
                     <FilterTemplate>
                         <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                             <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190"/>
+                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190" />
                             </ValueTemplate>
                         </RadzenDropDown>
                     </FilterTemplate>
@@ -221,13 +221,22 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
     protected override async Task OnInitializedAsync()
     {
-        width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -467,7 +476,7 @@
                     Unidad = o?.Tonel?.Veh,
                     Operador = o?.Chofer?.Den
 
-                }, true);
+                    }, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 var header = worksheet.Cells["A1:N1"];

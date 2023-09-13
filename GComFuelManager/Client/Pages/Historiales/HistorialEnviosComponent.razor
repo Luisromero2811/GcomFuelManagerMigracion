@@ -210,10 +210,18 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     protected override async Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";

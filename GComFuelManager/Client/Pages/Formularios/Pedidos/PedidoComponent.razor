@@ -18,13 +18,8 @@
                     <div class="col-3">
                         <label class="form-label">Folio</label>
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
-                        <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
-                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        AllowVirtualization="true">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
+                        <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
+
                         @*<FolioListSearch folio="@filtro.Folio">
                             </FolioListSearch>*@
                     </div>
@@ -427,6 +422,7 @@
     private ClaimsPrincipal User { get; set; } = null!;
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     int count = 0;
 
@@ -437,11 +433,19 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetFolios();
         await GetTerminales();
         await GetGrupos();
         await GetCantidades();
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -480,28 +484,6 @@
         else
             ordenCierre.IsDifferentVol = false;
         isEditing = !isEditing;
-    }
-
-    public async Task GetFolios()
-    {
-        try
-        {
-            var response = await http.Get<List<string>>($"api/cierre/folios");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Folios = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
     }
 
     public async Task GetPedidoFolio()
