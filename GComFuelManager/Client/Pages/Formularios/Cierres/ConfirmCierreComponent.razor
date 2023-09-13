@@ -97,7 +97,9 @@
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
             <Template Context="data">
-                @data.Volumen
+                <div class="col-12">
+                    @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen)
+                </div>
             </Template>
         </RadzenDataGridColumn>
     </Columns>
