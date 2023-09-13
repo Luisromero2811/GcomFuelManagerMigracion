@@ -50,7 +50,7 @@
                         <Template Context="data">
                             @foreach (var item in data.Capacidades)
                             {
-                                <p>Nro:@item.NroCom Capacidad: @item.CapCom</p>
+                                <p>Nro:@item.NroCom Capacidad:   @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.CapCom)</p>
                             }
                         </Template>
                     </RadzenDataGridColumn>

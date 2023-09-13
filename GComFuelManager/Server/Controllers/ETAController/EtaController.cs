@@ -136,7 +136,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          Cliente = e.Destino.Cliente.Den,
                          Destino = e.Destino.Den,
                          Producto = e.Producto.Den,
-                         VolNat = e.Vol2,
+                         VolNat =  e.Vol2,
                          VolCar = e.Vol,
                          Transportista = e.Tonel.Transportista.Den,
                          Unidad = e.Tonel.Veh,
