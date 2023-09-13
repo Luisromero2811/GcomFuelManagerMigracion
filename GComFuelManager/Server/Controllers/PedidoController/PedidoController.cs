@@ -360,7 +360,7 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                 Ordenes.AddRange(pedidosDate2);
-
+                
                 var pedidosDate3 = await context.Orden
                 .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
                     .Include(x => x.Destino)

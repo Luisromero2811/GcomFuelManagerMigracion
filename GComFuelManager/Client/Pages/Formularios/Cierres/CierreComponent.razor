@@ -177,7 +177,7 @@
 
                                         <div class="col-4 mb-1">
                                             <div class="col-12">
-                                                <label>Fecha de cierre</label>
+                                                <label>Fecha de creación de cierre</label>
                                                 @if (!IsClient)
                                                 {
                                                     <InputDate class="form-control col-12 disabled" @bind-Value="ordenCierre.FchCierre" />
@@ -296,7 +296,7 @@
                                                         {
                                                             foreach (var item in Cantidades)
                                                             {
-                                                                <option value="@item">@item.ToString("N2")</option>
+                                                    <option value="@item">  @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item)</option>
                                                             }
                                                         }
                                                     </InputSelect>
@@ -457,7 +457,7 @@
                             </Template>
                         </RadzenDataGridColumn>
                     </AuthorizeView>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" OrderIndex="2" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" OrderIndex="2" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5" />
@@ -514,7 +514,7 @@
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="10">
                         <Template Context="item">
                             <div class="col-12">
-                                @string.Format("{0:N2}",
+                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                                 item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
                                 item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
                                 : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
@@ -543,7 +543,7 @@
                                 <div class="col-12 row">
                                     @foreach (var item in volumenDisponible.Productos)
                                     {
-                                        <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Solicitado : @(item.Solicitud?.ToString("N")) | Programado : @(item.Programado?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",  @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",  @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",  @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",  @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
                                     }
                                 </div>
                             }
