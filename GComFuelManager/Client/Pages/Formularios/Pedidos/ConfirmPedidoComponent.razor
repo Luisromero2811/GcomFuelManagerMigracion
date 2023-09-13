@@ -56,7 +56,7 @@
             <FilterTemplate Context="Cliente">
                 <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                     <ValueTemplate Context="data">
-                        <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="190"/>
+                        <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="190" />
                     </ValueTemplate>
                 </RadzenDropDown>
             </FilterTemplate>
@@ -70,7 +70,7 @@
             <FilterTemplate Context="Destinos">
                 <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionados" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                     <ValueTemplate Context="data">
-                        <InputText class="form-control col-12" @bind-Value="DestinosSeleccionados" MaxLength="190"/>
+                        <InputText class="form-control col-12" @bind-Value="DestinosSeleccionados" MaxLength="190" />
                     </ValueTemplate>
                 </RadzenDropDown>
             </FilterTemplate>
@@ -84,7 +84,7 @@
             <FilterTemplate Context="Productos">
                 <RadzenDropDown Data="ProductoList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                     <ValueTemplate Context="data">
-                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
                     </ValueTemplate>
                 </RadzenDropDown>
             </FilterTemplate>
@@ -160,12 +160,22 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     FechasF fechas = new FechasF();
 
     protected override async Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -272,12 +282,12 @@
                     loadingConfirm = false;
 
                     ns.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando correos",
-                        Detail = "Se estan enviando los correos de autorizacion. Permanezca en esta pantalla hasta terminar el proceso.",
-                        Duration = 10000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Enviando correos",
+                            Detail = "Se estan enviando los correos de autorizacion. Permanezca en esta pantalla hasta terminar el proceso.",
+                            Duration = 10000
+                        });
                     var responseEmail = await http.Post<IList<OrdenEmbarque>>("api/email/confirmorden", OrdenesSeleccionadas);
                     if (responseEmail.Error)
                     {

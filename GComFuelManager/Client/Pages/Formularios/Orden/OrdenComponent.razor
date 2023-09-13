@@ -77,7 +77,7 @@
                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     AllowVirtualization="true">
                                         <ValueTemplate Context="data">
-                                            <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="30"/>
+                                            <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="30" />
                                         </ValueTemplate>
                                     </RadzenDropDown>
                                 </div>
@@ -85,8 +85,9 @@
                                     <div class="col-12 mt-auto">
                                         <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@(()=>GetFiltroCierres(true))" disabled="@loadingBuscar">
                                             <i class="fa fa-solid fa-magnifying-glass"></i> Buscar pedido
-                                            @if(loadingBuscar){
-                                                <SpinnerLoading/>
+                                            @if (loadingBuscar)
+                                            {
+                                                <SpinnerLoading />
                                             }
                                         </button>
                                     </div>
@@ -138,7 +139,7 @@
                                     <FilterTemplate Context="Destinos">
                                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                             <ValueTemplate Context="data">
-                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190"/>
+                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190" />
                                             </ValueTemplate>
                                         </RadzenDropDown>
                                     </FilterTemplate>
@@ -153,7 +154,7 @@
                                     <FilterTemplate Context="filter">
                                         <RadzenDropDown Data="ProductList" AllowFiltering="true" @bind-Value="ProductoSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                             <ValueTemplate Context="data">
-                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
                                             </ValueTemplate>
                                         </RadzenDropDown>
                                     </FilterTemplate>
@@ -187,8 +188,8 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Property="Volumen" Filterable="false" FormatString="{0:N2}" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Filterable="false" Width="130px">
                                     <Template Context="item">
-                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den 
-                                        : item?.OrdenEmbarque?.Estado != null ? item?.OrdenEmbarque?.Estado?.den : "Activa")
+                                        @(item.Activa == false ? "Cerrada" : item.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den
+                                            : item?.OrdenEmbarque?.Estado != null ? item?.OrdenEmbarque?.Estado?.den : "Activa")
                                     </Template>
                                 </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de entrega" Property="FchLlegada" FormatString="{0:d}" Width="170px" Filterable="false" />
@@ -217,7 +218,7 @@
                                     <FilterTemplate Context="Destinos">
                                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                             <ValueTemplate Context="data">
-                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="180"/>
+                                                <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="180" />
                                             </ValueTemplate>
                                         </RadzenDropDown>
                                     </FilterTemplate>
@@ -232,7 +233,7 @@
                                     <FilterTemplate Context="filter">
                                         <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                                             <ValueTemplate Context="data">
-                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190"/>
+                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
                                             </ValueTemplate>
                                         </RadzenDropDown>
                                     </FilterTemplate>
@@ -350,10 +351,19 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     protected async override Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -515,12 +525,12 @@
                                 Observaciones = item?.Observaciones,
                                 Precio = item?.Precio.ToString("N"),
                                 Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol
-                                                   : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
-                                                   : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())
-                                                   : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3.ToString())
-                                                   : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4.ToString())
-                                                   : item?.Volumen
-                                                            ,
+                                                       : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom.ToString())
+                                                       : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2.ToString())
+                                                       : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3.ToString())
+                                                       : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4.ToString())
+                                                       : item?.Volumen
+                                                                ,
                                 Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
                                 Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
                                 FchLlegada = item?.FechaLlegada

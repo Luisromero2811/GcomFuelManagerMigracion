@@ -1,5 +1,7 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using ServiceReference7;
 //using ServiceReference2;
@@ -936,29 +939,36 @@ namespace GComFuelManager.Server.Controllers.Services
                 foreach (var item in ordenes)
                 {
                     Random random = new Random();
-
-                    Orden orden = new Orden()
-                    {
-                        Ref = "ENER-" + item.Folio,
-                        Codchf = item.Codchf,
-                        Coddes = item.Coddes,
-                        Codest = 20,
-                        Codprd = item.Codprd,
-                        Coduni = item.Codton,
-                        Bolguiid = item.Bolguidid,
-                        BatchId = random.Next(1, 100001),
-                        Fch = DateTime.Now,
-                        Fchcar = item.Fchcar,
-                        Codprd2 = item.Codprd,
-                        Vol = item.Vol,
-                        Vol2 = item.Vol,
-                        Dendes = item.Destino?.Den,
-                        CompartmentId = item.CompartmentId,
-                        Liniteid = random.Next(1, 100001),
-                        Folio = item.Folio
-                    };
-
-                    context.Add(orden);
+                    Orden orden = new Orden();
+                    if (!context.Orden.Any(x => x.Folio == item.Folio && x.CompartmentId == item.CompartmentId))
+                        orden = new Orden()
+                        {
+                            Ref = "ENER-" + item.Folio,
+                            Codchf = item.Codchf,
+                            Coddes = item.Coddes,
+                            Codest = 20,
+                            Codprd = item.Codprd,
+                            Coduni = item.Codton,
+                            Bolguiid = item.Bolguidid,
+                            BatchId = random.Next(1, 100001),
+                            Fch = DateTime.Now,
+                            Fchcar = item.Fchcar,
+                            Codprd2 = item.Codprd,
+                            Vol = item.Vol,
+                            Vol2 = item.Vol,
+                            Dendes = item.Destino?.Den,
+                            CompartmentId = item.CompartmentId,
+                            Liniteid = random.Next(1, 100001),
+                            Folio = item.Folio
+                        };
+                    //orden.Estado = null!;
+                    //orden.Destino = null!;
+                    //orden.Producto = null!;
+                    //orden.Tonel = null!;
+                    //orden.OrdenEmbarque = null!;
+                    //orden.OrdEmbDet = null!;
+                    if (orden.Folio != null && orden.CompartmentId != null)
+                        context.Add(orden);
                 }
 
                 await context.SaveChangesAsync();
@@ -972,13 +982,42 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion#
 
-        [HttpGet]
-        public async Task<ActionResult> CerrarOrdenes()
+        [HttpGet("abrir/canceladas")]
+        public async Task<ActionResult> ReabrirCierres()
         {
             try
             {
+                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
 
-                return Ok();
+                List<Orden> ordenes = new List<Orden>();
+
+                ordenes = await context.Orden.Where(x => x.Codest == 14 && x.Fch >= DateTime.Today.AddDays(-2) && x.Fch <= DateTime.Today.AddDays(2))
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
+                    .ToListAsync();
+                foreach (var item in ordenes)
+                {
+                    OrdenPedido ordenPedido = new OrdenPedido();
+                    if (item.OrdenEmbarque != null)
+                    {
+                        if (context.OrdenPedido.Any(x => x.CodPed == item.OrdenEmbarque.Cod))
+                        {
+                            if (item.OrdenEmbarque.OrdenCierre != null)
+                            {
+                                ordenPedido = context.OrdenPedido.First(x => x.CodPed == item.OrdenEmbarque.Cod);
+                                OrdenCierre orden = new OrdenCierre();
+                                orden = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenPedido.Folio && x.CodPrd == item.OrdenEmbarque.Codprd);
+                                if (orden != null)
+                                {
+                                    orden.Activa = true;
+                                    context.Update(orden);
+                                }
+                            }
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+                return NoContent();
             }
             catch (Exception e)
             {
