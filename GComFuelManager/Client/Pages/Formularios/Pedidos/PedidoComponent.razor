@@ -106,6 +106,8 @@
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
                                 <Template Context="data">
                                     @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                                <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+
                                 </Template>
                                 <ValueTemplate Context="data">
                                     @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
@@ -258,7 +260,7 @@
                         <div class="col-4 px-2">
                             <button class="btn gcom-bg-amarillo col-12 mx-2" type="button" @onclick="@ConfirmPedido">
                                 <i class="fa fa-solid fa-check"></i>
-                                <b>Confirmar Pedidos</b>
+                                <b>Confirmar ordenes</b>
                                 @if (loadingConfirm)
                                 {
                                     <SpinnerLoading></SpinnerLoading>
@@ -890,7 +892,10 @@
                         Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
                         var userCod = User.Identity?.Name?.Substring(0, 3);
                         var guid = Guid.NewGuid().ToString().Split("-");
-                        ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                        if (!string.IsNullOrEmpty(filtro.Folio))
+                            ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                        else
+                            ordenCierre.Folio = $"OP-{userCod}{Cliente.Consecutivo}-{guid[0]}";
                     }
 
                     await PutClientes();

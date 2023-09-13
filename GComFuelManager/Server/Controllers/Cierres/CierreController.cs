@@ -1210,8 +1210,17 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
 
                 if (!filtro.forFolio)
-                    folios = await context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true)
+                    folios = await context.OrdenCierre.Where(
+                x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio)
+                && x.Activa == true
+                && x.CodPed == 0
+                && x.Estatus == true ||
+                x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio)
+                && x.Activa == true
+                && x.Folio.StartsWith("OP")
+                && x.Estatus == true)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
@@ -1227,7 +1236,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     if (filtro.codCte != null && filtro.codGru != null)
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Activa == true
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true)
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
@@ -1241,7 +1255,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .ToListAsync();
                     else if (filtro.codGru != null)
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Activa == true
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
@@ -1255,7 +1274,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ToListAsync();
                     else
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Activa == true
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
