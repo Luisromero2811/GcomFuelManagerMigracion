@@ -1013,6 +1013,9 @@
 
             if (ordenCierres.Count > 0)
             {
+
+                List<OrdenCierre> OrdenesEnviadas = new List<OrdenCierre>();
+                
                 ordenCierres.ForEach(x =>
                 {
                     x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
@@ -1052,11 +1055,14 @@
                                 Duration = 10000,
                                 Severity = NotificationSeverity.Success
                             });
-                        var orderlist = ordenes;
-                        foreach (var o in orderlist)
-                            ordenCierres.Remove(o);
+
+                        OrdenesEnviadas.AddRange(ordenes);
                     }
                 }
+
+                foreach (var item in OrdenesEnviadas)
+                    ordenCierres.Remove(item);
+
                 await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos.", SweetAlertIcon.Info);
                 //ordenCierres = new List<OrdenCierre>();
                 //ordenCierre = new OrdenCierre();

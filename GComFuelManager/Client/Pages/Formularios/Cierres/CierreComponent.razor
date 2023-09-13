@@ -1158,6 +1158,9 @@
                 var clientes = ordenCierres.DistinctBy(x => x.CodCte).Select(x => x.CodCte);
                 var count = 0;
                 var total = clientes.Count();
+
+                List<OrdenCierre> OrdenesEnviadas = new List<OrdenCierre>();
+
                 foreach (var item in clientes)
                 {
                     count++;
@@ -1188,11 +1191,14 @@
                                 Duration = 10000,
                                 Severity = NotificationSeverity.Success
                             });
-                        var orderlist = ordenes;
-                        foreach (var o in orderlist)
-                            ordenCierres.Remove(o);
+
+                        OrdenesEnviadas.AddRange(ordenes);
                     }
                 }
+
+                foreach (var item in OrdenesEnviadas)
+                    ordenCierres.Remove(item);
+
                 await Swal.FireAsync("Correos enviados", $"Se han enviado {count} de {total} correos.", SweetAlertIcon.Success);
                 //ordenCierres = new List<OrdenCierre>();
                 //ordenCierre = new OrdenCierre();
