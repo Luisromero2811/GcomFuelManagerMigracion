@@ -10,7 +10,7 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
-    <h4><b>Órdenes</b></h4>
+    <h4><b>Órdenes - Pedidos</b></h4>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
             <div class="col-12 mb-3 row">
@@ -21,7 +21,7 @@
                         <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
 
                         @*<FolioListSearch folio="@filtro.Folio">
-                        </FolioListSearch>*@
+                            </FolioListSearch>*@
                     </div>
                     <div class="col-9 d-flex row mb-2">
                         <div class="col-2 mt-auto">
@@ -132,7 +132,7 @@
                                     {
                                         foreach (var item in Cantidades)
                                         {
-                                            <option value="@item">@item.ToString("N2")</option>
+                                            <option value="@item">  @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item)</option>
                                         }
                                     }
                                 </InputSelect>
@@ -285,7 +285,7 @@
                         @if (!string.IsNullOrEmpty(item.Nombre))
                         {
                             <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Solicitado : @(item.Solicitud?.ToString("N")) | Programado : @(item.Programado?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
+                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
                             </div>
 
                         }
@@ -298,7 +298,7 @@
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                <Authorized>*@
+                    <Authorized>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
@@ -322,7 +322,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 @*</Authorized>
-                </AuthorizeView>*@
+                    </AuthorizeView>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
@@ -332,7 +332,7 @@
 
                     <Template Context="item">
                         <div class="col-12">
-                            @string.Format("{0:N2}",
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                             item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
                             item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
                             : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
@@ -516,13 +516,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -987,17 +987,17 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codest = 9,
-                        Codtad = ordenCierre.CodTad,
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Fchcar = ordenCierre.FchCar,
-                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                    };
+                {
+                    Codest = 9,
+                    Codtad = ordenCierre.CodTad,
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Fchcar = ordenCierre.FchCar,
+                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)

@@ -29,12 +29,12 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Volumen Natural"), EpplusIgnore]
         public double? VolNat { get; set; } = 0;
         [DisplayName("Volumen Natural")]
-        public string Volms { get { return VolNat.Value.ToString("N2"); } }
+        public string Volms { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", VolNat); } }
 
         [DisplayName("Volumen Cargado"), EpplusIgnore]
         public double? VolCar { get; set; } = 0;
         [DisplayName("Volumen Cargado")]
-        public string Vols { get { return VolCar.Value.ToString("N2"); } }
+        public string Vols { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", VolCar); } }
 
         public string? Transportista { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;

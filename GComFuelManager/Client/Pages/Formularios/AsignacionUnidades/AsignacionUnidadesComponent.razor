@@ -194,7 +194,7 @@
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" OrderIndex="8">
                     <Template Context="data">
                         <div class="col-12">
-                            @string.Format("{0:N2}",
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                             data?.Orden is not null ? data?.Orden?.Vol :
                             data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
                             : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
@@ -278,7 +278,7 @@
 
 @code {
     public bool Synthesis { get; set; } = false;
-
+    bool isClose = false;
     //grid
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
     private ElementReference dpT;
@@ -574,13 +574,13 @@
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
-                                {
-                                    Icon = SweetAlertIcon.Warning,
-                                    ShowCancelButton = true,
-                                    ConfirmButtonText = "Aceptar",
-                                    CancelButtonText = "Cancelar",
-                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                                });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                             if (!string.IsNullOrEmpty(confirm.Value))
                             {
