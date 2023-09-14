@@ -54,7 +54,7 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Litros Entregados"), EpplusIgnore]
         public double? LitEnt { get; set; } = 0;
         [DisplayName("Litros Entregados")]
-        public string EntLit { get { return LitEnt.Value.ToString("N2"); } } 
+        public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } } 
     }
 }
 
