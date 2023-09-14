@@ -194,15 +194,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 await context.SaveChangesAsync(id, 1);
 
-                if (!orden.isGroup)
-                {
-                    orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
-                    orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
-                }
-                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
-                //orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
-                var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
-                orden.OrdenEmbarque = Embarque;
+                //if (!orden.isGroup)
+                //{
+                //    orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
+                //    orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
+                //}
+                //orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
+                ////orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
+                //var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).FirstOrDefaultAsync();
+                //orden.OrdenEmbarque = Embarque;
+
+                var NewOrden = await context.OrdenCierre.Where(x => x.Cod == orden.Cod)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .FirstOrDefaultAsync();
 
                 if (orden.PrecioOverDate)
                 {
@@ -217,7 +226,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     await context.SaveChangesAsync();
                 }
 
-                return Ok(orden);
+                return Ok(NewOrden);
             }
             catch (Exception e)
             {
@@ -1241,7 +1250,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     && !string.IsNullOrEmpty(x.Folio)
                     && x.Activa == true
                     && x.Folio.StartsWith("OP")
-                    && x.Estatus == true)
+                    && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte)
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
@@ -1260,7 +1269,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     && !string.IsNullOrEmpty(x.Folio)
                     && x.Activa == true
                     && x.Folio.StartsWith("OP")
-                    && x.Estatus == true)
+                    && x.Estatus == true && x.CodGru == filtro.codGru)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
