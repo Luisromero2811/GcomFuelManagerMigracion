@@ -175,7 +175,7 @@
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="1" />
-                <RadzenDataGridColumn TItem="Cliente" Title="Modelo de venta" Property="MVenta" Width="200px" OrderIndex="2" />
+                <RadzenDataGridColumn TItem="Cliente" Title="Modelo de venta" Property="MdVenta" Width="200px" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="3" />
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="Action">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="4">

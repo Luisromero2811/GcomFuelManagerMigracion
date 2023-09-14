@@ -7,7 +7,7 @@
 @using System.IO;
 @using System.Text.Json;
 @using GComFuelManager.Client.Helpers;
-@using System.Globalization; 
+@using System.Globalization;
 @inject TooltipService ts
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador")]
 
@@ -22,7 +22,7 @@
                     <div class="row">
                         <div class="col-6">
                             <label>Número de Bol:</label>
-                            <InputNumber class="form-control" @bind-Value="Ordenes.Bol" MaxLenght="20"/>
+                            <InputNumber class="form-control" @bind-Value="Ordenes.Bol" MaxLenght="20" />
                         </div>
                         <div class="col-1 mt-4">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@GetOrden">
@@ -88,7 +88,9 @@
                     </div>
                     <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
                         <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" Format="n2" MaxLenght="30"/>
+                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" MaxLenght="30" Format="n" Culture=" CultureInfo.CurrentCulture"/>
+                        @*<InputNumber @bind-Value="Ordenes.Litent" class="form-control" FormatString="N0"/>*@
+                        <!--Format="#,0.00" Format="n2"-->
                     </div>
                 </div>
                 <div class="row g-3 mt-1 mb-2">
@@ -203,7 +205,7 @@
         try
         {
             //Tiempo Estimado de Arribo
-            etaDto.Bol = Ordenes.Bol;   
+            etaDto.Bol = Ordenes.Bol;
             var responseHttp = await repositorio.Post<EtaDTO, OrdEmbDet>($"api/Eta/Filtro", etaDto);
             if (responseHttp.Error)
             {
