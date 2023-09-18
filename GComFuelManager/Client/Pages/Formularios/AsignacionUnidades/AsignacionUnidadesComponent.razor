@@ -706,7 +706,7 @@
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
                 //Guardado de Excel
-                await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                await js.GuardarComo($"AsignacionUnidades_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
                 asignacionUnidadesDTO.Clear();
             }
             else
