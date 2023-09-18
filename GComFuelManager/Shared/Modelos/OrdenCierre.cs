@@ -129,6 +129,10 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped]
         public bool IsDifferentVol { get; set; } = false;
+        //Turno cambiado
+        [EpplusIgnore, NotMapped]
+        public bool IsDifferentTurn { get; set; } = false;
+
         [EpplusIgnore, NotMapped]
         public DateTime? FchCar { get; set; } = DateTime.Today;
         [EpplusIgnore, NotMapped]

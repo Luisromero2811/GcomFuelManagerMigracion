@@ -106,7 +106,7 @@
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
                                 <Template Context="data">
                                     @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                                                <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+                                    <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
 
                                 </Template>
                                 <ValueTemplate Context="data">
@@ -176,30 +176,52 @@
                             <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
-
-                    <div class="col-4 mb-1">
-                        <div class="col-12">
-                            <label>Turno</label>
-                            <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Turnos is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Turnos.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Turnos)
+                    @if (!ordenCierre.IsDifferentTurn)
+                    {
+                        <div class="col-4 mb-1">
+                            <div class="col-12">
+                                <label>Turno</label>
+                                <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Turnos is null)
                                     {
-                                        <option value="@item">@item</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (Turnos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Turnos)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
                         </div>
-                    </div>
+                    }
+                    @if (ordenCierre.IsDifferentTurn)
+                    {
+                            <div class="col-2 mb-1">
+                                <div class="col-12">
+                                    <label class="form-label">Turno</label>
+                                    <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno"/>
+                                </div>
+                            </div>
+                    }
+                        <div class="col-2 mb-1 d-flex">
+                            <div class="col-12 my-auto d-flex">
+                                <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentTurn Name="CheckBox2" class="me-2"/>
+                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipTurno(infoIconVolumen))" @ref="infoIconVolumen">
+                                    <label class="form-label" for="CheckBox2">
+                                        Turno Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Precio</label>
@@ -476,8 +498,9 @@
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
+    void ShowTooltipTurno(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca un turno de forma manual.", options);
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
-    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
+ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -1172,12 +1195,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {
