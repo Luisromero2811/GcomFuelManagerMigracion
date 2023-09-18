@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
-using ServiceReference7;
-//using ServiceReference2;
+//using ServiceReference7;
+using ServiceReference2;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -43,6 +43,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
+                List<OrdenEmbarque> ordenesEmbarque = new List<OrdenEmbarque>();
                 BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
@@ -141,11 +142,11 @@ namespace GComFuelManager.Server.Controllers.Services
                         request.BillOfLading.Driver.DriverId = new Identifier();
                         request.BillOfLading.Driver.DriverId.Id = new NLong();
 
-                        var bolguid = context.OrdenEmbarque.Find(item.Cod);
-                        if (bolguid == null)
-                            return BadRequest();
+                        //var bolguid = context.OrdenEmbarque.Find(item.Cod);
+                        //if (bolguid == null)
+                        //    return BadRequest();
 
-                        if (string.IsNullOrEmpty(bolguid.Bolguidid))
+                        if (string.IsNullOrEmpty(item.Bolguidid))
                         {
                             request.BillOfLading.Destination.DestinationId.Id.Value = long.Parse(item.Destino!.Codsyn!);
                             request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Destino!.Cliente!.Codsyn!);
@@ -163,7 +164,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.PurchaseOrderRef = request.BillOfLading.CustomerReference;
 
                             request.BillOfLading.Driver.DriverId.Id.Value = long.Parse(item.Chofer!.Dricod!);
-                            request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.CarrId!);
+                            request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.Busentid!);
 
                             var pedidos = ordens.Where(x => x!.Codton == item.Codton
                             && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar
@@ -262,29 +263,34 @@ namespace GComFuelManager.Server.Controllers.Services
                             {
                                 BillOfLading billOfLading = response.BillOfLadings[0];
 
-                                //pedidos.ForEach(x =>
-                                //{
-                                //    x.Bolguidid = billOfLading.BolGuidId;
-                                //    x.Folio = folio;
-                                //});
-
-                                //var ordenembarque = pedidos.ToList();
-
-                                //context.UpdateRange(ordenembarque!);
-
                                 item.Bolguidid = billOfLading.BolGuidId;
                                 item.Folio = folio;
                                 item.Codest = 22;
-                                context.Update(item);
 
-                                var id = await verify.GetId(HttpContext, userManager);
-                                if (string.IsNullOrEmpty(id))
-                                    return BadRequest();
-
-                                await context.SaveChangesAsync(id, 10);
+                                item.Chofer = null!;
+                                item.Destino = null!;
+                                item.Estado = null!; 
+                                item.Orden = null!;
+                                item.OrdenCierre = null!;
+                                item.OrdenCompra = null!;
+                                item.OrdenPedido = null!;
+                                item.Producto = null!;
+                                item.Tad = null!;
+                                item.Tonel = null!;
+                                ordenesEmbarque.Add(item);
+                                //context.Update(item);
                             }
                         }
                     }
+                    Debug.WriteLine(JsonConvert.SerializeObject(ordenesEmbarque));
+
+                    context.UpdateRange(ordenesEmbarque);
+                    
+                    var id = await verify.GetId(HttpContext, userManager);
+                    if (string.IsNullOrEmpty(id))
+                        return BadRequest();
+
+                    await context.SaveChangesAsync(id, 10);
 
                     return Ok(true);
                 }
@@ -742,7 +748,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
 
                 request.EndLoadDateTo = new NDateTime();
-                request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
+                request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(3);
 
                 request.ShipperId = new Identifier();
                 request.ShipperId.Id = new NLong();
