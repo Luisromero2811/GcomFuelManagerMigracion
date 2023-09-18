@@ -296,7 +296,7 @@
                                                         {
                                                             foreach (var item in Cantidades)
                                                             {
-                                                    <option value="@item">  @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item)</option>
+                                                                <option value="@item">  @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item)</option>
                                                             }
                                                         }
                                                     </InputSelect>
@@ -425,6 +425,12 @@
                                                     </button>
                                                 </div>
                                             }
+                                            <div class="col-3 mx-2">
+                                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@(()=>ClearForm())">
+                                                    <i class="fa fa-solid fa-broom"></i>
+                                                    <b>Limpiar formulario</b>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -1627,5 +1633,10 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private void ClearForm()
+    {
+        ordenCierre = new OrdenCierre();
     }
 }
