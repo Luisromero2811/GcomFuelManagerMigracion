@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using GComFuelManager.Shared.GamoModels;
 using Microsoft.AspNetCore.Identity;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -34,14 +35,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
         
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public ActionResult<List<Destino>> Get()
         {
             try
             {
-                var destinos = await context.Destino
-                    .Where(x => x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den })
-                    .ToListAsync();
+                var destinos = context.Destino
+                    .ToList();
                 return Ok(destinos);
             }
             catch (Exception e)
@@ -81,9 +80,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 if (cod == 0)
-                {
                     return BadRequest();
-                }
 
                 var destino = context.Destino.Where(x => x.Cod == cod).FirstOrDefault();
                 if (destino == null)
@@ -118,8 +115,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     byte[] code = Encoding.ASCII.GetBytes("apisimsa@ubiquite.mx:UA3VbQrbENWF62d");
                     client.DefaultRequestHeaders.Authorization =
                         new AuthenticationHeaderValue("Basic", Convert.ToBase64String(code));
+
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     Task<HttpResponseMessage> get = client.GetAsync("https://energas.ubiquite.mx/api/energasB2b/destinos");
+                    
                     var response = JsonConvert.DeserializeObject<DestinoGamoList>(await get.Result.Content.ReadAsStringAsync());
 
                     foreach (var item in response.Destinos)

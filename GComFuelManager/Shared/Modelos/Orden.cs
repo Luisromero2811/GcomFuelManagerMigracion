@@ -40,7 +40,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Coduni { get; set; } = 0;
         [JsonProperty("codchf")]
         public int? Codchf { get; set; } = 0;
-        [JsonProperty("bolguiid"),MaxLength(256)]
+        [JsonProperty("bolguiid"), MaxLength(256)]
         public string? Bolguiid { get; set; } = string.Empty;
         [JsonProperty("liniteid")]
         public Int64? Liniteid { get; set; } = null!;
@@ -52,17 +52,18 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("vol2"), EpplusIgnore]
         public double? Vol2 { get; set; } = null!;
         //[JsonProperty("Volumen Natural")]
-        public string Volumenes { get { return Vol2 != null ? Vol2?.ToString("N2") : string.Empty; } }
+        [NotMapped]
+        public string? Volumenes { get { return Vol2 != null ? Vol2?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("batchId")]
-        public Int64? BatchId { get; set; }
+        public int? BatchId { get; set; }
         [JsonProperty("CompartmentId")]
         public int? CompartmentId { get; set; } = null!;
         [JsonProperty("SealNumber"), MaxLength(128)]
         public string? SealNumber { get; set; } = string.Empty;
-        [NotMapped] public long Codprdsyn { get; set; } = 0;
-        [NotMapped] public long Codprd2syn { get; set; } = 0;
-        [NotMapped] public long Codchfsyn { get; set; } = 0;
+        [NotMapped] public long? Codprdsyn { get; set; } = 0;
+        [NotMapped] public long? Codprd2syn { get; set; } = 0;
+        [NotMapped] public long? Codchfsyn { get; set; } = 0;
 
         //Prop de nav Estado
         [NotMapped] public Estado? Estado { get; set; } = null!;
@@ -73,5 +74,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
         [NotMapped] public OrdEmbDet? OrdEmbDet { get; set; } = null!;
         [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
+        public int? Folio { get; set; } = 0;
+
     }
 }

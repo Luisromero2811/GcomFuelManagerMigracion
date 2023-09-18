@@ -19,7 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codCte"), EpplusIgnore] public int? codCte { get; set; }
         [JsonProperty("codGru"), EpplusIgnore] public Int16? codGru { get; set; }
         [JsonProperty("codPrd"), EpplusIgnore] public byte? codPrd { get; set; }
-        [JsonProperty("pre")] public double? Pre { get; set; } = 0;
+        [JsonProperty("pre")] public double Pre { get; set; } = 0;
         [JsonProperty("fchActualizacion"), EpplusIgnore] public DateTime FchActualizacion { get; set; } = DateTime.Now;
         [JsonProperty("fchDia"), EpplusIgnore] public DateTime FchDia { get; set; } = DateTime.Today;
         [JsonProperty("fecha"), DisplayName("Fecha")]
@@ -37,6 +37,11 @@ namespace GComFuelManager.Shared.Modelos
             {
                 return FchDia.ToString("dd/MM/yyyy");
             }
+        }
+        [EpplusIgnore, NotMapped]
+        public bool PrecioOverDate
+        {
+            get { return FchDia < DateTime.Today; }
         }
         [NotMapped, DisplayName("Zona")] public string? NombreZona { get { return Zona?.Nombre; } }
         [NotMapped, DisplayName("Destino")] public string? NombreDestino { get { return Destino?.Den; } }
