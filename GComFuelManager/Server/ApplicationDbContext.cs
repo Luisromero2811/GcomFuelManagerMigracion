@@ -279,8 +279,8 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.OrdenEmbarque)
-                .HasForeignKey<OrdenEmbarque>(x => x.Bolguidid)
-                .HasPrincipalKey<Orden>(x => x.Bolguiid);
+                .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
+                .HasPrincipalKey<Orden>("Folio", "CompartmentId");
 
             modelBuilder.Entity<AccionCorreo>()
                 .HasOne(x => x.Accion)
@@ -322,6 +322,21 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.codDes);
+            //Cierre - grupo
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Grupo)
+                .WithOne()
+                .HasForeignKey<OrdenCierre>(x => x.CodGru);
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.OrdenPedido)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey<OrdenPedido>(x => x.CodPed);
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.OrdEmbDet)
+                .WithOne(x => x.Orden)
+                .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
+                .HasForeignKey<Orden>(x => x.BatchId);
+
         }
 
 
@@ -365,5 +380,6 @@ namespace GComFuelManager.Server
         public DbSet<Porcentaje> Porcentaje { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
+        public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
     }
 }

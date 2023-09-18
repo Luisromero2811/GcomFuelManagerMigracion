@@ -1,5 +1,7 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using ServiceReference7;
 //using ServiceReference2;
@@ -40,7 +43,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService1);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
@@ -163,7 +166,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.CarrId!);
 
                             var pedidos = ordens.Where(x => x!.Codton == item.Codton
-                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar 
+                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar
                             && string.IsNullOrEmpty(x.Bolguidid) && x.Codest == 3).ToList();
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
@@ -244,13 +247,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             if (request.BillOfLading.LineItems != null)
                             {
-                                toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFileXML($"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", request);
 
                                 response = await client.SaveBillOfLadingAsync(request);
 
-                                toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
-
-
+                                toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                                toFile.GenerateFileXMLResponse($"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
                             }
                             else
                                 return BadRequest();
@@ -271,14 +274,14 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                 item.Bolguidid = billOfLading.BolGuidId;
                                 item.Folio = folio;
-
+                                item.Codest = 22;
                                 context.Update(item);
 
                                 var id = await verify.GetId(HttpContext, userManager);
                                 if (string.IsNullOrEmpty(id))
                                     return BadRequest();
 
-                                await context.SaveChangesAsync(id,10);
+                                await context.SaveChangesAsync(id, 10);
                             }
                         }
                     }
@@ -302,7 +305,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -502,12 +505,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         if (request.BillOfLading.LineItems != null)
                         {
-                            toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFile(JsonConvert.SerializeObject(request), $"Request_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFileXML($"Request_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", request);
 
                             response = await client.SaveBillOfLadingAsync(request);
 
-                            toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
-
+                            toFile.GenerateFile(JsonConvert.SerializeObject(response), $"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.json", $"{DateTime.Now.ToString("ddMMyyyy")}");
+                            toFile.GenerateFileXMLResponse($"Response_RE_Synthesis_{DateTime.Now.ToString("ddMMyyyyHHmmss")}.xml", $"{DateTime.Now.ToString("ddMMyyyy")}", response);
 
                         }
                         else
@@ -531,7 +535,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (string.IsNullOrEmpty(id))
                                 return BadRequest();
 
-                            await context.SaveChangesAsync(id,21);
+                            await context.SaveChangesAsync(id, 21);
                         }
                     }
 
@@ -553,34 +557,34 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                ServiceReference7.BillOfLadingServiceClient client = new ServiceReference7.BillOfLadingServiceClient(ServiceReference7.BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
-                ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
+                WsGetBillOfLadingsRequest request = new WsGetBillOfLadingsRequest();
 
-                request.IncludeChildObjects = new ServiceReference7.NBool();
+                request.IncludeChildObjects = new NBool();
                 request.IncludeChildObjects.Value = true;
 
-                request.EndLoadDateFrom = new ServiceReference7.NDateTime();
+                request.EndLoadDateFrom = new NDateTime();
                 request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
 
-                request.EndLoadDateTo = new ServiceReference7.NDateTime();
+                request.EndLoadDateTo = new NDateTime();
                 request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
 
-                request.ShipperId = new ServiceReference7.Identifier();
-                request.ShipperId.Id = new ServiceReference7.NLong();
+                request.ShipperId = new Identifier();
+                request.ShipperId.Id = new NLong();
                 request.ShipperId.Id.Value = 51004;
 
-                request.DeliveryReceiptIndicator = new ServiceReference7.NInt();
+                request.DeliveryReceiptIndicator = new NInt();
                 request.DeliveryReceiptIndicator.Value = 1;
 
-                request.BolStatus = new ServiceReference7.NEnumOfOrderStatusEnum();
-                request.BolStatus.Value = ServiceReference7.OrderStatusEnum.COMPLETED;
+                request.BolStatus = new NEnumOfOrderStatusEnum();
+                request.BolStatus.Value = OrderStatusEnum.COMPLETED;
 
-                request.IncludeCustomFields = new ServiceReference7.NBool();
+                request.IncludeCustomFields = new NBool();
                 request.IncludeCustomFields.Value = true;
 
                 var respuesta = await client.GetBillOfLadingsAsync(request);
@@ -606,7 +610,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             foreach (var seal in item.SealNumber)
                             {
                                 orden.SealNumber += seal + ",";
-                                orden.SealNumber = orden.SealNumber.Trim(',');
+                                orden.SealNumber = orden.SealNumber.Trim();
                             }
                             orden.SealNumber = orden.SealNumber?.Replace("\t", "");
                             orden.SealNumber = orden.SealNumber?.Trim(',');
@@ -649,37 +653,58 @@ namespace GComFuelManager.Server.Controllers.Services
                                     }
 
                                     var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
+                                    if (tonel is null)
+                                    {
+                                        orden.Coduni = 0;
+                                        tonel = new Tonel() { Carid = string.Empty };
+                                    }
+                                    else
+                                        //if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
 
-                                    if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
-
-                                    orden.Coduni = tonel.Cod;
+                                        orden.Coduni = tonel.Cod;
 
                                     var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                                    if (tran is null)
+                                        tran = new Transportista() { Busentid = "0" };
 
-                                    if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+                                    //if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
 
                                     var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+                                    if (cho is null)
+                                        orden.Codchf = 0;
+                                    else
+                                        //if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
 
-                                    if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
-
-                                    orden.Codchf = cho.Cod;
+                                        orden.Codchf = cho.Cod;
 
                                     var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
+                                    if (prd is null)
+                                        orden.Codprd = 0;
+                                    else
+                                        //if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
 
-                                    if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
-
-                                    orden.Codprd = prd.Cod;
+                                        orden.Codprd = prd.Cod;
 
                                     var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
+                                    if (prd2 is null)
+                                        orden.Codprd2 = 0;
+                                    else
+                                        //if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
 
-                                    if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
-
-                                    orden.Codprd2 = prd2.Cod;
+                                        orden.Codprd2 = prd2.Cod;
 
                                     orden.Fch = DateTime.Now;
                                     orden.Codest = 20;
 
-                                    context.Add(orden);
+                                    string[] refs = orden.Ref.Split("-");
+                                    string[] folio = refs[1].Split("_");
+                                    if (!string.IsNullOrEmpty(folio[0]))
+                                        orden.Folio = int.Parse(folio[0]);
+                                    else
+                                        orden.Folio = 0;
+
+                                    if (orden.Codchf != 0 && orden.Codprd != 0 && orden.Codprd2 != 0 && orden.Coduni != 0)
+                                        context.Add(orden);
                                 }
                             }
                         }
@@ -702,34 +727,34 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                ServiceReference7.BillOfLadingServiceClient client = new ServiceReference7.BillOfLadingServiceClient(ServiceReference7.BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService);
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
 
-                ServiceReference7.WsGetBillOfLadingsRequest request = new ServiceReference7.WsGetBillOfLadingsRequest();
+                WsGetBillOfLadingsRequest request = new WsGetBillOfLadingsRequest();
 
-                request.IncludeChildObjects = new ServiceReference7.NBool();
+                request.IncludeChildObjects = new NBool();
                 request.IncludeChildObjects.Value = true;
 
-                request.EndLoadDateFrom = new ServiceReference7.NDateTime();
+                request.EndLoadDateFrom = new NDateTime();
                 request.EndLoadDateFrom.Value = DateTime.Today.AddDays(-1);
 
-                request.EndLoadDateTo = new ServiceReference7.NDateTime();
+                request.EndLoadDateTo = new NDateTime();
                 request.EndLoadDateTo.Value = request.EndLoadDateFrom.Value.AddDays(2);
 
-                request.ShipperId = new ServiceReference7.Identifier();
-                request.ShipperId.Id = new ServiceReference7.NLong();
+                request.ShipperId = new Identifier();
+                request.ShipperId.Id = new NLong();
                 request.ShipperId.Id.Value = 51004;
 
-                request.DeliveryReceiptIndicator = new ServiceReference7.NInt();
+                request.DeliveryReceiptIndicator = new NInt();
                 request.DeliveryReceiptIndicator.Value = 1;
 
-                request.BolStatus = new ServiceReference7.NEnumOfOrderStatusEnum();
-                request.BolStatus.Value = ServiceReference7.OrderStatusEnum.REJECTED;
+                request.BolStatus = new NEnumOfOrderStatusEnum();
+                request.BolStatus.Value = OrderStatusEnum.REJECTED;
 
-                request.IncludeCustomFields = new ServiceReference7.NBool();
+                request.IncludeCustomFields = new NBool();
                 request.IncludeCustomFields.Value = true;
 
                 var respuesta = await client.GetBillOfLadingsAsync(request);
@@ -755,7 +780,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             foreach (var seal in item.SealNumber)
                             {
                                 orden.SealNumber += seal + ",";
-                                orden.SealNumber = orden.SealNumber.Trim(',');
+                                orden.SealNumber = orden.SealNumber.Trim();
                             }
                             orden.SealNumber = orden.SealNumber?.Replace("\t", "");
                             orden.SealNumber = orden.SealNumber?.Trim(',');
@@ -828,12 +853,25 @@ namespace GComFuelManager.Server.Controllers.Services
                                     orden.Fch = DateTime.Now;
                                     orden.Codest = 14;
 
+                                    string[] refs = orden.Ref.Split("-");
+                                    string[] folio = refs[1].Split("_");
+                                    if (!string.IsNullOrEmpty(folio[0]))
+                                        orden.Folio = int.Parse(folio[0]);
+                                    else
+                                        orden.Folio = 0;
+
+                                    if (orden.Folio == null)
+                                        orden.Folio = 0;
+
                                     context.Add(orden);
                                 }
                             }
                         }
                     }
                     await context.SaveChangesAsync();
+
+
+
                 }
                 return Ok();
 
@@ -866,8 +904,10 @@ namespace GComFuelManager.Server.Controllers.Services
 
                     Random rand = new Random();
                     int randomNumber = rand.Next(1, 100001);
-
+                    Guid guid = Guid.NewGuid();
+                    x.Bolguidid = guid.ToString();
                     x.Folio = randomNumber;
+                    x.Codest = 22;
                 });
 
                 context.UpdateRange(ordenes);
@@ -889,47 +929,46 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid == null)
+                var ordenes = await context.OrdenEmbarque.Where(x => x.FchOrd >= DateTime.Today.AddDays(-3) && x.FchOrd <= DateTime.Today && x.Folio != null && x.Bolguidid != null)
                     .Include(x => x.Destino)
                     .ToListAsync();
 
                 if (ordenes is null)
                     return NoContent();
 
-                ordenes.ForEach(x =>
-                {
-                    Guid guid = Guid.NewGuid();
-
-                    x.Bolguidid = guid.ToString();
-
-                    context.Update(x);
-                });
-
                 foreach (var item in ordenes)
                 {
                     Random random = new Random();
-
-                    Orden orden = new Orden()
-                    {
-                        Ref = "ENER-" + item.Folio,
-                        Codchf = item.Codchf,
-                        Coddes = item.Coddes,
-                        Codest = 20,
-                        Codprd = item.Codprd,
-                        Coduni = item.Codton,
-                        Bolguiid = item.Bolguidid,
-                        BatchId = random.Next(1, 100001),
-                        Fch = DateTime.Now,
-                        Fchcar = item.Fchcar,
-                        Codprd2 = item.Codprd,
-                        Vol = item.Vol,
-                        Vol2 = item.Vol,
-                        Dendes = item.Destino?.Den,
-                        CompartmentId = item.CompartmentId,
-                        Liniteid = random.Next(1, 100001)
-                    };
-
-                    context.Add(orden);
+                    Orden orden = new Orden();
+                    if (!context.Orden.Any(x => x.Folio == item.Folio && x.CompartmentId == item.CompartmentId))
+                        orden = new Orden()
+                        {
+                            Ref = "ENER-" + item.Folio,
+                            Codchf = item.Codchf,
+                            Coddes = item.Coddes,
+                            Codest = 20,
+                            Codprd = item.Codprd,
+                            Coduni = item.Codton,
+                            Bolguiid = item.Bolguidid,
+                            BatchId = random.Next(1, 100001),
+                            Fch = DateTime.Now,
+                            Fchcar = item.Fchcar,
+                            Codprd2 = item.Codprd,
+                            Vol = item.Vol,
+                            Vol2 = item.Vol,
+                            Dendes = item.Destino?.Den,
+                            CompartmentId = item.CompartmentId,
+                            Liniteid = random.Next(1, 100001),
+                            Folio = item.Folio
+                        };
+                    //orden.Estado = null!;
+                    //orden.Destino = null!;
+                    //orden.Producto = null!;
+                    //orden.Tonel = null!;
+                    //orden.OrdenEmbarque = null!;
+                    //orden.OrdEmbDet = null!;
+                    if (orden.Folio != null && orden.CompartmentId != null)
+                        context.Add(orden);
                 }
 
                 await context.SaveChangesAsync();
@@ -943,13 +982,42 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion#
 
-        [HttpGet]
-        public async Task<ActionResult> CerrarOrdenes()
+        [HttpGet("abrir/canceladas")]
+        public async Task<ActionResult> ReabrirCierres()
         {
             try
             {
+                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
 
-                return Ok();
+                List<Orden> ordenes = new List<Orden>();
+
+                ordenes = await context.Orden.Where(x => x.Codest == 14 && x.Fch >= DateTime.Today.AddDays(-2) && x.Fch <= DateTime.Today.AddDays(2))
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
+                    .ToListAsync();
+                foreach (var item in ordenes)
+                {
+                    OrdenPedido ordenPedido = new OrdenPedido();
+                    if (item.OrdenEmbarque != null)
+                    {
+                        if (context.OrdenPedido.Any(x => x.CodPed == item.OrdenEmbarque.Cod))
+                        {
+                            if (item.OrdenEmbarque.OrdenCierre != null)
+                            {
+                                ordenPedido = context.OrdenPedido.First(x => x.CodPed == item.OrdenEmbarque.Cod);
+                                OrdenCierre orden = new OrdenCierre();
+                                orden = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenPedido.Folio && x.CodPrd == item.OrdenEmbarque.Codprd);
+                                if (orden != null)
+                                {
+                                    orden.Activa = true;
+                                    context.Update(orden);
+                                }
+                            }
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+                return NoContent();
             }
             catch (Exception e)
             {

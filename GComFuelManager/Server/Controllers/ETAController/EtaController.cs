@@ -19,7 +19,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Comprador")]
     public class EtaController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -77,6 +77,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                 else
                 {
+                    
+                    if (ordEmb.Litent > 0)
+                        ordEmb.Orden.Codest = 10;
+
                     ordEmb.Orden!.Estado = null!;
 
                     context.Update(ordEmb.Orden);
@@ -132,7 +136,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                          Cliente = e.Destino.Cliente.Den,
                          Destino = e.Destino.Den,
                          Producto = e.Producto.Den,
-                         VolNat = e.Vol2,
+                         VolNat =  e.Vol2,
                          VolCar = e.Vol,
                          Transportista = e.Tonel.Transportista.Den,
                          Unidad = e.Tonel.Veh,
