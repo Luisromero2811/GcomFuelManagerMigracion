@@ -8,7 +8,7 @@
 @inject AsignarContactoClienteValidation validationCliente
 @inject AuthenticationStateProvider auth
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes, Ejecutivo de Cuenta Comercial")]
 
 <h4><b>Asignar Contacto</b></h4>
 <div class="col-12 d-flex justify-content-center">
@@ -27,7 +27,7 @@
                         </Authorized>
                     </AuthorizeView>
                     <ValidationSummary />
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="BuscarContactos">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="BuscarContactos">
                         <div class="col-12 mb-4 row">
                             <div class="col-10">
                                 <label>Cliente:</label>
@@ -50,7 +50,7 @@
                         </div>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="AddContact">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AddContact">
                         <div class="col-12 mb-3 row">
                             <div class="col-5">
                                 <label class="form-label">Nombre</label>
@@ -93,7 +93,7 @@
         </div>
     </AuthorizeView>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
+<AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes, Ejecutivo de Cuenta Comercial">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid!.Reset())"
@@ -113,7 +113,7 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="Acciones">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="Acciones">
                     <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="200px" OrderIndex="4">
                         <Template Context="item">
                             <div class="col-12 ">
