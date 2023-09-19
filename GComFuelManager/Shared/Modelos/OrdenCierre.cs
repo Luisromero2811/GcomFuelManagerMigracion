@@ -146,6 +146,11 @@ namespace GComFuelManager.Shared.Modelos
         public bool isGroup { get; set; } = false;
         [EpplusIgnore, NotMapped]
         public bool PrecioOverDate { get; set; }
+
+        [DisplayName("fchPrecio"), EpplusIgnore]
         public DateTime? fchPrecio { get; set; } = DateTime.Now;
+        [DisplayName("Fecha de Precio"), NotMapped]
+        public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
+
     }
 }
