@@ -287,7 +287,8 @@
                             Unidad = item!.Tonel?.Veh,
                             Compartimento = item!.Compartment,
                             Operador = item!.Chofer?.Den,
-                            Bin = item!.Bin
+                            Bin = item!.Bin,
+                            Estado = item!.Estado?.den
                         });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -296,7 +297,7 @@
                 worksheet.Columns.Width = 60;
                 worksheet.Columns.AutoFit();
 
-                var header = worksheet.Cells["A1:K1"];
+                var header = worksheet.Cells["A1:L1"];
                 //Formación del Excel
 
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<HistorialOrdenDTO>(historialOrdens, true);

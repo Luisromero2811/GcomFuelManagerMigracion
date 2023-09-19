@@ -28,5 +28,6 @@ namespace GComFuelManager.Shared.DTOs
         public int? Compartimento { get; set; } = 0;
         public string? Operador { get; set; } = string.Empty;
         public int? Bin { get; set; } = 0;
+        public string? Estado { get; set; } = string.Empty;
 	}
 }
