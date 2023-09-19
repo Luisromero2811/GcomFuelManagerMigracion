@@ -684,6 +684,14 @@ namespace GComFuelManager.Server.Controllers
 
                     orden.Codusu = user!.Cod;
 
+                    context.Add(orden);
+
+                    var id = await verifyUser.GetId(HttpContext, userManager);
+                    if (string.IsNullOrEmpty(id))
+                        return BadRequest();
+
+                    await context.SaveChangesAsync(id, 2);
+
                     var NewOrden = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
                     .Include(x => x.Destino)
                     .Include(x => x.Tad)
@@ -692,13 +700,6 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estado)
                     .FirstOrDefaultAsync();
 
-                    context.Add(orden);
-
-                    var id = await verifyUser.GetId(HttpContext, userManager);
-                    if (string.IsNullOrEmpty(id))
-                        return BadRequest();
-
-                    await context.SaveChangesAsync(id, 2);
                     return Ok(NewOrden);
                 }
             }
