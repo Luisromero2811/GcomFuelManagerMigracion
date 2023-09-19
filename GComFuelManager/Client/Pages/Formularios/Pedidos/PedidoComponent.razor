@@ -303,7 +303,7 @@
                     <Authorized>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
                             <Authorized>
                                 <div class="col-12 row">
                                     @if (item.OrdenEmbarque is not null && item.Estatus == true)
@@ -313,6 +313,9 @@
                                             <div class="col">
                                                 <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                             </div>
+                                        }
+                                        @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
+                                        {
                                             <div class="col">
                                                 <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
                                             </div>
