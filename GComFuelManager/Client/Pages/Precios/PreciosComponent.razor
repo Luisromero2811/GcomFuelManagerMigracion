@@ -255,7 +255,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" PageSizeOptions="@pageSizeOptions">
+                        @bind-Settings="@Settings" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single" PageSizeOptions="@pageSizeOptions">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -275,8 +275,8 @@
                                 <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Producto" Property="Producto.Den" OrderIndex="5" Filterable="true">
                                     @*<FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                        </FilterTemplate>*@
+                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>*@
                                     <Template Context="data">
                                         <div class="col-12 d-flex row">
                                             <div class="col-1">
@@ -312,7 +312,7 @@
                                             <div class="col-12">
                                                 <div class="form-check form-switch m-2">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
                                                 </div>
                                             </div>
                                         </Template>
@@ -327,7 +327,7 @@
                         <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
                                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
-                                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
+                        @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
                             <Columns>
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                     <Authorized>
@@ -348,8 +348,8 @@
                                 <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="true" OrderIndex="4" Width="100px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Producto" Filterable="true" Property="Producto.Den" OrderIndex="5">
                                     @*<FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                        </FilterTemplate>*@
+                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
+                                    </FilterTemplate>*@
                                     <Template Context="data">
                                         <div class="col-12 d-flex row">
                                             <div class="col-1">
@@ -385,7 +385,7 @@
                                             <div class="col-12">
                                                 <div class="form-check form-switch m-2">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                           @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
+                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
                                                 </div>
                                             </div>
                                         </Template>
@@ -861,12 +861,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Generando reporte",
-                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Generando reporte",
+                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                            Duration = 15000
+                        });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -936,12 +936,12 @@
             }
 
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
 
@@ -991,19 +991,39 @@
         try
         {
             precio.Activo = (bool)ea.Value;
-            var response = await http.Post<Precio>($"api/precio", precio);
-            if (response.Error)
+            if (SelectedTab == 0)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await http.Post<Precio>($"api/precio", precio);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    grid?.Reload();
+                    if (precio.Activo)
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                    else
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                }
             }
             else
             {
-                grid?.Reload();
-                if (precio.Activo)
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                var response = await http.Post<Precio>($"api/precio/programado", precio);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
                 else
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                {
+                    grid?.Reload();
+                    if (precio.Activo)
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                    else
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                }
             }
         }
         catch (Exception e)
