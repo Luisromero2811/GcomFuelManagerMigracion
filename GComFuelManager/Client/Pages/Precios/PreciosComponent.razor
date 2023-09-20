@@ -56,20 +56,20 @@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="true" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
-                                                    <FilterTemplate Context="filter">
-                                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
-                                                            <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180" />
-                                                        </RadzenDropDown>
-                                                    </FilterTemplate>
-                                                    <Template Context="data">
-                                                        <div class="col-12 d-flex">
-                                                            <div class="col-11">
-                                                                @data.Producto
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" Filterable="true" Property="Producto" />
+                                                @*<FilterTemplate Context="filter">
+                                                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                                                <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180" />
+                                                            </RadzenDropDown>
+                                                        </FilterTemplate>
+                                                        <Template Context="data">
+                                                            <div class="col-12 d-flex">
+                                                                <div class="col-11">
+                                                                    @data.Producto
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>*@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
                                             </Columns>
                                         </RadzenDataGrid>
@@ -329,7 +329,7 @@
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true"
                                         @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions" AllowPaging="true" ShowPagingSummary="true" FilterMode="FilterMode.Simple" EditMode="DataGridEditMode.Single">
                             <Columns>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Accioness">
                                     <Authorized>
                                         <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
                                             <Template Context="item">
@@ -379,7 +379,7 @@
                                 <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="true" OrderIndex="6" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="true" OrderIndex="7" Width="100px" />
                                 <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="true" OrderIndex="8" />
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrices">
                                     <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9" Filterable="false">
                                         <Template Context="data">
                                             <div class="col-12">
@@ -1011,6 +1011,7 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
 
     private async Task SaveStateAsync()
     {
