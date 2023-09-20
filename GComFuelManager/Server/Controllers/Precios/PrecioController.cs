@@ -300,7 +300,22 @@ namespace GComFuelManager.Server.Controllers.Precios
                             Pre = item.Precio
                         };
 
-                        prec.Add(precio);
+                        var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
+                        //&& x.codZona == precio.codZona
+                        && x.codCte == precio.codCte
+                        && x.codPrd == precio.codPrd
+                        && x.codDes == precio.codDes);
+
+                        if (p is not null)
+                        {
+                            p.Pre = precio.Pre;
+                            p.FchDia = precio.FchDia;
+                            p.FchActualizacion = DateTime.Now;
+                            context.Update(p);
+                        }
+                        else
+                            context.Add(precio);
+                        //prec.Add(precio);
                     }
                     else if (DateTime.Parse(item.Fecha) == DateTime.Today)
                     {
@@ -350,11 +365,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     }
                 }
 
-                if (prec.Count > 0)
-                {
-                    context.PrecioProgramado.ExecuteDelete();
-                    context.AddRange(prec);
-                }
+                //if (prec.Count > 0)
+                //{
+                //    context.PrecioProgramado.ExecuteDelete();
+                //    context.AddRange(prec);
+                //}
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
@@ -526,7 +541,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     codZona = precio.codZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = DateTime.Now,
-                    Pre = precio.Pre
+                    Pre = precio.Pre,
+                    Activo = precio.Activo
                 };
 
                 if (precio.Cod != null)
