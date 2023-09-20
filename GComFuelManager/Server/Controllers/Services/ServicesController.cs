@@ -988,6 +988,7 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion#
 
+        #region Abrir Ordenes cerradas
         [HttpGet("abrir/canceladas")]
         public async Task<ActionResult> ReabrirCierres()
         {
@@ -1030,5 +1031,160 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+        #endregion
+
+        #region obtencion de ordenes cargadas
+        [HttpGet("updates")]
+        public async Task<ActionResult> GetOrdenesModificadas()
+        {
+            try
+            {
+                BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
+                client.ClientCredentials.UserName.UserName = "energasws";
+                client.ClientCredentials.UserName.Password = "Energas23!";
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+
+                WsGetBillOfLadingRequest request = new WsGetBillOfLadingRequest();
+
+                request.BolGuidId = "0fdbd8f5-3932-4bce-8ac0-63234049db77";
+
+                var respuesta = await client.GetBillOfLadingAsync(request);
+
+                if (respuesta.BillOfLadings == null)
+                    return BadRequest("Sin ordenes");
+
+                if (respuesta.BillOfLadings.Length > 0)
+                {
+                    foreach (var item in respuesta.BillOfLadings)
+                    {
+                        Debug.WriteLine(item.CustomerReference);
+                    }
+                    //var BOL = respuesta.BillOfLadings;
+                    //foreach (var item in BOL)
+                    //{
+                    //    Orden orden = new Orden();
+
+                    //    orden.Ref = item.CustomerReference;
+                    //    orden.Codchfsyn = item.Driver.DriverId.Id.Value;
+                    //    orden.Bolguiid = item.BolGuidId;
+                    //    orden.Dendes = item.Destination.DestinationName;
+                    //    orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
+
+                    //    if (item.SealNumber is not null)
+                    //    {
+                    //        foreach (var seal in item.SealNumber)
+                    //        {
+                    //            orden.SealNumber += seal + ",";
+                    //            orden.SealNumber = orden.SealNumber.Trim();
+                    //        }
+                    //        orden.SealNumber = orden.SealNumber?.Replace("\t", "");
+                    //        orden.SealNumber = orden.SealNumber?.Trim(',');
+                    //    }
+
+                    //    foreach (var line in item.LineItems)
+                    //    {
+                    //        if (line.BaseGravity is not null)
+                    //        {
+                    //            orden.Liniteid = line.BolLineItemId.Id.Value;
+                    //            if (!context.Orden.Any(x => x.Liniteid == orden.Liniteid))
+                    //            {
+                    //                orden.CompartmentId = Convert.ToInt32(line.CompartmentId.Value);
+                    //                orden.Codprdsyn = line.OrderedProduct.ProductId.Id.Value;
+                    //                orden.Vol = Convert.ToDouble(line.BaseNetQuantity.Value);
+                    //                orden.Fchcar = line.EndLoadTime.Value;
+                    //                orden.Coduni = Convert.ToInt32(line.TrailerId);
+                    //                orden.Codprd2syn = line.BaseProduct.ProductId.Id.Value;
+                    //                orden.Vol2 = Convert.ToDouble(line.BaseGrossQuantity.Value);
+
+                    //                var des = context.Destino.FirstOrDefault(x => x.Codsyn == line.Destination.DestinationId.Id.Value.ToString());
+                    //                if (des is not null)
+                    //                {
+                    //                    orden.Coddes = des.Cod;
+                    //                    orden.Dendes = des.Den?.Replace("'", "");
+                    //                }
+                    //                else
+                    //                {
+                    //                    des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
+                    //                    orden.Coddes = des.Cod;
+                    //                    orden.Dendes = des.Den?.Replace("'", "");
+                    //                }
+
+                    //                foreach (var cfi in line.CustomFieldInstances)
+                    //                {
+                    //                    if (cfi.CustomFieldMetaData.Name.Equals("tm_batch_id"))
+                    //                        orden.BatchId = Convert.ToInt32(cfi.FieldStringValue);
+                    //                    else if (cfi.CustomFieldMetaData.Name.Equals(".ExternalOrderId"))
+                    //                        orden.Ref = cfi.FieldStringValue;
+                    //                }
+
+                    //                var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
+                    //                if (tonel is null)
+                    //                {
+                    //                    orden.Coduni = 0;
+                    //                    tonel = new Tonel() { Carid = string.Empty };
+                    //                }
+                    //                else
+                    //                    //if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
+
+                    //                    orden.Coduni = tonel.Cod;
+
+                    //                var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                    //                if (tran is null)
+                    //                    tran = new Transportista() { Busentid = "0" };
+
+                    //                //if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+
+                    //                var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+                    //                if (cho is null)
+                    //                    orden.Codchf = 0;
+                    //                else
+                    //                    //if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
+
+                    //                    orden.Codchf = cho.Cod;
+
+                    //                var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
+                    //                if (prd is null)
+                    //                    orden.Codprd = 0;
+                    //                else
+                    //                    //if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
+
+                    //                    orden.Codprd = prd.Cod;
+
+                    //                var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
+                    //                if (prd2 is null)
+                    //                    orden.Codprd2 = 0;
+                    //                else
+                    //                    //if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
+
+                    //                    orden.Codprd2 = prd2.Cod;
+
+                    //                orden.Fch = DateTime.Now;
+                    //                orden.Codest = 20;
+
+                    //                string[] refs = orden.Ref.Split("-");
+                    //                string[] folio = refs[1].Split("_");
+                    //                if (!string.IsNullOrEmpty(folio[0]))
+                    //                    orden.Folio = int.Parse(folio[0]);
+                    //                else
+                    //                    orden.Folio = 0;
+
+                    //                if (orden.Codchf != 0 && orden.Codprd != 0 && orden.Codprd2 != 0 && orden.Coduni != 0)
+                    //                    context.Add(orden);
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    //await context.SaveChangesAsync();
+                }
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        #endregion
     }
 }
