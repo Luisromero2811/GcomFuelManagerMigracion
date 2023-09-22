@@ -48,11 +48,11 @@
                                     <label class="form-check-label" for="Cargadas">Cargadas</label>
                                 </div>
                                 @*<div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                    <label class="form-check-label" for="Trayecto">En Trayecto</label>
-                                </div>*@
-                                <div class="form-check form-check-inline"> 
-                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)"/>
+                                        <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                        <label class="form-check-label" for="Trayecto">En Trayecto</label>
+                                    </div>*@
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
                                     <label class="form-check-label" for="Canceladas">Canceladas</label>
                                 </div>
                             </div>
@@ -66,12 +66,12 @@
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de órdenes</b></button>
                         </div>
                         @*<div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
-                        </div>
-                        <div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
+                            </div>
+                            <div class="col-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
 
-                        </div>*@
+                            </div>*@
                     </div>
                 </EditForm>
             </div>
@@ -83,10 +83,10 @@
         <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-        @bind-Settings="@Settings">
+                        @bind-Settings="@Settings">
             @*<EmptyTemplate>
-            <NoHayRegistros></NoHayRegistros>
-            </EmptyTemplate>*@
+                <NoHayRegistros></NoHayRegistros>
+                </EmptyTemplate>*@
             <Columns>
                 <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true" />
                 <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true" />
@@ -149,17 +149,52 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Property="Vol2" Width="160px" FormatString="{0:#,##0.00}" Filterable="false" >
+                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Width="160px" FormatString="{0:#,##0.00}" Filterable="false">
                     <Template Context="data">
-                        <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", data.Vol2)
-                        </div>
+                        @if (fechas.Estado == 1)
+                        {
+                            <div class="col-12">
+                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                               data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                               : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                               : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                               : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                               : data?.Vol
+                               )
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                               data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                               : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                               : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                               : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                               : data?.Vol2
+                               )
+                            </div>
+                        }
+                        @*<div class="col-12">
+            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+           data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+           : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+           : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+           : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+           : data?.Vol2
+           )
+        </div>*@
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="180px" FormatString="{0:N2}" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", data.Vol)
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                             data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                           : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                           : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                           : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                           : data?.Vol)
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
@@ -340,7 +375,7 @@
                             Cliente = item?.Destino?.Cliente?.Den,
                             Destino = item?.Destino?.Den,
                             Producto = item?.Producto?.Den,
-                            VolNat =  item?.Vol2,
+                            VolNat = item?.Vol2,
                             VolCar = item?.Vol,
                             Transportista = item?.Tonel?.Transportista?.Den,
                             Unidad = item?.Tonel?.Veh,
@@ -476,7 +511,7 @@
                     Unidad = o?.Tonel?.Veh,
                     Operador = o?.Chofer?.Den
 
-                    }, true);
+                }, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 var header = worksheet.Cells["A1:N1"];
