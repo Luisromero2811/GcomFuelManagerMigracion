@@ -209,6 +209,7 @@ namespace GComFuelManager.Server.Controllers
                         Estado = o.Estado,
                         Destino = o.Destino,
                         Producto = o.Producto,
+                        //Vol2 = o.Compartment == 1 ? o.Tonel?.Capcom : o.Compartment == 2 ? o.Tonel?.Capcom2 : o.Compartment == 3 ? o.Tonel?.Capcom3 : o.Compartment == 4 ? o?.Tonel?.Capcom4 : o.Vol,
                         Vol2 = o.Vol,
                         Vol = null!,
                         Bolguiid = null!,
