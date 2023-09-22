@@ -730,6 +730,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                return Ok(true);
+
                 if (orden == null)
                     return BadRequest();
 
