@@ -43,7 +43,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpGet("{folio}"), AllowAnonymous]
+        [HttpGet("{folio}")]
         public async Task<ActionResult> GetByFolio([FromRoute] string folio)
         {
             try

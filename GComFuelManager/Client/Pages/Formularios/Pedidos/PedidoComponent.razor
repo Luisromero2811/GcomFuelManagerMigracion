@@ -21,7 +21,7 @@
                         <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
 
                         @*<FolioListSearch folio="@filtro.Folio">
-                            </FolioListSearch>*@
+                        </FolioListSearch>*@
                     </div>
                     <div class="col-9 d-flex row mb-2">
                         <div class="col-2 mt-auto">
@@ -322,7 +322,7 @@
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                    <Authorized>*@
+                <Authorized>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
@@ -349,7 +349,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 @*</Authorized>
-                    </AuthorizeView>*@
+                </AuthorizeView>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
@@ -375,8 +375,8 @@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Width="130px" Filterable="false" OrderIndex="10">
                     <Template Context="item">
                         <div class="col-12">
-                            @(item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den :
-                                item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den : "Sin estado")
+                            @(item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den :
+                                item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den : "Sin estado")
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
@@ -544,13 +544,13 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -843,12 +843,12 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
                                 ordenCierre.IsCierreVolumen = true;
 
                                 filtro.forFolio = true;
-                                ordenCierre.CodGru = response.Response.FirstOrDefault().CodGru;
-                                ordenCierre.CodCte = response.Response.FirstOrDefault().CodCte;
+                                ordenCierre.CodGru = response.Response.FirstOrDefault()?.CodGru;
+                                ordenCierre.CodCte = response.Response.FirstOrDefault()?.CodCte;
                                 await GetClientes();
-                                ordenCierre.CodDes = response.Response.FirstOrDefault().CodDes;
+                                ordenCierre.CodDes = response.Response.FirstOrDefault()?.CodDes;
                                 await GetEstaciones();
-                                ordenCierre.CodPrd = response.Response.FirstOrDefault().CodPrd;
+                                ordenCierre.CodPrd = response.Response.FirstOrDefault()?.CodPrd;
                                 await GetPrecios();
                                 ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
                                 var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
@@ -901,36 +901,33 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
         try
         {
             SendOrden = true;
-            if (ordenCierre.FchCar > DateTime.Today && ordenCierre.FchLlegada > DateTime.Today)
-            {
-                var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    SendOrden = false;
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(ordenCierre.Folio))
-                    {
-                        Cliente = response.Response;
-                        Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
-                        var userCod = User.Identity?.Name?.Substring(0, 3);
-                        var guid = Guid.NewGuid().ToString().Split("-");
-                        if (!string.IsNullOrEmpty(filtro.Folio))
-                            ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
-                        else
-                            ordenCierre.Folio = $"OP-{userCod}{Cliente.Consecutivo}-{guid[0]}";
-                    }
 
-                    await PutClientes();
-                    await CreateCierre();
-                    SendOrden = false;
-                }
+            var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                SendOrden = false;
             }
             else
-                await Swal.FireAsync("", "La fecha de cara y de llegada no pueden ser la misma fecha del dia actual.", SweetAlertIcon.Warning);
+            {
+                if (string.IsNullOrEmpty(ordenCierre.Folio))
+                {
+                    Cliente = response.Response;
+                    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                    var userCod = User.Identity?.Name?.Substring(0, 3);
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    if (!string.IsNullOrEmpty(filtro.Folio))
+                        ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                    else
+                        ordenCierre.Folio = $"OP-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                }
+
+                await PutClientes();
+                await CreateCierre();
+                SendOrden = false;
+            }
+
             SendOrden = false;
         }
         catch (Exception e)
@@ -1018,17 +1015,17 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                {
-                    Codest = 9,
-                    Codtad = ordenCierre.CodTad,
-                    Codprd = ordenCierre.CodPrd,
-                    Pre = ordenCierre.Precio,
-                    Vol = ordenCierre.Volumen,
-                    Coddes = ordenCierre.CodDes,
-                    Fchpet = DateTime.Now,
-                    Fchcar = ordenCierre.FchCar,
-                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                };
+                    {
+                        Codest = 9,
+                        Codtad = ordenCierre.CodTad,
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Fchcar = ordenCierre.FchCar,
+                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                    };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)
