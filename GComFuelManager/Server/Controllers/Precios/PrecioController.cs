@@ -299,7 +299,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio
                         };
-
+                        
                         var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
                         //&& x.codZona == precio.codZona
                         && x.codCte == precio.codCte
@@ -335,12 +335,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == precio.codZona
                         && x.codCte == precio.codCte
                         && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes);
+                        && x.codDes == precio.codDes
+                        && x.FchDia == precio.FchDia);
 
                         if (p is not null)
                         {
                             p.Pre = precio.Pre;
-                            p.FchDia = precio.FchDia;
                             p.FchActualizacion = DateTime.Now;
 
                             context.Update(p);
@@ -487,8 +487,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     await context.AddRangeAsync(precioHistoricos);
 
                     await context.SaveChangesAsync();
+
+                    context.RemoveRange(precios);
+                    await context.SaveChangesAsync();
                 }
-                return Ok(precios);
+                return Ok(preciosDia);
                 //}
 
                 return NoContent();

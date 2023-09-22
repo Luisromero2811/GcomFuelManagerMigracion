@@ -798,5 +798,30 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("orden/{folio?}")]
+        public async Task<ActionResult> GetOrdens([FromRoute] string? folio)
+        {
+            try
+            {
+                List<Orden> ordenes = new List<Orden>();
+
+                if (!string.IsNullOrEmpty(folio))
+                    ordenes = await context.Orden.Where(x => x.Ref.ToLower().Contains(folio.ToLower()))
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .Include(x => x.Tonel)
+                        .Include(x => x.Chofer)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.OrdenCierre)
+                        .ToListAsync();
+
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
