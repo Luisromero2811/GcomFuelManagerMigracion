@@ -595,7 +595,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Codest == 9 && x.OrdenEmbarque.FchOrd == null
                             && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null && x.OrdenEmbarque.Codprd == item.CodPrd).Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
 
@@ -641,7 +641,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             var VolumenSolicitado = item?.OrdenEmbarque?.Codest == 9 && item.OrdenEmbarque.FchOrd == null &&
                                 item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
                             productoVolumen.Nombre = item.Producto!.Den;
@@ -710,7 +710,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
 
@@ -768,7 +768,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
                             productoVolumen.Nombre = item.Producto?.Den;
@@ -828,7 +828,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var VolumenSolicitado = item?.OrdenEmbarque?.Codest == 9 && item.OrdenEmbarque.FchOrd == null &&
                         item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
 
-                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                     ProductoVolumen productoVolumen = new ProductoVolumen();
                     productoVolumen.Nombre = item?.Producto!.Den;
@@ -908,7 +908,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             && x.OrdenEmbarque.Codprd == item.CodPrd
                             && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Folio == null).Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
 
@@ -953,7 +953,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             var VolumenSolicitado = item?.OrdenEmbarque?.Codest == 9 && item.OrdenEmbarque.FchOrd == null &&
                                 item.OrdenEmbarque.Folio == null && item.OrdenEmbarque.Bolguidid == null ? item.OrdenEmbarque.Vol : 0;
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
                             productoVolumen.Nombre = item.Producto!.Den;
@@ -1022,7 +1022,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
 
@@ -1080,7 +1080,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             && x.OrdenEmbarque.FchOrd is null)
                                 .Sum(x => x.OrdenEmbarque?.Vol);
 
-                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                             ProductoVolumen productoVolumen = new ProductoVolumen();
                             productoVolumen.Nombre = item.Producto?.Den;
@@ -1395,7 +1395,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         && x.OrdenEmbarque?.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
 
-                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                        var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
+                            && x.OrdenEmbarque.FchOrd is not null)
+                                .Sum(x => x.OrdenEmbarque?.Vol);
+
+                        var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
+                        && x.OrdenEmbarque.FchOrd is null)
+                            .Sum(x => x.OrdenEmbarque?.Vol);
+
+                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
                         double? PromedioCargas = 0;
                         var sumVolumen = VolumenConsumido + VolumenCongelado;
                         var sumCount = countCongelado + countConsumido;
@@ -1411,6 +1423,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         productoVolumen.Consumido = VolumenConsumido;
                         productoVolumen.Total = VolumenDisponible;
                         productoVolumen.PromedioCarga = PromedioCargas;
+                        productoVolumen.Solicitud = VolumenSolicitado;
+                        productoVolumen.Programado = VolumenProgramado;
 
                         item.VolumenDisponible?.Productos?.Add(productoVolumen);
 
@@ -1482,19 +1496,31 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                         var VolumenConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
                             && x.OrdenEmbarque?.Orden?.Codest != 14
-                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null)
                             .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
 
                         var countConsumido = pedidos.Where(x => x.OrdenEmbarque?.Folio is not null
                         && x.OrdenEmbarque?.Orden?.Codest != 14
-                        && x.OrdenEmbarque.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
                         && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
 
-                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado);
+                        var VolumenProgramado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                            && x.OrdenEmbarque?.Codprd == item.CodPrd
+                            && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 3
+                            && x.OrdenEmbarque.FchOrd is not null)
+                                .Sum(x => x.OrdenEmbarque?.Vol);
+
+                        var VolumenSolicitado = pedidos.Where(x => x.OrdenEmbarque?.Folio is null
+                        && x.OrdenEmbarque?.Codprd == item.CodPrd
+                        && x.OrdenEmbarque?.Bolguidid is null && x.OrdenEmbarque?.Codest == 9
+                        && x.OrdenEmbarque.FchOrd is null)
+                            .Sum(x => x.OrdenEmbarque?.Vol);
+
+                        var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
                         double? PromedioCargas = 0;
-                        var sumVolumen = VolumenConsumido + VolumenCongelado;
+                        var sumVolumen = VolumenConsumido + VolumenCongelado + VolumenProgramado;
                         var sumCount = countCongelado + countConsumido;
 
                         if (sumVolumen != 0 && sumCount != 0)
@@ -1508,6 +1534,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         productoVolumen.Consumido = VolumenConsumido;
                         productoVolumen.Total = VolumenDisponible;
                         productoVolumen.PromedioCarga = PromedioCargas;
+                        productoVolumen.Solicitud = VolumenSolicitado;
+                        productoVolumen.Programado = VolumenProgramado;
 
                         item.VolumenDisponible?.Productos?.Add(productoVolumen);
 

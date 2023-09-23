@@ -9,30 +9,46 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
-    <div class="col-12 d-flex">
-        <div class="col-3">
-            <InputText class="form-control" @bind-Value="@folio"/>
+    <div class="col-12 row">
+        <div class="col-1 d-flex justify-content-end">
+            <p class="my-auto">ENER-</p>
         </div>
-        <div class="col-12 mt-auto">
-            <button class="col-12 btn gcom-bg-amarillo px-0">
+        <div class="col-3 row">
+            <InputText class="form-control" @bind-Value="@folio" />
+        </div>
+        <div class="col-3">
+            <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
                 <i class="fa fa-solid fa-magnifying-glass"></i>
             </button>
         </div>
     </div>
 
     <div class="col-12 d-flex justify-content-center row">
-        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
+        <div class="col-12 my-2">
+            <div class="col-3">
+                <button class="btn gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
+                    <i class="fa fa-solid fa-repeat"></i> Actualizar ordenes
+                </button>
+            </div>
+        </div>
+        <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
                 <Authorized>*@
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
                             <Authorized>
                                 <div class="col">
-                                    <button class="btn btn-danger col-12"><i class="fa fa-solid fa-cancel"></i></button>
+                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>ActualizarOrden(item))" disabled="@loadingUpdate">
+                                        <i class="fa fa-solid fa-repeat"></i>
+                                        @if (loadingUpdate)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
                                 </div>
                             </Authorized>
                         </AuthorizeView>
@@ -40,36 +56,29 @@
                 </RadzenDataGridColumn>
                 @*</Authorized>
                 </AuthorizeView>*@
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Width="300px" OrderIndex="5" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="280px" OrderIndex="6" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="Folio" Width="110px" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="300px" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="280px" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
 
                     <Template Context="item">
                         <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                            item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                            : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                            : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                            : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                            : item?.Volumen
-                            )
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", item?.Orden != null ? item?.Orden?.Vol : item?.Vol )
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Width="130px" Filterable="false" OrderIndex="10">
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px"  Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estado" Width="130px" Filterable="false">
                     <Template Context="item">
                         <div class="col-12">
-                            @(item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den :
-                                item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den : "Sin estado")
+                            @(item?.Orden != null ? item.Orden.Estado?.den :
+                                item?.Estado != null ? item?.Estado?.den : "Sin estado")
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Property="Tonel.Veh" Width="300px" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimento" Property="compartment" Width="300px" Filterable="false" />
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -83,12 +92,12 @@
 @code {
 
     //grid
-    private RadzenDataGrid<OrdenCierre> gridOC = new RadzenDataGrid<OrdenCierre>();
+    private RadzenDataGrid<OrdenEmbarque> gridOC = new RadzenDataGrid<OrdenEmbarque>();
 
     private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
     private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
 
-    private List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
+    private List<Orden> ordenCierres { get; set; } = new List<Orden>();
     private OrdenCierre ordenCierre { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
 
     private float Precio = 0;
@@ -96,6 +105,7 @@
     private string folio { get; set; } = string.Empty;
 
     bool loading = false;
+    bool loadingUpdate = false;
 
     private Cliente Cliente { get; set; } = new Cliente();
     private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
@@ -140,7 +150,7 @@
         }
     }
 
-    
+
 
     private async Task PutClientes()
     {
@@ -212,10 +222,93 @@
     {
         try
         {
-
+            var response = await http.Get<List<OrdenEmbarque>>($"api/pedido/orden/{folio}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = response.Response;
+            }
         }
         catch (Exception e)
         {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ActualizarOrden(OrdenEmbarque orden)
+    {
+        try
+        {
+            loadingUpdate = true;
+            var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/services/updates", orden);
+            if (response.Error)
+            {
+                loadingUpdate = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingUpdate = false;
+                if (response.Response is null)
+                    return;
+
+                //var index = ordens.IndexOf(ordens.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                //ordens.RemoveAt(index);
+                //ordens.Insert(index, response.Response);
+                await BuscarOrdenes();
+                await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+
+                //gridOC?.Reload();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ActualizarOrdenes()
+    {
+        try
+        {
+            loadingUpdate = true;
+            foreach (var item in ordens)
+            {
+                loadingUpdate = true;
+                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/services/updates", item);
+                if (response.Error)
+                {
+                    loadingUpdate = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    if (response.Response is null)
+                        return;
+
+                    //var index = ordens.IndexOf(ordens.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                    //ordens.RemoveAt(index);
+                    //ordens.Insert(index, response.Response);
+
+                    //gridOC?.Reload();
+                    await BuscarOrdenes();
+                }
+            }
+            await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+            loadingUpdate = false;
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
