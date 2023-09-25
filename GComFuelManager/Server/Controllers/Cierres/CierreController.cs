@@ -1219,7 +1219,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
 
                 if (!filtro.forFolio)
-                    folios = await context.OrdenCierre.Where(
+                    folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(
                 x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                 && !string.IsNullOrEmpty(x.Folio)
                 && x.Activa == true
@@ -1244,7 +1244,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 else
                 {
                     if (filtro.codCte != null && filtro.codGru != null)
-                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                        folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte ||
                     x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                     && !string.IsNullOrEmpty(x.Folio)
@@ -1263,7 +1263,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         })
                         .ToListAsync();
                     else if (filtro.codGru != null)
-                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                        folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
                     x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                     && !string.IsNullOrEmpty(x.Folio)
@@ -1282,7 +1282,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     })
                     .ToListAsync();
                     else
-                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                        folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true ||
                     x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                     && !string.IsNullOrEmpty(x.Folio)

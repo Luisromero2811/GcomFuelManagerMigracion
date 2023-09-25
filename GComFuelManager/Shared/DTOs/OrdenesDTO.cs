@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace GComFuelManager.Shared.DTOs
         public string Transportista { get; set; } = string.Empty;
         public string Unidad { get; set; } = string.Empty;
         public string Operador { get; set; } = string.Empty;
+       
     }
 }
 

@@ -101,18 +101,54 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Producto</label>
-                            <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
-                                <Template Context="data">
-                                    @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                    <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+                            @if (ordenCierre.IsAutoPrecio)
+                            {
+                                <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
+                                    <Template Context="data">
+                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                        <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
 
-                                </Template>
-                                <ValueTemplate Context="data">
-                                    @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                </ValueTemplate>
-                            </RadzenDropDown>
+                                    </Template>
+                                    <ValueTemplate Context="data">
+                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                    </ValueTemplate>
+                                </RadzenDropDown>
+                            }
+                            else
+                            {
+                                <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select">
+                                    <option>-- Selecciona una Opcion --</option>
+                                    @if (Productos is null)
+                                    {
+                                        <option disabled> Cargando ...</option>
+                                    }
+                                    else if (Productos.Count == 0)
+                                    {
+                                        <option disabled> No hay productos </option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Productos)
+                                        {
+                                            <option value="@item.Cod">@item.Den</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            }
+                            @*<RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
+                                    <Template Context="data">
+                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                        <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+
+                                    </Template>
+                                    <ValueTemplate Context="data">
+                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                    </ValueTemplate>
+                                </RadzenDropDown>*@
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentVol)
@@ -204,28 +240,46 @@
                     }
                     @if (ordenCierre.IsDifferentTurn)
                     {
-                            <div class="col-2 mb-1">
-                                <div class="col-12">
-                                    <label class="form-label">Turno</label>
-                                    <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno"/>
-                                </div>
-                            </div>
-                    }
-                        <div class="col-2 mb-1 d-flex">
-                            <div class="col-12 my-auto d-flex">
-                                <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentTurn Name="CheckBox2" class="me-2"/>
-                                <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipTurno(infoIconVolumen))" @ref="infoIconVolumen">
-                                    <label class="form-label" for="CheckBox2">
-                                        Turno Libre <i class="fa-solid fa-circle-info fa-xs"></i>
-                                    </label>
-                                </div>
+                        <div class="col-2 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Turno</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
                             </div>
                         </div>
+                    }
+                    <div class="col-2 mb-1 d-flex">
+                        <div class="col-12 my-auto d-flex">
+                            <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentTurn Name="CheckBox2" class="me-2" />
+                            <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipTurno(infoIconVolumen))" @ref="infoIconVolumen">
+                                <label class="form-label" for="CheckBox2">
+                                    Turno Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="col-4 mb-1">
                         <div class="col-12">
-                            <label>Precio</label>
-                            <InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>
+                            @if (ordenCierre.IsAutoPrecio)
+                            {
+                                <div>
+                                    <label>
+                                        Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                    </label>
+                                </div>
+                                <RadzenNumeric class="form-control col-12" @bind-Value="ordenCierre.Precio" Disabled="true" TValue="double" />
+                            }
+                            else
+                            {
+                                <div class="col-12 row p-0">
+                                    <label>
+                                        Precio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                    </label>
+                                </div>
+                                <InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio"></InputNumber>
+                            }
+
+                            @*<InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>*@
                         </div>
                     </div>
                     @if (!isFolio || ordenCierre.IsCierreVolumen)
@@ -411,7 +465,7 @@
     private List<CodDenDTO> Clientes { get; set; } = null!;
     private List<CodDenDTO> Estaciones { get; set; } = null!;
     private List<Precio> Precios { get; set; } = null!;
-    private List<Producto> Productos { get; set; } = null!;
+    private List<Producto> Productos { get; set; } = new List<Producto>();
     private List<Precio> ProductosDisponibles { get; set; } = null!;
     private IEnumerable<CodDenDTO> Destino { get; set; } = null!;
     private List<int> Cantidades { get; set; } = null!;
@@ -463,6 +517,7 @@
         await GetTerminales();
         await GetGrupos();
         await GetCantidades();
+        await GetProductos();
 
         var cm = await js.GetItemLocalStorage("CloseMenu");
         if (!string.IsNullOrEmpty(cm))
@@ -619,6 +674,27 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
             else
             {
                 Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<Producto>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Productos = response.Response;
             }
         }
         catch (Exception e)

@@ -25,10 +25,12 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codprd")]
         public byte? Codprd { get; set; } = 0; //PK
 
+        //VOL
         [JsonProperty("vol"), EpplusIgnore]
         public double? Vol { get; set; } = null!;
         //[JsonProperty("Volumen Cargado")]
-        //public string Vols { get { return Vol.Value.ToString("N2"); } }
+        [NotMapped]
+        public string Vols { get { return Vol != null ? Vol?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
@@ -48,7 +50,8 @@ namespace GComFuelManager.Shared.Modelos
         public int? Codprd2 { get; set; } = 0;
         [JsonProperty("dendes"), MaxLength(256)]
         public string? Dendes { get; set; } = string.Empty;
-        //Double Formatter
+
+        //VOL2
         [JsonProperty("vol2"), EpplusIgnore]
         public double? Vol2 { get; set; } = null!;
         //[JsonProperty("Volumen Natural")]
@@ -75,6 +78,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdEmbDet? OrdEmbDet { get; set; } = null!;
         [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         public int? Folio { get; set; } = 0;
-
+        [NotMapped] public int? Compartimento { get; set; } = null!;
     }
 }
