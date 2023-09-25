@@ -72,11 +72,11 @@
                                                         </Template>
                                                     </RadzenMenuItem>
                                                 </AuthorizeView>
-                                               
+
                                             </ChildContent>
                                         </RadzenMenuItem>
                                     </AuthorizeView>
-                         
+
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
                                         <RadzenMenuItem>
                                             <Template>
@@ -147,7 +147,7 @@
                                                 </div>
                                             </Template>
                                         </RadzenMenuItem>
-                                      
+
                                     </AuthorizeView>
                                 </ChildContent>
                             </RadzenMenuItem>
@@ -255,7 +255,7 @@
                                         </RadzenMenuItem>
                                     </AuthorizeView>
 
-                                  
+
 
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
                                         <RadzenMenuItem Path="confirm-ordenes" class="gcom-bg-rojo col-12">
@@ -308,6 +308,16 @@
                                                 </div>
                                             </Template>
                                         </RadzenMenuItem>
+                                    </AuthorizeView>
+
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+                                        <RadzenPanelMenuItem Path="actualizar/pedidos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-repeat" aria-hidden="true"></i> Actualizar ordenes
+                                                </div>
+                                            </Template>
+                                        </RadzenPanelMenuItem>
                                     </AuthorizeView>
                                 </ChildContent>
                             </RadzenMenuItem>

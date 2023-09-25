@@ -262,6 +262,8 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 4)
                 {
                     //Ordenes canceladas
+                    List<Orden> ordenesCanceladas = new List<Orden>();
+
                     var pedidosDate = await context.Orden
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 14)
                         .Include(x => x.Destino)
@@ -274,7 +276,44 @@ namespace GComFuelManager.Server.Controllers
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
                         .ToListAsync();
-                    return Ok(pedidosDate);
+
+                    if (pedidosDate is not null)
+                        ordenesCanceladas.AddRange(pedidosDate);
+
+                    var ordenes = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 14 && x.Bolguidid != null)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Estado)
+                    //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
+                    .Select(o => new Orden()
+                    {
+                        Cod = o.Cod,
+                        Ref = "ENER-" + o.Folio.ToString(),
+                        //Ref = o.ref
+                        Fchcar = o.Fchcar,
+                        Estado = o.Estado,
+                        Destino = o.Destino,
+                        Producto = o.Producto,
+                        Vol2 = o.Vol,
+                        Vol = null!,
+                        Bolguiid = null!,
+                        BatchId = null!,
+                        Tonel = o.Tonel,
+                        Chofer = o.Chofer
+                    })
+                    .OrderBy(x => x.Fchcar)
+                    .Take(10000)
+                    .ToListAsync();
+                    if (ordenes is not null)
+                        ordenesCanceladas.AddRange(ordenes);
+
+                    return Ok(ordenes);
                 }
                 else
                 {
@@ -738,6 +777,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                return Ok(true);
+
                 if (orden == null)
                     return BadRequest();
 
@@ -807,20 +848,22 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("orden/{folio?}")]
-        public async Task<ActionResult> GetOrdens([FromRoute] string? folio)
+        public async Task<ActionResult> GetOrdens([FromRoute] int? folio)
         {
             try
             {
-                List<Orden> ordenes = new List<Orden>();
+                List<OrdenEmbarque> ordenes = new List<OrdenEmbarque>();
 
-                if (!string.IsNullOrEmpty(folio))
-                    ordenes = await context.Orden.Where(x => x.Ref.ToLower().Contains(folio.ToLower()))
+                if (folio != null && folio != 0)
+                    ordenes = await context.OrdenEmbarque.Where(x => x.Folio == folio)
                         .Include(x => x.Producto)
+                        .Include(x => x.Estado)
                         .Include(x => x.Destino)
                         .Include(x => x.Tonel)
                         .Include(x => x.Chofer)
-                        .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.OrdenCierre)
+                        .Include(x => x.OrdenCierre)
+                        .Include(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
                         .ToListAsync();
 
                 return Ok(ordenes);
