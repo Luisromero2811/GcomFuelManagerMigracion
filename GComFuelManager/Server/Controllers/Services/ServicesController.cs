@@ -1205,10 +1205,17 @@ namespace GComFuelManager.Server.Controllers.Services
                                 orden.Orden.Codest = 14;
                         }
 
+                        if (item.BolStatus.Value == 34)
+                        {
+                            orden.Codest = 22;
+                            if (orden.Orden != null)
+                                orden.Orden.Codest = 22;
+                        }
+
                         orden.Orden = null!;
                         orden.Destino = null!;
                         orden.Estado = null!;
-                        orden.Producto = null!;
+                        orden.Producto = null!; 
                         orden.Cliente = null!;
                         orden.Chofer = null!;
                         orden.Tonel = null!;

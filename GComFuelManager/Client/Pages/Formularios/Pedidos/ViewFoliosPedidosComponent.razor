@@ -102,6 +102,8 @@
 </RadzenDataGrid>
 
 @code {
+    [Parameter] public bool isStatus { get; set; } = false;
+
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
     private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
@@ -116,7 +118,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetFoliosPedidoActivos();
+        if (!isStatus)
+            await GetFoliosPedidoActivos();
         await GetGrupos();
     }
 
@@ -176,17 +179,35 @@
         {
             loading = true;
             fechas.forFolio = forFolio;
-            var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle", fechas);
-            if (response.Error)
+            if (!isStatus)
             {
-                loading = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle", fechas);
+                if (response.Error)
+                {
+                    loading = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Folios = response.Response;
+                    loading = false;
+                }
             }
-            else
+            else if (isStatus)
             {
-                Folios = response.Response;
-                loading = false;
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle/status", fechas);
+                if (response.Error)
+                {
+                    loading = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Folios = response.Response;
+                    loading = false;
+                }
             }
         }
         catch (Exception e)

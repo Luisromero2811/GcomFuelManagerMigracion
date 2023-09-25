@@ -53,6 +53,8 @@
                                 <div class="col-12">
                                     <p><b>Total:</b> @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Total)</p>
                                     <p><b class="text-success">Disponible:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible)</p>
+                                    <p><b class="text-secondary">Solicitado:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Solicitud)</p>
+                                    <p><b class="text-secondary">Programado:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Programado)</p>
                                     <p><b class="text-primary">En espera de carga:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Congelado)</p>
                                     <p><b class="text-warning">Cargado:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Consumido)</p>
                                     <p><b class="text-danger">Promedio de carga:</b>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga)</p>
