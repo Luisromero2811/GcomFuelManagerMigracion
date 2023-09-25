@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
+using Radzen.Blazor.Rendering;
 //using ServiceReference7;
 using ServiceReference2;
 using System.Diagnostics;
@@ -269,7 +270,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                 item.Chofer = null!;
                                 item.Destino = null!;
-                                item.Estado = null!; 
+                                item.Estado = null!;
                                 item.Orden = null!;
                                 item.OrdenCierre = null!;
                                 item.OrdenCompra = null!;
@@ -285,7 +286,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     Debug.WriteLine(JsonConvert.SerializeObject(ordenesEmbarque));
 
                     context.UpdateRange(ordenesEmbarque);
-                    
+
                     var id = await verify.GetId(HttpContext, userManager);
                     if (string.IsNullOrEmpty(id))
                         return BadRequest();
@@ -928,7 +929,7 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion#
 
-        #region Simulacion Cargadas#
+        #region Simulacion Cargadas
         [HttpGet]
         [Route("simulacion/cargadas")]
         public async Task<ActionResult> SimulacionObtener()
@@ -1033,12 +1034,14 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
-        #region obtencion de ordenes cargadas
-        [HttpGet("updates")]
-        public async Task<ActionResult> GetOrdenesModificadas()
+        #region actualizar ordenes
+        [HttpPost("updates")]
+        public async Task<ActionResult> GetOrdenesModificadas([FromBody] OrdenEmbarque orden)
         {
             try
             {
+                //34 schedule - 29 rejected
+                Orden OldOrden = new Orden();
                 BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
@@ -1047,7 +1050,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
                 WsGetBillOfLadingRequest request = new WsGetBillOfLadingRequest();
 
-                request.BolGuidId = "0fdbd8f5-3932-4bce-8ac0-63234049db77";
+                if (orden is null)
+                    return BadRequest("No tiene una orden asociada");
+
+                if (string.IsNullOrEmpty(orden.Bolguidid))
+                    return BadRequest("Sin bolguid");
+
+                request.BolGuidId = orden.Bolguidid;
 
                 var respuesta = await client.GetBillOfLadingAsync(request);
 
@@ -1058,126 +1067,177 @@ namespace GComFuelManager.Server.Controllers.Services
                 {
                     foreach (var item in respuesta.BillOfLadings)
                     {
+                        //desactivo las ordenes pasadas y creo las nuevas
+                        //el primer item de los line items es la orden seleccionada
+
                         Debug.WriteLine(item.CustomerReference);
+
+                        orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
+                        var des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
+                        if (des is not null)
+                        {
+                            orden.Coddes = des.Cod;
+                            //orden.Dendes = des.Den?.Replace("'", "");
+                        }
+                        else
+                        {
+                            des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
+                            orden.Coddes = des.Cod;
+                            //orden.Orden.Dendes = des.Den?.Replace("'", "");
+                        }
+
+                        var prdO = context.Producto.FirstOrDefault(x => x.Codsyn == item.LineItems.First().OrderedProduct.ProductId.Id.Value.ToString());
+                        if (prdO is null) return BadRequest($"No existe el producto {item.LineItems.First().OrderedProduct.ProductName}.");
+                        orden.Codprd = prdO.Cod;
+
+                        orden.Codchf = Convert.ToInt32(item.Driver.DriverId.Id.Value.ToString());
+
+                        orden.Codton = Convert.ToInt32(item.LineItems.First().TrailerId);
+                        var tonelO = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Codton && x.Activo == true);
+                        if (tonelO is null)
+                        {
+                            orden.Codton = 0;
+                            tonelO = new Tonel() { Carid = string.Empty };
+                        }
+                        else
+                            //if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
+                            orden.Codton = tonelO.Cod;
+
+                        var tranO = context.Transportista.FirstOrDefault(x => x.CarrId == tonelO.Carid);
+                        if (tranO is null)
+                            tranO = new Transportista() { Busentid = "0" };
+
+                        //if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+
+                        var choO = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchf.ToString() && x.Codtransport == Convert.ToInt32(tranO.Busentid));
+                        if (choO is null)
+                            orden.Codchf = 0;
+                        else
+                            //if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
+
+                            orden.Codchf = choO.Cod;
+
+                        orden.Vol = Convert.ToDouble(item.LineItems.First().CustomerOrderQuantity.Value);
+                        orden.Fchcar = item.LineItems.First().EndLoadTime.Value;
+
+                        if (orden.Orden != null)
+                        {
+                            orden.Orden.Ref = item.CustomerReference;
+                            orden.Orden.Codchfsyn = item.Driver.DriverId.Id.Value;
+                            orden.Orden.Bolguiid = item.BolGuidId;
+                            orden.Orden.Dendes = item.Destination.DestinationName;
+                            orden.Orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
+
+                            if (item.SealNumber is not null)
+                            {
+                                foreach (var seal in item.SealNumber)
+                                {
+                                    orden.Orden.SealNumber += seal + ",";
+                                    orden.Orden.SealNumber = orden.Orden.SealNumber.Trim();
+                                }
+                                orden.Orden.SealNumber = orden.Orden.SealNumber?.Replace("\t", "");
+                                orden.Orden.SealNumber = orden.Orden.SealNumber?.Trim(',');
+                            }
+
+                            orden.Orden.Liniteid = item.LineItems.First().BolLineItemId.Id.Value;
+                            if (context.Orden.Any(x => x.Liniteid == orden.Orden.Liniteid))
+                            {
+                                orden.Orden.CompartmentId = Convert.ToInt32(item.LineItems.First().CompartmentId.Value);
+                                orden.Orden.Codprdsyn = item.LineItems.First().OrderedProduct.ProductId.Id.Value;
+                                orden.Orden.Vol = Convert.ToDouble(item.LineItems.First().BaseNetQuantity.Value);
+                                orden.Orden.Fchcar = item.LineItems.First().EndLoadTime.Value;
+                                orden.Orden.Coduni = Convert.ToInt32(item.LineItems.First().TrailerId);
+                                orden.Orden.Codprd2syn = item.LineItems.First().BaseProduct.ProductId.Id.Value;
+                                orden.Orden.Vol2 = Convert.ToDouble(item.LineItems.First().BaseGrossQuantity.Value);
+
+                                foreach (var cfi in item.LineItems.First().CustomFieldInstances)
+                                {
+                                    if (cfi.CustomFieldMetaData.Name.Equals("tm_batch_id"))
+                                        orden.Orden.BatchId = Convert.ToInt32(cfi.FieldStringValue);
+                                    else if (cfi.CustomFieldMetaData.Name.Equals(".ExternalOrderId"))
+                                        orden.Orden.Ref = cfi.FieldStringValue;
+                                }
+
+                                var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Orden.Coduni && x.Activo == true);
+                                if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Orden.Coduni}");
+                                orden.Orden.Coduni = tonel.Cod;
+
+                                var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                                if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
+
+                                var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
+                                if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Orden.Codchfsyn}. transportista: {tran.Den} - {tran.Busentid}");
+                                orden.Codchf = cho.Cod;
+
+                                var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Orden.Codprdsyn.ToString());
+                                if (prd is null) return BadRequest($"No existe el producto {item.LineItems.First().OrderedProduct.ProductName}.");
+                                orden.Orden.Codprd = prd.Cod;
+
+                                var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Orden.Codprd2syn.ToString());
+                                if (prd2 is null) return BadRequest($"No existe el producto {item.LineItems.First().BaseProduct.ProductName}.");
+
+                                orden.Orden.Codprd2 = prd2.Cod;
+
+                                orden.Orden.Fch = DateTime.Now;
+                                orden.Orden.Codest = 20;
+
+                                string[] refs = orden.Orden.Ref.Split("-");
+                                string[] folio = refs[1].Split("_");
+                                if (!string.IsNullOrEmpty(folio[0]))
+                                    orden.Folio = int.Parse(folio[0]);
+                                else
+                                    orden.Folio = 0;
+
+                                if (orden.Codchf != 0 && orden.Codprd != 0 && orden.Orden.Codprd2 != 0 && orden.Orden.Coduni != 0)
+                                {
+                                    OldOrden = orden.Orden;
+                                    context.Update(orden.Orden);
+                                }
+
+                            }
+                        }
+
+                        //if (item.BolStatus.Value == 34)
+                        if (item.BolStatus.Value == 29)
+                        {
+                            orden.Codest = 14;
+                            if (orden.Orden != null)
+                                orden.Orden.Codest = 14;
+                        }
+
+                        orden.Orden = null!;
+                        orden.Destino = null!;
+                        orden.Estado = null!;
+                        orden.Producto = null!;
+                        orden.Cliente = null!;
+                        orden.Chofer = null!;
+                        orden.Tonel = null!;
+                        orden.Tad = null!;
+                        orden.OrdenCierre = null!;
+                        context.Update(orden);
+
+                        var id = await verify.GetId(HttpContext, userManager);
+                        if (string.IsNullOrEmpty(id))
+                            return BadRequest();
+
+                        await context.SaveChangesAsync(id, 33);
                     }
-                    //var BOL = respuesta.BillOfLadings;
-                    //foreach (var item in BOL)
-                    //{
-                    //    Orden orden = new Orden();
-
-                    //    orden.Ref = item.CustomerReference;
-                    //    orden.Codchfsyn = item.Driver.DriverId.Id.Value;
-                    //    orden.Bolguiid = item.BolGuidId;
-                    //    orden.Dendes = item.Destination.DestinationName;
-                    //    orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
-
-                    //    if (item.SealNumber is not null)
-                    //    {
-                    //        foreach (var seal in item.SealNumber)
-                    //        {
-                    //            orden.SealNumber += seal + ",";
-                    //            orden.SealNumber = orden.SealNumber.Trim();
-                    //        }
-                    //        orden.SealNumber = orden.SealNumber?.Replace("\t", "");
-                    //        orden.SealNumber = orden.SealNumber?.Trim(',');
-                    //    }
-
-                    //    foreach (var line in item.LineItems)
-                    //    {
-                    //        if (line.BaseGravity is not null)
-                    //        {
-                    //            orden.Liniteid = line.BolLineItemId.Id.Value;
-                    //            if (!context.Orden.Any(x => x.Liniteid == orden.Liniteid))
-                    //            {
-                    //                orden.CompartmentId = Convert.ToInt32(line.CompartmentId.Value);
-                    //                orden.Codprdsyn = line.OrderedProduct.ProductId.Id.Value;
-                    //                orden.Vol = Convert.ToDouble(line.BaseNetQuantity.Value);
-                    //                orden.Fchcar = line.EndLoadTime.Value;
-                    //                orden.Coduni = Convert.ToInt32(line.TrailerId);
-                    //                orden.Codprd2syn = line.BaseProduct.ProductId.Id.Value;
-                    //                orden.Vol2 = Convert.ToDouble(line.BaseGrossQuantity.Value);
-
-                    //                var des = context.Destino.FirstOrDefault(x => x.Codsyn == line.Destination.DestinationId.Id.Value.ToString());
-                    //                if (des is not null)
-                    //                {
-                    //                    orden.Coddes = des.Cod;
-                    //                    orden.Dendes = des.Den?.Replace("'", "");
-                    //                }
-                    //                else
-                    //                {
-                    //                    des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
-                    //                    orden.Coddes = des.Cod;
-                    //                    orden.Dendes = des.Den?.Replace("'", "");
-                    //                }
-
-                    //                foreach (var cfi in line.CustomFieldInstances)
-                    //                {
-                    //                    if (cfi.CustomFieldMetaData.Name.Equals("tm_batch_id"))
-                    //                        orden.BatchId = Convert.ToInt32(cfi.FieldStringValue);
-                    //                    else if (cfi.CustomFieldMetaData.Name.Equals(".ExternalOrderId"))
-                    //                        orden.Ref = cfi.FieldStringValue;
-                    //                }
-
-                    //                var tonel = context.Tonel.FirstOrDefault(x => x.Codsyn == orden.Coduni && x.Activo == true);
-                    //                if (tonel is null)
-                    //                {
-                    //                    orden.Coduni = 0;
-                    //                    tonel = new Tonel() { Carid = string.Empty };
-                    //                }
-                    //                else
-                    //                    //if (tonel is null) return BadRequest($"No existe el tonel. Codigo synthesis: {orden.Coduni}");
-
-                    //                    orden.Coduni = tonel.Cod;
-
-                    //                var tran = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
-                    //                if (tran is null)
-                    //                    tran = new Transportista() { Busentid = "0" };
-
-                    //                //if (tran is null) return BadRequest($"No existe el transportista. Carid transportista: {tonel.Carid}");
-
-                    //                var cho = context.Chofer.FirstOrDefault(x => x.Dricod == orden.Codchfsyn.ToString() && x.Codtransport == Convert.ToInt32(tran.Busentid));
-                    //                if (cho is null)
-                    //                    orden.Codchf = 0;
-                    //                else
-                    //                    //if (cho is null) return BadRequest($"No existe el chofer. Dricod chofer: {orden.Codchfsyn}. transportista: {tran.Busentid}");
-
-                    //                    orden.Codchf = cho.Cod;
-
-                    //                var prd = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprdsyn.ToString());
-                    //                if (prd is null)
-                    //                    orden.Codprd = 0;
-                    //                else
-                    //                    //if (prd is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprdsyn}");
-
-                    //                    orden.Codprd = prd.Cod;
-
-                    //                var prd2 = context.Producto.FirstOrDefault(x => x.Codsyn == orden.Codprd2syn.ToString());
-                    //                if (prd2 is null)
-                    //                    orden.Codprd2 = 0;
-                    //                else
-                    //                    //if (prd2 is null) return BadRequest($"No existe el producto. Codigo synthesis: {orden.Codprd2syn}");
-
-                    //                    orden.Codprd2 = prd2.Cod;
-
-                    //                orden.Fch = DateTime.Now;
-                    //                orden.Codest = 20;
-
-                    //                string[] refs = orden.Ref.Split("-");
-                    //                string[] folio = refs[1].Split("_");
-                    //                if (!string.IsNullOrEmpty(folio[0]))
-                    //                    orden.Folio = int.Parse(folio[0]);
-                    //                else
-                    //                    orden.Folio = 0;
-
-                    //                if (orden.Codchf != 0 && orden.Codprd != 0 && orden.Codprd2 != 0 && orden.Coduni != 0)
-                    //                    context.Add(orden);
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    //await context.SaveChangesAsync();
                 }
-                return Ok();
+
+                var NewOrden = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Tonel)
+                    .Include(x => x.OrdenCierre)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Orden)
+                    .ThenInclude(x => x.Estado)
+                    .FirstOrDefaultAsync();
+
+                return Ok(NewOrden);
 
             }
             catch (Exception e)
