@@ -88,7 +88,7 @@
                             @(Convert.ToDouble(item.Vol).ToString("N"))
                         </td>
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @(Convert.ToDouble(item.Pre).ToString("N"))
+                            @(Convert.ToDouble(item.Pre).ToString("N4"))
                         </td>
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
                             @((Convert.ToDouble(item.Vol) * item.Pre)?.ToString("N"))
