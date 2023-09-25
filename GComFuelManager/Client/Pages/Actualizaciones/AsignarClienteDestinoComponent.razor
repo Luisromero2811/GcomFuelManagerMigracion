@@ -4,7 +4,7 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial")]
 
 <RadzenTabs>
     <Tabs>
@@ -21,12 +21,12 @@
                 <AsignarZonaComponent />
             </RadzenTabsItem>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes" Context="Contactos">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="Contactos">
             <RadzenTabsItem Text="Asignar Contacto">
                 <AsignarContactoComponent />
             </RadzenTabsItem>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
             <RadzenTabsItem Text="Asignar Codigo de Folio">
                 <AsignarClienteCodigoComponent/>
             </RadzenTabsItem>

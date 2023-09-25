@@ -190,7 +190,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -209,6 +209,7 @@ namespace GComFuelManager.Server.Controllers
                         Estado = o.Estado,
                         Destino = o.Destino,
                         Producto = o.Producto,
+                        //Vol2 = o.Compartment == 1 ? o.Tonel?.Capcom : o.Compartment == 2 ? o.Tonel?.Capcom2 : o.Compartment == 3 ? o.Tonel?.Capcom3 : o.Compartment == 4 ? o?.Tonel?.Capcom4 : o.Vol,
                         Vol2 = o.Vol,
                         Vol = null!,
                         Bolguiid = null!,
@@ -358,7 +359,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 List<Orden> Ordenes = new List<Orden>();
                 var pedidosDate = await context.OrdenEmbarque
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true)
+                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
                 .Include(x => x.Destino)
                 .ThenInclude(x => x.Cliente)
                 .Include(x => x.Tad)

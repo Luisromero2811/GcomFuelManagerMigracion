@@ -124,7 +124,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 }
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd))
+                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.codZona == precio.codZona))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precio);
@@ -414,7 +414,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Producto)
                     .Include(x => x.Zona)
                     .OrderBy(x => x.FchDia)
-                    .Take(1000)
+                    .Take(10000)
                     .ToListAsync();
                 return Ok(precios);
             }
@@ -552,7 +552,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     context.Update(precioPro);
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.FchDia == precio.FchDia))
+                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.FchDia == precio.FchDia && x.codZona == precio.codZona))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precioPro);

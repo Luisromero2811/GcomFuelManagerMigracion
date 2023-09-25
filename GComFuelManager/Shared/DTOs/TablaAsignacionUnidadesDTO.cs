@@ -30,6 +30,9 @@ namespace GComFuelManager.Shared.DTOs
         public int? Compartimento { get; set; } = 0;
         public string? Operador { get; set; } = string.Empty;
         public int? Bin { get; set; } = 0;
+        [DisplayName("Fecha estimada")]
+        public string? Fecha { get; set; } = string.Empty;
+        public string? Turno { get; set; } = string.Empty;
         //public string? Status { get; set; } = string.Empty;
     }
 }

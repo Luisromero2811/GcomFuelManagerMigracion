@@ -683,6 +683,8 @@
                             Compartimento = item?.Compartment,
                             Operador = item?.Chofer?.Den,
                             Bin = item?.Bin,
+                            Fecha = item?.OrdenCierre!.FechaLlegada,
+                            Turno = item?.OrdenCierre!.Turno
                             //Status = item?.Estado?.den
                         });
                 }
@@ -694,7 +696,7 @@
 
                 //Formación de Excel
 
-                var header = worksheet.Cells["A1:L1"];
+                var header = worksheet.Cells["A1:N1"];
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<TablaAsignacionUnidadesDTO>(asignacionUnidadesDTO, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -704,7 +706,7 @@
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
                 //Guardado de Excel
-                await js.GuardarComo($"AsignacionUnidades_{DateTime.Today.ToString("dd/MM/yyyy")}.xlsx", excel.GetAsByteArray());
+                await js.GuardarComo($"AsignacionUnidades_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
                 asignacionUnidadesDTO.Clear();
             }
             else
