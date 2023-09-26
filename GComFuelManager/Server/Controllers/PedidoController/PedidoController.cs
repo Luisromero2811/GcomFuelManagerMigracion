@@ -199,6 +199,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x => x.Orden)
                     //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
                     .Select(o => new Orden()
                     {
@@ -210,12 +211,13 @@ namespace GComFuelManager.Server.Controllers
                         Destino = o.Destino,
                         Producto = o.Producto,
                         //Vol2 = o.Compartment == 1 ? o.Tonel?.Capcom : o.Compartment == 2 ? o.Tonel?.Capcom2 : o.Compartment == 3 ? o.Tonel?.Capcom3 : o.Compartment == 4 ? o?.Tonel?.Capcom4 : o.Vol,
-                        Vol2 = o.Vol,
-                        Vol = null!,
+                        Vol2 = null!,
+                        Vol = o.Vol,
                         Bolguiid = null!,
                         BatchId = null!,
                         Tonel = o.Tonel,
-                        Chofer = o.Chofer
+                        Chofer = o.Chofer,
+                        Compartimento = o.Compartment
                     })
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
@@ -234,6 +236,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Chofer)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenEmbarque)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
@@ -376,12 +379,13 @@ namespace GComFuelManager.Server.Controllers
                     Estado = o.Estado,
                     Destino = o.Destino,
                     Producto = o.Producto,
-                    Vol2 = o.Vol,
-                    Vol = null!,
+                    Vol2 = null!,
+                    Vol = o.Vol,
                     Bolguiid = null!,
                     BatchId = null!,
                     Tonel = o.Tonel,
-                    Chofer = o.Chofer
+                    Chofer = o.Chofer,
+                    Compartimento = o.Compartment
                 })
                 .OrderBy(x => x.Fchcar)
                 .Take(10000)
@@ -396,6 +400,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Chofer)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenEmbarque)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
@@ -410,6 +415,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Estado)
                     .Include(x => x.Chofer)
+                    .Include(x => x.OrdenEmbarque)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
@@ -424,6 +430,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Estado)
                     .Include(x => x.Chofer)
+                    .Include(x => x.OrdenEmbarque)
                     .Take(10000)
                     .ToListAsync();
                 Ordenes.AddRange(pedidosDate4);
@@ -868,3 +875,47 @@ namespace GComFuelManager.Server.Controllers
         }
     }
 }
+/*
+   foreach (var item in ordens!)
+                        {
+                            if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
+                                && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                                && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                                SeguimientoOrden.Add(new OrdenesDTO
+                                {
+                                    Referencia = item?.Ref,
+                                    FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                    EstatusOrden = item?.Estado.den,
+                                    FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                    Bol = item?.BatchId,
+                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                    Cliente = item?.Destino?.Cliente?.Den,
+                                    Destino = item?.Destino?.Den,
+                                    Producto = item?.Producto?.Den,
+                                    VolNat = item?.Vol2,
+                                    VolCar = item?.Vol,
+                                    Transportista = item?.Tonel?.Transportista?.Den,
+                                    Unidad = item?.Tonel?.Veh,
+                                    Operador = item?.Chofer?.Den
+                                });
+                        }
+                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        var excel = new ExcelPackage();
+                        var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
+                        worksheet.Columns.Width = 60;
+                        worksheet.Columns.AutoFit();
+
+                        //Formacion del excel
+                        var header = worksheet.Cells["A1:M1"];
+                        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+                        tablebody.Style.Font.Bold = true;
+                        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                        //Guardado de Excel
+                        await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+                        SeguimientoOrden.Clear();
+                   
+ */
