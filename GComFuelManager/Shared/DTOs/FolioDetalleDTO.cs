@@ -13,5 +13,7 @@ namespace GComFuelManager.Shared.DTOs
         public Cliente? Cliente { get; set; } = null!;
         public Destino? Destino { get; set; } = null!;
         public Producto? Producto { get; set; } = null!;
+        public DateTime? FchCierre { get; set; } = null!;
+        public string? Comentarios { get; set; } = null!;
     }
 }

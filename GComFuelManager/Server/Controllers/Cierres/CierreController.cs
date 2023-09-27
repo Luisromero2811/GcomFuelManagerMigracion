@@ -1238,8 +1238,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Folio = x.Folio,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
-                        Producto = x.Producto
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
                     })
+                    .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
                 else
                 {
@@ -1259,8 +1262,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             Folio = x.Folio,
                             Cliente = x.Cliente,
                             Destino = x.Destino,
-                            Producto = x.Producto
+                            Producto = x.Producto,
+                            FchCierre = x.FchCierre,
+                            Comentarios = x.Observaciones
                         })
+                    .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
                     else if (filtro.codGru != null)
                         folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
@@ -1278,8 +1284,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Folio = x.Folio,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
-                        Producto = x.Producto
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
                     })
+                    .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
                     else
                         folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
@@ -1297,8 +1306,118 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Folio = x.Folio,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
-                        Producto = x.Producto
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
                     })
+                    .OrderByDescending(x => x.FchCierre)
+                    .ToListAsync();
+                }
+                return Ok(folios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("folios/detalle/status")]
+        public async Task<ActionResult> GetFoliosValidosActivosStatus([FromBody] CierreFiltroDTO filtro)
+        {
+            try
+            {
+                List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
+
+                if (!filtro.forFolio)
+                    folios = await context.OrdenCierre.Where(
+                x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio)
+                && x.Activa == true
+                && x.CodPed == 0
+                && x.Estatus == true ||
+                x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                && !string.IsNullOrEmpty(x.Folio)
+                && x.Activa == true
+                && x.Folio.StartsWith("OP")
+                && x.Estatus == true)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
+                    })
+                    .OrderByDescending(x => x.FchCierre)
+                    .ToListAsync();
+                else
+                {
+                    if (filtro.codCte != null && filtro.codGru != null)
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Destino)
+                        .Include(x => x.Producto)
+                        .Select(x => new FolioDetalleDTO()
+                        {
+                            Folio = x.Folio,
+                            Cliente = x.Cliente,
+                            Destino = x.Destino,
+                            Producto = x.Producto,
+                            FchCierre = x.FchCierre,
+                            Comentarios = x.Observaciones
+                        })
+                    .OrderByDescending(x => x.FchCierre)
+                        .ToListAsync();
+                    else if (filtro.codGru != null)
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true && x.CodGru == filtro.codGru)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
+                    })
+                    .OrderByDescending(x => x.FchCierre)
+                    .ToListAsync();
+                    else
+                        folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true ||
+                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio)
+                    && x.Folio.StartsWith("OP")
+                    && x.Estatus == true)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Select(x => new FolioDetalleDTO()
+                    {
+                        Folio = x.Folio,
+                        Cliente = x.Cliente,
+                        Destino = x.Destino,
+                        Producto = x.Producto,
+                        FchCierre = x.FchCierre,
+                        Comentarios = x.Observaciones
+                    })
+                    .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
                 }
                 return Ok(folios);
