@@ -6,9 +6,9 @@
 @inject IJSRuntime js
 @inject DialogService ds
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito">
     <Authorized>
         <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
 
@@ -16,7 +16,7 @@
                 <div class="col-12">
                     <div class="col-12 card">
                         <div class="col-12 card-body">
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Filtros">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito" Context="Filtros">
                                 <div class="col-12 row">
                                     <div class="col-12 row">
                                         <div class="col-8">
