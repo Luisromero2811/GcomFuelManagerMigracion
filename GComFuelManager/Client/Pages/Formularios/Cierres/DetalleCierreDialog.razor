@@ -155,12 +155,12 @@
                     OC = item.Folio,
                     FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
                     Precio = item.Precio.ToString(),
-                    Volumen = item?.OrdenEmbarque?.Orden is null ? item?.OrdenEmbarque?.Vol
+                    Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Vol
                         : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
                         : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())
                         : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
-                        : item?.OrdenEmbarque?.Orden?.Vol,
+                        : item?.OrdenEmbarque?.Vol,
                     Observaciones = item?.Observaciones,
                     FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
                     Destino = item?.Destino?.Den,

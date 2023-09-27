@@ -89,16 +89,7 @@
                 <!--Para órdenes sin cargar usamos la fecha de programa pero con la propiedad de fecha de carga, para órdenes cargadas usamos la propiedad de fecha de programa como fecha de programa-->
                 <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true">
                     <Template Context="data">
-
-                        @if (fechas.Estado == 1)
-                        {
-                            <p>@data?.Fchcar?.ToString("dd/MM/yyyy")</p>
-                        }
-                        else
-                        {
-                            <p> @data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") </p>
-                        }
-
+                        @(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
@@ -118,14 +109,7 @@
                 <!--Para la fecha de carga solo la utilizaremos para órdenes cargadas y canceladas, en órdenes sin cargar no mostrará nada, su propiedad es de fecha de carga-->
                 <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fchcar" FormatString="{0:d}" Width="140px" Filterable="false">
                     <Template Context="data">
-                        @if (fechas.Estado == 1)
-                        {
-
-                        }
-                        else
-                        {
-                            <p>@data?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss")</p>
-                        }
+                        @(data?.Fchcar is not null && fechas.Estado != 4 ? data?.Fchcar : "")
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="110px" Filterable="false" />

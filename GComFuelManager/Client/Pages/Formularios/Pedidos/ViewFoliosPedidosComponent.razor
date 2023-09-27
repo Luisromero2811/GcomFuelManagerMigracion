@@ -44,8 +44,8 @@
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
     <Columns>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px"/>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px"/>
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" />
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Cliente" Filterable="false">
             <Template Context="data">
                 @(data.Cliente is not null ? data.Cliente.Den : "Sin cliente asignado")
@@ -90,12 +90,14 @@
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        @*<RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Comentarios" Property="Comentarios" Frozen="true" Filterable="false" />*@
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Ver ordenes" Filterable="false" Width="120px">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Acciones" Filterable="false" Width="130px">
             <Template Context="data">
                 <div class="col-12">
                     <button class="btn gcom-bg-amarillo" @onclick="@(()=>ViewOrdens(data.Folio, data?.Producto?.Den))">
-                        Ver
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                    <button class="btn gcom-bg-amarillo" @onclick="@(()=>ViewComments(data?.Folio, data?.Comentarios))">
+                        <i class="fa-solid fa-comments"></i>
                     </button>
                 </div>
             </Template>
@@ -228,6 +230,24 @@
         {
             await ds.OpenAsync<DetalleCierreDialog>($"Pedido {folio}",
                 new Dictionary<string, object>() { { "folio", folio }, { "producto", producto } },
+                new DialogOptions() { Height = "auto", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ViewComments(string? folio, string? comment)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(comment))
+                comment = string.Empty;
+
+            await ds.OpenAsync<ViewComentariosComponent>($"Comentarios pedido {folio}",
+                new Dictionary<string, object>() { { "comentarios", comment } },
                 new DialogOptions() { Height = "auto", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
         }
         catch (Exception e)
