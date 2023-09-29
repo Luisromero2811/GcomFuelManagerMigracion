@@ -443,5 +443,27 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
         }
 
+        [HttpGet("buscar")]
+        public async Task<ActionResult> GetClienteBusqueda([FromQuery] CodDenDTO cliente)
+        {
+            try
+            {
+                var clientes = context.Cliente.AsQueryable();
+
+                if (string.IsNullOrEmpty(cliente.Den))
+                {
+                    clientes = clientes.Where(x => x.Den.ToLower().Contains(cliente.Den.ToLower()));
+                }
+
+                var newclientes = clientes.Select(x => x.Den);
+
+                return Ok(newclientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

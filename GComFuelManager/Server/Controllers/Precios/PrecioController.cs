@@ -95,7 +95,107 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
+                    .Take(30)
                     .ToListAsync();
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtro")]
+        public async Task<ActionResult> GetPreciosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
+        {
+            try
+            {
+                var precios = context.Precio
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Zona)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.cliente))
+                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
+
+                if (!string.IsNullOrEmpty(parametros.producto))
+                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.destino))
+                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.zona))
+                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                precios = precios.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("programado/filtro")]
+        public async Task<ActionResult> GetPreciosProgramadosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
+        {
+            try
+            {
+                var precios = context.PrecioProgramado
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Zona)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.cliente))
+                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
+
+                if (!string.IsNullOrEmpty(parametros.producto))
+                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.destino))
+                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.zona))
+                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                precios = precios.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                //var preciosPre = precios.Select(x => new Precio
+                //{
+                //    Pre = x.Pre,
+                //    Cliente = x.Cliente,
+                //    Destino = x.Destino,
+                //    Producto = x.Producto,
+                //    Zona = x.Zona,
+                //    FchDia = x.FchDia,
+                //    Activo = x.Activo,
+                //    codCte = x.codCte,
+                //    cod
+                //});
 
                 return Ok(precios);
             }
@@ -299,7 +399,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio
                         };
-                        
+
                         var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
                         //&& x.codZona == precio.codZona
                         && x.codCte == precio.codCte

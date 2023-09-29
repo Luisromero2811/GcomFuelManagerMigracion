@@ -1,9 +1,10 @@
-﻿@inject DialogService ds
+﻿@inject IRepositorio http
+@inject DialogService ds
 
 <div class="col-12 card">
     <div class="col-12 card-body">
         <div class="col-12">
-            <RadzenTextBox @bind-Value="FilterText" Placeholder="Buscar cliente..."/>
+            <RadzenTextBox Change="@LoadData" @bind-Value="@FilterText" Placeholder="Buscar cliente..." />
         </div>
         <RadzenDataGrid Data="@ClienteFiltrado" TItem="string" Context="data" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="ClientesSeleccionados"
         Style="height:400px" AllowPaging="true" ShowPagingSummary="true"
@@ -37,10 +38,19 @@
 </div>
 
 @code {
-    [Parameter] public IEnumerable<string> lista { get; set; } = new List<string>();
+    public IEnumerable<string> lista { get; set; } = new List<string>();
     public IList<string> ClientesSeleccionados { get; set; } = new List<string>();
     private string FilterText = string.Empty;
     private IEnumerable<string> ClienteFiltrado => lista.Where(x => string.IsNullOrEmpty(FilterText) || x.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+
+    Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+
+    CodDenDTO busqueda = new CodDenDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
 
     private void HandledValidClientes()
     {
@@ -61,5 +71,37 @@
         {
             throw e;
         }
+    }
+
+    private async Task GetClientes(string? uri)
+    {
+        try
+        {
+            var response = await http.Get<List<string>>($"api/clientes/buscar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                lista = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async Task LoadData()
+    {
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["den"] = busqueda.Den;
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await GetClientes(uri);
     }
 }
