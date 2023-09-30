@@ -111,7 +111,7 @@
     {
         IEnumerable<Precio?> precios = new List<Precio>();
 
-        precios = Model.Lista!.Where(x => x.NombreDestino!.Equals(destino));
+        precios = Model.Lista!.Where(x => x.NombreDestino!.Equals(destino) && x.Pre != 0 && x.Pre != null);
 
         return precios!;
     }

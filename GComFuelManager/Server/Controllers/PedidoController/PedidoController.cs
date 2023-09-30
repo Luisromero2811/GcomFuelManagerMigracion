@@ -117,7 +117,7 @@ namespace GComFuelManager.Server.Controllers
 
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null && x.Folio == null && x.OrdenPedido != null)
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -228,7 +228,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -709,7 +709,7 @@ namespace GComFuelManager.Server.Controllers
                         var VolumenDisponible = cierres.Where(x => x.CodPrd == orden.Codprd && x.Estatus is true).Sum(x => x.Volumen);
 
                         var VolumenCongelado = pedidos.Where(x => x.CodPed == orden.Codprd
-                        && x.OrdenEmbarque.OrdenCierre.Estatus is true
+                        && x?.OrdenEmbarque?.OrdenCierre?.Estatus is true
                         && x?.OrdenEmbarque?.Folio is not null
                         && x?.OrdenEmbarque?.Orden is null).Sum(item =>
                         item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
