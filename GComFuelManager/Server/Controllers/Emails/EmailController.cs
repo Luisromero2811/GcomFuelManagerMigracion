@@ -120,44 +120,113 @@ namespace GComFuelManager.Server.Controllers.Emails
         }
 
         [HttpPost("precios")]
-        public async Task<ActionResult> SendEmailPrecios([FromBody] IEnumerable<Precio> precios)
+        public async Task<ActionResult> SendEmailPrecios([FromQuery]CodDenDTO cliente)
         {
             try
             {
-                List<Cliente> clientesFaltantes = new List<Cliente>();
-                var clientes = precios.DistinctBy(x => x.NombreCliente).Select(x => x.codCte);
-                foreach (var item in clientes)
-                {
-                    var list = precios.Where(x => x.codCte == item);
+                List<Precio> list = new List<Precio>();
+                var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
 
-                    EmailContent<Precio> emailContent = new EmailContent<Precio>();
+                if (cte is not null)
+                    list = context.Precio.Where(x => x.codCte == cte.Cod && x.Activo == true)
+                        .Include(x=>x.Cliente)
+                        .Include(x=>x.Destino)
+                        .Include(x=>x.Producto)
+                        .Include(x=>x.Zona)
+                        .ToList();
+                else
+                    return BadRequest($"No se encontro el cliente {cliente.Den}");
 
-                    var ToList = await context.AccionCorreo.Where(x => x.Contacto.CodCte == item && x.Contacto.Estado == true
-                       && x.Accion.Nombre.Equals("Precios"))
-                           .Include(x => x.Accion)
-                           .Include(x => x.Contacto)
-                           .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                           .ToListAsync();
+                if (list.Count == 0)
+                    return BadRequest($"No se encontraron precios para {cte.Den}");
 
-                    if (ToList is not null && ToList?.Count > 0)
-                    {
-                        var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
-                        emailContent.CC = cc;
+                EmailContent<Precio> emailContent = new EmailContent<Precio>();
 
-                        emailContent.Subject = "Listado de precios del dia";
-                        emailContent.Lista = list;
-                        emailContent.ToList = ToList;
+                var ToList = await context.AccionCorreo.Where(x => x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
+                   && x.Accion.Nombre.Equals("Precios"))
+                       .Include(x => x.Accion)
+                       .Include(x => x.Contacto)
+                       .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                       .ToListAsync();
 
-                        await preciosService.NotifyPrecio(emailContent);
-                    }
-                    else
-                    {
-                        var cliente = context.Cliente.Find(item);
-                        clientesFaltantes.Add(cliente);
-                    }
-                }
+                if (ToList is null || ToList.Count == 0)
+                    return BadRequest($"No se encontro un correo con la accion de 'Precios' para el cliente {cte.Den}");
 
-                return Ok(clientesFaltantes);
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                emailContent.CC = cc;
+
+                emailContent.Subject = "Listado de precios";
+                emailContent.Lista = list;
+                emailContent.ToList = ToList;
+
+                await preciosService.NotifyPrecio(emailContent);
+
+                return Ok(list);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("precios/programados")]
+        public async Task<ActionResult> SendEmailPreciosPro([FromQuery] CodDenDTO cliente)
+        {
+            try
+            {
+                List<Precio> list = new List<Precio>();
+                var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
+
+                if (cte is not null)
+                    list = context.PrecioProgramado.Where(x => x.codCte == cte.Cod && x.Activo == true)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Destino)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Zona)
+                        .Select(x => new Precio
+                        {
+                            codPrd = x.codPrd,
+                            codZona = x.codZona,
+                            codDes = x.codDes,
+                            codCte = x.codCte,
+                            Pre = x.Pre,
+                            FchDia = x.FchDia,
+                            FchActualizacion = x.FchActualizacion,
+                            Activo = x.Activo,
+                            Cliente = x.Cliente,
+                            Destino = x.Destino,
+                            Producto = x.Producto,
+                            Zona = x.Zona,
+                        })
+                        .ToList();
+                else
+                    return BadRequest($"No se encontro el cliente {cliente.Den}");
+
+                if (list.Count == 0)
+                    return BadRequest($"No se encontraron precios para {cte.Den}");
+
+                EmailContent<Precio> emailContent = new EmailContent<Precio>();
+
+                var ToList = await context.AccionCorreo.Where(x => x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
+                   && x.Accion.Nombre.Equals("Precios"))
+                       .Include(x => x.Accion)
+                       .Include(x => x.Contacto)
+                       .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                       .ToListAsync();
+
+                if (ToList is null || ToList.Count == 0)
+                    return BadRequest($"No se encontro un correo con la accion de 'Precios' para el cliente {cte.Den}");
+
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                emailContent.CC = cc;
+
+                emailContent.Subject = "Listado de precios";
+                emailContent.Lista = list;
+                emailContent.ToList = ToList;
+
+                await preciosService.NotifyPrecio(emailContent);
+
+                return Ok(list);
             }
             catch (Exception e)
             {
@@ -181,7 +250,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                     emailContent.CC = cc;
 
                     var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenEmbarques.FirstOrDefault().OrdenCierre.CodCte && x.Contacto.Estado == true
-                        && x.Accion.Nombre.Equals("Precios"))
+                        && x.Accion.Nombre.Equals("Confirmacion Orden"))
                             .Include(x => x.Accion)
                             .Include(x => x.Contacto)
                             .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))

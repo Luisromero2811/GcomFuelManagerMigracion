@@ -3,6 +3,18 @@
 
 <div class="col-12 card">
     <div class="col-12 card-body">
+        <div class="row col-12">
+            <div class="d-flex justify-content-center">
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(TipoPrecio == 1)" @onchange="@(()=>TipoPrecio = 1)" />
+                    <label class="form-check-label" for="SinCargar">Precio Vigente</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="Cargadas" name="estatus" checked="@(TipoPrecio == 2)" @onchange="@(()=>TipoPrecio = 2)" />
+                    <label class="form-check-label" for="Cargadas">Precio Programado</label>
+                </div>
+            </div>
+        </div>
         <div class="col-12">
             <RadzenTextBox Change="@LoadData" @bind-Value="@FilterText" Placeholder="Buscar cliente..." />
         </div>
@@ -43,10 +55,12 @@
     private string FilterText = string.Empty;
     private IEnumerable<string> ClienteFiltrado => lista.Where(x => string.IsNullOrEmpty(FilterText) || x.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
 
+    private EnvioTipoPreciosEmailDtoClass1 envioTipo = new EnvioTipoPreciosEmailDtoClass1();
+
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
 
     CodDenDTO busqueda = new CodDenDTO();
-
+    Int16 TipoPrecio = 1;
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
@@ -54,7 +68,9 @@
 
     private void HandledValidClientes()
     {
-        ds.Close(ClientesSeleccionados);
+        envioTipo.TipoEnvio = TipoPrecio;
+        envioTipo.Clientes = ClientesSeleccionados.ToList();
+        ds.Close(envioTipo);
     }
 
     private async void ToggleCheck(bool args, string orden)
