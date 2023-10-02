@@ -35,9 +35,10 @@
 @code{
     public bool isClosed = false;
 
-    public void CloseMenu()
+    public async void CloseMenu()
     {
         isClosed = !isClosed;
+        await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
     }
 
     [CascadingParameter]
@@ -45,6 +46,9 @@
     protected async override Task OnInitializedAsync()
     {
         await js.InvokeVoidAsync("timerInactivo", DotNetObjectReference.Create(this));
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (cm is not null)
+            isClosed = bool.Parse(cm);
         renovadorToken.Iniciar();
     }
 

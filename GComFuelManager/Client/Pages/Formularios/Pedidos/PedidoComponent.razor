@@ -22,7 +22,7 @@
                     <div class="col-6 row">
                         <div class="col-4 mb-2">
                             <label class="form-label">Del:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchInicio"  />
+                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchInicio" />
                         </div>
                         <div class="col-4 mb-2">
                             <label class="form-label">A:</label>
@@ -48,7 +48,7 @@
                                 </ValueTemplate>
                             </RadzenDropDown>
                             @*<FolioListSearch folio="@filtro.Folio">
-                            </FolioListSearch>*@
+                                </FolioListSearch>*@
                         </div>
                         <div class="col-6 d-flex row mb-2">
                             <div class="col-6 mt-auto">
@@ -99,12 +99,12 @@
                                 <Template Context="data">
                                     @((data as Precio).Producto.Den)
                                     @*| $@((data as Precio).Pre*@
-    
+
                                 </Template>
                                 <ValueTemplate Context="data">
                                     @((data as Precio).Producto.Den)
                                     @*| $@((data as Precio).Pre*@
-    
+
                                 </ValueTemplate>
                             </RadzenDropDown>
                         </div>
@@ -141,7 +141,7 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
-                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" MaxLength="10"/>
+                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" MaxLength="10" />
                             </div>
                         </div>
                     }
@@ -170,30 +170,53 @@
                             <InputDate class="col-3 form-control" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada"></InputDate>
                         </div>
                     </div>
-
-                    <div class="col-4 mb-1">
-                        <div class="col-12">
-                            <label>Turno</label>
-                            <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (Turnos is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (Turnos.Count == 0)
-                                {
-                                    <option disabled> No hay capacidades</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in Turnos)
+                    @if (!ordenCierre.IsDifferentTurn)
+                    {
+                        <div class="col-2 mb-1">
+                            <div class="col-12">
+                                <label>Turno</label>
+                                <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
+                                    <option>-- Selecciona una opcion --</option>
+                                    @if (Turnos is null)
                                     {
-                                        <option value="@item">@item</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
-                            </InputSelect>
+                                    else if (Turnos.Count == 0)
+                                    {
+                                        <option disabled> No hay capacidades</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in Turnos)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+                    }
+                    @if (ordenCierre.IsDifferentTurn)
+                    {
+                        <div class="col-2 mb-1">
+                            <div class="col-12">
+                                <label class="form-label">Turno</label>
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
+                            </div>
+                        </div>
+                    }
+                    <div class="col-2 mb-1 d-flex">
+                        <div class="col-12 my-auto d-flex">
+                            <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentTurn Name="CheckBox2" class="me-2" />
+                            <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipTurno(infoIconVolumen))" @ref="infoIconVolumen">
+                                <label class="form-label" for="CheckBox2">
+                                    Turno Libre <i class="fa-solid fa-circle-info fa-xs"></i>
+                                </label>
+                            </div>
                         </div>
                     </div>
+
+
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Precio</label>
@@ -278,10 +301,10 @@
         }
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
-                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
+                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true" PageSizeOptions="@pageSizeOptions">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                <Authorized>*@
+                    <Authorized>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Frozen="true" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
@@ -302,12 +325,12 @@
                     </Template>
                 </RadzenDataGridColumn>
                 @*</Authorized>
-                </AuthorizeView>*@
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Frozen="true" OrderIndex="2" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" Frozen="true" OrderIndex="3" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" OrderIndex="5" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" OrderIndex="6" Filterable="false"/>
+                    </AuthorizeView>*@
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Frozen="true" OrderIndex="2" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" Frozen="true" OrderIndex="3" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="OrdenEmbarque.Destino.Den" Width="300px" OrderIndex="5" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="OrdenEmbarque.Producto.Den" Width="280px" OrderIndex="6" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
 
                     <Template Context="item">
@@ -323,8 +346,8 @@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false"/>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false"/>
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false" />
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -403,6 +426,9 @@
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
     UsuarioInfo user { get; set; } = new UsuarioInfo();
 
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+    bool isClose = false;
+
     protected override async Task OnInitializedAsync()
     {
         await GetFolios();
@@ -410,7 +436,16 @@
         await GetGrupos();
         await GetCantidades();
 
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        //width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -444,8 +479,9 @@
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
+    void ShowTooltipTurno(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca un turno de forma manual.", options);
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
-    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
+ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -508,13 +544,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -972,17 +1008,17 @@
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codest = 9,
-                        Codtad = ordenCierre.CodTad,
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Fchcar = ordenCierre.FchCar,
-                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                    };
+                {
+                    Codest = 9,
+                    Codtad = ordenCierre.CodTad,
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Fchcar = ordenCierre.FchCar,
+                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)
