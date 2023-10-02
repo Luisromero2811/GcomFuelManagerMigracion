@@ -553,6 +553,7 @@
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
     Dictionary<string, string> queryStringObjectPro = new Dictionary<string, string>();
+    Dictionary<string, string> queryStringObjectPre = new Dictionary<string, string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -976,33 +977,24 @@
         try
         {
             loadingSend = true;
-            if (precios is null)
-            {
-                loadingSend = false;
-
-                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
-                return;
-            }
-
-            if (precios.Count is 0)
-            {
-                loadingSend = false;
-
-                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
-                return;
-            }
-
+            var count = 0;
+            var totalcount = 0;
             ClientesSeleccionados = precios.DistinctBy(x => x.NombreCliente).Select(x => x.NombreCliente);
 
-            var clientes = await ds.OpenAsync<SelectionComponent>($"Clientes",
+            EnvioTipoPreciosEmailDtoClass1 clientes = new EnvioTipoPreciosEmailDtoClass1();
+
+            var clientesPre = await ds.OpenAsync<SelectionComponent>($"Clientes",
             options: new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
 
-            if (clientes is null || clientes.Count == 0)
+            if (clientesPre is not null)
+                clientes = clientesPre;
+
+            if (clientes.Clientes is null || clientes.Clientes.Count == 0)
             {
                 loadingSend = false;
                 return;
             }
-
+            totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
                 {
                     Severity = NotificationSeverity.Info,
@@ -1013,31 +1005,75 @@
 
             List<Precio> listaPrecios = new List<Precio>();
 
-            foreach (var cliente in clientes)
-                listaPrecios.AddRange(precios.Where(x => x.NombreCliente!.Equals(cliente) && x.Pre != 0 && x.Activo == true));
+            foreach (var cliente in clientes.Clientes)
+            {
+                count++;
 
-            var response = await http.Post<IEnumerable<Precio>, List<Cliente>>("api/email/precios", listaPrecios);
-            if (response.Error)
-            {
-                loadingSend = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                return;
-            }
-            else
-            {
-                if (response.Response.Count > 0)
+                Message(new NotificationMessage
                 {
-                    var ctes = string.Empty;
-                    foreach (var item in response.Response)
-                        ctes += item.Den + ", ";
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = $"Enviando {count} de {totalcount}",
+                    Duration = 15000
+                });
 
-                    await Swal.FireAsync("Alerta", $"Clientes sin correo enviado({response.Response.Count}): <li>{ctes}</<li>", SweetAlertIcon.Warning);
+                if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
+                queryStringObjectPre["den"] = cliente;
+                queryStringObjectPre["cod"] = clientes.TipoEnvio.ToString();
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+
+                var uri = string.Join("&", queryStringObjectPre.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+                if (clientes.TipoEnvio == 1)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/precios?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
+                    }
                 }
-                await Swal.FireAsync("Exito", "Los correos han sido enviados", SweetAlertIcon.Success);
+                else if (clientes.TipoEnvio == 2)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/precios/programados?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
+                    }
+                }
             }
 
             alert.Dispose();
+
+            await Swal.FireAsync("Correos enviados", $"Se enviaron {count} de {totalcount}.", SweetAlertIcon.Info);
+
             loadingSend = false;
 
         }
