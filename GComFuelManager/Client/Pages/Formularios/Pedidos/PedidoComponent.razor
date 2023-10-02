@@ -44,7 +44,7 @@
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             AllowVirtualization="true">
                                 <ValueTemplate Context="data">
-                                    <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLength="10" />
+                                    <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLength="40" />
                                 </ValueTemplate>
                             </RadzenDropDown>
                             @*<FolioListSearch folio="@filtro.Folio">
@@ -201,7 +201,7 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Turno</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" MaxLength="30"/>
                             </div>
                         </div>
                     }
