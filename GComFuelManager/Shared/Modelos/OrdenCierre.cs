@@ -94,7 +94,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activa { get; set; } = true;
 
         [JsonPropertyName("confirmada"), EpplusIgnore]
-        public bool? Confirmada { get; set; } = false;
+        public bool Confirmada { get; set; } = true;
 
         [JsonProperty("codCon"), EpplusIgnore]
         public int? CodCon { get; set; }
