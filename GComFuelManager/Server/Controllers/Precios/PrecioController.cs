@@ -95,7 +95,6 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
-                    .Take(30)
                     .ToListAsync();
 
                 return Ok(precios);
@@ -514,7 +513,6 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Producto)
                     .Include(x => x.Zona)
                     .OrderBy(x => x.FchDia)
-                    .Take(10000)
                     .ToListAsync();
                 return Ok(precios);
             }
