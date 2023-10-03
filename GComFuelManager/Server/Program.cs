@@ -84,7 +84,7 @@ else
 //Politica CRS para evitar ataques XSS
 app.Use(async (context, next) =>
 {
-    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; upgrade-insecure-requests; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https: data:; connect-src 'self'");
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; upgrade-insecure-requests; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https: data:; connect-src 'self'");
     await next();
 });
 

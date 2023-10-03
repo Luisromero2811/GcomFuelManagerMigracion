@@ -1,4 +1,4 @@
-﻿@page "/pedidos"
+@page "/pedidos"
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject TooltipService ts
@@ -180,7 +180,7 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Turno</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
+                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" MaxLength="30"/>
                             </div>
                         </div>
                     }
