@@ -13,5 +13,6 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime? FchFin{ get; set; } = DateTime.Now;
         public int? codCte { get; set; }
         public bool forFolio { get; set; } = false;
+        public short? codGru { get; set; }
     }
 }

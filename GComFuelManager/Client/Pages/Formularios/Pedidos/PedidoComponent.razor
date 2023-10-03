@@ -5,6 +5,7 @@
 @inject IJSRuntime js
 @inject AuthenticationStateProvider auth
 @inject PedidoOrdenValidation validation
+@inject DialogService ds
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador")]
 
@@ -19,48 +20,26 @@
                     </div>
                 </div>
                 <div class="col-12 row">
-                    <div class="col-6 row">
-                        <div class="col-4 mb-2">
-                            <label class="form-label">Del:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchInicio" />
-                        </div>
-                        <div class="col-4 mb-2">
-                            <label class="form-label">A:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.Date" @bind-Value:format="dd/MM/yyyy" @bind-Value="@fechas.FchFin" />
-                        </div>
-                        <div class="col-4 mt-2">
-                            <label class="form-label"></label>
-                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
-                                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                    <div class="col-3">
+                        <label class="form-label">Folio</label>
+                        <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLength="25" />
+                    </div>
+                    <div class="col-9 d-flex row mb-2">
+                        <div class="col-2 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                    </div>
-
-                    <div class="col-6 row">
-                        <div class="col-6">
-                            <label class="form-label">Folio</label>
-                            @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
-                            <RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true">
-                                <ValueTemplate Context="data">
-                                    <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLength="25"/>
-                                </ValueTemplate>
-                            </RadzenDropDown>
-                            @*<FolioListSearch folio="@filtro.Folio">
-                                </FolioListSearch>*@
+                        <div class="col-2 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearGridData">
+                                <i class="fa fa-solid fa-broom"></i>
+                            </button>
                         </div>
-                        <div class="col-6 d-flex row mb-2">
-                            <div class="col-6 mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
-                                    <i class="fa fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                            <div class="col-6 mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@ClearGridData">
-                                    <i class="fa fa-solid fa-broom"></i>
-                                </button>
-                            </div>
+                        <div class="col-6 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@OpenModal">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                                Ver Folios de pedidos
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -304,7 +283,7 @@
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true" PageSizeOptions="@pageSizeOptions">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                    <Authorized>*@
+                <Authorized>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Frozen="true" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
@@ -325,7 +304,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 @*</Authorized>
-                    </AuthorizeView>*@
+                </AuthorizeView>*@
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Frozen="true" OrderIndex="2" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" Frozen="true" OrderIndex="3" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
@@ -481,7 +460,7 @@
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
     void ShowTooltipTurno(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca un turno de forma manual.", options);
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
-ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
+    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -544,13 +523,13 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1008,17 +987,17 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
             {
                 var bin = responseBIN.Response;
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                {
-                    Codest = 9,
-                    Codtad = ordenCierre.CodTad,
-                    Codprd = ordenCierre.CodPrd,
-                    Pre = ordenCierre.Precio,
-                    Vol = ordenCierre.Volumen,
-                    Coddes = ordenCierre.CodDes,
-                    Fchpet = DateTime.Now,
-                    Fchcar = ordenCierre.FchCar,
-                    Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                };
+                    {
+                        Codest = 9,
+                        Codtad = ordenCierre.CodTad,
+                        Codprd = ordenCierre.CodPrd,
+                        Pre = ordenCierre.Precio,
+                        Vol = ordenCierre.Volumen,
+                        Coddes = ordenCierre.CodDes,
+                        Fchpet = DateTime.Now,
+                        Fchcar = ordenCierre.FchCar,
+                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
+                    };
 
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
                 if (response.Error)
@@ -1196,6 +1175,27 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
                 StateHasChanged();
             }
 
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task OpenModal()
+    {
+        try
+        {
+            await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos",
+            new Dictionary<string, object>() { { "isStatus", false } },
+            new DialogOptions()
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {
