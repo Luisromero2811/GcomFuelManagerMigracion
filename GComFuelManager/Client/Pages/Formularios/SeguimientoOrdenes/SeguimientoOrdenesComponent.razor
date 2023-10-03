@@ -97,11 +97,11 @@
                     <Template Context="data">
                         <div class="col-12">
                             @*@if (Status is true)
-                    {
-                        <p>CLOSED</p>
-                    }
-                    else
-                    {*@
+                                {
+                                    <p>CLOSED</p>
+                                }
+                                else
+                                {*@
                             <p> @data?.Estado?.den </p>
                             @*}*@
                         </div>
@@ -161,18 +161,18 @@
                     <Template Context="data">
                         @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
                         @*@(data?.OrdenEmbarque is not null ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                      data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                      : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                      : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                      : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                      : data?.Vol2))
-                       : (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                data?.Compartimento == 1 ? data?.Tonel?.Capcom
-                      : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
-                      : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
-                      : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
-                      : data?.Vol
-                      )))*@
+                                  data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                                  : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                                  : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                                  : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                                  : data?.Vol2))
+                                   : (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                            data?.Compartimento == 1 ? data?.Tonel?.Capcom
+                                  : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
+                                  : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
+                                  : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
+                                  : data?.Vol
+                                  )))*@
                         @if (fechas.Estado == 1)
                         {
                             <div class="col-12">
@@ -204,12 +204,12 @@
                     <Template Context="data">
                         @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
                         @*@(data?.OrdenEmbarque is not null  ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                  data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                : data?.Vol))
-                 : (""))*@
+                              data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                            : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                            : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                            : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                            : data?.Vol))
+                             : (""))*@
 
                         @if (data?.BatchId is null)
                         {
@@ -252,554 +252,554 @@
     //Grid
     private RadzenDataGrid<Orden>? Grid = new RadzenDataGrid<Orden>();
 
-                            private string ProductosSeleccionado = string.Empty;
-                            private IEnumerable<string?> ProductList { get; set; } = new List<string>();
+    private string ProductosSeleccionado = string.Empty;
+    private IEnumerable<string?> ProductList { get; set; } = new List<string>();
 
-                            private string DestinosSeleccionado = string.Empty;
-                            private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
+    private string DestinosSeleccionado = string.Empty;
+    private IEnumerable<string?> DestinoList { get; set; } = new List<string>();
 
-                            private string ClientesSeleccionados = string.Empty;
-                            private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
+    private string ClientesSeleccionados = string.Empty;
+    private IEnumerable<string?> ClienteList { get; set; } = new List<string>();
 
-                            private ICollection<Orden> ordens { get; set; } = null!;
-                            private ICollection<Orden> ordensHistorial { get; set; } = null!;
-                            //
-                            private Orden ordenEmbarque { get; set; } = new Orden();
-                            //private IEnumerable<Orden> ordeness { get; set; } = new List<Orden>();
-                            //Listas
-                            private List<CodDenDTO> Destinos { get; set; } = null!;
+    private ICollection<Orden> ordens { get; set; } = null!;
+    private ICollection<Orden> ordensHistorial { get; set; } = null!;
+    //
+    private Orden ordenEmbarque { get; set; } = new Orden();
+    //private IEnumerable<Orden> ordeness { get; set; } = new List<Orden>();
+    //Listas
+    private List<CodDenDTO> Destinos { get; set; } = null!;
 
-                            //Selecciones
-                            private int DestinoSeleccionado = 0;
+    //Selecciones
+    private int DestinoSeleccionado = 0;
 
-                            //Fechas
-                            public DateTime Date { get; set; } = DateTime.Now;
-                            public DateTime Date1 { get; set; } = DateTime.Now;
-                            public DateTime Date2 { get; set; } = DateTime.Now;
+    //Fechas
+    public DateTime Date { get; set; } = DateTime.Now;
+    public DateTime Date1 { get; set; } = DateTime.Now;
+    public DateTime Date2 { get; set; } = DateTime.Now;
 
-                            public int Estado { get; set; } = 1;
+    public int Estado { get; set; } = 1;
 
-                            bool loadingFiltro = false;
-                            bool Status = false;
-                            FechasF fechas = new FechasF();
-                            OrdenesDTO ordenes = new OrdenesDTO();
+    bool loadingFiltro = false;
+    bool Status = false;
+    FechasF fechas = new FechasF();
+    OrdenesDTO ordenes = new OrdenesDTO();
 
-                            List<OrdenesDTO> SeguimientoOrden { get; set; } = new List<OrdenesDTO>();
+    List<OrdenesDTO> SeguimientoOrden { get; set; } = new List<OrdenesDTO>();
 
-                            int width = 0;
-                            string TotalWidth = string.Empty;
-                            bool isClose = false;
+    int width = 0;
+    string TotalWidth = string.Empty;
+    bool isClose = false;
 
-                            DataGridSettings _settings;
-                            DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
-                            protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
+        }
+    }
+
+    public async Task MostrarOrdenFechaRadio()
+    {
+        try
+        {
+            //loadingFiltro = true;
+            //ordeness = null!;
+            //StateHasChanged();
+            Status = true;
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
+
+
+            if (responseHttp.Error)
+            {
+                loadingFiltro = false;
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Status = false;
+                loadingFiltro = false;
+                ordens = responseHttp.Response;
+
+                DestinoList = ordens?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+                ClienteList = ordens?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
+                ProductList = ordens?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+            }
+        }
+        catch (Exception e)
+        {
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    //public async Task MostrarTraffic()
+    //{
+    //    try
+    //    {
+    //        Status = false;
+    //        var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
+    //        fechas.Estado = 4;
+    //        if (responseHttp.Error)
+    //        {
+    //            loadingFiltro = false;
+    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            Status = true;
+    //            loadingFiltro = false;
+    //            fechas.Estado = 4;
+    //            ordens = responseHttp.Response;
+
+    //            DestinoList = ordens?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+    //            ClienteList = ordens?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
+    //            ProductList = ordens?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        loadingFiltro = false;
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //        throw e;
+    //    }
+    //}
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            if (ordens.Count != 0)
+            {
+                if (fechas.Estado == 1 || fechas.Estado == 4)
+                {
+                    foreach (var item in ordens!)
+                    {
+                        if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
+                            && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                            && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                            SeguimientoOrden.Add(new OrdenesDTO
                             {
-                                var cm = await JS.GetItemLocalStorage("CloseMenu");
-                                if (!string.IsNullOrEmpty(cm))
-                                    isClose = bool.Parse(cm);
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                                EstatusOrden = item?.Estado.den,
+                                //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                                Bol = item?.BatchId,
+                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
+                                VolCar = null!,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den,
+                            }); ;
+                    }
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
+                    worksheet.Columns.Width = 60;
+                    worksheet.Columns.AutoFit();
 
-                                if (isClose)
-                                    width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-                                else
-                                    width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+                    //Formacion del excel
+                    var header = worksheet.Cells["A1:M1"];
+                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
-                                if (width < 0)
-                                    width = 500;
-                                TotalWidth = $"{width}px";
-                            }
+                    var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+                    tablebody.Style.Font.Bold = true;
+                    tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                            protected override async Task OnAfterRenderAsync(bool first)
+                    //Guardado de Excel
+                    await JS.GuardarComo($"Ordenes{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+                    SeguimientoOrden.Clear();
+                }
+                else
+                {
+                    foreach (var item in ordens!)
+                    {
+                        if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
+                            && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                            && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                            SeguimientoOrden.Add(new OrdenesDTO
                             {
-                                if (first)
-                                {
-                                    await LoadStateAsync();
-                                    StateHasChanged();
-                                }
-                            }
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                EstatusOrden = item?.Estado.den,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                Bol = item?.BatchId,
+                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item?.Vol2,
+                                VolCar = item?.Vol,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den
+                            });
+                    }
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
+                    worksheet.Columns.Width = 60;
+                    worksheet.Columns.AutoFit();
 
-                            public async Task MostrarOrdenFechaRadio()
-                            {
-                                try
-                                {
-                                    //loadingFiltro = true;
-                                    //ordeness = null!;
-                                    //StateHasChanged();
-                                    Status = true;
-                                    var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
+                    //Formacion del excel
+                    var header = worksheet.Cells["A1:M1"];
+                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
+                    var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+                    tablebody.Style.Font.Bold = true;
+                    tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                                    if (responseHttp.Error)
-                                    {
-                                        loadingFiltro = false;
-                                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                                    }
-                                    else
-                                    {
-                                        Status = false;
-                                        loadingFiltro = false;
-                                        ordens = responseHttp.Response;
+                    //Guardado de Excel
+                    await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+                    SeguimientoOrden.Clear();
+                }
+                //foreach (var item in ordens!)
+                //{
+                //    if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
+                //        && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                //        && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                //        SeguimientoOrden.Add(new OrdenesDTO
+                //        {
+                //            Referencia = item?.Ref,
+                //            FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                //            EstatusOrden = item?.Estado.den,
+                //            FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                //            Bol = item?.BatchId,
+                //            //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                //            Cliente = item?.Destino?.Cliente?.Den,
+                //            Destino = item?.Destino?.Den,
+                //            Producto = item?.Producto?.Den,
+                //            VolNat = item?.Vol2,
+                //            VolCar = item?.Vol,
+                //            Transportista = item?.Tonel?.Transportista?.Den,
+                //            Unidad = item?.Tonel?.Veh,
+                //            Operador = item?.Chofer?.Den
+                //        });
+                //}
+                //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                //var excel = new ExcelPackage();
+                //var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
+                //worksheet.Columns.Width = 60;
+                //worksheet.Columns.AutoFit();
 
-                                        DestinoList = ordens?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                                        ClienteList = ordens?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
-                                        ProductList = ordens?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    loadingFiltro = false;
-                                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                                }
-                            }
-                            //public async Task MostrarTraffic()
-                            //{
-                            //    try
-                            //    {
-                            //        Status = false;
-                            //        var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/trafico", fechas);
-                            //        fechas.Estado = 4;
-                            //        if (responseHttp.Error)
-                            //        {
-                            //            loadingFiltro = false;
-                            //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                            //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                            //        }
-                            //        else
-                            //        {
-                            //            Status = true;
-                            //            loadingFiltro = false;
-                            //            fechas.Estado = 4;
-                            //            ordens = responseHttp.Response;
+                ////Formacion del excel
+                //var header = worksheet.Cells["A1:N1"];
+                //header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                //header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
-                            //            DestinoList = ordens?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                            //            ClienteList = ordens?.DistinctBy(x => x.Destino?.Cliente?.Den).Select(x => x.Destino?.Cliente?.Den)!;
-                            //            ProductList = ordens?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                            //        }
-                            //    }
-                            //    catch (Exception e)
-                            //    {
-                            //        loadingFiltro = false;
-                            //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                            //        throw e;
-                            //    }
-                            //}
+                //var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+                //tablebody.Style.Font.Bold = true;
+                //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                            public async Task ExportExcel()
-                            {
-                                try
-                                {
-                                    if (ordens.Count != 0)
-                                    {
-                                        if (fechas.Estado == 1 || fechas.Estado == 4)
-                                        {
-                                            foreach (var item in ordens!)
-                                            {
-                                                if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
-                                                    && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                                                    && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
-                                                    SeguimientoOrden.Add(new OrdenesDTO
-                                                    {
-                                                        Referencia = item?.Ref,
-                                                        FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                                                        EstatusOrden = item?.Estado.den,
-                                                        //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                                                        Bol = item?.BatchId,
-                                                        //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                                        Cliente = item?.Destino?.Cliente?.Den,
-                                                        Destino = item?.Destino?.Den,
-                                                        Producto = item?.Producto?.Den,
-                                                        VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
-                                                        VolCar = null!,
-                                                        Transportista = item?.Tonel?.Transportista?.Den,
-                                                        Unidad = item?.Tonel?.Veh,
-                                                        Operador = item?.Chofer?.Den,
-                                                    }); ;
-                                            }
-                                            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                                            var excel = new ExcelPackage();
-                                            var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
-                                            worksheet.Columns.Width = 60;
-                                            worksheet.Columns.AutoFit();
+                ////Guardado de Excel
+                //await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+                //SeguimientoOrden.Clear();
+            }
+            else
+            {
+                await swal.FireAsync("Alerta", "Debe de tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    //public async Task ExportTraffic()
+    //{
 
-                                            //Formacion del excel
-                                            var header = worksheet.Cells["A1:M1"];
-                                            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+    //    try
+    //    {
+    //        if (ordens.Count != 0)
+    //        {
+    //            foreach (var item in ordens)
+    //            {
+    //                if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
+    //                    && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+    //                    && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+    //                    SeguimientoOrden.Add(new OrdenesDTO
+    //                    {
+    //                        Referencia = item?.Ref,
+    //                        FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+    //                        EstatusOrden = "CLOSED",
+    //                        FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+    //                        Bol = item?.BatchId,
+    //                        //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+    //                        Cliente = item?.Destino?.Cliente?.Den,
+    //                        Destino = item?.Destino?.Den,
+    //                        Producto = item?.Producto?.Den,
+    //                        VolNat = item?.Vol2,
+    //                        VolCar = item?.Vol,
+    //                        Transportista = item?.Tonel?.Transportista?.Den,
+    //                        Unidad = item?.Tonel?.Veh,
+    //                        Operador = item?.Chofer?.Den
+    //                    });
+    //            }
+    //            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+    //            var excel = new ExcelPackage();
+    //            var worksheet = excel.Workbook.Worksheets.Add("Trafico");
+    //            worksheet.Columns.Width = 60;
+    //            worksheet.Columns.AutoFit();
 
-                                            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                                            tablebody.Style.Font.Bold = true;
-                                            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+    //            //Formacion del excel
+    //            var header = worksheet.Cells["A1:N1"];
+    //            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+    //            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
-                                            //Guardado de Excel
-                                            await JS.GuardarComo($"Ordenes{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
-                                            SeguimientoOrden.Clear();
-                                        }
-                                        else
-                                        {
-                                            foreach (var item in ordens!)
-                                            {
-                                                if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
-                                                    && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                                                    && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
-                                                    SeguimientoOrden.Add(new OrdenesDTO
-                                                    {
-                                                        Referencia = item?.Ref,
-                                                        FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                                                        EstatusOrden = item?.Estado.den,
-                                                        FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                                                        Bol = item?.BatchId,
-                                                        //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                                        Cliente = item?.Destino?.Cliente?.Den,
-                                                        Destino = item?.Destino?.Den,
-                                                        Producto = item?.Producto?.Den,
-                                                        VolNat = item?.Vol2,
-                                                        VolCar = item?.Vol,
-                                                        Transportista = item?.Tonel?.Transportista?.Den,
-                                                        Unidad = item?.Tonel?.Veh,
-                                                        Operador = item?.Chofer?.Den
-                                                    });
-                                            }
-                                            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                                            var excel = new ExcelPackage();
-                                            var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
-                                            worksheet.Columns.Width = 60;
-                                            worksheet.Columns.AutoFit();
+    //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+    //            tablebody.Style.Font.Bold = true;
+    //            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                                            //Formacion del excel
-                                            var header = worksheet.Cells["A1:M1"];
-                                            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+    //            //Guardado de Excel
+    //            await JS.GuardarComo($"Trafico_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+    //            SeguimientoOrden.Clear();
+    //        }
+    //        else
+    //        {
+    //            await swal.FireAsync("Alerta", "Debe de tener datos filtrados para poder realizar la exportación", SweetAlertIcon.Warning);
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
+    public async Task ExportHist()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/Historial", fechas);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
 
-                                            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                                            tablebody.Style.Font.Bold = true;
-                                            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            }
+            else
+            {
+                ordensHistorial = responseHttp.Response;
+                foreach (var item in ordensHistorial)
+                {
+                    if (item.BatchId == null)
+                    {
+                        SeguimientoOrden.Add(new OrdenesDTO
+                        {
+                            Referencia = item?.Ref,
+                            FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                            EstatusOrden = item?.Estado.den,
+                            Bol = item?.BatchId,
+                            Cliente = item?.Destino?.Cliente?.Den,
+                            Destino = item?.Destino?.Den,
+                            Producto = item?.Producto?.Den,
+                            VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
+                            VolCar = null!,
+                            Transportista = item?.Tonel?.Transportista?.Den,
+                            Unidad = item?.Tonel?.Veh,
+                            Operador = item?.Chofer?.Den,
+                        });
+                    }
+                    else
+                    {
+                        //Cambio de seguridad
+                        SeguimientoOrden.Add(new OrdenesDTO
+                        {
+                            //Referencia = item?.Ref,
+                            //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                            //EstatusOrden = item?.Estado.den,
+                            //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
+                            //Bol = item?.BatchId,
+                            ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                            //Cliente = item?.Destino?.Cliente?.Den,
+                            //Destino = item?.Destino?.Den,
+                            //Producto = item?.Producto?.Den,
+                            //VolNat = item?.Vol2,
+                            //VolCar = item?.Vol,
+                            //Transportista = item?.Tonel?.Transportista?.Den,
+                            //Unidad = item?.Tonel?.Veh,
+                            //Operador = item?.Chofer?.Den
+                            Referencia = item?.Ref,
+                            FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                            EstatusOrden = item?.Estado.den,
+                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                            Bol = item?.BatchId,
+                            //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                            Cliente = item?.Destino?.Cliente?.Den,
+                            Destino = item?.Destino?.Den,
+                            Producto = item?.Producto?.Den,
+                            VolNat = item?.Vol2,
+                            VolCar = item?.Vol,
+                            Transportista = item?.Tonel?.Transportista?.Den,
+                            Unidad = item?.Tonel?.Veh,
+                            Operador = item?.Chofer?.Den
+                        });
+                    }
+                }
 
-                                            //Guardado de Excel
-                                            await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
-                                            SeguimientoOrden.Clear();
-                                        }
-                                        //foreach (var item in ordens!)
-                                        //{
-                                        //    if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
-                                        //        && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                                        //        && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
-                                        //        SeguimientoOrden.Add(new OrdenesDTO
-                                        //        {
-                                        //            Referencia = item?.Ref,
-                                        //            FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                                        //            EstatusOrden = item?.Estado.den,
-                                        //            FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                                        //            Bol = item?.BatchId,
-                                        //            //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                        //            Cliente = item?.Destino?.Cliente?.Den,
-                                        //            Destino = item?.Destino?.Den,
-                                        //            Producto = item?.Producto?.Den,
-                                        //            VolNat = item?.Vol2,
-                                        //            VolCar = item?.Vol,
-                                        //            Transportista = item?.Tonel?.Transportista?.Den,
-                                        //            Unidad = item?.Tonel?.Veh,
-                                        //            Operador = item?.Chofer?.Den
-                                        //        });
-                                        //}
-                                        //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                                        //var excel = new ExcelPackage();
-                                        //var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
-                                        //worksheet.Columns.Width = 60;
-                                        //worksheet.Columns.AutoFit();
+                //Quitar errores por terminos de licencia al momento de descargar el archivo
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                //// Generacion Excel  //
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("Historial");
+                worksheet.Columns.Width = 49;
+                worksheet.Columns.AutoFit();
+                ////Formación de Excel
+                var header = worksheet.Cells["A1:M1"];
+                //var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                //from o in ordensHistorial
+                //select new OrdenesDTO()
+                //{
+                //    //Òrdenes sin cargar aplicarle el Volumen natural acorde al volumen del Tonel, en ordenes cargadas ajustar la fecha de programa como la fecha de carga de ordenEmbarque
+                //    Referencia = o?.Ref,
+                //    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
+                //    EstatusOrden = o?.Estado.den,
+                //    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
+                //    Bol = o?.BatchId,
+                //    //DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                //    Cliente = o?.Destino?.Cliente?.Den,
+                //    Destino = o?.Destino?.Den,
+                //    Producto = o?.Producto?.Den,
+                //    VolNat = o?.Vol2,
+                //    VolCar = o?.Vol,
+                //    Transportista = o?.Tonel?.Transportista?.Den,
+                //    Unidad = o?.Tonel?.Veh,
+                //    Operador = o?.Chofer?.Den
 
-                                        ////Formacion del excel
-                                        //var header = worksheet.Cells["A1:N1"];
-                                        //header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                        //header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //}
+                //  , true);
+                //tablebody.Style.Font.Bold = true;
+                //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                //var header = worksheet.Cells["A1:M1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
-                                        //var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                                        //tablebody.Style.Font.Bold = true;
-                                        //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                //Guardado de Excel
+                await JS.GuardarComo($"HistorialDespacho_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+                SeguimientoOrden.Clear();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingFiltro = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
 
-                                        ////Guardado de Excel
-                                        //await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
-                                        //SeguimientoOrden.Clear();
-                                    }
-                                    else
-                                    {
-                                        await swal.FireAsync("Alerta", "Debe de tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                                }
-                            }
-                            //public async Task ExportTraffic()
-                            //{
+    }
+    //public async Task ExportHist()
+    //{
+    //    try
+    //    {
+    //        var responseHttp = await repositorio.Post<OrdenesDTO, List<Orden>>($"api/pedido/filtro", ordenes);
+    //        if (responseHttp.Error)
+    //        {
+    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            // Generacion Excel 1 //
+    //            var excel = new ExcelPackage();
+    //            var worksheet = excel.Workbook.Worksheets.Add("Historial1");
+    //            //Formación de Excel
+    //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+    //            from o in ordeness
+    //                //Referencia, Fecha Programa, Estatus Orden, Fecha Carga, Bol, Cliente, Destino, Producto, Volúmen natural, Volúmen Cargado, Transportista, Unidad, Operador
+    //            select new OrdenesDTO() { Referencia = o.Folio, FechaPrograma = o.Fchcar.Value.ToString("yyyy-MM-dd"), EstatusOrden = o.Estado.den, FechaCarga = o.Fchcar.Value.ToString("yyyy-MM-dd"), Bol = o.Bolguidid, DeliveryRack = o.Destino!.Cliente!.Tipven, Cliente = o.Destino!.Cliente!.Den, Destino = o.Destino!.Den }, true);
+    //            //Guardado de Excel
+    //            await JS.GuardarComo($"Historial_{DateTime.Now.ToString("yyyy-MM-dd hh:mm")}.xlsx", excel.GetAsByteArray());
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
+    //public async Task MostrarTraffic()
+    //{
+    //    try
+    //    {
+    //        loadingFiltro = true;
+    //        ordeness = null!;
+    //        StateHasChanged();
 
-                            //    try
-                            //    {
-                            //        if (ordens.Count != 0)
-                            //        {
-                            //            foreach (var item in ordens)
-                            //            {
-                            //                if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
-                            //                    && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                            //                    && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
-                            //                    SeguimientoOrden.Add(new OrdenesDTO
-                            //                    {
-                            //                        Referencia = item?.Ref,
-                            //                        FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                            //                        EstatusOrden = "CLOSED",
-                            //                        FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                            //                        Bol = item?.BatchId,
-                            //                        //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                            //                        Cliente = item?.Destino?.Cliente?.Den,
-                            //                        Destino = item?.Destino?.Den,
-                            //                        Producto = item?.Producto?.Den,
-                            //                        VolNat = item?.Vol2,
-                            //                        VolCar = item?.Vol,
-                            //                        Transportista = item?.Tonel?.Transportista?.Den,
-                            //                        Unidad = item?.Tonel?.Veh,
-                            //                        Operador = item?.Chofer?.Den
-                            //                    });
-                            //            }
-                            //            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                            //            var excel = new ExcelPackage();
-                            //            var worksheet = excel.Workbook.Worksheets.Add("Trafico");
-                            //            worksheet.Columns.Width = 60;
-                            //            worksheet.Columns.AutoFit();
+    //        var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
 
-                            //            //Formacion del excel
-                            //            var header = worksheet.Cells["A1:N1"];
-                            //            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                            //            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+    //        if (responseHttp.Error)
+    //        {
+    //            loadingFiltro = false;
+    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            loadingFiltro = false;
+    //            ordeness = responseHttp.Response;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        loadingFiltro = false;
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
 
-                            //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                            //            tablebody.Style.Font.Bold = true;
-                            //            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await JS.SetItemLocalStorage("settingsSeguimiento", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
-                            //            //Guardado de Excel
-                            //            await JS.GuardarComo($"Trafico_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
-                            //            SeguimientoOrden.Clear();
-                            //        }
-                            //        else
-                            //        {
-                            //            await swal.FireAsync("Alerta", "Debe de tener datos filtrados para poder realizar la exportación", SweetAlertIcon.Warning);
-                            //        }
-                            //    }
-                            //    catch (Exception e)
-                            //    {
-                            //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                            //    }
-                            //}
-                            public async Task ExportHist()
-                            {
-                                try
-                                {
-                                    var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/Historial", fechas);
-                                    if (responseHttp.Error)
-                                    {
-                                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-
-                                    }
-                                    else
-                                    {
-                                        ordensHistorial = responseHttp.Response;
-                                        foreach (var item in ordensHistorial)
-                                        {
-                                            if (item.BatchId == null)
-                                            {
-                                                SeguimientoOrden.Add(new OrdenesDTO
-                                                {
-                                                    Referencia = item?.Ref,
-                                                    FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                                                    EstatusOrden = item?.Estado.den,
-                                                    Bol = item?.BatchId,
-                                                    Cliente = item?.Destino?.Cliente?.Den,
-                                                    Destino = item?.Destino?.Den,
-                                                    Producto = item?.Producto?.Den,
-                                                    VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
-                                                    VolCar = null!,
-                                                    Transportista = item?.Tonel?.Transportista?.Den,
-                                                    Unidad = item?.Tonel?.Veh,
-                                                    Operador = item?.Chofer?.Den,
-                                                });
-                                            }
-                                            else
-                                            {
-                                                //Cambio de seguridad
-                                                SeguimientoOrden.Add(new OrdenesDTO
-                                                {
-                                                    //Referencia = item?.Ref,
-                                                    //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                                                    //EstatusOrden = item?.Estado.den,
-                                                    //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
-                                                    //Bol = item?.BatchId,
-                                                    ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                                                    //Cliente = item?.Destino?.Cliente?.Den,
-                                                    //Destino = item?.Destino?.Den,
-                                                    //Producto = item?.Producto?.Den,
-                                                    //VolNat = item?.Vol2,
-                                                    //VolCar = item?.Vol,
-                                                    //Transportista = item?.Tonel?.Transportista?.Den,
-                                                    //Unidad = item?.Tonel?.Veh,
-                                                    //Operador = item?.Chofer?.Den
-                                                    Referencia = item?.Ref,
-                                                    FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                                                    EstatusOrden = item?.Estado.den,
-                                                    FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                                                    Bol = item?.BatchId,
-                                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                                    Cliente = item?.Destino?.Cliente?.Den,
-                                                    Destino = item?.Destino?.Den,
-                                                    Producto = item?.Producto?.Den,
-                                                    VolNat = item?.Vol2,
-                                                    VolCar = item?.Vol,
-                                                    Transportista = item?.Tonel?.Transportista?.Den,
-                                                    Unidad = item?.Tonel?.Veh,
-                                                    Operador = item?.Chofer?.Den
-                                                });
-                                            }
-                                        }
-
-                                        //Quitar errores por terminos de licencia al momento de descargar el archivo
-                                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                                        //// Generacion Excel  //
-                                        var excel = new ExcelPackage();
-                                        var worksheet = excel.Workbook.Worksheets.Add("Historial");
-                                        worksheet.Columns.Width = 49;
-                                        worksheet.Columns.AutoFit();
-                                        ////Formación de Excel
-                                        var header = worksheet.Cells["A1:M1"];
-                                        //var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                                        //from o in ordensHistorial
-                                        //select new OrdenesDTO()
-                                        //{
-                                        //    //Òrdenes sin cargar aplicarle el Volumen natural acorde al volumen del Tonel, en ordenes cargadas ajustar la fecha de programa como la fecha de carga de ordenEmbarque
-                                        //    Referencia = o?.Ref,
-                                        //    FechaPrograma = o?.Fchcar?.ToString("yyyy-MM-dd"),
-                                        //    EstatusOrden = o?.Estado.den,
-                                        //    FechaCarga = o?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
-                                        //    Bol = o?.BatchId,
-                                        //    //DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                                        //    Cliente = o?.Destino?.Cliente?.Den,
-                                        //    Destino = o?.Destino?.Den,
-                                        //    Producto = o?.Producto?.Den,
-                                        //    VolNat = o?.Vol2,
-                                        //    VolCar = o?.Vol,
-                                        //    Transportista = o?.Tonel?.Transportista?.Den,
-                                        //    Unidad = o?.Tonel?.Veh,
-                                        //    Operador = o?.Chofer?.Den
-
-                                        //}
-                                        //  , true);
-                                        //tablebody.Style.Font.Bold = true;
-                                        //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                                        //var header = worksheet.Cells["A1:M1"];
-                                        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                                        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                                        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                                        tablebody.Style.Font.Bold = true;
-                                        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                                        //Guardado de Excel
-                                        await JS.GuardarComo($"HistorialDespacho_{DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
-                                        SeguimientoOrden.Clear();
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    loadingFiltro = false;
-                                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                                }
-
-                            }
-                            //public async Task ExportHist()
-                            //{
-                            //    try
-                            //    {
-                            //        var responseHttp = await repositorio.Post<OrdenesDTO, List<Orden>>($"api/pedido/filtro", ordenes);
-                            //        if (responseHttp.Error)
-                            //        {
-                            //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                            //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                            //        }
-                            //        else
-                            //        {
-                            //            // Generacion Excel 1 //
-                            //            var excel = new ExcelPackage();
-                            //            var worksheet = excel.Workbook.Worksheets.Add("Historial1");
-                            //            //Formación de Excel
-                            //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-                            //            from o in ordeness
-                            //                //Referencia, Fecha Programa, Estatus Orden, Fecha Carga, Bol, Cliente, Destino, Producto, Volúmen natural, Volúmen Cargado, Transportista, Unidad, Operador
-                            //            select new OrdenesDTO() { Referencia = o.Folio, FechaPrograma = o.Fchcar.Value.ToString("yyyy-MM-dd"), EstatusOrden = o.Estado.den, FechaCarga = o.Fchcar.Value.ToString("yyyy-MM-dd"), Bol = o.Bolguidid, DeliveryRack = o.Destino!.Cliente!.Tipven, Cliente = o.Destino!.Cliente!.Den, Destino = o.Destino!.Den }, true);
-                            //            //Guardado de Excel
-                            //            await JS.GuardarComo($"Historial_{DateTime.Now.ToString("yyyy-MM-dd hh:mm")}.xlsx", excel.GetAsByteArray());
-                            //        }
-                            //    }
-                            //    catch (Exception e)
-                            //    {
-                            //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                            //    }
-                            //}
-                            //public async Task MostrarTraffic()
-                            //{
-                            //    try
-                            //    {
-                            //        loadingFiltro = true;
-                            //        ordeness = null!;
-                            //        StateHasChanged();
-
-                            //        var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
-
-                            //        if (responseHttp.Error)
-                            //        {
-                            //            loadingFiltro = false;
-                            //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                            //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                            //        }
-                            //        else
-                            //        {
-                            //            loadingFiltro = false;
-                            //            ordeness = responseHttp.Response;
-                            //        }
-                            //    }
-                            //    catch (Exception e)
-                            //    {
-                            //        loadingFiltro = false;
-                            //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                            //    }
-                            //}
-
-                            private async Task SaveStateAsync()
-                            {
-                                try
-                                {
-                                    await Task.CompletedTask;
-                                    await JS.SetItemLocalStorage("settingsSeguimiento", JsonConvert.SerializeObject(Settings));
-                                }
-                                catch (Exception e)
-                                {
-                                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                                }
-                            }
-
-                            private async Task LoadStateAsync()
-                            {
-                                try
-                                {
-                                    await Task.CompletedTask;
-                                    var result = await JS.GetItemLocalStorage("settingsSeguimiento");
-                                    if (!string.IsNullOrEmpty(result))
-                                    {
-                                        _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-                                }
-                            }
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await JS.GetItemLocalStorage("settingsSeguimiento");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
 }
 
