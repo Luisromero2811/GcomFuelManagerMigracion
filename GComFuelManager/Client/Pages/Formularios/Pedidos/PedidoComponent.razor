@@ -138,17 +138,17 @@
                                 </InputSelect>
                             }
                             @*<RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
-                                    <Template Context="data">
-                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                        <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
+                            <Template Context="data">
+                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                            <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
 
-                                    </Template>
-                                    <ValueTemplate Context="data">
-                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                    </ValueTemplate>
-                                </RadzenDropDown>*@
+                            </Template>
+                            <ValueTemplate Context="data">
+                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                            </ValueTemplate>
+                            </RadzenDropDown>*@
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentVol)
@@ -559,7 +559,7 @@
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
     void ShowTooltipTurno(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca un turno de forma manual.", options);
     void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
-ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
+    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -978,6 +978,25 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
         try
         {
             SendOrden = true;
+            if (!string.IsNullOrEmpty(filtro.Folio))
+            {
+                var responseVerify = await http.Get<OrdenCierre>($"api/clientes/{ordenCierre.CodCte}");
+                if (responseVerify.Error)
+                {
+                    var message = await responseVerify.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    SendOrden = false;
+                }
+                else
+                {
+                    if (responseVerify.Response.Activa == false)
+                    {
+                        await Swal.FireAsync("Aviso", $"Este pedido ya no se encuentra vigente. Fecha de vecimiento: {responseVerify.Response.FchVencimiento?.ToString("dd/MM/yyyy")}", SweetAlertIcon.Error);
+                        return;
+                    }
+                }
+
+            }
 
             var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
             if (response.Error)
@@ -1272,12 +1291,12 @@ ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedid
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-            {
-                Width = "90%",
-                Height = "600px",
-                Resizable = true,
-                Draggable = false
-            });
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {
