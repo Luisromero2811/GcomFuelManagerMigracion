@@ -255,7 +255,7 @@
                         <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
                             <thead>
                                 <tr>
-                                  
+
                                     <th scope="col" width="100px">
                                         <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                             <Authorized>
@@ -263,14 +263,14 @@
                                             </Authorized>
                                         </AuthorizeView>
                                     </th>
-                                  
+
                                     <th scope="col">Fecha</th>
                                     <th scope="col">Precio</th>
                                     <th scope="col">Producto</th>
                                     <th scope="col">Destino</th>
                                     <th scope="col" width="150px">Zona</th>
                                     <th scope="col">Cliente</th>
-                                  
+
                                     <th scope="col">
                                         <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                             <Authorized>
@@ -278,7 +278,7 @@
                                             </Authorized>
                                         </AuthorizeView>
                                     </th>
-                                 
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -388,22 +388,27 @@
                         <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
                             <thead>
                                 <tr>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
-                                        <Authorized>
-                                            <th scope="col" width="100px">Editar</th>
-                                        </Authorized>
-                                    </AuthorizeView>
+                                    <th scope="col" width="100px">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                            <Authorized>
+                                                Editar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
                                     <th scope="col">Fecha</th>
                                     <th scope="col">Precio</th>
                                     <th scope="col">Producto</th>
                                     <th scope="col">Destino</th>
                                     <th scope="col" width="150px">Zona</th>
                                     <th scope="col">Cliente</th>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
-                                        <Authorized>
-                                            <th scope="col">Habilitar / deshabilitar</th>
-                                        </Authorized>
-                                    </AuthorizeView>
+                                    <th scope="col">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                            <Authorized>
+                                                Habilitar / deshabilitar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -438,15 +443,17 @@
                                     @foreach (var item in preciosPro)
                                     {
                                         <tr style="height:50px">
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                          
                                                 <td width="100px">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                                        <div class="col-12">
+                                                            <div class="col p-2">
+                                                                <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </AuthorizeView>
                                                 </td>
-                                            </AuthorizeView>
+                                          
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
@@ -466,16 +473,18 @@
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
 
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                <td>
+                                          
+                                            <td>
+                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
                                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </AuthorizeView>
+                                                </AuthorizeView>
+                                            </td>
+                                      
                                         </tr>
                                     }
 
