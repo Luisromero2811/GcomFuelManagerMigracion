@@ -507,6 +507,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 ordens.ForEach(x =>
                 {
                     x.FchVencimiento = fechas.FchFin;
+                    if (x.FchVencimiento >= DateTime.Today)
+                        x.Activa = true;
                 });
 
                 context.UpdateRange(ordens);
@@ -518,6 +520,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 await context.SaveChangesAsync(id, 5);
 
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Estatus == true)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x!.Destino)
                     .Include(x => x.OrdenEmbarque)
@@ -1787,6 +1791,80 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 return BadRequest(e.Message);
                 throw;
+            }
+        }
+
+        [HttpGet("caducidad/verify")]
+        public async Task<ActionResult> VerificarCaducidad([FromQuery] CierreFiltroDTO dTO)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dTO.Folio))
+                    return BadRequest("No se encontro un folio");
+
+                var cierre = context.OrdenCierre.FirstOrDefault(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio));
+
+                if (cierre is not null)
+                    return Ok(cierre);
+                else
+                    return BadRequest($"No se encontro algun cierre perteneciente al folio {dTO.Folio}");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("caducidad/cerrar")]
+        public async Task<ActionResult> CerrarCierreAutoCaducidad()
+        {
+            try
+            {
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
+
+                cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento < DateTime.Today && x.Activa == true && x.Folio.StartsWith("P")
+                || !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento < DateTime.Today && x.Activa == true && x.Folio.StartsWith("G"))
+                    .OrderByDescending(x => x.FchVencimiento)
+                    .ToList();
+
+                foreach (var item in cierres)
+                {
+                    item.Activa = false;
+                    context.Update(item);
+                }
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("caducidad/abrir")]
+        public async Task<ActionResult> AbrirCierreAutoCaducidad()
+        {
+            try
+            {
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
+
+                cierres = context.OrdenCierre.Where(x => x.FchVencimiento > DateTime.Today && x.Activa == false).ToList();
+
+                foreach (var item in cierres)
+                {
+                    item.Activa = true;
+                    context.Update(item);
+                }
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

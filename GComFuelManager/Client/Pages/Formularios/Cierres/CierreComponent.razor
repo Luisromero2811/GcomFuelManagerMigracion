@@ -1453,7 +1453,7 @@
     {
         try
         {
-            if (ordenCierres.Count == 0)
+            if (ordenCierres.Count == 0 || ordenCierre is null)
             {
                 await Swal.FireAsync("Alerta", "Debe de tener un cierre filtrado.", SweetAlertIcon.Warning);
                 return;
@@ -1463,6 +1463,7 @@
             fchCaducidad.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
             fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
             fchVencimiento.Folio = ordenCierres.FirstOrDefault().Folio;
+            fchCaducidad.Folio = ordenCierres.FirstOrDefault().Folio;
             AddDaysExpiration = true;
         }
         catch (Exception e)
@@ -1477,7 +1478,7 @@
         try
         {
 
-            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchVencimiento);
+            var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>($"api/cierre/vencimiento", fchCaducidad);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
