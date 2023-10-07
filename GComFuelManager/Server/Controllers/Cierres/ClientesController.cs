@@ -38,11 +38,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             context.Add(new Errors()
             {
-                Error = new Error()
+                Error = JsonConvert.SerializeObject(new Error()
                 {
                     Inner = JsonConvert.SerializeObject(e.InnerException),
                     Message = JsonConvert.SerializeObject(e.Message)
-                },
+                }),
                 Accion = "Obtener cargadas"
             });
             await context.SaveChangesAsync();
