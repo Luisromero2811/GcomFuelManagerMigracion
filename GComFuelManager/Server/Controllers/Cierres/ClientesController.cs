@@ -34,6 +34,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
             userManager = UserManager;
         }
 
+        private async Task SaveErrors(Exception e)
+        {
+            context.Add(new Errors()
+            {
+                Error = new Error()
+                {
+                    Inner = JsonConvert.SerializeObject(e.InnerException),
+                    Message = JsonConvert.SerializeObject(e.Message)
+                },
+                Accion = "Obtener cargadas"
+            });
+            await context.SaveChangesAsync();
+        }
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {
@@ -438,6 +452,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
 

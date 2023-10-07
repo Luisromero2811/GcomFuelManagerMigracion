@@ -37,6 +37,20 @@ namespace GComFuelManager.Server.Controllers.Services
             this.userManager = userManager;
         }
 
+        private async Task SaveErrors(Exception e)
+        {
+            context.Add(new Errors()
+            {
+                Error = new Error()
+                {
+                    Inner = JsonConvert.SerializeObject(e.InnerException),
+                    Message = JsonConvert.SerializeObject(e.Message)
+                },
+                Accion = "Obtener cargadas"
+            });
+            await context.SaveChangesAsync();
+        }
+
         #region envio de synthesis
 
         [HttpPost("send"), Authorize(Roles = "Programador, Admin, Administrador Sistema")]
@@ -299,6 +313,7 @@ namespace GComFuelManager.Server.Controllers.Services
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
         }
@@ -552,6 +567,7 @@ namespace GComFuelManager.Server.Controllers.Services
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
         }
@@ -723,6 +739,7 @@ namespace GComFuelManager.Server.Controllers.Services
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
         }
@@ -1029,6 +1046,7 @@ namespace GComFuelManager.Server.Controllers.Services
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
         }
