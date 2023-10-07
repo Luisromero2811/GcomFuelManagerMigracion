@@ -41,11 +41,11 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             context.Add(new Errors()
             {
-                Error = new Error()
+                Error = JsonConvert.SerializeObject(new Error()
                 {
                     Inner = JsonConvert.SerializeObject(e.InnerException),
                     Message = JsonConvert.SerializeObject(e.Message)
-                },
+                }),
                 Accion = "Obtener cargadas"
             });
             await context.SaveChangesAsync();
@@ -1233,7 +1233,7 @@ namespace GComFuelManager.Server.Controllers.Services
                         orden.Orden = null!;
                         orden.Destino = null!;
                         orden.Estado = null!;
-                        orden.Producto = null!; 
+                        orden.Producto = null!;
                         orden.Cliente = null!;
                         orden.Chofer = null!;
                         orden.Tonel = null!;
