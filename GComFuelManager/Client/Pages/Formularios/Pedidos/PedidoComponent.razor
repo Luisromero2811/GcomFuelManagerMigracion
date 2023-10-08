@@ -512,6 +512,8 @@
 
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
+    Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+
     protected override async Task OnInitializedAsync()
     {
         await GetTerminales();
@@ -980,7 +982,13 @@
             SendOrden = true;
             if (!string.IsNullOrEmpty(filtro.Folio))
             {
-                var responseVerify = await http.Get<OrdenCierre>($"api/clientes/{ordenCierre.CodCte}");
+                queryStringObject["folio"] = filtro.Folio;
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+                var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+                var responseVerify = await http.Get<OrdenCierre>($"api/cierre/caducidad/verify?{uri}");
                 if (responseVerify.Error)
                 {
                     var message = await responseVerify.ObtenerMensajeError();
