@@ -663,29 +663,28 @@
         {
             if (ordenes.Count != 0)
             {
-                foreach (var item in ordenes!)
+                foreach (var item in ordenes)
                 {
                     //Console.WriteLine(JsonConvert.SerializeObject(item));
-                    if ((item.Destino!.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado))
-                       && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                       && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                    if ((item.Destino?.Cliente?.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado))
+                       && (item.Destino?.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
+                       && (item.Producto?.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
                         {
-                            OrdenCompra = item?.OrdenCompra?.den,
-                            Referencia = item?.OrdenCierre?.Folio,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            //Volumen = item?.Vol,
-                            Volumen = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
-                            FechaCarga = item?.Fchcar!.Value.ToString("dd/MM/yyyy"),
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
+                            OrdenCompra = item?.OrdenCompra?.den ?? "",
+                            Referencia = item?.OrdenCierre?.Folio ?? "",
+                            Cliente = item?.Destino?.Cliente?.Den ?? "",
+                            Destino = item?.Destino?.Den ?? "",
+                            Producto = item?.Producto?.Den ?? "",
+                            Volumen = item?.Vol,
+                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                            Unidad = item?.Tonel?.Veh ?? "",
                             Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den,
+                            Operador = item?.Chofer?.Den ?? "",
                             Bin = item?.Bin,
-                            Fecha = item?.OrdenCierre!.FechaLlegada,
-                            Turno = item?.OrdenCierre!.Turno
+                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                            Turno = item?.OrdenCierre?.Turno ?? ""
                             //Status = item?.Estado?.den
                         });
                 }
