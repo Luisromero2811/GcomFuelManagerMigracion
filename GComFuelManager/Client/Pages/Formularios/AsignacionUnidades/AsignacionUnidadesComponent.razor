@@ -63,10 +63,10 @@
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 AllowVirtualization="true">
                                     <Template Context="data">
-                                        @((data as Chofer).Dricod) | @((data as Chofer).Den)
+                                        @((data as Chofer).Dricod)  | @((data as Chofer).Den ) |  @( (data as Chofer).Shortden)
                                     </Template>
                                     <ValueTemplate Context="data">
-                                        @((data as Chofer).Dricod) | @((data as Chofer).Den)
+                                        @((data as Chofer).Dricod) | @((data as Chofer).Den ) | @((data as Chofer).Shortden)
                                     </ValueTemplate>
                                 </RadzenDropDown>
                             </div>
