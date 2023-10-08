@@ -56,7 +56,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var transportistas = await context.Transportista.Where(x => x.Activo == true && x.Gru != null)
+                var transportistas = await context.Transportista.Where(x => x.Activo == true)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);
