@@ -58,6 +58,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
+                List<OrdenEmbarque> OrdenesEnviadas = new List<OrdenEmbarque>();
                 List<OrdenEmbarque> ordenesEmbarque = new List<OrdenEmbarque>();
                 BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
@@ -187,74 +188,80 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
+
                             foreach (var p in pedidos)
                             {
-                                BillOfLadingLineItem lineItem = new BillOfLadingLineItem();
+                                var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
+                                if (ord is null)
+                                {
 
-                                lineItem.Tank = new Device();
-                                lineItem.Tank.DeviceId = new Identifier();
-                                lineItem.Tank.DeviceId.Id = new NLong();
-                                lineItem.Tank.DeviceId.Id.Value = 16023;
+                                    BillOfLadingLineItem lineItem = new BillOfLadingLineItem();
+                                    OrdenesEnviadas.Add(p);
+                                    lineItem.Tank = new Device();
+                                    lineItem.Tank.DeviceId = new Identifier();
+                                    lineItem.Tank.DeviceId.Id = new NLong();
+                                    lineItem.Tank.DeviceId.Id.Value = 16023;
 
-                                lineItem.Supplier = new BusinessEntity();
-                                lineItem.Supplier.BusinessEntityId = new Identifier();
-                                lineItem.Supplier.BusinessEntityId.Id = new NLong();
-                                lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
+                                    lineItem.Supplier = new BusinessEntity();
+                                    lineItem.Supplier.BusinessEntityId = new Identifier();
+                                    lineItem.Supplier.BusinessEntityId.Id = new NLong();
+                                    lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
 
-                                lineItem.CompartmentId = new NLong();
-                                lineItem.BaseNetQuantity = new NDecimal();
-                                lineItem.CustomerOrderQuantity = new NDecimal();
+                                    lineItem.CompartmentId = new NLong();
+                                    lineItem.BaseNetQuantity = new NDecimal();
+                                    lineItem.CustomerOrderQuantity = new NDecimal();
 
-                                lineItem.Customer = new BusinessEntity();
-                                lineItem.Customer.BusinessEntityId = new Identifier();
-                                lineItem.Customer.BusinessEntityId.Id = new NLong();
+                                    lineItem.Customer = new BusinessEntity();
+                                    lineItem.Customer.BusinessEntityId = new Identifier();
+                                    lineItem.Customer.BusinessEntityId.Id = new NLong();
 
-                                lineItem.BaseProduct = new Product();
-                                lineItem.BaseProduct.ProductId = new Identifier();
-                                lineItem.BaseProduct.ProductId.Id = new NLong();
+                                    lineItem.BaseProduct = new Product();
+                                    lineItem.BaseProduct.ProductId = new Identifier();
+                                    lineItem.BaseProduct.ProductId.Id = new NLong();
 
-                                lineItem.OrderedProduct = new Product();
-                                lineItem.OrderedProduct.ProductId = new Identifier();
-                                lineItem.OrderedProduct.ProductId.Id = new NLong();
+                                    lineItem.OrderedProduct = new Product();
+                                    lineItem.OrderedProduct.ProductId = new Identifier();
+                                    lineItem.OrderedProduct.ProductId.Id = new NLong();
 
-                                lineItem.EndLoadTime = new NDateTime();
+                                    lineItem.EndLoadTime = new NDateTime();
 
-                                CustomFieldMetaData cfm = new CustomFieldMetaData();
+                                    CustomFieldMetaData cfm = new CustomFieldMetaData();
 
-                                lineItem.CustomFieldInstances = new CustomFieldInstance[1];
-                                lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
-                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
+                                    lineItem.CustomFieldInstances = new CustomFieldInstance[1];
+                                    lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
+                                    lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
 
-                                lineItem.Destination = new Destination();
-                                lineItem.Destination.DestinationId = new Identifier();
-                                lineItem.Destination.DestinationId.Id = new NLong();
+                                    lineItem.Destination = new Destination();
+                                    lineItem.Destination.DestinationId = new Identifier();
+                                    lineItem.Destination.DestinationId.Id = new NLong();
 
-                                lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
-                                lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
+                                    lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
+                                    lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
 
-                                lineItem.BaseNetQuantity.Value = 0M;
-                                var vol = p.Compartment == 1 ? p.Tonel!.Capcom
-                                    : p.Compartment == 2 ? p.Tonel!.Capcom2
-                                    : p.Compartment == 3 ? p.Tonel!.Capcom3
-                                    : p.Tonel!.Capcom4;
-                                lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
+                                    lineItem.BaseNetQuantity.Value = 0M;
+                                    var vol = p.Compartment == 1 ? p.Tonel!.Capcom
+                                        : p.Compartment == 2 ? p.Tonel!.Capcom2
+                                        : p.Compartment == 3 ? p.Tonel!.Capcom3
+                                        : p.Tonel!.Capcom4;
+                                    lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
 
-                                lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
-                                lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                                lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                                lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
+                                    lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
+                                    lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                    lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                    lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
 
-                                cfm.EntityKey = p.Cod.ToString();
-                                cfm.Name = p.Cod.ToString();
-                                cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
-                                cfm.CustomFieldMetaDataId = new NLong();
-                                cfm.CustomFieldMetaDataId.Value = 46;
+                                    cfm.EntityKey = p.Cod.ToString();
+                                    cfm.Name = p.Cod.ToString();
+                                    cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
+                                    cfm.CustomFieldMetaDataId = new NLong();
+                                    cfm.CustomFieldMetaDataId.Value = 46;
 
-                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
-                                lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
-                                lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
+                                    lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
+                                    lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
+                                    lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
 
-                                billOfLadingLineItems.Add(lineItem);
+                                    billOfLadingLineItems.Add(lineItem);
+                                }
                             }
 
                             request.BillOfLading.LineItems = billOfLadingLineItems.ToArray();
@@ -277,35 +284,44 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (response != null && response.BillOfLadings != null && response.BillOfLadings.Length > 0)
                             {
                                 BillOfLading billOfLading = response.BillOfLadings[0];
+                                foreach (var ordped in pedidos)
+                                {
+                                    ordped.Bolguidid = billOfLading.BolGuidId;
+                                    ordped.Folio = folio;
+                                    ordped.Codest = 22;
 
-                                item.Bolguidid = billOfLading.BolGuidId;
-                                item.Folio = folio;
-                                item.Codest = 22;
+                                    ordped.Chofer = null!;
+                                    ordped.Destino = null!;
+                                    ordped.Estado = null!;
+                                    ordped.Orden = null!;
+                                    ordped.OrdenCierre = null!;
+                                    ordped.OrdenCompra = null!;
+                                    ordped.OrdenPedido = null!;
+                                    ordped.Producto = null!;
+                                    ordped.Tad = null!;
+                                    ordped.Tonel = null!;
+                                    //ordenesEmbarque.Add(item);
 
-                                item.Chofer = null!;
-                                item.Destino = null!;
-                                item.Estado = null!;
-                                item.Orden = null!;
-                                item.OrdenCierre = null!;
-                                item.OrdenCompra = null!;
-                                item.OrdenPedido = null!;
-                                item.Producto = null!;
-                                item.Tad = null!;
-                                item.Tonel = null!;
-                                ordenesEmbarque.Add(item);
+                                    context.Update(ordped);
+
+                                    var id = await verify.GetId(HttpContext, userManager);
+                                    if (string.IsNullOrEmpty(id))
+                                        return BadRequest();
+
+                                    await context.SaveChangesAsync(id, 10);
+                                }
                                 //context.Update(item);
                             }
                         }
                     }
-                    Debug.WriteLine(JsonConvert.SerializeObject(ordenesEmbarque));
 
-                    context.UpdateRange(ordenesEmbarque);
+                    //context.UpdateRange(ordenesEmbarque);
 
-                    var id = await verify.GetId(HttpContext, userManager);
-                    if (string.IsNullOrEmpty(id))
-                        return BadRequest();
+                    //var id = await verify.GetId(HttpContext, userManager);
+                    //if (string.IsNullOrEmpty(id))
+                    //    return BadRequest();
 
-                    await context.SaveChangesAsync(id, 10);
+                    //await context.SaveChangesAsync(id, 10);
 
                     return Ok(true);
                 }
@@ -327,6 +343,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
+                List<OrdenEmbarque> OrdenesEnviadas = new List<OrdenEmbarque>();
                 BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
@@ -454,73 +471,76 @@ namespace GComFuelManager.Server.Controllers.Services
                         foreach (var p in pedidos)
                         {
                             BillOfLadingLineItem lineItem = new BillOfLadingLineItem();
+                            var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
+                            if (ord is null)
+                            {
 
-                            lineItem.Tank = new Device();
-                            lineItem.Tank.DeviceId = new Identifier();
-                            lineItem.Tank.DeviceId.Id = new NLong();
-                            lineItem.Tank.DeviceId.Id.Value = 16023;
+                                lineItem.Tank = new Device();
+                                lineItem.Tank.DeviceId = new Identifier();
+                                lineItem.Tank.DeviceId.Id = new NLong();
+                                lineItem.Tank.DeviceId.Id.Value = 16023;
 
-                            lineItem.Supplier = new BusinessEntity();
-                            lineItem.Supplier.BusinessEntityId = new Identifier();
-                            lineItem.Supplier.BusinessEntityId.Id = new NLong();
-                            lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
+                                lineItem.Supplier = new BusinessEntity();
+                                lineItem.Supplier.BusinessEntityId = new Identifier();
+                                lineItem.Supplier.BusinessEntityId.Id = new NLong();
+                                lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
 
-                            lineItem.CompartmentId = new NLong();
-                            lineItem.BaseNetQuantity = new NDecimal();
-                            lineItem.CustomerOrderQuantity = new NDecimal();
+                                lineItem.CompartmentId = new NLong();
+                                lineItem.BaseNetQuantity = new NDecimal();
+                                lineItem.CustomerOrderQuantity = new NDecimal();
 
-                            lineItem.Customer = new BusinessEntity();
-                            lineItem.Customer.BusinessEntityId = new Identifier();
-                            lineItem.Customer.BusinessEntityId.Id = new NLong();
+                                lineItem.Customer = new BusinessEntity();
+                                lineItem.Customer.BusinessEntityId = new Identifier();
+                                lineItem.Customer.BusinessEntityId.Id = new NLong();
 
-                            lineItem.BaseProduct = new Product();
-                            lineItem.BaseProduct.ProductId = new Identifier();
-                            lineItem.BaseProduct.ProductId.Id = new NLong();
+                                lineItem.BaseProduct = new Product();
+                                lineItem.BaseProduct.ProductId = new Identifier();
+                                lineItem.BaseProduct.ProductId.Id = new NLong();
 
-                            lineItem.OrderedProduct = new Product();
-                            lineItem.OrderedProduct.ProductId = new Identifier();
-                            lineItem.OrderedProduct.ProductId.Id = new NLong();
+                                lineItem.OrderedProduct = new Product();
+                                lineItem.OrderedProduct.ProductId = new Identifier();
+                                lineItem.OrderedProduct.ProductId.Id = new NLong();
 
-                            lineItem.EndLoadTime = new NDateTime();
+                                lineItem.EndLoadTime = new NDateTime();
 
-                            CustomFieldMetaData cfm = new CustomFieldMetaData();
+                                CustomFieldMetaData cfm = new CustomFieldMetaData();
 
-                            lineItem.CustomFieldInstances = new CustomFieldInstance[1];
-                            lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
-                            lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
+                                lineItem.CustomFieldInstances = new CustomFieldInstance[1];
+                                lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
+                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
 
-                            lineItem.Destination = new Destination();
-                            lineItem.Destination.DestinationId = new Identifier();
-                            lineItem.Destination.DestinationId.Id = new NLong();
+                                lineItem.Destination = new Destination();
+                                lineItem.Destination.DestinationId = new Identifier();
+                                lineItem.Destination.DestinationId.Id = new NLong();
 
-                            lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
-                            lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
+                                lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
+                                lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
 
-                            lineItem.BaseNetQuantity.Value = 0M;
-                            var vol = p.Compartment == 1 ? p.Tonel!.Capcom
-                                : p.Compartment == 2 ? p.Tonel!.Capcom2
-                                : p.Compartment == 3 ? p.Tonel!.Capcom3
-                                : p.Tonel!.Capcom4;
-                            lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
+                                lineItem.BaseNetQuantity.Value = 0M;
+                                var vol = p.Compartment == 1 ? p.Tonel!.Capcom
+                                    : p.Compartment == 2 ? p.Tonel!.Capcom2
+                                    : p.Compartment == 3 ? p.Tonel!.Capcom3
+                                    : p.Tonel!.Capcom4;
+                                lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
 
-                            lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
-                            lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                            lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                            lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
+                                lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
+                                lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
 
-                            cfm.EntityKey = p.Cod.ToString();
-                            cfm.Name = p.Cod.ToString();
-                            cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
-                            cfm.CustomFieldMetaDataId = new NLong();
-                            cfm.CustomFieldMetaDataId.Value = 46;
+                                cfm.EntityKey = p.Cod.ToString();
+                                cfm.Name = p.Cod.ToString();
+                                cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
+                                cfm.CustomFieldMetaDataId = new NLong();
+                                cfm.CustomFieldMetaDataId.Value = 46;
 
-                            lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
-                            lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
-                            lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
+                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
+                                lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
+                                lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
 
-                            billOfLadingLineItems.Add(lineItem);
+                                billOfLadingLineItems.Add(lineItem);
+                            }
                         }
-
                         request.BillOfLading.LineItems = billOfLadingLineItems.ToArray();
 
                         WsBillOfLadingResponse response = new WsBillOfLadingResponse();
@@ -543,21 +563,32 @@ namespace GComFuelManager.Server.Controllers.Services
                         {
                             BillOfLading billOfLading = response.BillOfLadings[0];
 
-                            pedidos.ForEach(x =>
+                            foreach (var ordped in pedidos)
                             {
-                                x.Bolguidid = billOfLading.BolGuidId;
-                                x.Folio = folio;
-                            });
+                                ordped.Bolguidid = billOfLading.BolGuidId;
+                                ordped.Folio = folio;
+                                ordped.Codest = 22;
 
-                            var ordenembarque = pedidos.ToList();
+                                ordped.Chofer = null!;
+                                ordped.Destino = null!;
+                                ordped.Estado = null!;
+                                ordped.Orden = null!;
+                                ordped.OrdenCierre = null!;
+                                ordped.OrdenCompra = null!;
+                                ordped.OrdenPedido = null!;
+                                ordped.Producto = null!;
+                                ordped.Tad = null!;
+                                ordped.Tonel = null!;
+                                //ordenesEmbarque.Add(item);
 
-                            context.UpdateRange(ordenembarque!);
+                                context.Update(ordped);
 
-                            var id = await verify.GetId(HttpContext, userManager);
-                            if (string.IsNullOrEmpty(id))
-                                return BadRequest();
+                                var id = await verify.GetId(HttpContext, userManager);
+                                if (string.IsNullOrEmpty(id))
+                                    return BadRequest();
 
-                            await context.SaveChangesAsync(id, 21);
+                                await context.SaveChangesAsync(id, 21);
+                            }
                         }
                     }
 
