@@ -677,7 +677,7 @@
                             Destino = item?.Destino?.Den ?? "",
                             Producto = item?.Producto?.Den ?? "",
                             //Volumen = item?.Vol,
-                            Volumen = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
+                            Volumen = item?.Compartment == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
                             FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                             Transportista = item?.Tonel?.Transportista?.Den ?? "",
                             Unidad = item?.Tonel?.Veh ?? "",
