@@ -682,7 +682,7 @@
                             Transportista = item?.Tonel?.Transportista?.Den ?? "",
                             Unidad = item?.Tonel?.Veh ?? "",
                             Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den ?? "",
+                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
                             Bin = item?.Bin,
                             Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
                             Turno = item?.OrdenCierre?.Turno ?? ""
