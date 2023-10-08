@@ -128,7 +128,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      .Select(e => new EtaDTO()
                      {
                          Referencia = e.Ref,
-                         FechaPrograma = e.Fch.Value.ToString("yyyy-MM-dd"),
+                         FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                          EstatusOrden = "CLOSED",
                          FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                          Bol = e.BatchId,

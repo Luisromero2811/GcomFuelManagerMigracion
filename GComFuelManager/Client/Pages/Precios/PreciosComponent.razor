@@ -58,18 +58,18 @@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" Filterable="true" Property="Producto" />
                                                 @*<FilterTemplate Context="filter">
-                                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
-                                            <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180" />
-                                            </RadzenDropDown>
-                                            </FilterTemplate>
-                                            <Template Context="data">
-                                            <div class="col-12 d-flex">
-                                            <div class="col-11">
-                                            @data.Producto
-                                            </div>
-                                            </div>
-                                            </Template>
-                                            </RadzenDataGridColumn>*@
+                                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
+                                                    <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180" />
+                                                    </RadzenDropDown>
+                                                    </FilterTemplate>
+                                                    <Template Context="data">
+                                                    <div class="col-12 d-flex">
+                                                    <div class="col-11">
+                                                    @data.Producto
+                                                    </div>
+                                                    </div>
+                                                    </Template>
+                                                    </RadzenDataGridColumn>*@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
                                             </Columns>
                                         </RadzenDataGrid>
@@ -255,14 +255,30 @@
                         <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
                             <thead>
                                 <tr>
-                                    <th scope="col" width="100px">Editar</th>
+
+                                    <th scope="col" width="100px">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                            <Authorized>
+                                                Editar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
+
                                     <th scope="col">Fecha</th>
                                     <th scope="col">Precio</th>
                                     <th scope="col">Producto</th>
                                     <th scope="col">Destino</th>
                                     <th scope="col" width="150px">Zona</th>
                                     <th scope="col">Cliente</th>
-                                    <th scope="col">Habilitar / deshabilitar</th>
+
+                                    <th scope="col">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                            <Authorized>
+                                                Habilitar / deshabilitar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -297,15 +313,17 @@
                                     @foreach (var item in precios)
                                     {
                                         <tr style="height:50px">
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                <td width="100px">
+
+                                            <td width="100px">
+                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                                     <div class="col-12">
                                                         <div class="col p-2">
                                                             <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </AuthorizeView>
+                                                </AuthorizeView>
+                                            </td>
+
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
@@ -324,17 +342,17 @@
                                             <td>
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
-
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                <td>
+                                            <td>
+                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </AuthorizeView>
+                                                </AuthorizeView>
+                                            </td>
+
                                         </tr>
                                     }
 
@@ -370,14 +388,27 @@
                         <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
                             <thead>
                                 <tr>
-                                    <th scope="col" width="100px">Editar</th>
+                                    <th scope="col" width="100px">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                            <Authorized>
+                                                Editar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
                                     <th scope="col">Fecha</th>
                                     <th scope="col">Precio</th>
                                     <th scope="col">Producto</th>
                                     <th scope="col">Destino</th>
                                     <th scope="col" width="150px">Zona</th>
                                     <th scope="col">Cliente</th>
-                                    <th scope="col">Habilitar / deshabilitar</th>
+                                    <th scope="col">
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                            <Authorized>
+                                                Habilitar / deshabilitar
+                                            </Authorized>
+                                        </AuthorizeView>
+                                    </th>
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -412,15 +443,17 @@
                                     @foreach (var item in preciosPro)
                                     {
                                         <tr style="height:50px">
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                          
                                                 <td width="100px">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                                        <div class="col-12">
+                                                            <div class="col p-2">
+                                                                <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    </AuthorizeView>
                                                 </td>
-                                            </AuthorizeView>
+                                          
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
@@ -440,16 +473,18 @@
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
 
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                <td>
+                                          
+                                            <td>
+                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </AuthorizeView>
+                                                </AuthorizeView>
+                                            </td>
+                                      
                                         </tr>
                                     }
 
@@ -487,10 +522,10 @@
 </AuthorizeView>
 
 @*<style type="text/css">
-    .ancho {
-        width: @TotalWidth;
-    }
-</style>*@
+        .ancho {
+            width: @TotalWidth;
+        }
+    </style>*@
 
 @code {
 
@@ -931,12 +966,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Generando reporte",
-                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Generando reporte",
+                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                        Duration = 15000
+                    });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -996,12 +1031,12 @@
             }
             totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                    Duration = 15000
-                });
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
 
             List<Precio> listaPrecios = new List<Precio>();
 
@@ -1039,12 +1074,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"El correo se ha enviado al cliente {cliente}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al cliente {cliente}",
+                            Duration = 15000
+                        });
                     }
                 }
                 else if (clientes.TipoEnvio == 2)
@@ -1060,12 +1095,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"El correo se ha enviado al cliente {cliente}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al cliente {cliente}",
+                            Duration = 15000
+                        });
                     }
                 }
             }

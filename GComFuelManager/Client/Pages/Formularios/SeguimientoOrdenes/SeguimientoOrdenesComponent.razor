@@ -86,30 +86,31 @@
                         @bind-Settings="@Settings">
             <Columns>
                 <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true" />
-                <!--Para órdenes sin cargar usamos la fecha de programa pero con la propiedad de fecha de carga, para órdenes cargadas usamos la propiedad de fecha de programa como fecha de programa-->
+                <!--Para órdenes sin cargar usamos la fecha de programa pero con la propiedad de fecha de carga de la tabla orden, para órdenes cargadas usamos la propiedad de fecha de programa como fecha de carga de ordenEmbarque-->
                 <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true">
                     <Template Context="data">
-                        @(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))
+                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
+                        @(data?.BatchId is null ? data?.Fchcar?.ToString("dd/MM/yyyy") : data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"))
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
                     <Template Context="data">
                         <div class="col-12">
-                            @if (Status is true)
-                            {
-                                <p>CLOSED</p>
-                            }
-                            else
-                            {
-                                @data?.Estado?.den
-                            }
+                            @*@if (Status is true)
+                                {
+                                    <p>CLOSED</p>
+                                }
+                                else
+                                {*@
+                            <p> @data?.Estado?.den </p>
+                            @*}*@
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
-                <!--Para la fecha de carga solo la utilizaremos para órdenes cargadas y canceladas, en órdenes sin cargar no mostrará nada, su propiedad es de fecha de carga-->
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fchcar" FormatString="{0:d}" Width="140px" Filterable="false">
+                <!--Para la fecha de carga solo la utilizaremos para órdenes cargadas, en órdenes sin cargar no mostrará nada, su propiedad es de fecha de carga fechas.Estado != 4 && fechas.Estado != 1-->
+                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fchcar" FormatString="{0:d}" Width="160px" Filterable="false">
                     <Template Context="data">
-                        @(data?.Fchcar is not null && fechas.Estado != 4 ? data?.Fchcar : "")
+                        @(data?.Fchcar is not null && data?.BatchId is not null ? data?.Fchcar : "")
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="110px" Filterable="false" />
@@ -158,6 +159,20 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Width="160px" FormatString="{0:#,##0.00}" Filterable="false">
                     <Template Context="data">
+                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
+                        @*@(data?.OrdenEmbarque is not null ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                  data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                                  : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                                  : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                                  : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                                  : data?.Vol2))
+                                   : (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                            data?.Compartimento == 1 ? data?.Tonel?.Capcom
+                                  : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
+                                  : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
+                                  : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
+                                  : data?.Vol
+                                  )))*@
                         @if (fechas.Estado == 1)
                         {
                             <div class="col-12">
@@ -187,7 +202,16 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="180px" FormatString="{0:N2}" Filterable="false">
                     <Template Context="data">
-                        @if (fechas.Estado == 1)
+                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
+                        @*@(data?.OrdenEmbarque is not null  ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                              data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                            : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                            : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                            : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                            : data?.Vol))
+                             : (""))*@
+
+                        @if (data?.BatchId is null)
                         {
 
                         }
@@ -220,8 +244,8 @@
 </AuthorizeView>
 <style type="text/css">
     .ancho {
-        width: @TotalWidth;
-    }
+                            width: @TotalWidth;
+                            }
 </style>
 
 @code {
@@ -367,7 +391,7 @@
         {
             if (ordens.Count != 0)
             {
-                if (fechas.Estado == 1)
+                if (fechas.Estado == 1 || fechas.Estado == 4)
                 {
                     foreach (var item in ordens!)
                     {
@@ -408,7 +432,7 @@
                     tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                     //Guardado de Excel
-                    await JS.GuardarComo($"Ordenes_SinCarga{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+                    await JS.GuardarComo($"Ordenes{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
                     SeguimientoOrden.Clear();
                 }
                 else
@@ -622,7 +646,7 @@
                             Referencia = item?.Ref,
                             FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
                             EstatusOrden = item?.Estado.den,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
                             Bol = item?.BatchId,
                             //DeliveryRack = item?.Destino?.Cliente?.Tipven,
                             Cliente = item?.Destino?.Cliente?.Den,
@@ -778,3 +802,15 @@
     }
 
 }
+
+
+@*@(fechas.Estado == 1 ? string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", data?.Compartimento == 1 ? data?.Tonel?.Capcom
+    : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
+    : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
+    : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
+    : data?.Vol)
+    : string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+    : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+    : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+    : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+    : data?.Vol2))*@

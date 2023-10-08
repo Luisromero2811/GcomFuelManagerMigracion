@@ -190,6 +190,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
                     var pedidosDate = await context.OrdenEmbarque
+                   
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -200,6 +201,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
                     .Include(x => x.Orden)
+                    //.OrderBy(x => x.Bin)
+                    .OrderByDescending(x => x.Bin)
                     //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
                     .Select(o => new Orden()
                     {
@@ -219,9 +222,11 @@ namespace GComFuelManager.Server.Controllers
                         Chofer = o.Chofer,
                         Compartimento = o.Compartment
                     })
-                    .OrderBy(x => x.Fchcar)
+                    //.OrderBy(x => x.Fchcar)
+                     //ordens.OrderByDescending(x => x.Bin);
                     .Take(10000)
                     .ToListAsync();
+                    //pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 2)
@@ -240,6 +245,7 @@ namespace GComFuelManager.Server.Controllers
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
+                   // pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 3)
@@ -257,6 +263,7 @@ namespace GComFuelManager.Server.Controllers
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
+                    //pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 4)
@@ -276,7 +283,7 @@ namespace GComFuelManager.Server.Controllers
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
                         .ToListAsync();
-
+                    //pedidosDate.OrderByDescending(x => x.Fchcar);
                     if (pedidosDate is not null)
                         ordenesCanceladas.AddRange(pedidosDate);
 
@@ -305,7 +312,8 @@ namespace GComFuelManager.Server.Controllers
                         Bolguiid = null!,
                         BatchId = null!,
                         Tonel = o.Tonel,
-                        Chofer = o.Chofer
+                        Chofer = o.Chofer,
+                        Compartimento = o.Compartment
                     })
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
@@ -420,7 +428,8 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                 Ordenes.AddRange(pedidosDate3);
-
+                //Ordenes Canceladas
+                List<Orden> ordenesCanceladas = new List<Orden>();
                 var pedidosDate4 = await context.Orden
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 14)
                     .Include(x => x.Destino)
@@ -433,7 +442,42 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.OrdenEmbarque)
                     .Take(10000)
                     .ToListAsync();
-                Ordenes.AddRange(pedidosDate4);
+                if (pedidosDate4 is not null)
+                    ordenesCanceladas.AddRange(pedidosDate4);
+                var orden = await context.OrdenEmbarque
+                  .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 14 && x.Bolguidid != null)
+                  .Include(x => x.Destino)
+                  .ThenInclude(x => x.Cliente)
+                  .Include(x => x.Tad)
+                  .Include(x => x.Producto)
+                  .Include(x => x.Tonel)
+                  .ThenInclude(x => x.Transportista)
+                  .Include(x => x.Chofer)
+                  .Include(x => x.Estado)
+                  //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
+                  .Select(o => new Orden()
+                  {
+                      Cod = o.Cod,
+                      Ref = "ENER-" + o.Folio.ToString(),
+                      //Ref = o.ref
+                      Fchcar = o.Fchcar,
+                      Estado = o.Estado,
+                      Destino = o.Destino,
+                      Producto = o.Producto,
+                      Vol2 = o.Vol,
+                      Vol = null!,
+                      Bolguiid = null!,
+                      BatchId = null!,
+                      Tonel = o.Tonel,
+                      Chofer = o.Chofer,
+                      Compartimento = o.Compartment
+                  })
+                  .OrderBy(x => x.Fchcar)
+                  .Take(10000)
+                  .ToListAsync();
+                if (orden is not null)
+                    ordenesCanceladas.AddRange(orden);
+                Ordenes.AddRange(orden);
 
                 return Ok(Ordenes);
 
