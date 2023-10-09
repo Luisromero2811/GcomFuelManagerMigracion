@@ -791,7 +791,7 @@
                     loadingSend = true;
 
                     var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null).ToList();
-
+                    Console.WriteLine(JsonConvert.SerializeObject(ordens));
                     var response = await repositorio.Post<List<OrdenEmbarque>, bool>($"api/services/send", ordens);
                     //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
 
