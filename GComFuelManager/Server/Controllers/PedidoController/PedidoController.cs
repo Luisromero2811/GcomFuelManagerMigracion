@@ -114,6 +114,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
+                List<OrdenEmbarque> newOrdens = new List<OrdenEmbarque>();
 
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
@@ -135,7 +136,11 @@ namespace GComFuelManager.Server.Controllers
 
                 ordens.OrderByDescending(x => x.Bin);
 
-                return Ok(ordens);
+                foreach (var item in ordens)
+                    if (!newOrdens.Contains(item))
+                        newOrdens.Add(item);
+
+                return Ok(newOrdens);
             }
             catch (Exception e)
             {
@@ -190,7 +195,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
                     var pedidosDate = await context.OrdenEmbarque
-                   
+
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -223,7 +228,7 @@ namespace GComFuelManager.Server.Controllers
                         Compartimento = o.Compartment
                     })
                     //.OrderBy(x => x.Fchcar)
-                     //ordens.OrderByDescending(x => x.Bin);
+                    //ordens.OrderByDescending(x => x.Bin);
                     .Take(10000)
                     .ToListAsync();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
@@ -245,7 +250,7 @@ namespace GComFuelManager.Server.Controllers
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
-                   // pedidosDate.OrderByDescending(x => x.Fchcar);
+                    // pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 3)

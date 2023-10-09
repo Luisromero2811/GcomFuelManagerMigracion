@@ -794,6 +794,12 @@
             }
             else
             {
+                if (ordenCierre.OrdenEmbarque is null)
+                {
+                    await Swal.FireAsync("Error", "No se encontro una orden.", SweetAlertIcon.Error);
+                    return;
+                }
+
                 var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido/update", ordenCierre.OrdenEmbarque);
                 if (response.Error)
                 {
@@ -805,7 +811,10 @@
                 {
                     loadingAgregar = false;
                     CancelEdit();
-                    await GetFiltroCierres();
+                    // await GetFiltroCierres();
+                    var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
+                    ordenCierres.RemoveAt(index);
+                    ordenCierres.Insert(index, responseOC.Response);
                 }
             }
         }
@@ -1062,12 +1071,16 @@
     {
         try
         {
-            if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
-            {
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre.CodPrd).Pre;
-                CodProductoSeleccionado = ordenCierre.CodPrd;
-                //StateHasChanged();
-            }
+            if (ordenCierre.CodPrd != null && Precios.Count > 0)
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto != null && x.Producto?.Cod == ordenCierre?.CodPrd).Pre;
+            else
+                ordenCierre.Precio = 0;
+            // if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
+            // {
+            //     ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre?.CodPrd).Pre;
+            //     CodProductoSeleccionado = ordenCierre.CodPrd;
+            //     //StateHasChanged();
+            // }
             //CodProductoSeleccionado = ordenCierre.CodPrd;
         }
         catch (Exception e)
@@ -1095,6 +1108,7 @@
             {
                 Precios = response.Response;
                 DestinoSeleccionado = ordenCierre.CodDes;
+                await ChangeProducto();
                 StateHasChanged();
             }
 

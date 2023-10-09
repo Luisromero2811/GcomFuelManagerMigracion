@@ -168,7 +168,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Destino!.Cliente!.Codsyn!);
                             request.BillOfLading.StartLoadTime.Value = item.Fchcar!.Value;
                             request.BillOfLading.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
-                            var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).FirstOrDefault()!.Folio;
+                            var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
 
                             if (folio == 0)
                                 return BadRequest();
@@ -284,33 +284,53 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (response != null && response.BillOfLadings != null && response.BillOfLadings.Length > 0)
                             {
                                 BillOfLading billOfLading = response.BillOfLadings[0];
-                                foreach (var ordped in pedidos)
+
+                                //foreach (var ordped in pedidos)
+                                //{
+                                //    ordped.Bolguidid = billOfLading.BolGuidId;
+                                //    ordped.Folio = folio;
+                                //    ordped.Codest = 22;
+
+                                //    ordped.Chofer = null!;
+                                //    ordped.Destino = null!;
+                                //    ordped.Estado = null!;
+                                //    ordped.Orden = null!;
+                                //    ordped.OrdenCierre = null!;
+                                //    ordped.OrdenCompra = null!;
+                                //    ordped.OrdenPedido = null!;
+                                //    ordped.Producto = null!;
+                                //    ordped.Tad = null!;
+                                //    ordped.Tonel = null!;
+                                //    //ordenesEmbarque.Add(item);
+
+                                //    //context.Entry(ordped).State = EntityState.Modified;
+                                //    //context.Update(ordped);
+                                //}
+
+                                pedidos.ForEach(x =>
                                 {
-                                    ordped.Bolguidid = billOfLading.BolGuidId;
-                                    ordped.Folio = folio;
-                                    ordped.Codest = 22;
+                                    x.Bolguidid = billOfLading.BolGuidId;
+                                    x.Folio = folio;
+                                    x.Codest = 22;
+                                    
+                                    x.Chofer = null!;
+                                    x.Destino = null!;
+                                    x.Estado = null!;
+                                    x.Orden = null!;
+                                    x.OrdenCierre = null!;
+                                    x.OrdenCompra = null!;
+                                    x.OrdenPedido = null!;
+                                    x.Producto = null!;
+                                    x.Tad = null!;
+                                    x.Tonel = null!;
+                                });
 
-                                    ordped.Chofer = null!;
-                                    ordped.Destino = null!;
-                                    ordped.Estado = null!;
-                                    ordped.Orden = null!;
-                                    ordped.OrdenCierre = null!;
-                                    ordped.OrdenCompra = null!;
-                                    ordped.OrdenPedido = null!;
-                                    ordped.Producto = null!;
-                                    ordped.Tad = null!;
-                                    ordped.Tonel = null!;
-                                    //ordenesEmbarque.Add(item);
+                                context.UpdateRange(pedidos);
+                                var id = await verify.GetId(HttpContext, userManager);
+                                if (string.IsNullOrEmpty(id))
+                                    return BadRequest();
 
-                                    context.Update(ordped);
-
-                                    var id = await verify.GetId(HttpContext, userManager);
-                                    if (string.IsNullOrEmpty(id))
-                                        return BadRequest();
-
-                                    await context.SaveChangesAsync(id, 10);
-                                }
-                                //context.Update(item);
+                                await context.SaveChangesAsync(id, 10);
                             }
                         }
                     }
