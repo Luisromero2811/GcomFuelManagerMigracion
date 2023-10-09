@@ -72,9 +72,12 @@
                             </div>
                             <div class="col-4">
                                 <label>Vehiculo:</label>
-                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
+                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon" @onchange="@ResetRadioButton" @onselectionchange="@ResetRadioButton"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" />
+                                                AllowVirtualization="true">
+
+
+                                </RadzenDropDown>
                             </div>
                         </div>
                         <div class="col-12">
@@ -85,7 +88,9 @@
                                         @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
                                         {
                                             @if (asignacion.CodTon != 0)
+
                                             {
+
                                                 <InputRadioGroup @bind-Value="asignacion.Compartimiento">
                                                     @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
                                                     {
@@ -97,6 +102,7 @@
                                                         </div>
                                                     }
                                                 </InputRadioGroup>
+
                                             }
                                         }
                                     }
@@ -140,7 +146,7 @@
                     <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Asignar" Filterable="false" Width="80px" Sortable="false" OrderIndex="2" Frozen="true">
                         <Template Context="data">
                             <div class="col-12">
-                                <button class="btn btn-primary col-12" @onclick="@(()=>SetOrden(data))">
+                                <button class="btn btn-primary col-12" @onclick="@(() => SetOrden(data))">
                                     <i class="fa fa-solid fa-pen-to-square"></i>
                                 </button>
                             </div>
@@ -195,13 +201,13 @@
                     <Template Context="data">
                         <div class="col-12">
                             @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            data?.Orden is not null ? data?.Orden?.Vol :
-                            data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
-                            : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 && data.Tonel is not null ? data?.Tonel?.Capcom3
-                            : data?.Compartment == 4 && data.Tonel is not null ? data?.Tonel?.Capcom4
-                            : data?.Vol
-                            )
+     data?.Orden is not null ? data?.Orden?.Vol :
+     data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
+     : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
+     : data?.Compartment == 3 && data.Tonel is not null ? data?.Tonel?.Capcom3
+     : data?.Compartment == 4 && data.Tonel is not null ? data?.Tonel?.Capcom4
+     : data?.Vol
+     )
                         </div>
                     </Template>
                 </RadzenDataGridColumn>
@@ -362,6 +368,11 @@
         //await GetDestinos();
         //await GetProductos();
         await GetTransportista();
+    }
+
+    private void ResetRadioButton()
+    {
+        asignacion.Compartimiento = 1;
     }
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -570,7 +581,12 @@
                     else
                     {
                         if (responseHttp.Response == 0)
+                        {
+
                             await UpdateOrden();
+                            asignacion.Compartimiento = 1;
+
+                        }
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
@@ -596,12 +612,14 @@
                                 {
                                     await UpdateOrden();
                                     await MostrarOrdenFecha();
+                                    asignacion.Compartimiento = 1;
                                     SendAsignacion = false;
                                     //ordenesSeleccionada = new List<OrdenEmbarque>();
                                 }
                             }
                         }
                         SendAsignacion = false;
+
                     }
                 }
             }
@@ -847,6 +865,7 @@
         try
         {
             ordenEmbarque = orden;
+
             await grid!.SelectRow(orden);
             //await dpT.FocusAsync();
         }
