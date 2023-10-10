@@ -72,12 +72,11 @@
                             </div>
                             <div class="col-4">
                                 <label>Vehiculo:</label>
-                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon" @onchange="@ResetRadioButton" @onselectionchange="@ResetRadioButton"
+                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                 AllowVirtualization="true">
-
-
                                 </RadzenDropDown>
+
                             </div>
                         </div>
                         <div class="col-12">
@@ -233,7 +232,7 @@
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" Filterable="false" OrderIndex="14">
                     <Template Context="data">
                         <div class="col-12">
-                            @data?.Chofer?.Den
+                            @data?.Chofer?.Den @data?.Chofer?.Shortden
                             @*@data?.Chofer?.Shortden*@
                         </div>
                     </Template>
@@ -292,12 +291,29 @@
 </style>
 
 @code {
+    //string searchText = "";
+    //List<string> filteredOptions
+    //{
+    //    get
+    //    {
+    //        if (string.IsNullOrWhiteSpace(searchText))
+    //        {
+    //            return Vehiculos; // Si no hay texto de búsqueda, mostrar todas las opciones
+    //        }
+    //        else
+    //        {
+    //            return Vehiculos.Where(Vehiculos => Vehiculos.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList(); // Filtrar las opciones basado en el texto de búsqueda
+    //        }
+    //    }
+    //}
+
+
     public bool Synthesis { get; set; } = false;
     bool isClose = false;
     //grid
     private RadzenDataGrid<OrdenEmbarque>? grid = new RadzenDataGrid<OrdenEmbarque>();
     private ElementReference dpT;
-
+    private List<int> Cantidades { get; set; } = null!;
     private OrdenEmbarque ordenEmbarque { get; set; } = null!;
     private IList<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
@@ -379,10 +395,6 @@
         await GetTransportista();
     }
 
-    private void ResetRadioButton()
-    {
-        asignacion.Compartimiento = 1;
-    }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {

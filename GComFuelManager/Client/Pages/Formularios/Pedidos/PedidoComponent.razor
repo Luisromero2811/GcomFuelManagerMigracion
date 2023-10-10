@@ -156,6 +156,7 @@
                         <div class="col-2 mb-1">
                             <div class="col-12">
                                 <label class="form-label">Volumen</label>
+                               
                                 <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select" disabled="@(isFolio && !ordenCierre.IsCierreVolumen)">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Cantidades is null)

@@ -77,7 +77,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                 else
                 {
-                    
+
                     if (ordEmb.Litent > 0)
                         ordEmb.Orden.Codest = 10;
 
@@ -96,7 +96,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,acc);
+                await context.SaveChangesAsync(id, acc);
 
                 return Ok(ordEmb);
             }
@@ -112,47 +112,53 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
-                var Eta = await context.Orden.OrderBy(x => x.Destino.Den).ThenBy(x => x.Fchcar).ThenBy(x => x.Producto.Den).ThenBy(x => x.BatchId)
-                    .ThenBy(x => x.Chofer.Den).ThenBy(x => x.Tonel.Placa).ThenBy(x => x.Tonel.Tracto).ThenBy(x => x.Tonel.Transportista.Den)
-                    .ThenBy(x => x.Coduni).ThenBy(x => x.Ref).ThenBy(x => x.Codprd2).ThenBy(x => x.Codest)
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta) || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.TipVenta))
-                    .Include(x => x.OrdEmbDet)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
+                List<EtaDTO> newOrden = new List<EtaDTO>();
+                var Eta = await context.Orden
+                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta) || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.TipVenta))
+                        .Include(x => x.OrdEmbDet)
+                        .Include(x => x.Destino)
+                        .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Estado)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Chofer)
+                        .Include(x => x.Tonel)
+                        .ThenInclude(x => x.Transportista)
+                        .OrderBy(x => x.Fchcar)
+                         .Select(e => new EtaDTO()
+                         {
+                             Referencia = e.Ref,
+                             FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                             EstatusOrden = "CLOSED",
+                             FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                             Bol = e.BatchId,
+                             DeliveryRack = e.Destino.Cliente.Tipven,
+                             Cliente = e.Destino.Cliente.Den,
+                             Destino = e.Destino.Den,
+                             Producto = e.Producto.Den,
+                             VolNat = e.Vol2,
+                             VolCar = e.Vol,
+                             Transportista = e.Tonel.Transportista.Den,
+                             Unidad = e.Tonel.Veh,
+                             Operador = e.Chofer.Den,
+                             FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                             //Eta = e.OrdEmbDet.Eta,
+                             FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                             Trayecto = "ENTREGADO",
+                             Observaciones = e.OrdEmbDet!.Obs,
+                             FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                             LitEnt = e.OrdEmbDet.Litent
+                         })
 
-                     .Select(e => new EtaDTO()
-                     {
-                         Referencia = e.Ref,
-                         FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                         EstatusOrden = "CLOSED",
-                         FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         Bol = e.BatchId,
-                         DeliveryRack = e.Destino.Cliente.Tipven,
-                         Cliente = e.Destino.Cliente.Den,
-                         Destino = e.Destino.Den,
-                         Producto = e.Producto.Den,
-                         VolNat =  e.Vol2,
-                         VolCar = e.Vol,
-                         Transportista = e.Tonel.Transportista.Den,
-                         Unidad = e.Tonel.Veh,
-                         Operador = e.Chofer.Den,
-                         FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         //Eta = e.OrdEmbDet.Eta,
-                         FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         Trayecto = "ENTREGADO",
-                         Observaciones = e.OrdEmbDet!.Obs,
-                         FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         LitEnt = e.OrdEmbDet.Litent
-                     })
+                        // .GroupBy(x => new { x.Destino, x.FechaCarga, x.Bol, x.Operador, x.Transportista, x.Referencia, x.Producto, x.Cliente })
 
-                    .Take(1000)
-                    .ToListAsync();
-                return Ok(Eta);
+                        .Take(10000)
+                        .ToListAsync();
+
+                foreach (var item in Eta)
+                    if (!newOrden.Contains(item))
+                        newOrden.Add(item);
+
+                return Ok(newOrden);
             }
             catch (Exception e)
             {
