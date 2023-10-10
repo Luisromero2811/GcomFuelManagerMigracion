@@ -956,14 +956,15 @@ namespace GComFuelManager.Server.Controllers
 
                 OrdenCierre? cierre = context.OrdenCierre.FirstOrDefault(x => x.CodPed == pedido.Cod);
 
-                if (cierre is null)
-                    return NotFound(cierre);
-
                 pedido.Codest = 14;
-                cierre.Estatus = false;
+
+                if (cierre is not null)
+                    cierre.Estatus = false;
 
                 context.Update(pedido);
-                context.Update(cierre);
+
+                if (cierre is not null)
+                    context.Update(cierre);
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
