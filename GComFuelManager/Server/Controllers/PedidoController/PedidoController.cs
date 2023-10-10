@@ -193,6 +193,7 @@ namespace GComFuelManager.Server.Controllers
                 //editar registros de orden con el nuevo campo de folio en 0 al remplazar los registros
                 if (fechas.Estado == 1)
                 {
+                    List<Orden> newOrden = new List<Orden>();
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
                     var pedidosDate = await context.OrdenEmbarque
 
@@ -232,13 +233,21 @@ namespace GComFuelManager.Server.Controllers
                     .Take(10000)
                     .ToListAsync();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
-                    return Ok(pedidosDate);
+
+                    foreach (var item in pedidosDate)
+                        if (!newOrden.Contains(item))
+                            newOrden.Add(item);
+
+
+                    return Ok(newOrden);
                 }
                 else if (fechas.Estado == 2)
                 {
+                    //List<Orden> pedidosDate = new List<Orden>();
+                    List<Orden> newOrden = new List<Orden>();
                     //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20 && x.Tonel!.Transportista.Activo == true)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -247,14 +256,24 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenEmbarque)
-                    .OrderBy(x => x.Fchcar)
+                     .OrderBy(x => x.Fchcar)
+                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
+                   //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
+                 
                     .Take(10000)
                     .ToListAsync();
                     // pedidosDate.OrderByDescending(x => x.Fchcar);
-                    return Ok(pedidosDate);
+
+
+                    foreach (var item in pedidosDate)
+                        if (!newOrden.Contains(item))
+                            newOrden.Add(item);
+
+                    return Ok(newOrden);
                 }
                 else if (fechas.Estado == 3)
                 {
+                    List<Orden> newOrden = new List<Orden>();
                     //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
                     var pedidosDate = await context.Orden
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
