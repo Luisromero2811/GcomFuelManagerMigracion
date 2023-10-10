@@ -20,7 +20,7 @@ namespace RazorHtmlEmails.Common
             })
             {
                 smtpClient.Connect("smtp.office365.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                smtpClient.Authenticate("sistemas@energasmx.mx", "NP_3hKgZ");
+                smtpClient.Authenticate("admon@energasmx.mx", "Temporal23+");
                 smtpClient.Send(message);
 
                 smtpClient.Disconnect(true);
