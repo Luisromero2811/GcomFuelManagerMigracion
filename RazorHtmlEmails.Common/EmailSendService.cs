@@ -19,8 +19,8 @@ namespace RazorHtmlEmails.Common
                 ServerCertificateValidationCallback = (_, _, _, _) => true
             })
             {
-                smtpClient.Connect("smtp.exchangeadministrado.com", 587, MailKit.Security.SecureSocketOptions.None);
-                smtpClient.Authenticate("endpoint@gasamigas.com", "ZZR5tp_");
+                smtpClient.Connect("smtp.office365.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+                smtpClient.Authenticate("sistemas@energasmx.mx", "NP_3hKgZ");
                 smtpClient.Send(message);
 
                 smtpClient.Disconnect(true);

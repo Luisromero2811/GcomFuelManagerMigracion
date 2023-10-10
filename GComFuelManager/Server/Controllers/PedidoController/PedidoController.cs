@@ -118,7 +118,26 @@ namespace GComFuelManager.Server.Controllers
 
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null)
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenCierre)
+                    .OrderBy(x => x.Fchpet)
+                    .ThenBy(x => x.Tonel.Tracto)
+                    .Include(x => x.OrdenPedido)
+                    .Take(10000)
+                    .ToListAsync();
+
+                var ordensSinAsignar = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -133,6 +152,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.OrdenPedido)
                     .Take(10000)
                     .ToListAsync();
+
+                ordens.AddRange(ordensSinAsignar);
 
                 ordens.OrderByDescending(x => x.Bin);
 
@@ -922,49 +943,41 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpDelete("cancel/{cod:int}")]
+        public async Task<ActionResult> CancelPedido([FromRoute] int cod)
+        {
+            try
+            {
+                OrdenEmbarque? pedido = context.OrdenEmbarque.FirstOrDefault(x => x.Cod == cod);
+
+                if (pedido is null)
+                    return NotFound(pedido);
+
+                OrdenCierre? cierre = context.OrdenCierre.FirstOrDefault(x => x.CodPed == pedido.Cod);
+
+                if (cierre is null)
+                    return NotFound(cierre);
+
+                pedido.Codest = 14;
+                cierre.Estatus = false;
+
+                context.Update(pedido);
+                context.Update(cierre);
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 4);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
-/*
-   foreach (var item in ordens!)
-                        {
-                            if ((item.Destino!.Cliente!.Den == ClientesSeleccionados || string.IsNullOrEmpty(ClientesSeleccionados))
-                                && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                                && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
-                                SeguimientoOrden.Add(new OrdenesDTO
-                                {
-                                    Referencia = item?.Ref,
-                                    FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                                    EstatusOrden = item?.Estado.den,
-                                    FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                                    Bol = item?.BatchId,
-                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                    Cliente = item?.Destino?.Cliente?.Den,
-                                    Destino = item?.Destino?.Den,
-                                    Producto = item?.Producto?.Den,
-                                    VolNat = item?.Vol2,
-                                    VolCar = item?.Vol,
-                                    Transportista = item?.Tonel?.Transportista?.Den,
-                                    Unidad = item?.Tonel?.Veh,
-                                    Operador = item?.Chofer?.Den
-                                });
-                        }
-                        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        var excel = new ExcelPackage();
-                        var worksheet = excel.Workbook.Worksheets.Add("Ordenes");
-                        worksheet.Columns.Width = 60;
-                        worksheet.Columns.AutoFit();
-
-                        //Formacion del excel
-                        var header = worksheet.Cells["A1:M1"];
-                        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-
-                        var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<OrdenesDTO>(SeguimientoOrden, true);
-                        tablebody.Style.Font.Bold = true;
-                        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                        //Guardado de Excel
-                        await JS.GuardarComo($"Ordenes_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
-                        SeguimientoOrden.Clear();
-                   
- */
