@@ -12,7 +12,7 @@
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Admin">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Admin">
                     <h5>Agregar grupo</h5>
                     <EditForm Model="@Grupo" class="form col-12" OnValidSubmit="@CreateGrupos" Context="validations">
                         <FluentValidationValidator Validator="validation" />
@@ -88,7 +88,7 @@
                                 </RadzenDropDown>
                             </div>
                         </AuthorizeView>
-                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="Cli">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Cli">
                             <div class="col">
                                 <label>Cliente:</label>
                                 <RadzenDropDown @bind-Value="CliGru.cliente" Data="ClientesGrupo" TValue="Cliente" TextProperty="Den"
@@ -152,7 +152,7 @@
                                 </button>
                             </div>
                         </AuthorizeView>
-                        <AuthorizeView Roles="Admin, Administrador Sistema" Context="BotonCli">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="BotonCli">
                             <div class="col d-flex mt-auto">
                                 <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
                                     <i class="fa fa-solid fa-plus"></i> Guardar
@@ -174,7 +174,7 @@
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Action">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Action">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="1">
                         <Template Context="data">
                             <div class="col-12">
@@ -188,7 +188,7 @@
                 <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="Cliente" Title="Modelo de venta" Property="MdVenta" Width="200px" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="4" />
-                <AuthorizeView Roles="Admin, Administrador Sistema" Context="Action">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Action">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
                         <Template Context="data">
                             <div class="col-12">
