@@ -60,6 +60,14 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var user = await userManager.FindByIdAsync(id);
+
+                if (user == null) return BadRequest("No existe el usuario.");
+
                 var acc = 0;
                 if (ordEmb.Cod == 0)
                 {
@@ -69,8 +77,11 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Eta.Codest = ordEmb.Orden!.Codest;
 
                     context.Update(Eta);
-
                     ordEmb.Orden = null!;
+
+                    ordEmb.Codusu = user.UserCod;
+                    ordEmb.Eta = ordEmb.EtaNumber.ToString();
+
                     context.Add(ordEmb);
                     acc = 29;
                 }
@@ -80,25 +91,56 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     if (ordEmb.Litent > 0)
                         ordEmb.Orden.Codest = 10;
+                    else
+                        ordEmb.Orden.Codest = ordEmb.CodEst;
 
                     ordEmb.Orden!.Estado = null!;
+                    ordEmb.Fchmod = DateTime.Now;
+                    ordEmb.Codusumod = user.UserCod;
 
                     context.Update(ordEmb.Orden);
 
                     ordEmb.Orden = null!;
-                    TimeSpan? eta = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
-                    ordEmb.Eta = $"{eta?.Hours}{eta?.Seconds}";
+                    //TimeSpan? time = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
+
+                    //ordEmb.Eta = time?.ToString("HHmm") ?? string.Empty;
+                    ordEmb.Eta = ordEmb.EtaNumber.ToString();
+
                     context.Update(ordEmb);
                     acc = 30;
                 }
 
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
-
                 await context.SaveChangesAsync(id, acc);
-
+                ordEmb.Orden = context.Orden.Where(x => x.BatchId == ordEmb.Bol).Include(x => x.Estado).Include(x => x.Tonel).FirstOrDefault();
                 return Ok(ordEmb);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{bol:int}")]
+        public async Task<ActionResult> GetEta(int? bol)
+        {
+            try
+            {
+                if (bol == null)
+                    return BadRequest("El bol no puede ir vacio.");
+
+                var orden = context.Orden.Where(x => x.BatchId == bol).Include(x => x.Tonel).Include(x => x.Estado).FirstOrDefault();
+
+                if (orden == null)
+                    return BadRequest($"No se contro el bol {bol} en las ordenes cargadas");
+
+                var ordembdet = context.OrdEmbDet.FirstOrDefault(x => x.Bol == bol) ?? new OrdEmbDet();
+
+                if (ordembdet.Cod == 0)
+                    ordembdet.Bol = bol;
+
+                ordembdet.Orden = orden;
+
+                return Ok(ordembdet);
             }
             catch (Exception e)
             {
@@ -141,7 +183,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                              Unidad = e.Tonel.Veh,
                              Operador = e.Chofer.Den,
                              FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                             //Eta = e.OrdEmbDet.Eta,
+                             Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm") ?? string.Empty,
                              FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                              Trayecto = "ENTREGADO",
                              Observaciones = e.OrdEmbDet!.Obs,
