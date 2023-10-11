@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using Radzen.Blazor.Rendering;
-//using ServiceReference7;
-using ServiceReference2;
+using ServiceReference7;
+//using ServiceReference2;
 using System.Diagnostics;
 using System.ServiceModel;
 
@@ -312,7 +312,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                     x.Bolguidid = billOfLading.BolGuidId;
                                     x.Folio = folio;
                                     x.Codest = 22;
-                                    
+
                                     x.Chofer = null!;
                                     x.Destino = null!;
                                     x.Estado = null!;
