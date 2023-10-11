@@ -203,14 +203,14 @@
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Fecha de carga en terminal</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false" />
+                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
 
                     <div class="col-4 mb-1">
                         <div class="col-12">
                             <label>Fecha estimada de llegada</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" Min="DateTime.Today" DateFormat="dd/MM/yyy" ShowTime="false" />
+                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentTurn)
