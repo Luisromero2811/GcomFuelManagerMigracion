@@ -129,7 +129,7 @@
         <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-        @bind-Settings="@Settings">
+                        @bind-Settings="@Settings">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
                     <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true" OrderIndex="1">
@@ -239,15 +239,24 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Filterable="false" Width="110px" OrderIndex="15" />
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="120px" OrderIndex="16" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Desasignar" Filterable="false" Width="100px" Sortable="false" OrderIndex="17">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <button class="btn btn-primary col-12" @onclick="@(()=>DesasignarUnidad(data))">
+                                <i class="fa-solid fa-broom"></i>
+                            </button>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
                 @*<FilterTemplate Context="Estatus">
-                <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
-                </FilterTemplate>
-                <Template Context="data">
-                <div>
-                @data.Estado?.den
-                </div>
-                </Template>
-                </RadzenDataGridColumn>*@
+                    <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
+                    </FilterTemplate>
+                    <Template Context="data">
+                    <div>
+                    @data.Estado?.den
+                    </div>
+                    </Template>
+                    </RadzenDataGridColumn>*@
             </Columns>
         </RadzenDataGrid>
     </div>
@@ -270,7 +279,7 @@
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                 @*<button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis" type="reset"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>*@
-                                <div class="gcom-bg-amarillo"> 
+                                <div class="gcom-bg-amarillo">
 
                                     <RadzenButton class="gcom-bg-amarillo col-12" Variant="Variant.Text" Click="@SendToSynthesis" Disabled="updateData">
                                         <div class="col-12">
@@ -655,6 +664,50 @@
                 }
             }
             SendAsignacion = false;
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task DesasignarUnidad(OrdenEmbarque orden)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+            });
+            ordenEmbarque = orden;
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{ordenEmbarque.Cod}", ordenEmbarque);
+
+                if (responseDes.Error)
+                {
+                    var message = await responseDes.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos removidos.", Duration = 2000 });
+                    ordenEmbarque = orden;
+                    //await UpdateOrden();
+                    //grid!.Reload();
+                    //StateHasChanged();
+                    await MostrarOrdenFecha();
+                    asignacion.Compartimiento = 1;
+
+                    //ordenesSeleccionada = new List<OrdenEmbarque>();
+                }
+            }
+
         }
         catch (Exception e)
         {
