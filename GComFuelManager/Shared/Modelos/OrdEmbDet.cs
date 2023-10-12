@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;

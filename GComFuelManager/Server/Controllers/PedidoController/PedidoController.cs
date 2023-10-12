@@ -115,7 +115,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
                 List<OrdenEmbarque> newOrdens = new List<OrdenEmbarque>();
-
+                //órdenes asignadas ordenar por orden compartimento 
                 ordens = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null)
@@ -130,11 +130,11 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
                     .OrderBy(x => x.Fchpet)
-                    .ThenBy(x => x.Tonel.Tracto)
+                    .ThenBy(x => x.Tonel!.Tracto)
                     .Include(x => x.OrdenPedido)
                     .Take(10000)
                     .ToListAsync();
-
+                //órdenes sin asignar ordenar por BIN
                 var ordensSinAsignar = await context.OrdenEmbarque
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null)
