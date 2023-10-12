@@ -1,39 +1,32 @@
-﻿using System;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.GamoModels;
+using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using GComFuelManager.Shared.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
-using GComFuelManager.Server.Helpers;
+using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json;
-using GComFuelManager.Shared.GamoModels;
-using Microsoft.AspNetCore.Identity;
-using GComFuelManager.Server.Identity;
-using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class DestinoController : ControllerBase 
-	{
+    public class DestinoController : ControllerBase
+    {
         private readonly ApplicationDbContext context;
         private readonly VerifyUserToken verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
 
         public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser, UserManager<IdentityUsuario> userManager)
-		{
+        {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
         }
-        
+
         [HttpGet]
         public ActionResult<List<Destino>> Get()
         {
@@ -56,7 +49,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var userId = verifyUser.GetName(HttpContext);
-                
+
                 if (string.IsNullOrEmpty(userId))
                     return BadRequest();
 
@@ -65,7 +58,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var clientes = context.Destino.Where(x => x.Codcte == user!.CodCte).AsEnumerable().OrderBy(x => x.Den);
-                
+
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -118,18 +111,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     Task<HttpResponseMessage> get = client.GetAsync("https://energas.ubiquite.mx/api/energasB2b/destinos");
-                    
+
                     var response = JsonConvert.DeserializeObject<DestinoGamoList>(await get.Result.Content.ReadAsStringAsync());
 
                     foreach (var item in response.Destinos)
                     {
-                        if(item.IdDestinoTuxpan != 0)
+                        if (item.IdDestinoTuxpan != 0)
                         {
                             var destino = context.Destino.Where(x => x.Den.ToLower().Contains(item.Nombre.ToLower()) &&
                                 x.Cliente.Den.ToLower().Contains(item.RazonSocial.ToLower()))
-                                .Include(x=>x.Cliente)
+                                .Include(x => x.Cliente)
                                 .FirstOrDefault();
-                            if(destino != null)
+                            if (destino != null)
                             {
                                 destino.CodGamo = item.IdDestinoTuxpan;
 
@@ -137,7 +130,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             }
                         }
                     }
-                    
+
                     await context.SaveChangesAsync();
 
                     return Ok(response);
