@@ -891,7 +891,7 @@
                     });
 
                     loadingSend = true;
-
+                    List<OrdenEmbarque> NewOrdens = new List<OrdenEmbarque>();
                     var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null)
                     .OrderBy(x => x.Fchpet)
                     .ThenBy(x => x!.Tonel!.Tracto)
@@ -899,8 +899,13 @@
                     .ToList();
                     // Console.WriteLine(JsonConvert.SerializeObject(ordens));
                     // return;
+
+                    foreach (var item in ordens)
+                        if (!NewOrdens.Contains(item))
+                            NewOrdens.Add(item);
+
                     updateData = true;
-                    var response = await repositorio.Post<List<OrdenEmbarque>, bool>($"api/services/send", ordens);
+                    var response = await repositorio.Post<List<OrdenEmbarque>, bool>($"api/services/send", NewOrdens);
                     //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
 
                     if (response.Error)
@@ -909,6 +914,7 @@
                         loadingSend = false;
                         var message = await response.ObtenerMensajeError();
                         await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        ordenesSeleccionada = new List<OrdenEmbarque>();
                     }
                     else
                     {
@@ -926,6 +932,7 @@
             {
                 updateData = false;
                 loadingSend = false;
+                ordenesSeleccionada = new List<OrdenEmbarque>();
                 await swal.FireAsync("Alerta", "Debe de tener ordenes seleccionadas para poder enviar a synthesis", SweetAlertIcon.Warning);
             }
         }
