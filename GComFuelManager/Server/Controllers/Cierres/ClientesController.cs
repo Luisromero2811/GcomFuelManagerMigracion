@@ -1,20 +1,16 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ServiceReference8;//prod
+//using ServiceReference6;//qa
 using System.Diagnostics;
-using System.ServiceModel;
-using ServiceReference6;
-//using ServiceReference8;
-using System.Drawing;
-using System;
-using GComFuelManager.Server.Helpers;
-using Microsoft.AspNetCore.Identity;
-using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -325,7 +321,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}, nombre {d.Den}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -335,11 +330,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
-                                        Debug.WriteLine($"antes");
                                         context.Update(d);
-
-                                        Debug.WriteLine($"completo");
-
                                     }
                                     else
                                     {

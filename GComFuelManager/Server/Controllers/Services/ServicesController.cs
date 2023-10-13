@@ -1,21 +1,16 @@
-﻿using GComFuelManager.Client.Shared;
-using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
-using Radzen.Blazor.Rendering;
-using ServiceReference7;
-//using ServiceReference2;
+using ServiceReference7;//prod
+//using ServiceReference2;//qa
 using System.Diagnostics;
-using System.ServiceModel;
 
 namespace GComFuelManager.Server.Controllers.Services
 {
@@ -1138,8 +1133,6 @@ namespace GComFuelManager.Server.Controllers.Services
                     {
                         //desactivo las ordenes pasadas y creo las nuevas
                         //el primer item de los line items es la orden seleccionada
-
-                        Debug.WriteLine(item.CustomerReference);
 
                         orden.Coddes = Convert.ToInt32(item.Destination.DestinationId.Id.Value);
                         var des = context.Destino.FirstOrDefault(x => x.Codsyn == item.Destination.DestinationId.Id.Value.ToString());
