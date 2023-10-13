@@ -8,8 +8,8 @@ using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.DTOs
 {
-	public class EtaDTO
-	{
+    public class EtaDTO
+    {
         public string? Referencia { get; set; } = string.Empty;
         [DisplayName("Fecha de Programa")]
         public string? FechaPrograma { get; set; } = string.Empty;
@@ -55,7 +55,8 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Litros Entregados"), EpplusIgnore]
         public double? LitEnt { get; set; } = 0;
         [DisplayName("Litros Entregados")]
-        public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } } 
+        public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } }
+
     }
 }
 
