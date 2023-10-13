@@ -165,7 +165,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .Include(x => x.Chofer)
                         .Include(x => x.Tonel)
                         .ThenInclude(x => x.Transportista)
+                      
                         .OrderBy(x => x.Fchcar)
+                       
                          .Select(e => new EtaDTO()
                          {
                              Referencia = e.Ref,
@@ -191,7 +193,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                              LitEnt = e.OrdEmbDet.Litent
                          })
 
-                        // .GroupBy(x => new { x.Destino, x.FechaCarga, x.Bol, x.Operador, x.Transportista, x.Referencia, x.Producto, x.Cliente })
+                           //.GroupBy(x => new { x.Destino.Den, x.Fchcar, x.BatchId, x.Chofer.Shortden, x.Tonel.Placa, x.Tonel.Tracto, x.Coduni, x.Ref, x.Codprd2, x.Codest })
 
                         .Take(10000)
                         .ToListAsync();
