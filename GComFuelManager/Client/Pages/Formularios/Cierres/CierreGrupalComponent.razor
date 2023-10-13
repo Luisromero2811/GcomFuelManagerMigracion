@@ -1032,6 +1032,7 @@
                 ordenCierres.ForEach(x =>
                 {
                     x.Grupo = Grupos.FirstOrDefault(y => y.Cod == x.CodGru);
+                    x.isGroup = x.Cliente is null ? true : false;
                 });
 
                 var grupos = ordenCierres.DistinctBy(x => x.CodGru).Select(x => x.CodGru);

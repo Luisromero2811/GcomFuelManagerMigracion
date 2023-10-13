@@ -50,7 +50,7 @@ namespace GComFuelManager.Server.Controllers.Emails
             {
                 EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
                 int? VolumenTotal = 0;
-                IEnumerable<MailboxAddress> ToList = new List<MailboxAddress>();
+                List<MailboxAddress> ToList = new List<MailboxAddress>();
                 if (ordenCierres.FirstOrDefault()!.isGroup)
                 {
                     foreach (var i in ordenCierres)
@@ -58,16 +58,17 @@ namespace GComFuelManager.Server.Controllers.Emails
                         var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
                         foreach (var item in ctes)
                         {
-                            ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
+                            var emails = context.AccionCorreo.Where(x =>x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
                         && x.Accion.Nombre.Equals("Compra"))
                             .Include(x => x.Accion)
                             .Include(x => x.Contacto)
-                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                            .AsEnumerable();
+                            .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
+                            .ToList();
+                            ToList.AddRange(emails);
                         }
                     }
 
-                    if (ToList is null || ToList.Count() == 0)
+                    if (ToList is null || ToList.Count == 0)
                         return BadRequest($"{ordenCierres.FirstOrDefault().Grupo.Den}, No cuenta con un correo activo o registrado");
                 }
                 else
@@ -77,7 +78,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                         .Include(x => x.Accion)
                         .Include(x => x.Contacto)
                         .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                        .AsEnumerable();
+                        .ToList();
 
                     if (ToList is null || ToList.Count() == 0)
                         return BadRequest($"{ordenCierres.FirstOrDefault().Cliente.Den}, No cuenta con un correo activo o registrado");

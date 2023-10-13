@@ -1710,18 +1710,35 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("bol/{bol}")]
-        public async Task<ActionResult> GetPrecioByBol([FromRoute] int Bol)
+        public ActionResult GetPrecioByBol([FromRoute] int Bol)
         {
             try
             {
+                PrecioBol precio = new PrecioBol();
+
                 var orden = context.Orden.Where(x => x.BatchId == Bol).Include(x => x.OrdenEmbarque).ThenInclude(x => x.OrdenCierre).FirstOrDefault();
+
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
 
-                PrecioBol precio = new PrecioBol()
+                if (orden.OrdenEmbarque?.OrdenCierre?.CodPed != 0)
                 {
-                    Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio
-                };
+                    var precios = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
+
+                    var preciosPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
+
+                    if (preciosPro != null)
+                        precio.Precio = preciosPro.Pre;
+                    else if (precios != null)
+                        precio.Precio = precios.Pre;
+                    else
+                        precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio;
+                }
+                else
+                {
+                    precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio;
+                }
+
                 return Ok(precio);
             }
             catch (Exception e)
