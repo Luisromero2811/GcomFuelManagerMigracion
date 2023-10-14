@@ -6,28 +6,32 @@
 @inject AsignacionUnidadValidation validation
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
 
-<h4><b>Programación de Equipos</b></h4>
-@*<div>
-        <RadzenButton Text="Mostrar Ordenes" Click="@(() => sidebar6Expanded = !sidebar7Expanded )" />
-    </div>*@
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia">
-    <RadzenPanel AllowCollapse="true" Text="Mostrar Ordenes:" Style="font-weight: bold;" Class="my-4" Expand=@(() => Change("Panel expanded")) Collapse=@(() => Change("Panel collapsed"))>
-        <div class="col-12 mt-2 mb-2">
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="FORM">
+    <div class="col-12 row m-0">
+        <div class="col-6 mt-2 mb-2">
             <div class="d-flex justify-content-center">
                 <div class="col-12 mt-3 mb-2">
                     <div class="col-12 card">
                         <div class="col-12 card-body">
                             <label><b>Filtro entre fechas:</b></label>
                             <div class="col-12 row">
-                                <div class="col-4 mb-3">
-                                    <label>Del:</label>
+                                <div class="col-4">
+                                    <label>
+                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                            Del:
+                                        </RadzenText>
+                                    </label>
                                     <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
                                 </div>
-                                <div class="col-4 mb-3">
-                                    <label>A:</label>
+                                <div class="col-4">
+                                    <label>
+                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                            A:
+                                        </RadzenText>
+                                    </label>
                                     <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
                                 </div>
-                                <div class="col-4 d-flex mt-1">
+                                <div class="col-4">
                                     <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@MostrarOrdenFecha">
                                         <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
                                     </button>
@@ -38,87 +42,100 @@
                 </div>
             </div>
         </div>
-    </RadzenPanel>
-</AuthorizeView>
-@*<hr />*@
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="FORM">
-    <div class="col-12 mt-2 mb-2">
-        <div class="d-flex justify-content-center">
-            <div class="col card shadow-sm">
-                <div class="col-12 card-body">
-                    <label><b>Asignar unidades:</b></label>
-                    <EditForm Model="asignacion" class="form col-12" OnInvalidSubmit="@AsignarUnidad">
-                        <FluentValidationValidator Validator="validation" />
-                        <ValidationSummary />
-                        <div class="row mb-3">
-                            <div class="col-4">
-                                <label>Transportista:</label>
-                                <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" Change="@GetDataSelction" />
-                            </div>
-                            <div class="col-4">
-                                <label>Chofer:</label>
-                                <RadzenDropDown Data="Choferes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true">
-                                    <Template Context="data">
-                                        @((data as Chofer).Dricod)  | @((data as Chofer).Den) |  @((data as Chofer).Shortden)
-                                    </Template>
-                                    <ValueTemplate Context="data">
-                                        @((data as Chofer).Dricod) | @((data as Chofer).Den) | @((data as Chofer).Shortden)
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            </div>
-                            <div class="col-4">
-                                <label>Vehiculo:</label>
-                                <RadzenDropDown Data="Vehiculos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true">
-                                </RadzenDropDown>
-
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="row d-flex justify-content-end">
-                                <div class="col-8 row">
-                                    @if (Vehiculos != null)
-                                    {
-                                        @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
-                                        {
-                                            @if (asignacion.CodTon != 0)
-
-                                            {
-
-                                                <InputRadioGroup @bind-Value="asignacion.Compartimiento">
-                                                    @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
-                                                    {
-                                                        <div class="col">
-                                                            <div class="form-check">
-                                                                <InputRadio Value="@i" class="form-check-input" id="@i" />
-                                                                <label class="form-check-label" for="@i">Com @i</label>
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                </InputRadioGroup>
-
-                                            }
-                                        }
-                                    }
+        <div class="col-6 mt-2 mb-2">
+            <div class="d-flex justify-content-center">
+                <div class="col card shadow-sm">
+                    <div class="col-12 card-body">
+                        <label><b>Asignar unidades:</b></label>
+                        <EditForm Model="asignacion" class="form col-12" OnInvalidSubmit="@AsignarUnidad">
+                            <FluentValidationValidator Validator="validation" />
+                            <ValidationSummary />
+                            <div class="row mb-1">
+                                <div class="col-4">
+                                    <label>
+                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                            Transportista:
+                                        </RadzenText>
+                                    </label>
+                                    <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
+                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px" />
                                 </div>
                                 <div class="col-4">
-                                    <button class="btn gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null || SendAsignacion)">
-                                        <i class="fa fa-solid fa-truck-front"></i>
-                                        <b>Asignar</b>
-                                        @if (SendAsignacion)
-                                        {
-                                            <SpinnerLoading />
-                                        }
-                                    </button>
+                                    <label>
+                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                            Chofer:
+                                        </RadzenText>
+                                    </label>
+                                    <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
+                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    AllowVirtualization="true" Style="height:20px">
+                                        <Template Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Chofer).Dricod)  | @((data as Chofer).Den) |  @((data as Chofer).Shortden)
+                                            </RadzenText>
+                                        </Template>
+                                        <ValueTemplate Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Chofer).Dricod) | @((data as Chofer).Den) | @((data as Chofer).Shortden)
+                                            </RadzenText>
+                                        </ValueTemplate>
+                                    </RadzenDropDown>
+                                </div>
+                                <div class="col-4">
+                                    <label>
+                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                            Vehiculo:
+                                        </RadzenText>
+                                    </label>
+                                    <RadzenDropDown Data="Vehiculos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
+                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    AllowVirtualization="true" Style="height:20px">
+                                    </RadzenDropDown>
+
                                 </div>
                             </div>
-                        </div>
-                    </EditForm>
+                            <div class="col-12">
+                                <div class="row d-flex justify-content-end">
+                                    <div class="col-8 row">
+                                        @if (Vehiculos != null)
+                                        {
+                                            @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
+                                            {
+                                                @if (asignacion.CodTon != 0)
+
+                                                {
+
+                                                    <InputRadioGroup @bind-Value="asignacion.Compartimiento">
+                                                        @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
+                                                        {
+                                                            <div class="col">
+                                                                <div class="form-check">
+                                                                    <InputRadio Value="@i" class="form-check-input" id="@i" />
+                                                                    <label class="form-check-label" for="@i">Com @i</label>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </InputRadioGroup>
+
+                                                }
+                                            }
+                                        }
+                                    </div>
+                                    <div class="col-4">
+                                        <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null || SendAsignacion)">
+                                            <i class="fa fa-solid fa-truck-front"></i>
+                                            <b>Asignar</b>
+                                            @if (SendAsignacion)
+                                            {
+                                                <SpinnerLoading />
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
                 </div>
             </div>
         </div>
@@ -128,7 +145,7 @@
     <div class="col-12 d-flex justify-content-center mb-2 mt-2">
         <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
+                        IsLoading="loadingFiltro" Density="Density.Compact" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
         @bind-Settings="@Settings">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
@@ -270,7 +287,7 @@
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                 @*<button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis" type="reset"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>*@
-                                <div class="gcom-bg-amarillo"> 
+                                <div class="gcom-bg-amarillo">
 
                                     <RadzenButton class="gcom-bg-amarillo col-12" Variant="Variant.Text" Click="@SendToSynthesis" Disabled="updateData">
                                         <div class="col-12">
@@ -575,17 +592,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = asignacion.CodChf,
-                    Tonel = asignacion.CodTon,
-                    Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = asignacion.CodChf,
+                        Tonel = asignacion.CodTon,
+                        Compartimento = Vehiculos?.Count == null ? 0 :
+                                                                            (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -621,13 +638,13 @@
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                                {
+                                    Icon = SweetAlertIcon.Warning,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar",
+                                    CancelButtonText = "Cancelar",
+                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                                });
 
                             if (!string.IsNullOrEmpty(confirm.Value))
                             {
@@ -719,28 +736,28 @@
                        && (item.Destino?.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto?.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                        {
-                            OrdenCompra = item?.OrdenCompra?.den ?? "",
-                            Referencia = item?.OrdenCierre?.Folio ?? "",
-                            Cliente = item?.Destino?.Cliente?.Den ?? "",
-                            Destino = item?.Destino?.Den ?? "",
-                            Producto = item?.Producto?.Den ?? "",
-                            //Volumen = item?.Vol,
-                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                            Unidad = item?.Tonel?.Veh ?? "",
-                            Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                            Bin = item?.Bin,
-                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                            Turno = item?.OrdenCierre?.Turno ?? ""
-                            //Status = item?.Estado?.den
-                        });
+                            {
+                                OrdenCompra = item?.OrdenCompra?.den ?? "",
+                                Referencia = item?.OrdenCierre?.Folio ?? "",
+                                Cliente = item?.Destino?.Cliente?.Den ?? "",
+                                Destino = item?.Destino?.Den ?? "",
+                                Producto = item?.Producto?.Den ?? "",
+                                //Volumen = item?.Vol,
+                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                                                        Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                        Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                        Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                        Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                                Unidad = item?.Tonel?.Veh ?? "",
+                                Compartimento = item?.Compartment,
+                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                                Bin = item?.Bin,
+                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                                Turno = item?.OrdenCierre?.Turno ?? ""
+                                //Status = item?.Estado?.den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -819,23 +836,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Ordenes a Synthesis",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Enviando Ordenes a Synthesis",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                            Duration = 15000
+                        });
 
                     loadingSend = true;
                     List<OrdenEmbarque> NewOrdens = new List<OrdenEmbarque>();
@@ -959,13 +976,13 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Info,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
