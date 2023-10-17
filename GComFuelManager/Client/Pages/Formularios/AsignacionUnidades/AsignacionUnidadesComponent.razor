@@ -257,6 +257,15 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Filterable="false" Width="110px" OrderIndex="15" />
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="120px" OrderIndex="16" />
+                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Desasignar" Filterable="false" Width="100px" Sortable="false" OrderIndex="17">
+                    <Template Context="data">
+                        <div class="col-12">
+                            <button class="btn btn-primary col-12" @onclick="@(()=>DesasignarUnidad(data))">
+                                <i class="fa-solid fa-broom"></i>
+                            </button>
+                        </div>
+                    </Template>
+                </RadzenDataGridColumn>
                 @*<FilterTemplate Context="Estatus">
                 <RadzenDropDown Data="EstatusList" @bind-Value="EstatusSeleccionado" AllowClear="true"></RadzenDropDown>
                 </FilterTemplate>
@@ -1012,6 +1021,50 @@
                     StateHasChanged();
                 }
             }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    public async Task DesasignarUnidad(OrdenEmbarque orden)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+                });
+            ordenEmbarque = orden;
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{ordenEmbarque.Cod}", ordenEmbarque);
+
+                if (responseDes.Error)
+                {
+                    var message = await responseDes.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos removidos.", Duration = 2000 });
+                    ordenEmbarque = orden;
+                    //await UpdateOrden();
+                    //grid!.Reload();
+                    //StateHasChanged();
+                    await MostrarOrdenFecha();
+                    asignacion.Compartimiento = 1;
+
+                    //ordenesSeleccionada = new List<OrdenEmbarque>();
+                }
+            }
+
         }
         catch (Exception e)
         {
