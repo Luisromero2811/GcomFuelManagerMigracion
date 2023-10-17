@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Radzen.Blazor.Rendering;
-using ServiceReference7; //Producción
-//using ServiceReference2; //QA
+//using ServiceReference7;//prod
+using ServiceReference2;//qa
 using System.Diagnostics;
 
 namespace GComFuelManager.Server.Controllers.Services
@@ -59,8 +58,8 @@ namespace GComFuelManager.Server.Controllers.Services
                 BillOfLadingServiceClient client = new BillOfLadingServiceClient(BillOfLadingServiceClient.EndpointConfiguration.BasicHttpBinding_BillOfLadingService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
-                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
-                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(15);
+                client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(15);
 
                 if (ordens is null)
                 {
@@ -72,94 +71,96 @@ namespace GComFuelManager.Server.Controllers.Services
                     foreach (var item in ordens)
                     {
 
-                        WsSaveBillOfLadingRequest request = new WsSaveBillOfLadingRequest();
+                        var bolguid = context.OrdenEmbarque.Find(item.Cod);
 
-                        request.BillOfLading = new BillOfLading();
-
-                        request.EnableExplicitRevisioning = new NBool();
-                        request.EnableExplicitRevisioning.Value = true;
-
-                        request.GenerateBolFromOrder = new NBool();
-                        request.GenerateBolFromOrder.Value = false;
-
-                        request.BillOfLading.DeliveryReceiptIndicator = new NInt();
-                        request.BillOfLading.DeliveryReceiptIndicator.Value = 1;
-
-                        request.BillOfLading.LoadType = new NEnumOfLoadTypeEnum();
-                        request.BillOfLading.LoadType.Value = LoadTypeEnum.SCHED;
-
-                        request.BillOfLading.LoadSystem = new NEnumOfLoadSystemEnum();
-                        request.BillOfLading.LoadSystem.Value = LoadSystemEnum.UNKNOWN;
-
-                        request.BillOfLading.Terminal = new Location();
-                        request.BillOfLading.Terminal.LocationId = new Identifier();
-                        request.BillOfLading.Terminal.LocationId.Id = new NLong();
-                        request.BillOfLading.Terminal.LocationId.Id.Value = 1100;
-
-                        request.BillOfLading.Shipper = new BusinessEntity();
-                        request.BillOfLading.Shipper.BusinessEntityId = new Identifier();
-                        request.BillOfLading.Shipper.BusinessEntityId.Id = new NLong();
-                        request.BillOfLading.Shipper.BusinessEntityId.Id.Value = 51004;
-
-                        request.BillOfLading.Stockholder = new BusinessEntity();
-                        request.BillOfLading.Stockholder.BusinessEntityId = new Identifier();
-                        request.BillOfLading.Stockholder.BusinessEntityId.Id = new NLong();
-                        request.BillOfLading.Stockholder.BusinessEntityId.Id.Value = 51004;
-
-                        request.BillOfLading.UnitOfMeasure = new NEnumOfUnitOfMeasureEnum();
-                        request.BillOfLading.UnitOfMeasure.Value = UnitOfMeasureEnum.L;
-
-                        request.BillOfLading.Comments = new FlexComment[1];
-                        request.BillOfLading.Comments[0] = new FlexComment();
-                        request.BillOfLading.Comments[0].CommentText = "Synthesis Web Service Innovacion";
-
-                        request.BillOfLading.ModeOfTransport = new NEnumOfModeOfTransportEnum();
-                        request.BillOfLading.ModeOfTransport.Value = ModeOfTransportEnum.TRUCK;
-
-                        var username = verify.GetName(HttpContext);
-                        if (string.IsNullOrEmpty(username))
-                            return BadRequest();
-
-                        request.BillOfLading.CreatedBy = $"energasws {username}";
-
-                        request.BillOfLading.HeaderId = new NLong();
-                        request.BillOfLading.HeaderId.Value = 50383;
-
-                        request.BillOfLading.ActivityId = new NLong();
-                        request.BillOfLading.ActivityId.Value = 1009;
-
-                        request.BillOfLading.RevisionNumber = new NInt();
-                        request.BillOfLading.RevisionNumber.Value = 1;
-
-                        request.BillOfLading.SeqNum = new NInt();
-                        request.BillOfLading.SeqNum.Value = 10;
-
-                        request.BillOfLading.Destination = new Destination();
-                        request.BillOfLading.Destination.DestinationId = new Identifier();
-                        request.BillOfLading.Destination.DestinationId.Id = new NLong();
-
-                        request.BillOfLading.Customer = new BusinessEntity();
-                        request.BillOfLading.Customer.BusinessEntityId = new Identifier();
-                        request.BillOfLading.Customer.BusinessEntityId.Id = new NLong();
-
-                        request.BillOfLading.StartLoadTime = new NDateTime();
-                        request.BillOfLading.EndLoadTime = new NDateTime();
-                        request.BillOfLading.BolStatus = new NInt();
-
-                        request.BillOfLading.TruckCarrier = new TruckCarrier();
-                        request.BillOfLading.TruckCarrier.BusinessEntityId = new Identifier();
-                        request.BillOfLading.TruckCarrier.BusinessEntityId.Id = new NLong();
-
-                        request.BillOfLading.Driver = new Driver();
-                        request.BillOfLading.Driver.DriverId = new Identifier();
-                        request.BillOfLading.Driver.DriverId.Id = new NLong();
-
-                        //var bolguid = context.OrdenEmbarque.Find(item.Cod);
-                        //if (bolguid == null)
+                        bolguid ??= ordens.First(x => x.Cod == item.Cod);
                         //    return BadRequest();
 
-                        if (string.IsNullOrEmpty(item.Bolguidid))
+                        if (string.IsNullOrEmpty(bolguid.Bolguidid))
                         {
+
+                            WsSaveBillOfLadingRequest request = new WsSaveBillOfLadingRequest();
+
+                            request.BillOfLading = new BillOfLading();
+
+                            request.EnableExplicitRevisioning = new NBool();
+                            request.EnableExplicitRevisioning.Value = true;
+
+                            request.GenerateBolFromOrder = new NBool();
+                            request.GenerateBolFromOrder.Value = false;
+
+                            request.BillOfLading.DeliveryReceiptIndicator = new NInt();
+                            request.BillOfLading.DeliveryReceiptIndicator.Value = 1;
+
+                            request.BillOfLading.LoadType = new NEnumOfLoadTypeEnum();
+                            request.BillOfLading.LoadType.Value = LoadTypeEnum.SCHED;
+
+                            request.BillOfLading.LoadSystem = new NEnumOfLoadSystemEnum();
+                            request.BillOfLading.LoadSystem.Value = LoadSystemEnum.UNKNOWN;
+
+                            request.BillOfLading.Terminal = new Location();
+                            request.BillOfLading.Terminal.LocationId = new Identifier();
+                            request.BillOfLading.Terminal.LocationId.Id = new NLong();
+                            request.BillOfLading.Terminal.LocationId.Id.Value = 1100;
+
+                            request.BillOfLading.Shipper = new BusinessEntity();
+                            request.BillOfLading.Shipper.BusinessEntityId = new Identifier();
+                            request.BillOfLading.Shipper.BusinessEntityId.Id = new NLong();
+                            request.BillOfLading.Shipper.BusinessEntityId.Id.Value = 51004;
+
+                            request.BillOfLading.Stockholder = new BusinessEntity();
+                            request.BillOfLading.Stockholder.BusinessEntityId = new Identifier();
+                            request.BillOfLading.Stockholder.BusinessEntityId.Id = new NLong();
+                            request.BillOfLading.Stockholder.BusinessEntityId.Id.Value = 51004;
+
+                            request.BillOfLading.UnitOfMeasure = new NEnumOfUnitOfMeasureEnum();
+                            request.BillOfLading.UnitOfMeasure.Value = UnitOfMeasureEnum.L;
+
+                            request.BillOfLading.Comments = new FlexComment[1];
+                            request.BillOfLading.Comments[0] = new FlexComment();
+                            request.BillOfLading.Comments[0].CommentText = "Synthesis Web Service Innovacion";
+
+                            request.BillOfLading.ModeOfTransport = new NEnumOfModeOfTransportEnum();
+                            request.BillOfLading.ModeOfTransport.Value = ModeOfTransportEnum.TRUCK;
+
+                            var username = verify.GetName(HttpContext);
+                            if (string.IsNullOrEmpty(username))
+                                return BadRequest();
+
+                            request.BillOfLading.CreatedBy = $"energasws {username}";
+
+                            request.BillOfLading.HeaderId = new NLong();
+                            request.BillOfLading.HeaderId.Value = 50383;
+
+                            request.BillOfLading.ActivityId = new NLong();
+                            request.BillOfLading.ActivityId.Value = 1009;
+
+                            request.BillOfLading.RevisionNumber = new NInt();
+                            request.BillOfLading.RevisionNumber.Value = 1;
+
+                            request.BillOfLading.SeqNum = new NInt();
+                            request.BillOfLading.SeqNum.Value = 10;
+
+                            request.BillOfLading.Destination = new Destination();
+                            request.BillOfLading.Destination.DestinationId = new Identifier();
+                            request.BillOfLading.Destination.DestinationId.Id = new NLong();
+
+                            request.BillOfLading.Customer = new BusinessEntity();
+                            request.BillOfLading.Customer.BusinessEntityId = new Identifier();
+                            request.BillOfLading.Customer.BusinessEntityId.Id = new NLong();
+
+                            request.BillOfLading.StartLoadTime = new NDateTime();
+                            request.BillOfLading.EndLoadTime = new NDateTime();
+                            request.BillOfLading.BolStatus = new NInt();
+
+                            request.BillOfLading.TruckCarrier = new TruckCarrier();
+                            request.BillOfLading.TruckCarrier.BusinessEntityId = new Identifier();
+                            request.BillOfLading.TruckCarrier.BusinessEntityId.Id = new NLong();
+
+                            request.BillOfLading.Driver = new Driver();
+                            request.BillOfLading.Driver.DriverId = new Identifier();
+                            request.BillOfLading.Driver.DriverId.Id = new NLong();
+
                             request.BillOfLading.Destination.DestinationId.Id.Value = long.Parse(item.Destino!.Codsyn!);
                             request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Destino!.Cliente!.Codsyn!);
                             request.BillOfLading.StartLoadTime.Value = item.Fchcar!.Value;
@@ -178,86 +179,100 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.Driver.DriverId.Id.Value = long.Parse(item.Chofer!.Dricod!);
                             request.BillOfLading.TruckCarrier.BusinessEntityId.Id.Value = long.Parse(item.Tonel!.Transportista!.Busentid!);
 
-                            var pedidos = ordens.Where(x => x!.Codton == item.Codton
-                            && x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar
-                            && string.IsNullOrEmpty(x.Bolguidid) && x.Codest == 3).ToList();
+                            //var pedidos = ordens.Where(x => x!.Codton == item.Codton
+                            //&& x!.Codchf == item.Codchf && x.Fchcar == item.Fchcar
+                            //&& string.IsNullOrEmpty(x.Bolguidid) && x.Codest == 3).ToList();
 
-                            request.BillOfLading.LineItems = new BillOfLadingLineItem[pedidos.Count];
+                            List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
+
+                            ordenEmbarques = context.OrdenEmbarque.Where(x => x.Codchf == item.Codchf && x.Codton == item.Codton && x.Fchcar == item.Fchcar
+                            && x.Codest == 3 && string.IsNullOrEmpty(x.Bolguidid))
+                                .Include(x => x.Chofer)
+                                .Include(x => x.Estado)
+                                .Include(x => x.OrdenCierre)
+                                .Include(x => x.Destino)
+                                .ThenInclude(x => x.Cliente)
+                                .Include(x => x.Tonel)
+                                .ThenInclude(x => x.Transportista)
+                                .Include(x=>x.Producto)
+                                .ToList();
+
+                            request.BillOfLading.LineItems = new BillOfLadingLineItem[ordenEmbarques.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
 
-                            foreach (var p in pedidos)
+                            foreach (var p in ordenEmbarques)
                             {
-                                var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
-                                if (ord is null)
-                                {
+                                //var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
+                                //if (ord is null)
+                                //{
 
-                                    BillOfLadingLineItem lineItem = new BillOfLadingLineItem();
-                                    OrdenesEnviadas.Add(p);
-                                    lineItem.Tank = new Device();
-                                    lineItem.Tank.DeviceId = new Identifier();
-                                    lineItem.Tank.DeviceId.Id = new NLong();
-                                    lineItem.Tank.DeviceId.Id.Value = 16023;
+                                BillOfLadingLineItem lineItem = new BillOfLadingLineItem();
+                                OrdenesEnviadas.Add(p);
+                                lineItem.Tank = new Device();
+                                lineItem.Tank.DeviceId = new Identifier();
+                                lineItem.Tank.DeviceId.Id = new NLong();
+                                lineItem.Tank.DeviceId.Id.Value = 16023;
 
-                                    lineItem.Supplier = new BusinessEntity();
-                                    lineItem.Supplier.BusinessEntityId = new Identifier();
-                                    lineItem.Supplier.BusinessEntityId.Id = new NLong();
-                                    lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
+                                lineItem.Supplier = new BusinessEntity();
+                                lineItem.Supplier.BusinessEntityId = new Identifier();
+                                lineItem.Supplier.BusinessEntityId.Id = new NLong();
+                                lineItem.Supplier.BusinessEntityId.Id.Value = 51004;
 
-                                    lineItem.CompartmentId = new NLong();
-                                    lineItem.BaseNetQuantity = new NDecimal();
-                                    lineItem.CustomerOrderQuantity = new NDecimal();
+                                lineItem.CompartmentId = new NLong();
+                                lineItem.BaseNetQuantity = new NDecimal();
+                                lineItem.CustomerOrderQuantity = new NDecimal();
 
-                                    lineItem.Customer = new BusinessEntity();
-                                    lineItem.Customer.BusinessEntityId = new Identifier();
-                                    lineItem.Customer.BusinessEntityId.Id = new NLong();
+                                lineItem.Customer = new BusinessEntity();
+                                lineItem.Customer.BusinessEntityId = new Identifier();
+                                lineItem.Customer.BusinessEntityId.Id = new NLong();
 
-                                    lineItem.BaseProduct = new Product();
-                                    lineItem.BaseProduct.ProductId = new Identifier();
-                                    lineItem.BaseProduct.ProductId.Id = new NLong();
+                                lineItem.BaseProduct = new Product();
+                                lineItem.BaseProduct.ProductId = new Identifier();
+                                lineItem.BaseProduct.ProductId.Id = new NLong();
 
-                                    lineItem.OrderedProduct = new Product();
-                                    lineItem.OrderedProduct.ProductId = new Identifier();
-                                    lineItem.OrderedProduct.ProductId.Id = new NLong();
+                                lineItem.OrderedProduct = new Product();
+                                lineItem.OrderedProduct.ProductId = new Identifier();
+                                lineItem.OrderedProduct.ProductId.Id = new NLong();
 
-                                    lineItem.EndLoadTime = new NDateTime();
+                                lineItem.EndLoadTime = new NDateTime();
 
-                                    CustomFieldMetaData cfm = new CustomFieldMetaData();
+                                CustomFieldMetaData cfm = new CustomFieldMetaData();
 
-                                    lineItem.CustomFieldInstances = new CustomFieldInstance[1];
-                                    lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
-                                    lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
+                                lineItem.CustomFieldInstances = new CustomFieldInstance[1];
+                                lineItem.CustomFieldInstances[0] = new CustomFieldInstance();
+                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = new CustomFieldMetaData();
 
-                                    lineItem.Destination = new Destination();
-                                    lineItem.Destination.DestinationId = new Identifier();
-                                    lineItem.Destination.DestinationId.Id = new NLong();
+                                lineItem.Destination = new Destination();
+                                lineItem.Destination.DestinationId = new Identifier();
+                                lineItem.Destination.DestinationId.Id = new NLong();
 
-                                    lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
-                                    lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
+                                lineItem.TrailerId = item.Tonel!.Codsyn.ToString();
+                                lineItem.CompartmentId.Value = long.Parse(p.CompartmentId.ToString()!);
 
-                                    lineItem.BaseNetQuantity.Value = 0M;
-                                    var vol = p.Compartment == 1 ? p.Tonel!.Capcom
-                                        : p.Compartment == 2 ? p.Tonel!.Capcom2
-                                        : p.Compartment == 3 ? p.Tonel!.Capcom3
-                                        : p.Tonel!.Capcom4;
-                                    lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
+                                lineItem.BaseNetQuantity.Value = 0M;
+                                var vol = p.Compartment == 1 ? p.Tonel!.Capcom
+                                    : p.Compartment == 2 ? p.Tonel!.Capcom2
+                                    : p.Compartment == 3 ? p.Tonel!.Capcom3
+                                    : p.Tonel!.Capcom4;
+                                lineItem.CustomerOrderQuantity.Value = decimal.Parse(vol.ToString()!);
 
-                                    lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
-                                    lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                                    lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
-                                    lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
+                                lineItem.Customer.BusinessEntityId.Id.Value = long.Parse(p.Destino!.Cliente!.Codsyn!);
+                                lineItem.BaseProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                lineItem.OrderedProduct.ProductId.Id.Value = long.Parse(p.Producto!.Codsyn!);
+                                lineItem.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
 
-                                    cfm.EntityKey = p.Cod.ToString();
-                                    cfm.Name = p.Cod.ToString();
-                                    cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
-                                    cfm.CustomFieldMetaDataId = new NLong();
-                                    cfm.CustomFieldMetaDataId.Value = 46;
+                                cfm.EntityKey = p.Cod.ToString();
+                                cfm.Name = p.Cod.ToString();
+                                cfm.EntityName = "BILL_OF_LADING_LINE_ITEM";
+                                cfm.CustomFieldMetaDataId = new NLong();
+                                cfm.CustomFieldMetaDataId.Value = 46;
 
-                                    lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
-                                    lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
-                                    lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
+                                lineItem.CustomFieldInstances[0].CustomFieldMetaData = cfm;
+                                lineItem.CustomFieldInstances[0].FieldStringValue = $"{request.BillOfLading.CustomerReference}_{p.Compartment}";
+                                lineItem.Destination.DestinationId.Id.Value = long.Parse(p.Destino!.Codsyn!);
 
-                                    billOfLadingLineItems.Add(lineItem);
-                                }
+                                billOfLadingLineItems.Add(lineItem);
+                                //}
                             }
 
                             request.BillOfLading.LineItems = billOfLadingLineItems.ToArray();
@@ -281,47 +296,25 @@ namespace GComFuelManager.Server.Controllers.Services
                             {
                                 BillOfLading billOfLading = response.BillOfLadings[0];
 
-                                //foreach (var ordped in pedidos)
-                                //{
-                                //    ordped.Bolguidid = billOfLading.BolGuidId;
-                                //    ordped.Folio = folio;
-                                //    ordped.Codest = 22;
-
-                                //    ordped.Chofer = null!;
-                                //    ordped.Destino = null!;
-                                //    ordped.Estado = null!;
-                                //    ordped.Orden = null!;
-                                //    ordped.OrdenCierre = null!;
-                                //    ordped.OrdenCompra = null!;
-                                //    ordped.OrdenPedido = null!;
-                                //    ordped.Producto = null!;
-                                //    ordped.Tad = null!;
-                                //    ordped.Tonel = null!;
-                                //    //ordenesEmbarque.Add(item);
-
-                                //    //context.Entry(ordped).State = EntityState.Modified;
-                                //    //context.Update(ordped);
-                                //}
-
-                                pedidos.ForEach(x =>
+                                ordenEmbarques.ForEach(x =>
                                 {
                                     x.Bolguidid = billOfLading.BolGuidId;
                                     x.Folio = folio;
                                     x.Codest = 22;
 
-                                    x.Chofer = null!;
-                                    x.Destino = null!;
-                                    x.Estado = null!;
-                                    x.Orden = null!;
-                                    x.OrdenCierre = null!;
-                                    x.OrdenCompra = null!;
-                                    x.OrdenPedido = null!;
-                                    x.Producto = null!;
-                                    x.Tad = null!;
-                                    x.Tonel = null!;
+                                    //x.Chofer = null!;
+                                    //x.Destino = null!;
+                                    //x.Estado = null!;
+                                    //x.Orden = null!;
+                                    //x.OrdenCierre = null!;
+                                    //x.OrdenCompra = null!;
+                                    //x.OrdenPedido = null!;
+                                    //x.Producto = null!;
+                                    //x.Tad = null!;
+                                    //x.Tonel = null!;
                                 });
 
-                                context.UpdateRange(pedidos);
+                                context.UpdateRange(ordenEmbarques);
                                 var id = await verify.GetId(HttpContext, userManager);
                                 if (string.IsNullOrEmpty(id))
                                     return BadRequest();
