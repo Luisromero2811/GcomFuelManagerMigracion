@@ -1829,8 +1829,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
+                if (orden.OrdenEmbarque is null)
+                    return BadRequest($"No se encontro una orden relacionada al BOL {Bol} con la referencia de {orden.Ref}");
 
-                if (orden.OrdenEmbarque?.OrdenCierre?.CodPed != 0)
+                if (orden.OrdenEmbarque?.OrdenCierre?.CodPed != 0 && orden.OrdenEmbarque?.OrdenCierre != null)
                 {
                     var precios = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
 
@@ -1845,7 +1847,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio;
+                    precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio ?? orden.OrdenEmbarque?.Pre;
                 }
 
                 return Ok(precio);
