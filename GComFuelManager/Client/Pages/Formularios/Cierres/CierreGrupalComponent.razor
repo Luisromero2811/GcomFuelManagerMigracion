@@ -44,105 +44,116 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-2">
-                                        <div class="col-12">
-                                            <label>Grupo</label>
-                                            @*<InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (Grupos is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (Grupos.Count() == 0)
-                                                    {
-                                                        <option disabled> No hay grupos</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        foreach (var item in Grupos)
+                                    <div class="col-12 row mt-2">
+
+
+                                        <div class="col-2">
+                                            <div class="col-12">
+                                                <label>Grupo</label>
+                                                @*<InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
+                                                        <option>-- Selecciona una opcion --</option>
+                                                        @if (Grupos is null)
                                                         {
-                                                            <option value="@item.Cod">@item.Den</option>
+                                                            <option disabled> Cargando ...</option>
                                                         }
-                                                    }
-                                                </InputSelect>*@
-                                            <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
-                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
-                                                            AllowVirtualization="true" Change="@GetClientesFiltro" onchange="@GetClientesFiltro()" />
-                                        </div>
-                                    </div>
-                                    <div class="col-2">
-                                        <div class="col-12">
-                                            <label>Cliente</label>
-                                            @*<InputSelect @bind-Value="filtro.codCte" class="form-select">
-                                                    <option>-- Selecciona una opcion --</option>
-                                                    @if (ClientesFiltro is null)
-                                                    {
-                                                        <option disabled> Cargando ...</option>
-                                                    }
-                                                    else if (ClientesFiltro.Count == 0)
-                                                    {
-                                                        <option disabled> No hay capacidades</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        foreach (var item in ClientesFiltro)
+                                                        else if (Grupos.Count() == 0)
                                                         {
-                                                            <option value="@item.Cod">@item.Den</option>
+                                                            <option disabled> No hay grupos</option>
                                                         }
-                                                    }
-                                                </InputSelect>*@
-                                            <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="filtro.codCte"
-                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
-                                                            AllowVirtualization="true" />
+                                                        else
+                                                        {
+                                                            foreach (var item in Grupos)
+                                                            {
+                                                                <option value="@item.Cod">@item.Den</option>
+                                                            }
+                                                        }
+                                                    </InputSelect>*@
+                                                <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                AllowVirtualization="true" Change="@GetClientesFiltro" onchange="@GetClientesFiltro()" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-2">
-                                        <label>Año</label>
-                                        <InputSelect @bind-Value="añoSeleccionado" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (años is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (años.Count == 0)
-                                            {
-                                                <option disabled> No hay capacidades</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in años)
+                                        @*<div class="col-2">
+                                            <div class="col-12">
+                                                <label>Cliente</label>*@
+                                        @*<InputSelect @bind-Value="filtro.codCte" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (ClientesFiltro is null)
                                                 {
-                                                    <option value="@item">@item</option>
+                                                    <option disabled> Cargando ...</option>
                                                 }
-                                            }
-                                        </InputSelect>
-                                    </div>
-                                    <div class="col-2">
-                                        <label>Mes</label>
-                                        <InputSelect @bind-Value="mesSeleccionado" class="form-select">
-                                            <option>-- Selecciona una opcion --</option>
-                                            @if (meses is null)
-                                            {
-                                                <option disabled> Cargando ...</option>
-                                            }
-                                            else if (meses.Count == 0)
-                                            {
-                                                <option disabled> No hay capacidades</option>
-                                            }
-                                            else
-                                            {
-                                                foreach (var item in meses)
+                                                else if (ClientesFiltro.Count == 0)
                                                 {
-                                                    <option value="@item.Cod">@item.Den.ToUpper()</option>
+                                                    <option disabled> No hay capacidades</option>
                                                 }
-                                            }
-                                        </InputSelect>
-                                    </div>
-                                    <div class="col-1 d-flex ">
-                                        <div class="col-12 mt-auto">
-                                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
-                                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                                            </button>
+                                                else
+                                                {
+                                                    foreach (var item in ClientesFiltro)
+                                                    {
+                                                        <option value="@item.Cod">@item.Den</option>
+                                                    }
+                                                }
+                                            </InputSelect>*@
+                                        @*<RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="filtro.codCte"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                            AllowVirtualization="true" />*@
+                                        @*</div>
+                                            </div>*@
+                                        <div class="col-2">
+                                            <label>Año</label>
+                                            <InputSelect @bind-Value="añoSeleccionado" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (años is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (años.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in años)
+                                                    {
+                                                        <option value="@item">@item</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="col-2">
+                                            <label>Mes</label>
+                                            <InputSelect @bind-Value="mesSeleccionado" class="form-select">
+                                                <option>-- Selecciona una opcion --</option>
+                                                @if (meses is null)
+                                                {
+                                                    <option disabled> Cargando ...</option>
+                                                }
+                                                else if (meses.Count == 0)
+                                                {
+                                                    <option disabled> No hay capacidades</option>
+                                                }
+                                                else
+                                                {
+                                                    foreach (var item in meses)
+                                                    {
+                                                        <option value="@item.Cod">@item.Den.ToUpper()</option>
+                                                    }
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                        <div class="col-2 mt-auto">
+                                            <div class="col-12 mt-auto">
+                                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
+                                                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="col-2 mt-auto">
+                                            <div class="col-12 mt-auto">
+                                                <button class="col-12 btn gcom-bg-amarillo" @onclick="@OpenModall">
+                                                    <i class="fa fa-solid fa-magnifying-glass"></i> Ver cierres grupales
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -898,7 +909,7 @@
 
             if (!forFolio)
             {
-                if (mesSeleccionado != 0 && añoSeleccionado != 0 && filtro.codCte != null)
+                if (mesSeleccionado != 0 && añoSeleccionado != 0)
                 {
                     int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
                     filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
@@ -1393,4 +1404,25 @@
     {
         ordenCierre = new OrdenCierre();
     }
+
+    private async Task OpenModall()
+    {
+        try
+        {
+            await ds.OpenAsync<ViewCierreGrupalComponent>("Cierre grupal",
+                new Dictionary<string, object>() { { "isStatus", true } },
+                new DialogOptions()
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
