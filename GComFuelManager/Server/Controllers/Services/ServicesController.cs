@@ -194,13 +194,13 @@ namespace GComFuelManager.Server.Controllers.Services
                                 .ThenInclude(x => x.Cliente)
                                 .Include(x => x.Tonel)
                                 .ThenInclude(x => x.Transportista)
-                                .Include(x=>x.Producto)
+                                .Include(x => x.Producto)
                                 .ToList();
 
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[ordenEmbarques.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
 
-                            foreach (var p in ordenEmbarques)
+                            foreach (var p in ordenEmbarques.DistinctBy(x=>x.Cod).ToList())
                             {
                                 //var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
                                 //if (ord is null)
