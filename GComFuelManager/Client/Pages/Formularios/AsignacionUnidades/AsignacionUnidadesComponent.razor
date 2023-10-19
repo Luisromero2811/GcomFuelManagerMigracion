@@ -60,7 +60,18 @@
                                     </label>
                                     <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px" />
+                                                    AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px" >
+                                        <Template Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                                            </RadzenText>
+                                        </Template>
+                                        <ValueTemplate Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                                            </RadzenText>
+                                        </ValueTemplate>
+                                     </RadzenDropDown>
                                 </div>
                                 <div class="col-4">
                                     <label>
@@ -92,6 +103,16 @@
                                     <RadzenDropDown Data="Vehiculos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     AllowVirtualization="true" Style="height:20px">
+                                        <Template Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Tonel)?.Den) 
+                                            </RadzenText>
+                                        </Template>
+                                        <ValueTemplate Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Tonel)?.Den)
+                                            </RadzenText>
+                                        </ValueTemplate>
                                     </RadzenDropDown>
 
                                 </div>
@@ -142,90 +163,107 @@
         </div>
     </div>
 </AuthorizeView>
-<div class="col-12 overflow-scroll ancho" style="height:500px;resize:both;">
-    <table class="table table-bordered table-responsive table-hover" style="font-size:12px;">
+<div class="col-12 table-responsive ancho" style="height:450px;resize:both;">
+    <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
         <thead>
-            <tr style="max-height:50px;">
-                <th style="max-width:60px;" class="sticky-col">
+            <tr style="max-height:50px;white-space:nowrap;">
+                <th class="sticky-column" style="background-color:white;">
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                    Asignar / cacelar
                 </th>
-                <th style="max-width:80px;" class="sticky-col">
-                    Asignar
-                </th>
-                <th style="max-width:90px;" class="sticky-col">
-                    Cancelar
-                </th>
-                <th style="resize:horizontal;overflow:hidden;">
+                <th>
                     Orden de compra
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Folio
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Cliente
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th style="max-width:200px;">
                     Destino
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Producto
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Volumen
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Fecha de carga
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Transportista
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Unidad
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Compartimiento
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Operador
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Bin
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Estatus
                 </th>
-                <th style="resize:horizontal;overflow:auto;">
+                <th>
                     Desasignar
                 </th>
             </tr>
         </thead>
         <tbody>
-            <Virtualize Items="@ordenes" Context="data">
-                <tr class="@(ordenEmbarque == data || ordenesSeleccionada.Contains(data) ? "table-active" : string.Empty)">
-                    <td class="sticky-col" style="max-width:60px">
-                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                    </td>
-                    <td class="sticky-col" style="max-width:80px">
-                        <div class="col-12">
-                            <button class="btn btn-primary col-12 btn-sm" @onclick="@(() => SetOrden(data))">
-                                <i class="fa fa-solid fa-pen-to-square"></i>
-                            </button>
+            <tr>
+                <td class="sticky-column" style="background-color:white;"></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
+                </td>
+                <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
+
+                </td>
+                <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <Virtualize Items="@ordenesFiltradas" Context="data" TItem="OrdenEmbarque">
+                <tr class="@(ordenEmbarque == data || ordenesSeleccionada.Contains(data) ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                    <td class="sticky-column" style="background-color:white;">
+                        <div class="col-12 row m-0">
+                            <div class="col-2">
+                                <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                                TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                            </div>
+                            <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
+                                <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
+                                    <i class="fa fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
+                                    <i class="fa fa-solid fa-cancel"></i>
+                                </button>
+                            </div>
                         </div>
                     </td>
-                    <td class="sticky-col" style="max-width:90px">
-                        <div class="col-12">
-                            <button class="btn btn-danger col-12 btn-sm" @onclick="@(()=>CancelOrden(data))">
-                                <i class="fa fa-solid fa-cancel"></i>
-                            </button>
-                        </div>
-                    </td>
-                    <td style="width:200px">@data?.OrdenCompra?.den</td>
-                    <td style="width:200px">@data?.OrdenCierre?.Folio</td>
-                    <td style="width:200px">@data?.Destino?.Cliente?.Den</td>
-                    <td style="width:200px">@data?.Destino?.Den</td>
-                    <td style="width:150px">@data?.Producto?.Den</td>
+                    <td>@data?.OrdenCompra?.den</td>
+                    <td style="max-width:200px;"><p class="text-break">@data?.OrdenCierre?.Folio</p></td>
+                    <td>@data?.Destino?.Cliente?.Den</td>
+                    <td>@data?.Destino?.Den</td>
+                    <td>@data?.Producto?.Den</td>
                     <td>
                         <div class="col-12">
                             @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
@@ -238,14 +276,14 @@
                             )
                         </div>
                     </td>
-                    <td style="width:150px">@data?.Fchcar?.ToString("dd/MM/yyyy")</td>
-                    <td style="width:200px">@data?.Tonel?.Transportista?.Den</td>
-                    <td style="width:150px">@data?.Tonel?.Veh</td>
-                    <td style="width:100px">@data?.Compartment</td>
-                    <td style="width:150px">@data?.Chofer?.FullName</td>
-                    <td style="width:100px">@data?.Bin</td>
-                    <td style="width:100px">@data?.Estado?.den</td>
-                    <td style="width:90px">
+                    <td>@data?.Fchcar?.ToString("dd/MM/yyyy")</td>
+                    <td>@data?.Tonel?.Transportista?.Den</td>
+                    <td>@data?.Tonel?.Veh</td>
+                    <td>@data?.Compartment</td>
+                    <td>@data?.Chofer?.FullName</td>
+                    <td>@data?.Bin</td>
+                    <td>@data?.Estado?.den</td>
+                    <td>
                         <div class="col-12">
                             <button class="btn btn-primary col-12 btn-sm" @onclick="@(()=>DesasignarUnidad(data))">
                                 <i class="fa-solid fa-broom"></i>
@@ -257,138 +295,18 @@
         </tbody>
     </table>
 </div>
-<div class="col-12">
-    <RadzenDropDown Data="@ColumnList" @bind-Value="@ColumnListVisible" TextProperty="Den" Multiple="true" AllowClear="true"
-                    Placeholder="Mostrar columnas" Style="max-width: 300px;width:100%;">
-    </RadzenDropDown>
-</div>
-@* <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Gerencia, Direccion">
-    <div class="col-12 d-flex justify-content-center my-1">
-        <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordenes" AllowColumnResize="true" AllowVirtualization="false" SelectionMode="DataGridSelectionMode.Multiple" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.horizontal" class="rz-my-6 ancho" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loadingFiltro" Density="Density.Compact" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-        @bind-Settings="@Settings">
-            <Columns>
-                <AuthorizeView Roles="Admin, Administrador Usuario, Programador" Context="EdicionUnidades">
-                    <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true" OrderIndex="1">
-                        <HeaderTemplate>
-                            <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                            Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                        </HeaderTemplate>
-                        <Template Context="data">
-                            <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                            TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Asignar" Filterable="false" Width="80px" Sortable="false" Frozen="true" OrderIndex="2">
-                        <Template Context="data">
-                            <div class="col-12">
-                                <button class="btn btn-primary col-12" @onclick="@(() => SetOrden(data))">
-                                    <i class="fa fa-solid fa-pen-to-square"></i>
-                                </button>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cancelar" Width="90px" Frozen="true" OrderIndex="3" Filterable="false" Sortable="false">
-                        <Template Context="data">
-                            <div class="col-12">
-                                <button class="btn btn-danger col-12" @onclick="@(()=>CancelOrden(data))">
-                                    <i class="fa fa-solid fa-cancel"></i>
-                                </button>
-                            </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                </AuthorizeView>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Filterable="false" OrderIndex="4" Frozen="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" MinWidth="120px" Filterable="false" OrderIndex="5" Frozen="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" FilterValue="ClienteSeleccionado" OrderIndex="6" Frozen="false">
-                    <FilterTemplate Context="filter">
-                        <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="190" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data.Destino?.Cliente?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="220px" FilterValue="DestinosSeleccionado" OrderIndex="7">
-                    <FilterTemplate Context="Destinos">
-                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="190" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data?.Destino?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" FilterValue="ProductosSeleccionado" OrderIndex="8">
-                    <FilterTemplate Context="Productos">
-                        <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data?.Producto?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" OrderIndex="9">
-                    <Template Context="data">
-                        <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            data?.Orden is not null ? data?.Orden?.Vol :
-                            data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
-                            : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
-                            : data?.Compartment == 3 && data.Tonel is not null ? data?.Tonel?.Capcom3
-                            : data?.Compartment == 4 && data.Tonel is not null ? data?.Tonel?.Capcom4
-                            : data?.Vol
-                            )
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Fchcar" FormatString="{0:d}" Filterable="false" Width="160px" OrderIndex="10" Sortable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Transportista" Property="Tonel.Transportista.Den" Width="200px" Filterable="false" OrderIndex="11" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Width="170px" Filterable="false" OrderIndex="12">
-                    <Template Context="data">
-                        <div class="col-12">
-                            @data?.Tonel?.Tracto @data?.Tonel?.Placa
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimiento" Property="Compartment" Filterable="false" Width="160px" OrderIndex="13" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" Filterable="false" OrderIndex="14">
-                    <Template Context="data">
-                        <div class="col-12">
-                            @data?.Chofer?.Den @data?.Chofer?.Shortden
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Bin" Property="Bin" Filterable="false" Width="110px" OrderIndex="15" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estatus" Property="Estado.den" Filterable="false" Width="120px" OrderIndex="16" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Desasignar" Filterable="false" Width="100px" Sortable="false" OrderIndex="17">
-                    <Template Context="data">
-                        <div class="col-12">
-                            <button class="btn btn-primary col-12" @onclick="@(()=>DesasignarUnidad(data))">
-                                <i class="fa-solid fa-broom"></i>
-                            </button>
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-            </Columns>
-        </RadzenDataGrid>
+<div class="col-12 row m-0">
+    <div class="col-3">
+        <p class="text-muted">
+            Ordenes totales: @ordenes.Count
+        </p>
     </div>
-</AuthorizeView>*@
+    <div class="col-3">
+        <p class="text-muted">
+            Ordenes seleccionadas: @ordenesSeleccionada.Count
+        </p>
+    </div>
+</div>
 <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia" Context="SendSynthesis">
     <div class="col-12 card mt-2 mb-3">
         <div class="col-12 card-body">
@@ -439,14 +357,25 @@
         background-color: #FFF633;
     }
 
-    th {
-        max-height: 40px;
+    tr:active {
+        background-color: #FFF633;
     }
 
-    .sticky-col {
-        position: -webkit-sticky;
-        position: sticky;
+    table.asignar {
+        table-layout: auto;
+        width: auto;
     }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
 </style>
 
 @code {
@@ -459,6 +388,12 @@
     private List<int> Cantidades { get; set; } = null!;
     private OrdenEmbarque ordenEmbarque { get; set; } = null!;
     private IList<OrdenEmbarque> ordenes { get; set; } = new List<OrdenEmbarque>();
+    private IList<OrdenEmbarque> ordenesFiltradas => ordenes.Where(x =>
+        (string.IsNullOrEmpty(ClienteSeleccionado) || x.Destino != null && x.Destino.Cliente != null && x.Destino.Cliente.Den!.Contains(ClienteSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrEmpty(DestinosSeleccionado) || x.Destino != null && x.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+        (string.IsNullOrEmpty(ProductosSeleccionado) || x.Producto != null && x.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase))
+    ).ToList();
+
     private IList<OrdenEmbarque> ordenesSeleccionada { get; set; } = new List<OrdenEmbarque>();
 
     //Listas
@@ -519,38 +454,6 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
     bool AlertVisible = false;
-
-    List<CodDenDTO> ColumnList = new List<CodDenDTO>() {
-            new CodDenDTO { Cod = 1, Den = "Orden de compra" },
-            new CodDenDTO { Cod = 2, Den = "Folio" },
-            new CodDenDTO { Cod = 3,Den = "Cliente" },
-            new CodDenDTO { Cod = 4,Den = "Destino" },
-            new CodDenDTO { Cod = 5,Den = "Producto" },
-            new CodDenDTO { Cod = 6,Den = "Volumen" },
-            new CodDenDTO { Cod = 7,Den = "Fecha de carga" },
-            new CodDenDTO { Cod = 8,Den = "Transportista" },
-            new CodDenDTO { Cod = 9,Den = "Unidad" },
-            new CodDenDTO { Cod = 10,Den = "Compartimento" },
-            new CodDenDTO { Cod = 11,Den = "Operador" },
-            new CodDenDTO { Cod = 12,Den = "Bin" },
-            new CodDenDTO { Cod = 13,Den = "Estatus" },
-        };
-
-    List<CodDenDTO> ColumnListVisible = new List<CodDenDTO>() {
-            new CodDenDTO { Cod = 1, Den = "Orden de compra" },
-            new CodDenDTO { Cod = 2, Den = "Folio" },
-            new CodDenDTO { Cod = 3,Den = "Cliente" },
-            new CodDenDTO { Cod = 4,Den = "Destino" },
-            new CodDenDTO { Cod = 5,Den = "Producto" },
-            new CodDenDTO { Cod = 6,Den = "Volumen" },
-            new CodDenDTO { Cod = 7,Den = "Fecha de carga" },
-            new CodDenDTO { Cod = 8,Den = "Transportista" },
-            new CodDenDTO { Cod = 9,Den = "Unidad" },
-            new CodDenDTO { Cod = 10,Den = "Compartimento" },
-            new CodDenDTO { Cod = 11,Den = "Operador" },
-            new CodDenDTO { Cod = 12,Den = "Bin" },
-            new CodDenDTO { Cod = 13,Den = "Estatus" },
-        };
 
     protected override async Task OnInitializedAsync()
     {
@@ -715,9 +618,9 @@
                 ordenes = responseHttp.Response;
                 ordenesSeleccionada = new List<OrdenEmbarque>();
 
-                DestinoList = ordenes?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
-                ProductList = ordenes?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
-                ClienteList = ordenes?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
+                // DestinoList = ordenes?.DistinctBy(x => x?.Destino?.Den).Select(x => x?.Destino?.Den)!;
+                // ProductList = ordenes?.DistinctBy(x => x?.Producto?.Den).Select(x => x?.Producto?.Den)!;
+                // ClienteList = ordenes?.DistinctBy(x => x?.Destino?.Cliente?.Den).Select(x => x?.Destino?.Cliente?.Den)!;
             }
         }
         catch (Exception e)
@@ -746,10 +649,10 @@
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                                                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                                                                            : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                                                                            : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                                                                            : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -860,9 +763,9 @@
                 }
 
                 ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actualizacion", Detail = $"Datos actualizados.", Duration = 2000, Style = "position:absolute; left:0px;" });
-                await grid!.Reload();
+                // await grid!.Reload();
                 ordenEmbarque = null!;
-                //StateHasChanged();
+                StateHasChanged();
             }
         }
         catch (Exception e)
@@ -882,9 +785,9 @@
                 foreach (var item in ordenes)
                 {
                     //Console.WriteLine(JsonConvert.SerializeObject(item));
-                    if ((item.Destino?.Cliente?.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado))
-                       && (item.Destino?.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
-                       && (item.Producto?.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
+                    if ((item.Destino != null && item.Destino.Cliente != null && item.Destino.Cliente.Den!.Contains(ClienteSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ClienteSeleccionado))
+                       && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
+                       && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
                             {
                                 OrdenCompra = item?.OrdenCompra?.den ?? "",
@@ -894,10 +797,10 @@
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+    Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+    Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+    Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+    Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",
@@ -991,7 +894,7 @@
                         ShowCancelButton = true,
                         ConfirmButtonText = "Aceptar",
                         CancelButtonText = "Cancelar",
-                        Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
                     });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
@@ -1006,6 +909,7 @@
 
                     loadingSend = true;
                     AlertVisible = true;
+                    StateHasChanged();
                     List<OrdenEmbarque> NewOrdens = new List<OrdenEmbarque>();
                     var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null && x.Chofer != null && x.Destino != null && x.Destino?.Cliente != null)
                     .OrderBy(x => x.Fchpet)
@@ -1031,6 +935,7 @@
                         var message = await response.ObtenerMensajeError();
                         await swal.FireAsync("Error", message, SweetAlertIcon.Error);
                         ordenesSeleccionada = new List<OrdenEmbarque>();
+                        await MostrarOrdenFecha();
                     }
                     else
                     {
@@ -1198,7 +1103,14 @@
                     //await UpdateOrden();
                     //grid!.Reload();
                     //StateHasChanged();
-                    await MostrarOrdenFecha();
+                    // await MostrarOrdenFecha();
+                    orden.Chofer = null;
+                    orden.Tonel = null;
+
+                    orden.Codchf = null;
+                    orden.Codton = null;
+                    orden.Compartment = 1;
+                    orden.CompartmentId = null;
                     asignacion.Compartimiento = 1;
 
                     //ordenesSeleccionada = new List<OrdenEmbarque>();

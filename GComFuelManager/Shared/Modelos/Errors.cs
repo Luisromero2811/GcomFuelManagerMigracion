@@ -12,7 +12,7 @@ namespace GComFuelManager.Shared.Modelos
     {
 
         [Key] 
-        public string Cod { get; set; } = new Guid().ToString();
+        public string Cod { get; set; } = Guid.NewGuid().ToString();
         public string Error { get; set; } = string.Empty;
         public DateTime Fch { get; set; } = DateTime.Now;
         public string Accion { get; set; } = string.Empty;
@@ -23,5 +23,6 @@ namespace GComFuelManager.Shared.Modelos
     {
         public string Inner { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;
+        public string StackTrace { get; set; } = string.Empty;
     }
 }
