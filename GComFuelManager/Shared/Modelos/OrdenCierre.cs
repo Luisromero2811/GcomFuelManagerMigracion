@@ -152,5 +152,11 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("Fecha de Precio"), NotMapped]
         public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
 
-    }
+        //Props de navegación
+      
+        [NotMapped] public Cliente? Cllientes { get; set; } = null!;
+        [NotMapped] public Destino? Destinos { get; set; } = null!;
+        [NotMapped] public Producto? Prods { get; set; } = null!;
+        [NotMapped] public Grupo? Grups { get; set; } = null!;
+    } 
 }
