@@ -23,10 +23,10 @@
                             <RadzenNumeric Change="@GetEta" class="form-control" @bind-value="@Ordenes.Bol" TValue="int?" />
                         </div>
                         @* <div class="col-1 mt-4">
-                        <button class="btn gcom-bg-amarillo col-12">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                        </div> *@
+                            <button class="btn gcom-bg-amarillo col-12">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            </div> *@
                     </div>
                 </div>
             </AuthorizeView>
@@ -96,7 +96,7 @@
                     <div class="col-6">
                         <label>Fecha real de llegada a destino:</label>
                         <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                        @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
+                                          @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
                     </div>
                     <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
                         <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
@@ -134,15 +134,15 @@
                 <div class="row g3 d-flex">
                     <div class="row">
                         <label><b>Reporte</b></label>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
                             <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label>Fecha final</label>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
                         </div>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
+                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
                             <label>Tipo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
                                 <option>--Seleccione una opcion</option>
@@ -164,11 +164,50 @@
 
                             </InputSelect>
                         </div>
+                        <div class="col-md-3">
+                            <label></label>
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
+                        </div>
                     </div>
                 </div>
-                <div class="row justify-content-end me-3 mt-3 mb-3">
-                    <div class="col-3 mt-3 mb-3">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
+                <div class="col-12 card shadow mt-3 mb-5">
+                    <div class="card-body">
+
+                        <div class="col-12 mb-2 table-responsive ancho" style="height:340px; resize: both;">
+                            <RadzenDataGrid TItem="EtaDTO" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" GridLines="DataGridGridLines.Both" class="rz-my-12 auto"
+                                            Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" IsLoading="loadingFiltro" Density="Density.Default"
+                                            @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" @bind-Settings="@Settings">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Referencia" Property="Referencia" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Fecha de Programa" Property="FechaPrograma" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Estatus de Orden" Property="EstatusOrden" Filterable="false" Width="90px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Fecha de Carga" Property="FechaCarga" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="BOL" Property="Bol" Filterable="false" Width="80px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Tipo de Venta" Property="DeliveryRack" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Cliente" Property="Cliente" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Destino" Property="Destino" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Producto" Property="Producto" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Volumen Natural" Property="Volms" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Volumen Cargado" Property="Vols" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Transportista" Property="Transportista" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Unidad" Property="Unidad" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Operador" Property="Operador" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Fecha Documentacion" Property="FechaDoc" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Horas estimadas de viaje" Property="Eta" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="ETA" Property="FechaEst" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Estado de Orden" Property="Trayecto" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Fecha Real de Llegada" Property="FechaRealEta" Filterable="false" Width="100px" Frozen="true" />
+                                    <RadzenDataGridColumn TItem="EtaDTO" Title="Litros Entregados" Property="EntLit" Filterable="false" Width="100px" Frozen="true" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                        <div class="row justify-content-end me-3 mt-3 mb-3">
+                            <div class="col-3 mt-3 mb-3">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </EditForm>
@@ -176,7 +215,38 @@
     </div>
 </AuthorizeView>
 
+<style type="text/css">
+    .ancho{
+          width: @TotalWidth;
+    }
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    table.asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
+</style>
+
 @code {
+
+    string TotalWidth = string.Empty;
 
     //Element References
     ElementReference infossIcon;
@@ -188,6 +258,8 @@
     void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de buscar Ordenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
     void ShowToolTips(ElementReference elementReference, TooltipOptions option = null!) => ts.Open(elementReference, "Favor de de utilzar formato de separadores de miles. Ejemplo: 11.000,00 = Once mil", option);
 
+    private RadzenDataGrid<EtaDTO>? Grid = new RadzenDataGrid<EtaDTO>();
+    bool loadingFiltro = false;
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = null!;
@@ -196,13 +268,13 @@
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
         {
-            Orden = new Orden()
-            {
-                Estado = new Estado(),
-                Tonel = new Tonel()
-            }
-        };
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -212,6 +284,41 @@
     int time;
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Este boton funciona simultaneamente para Editar como para Guardar el ETA Real", options);
+
+    bool isClose = false;
+    int width = 0;
+
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await JS.SetItemLocalStorage("settingsSeguimiento", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+    }
 
     private void Message(NotificationMessage message)
     {
@@ -262,12 +369,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Success,
-                                Summary = "Eta registrado",
-                                Detail = $"Se ha registrado el eta correctamente",
-                                Duration = 5000
-                            });
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Summary = "Eta registrado",
+                            Detail = $"Se ha registrado el eta correctamente",
+                            Duration = 5000
+                        });
                         Ordenes = responseHttp.Response;
                     }
                 }
@@ -276,6 +383,27 @@
             }
             else
                 await swal.FireAsync("Alerta", "Ingrese un BOL valido.", SweetAlertIcon.Warning);
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task MostrarEtaFecha()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Etareporte", fechas);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response;
+            }
         }
         catch (Exception e)
         {
@@ -338,12 +466,12 @@
                 else
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Success,
-                            Summary = "Buscando...",
-                            Detail = $"Buscando orden con bol {Ordenes.Bol}",
-                            Duration = 5000
-                        });
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Buscando...",
+                        Detail = $"Buscando orden con bol {Ordenes.Bol}",
+                        Duration = 5000
+                    });
                     if (Ordenes.Cod != 0)
                     {
                         if (responseHttp.Response.Cod != 0)
