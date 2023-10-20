@@ -14,5 +14,6 @@ namespace GComFuelManager.Shared.DTOs
         public bool Activo { get; set; } = true;
         public Cliente? cliente { get; set; }
         public Destino? destino { get; set; }
+        public Grupo? grupo { get; set; }
     }
 }

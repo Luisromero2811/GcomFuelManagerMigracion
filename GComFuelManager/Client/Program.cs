@@ -62,5 +62,6 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<AsignarContactoClienteValidation>();
     services.AddScoped<CierreGrupoValidation>();
 
+
     services.AddScoped<PreciosValidation>();
 }
