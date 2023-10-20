@@ -5,7 +5,7 @@ function timerInactivo(dotnetHelper) {
 
     function resetTimer() {
         clearTimeout(timer);
-        timer = setTimeout(logout, 4 * 1000 * 60);
+        timer = setTimeout(logout, 16 * 1000 * 60);
     }
     function logout() {
         dotnetHelper.invokeMethodAsync("Logoute");

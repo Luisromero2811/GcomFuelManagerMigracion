@@ -434,8 +434,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //&& x.codZona == precio.codZona
                         && x.codCte == precio.codCte
                         && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes
-                        && x.FchDia == precio.FchDia);
+                        && x.codDes == precio.codDes);
 
                         if (p is not null)
                         {

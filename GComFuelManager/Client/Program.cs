@@ -18,7 +18,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton(sp => new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
-    Timeout = TimeSpan.FromMinutes(5),
+    Timeout = TimeSpan.FromMinutes(15),
 });
 ConfigureServices(builder.Services);
 
