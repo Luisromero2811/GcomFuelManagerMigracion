@@ -277,11 +277,18 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.CodPed);
             //OrdenEmbarque a Órdenes
+            //modelBuilder.Entity<OrdenEmbarque>()
+            //    .HasOne(x => x.Orden)
+            //    .WithOne(x => x.OrdenEmbarque)
+            //    .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
+            //    .HasPrincipalKey<Orden>("Folio", "CompartmentId");
+
+            //OrdenEmbarque a Órdenes
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.OrdenEmbarque)
-                .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
-                .HasPrincipalKey<Orden>("Folio", "CompartmentId");
+                .HasForeignKey<OrdenEmbarque>(x => x.FolioSyn)
+                .HasPrincipalKey<Orden>(x => x.Ref);
 
             modelBuilder.Entity<AccionCorreo>()
                 .HasOne(x => x.Accion)

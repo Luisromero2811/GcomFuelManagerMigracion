@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference7;//prod
-//using ServiceReference2;//qa
+//using ServiceReference7;//prod
+using ServiceReference2;//qa
 using System;
 using System.Diagnostics;
 
@@ -202,7 +202,7 @@ namespace GComFuelManager.Server.Controllers.Services
                             request.BillOfLading.LineItems = new BillOfLadingLineItem[ordenEmbarques.Count];
                             List<BillOfLadingLineItem> billOfLadingLineItems = new List<BillOfLadingLineItem>();
 
-                            foreach (var p in ordenEmbarques.DistinctBy(x=>x.Cod).ToList())
+                            foreach (var p in ordenEmbarques.DistinctBy(x => x.Cod).ToList())
                             {
                                 //var ord = OrdenesEnviadas.FirstOrDefault(x => x.Cod == p.Cod);
                                 //if (ord is null)
@@ -303,7 +303,10 @@ namespace GComFuelManager.Server.Controllers.Services
                                     x.Bolguidid = billOfLading.BolGuidId;
                                     x.Folio = folio;
                                     x.Codest = 22;
-
+                                    foreach (var line in billOfLading.LineItems)
+                                        if (line.CompartmentId != null && line.CompartmentId.Value.ToString() == x.CompartmentId.ToString())
+                                            if (line.CustomFieldInstances != null)
+                                                x.FolioSyn = line.CustomFieldInstances.First(y => y.CustomFieldMetaData.Name.Equals(x.Cod.ToString())).FieldStringValue ?? string.Empty;
                                     //x.Chofer = null!;
                                     //x.Destino = null!;
                                     //x.Estado = null!;
@@ -324,7 +327,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                 await context.SaveChangesAsync(id, 10);
                             }
 
-                            if(response != null && response.Errors != null && response.Errors.Length > 0)
+                            if (response != null && response.Errors != null && response.Errors.Length > 0)
                             {
                                 context.Add(new Errors()
                                 {
