@@ -167,10 +167,10 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead>
             <tr style="max-height:50px;white-space:nowrap;">
-                <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
+                <th class="sticky-column fila" style="background-color:white;">
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cacelar
+                    Asignar / cancelar
                 </th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
@@ -383,6 +383,14 @@
 
     tr:active {
         background-color: #FFF633;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
     }
 
     .asignar {
