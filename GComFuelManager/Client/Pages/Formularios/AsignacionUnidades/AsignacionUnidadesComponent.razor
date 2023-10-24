@@ -165,12 +165,12 @@
 </AuthorizeView>
 <div class="col-12 table-responsive ancho" style="height:450px;resize:both;">
     <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
-        <thead>
+        <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                <th class="sticky-column" style="background-color:white;">
+                <th class="sticky-column fila" style="background-color:white;">
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cacelar
+                    Asignar / cancelar
                 </th>
                 <th>
                     Orden de compra
@@ -359,6 +359,14 @@
 
     tr:active {
         background-color: #FFF633;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
     }
 
     table.asignar {
