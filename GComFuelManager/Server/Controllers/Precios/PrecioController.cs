@@ -41,16 +41,19 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return BadRequest("No se pudo leer el archivo enviado.");
 
                 using var stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+                //file.OpenReadStream();
                 file.CopyTo(stream);
-
+                
                 List<PreciosDTO> precios = new List<PreciosDTO>();
 
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-
+                //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                
                 ExcelPackage package = new ExcelPackage();
-
+                
                 package.Load(stream);
-
+                //package = new ExcelPackage(stream);
                 if (package.Workbook.Worksheets.Count > 0)
                 {
                     using (ExcelWorksheet worksheet = package.Workbook.Worksheets.First())
@@ -84,6 +87,69 @@ namespace GComFuelManager.Server.Controllers.Precios
                 return BadRequest(e.Message);
             }
         }
+
+
+        [HttpPost]
+        [Route("uploads")]
+        public async Task<ActionResult> ConvertExcell(IFormFile file)
+        {
+            try
+            {
+                if (file == null)
+                    return BadRequest("No se pudo leer el archivo enviado.");
+                using var streams = new MemoryStream();
+                await file.CopyToAsync(streams);
+                //file.OpenReadStream();
+                file.CopyTo(streams);
+                using (var stream = file.OpenReadStream())
+                {
+                    using (var packages = new OfficeOpenXml.ExcelPackage(stream))
+                    {
+                        List<PreciosDTO> precios = new List<PreciosDTO>();
+
+                        //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+
+                        ExcelPackage package = new ExcelPackage();
+                        var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                        if (worksheet != null)
+                        {
+                            using (ExcelWorksheet worksheets = package.Workbook.Worksheets.First())
+                            {
+                                for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
+                                {
+                                    PreciosDTO precio = new PreciosDTO();
+
+                                    var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+
+                                    if (row.Count == 8)
+                                    {
+                                        precio.Producto = row[0].Value?.ToString();
+                                        precio.Zona = row[1].Value?.ToString();
+                                        precio.Cliente = row[2].Value?.ToString();
+                                        precio.Destino = row[3].Value?.ToString();
+                                        precio.CodSyn = row[4].Value?.ToString();
+                                        precio.CodTux = row[5].Value?.ToString();
+                                        precio.Fecha = row[6].Value?.ToString();
+                                        precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
+                                        precios.Add(precio);
+                                    }
+                                }
+                            }
+                        }
+                        package.Load(streams);
+
+
+                        return Ok(precios);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         [HttpGet]
         public async Task<ActionResult> GetPrecios()

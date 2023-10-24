@@ -23,10 +23,10 @@
                             <RadzenNumeric Change="@GetEta" class="form-control" @bind-value="@Ordenes.Bol" TValue="int?" />
                         </div>
                         @* <div class="col-1 mt-4">
-                        <button class="btn gcom-bg-amarillo col-12">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                        </div> *@
+                            <button class="btn gcom-bg-amarillo col-12">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            </div> *@
                     </div>
                 </div>
             </AuthorizeView>
@@ -96,7 +96,7 @@
                     <div class="col-6">
                         <label>Fecha real de llegada a destino:</label>
                         <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                        @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
+                                          @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
                     </div>
                     <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
                         <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
@@ -134,15 +134,15 @@
                 <div class="row g3 d-flex">
                     <div class="row">
                         <label><b>Reporte</b></label>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
                             <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label>Fecha final</label>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
                         </div>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
+                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
                             <label>Tipo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
                                 <option>--Seleccione una opcion</option>
@@ -164,6 +164,158 @@
 
                             </InputSelect>
                         </div>
+                        <div class="col-md-3">
+                            <label></label>
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-4 table-responsive ancho" style="height:450px;resize:both;">
+                    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                        <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                            <thead class="fila" style="position: sticky;">
+                                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
+                                    <th>
+                                        Referencia
+                                    </th>
+                                    <th >
+                                        Fecha de Programa
+                                    </th>
+                                    <th>
+                                        Estatus de Orden
+                                    </th>
+                                    <th style="max-width:200px; position: sticky;">
+                                        Fecha de Carga
+                                    </th>
+                                    <th>
+                                        BOL
+                                    </th>
+                                    <th>
+                                        Tipo de Venta
+                                    </th>
+                                    <th>
+                                        Cliente
+                                    </th>
+                                    <th>
+                                        Destino
+                                    </th>
+                                    <th>
+                                        Producto
+                                    </th>
+                                    <th>
+                                        Volumen Natural
+                                    </th>
+                                    <th>
+                                        Volumen Cargado
+                                    </th>
+                                    <th>
+                                        Transportista
+                                    </th>
+                                    <th>
+                                        Unidad
+                                    </th>
+                                    <th>
+                                        Operador
+                                    </th>
+                                    <th>
+                                        Fecha Documentación
+                                    </th>
+                                    <th>
+                                        Horas Estimadas de Viaje
+                                    </th>
+                                    <th>
+                                        ETA
+                                    </th>
+                                    <th>
+                                        Estado de Orden
+                                    </th>
+                                    <th>
+                                        Observaciones
+                                    </th>
+                                    <th>
+                                        Fecha real de llegada
+                                    </th>
+                                    <th>
+                                        Litros entregados
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="sticky-column" style="background-color:white;"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <Virtualize Items="@ordens" Context="data" TItem="EtaDTO">
+                                    <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
+
+
+                                        <td>@data?.Referencia</td>
+                                        <td style="max-width:200px; text-align: center;">
+                                            <p class="text-break">
+                                                @*@data?.FechaPrograma*@
+                                                @*@(data?.orden.BatchId is null ? data?.orden.Fchcar : data?.ordenEmbarque?.Fchcar )*@
+                                                @*@(data?.Bol is null ? data?.FechaPrograma : data?.FechaCargaEmbarque)*@
+                                                @data?.FechaPrograma
+                                            </p>
+                                        </td>
+                                        <td>@data?.EstatusOrden</td>
+                                        <td>
+                                            @*@data?.FechaCarga*@
+                                            @*@(data?.orden?.Fchcar is not null && data?.orden.BatchId is not null ? data?.orden.Fchcar : "")*@
+                                            @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
+                                        </td>
+                                        <td>@data?.Bol</td>
+                                        <td style="text-align: center;">
+                                            @data?.DeliveryRack
+                                        </td>
+                                        <td>@data?.Cliente</td>
+                                        <td>@data?.Destino</td>
+                                        <td>@data?.Producto</td>
+                                        <!--Volumen Natural-->
+                                        <td style="text-align: center;">
+                                            @data?.Volms
+                                            @*@(data?.Bol is not null ? data?.Volms : data?.VolumenN)*@
+                                        </td>
+                                        <td style="text-align: center;">@data?.Vols</td>
+                                        <td>@data?.Transportista</td>
+                                        <td>@data?.Unidad</td>
+                                        <td>@data?.Operador</td>
+                                        <td style="text-align: center;">@data?.FechaDoc?</td>
+                                        <td>@data?.Eta</td>
+                                        <td>@data?.FechaEst</td>
+                                        <td style="text-align: center;">@data?.Trayecto</td>
+                                        <td>@data?.Observaciones</td>
+                                        <td style="text-align: center;">@data?.FechaRealEta</td>
+                                        <td>@data?.EntLit</td>
+                                        @*@(data?.Compartimento == 1 ? data.Capcom
+        : data?.Compartimento == 2 ? data.Capcom2
+        : data?.Compartimento == 3 ? data.Capcom3
+        : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
+        : data?.Volms)*@
+                                    </tr>
+                                </Virtualize>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="row justify-content-end me-3 mt-3 mb-3">
@@ -176,7 +328,47 @@
     </div>
 </AuthorizeView>
 
+<style type="text/css">
+    .ancho{
+          width: @TotalWidth;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    table.asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
+</style>
+
 @code {
+
+    string TotalWidth = string.Empty;
 
     //Element References
     ElementReference infossIcon;
@@ -184,25 +376,27 @@
     ElementReference infoIcons;
     private ElementReference BOLInput;
     //Tooltips de reportes
-    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de buscar ordenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
-    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de buscar Ordenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
+    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de exportar órdenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
+    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de exportar órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
     void ShowToolTips(ElementReference elementReference, TooltipOptions option = null!) => ts.Open(elementReference, "Favor de de utilzar formato de separadores de miles. Ejemplo: 11.000,00 = Once mil", option);
 
+    private RadzenDataGrid<EtaDTO>? Grid = new RadzenDataGrid<EtaDTO>();
+    bool loadingFiltro = false;
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
-    private List<EtaDTO> ordens { get; set; } = null!;
+    private List<EtaDTO> ordens { get; set; } = new List<EtaDTO>();
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo" };
 
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
         {
-            Orden = new Orden()
-            {
-                Estado = new Estado(),
-                Tonel = new Tonel()
-            }
-        };
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -212,6 +406,41 @@
     int time;
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Este boton funciona simultaneamente para Editar como para Guardar el ETA Real", options);
+
+    bool isClose = false;
+    int width = 0;
+
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await JS.SetItemLocalStorage("settingsSeguimiento", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+    }
 
     private void Message(NotificationMessage message)
     {
@@ -262,12 +491,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Success,
-                                Summary = "Eta registrado",
-                                Detail = $"Se ha registrado el eta correctamente",
-                                Duration = 5000
-                            });
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Summary = "Eta registrado",
+                            Detail = $"Se ha registrado el eta correctamente",
+                            Duration = 5000
+                        });
                         Ordenes = responseHttp.Response;
                     }
                 }
@@ -283,11 +512,33 @@
         }
     }
 
+    public async Task MostrarEtaFecha()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reporte", fechas);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
     public async Task ExportExcel()
     {
         try
         {
-            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Etareporte", fechas);
+            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reporte", fechas);
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -309,7 +560,7 @@
                   , true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:T1"];
+                var header = worksheet.Cells["A1:U1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 //Guardar Excell
@@ -338,12 +589,12 @@
                 else
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Success,
-                            Summary = "Buscando...",
-                            Detail = $"Buscando orden con bol {Ordenes.Bol}",
-                            Duration = 5000
-                        });
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Buscando...",
+                        Detail = $"Buscando orden con bol {Ordenes.Bol}",
+                        Duration = 5000
+                    });
                     if (Ordenes.Cod != 0)
                     {
                         if (responseHttp.Response.Cod != 0)

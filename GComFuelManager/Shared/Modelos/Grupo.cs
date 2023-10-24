@@ -28,6 +28,11 @@ namespace GComFuelManager.Shared.Modelos
 
         [ForeignKey("codgru")]
 		public List<Cliente> Clientes { get; set; } = new List<Cliente>();
+
+		//[NotMapped]
+		//public Cliente clientess { get; set; }
+		//[NotMapped]
+		//public int CodCli { get { return clientess.Cod; } }
 	}
 }
 

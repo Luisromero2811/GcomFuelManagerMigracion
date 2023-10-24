@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GComFuelManager.Shared.Modelos;
 using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.DTOs
@@ -57,6 +58,24 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Litros Entregados")]
         public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } }
 
+        [EpplusIgnore]
+        public Orden? orden { get; set; } 
+        [EpplusIgnore]
+        public OrdenEmbarque? ordenEmbarque { get; set; }
+        [EpplusIgnore]
+        public string? FechaCargaEmbarque { get { return ordenEmbarque?.Fchcar.ToString(); } }
+        [EpplusIgnore]
+        public int? Compartimento { get; set; } = null!;
+        [EpplusIgnore]
+        public decimal? Capcom { get { return ordenEmbarque?.Tonel?.Capcom; } }
+        [EpplusIgnore]
+        public decimal? Capcom2 { get { return ordenEmbarque?.Tonel?.Capcom2; } }
+        [EpplusIgnore]
+        public decimal? Capcom3 { get { return ordenEmbarque?.Tonel?.Capcom3; } }
+        [EpplusIgnore]
+        public decimal? Capcom4 { get { return ordenEmbarque?.Tonel?.Capcom4; } }
+        [EpplusIgnore]
+        public string? VolumenN { get { return orden?.Volumenes; } }
     }
 }
 
