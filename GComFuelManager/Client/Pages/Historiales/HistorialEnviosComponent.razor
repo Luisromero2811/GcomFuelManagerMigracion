@@ -136,23 +136,23 @@
         <div class="col card shadow-sm">
             <div class="col-12 card-body">
                 <div class="col-12 my-1">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                    @* <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                         <div class="row d-flex justify-content-start">
                             <div class="col-4">
                                 <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" />
                                 <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
                             </div>
                         </div>
-                    </AuthorizeView>
+                    </AuthorizeView> *@
                     <div class="row d-flex justify-content-end">
-                        @if (Synthesis)
+                        @* @if (Synthesis)
                         {
                             <div class="col-4">
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                     <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
                                 </AuthorizeView>
                             </div>
-                        }
+                        } *@
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
                                 <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerarExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
