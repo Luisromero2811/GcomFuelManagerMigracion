@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,5 +15,6 @@ namespace GComFuelManager.Shared.DTOs
         public bool Activo { get; set; } = true;
         public Cliente? cliente { get; set; }
         public Destino? destino { get; set; }
+        public Grupo? grupo { get; set; }
     }
 }

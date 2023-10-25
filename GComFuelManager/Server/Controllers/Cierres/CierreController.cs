@@ -1469,6 +1469,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
+                        .Include(x => x.Grupo)
                         .Select(x => new FolioCierreDTO()
                         {
                             Folio = x.Folio,
@@ -1476,6 +1477,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
+                            Grupo = x.Grupo
                         })
                         .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
@@ -1487,6 +1489,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                        .Include(x => x.Cliente)
                        .Include(x => x.Destino)
                        .Include(x => x.Producto)
+                       .Include(x => x.Grupo)
                        .Select(x => new FolioCierreDTO()
                        {
                            Folio = x.Folio,
@@ -1494,6 +1497,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                            destino = x.Destino,
                            Producto = x.Producto,
                            FchCierre = x.FchCierre,
+                           Grupo = x.Grupo
                        })
                        .OrderByDescending(x => x.FchCierre)
                        .ToListAsync();
@@ -1549,13 +1553,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                            destino = x.Destino,
                            Producto = x.Producto,
                            FchCierre = x.FchCierre,
+                           Grupo = x.Grupo
                        })
                        .OrderByDescending(x => x.FchCierre)
                        .ToListAsync();
                 }
                 return Ok(folios);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }

@@ -10,5 +10,6 @@ namespace GComFuelManager.Shared.DTOs
     {
         public Int16 TipoEnvio { get; set; } = 0;
         public List<string> Clientes { get; set; } = new List<string>();
+        public List<string> Grupos { get; set; } = new List<string>();
     }
 }

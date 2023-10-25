@@ -26,7 +26,7 @@
                                 <p>Progreso: @Progress %</p>
                             }
                             <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload" Complete="@CompleteUpload"
-                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
+                                          Accept=".xlsx,.xls" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
                                 <RadzenUploadHeader Name="Authorization" Value="@Token" />
                             </RadzenUpload>
                         </div>
@@ -228,6 +228,20 @@
                                             <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
                                                 Enviar Precios
+                                                @if (loadingSend)
+                                                {
+                                                    <SpinnerLoading />
+                                                }
+                                            </button>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema" Context="SendPrecioGrupal">
+                                    <Authorized>
+                                        <div class="col-4">
+                                            <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
+                                                <i class="fa fa-solid fa-paper-plane"></i>
+                                                Enviar Precio grupal
                                                 @if (loadingSend)
                                                 {
                                                     <SpinnerLoading />
@@ -443,17 +457,17 @@
                                     @foreach (var item in preciosPro)
                                     {
                                         <tr style="height:50px">
-                                          
-                                                <td width="100px">
-                                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                        <div class="col-12">
-                                                            <div class="col p-2">
-                                                                <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                            </div>
+
+                                            <td width="100px">
+                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                                    <div class="col-12">
+                                                        <div class="col p-2">
+                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                                         </div>
-                                                    </AuthorizeView>
-                                                </td>
-                                          
+                                                    </div>
+                                                </AuthorizeView>
+                                            </td>
+
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
@@ -473,7 +487,7 @@
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
 
-                                          
+
                                             <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
@@ -484,7 +498,7 @@
                                                     </div>
                                                 </AuthorizeView>
                                             </td>
-                                      
+
                                         </tr>
                                     }
 
@@ -564,6 +578,7 @@
 
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
     private IEnumerable<string?> ClientesSeleccionados { get; set; } = new List<string>();
+    private IEnumerable<string?> GruposSeleccionados { get; set; } = new List<string>();
 
     RadzenDataGrid<Precio> grid { get; set; } = new RadzenDataGrid<Precio>();
     RadzenDataGrid<PreciosDTO> gridExcel { get; set; } = new RadzenDataGrid<PreciosDTO>();
@@ -1116,6 +1131,124 @@
         {
             loadingSend = false;
 
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SendEmailGroupPrecio()
+    {
+        try
+        {
+            loadingSend = true;
+            var count = 0;
+            var totalcount = 0;
+            //Hacemos el match de los grupos seleccionados en la tabla
+            GruposSeleccionados = precios.DistinctBy(x => x.NombreGrupo).Select(x => x.NombreGrupo);
+
+            EnvioTipoPreciosEmailDtoClass1 grupos = new EnvioTipoPreciosEmailDtoClass1();
+            //Abrimos el modal
+            var gruposPre = await ds.OpenAsync<SelectionGroupComponent>($"Grupos",
+                options: new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            //Si existen grupos les damos valor
+            if (gruposPre is not null)
+            {
+                grupos = gruposPre;
+            }
+            //Si no existen nada de grupo, no se hace nada
+            if (grupos.Grupos is null || grupos.Grupos.Count == 0)
+            {
+                loadingSend = false;
+                return;
+            }
+            //Conteo total de los grupos
+            totalcount = grupos.Grupos.Count;
+            //Alerta de que los correos se estan enviando
+            Message(new NotificationMessage
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
+
+            List<Precio> listaPrecios = new List<Precio>();
+            //Por cada grupo seleccionado, se realiza la accion de mostrar las alertas y hacer la peticion para mandar el correo
+            foreach (var grupo in grupos.Grupos)
+            {
+                count++;
+                //Enviando correo # de #...
+                Message(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = $"Enviando {count} de {totalcount}",
+                    Duration = 15000
+                });
+
+                if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
+                queryStringObjectPre["den"] = grupo;
+                queryStringObjectPre["cod"] = grupos.TipoEnvio.ToString();
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+                //Toma un objeto, filtra el contenido, mapea para poder utilizar la clave en la uri,, convierte en arreglo y los une en una cadena valida (Para poderlo utilizar en uri) 
+                var uri = string.Join("&", queryStringObjectPre.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+                //Peticion para mandar el precio vigente
+                if (grupos.TipoEnvio == 1)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/preciosGroup?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al grupo {grupo}",
+                            Duration = 15000
+                        });
+                    }
+                }
+                else if (grupos.TipoEnvio == 2)
+                {
+                    //Peticion para mandar el precio programado
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/preciosgroup/programados?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al grupo {grupo}",
+                            Duration = 15000
+                        });
+                    }
+                }
+            }
+
+            alert.Dispose();
+            //Alerta final de correos enviados
+            await Swal.FireAsync("Correos enviados", $"Se enviaron {count} de {totalcount}.", SweetAlertIcon.Info);
+
+            loadingSend = false;
+
+
+        }
+        catch (Exception e)
+        {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }

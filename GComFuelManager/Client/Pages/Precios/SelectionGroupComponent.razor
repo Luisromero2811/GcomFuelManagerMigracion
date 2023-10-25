@@ -1,0 +1,151 @@
+﻿@inject IRepositorio http
+@inject DialogService ds
+
+<div class="col-12 card">
+    <div class="col-12 card-body">
+        <div class="row col-12">
+            <div class="d-flex justify-content-center">
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(TipoPrecio == 1)" @onchange="@(()=>TipoPrecio = 1)" />
+                    <label class="form-check-label" for="SinCargar">Precio Vigente</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="Cargadas" name="estatus" checked="@(TipoPrecio == 2)" @onchange="@(()=>TipoPrecio = 2)" />
+                    <label class="form-check-label" for="Cargadas">Precio Programado</label>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <RadzenTextBox Change="@LoadData" @bind-Value="@FilterText" Placeholder="Buscar grupo..." />
+        </div>
+        <RadzenDataGrid Data="@GrupoFiltrado" TItem="string" Context="data" SelectionMode="DataGridSelectionMode.Multiple" @bind-Value="GruposSeleccionados"
+                        Style="height:400px" AllowPaging="true" ShowPagingSummary="true"
+                        GridLines="DataGridGridLines.Both" AllowRowSelectOnRowClick="false" AllowVirtualization="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="string" Width="60px">
+                    <!--Checkbox para seleccionar todos los clientes-->
+                    <HeaderTemplate>
+                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(lista.Any(i => GruposSeleccionados != null && GruposSeleccionados.Contains(i)))"
+                                        Change="@(args => GruposSeleccionados = args ? lista.ToList() : new List<string>())" />
+                    </HeaderTemplate>
+                    <!--Checkbox para seleccionar un cliente-->
+                    <Template Context="data">
+                        <RadzenCheckBox TriState="false" Value="@(GruposSeleccionados.Contains(data))"
+                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <!--Listado de grupos-->
+                <RadzenDataGridColumn Title="Grupo" TItem="string" Property=".">
+                    <Template>
+                        @context
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+        <div class="col-12">
+            <div class="col-4">
+                <button class="col-12 btn gcom-bg-amarillo" @onclick="@HandledValidClientes">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public IEnumerable<string> lista { get; set; } = new List<string>();
+    public IList<string> ClientesSeleccionados { get; set; } = new List<string>();
+    private string FilterText = string.Empty;
+    private IEnumerable<string> ClienteFiltrado => lista.Where(x => string.IsNullOrEmpty(FilterText) || x.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+
+    public IList<string> GruposSeleccionados { get; set; } = new List<string>();
+    private IEnumerable<string> GrupoFiltrado => lista.Where(x => string.IsNullOrEmpty(FilterText) || x.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+
+    private EnvioTipoPreciosEmailDtoClass1 envioTipo = new EnvioTipoPreciosEmailDtoClass1();
+
+    Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+
+    CodDenDTO busqueda = new CodDenDTO();
+    Int16 TipoPrecio = 1;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private void HandledValidClientes()
+    {
+        envioTipo.TipoEnvio = TipoPrecio;
+        //envioTipo.Clientes = ClientesSeleccionados.ToList();
+        envioTipo.Grupos = GruposSeleccionados.ToList();
+        ds.Close(envioTipo);
+    }
+
+    private async void ToggleCheck(bool args, string orden)
+    {
+        try
+        {
+            if (args)
+                GruposSeleccionados.Add(orden);
+            else
+                GruposSeleccionados.Remove(orden);
+
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    //private async Task GetClientes(string? uri)
+    //{
+    //    try
+    //    {
+    //        var response = await http.Get<List<string>>($"api/clientes/buscar?{uri}");
+    //        if (response.Error)
+    //        {
+    //            var message = await response.ObtenerMensajeError();
+    //        }
+    //        else
+    //        {
+    //            lista = response.Response;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        throw e;
+    //    }
+    //}
+
+    private async Task GetGrupos(string? uri)
+    {
+        try
+        {
+            var responseHttp = await http.Get<List<string>>($"api/clientes/buscarGrupo?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+            }
+            else
+            {
+                lista = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async Task LoadData()
+    {
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["den"] = busqueda.Den;
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        //await GetClientes(uri);
+        await GetGrupos(uri);
+    }
+}

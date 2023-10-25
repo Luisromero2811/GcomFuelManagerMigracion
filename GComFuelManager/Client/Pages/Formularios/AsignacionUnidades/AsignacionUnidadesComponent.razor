@@ -165,12 +165,12 @@
 </AuthorizeView>
 <div class="col-12 overflow-scroll ancho" style="height:450px;resize:both;">
     <table class="table table-sm table-bordered table-hover" id="miTabla">
-        <thead>
+        <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
                 <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cacelar
+                    Asignar / cancelar
                 </th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
@@ -373,6 +373,14 @@
         background-color: white;
     }
 
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
     .ancho {
         width: @TotalWidth;
     }
@@ -428,7 +436,6 @@
             background: transparent;
         }
 </style>
-
 <script>
     const table = document.getElementById('miTabla');
     let isResizing = false;
@@ -727,10 +734,10 @@
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                            (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                            : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                            : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                            : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -875,10 +882,10 @@
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                        Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                        Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                        Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                        Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",

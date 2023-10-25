@@ -471,5 +471,27 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("buscarGrupo")]
+        public async Task<ActionResult> GetGrupoBusqueda([FromQuery] CodDenDTO grupo)
+        {
+            try
+            {
+                var grupos = context.Grupo.AsQueryable();
+
+                if (string.IsNullOrEmpty(grupo.Den))
+                {
+                    grupos = grupos.Where(x => x.Den.ToLower().Contains(grupo.Den.ToLower()));
+                }
+
+                var newgrupos = grupos.Select(x => x.Den);
+
+                return Ok(newgrupos);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
