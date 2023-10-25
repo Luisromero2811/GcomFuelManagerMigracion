@@ -58,5 +58,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
         [NotMapped] public int? Compartimento { get; set; } = null!;
+        public string? FolioSyn { get; set; } = string.Empty;
     }
 }

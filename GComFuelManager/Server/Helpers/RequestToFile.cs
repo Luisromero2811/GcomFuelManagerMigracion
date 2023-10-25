@@ -1,6 +1,6 @@
 using Newtonsoft.Json;
-using ServiceReference2; //QA
-//using ServiceReference7; //Producción
+//using ServiceReference2;
+using ServiceReference7;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Xml;
