@@ -999,5 +999,20 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpDelete("cancel/{cod:int}")]
+        public async Task<ActionResult> RecrearOrden([FromBody] List<OrdenEmbarque> ordenes)
+        {
+            try
+            {
+                
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }

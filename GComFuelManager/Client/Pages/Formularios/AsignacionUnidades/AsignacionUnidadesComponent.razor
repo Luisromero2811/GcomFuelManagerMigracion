@@ -436,33 +436,6 @@
             background: transparent;
         }
 </style>
-<script>
-    const table = document.getElementById('miTabla');
-    let isResizing = false;
-    let initialX = 0;
-    let column = null;
-
-    table.addEventListener('mousedown', (e) => {
-        if (e.target.classList.contains('th-resizable')) {
-            isResizing = true;
-            column = e.target;
-            initialX = e.clientX;
-        }
-    });
-
-    document.addEventListener('mousemove', (e) => {
-        if (isResizing) {
-            const width = column.offsetWidth + (e.clientX - initialX);
-            column.style.width = width + 'px';
-        }
-    });
-
-    document.addEventListener('mouseup', () => {
-        if (isResizing) {
-            isResizing = false;
-        }
-    });
-</script>
 @code {
 
     public bool Synthesis { get; set; } = false;
@@ -539,25 +512,13 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
     bool AlertVisible = false;
-
+    private IJSObjectReference importedJs;
     protected override async Task OnInitializedAsync()
     {
-        var cm = await js.GetItemLocalStorage("CloseMenu");
-        if (!string.IsNullOrEmpty(cm))
-            isClose = bool.Parse(cm);
-
-        if (isClose)
-            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-        else
-            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-        if (width < 0)
-            width = 500;
-        TotalWidth = $"{width}px";
-
         //await GetDestinos();
         //await GetProductos();
         await GetTransportista();
+        // await importedJs.InvokeVoidAsync("columnSize.SetTable", "miTabla", DotNetObjectReference.Create(this));
     }
 
 
@@ -565,6 +526,21 @@
     {
         if (first)
         {
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
+            // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
+            importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+
             await LoadStateAsync();
             StateHasChanged();
         }
@@ -734,10 +710,10 @@
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -882,10 +858,10 @@
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                    Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                    Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                    Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                    Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",
