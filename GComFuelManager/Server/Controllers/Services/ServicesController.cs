@@ -936,5 +936,37 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
         #endregion
+
+        #region Generar codigo relacion
+        [HttpGet("generar/relacion")]
+        public async Task<ActionResult> GenerarRelacion()
+        {
+            try
+            {
+                List<OrdenEmbarque> cierres = new List<OrdenEmbarque>();
+                cierres = context.OrdenEmbarque.Where(x => x.Fchpet >= DateTime.Today.AddDays(-20) && x.Fchpet <= DateTime.Now && string.IsNullOrEmpty(x.FolioSyn)).ToList();
+                foreach (var item in cierres.DistinctBy(x => x.Cod))
+                {
+                    if (item.Folio != null)
+                        item.FolioSyn = $"ENER-{item.Folio}_{item.Compartment}";
+                    else
+                        item.FolioSyn = string.Empty;
+                    context.Update(item);
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (NullReferenceException e)
+            {
+                await SaveErrors(e, "Actualizar ordenes de synthesis: Null reference");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                await SaveErrors(e, "Actualizar ordenes de synthesis");
+                return BadRequest(e.Message);
+            }
+        }
+        #endregion
     }
 }
