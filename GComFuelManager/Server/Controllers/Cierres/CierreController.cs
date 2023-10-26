@@ -762,25 +762,32 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
-                if (orden.OrdenEmbarque is null)
-                    return BadRequest($"No se encontro una orden relacionada al BOL {Bol} con la referencia de {orden.Ref}");
 
-                if (orden.OrdenEmbarque?.OrdenCierre?.CodPed != 0 && orden.OrdenEmbarque?.OrdenCierre != null)
+                var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+                var precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+
+                if (precioVig is not null)
                 {
-                    var precios = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
-
-                    var preciosPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
-
-                    if (preciosPro != null)
-                        precio.Precio = preciosPro.Pre;
-                    else if (precios != null)
-                        precio.Precio = precios.Pre;
-                    else
-                        precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio;
+                    precio.Precio = precioVig.Pre;
                 }
-                else
+
+                if (precioPro is not null)
                 {
-                    precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio ?? orden.OrdenEmbarque?.Pre;
+                    precio.Precio = precioPro.Pre;
+                }
+
+                if (orden.OrdenEmbarque != null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod))
+                {
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+                    if (ordenepedido is not null)
+                    {
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                         && x.CodPrd == orden.Codprd && x.CodDes == orden.Coddes).FirstOrDefault();
+                        if (cierre is not null)
+                        {
+                            precio.Precio = cierre.Precio;
+                        }
+                    }
                 }
 
                 return Ok(precio);
