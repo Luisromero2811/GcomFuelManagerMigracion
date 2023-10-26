@@ -128,47 +128,37 @@ namespace GComFuelManager.Server.Controllers.Emails
                 EmailContent<Precio> emailContent = new EmailContent<Precio>();
                 List<MailboxAddress> ToList = new List<MailboxAddress>();
                 List<Precio> list = new List<Precio>();
-
-                //var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
-
-                //if (cte is not null)
-                //    list = context.Precio.Where(x => x.codCte == cte.Cod && x.Activo == true)
-                //        .Include(x => x.Cliente)
-                //        .Include(x => x.Destino)
-                //        .Include(x => x.Producto)
-                //        .Include(x => x.Zona)
-                //        .ToList();
-                //else
-                //    return BadRequest($"No se encontro el cliente {cliente.Den}");
-
-                //if (list.Count == 0)
-                //    return BadRequest($"No se encontraron precios para {cte.Den}");
-
-                var ctes = context.Cliente.Where(x => x.codgru == grupo.grupo.Cod).ToList();
-                foreach(var item in ctes)
+                var gpo = context.Grupo.Where(x => x.Den.ToLower().Equals(grupo.Den)).FirstOrDefault();
+                if (gpo is not null)
                 {
-                    var emails = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
-                    && x.Accion.Nombre.Equals("Precios"))
-                        .Include(x => x.Accion)
-                        .Include(x => x.Contacto)
-                        .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                        .ToListAsync();
-                    if(ToList is null || ToList.Count == 0)
+                    var ctes = context.Cliente.Where(x => x.codgru == gpo.Cod).ToList();
+                    foreach (var item in ctes)
                     {
-                        return BadRequest($"No se encontro un correo con la accion de Precios para el cliente");
+                        ToList = await context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
+                        && x.Accion.Nombre.Equals("Precios"))
+                            .Include(x => x.Accion)
+                            .Include(x => x.Contacto)
+                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                            .ToListAsync();
+                        if (ToList is null || ToList.Count == 0)
+                        {
+                            return BadRequest($"No se encontro un correo con la accion de Precios para el cliente");
+                        }
+                        var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+
+                        list = context.Precio.Where(x=>x.codCte == item.Cod).Include(x=>x.Cliente).Include(x => x.Producto).Include(x => x.Destino).ToList();
+
+                        emailContent.CC = cc;
+
+                        emailContent.ToList = ToList;
+
+                        emailContent.Subject = "Listado de precios";
+                        emailContent.Lista = list;
+
+                        await preciosService.NotifyPrecio(emailContent);
                     }
-                    var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
-                 
-                    emailContent.CC = cc;
-
-                    emailContent.ToList = ToList;
-                  
-                    emailContent.Subject = "Listado de precios";
-                    emailContent.Lista = list;
-
-                    await preciosService.NotifyPrecio(emailContent);
                 }
-                return Ok(true);
+                return Ok(list);
             }
             catch(Exception e)
             {

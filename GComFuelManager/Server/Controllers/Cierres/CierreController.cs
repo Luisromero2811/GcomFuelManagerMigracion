@@ -1834,27 +1834,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
-                //if (orden.OrdenEmbarque is null)
-                //    return BadRequest($"No se encontro una orden relacionada al BOL {Bol} con la referencia de {orden.Ref}");
-
-                //if (orden.OrdenEmbarque?.OrdenCierre?.CodPed != 0 && orden.OrdenEmbarque?.OrdenCierre != null)
-                //{
-                //    var precios = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
-
-                //    var preciosPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.codCte == orden.OrdenEmbarque!.OrdenCierre!.CodCte).FirstOrDefault();
-
-                //    if (preciosPro != null)
-                //        precio.Precio = preciosPro.Pre;
-                //    else if (precios != null)
-                //        precio.Precio = precios.Pre;
-                //    else
-                //        precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio;
-                //}
-                //else
-                //{
-                //    precio.Precio = orden.OrdenEmbarque?.OrdenCierre?.Precio ?? orden.OrdenEmbarque?.Pre;
-                //}
-
+                
                 var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
                 var precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
 
