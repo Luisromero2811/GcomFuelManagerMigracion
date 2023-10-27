@@ -761,7 +761,7 @@ namespace GComFuelManager.Server.Controllers
 
                 ordens.OrderByDescending(x => x.Bin);
 
-                return Ok(ordens.DistinctBy(x=>x.Cod));
+                return Ok(ordens.DistinctBy(x => x.Cod));
             }
             catch (Exception e)
             {
@@ -999,14 +999,62 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpDelete("cancel/{cod:int}")]
+        [HttpDelete("recrear")]
         public async Task<ActionResult> RecrearOrden([FromBody] List<OrdenEmbarque> ordenes)
         {
             try
             {
-                
+                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
+                OrdenCierre ordenCierre = new OrdenCierre();
+                OrdenEmbarque ordenEmbarque = new OrdenEmbarque();
+                OrdenPedido ordenPedido = new OrdenPedido();
 
-                return Ok();
+                var guid = Guid.NewGuid().ToString().Split("-");
+                ordenCierre = new OrdenCierre()
+                {
+                    Folio = $"RE-{guid[0]}",
+                    FchCierre = DateTime.Today,
+                    FchVencimiento = DateTime.Today.AddDays(1)
+                };
+
+                foreach (var item in ordenes)
+                {
+                    var folioguid = Guid.NewGuid().ToString().Split("-");
+                    ordenEmbarque = new OrdenEmbarque()
+                    {
+                        Codprd = item.Codprd,
+                        Coddes = item.Coddes,
+                        Codchf = item.Codchf,
+                        Codest = 3,
+                        Codtad = item.Codtad,
+                        Codton = item.Codton,
+                        Codusu = item.Codusu,
+                        Fchcar = DateTime.Today,
+                        Fchpet = DateTime.Now,
+                        Bin = item.Bin,
+                        Compartment = item.Compartment,
+                        CompartmentId = item.CompartmentId,
+                        FolioSyn = string.Empty
+                    };
+                    context.Add(ordenEmbarque);
+                    await context.SaveChangesAsync();
+
+                    if (item.OrdenCierre != null)
+                    {
+                        ordenCierre = new OrdenCierre()
+                        {
+                            fchPrecio = item.OrdenCierre.fchPrecio,
+                            FchCierre = DateTime.Today,
+                            FchCar = DateTime.Today,
+                            FchLlegada = item.OrdenCierre.FchLlegada,
+                            FchVencimiento = DateTime.Today.AddDays(1),
+                            
+                        };
+                    }
+                }
+
+                return Ok(true);
             }
             catch (Exception e)
             {
