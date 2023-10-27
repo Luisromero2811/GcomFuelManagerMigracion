@@ -384,21 +384,24 @@
                         <Template Context="data">
                             <div class="col-12 d-flex">
                                 <div class="col-1">
-                                    @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                    @if (data.Producto != null)
                                     {
-                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
-                                    }
-                                    else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
-                                    {
-                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
-                                    }
-                                    else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
-                                    {
-                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                                        @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                        {
+                                            <div class="badge rounded-pill regular">&nbsp;</div>
+                                        }
+                                        else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                        {
+                                            <div class="badge rounded-pill regular-vdm">&nbsp;</div>
+                                        }
+                                        else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                        {
+                                            <div class="badge rounded-pill premium">&nbsp;</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="badge rounded-pill diesel">&nbsp;</div>
+                                        }
                                     }
                                 </div>
                                 <div class="col-11">

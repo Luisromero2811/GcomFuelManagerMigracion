@@ -170,7 +170,7 @@
                 <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
                     <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cancelar
+                    Asignar / cacelar
                 </th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
@@ -372,7 +372,6 @@
     table, th, td {
         background-color: white;
     }
-
     .fila th {
         position: -webkit-sticky;
         position: sticky;
@@ -380,7 +379,6 @@
         top: 0;
         background-color: #f2f2f2;
     }
-
     .ancho {
         width: @TotalWidth;
     }
@@ -752,13 +750,13 @@
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
-                                {
-                                    Icon = SweetAlertIcon.Warning,
-                                    ShowCancelButton = true,
-                                    ConfirmButtonText = "Aceptar",
-                                    CancelButtonText = "Cancelar",
-                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                                });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                             if (!string.IsNullOrEmpty(confirm.Value))
                             {
@@ -950,23 +948,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                    });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Enviando Ordenes a Synthesis",
-                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                            Duration = 150000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Ordenes a Synthesis",
+                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                        Duration = 150000
+                    });
 
                     loadingSend = true;
                     AlertVisible = true;
@@ -1097,13 +1095,13 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Info,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1140,13 +1138,13 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+            });
             ordenEmbarque = orden;
             if (!string.IsNullOrEmpty(confirm.Value))
             {
