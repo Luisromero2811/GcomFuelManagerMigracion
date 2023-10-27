@@ -38,9 +38,15 @@
             <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
         </button>
     </div>
+    <div class="col-12">
+        <div class="rz-text-align-start">
+            <RadzenCheckBox TValue="bool" Value=@ShowPedidos Change=@(args => ShowPedidos = args) Name="CheckBox2" />
+            <RadzenLabel Text="Mostrar folios de pedidos" Component="CheckBox2" Style="margin-left: 8px; vertical-align: middle;" />
+        </div>
+    </div>
 </div>
 
-<RadzenDataGrid TItem="FolioDetalleDTO" Data="@Folios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+<RadzenDataGrid TItem="FolioDetalleDTO" Data="@FoliosFiltrados" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
     <Columns>
@@ -116,6 +122,8 @@
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
     private short? GrupoSeleccionadoFiltroB = 0;
     private List<FolioDetalleDTO> Folios { get; set; } = new List<FolioDetalleDTO>();
+    private IEnumerable<FolioDetalleDTO> FoliosFiltrados => Folios.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("P") && ShowPedidos ||
+    !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("G") && ShowPedidos || !ShowPedidos);
     RadzenDataGrid<FolioDetalleDTO> grid { get; set; } = new RadzenDataGrid<FolioDetalleDTO>();
 
     private string ProductoSeleccionado = string.Empty;
@@ -125,6 +133,7 @@
     private IEnumerable<string> DestinoList { get; set; } = new List<string>();
 
     bool loading = false;
+    bool ShowPedidos = false;
 
     protected override async Task OnInitializedAsync()
     {
