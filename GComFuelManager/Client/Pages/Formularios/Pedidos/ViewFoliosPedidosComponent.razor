@@ -203,7 +203,7 @@
                     Folios = response.Response;
                     loading = false;
                 }
-            }
+            }//Entra al else if
             else if (isStatus)
             {
                 var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle/status", fechas);

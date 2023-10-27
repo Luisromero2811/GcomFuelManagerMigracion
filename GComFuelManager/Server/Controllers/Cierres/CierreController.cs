@@ -1241,8 +1241,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
-
+                //Filtro de órdenes mediante la obtención del folio
                 if (!filtro.forFolio)
+                {
                     folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(
                 x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                 && !string.IsNullOrEmpty(x.Folio)
@@ -1268,6 +1269,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     })
                     .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
+                }
+                //Filtro de órdenes obteniendo el cliente con su grupo empresarial
                 else
                 {
                     if (filtro.codCte != null && filtro.codGru != null)
@@ -1292,7 +1295,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         })
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
+
+                    //Filtro de órdenes solamente obteniendo el grupo
                     else if (filtro.codGru != null)
+                    {
                         folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
                     x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
@@ -1314,10 +1320,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     })
                     .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
+                    }
+                    //Filtro de órdenes por rango de fechas
+                    //  x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                     else
+                    {
                         folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true ||
-                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true
+                    ||
+                    x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio)
                     && x.Activa == true
                     && x.Folio.StartsWith("OP")
@@ -1336,6 +1347,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     })
                     .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
+                    }
+
                 }
                 return Ok(folios);
             }
@@ -1428,7 +1441,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         //Solamente las fechas
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true ||
-                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    //x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio)
                     && x.Folio.StartsWith("OP")
                     && x.Estatus == true)
@@ -1834,7 +1848,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (orden is null)
                     return BadRequest($"No se encontro el BOL. BOL: {Bol}");
-                
+
                 var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
                 var precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
 
@@ -1855,7 +1869,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
                          && x.CodPrd == orden.Codprd && x.CodDes == orden.Coddes).FirstOrDefault();
-                        if(cierre is not null)
+                        if (cierre is not null)
                         {
                             precio.Precio = cierre.Precio;
                         }
