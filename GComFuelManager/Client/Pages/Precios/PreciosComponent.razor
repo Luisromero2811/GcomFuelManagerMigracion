@@ -227,7 +227,7 @@
                                         <div class="col-4">
                                             <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
-                                                Enviar Precios
+                                                Enviar precios por cliente
                                                 @if (loadingSend)
                                                 {
                                                     <SpinnerLoading />
@@ -241,7 +241,7 @@
                                         <div class="col-4">
                                             <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
-                                                Enviar Precio grupal
+                                                Enviar precios grupal
                                                 @if (loadingSend)
                                                 {
                                                     <SpinnerLoading />
@@ -1142,7 +1142,7 @@
             loadingSend = true;
             var count = 0;
             var totalcount = 0;
-            //Hacemos el match de los grupos seleccionados en la tabla
+            //Hacemos el match de los grupos seleccionados en la tablas
             GruposSeleccionados = precios.DistinctBy(x => x.NombreGrupo).Select(x => x.NombreGrupo);
 
             EnvioTipoPreciosEmailDtoClass1 grupos = new EnvioTipoPreciosEmailDtoClass1();
@@ -1210,7 +1210,7 @@
                         {
                             Severity = NotificationSeverity.Info,
                             Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al grupo {grupo}",
+                            Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
                             Duration = 15000
                         });
                     }
