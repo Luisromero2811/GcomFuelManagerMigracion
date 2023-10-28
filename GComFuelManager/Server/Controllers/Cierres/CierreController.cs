@@ -1877,6 +1877,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     }
                 }
 
+                if(orden.Fchcar <= DateTime.Today.AddDays(-2) && orden.OrdenEmbarque != null)
+                {
+                    precio.Precio = orden.OrdenEmbarque.Pre;
+                }
+                else
+                {
+                    precio = new PrecioBol();
+                }
+
                 return Ok(precio);
             }
             catch (Exception e)
