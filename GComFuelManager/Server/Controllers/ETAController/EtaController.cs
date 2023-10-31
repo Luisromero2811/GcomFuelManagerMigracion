@@ -74,10 +74,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     var Eta = context.Orden.FirstOrDefault(x => x.BatchId == ordEmb.Bol);
                     if (Eta is null)
                         return BadRequest("No se encontro la orden.");
-                    //Como por ahora solo documentan la primera parte del ETA, entonces si el ETA tiene un número mayor a cero, al momento de registrar lo anexamos con estatus 36 de Closed
+                    //Como por ahora solo documentan la primera parte del ETA, entonces si el ETA tiene un número mayor a cero, al momento de registrar lo anexamos con estatus 26 de Trayecto
                     if (ordEmb.EtaNumber > 0)
                     {
-                        ordEmb.Orden.Codest = 36;
+                        ordEmb.Orden.Codest = 26;
                     }
                     else
                     {
@@ -163,6 +163,101 @@ namespace GComFuelManager.Server.Controllers.ETAController
             try
             {
                 List<EtaDTO> Ordenes = new List<EtaDTO>();
+
+                //Órdenes sin asignación de transporte-chofer-vehiculo
+                //órdenes sin asignar ordenar por BIN
+                var ordensSinAsignar = await context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenCierre)
+                     .Include(x => x.OrdenPedido)
+                    .OrderBy(x => x.Fchpet)
+                       .Select(e => new EtaDTO()
+                       {
+                           Referencia = "ENER-" + e.Folio.ToString(),
+                           FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                           EstatusOrden = "Pendiente de Asignar",
+                           FechaCarga = null!,
+                           Bol = null!,
+                           DeliveryRack = e.Destino.Cliente.Tipven,
+                           Cliente = e.Destino.Cliente.Den,
+                           Destino = e.Destino.Den,
+                           Producto = e.Producto.Den,
+                           VolNat = null!,
+                           VolCar = null!,
+                           Transportista = null!,
+                           Unidad = null!,
+                           Operador = null!,
+                           FechaDoc = null!,
+                           Eta = null!,
+                           FechaEst = null!,
+                           Trayecto = null!,
+                           Observaciones = null!,
+                           FechaRealEta = null!,
+                           LitEnt = null!
+                       })
+                .Take(10000)
+                .ToListAsync();
+                Ordenes.AddRange(ordensSinAsignar);
+
+                //Órdenes programadas
+                var ordens = await context.OrdenEmbarque
+                 .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                 && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null)
+                 .Include(x => x.Chofer)
+                 .Include(x => x.Destino)
+                 .ThenInclude(x => x.Cliente)
+                 .Include(x => x.Estado)
+                 .Include(x => x.OrdenCompra)
+                 .Include(x => x.Tad)
+                 .Include(x => x.Producto)
+                 .Include(x => x.Tonel)
+                 .ThenInclude(x => x.Transportista)
+                 .Include(x => x.OrdenCierre)
+                 .OrderBy(x => x.Fchpet)
+                 .ThenBy(x => x.Tonel!.Tracto)
+                 .Include(x => x.OrdenPedido)
+                   .Select(e => new EtaDTO()
+                   {
+                       Referencia = "ENER-" + e.Folio.ToString(),
+                       FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                       EstatusOrden = e.Estado.den,
+                       FechaCarga = null!,
+                       Bol = null!,
+                       DeliveryRack = e.Destino.Cliente.Tipven,
+                       Cliente = e.Destino.Cliente.Den,
+                       Destino = e.Destino.Den,
+                       Producto = e.Producto.Den,
+                       VolNat = e.Compartment == 1 ? Convert.ToDouble(e.Tonel.Capcom) :
+                        e.Compartment == 2 ? Convert.ToDouble(e.Tonel.Capcom2) :
+                        e.Compartment == 3 ? Convert.ToDouble(e.Tonel.Capcom3) :
+                        e.Compartment == 4 ? e.Tonel.Capcom4 : e.Vol,
+                       VolCar = null!,
+                       Transportista = e.Tonel.Transportista.Den,
+                       Unidad = e.Tonel.Veh,
+                       Operador = e.Chofer.Den,
+                       FechaDoc = null!,
+                       Eta = null!,
+                       FechaEst = null!,
+                       Trayecto = null!,
+                       Observaciones = null!,
+                       FechaRealEta = null!,
+                       LitEnt = null!
+                   })
+                 .Take(10000)
+                 .ToListAsync();
+
+                Ordenes.AddRange(ordens);
+
                 //Órdenes sin carga-Pedientes de carga
                 var pedidosDate = await context.OrdenEmbarque
                 .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
@@ -248,48 +343,48 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ToListAsync();
                 Ordenes.AddRange(pedidosDate2);
                 //Órdenes en Trayecto
-                var pedidosDate3 = await context.Orden
-                .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Estado)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.OrdenEmbarque)
-                    .Include(x => x.OrdEmbDet)
-                    .OrderBy(x => x.Fchcar)
-                     .Select(e => new EtaDTO()
-                     {
-                         Referencia = "ENER-" + e.Folio.ToString(),
-                         FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                         EstatusOrden = e.Estado.den,
-                         FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                         Bol = e.BatchId,
-                         DeliveryRack = e.Destino.Cliente.Tipven,
-                         Cliente = e.Destino.Cliente.Den,
-                         Destino = e.Destino.Den,
-                         Producto = e.Producto.Den,
-                         VolNat = e.Vol2,
-                         VolCar = e.Vol,
-                         Transportista = e.Tonel.Transportista.Den,
-                         Unidad = e.Tonel.Veh,
-                         Operador = e.Chofer.Den,
-                         FechaDoc = null!,
-                         Eta = null!,
-                         FechaEst = null!,
-                         Trayecto = null!,
-                         Observaciones = null!,
-                         FechaRealEta = null!,
-                         LitEnt = null!
-                     })
-                    .Take(10000)
-                    .ToListAsync();
-                Ordenes.AddRange(pedidosDate3);
+                //var pedidosDate3 = await context.Orden
+                //.Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 26)
+                //    .Include(x => x.Destino)
+                //    .ThenInclude(x => x.Cliente)
+                //    .Include(x => x.Producto)
+                //    .Include(x => x.Tonel)
+                //    .ThenInclude(x => x.Transportista)
+                //    .Include(x => x.Estado)
+                //    .Include(x => x.Chofer)
+                //    .Include(x => x.OrdenEmbarque)
+                //    .Include(x => x.OrdEmbDet)
+                //    .OrderBy(x => x.Fchcar)
+                //     .Select(e => new EtaDTO()
+                //     {
+                //         Referencia = "ENER-" + e.Folio.ToString(),
+                //         FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                //         EstatusOrden = e.Estado.den,
+                //         FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                //         Bol = e.BatchId,
+                //         DeliveryRack = e.Destino.Cliente.Tipven,
+                //         Cliente = e.Destino.Cliente.Den,
+                //         Destino = e.Destino.Den,
+                //         Producto = e.Producto.Den,
+                //         VolNat = e.Vol2,
+                //         VolCar = e.Vol,
+                //         Transportista = e.Tonel.Transportista.Den,
+                //         Unidad = e.Tonel.Veh,
+                //         Operador = e.Chofer.Den,
+                //         FechaDoc = null!,
+                //         Eta = null!,
+                //         FechaEst = null!,
+                //         Trayecto = null!,
+                //         Observaciones = null!,
+                //         FechaRealEta = null!,
+                //         LitEnt = null!
+                //     })
+                //    .Take(10000)
+                //    .ToListAsync();
+                //Ordenes.AddRange(pedidosDate3);
 
 
-                //Órdenes ETA
+                //Órdenes ETA-Trayecto
                 List<EtaDTO> newOrden = new List<EtaDTO>();
                 var Eta = await context.Orden
                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta) || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.TipVenta))
