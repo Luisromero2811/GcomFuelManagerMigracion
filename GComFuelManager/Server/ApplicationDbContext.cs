@@ -355,6 +355,6 @@ namespace GComFuelManager.Server
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
         public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
-
+        public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
     }
 }

@@ -765,13 +765,25 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
                 var precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+                var precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchDia).ToList();
 
-                if (precioVig is not null)
+                foreach (var item in precioHis)
+                {
+                    var date = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? orden.Fchcar.Value.AddDays(-1) :
+                        DateTime.Today.DayOfWeek == DayOfWeek.Sunday ? orden.Fchcar.Value.AddDays(-2) : orden.Fchcar;
+
+                    if (precioHis is not null && item.FchDia.Date == date)
+                    {
+                        precio.Precio = item.pre;
+                    }
+                }
+
+                if (precioVig is not null && orden.Fchcar >= DateTime.Today)
                 {
                     precio.Precio = precioVig.Pre;
                 }
 
-                if (precioPro is not null)
+                if (precioPro is not null && orden.Fchcar >= DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16,0,0))
                 {
                     precio.Precio = precioPro.Pre;
                 }
@@ -788,6 +800,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             precio.Precio = cierre.Precio;
                         }
                     }
+                }
+
+                if (orden.Fchcar <= DateTime.Today.AddDays(-2) && orden.OrdenEmbarque != null && precioHis is null && precioPro is null && precioVig is null)
+                {
+                    precio.Precio = orden.OrdenEmbarque.Pre;
                 }
 
                 return Ok(precio);
