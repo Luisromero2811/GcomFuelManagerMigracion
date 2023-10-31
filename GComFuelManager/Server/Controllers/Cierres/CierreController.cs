@@ -810,7 +810,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     if (ordenepedido is not null)
                     {
                         var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
-                         && x.CodPrd == orden.Codprd && x.CodDes == orden.Coddes).FirstOrDefault();
+                         && x.CodPrd == orden.Codprd).FirstOrDefault();
 
                         if (cierre is not null)
                         {
@@ -849,6 +849,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
             public bool Es_Cierre { get; set; } = false;
             public bool Es_Precio_De_Creacion { get; set; } = false;
         }
+
+        //public class CierreResumen { }
 
         [HttpPost("update")]
         public async Task<ActionResult> PutOrden([FromBody] OrdenCierre orden)
