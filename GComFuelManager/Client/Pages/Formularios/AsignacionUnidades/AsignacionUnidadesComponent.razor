@@ -79,17 +79,17 @@
                                             Chofer:
                                         </RadzenText>
                                     </label>
-                                    <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
+                                    <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="FullName" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
                                                     AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                     AllowVirtualization="true" Style="height:20px">
                                         <Template Context="data">
                                             <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Chofer)?.Dricod)  | @((data as Chofer)?.Den) |  @((data as Chofer)?.Shortden)
+                                                @((data as Chofer)?.Dricod)  | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) |  @((data as Chofer)?.Shortden)
                                             </RadzenText>
                                         </Template>
                                         <ValueTemplate Context="data">
                                             <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Chofer)?.Dricod) | @((data as Chofer)?.Den) | @((data as Chofer)?.Shortden)
+                                                @((data as Chofer)?.Dricod) | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) | @((data as Chofer)?.Shortden)
                                             </RadzenText>
                                         </ValueTemplate>
                                     </RadzenDropDown>
@@ -457,7 +457,7 @@
     private List<CodDenDTO> Productos { get; set; } = null!;
 
     private List<Transportista> Transportistas { get; set; } = new List<Transportista>();
-    private List<Chofer> Choferes { get; set; } = new List<Chofer>();
+    private List<Chofer?>? Choferes { get; set; } = new List<Chofer?>();
     private List<Tonel> Vehiculos { get; set; } = new List<Tonel>();
 
     List<TablaAsignacionUnidadesDTO> asignacionUnidadesDTO { get; set; } = new List<TablaAsignacionUnidadesDTO>();
@@ -616,7 +616,7 @@
                     else
                     {
                         TransportistaSeleccionadoB = asignacion.CodTra;
-                        Choferes = response.Response;
+                        Choferes = response.Response!;
                         StateHasChanged();
                     }
                 }
@@ -704,17 +704,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                    {
-                        Chofer = asignacion.CodChf,
-                        Tonel = asignacion.CodTon,
-                        Compartimento = Vehiculos?.Count == null ? 0 :
+                {
+                    Chofer = asignacion.CodChf,
+                    Tonel = asignacion.CodTon,
+                    Compartimento = Vehiculos?.Count == null ? 0 :
                                         (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
                                         : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
                                         : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
                                         : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                    };
+                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -848,28 +848,28 @@
                        && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                            {
-                                OrdenCompra = item?.OrdenCompra?.den ?? "",
-                                Referencia = item?.OrdenCierre?.Folio ?? "",
-                                Cliente = item?.Destino?.Cliente?.Den ?? "",
-                                Destino = item?.Destino?.Den ?? "",
-                                Producto = item?.Producto?.Den ?? "",
-                                //Volumen = item?.Vol,
-                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                        {
+                            OrdenCompra = item?.OrdenCompra?.den ?? "",
+                            Referencia = item?.OrdenCierre?.Folio ?? "",
+                            Cliente = item?.Destino?.Cliente?.Den ?? "",
+                            Destino = item?.Destino?.Den ?? "",
+                            Producto = item?.Producto?.Den ?? "",
+                            //Volumen = item?.Vol,
+                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
                                     Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
                                     Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
                                     Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
                                     Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                                Unidad = item?.Tonel?.Veh ?? "",
-                                Compartimento = item?.Compartment,
-                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                                Bin = item?.Bin,
-                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                                Turno = item?.OrdenCierre?.Turno ?? ""
-                                //Status = item?.Estado?.den
-                            });
+                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                            Unidad = item?.Tonel?.Veh ?? "",
+                            Compartimento = item?.Compartment,
+                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                            Bin = item?.Bin,
+                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                            Turno = item?.OrdenCierre?.Turno ?? ""
+                            //Status = item?.Estado?.den
+                        });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
