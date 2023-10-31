@@ -821,7 +821,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     }
                 }
 
-                if (orden.Fchcar <= DateTime.Today.AddDays(-2) && orden.OrdenEmbarque is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                if (orden.OrdenEmbarque is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
                 {
                     precio.Precio = orden.OrdenEmbarque.Pre;
 
