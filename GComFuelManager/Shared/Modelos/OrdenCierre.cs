@@ -158,5 +158,10 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Destino? Destinos { get; set; } = null!;
         [NotMapped] public Producto? Prods { get; set; } = null!;
         [NotMapped] public Grupo? Grups { get; set; } = null!;
+
+        public OrdenCierre ShallowCopy()
+        {
+            return (OrdenCierre)this.MemberwiseClone();
+        }
     } 
 }
