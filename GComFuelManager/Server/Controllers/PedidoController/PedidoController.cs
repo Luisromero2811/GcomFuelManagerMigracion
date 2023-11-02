@@ -1086,8 +1086,11 @@ namespace GComFuelManager.Server.Controllers
                             CodGru = cliente?.codgru,
                             CodCte = cliente?.Cod,
                             CodPrd = ordercopy.Codprd,
-                            CodTad = ordercopy.Codtad
+                            CodTad = ordercopy.Codtad,
+                            Volumen = int.Parse($"{ordercopy.Vol}"),
+                            
                         };
+                        context.Add(cierre);
                     }
 
                     await context.SaveChangesAsync();
