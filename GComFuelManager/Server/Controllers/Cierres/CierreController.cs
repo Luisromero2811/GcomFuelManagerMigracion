@@ -66,6 +66,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("get/{folio}")]
+        public async Task<ActionResult> GetCierreByFolio([FromRoute] string folio)
+        {
+            try
+            {
+                var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .ToListAsync();
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("{folio}/detalle")]
         public async Task<ActionResult> GetDetailByFolio([FromRoute] string folio)
         {
@@ -1848,6 +1866,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var orden = context.Orden.Where(x => x.BatchId == Bol)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.OrdenCierre)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Producto)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .FirstOrDefault();
@@ -1858,10 +1880,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 precio.Fecha_De_Carga = orden.Fchcar;
 
                 if (orden.Producto is not null)
-                    precio.Producto = orden.Producto.Den;
+                    precio.Producto_Synthesis = orden.Producto.Den;
 
                 if (orden.Destino is not null)
-                    precio.Destino = orden.Destino.Den;
+                    precio.Destino_Synthesis = orden.Destino.Den;
+
+                if (orden.OrdenEmbarque is not null)
+                {
+                    if (orden.OrdenEmbarque.Destino is not null)
+                        precio.Destino_Original = orden.OrdenEmbarque.Destino.Den ?? "";
+
+                    if (orden.OrdenEmbarque.Producto is not null)
+                        precio.Producto_Original = orden.OrdenEmbarque.Producto.Den ?? "";
+                }
 
                 var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
 
@@ -1876,18 +1907,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     precio.Precio = precioHis.pre;
                     precio.Fecha_De_Precio = precioHis.FchDia;
+                    precio.Precio_Encontrado = true;
+                    precio.Precio_Encontrado_En = "Historial";
                 }
 
                 if (precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
                 {
                     precio.Precio = precioVig.Pre;
                     precio.Fecha_De_Precio = precioVig.FchDia;
+                    precio.Precio_Encontrado = true;
+                    precio.Precio_Encontrado_En = "Vigente";
                 }
 
                 if (precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
                 {
                     precio.Precio = precioPro.Pre;
                     precio.Fecha_De_Precio = precioPro.FchDia;
+                    precio.Precio_Encontrado = true;
+                    precio.Precio_Encontrado_En = "Programado";
                 }
 
                 if (orden.OrdenEmbarque != null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod))
@@ -1904,6 +1941,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             precio.Precio = cierre.Precio;
                             precio.Fecha_De_Precio = cierre.fchPrecio;
                             precio.Es_Cierre = true;
+                            precio.Precio_Encontrado = true;
+                            precio.Precio_Encontrado_En = "Cierre";
                         }
                     }
                 }
@@ -1931,10 +1970,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
             public double? Precio { get; set; } = 0;
             public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
             public DateTime? Fecha_De_Precio { get; set; } = DateTime.MinValue;
-            public string? Destino { get; set; } = string.Empty;
-            public string? Producto { get; set; } = string.Empty;
+            public string? Destino_Synthesis { get; set; } = string.Empty;
+            public string? Destino_Original { get; set; } = string.Empty;
+            public string? Producto_Synthesis { get; set; } = string.Empty;
+            public string? Producto_Original { get; set; } = string.Empty;
             public bool Es_Cierre { get; set; } = false;
             public bool Es_Precio_De_Creacion { get; set; } = false;
+            public bool Precio_Encontrado { get; set; } = false;
+            public string Precio_Encontrado_En { get; set; } = string.Empty;
         }
 
         [HttpPost("filtrar/pendientes")]

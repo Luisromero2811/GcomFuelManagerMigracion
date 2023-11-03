@@ -1,0 +1,100 @@
+﻿@inject SweetAlertService swal
+@inject IRepositorio http
+
+<div class="col-12 row">
+    <div class="col-12">
+
+    </div>
+    <div class="col-12 row">
+        <div class="col-3">
+            Volumen de cierre: @ordenCierre.Volumen
+        </div>
+        <div class="col-6">
+            <div class="col-12">
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="62000" @onchange="SetSelection">
+                    <label class="form-check-label" for="fullcheck">Full</label>
+                </div>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="42000"  @onchange="SetSelection">
+                    <label class="form-check-label" for="patonacheck">Patona</label>
+                </div>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="22000" @onchange="SetSelection">
+                    <label class="form-check-label" for="palomacheck">Paloma</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <table class="table table-bordered table-sm table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+
+    [Parameter] public string folio { get; set; } = string.Empty;
+    List<OrdenEmbarque> ordenEmbarques { get; set; } = new List<OrdenEmbarque>();
+    OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+
+    bool loading = false;
+    int? volumen = 62000;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            loading = true;
+
+            var response = await http.Get<OrdenCierre>($"api/cierre/get/{folio}");
+            if (response.Error)
+            {
+                loading = false;
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading = false;
+                if(response.Response is not null)
+                {
+                    ordenCierre = response.Response;
+                }
+            }
+            loading = false;
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if(ordenCierre.Volumen > 0)
+            {
+
+            }
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void SetSelection(ChangeEventArgs args)
+    {
+        volumen = args.Value is not null ? (int)args.Value : 0;
+    }
+}
