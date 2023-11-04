@@ -52,6 +52,11 @@
     <Columns>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false"> 
+            <Template Context="data">
+                @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo asignado")
+            </Template>
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Cliente" Filterable="false">
             <Template Context="data">
                 @(data.Cliente is not null ? data.Cliente.Den : "Sin cliente asignado")
@@ -97,6 +102,12 @@
                         @data.Producto?.Den
                     </div>
                 </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Estado" Filterable="false" Width="130px">
+            <Template Context="data">
+                @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
+                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Acciones" Filterable="false" Width="130px">
