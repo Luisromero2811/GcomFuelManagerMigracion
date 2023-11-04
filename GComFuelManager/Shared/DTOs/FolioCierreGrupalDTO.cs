@@ -2,6 +2,7 @@
 using GComFuelManager.Shared.Modelos;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -18,7 +19,13 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime? FchCierre { get; set; } = DateTime.MinValue;
         [EpplusIgnore]
         public Grupo? Grupo { get; set; } = null!;
-
+        [NotMapped, EpplusIgnore]
+        public string? Estado { get; set; } = null!;
+        [NotMapped, EpplusIgnore]
+        public OrdenEmbarque? ordenEmbarque { get; set; } = null!;
+        [NotMapped, EpplusIgnore]
+        public bool? Activa { get; set; } = true;
+       
 
         [DisplayName("Fecha de Cierre")]
         public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
@@ -30,6 +37,18 @@ namespace GComFuelManager.Shared.DTOs
         //public string NDestino { get { return destino != null ? destino.Den! : string.Empty; } }
         [DisplayName("Producto")]
         public string NProducto { get { return Producto != null ? Producto.Den! : string.Empty; } }
+
+        //Volumenes
+        [EpplusIgnore]
+        public int? Volumen { get; set; }
+        [DisplayName("Volumen"), NotMapped]
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
+        //Precio
+        [NotMapped]
+        public double Precio { get; set; } = 0;
+        //Observaciones
+        public string? Observaciones { get; set; } = string.Empty;
+
     }
 }
 
