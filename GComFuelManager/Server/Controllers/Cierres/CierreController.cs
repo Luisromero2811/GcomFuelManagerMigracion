@@ -359,6 +359,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
+                    //Filtrado mediante el folio del cierre
                     if (!string.IsNullOrEmpty(filtroDTO.Folio))
                     {
                         cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true)
@@ -1276,9 +1277,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                    .Include(x => x.Grupo)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
@@ -1303,14 +1306,17 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
+                         .Include(x => x.Grupo)
                         .Select(x => new FolioDetalleDTO()
                         {
                             Folio = x.Folio,
+                            Grupo = x.Grupo,
                             Cliente = x.Cliente,
                             Destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
                             Comentarios = x.Observaciones
+
                         })
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
@@ -1328,9 +1334,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                     .Include(x => x.Grupo)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
@@ -1355,9 +1363,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                     .Include(x => x.Grupo)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
@@ -1399,9 +1409,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                     .Include(x => x.Grupo)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
@@ -1416,21 +1428,29 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     if (filtro.codCte != null && filtro.codGru != null)
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte ||
-                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                      //x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                      x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio)
                     && x.Folio.StartsWith("OP")
                     && x.Estatus == true && x.CodGru == filtro.codGru && x.CodCte == filtro.codCte)
                         .Include(x => x.Cliente)
+                         .Include(x => x.Grupo)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
                         .Select(x => new FolioDetalleDTO()
                         {
                             Folio = x.Folio,
+                            Grupo = x.Grupo,
                             Cliente = x.Cliente,
                             Destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
-                            Comentarios = x.Observaciones
+                            Comentarios = x.Observaciones,
+                            Estado = x.OrdenEmbarque.Estado.den,
+                            Activa = x.Activa
                         })
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
@@ -1443,16 +1463,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     && x.Folio.StartsWith("OP")
                     && x.Estatus == true && x.CodGru == filtro.codGru)
                     .Include(x => x.Cliente)
+                     .Include(x => x.Grupo)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .ThenInclude(x => x.Estado)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
                         FchCierre = x.FchCierre,
-                        Comentarios = x.Observaciones
+                        Comentarios = x.Observaciones,
+                        Estado = x.OrdenEmbarque.Estado.den,
+                        Activa = x.Activa
                     })
                     .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
@@ -1466,16 +1493,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     && x.Folio.StartsWith("OP")
                     && x.Estatus == true)
                     .Include(x => x.Cliente)
+                     .Include(x => x.Grupo)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .ThenInclude(x => x.Estado)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
+                        Grupo = x.Grupo,
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
                         FchCierre = x.FchCierre,
-                        Comentarios = x.Observaciones
+                        Comentarios = x.Observaciones,
+                        Estado = x.OrdenEmbarque.Estado.den,
+                        Activa = x.Activa
                     })
                     .OrderByDescending(x => x.FchCierre)
                     .ToListAsync();
@@ -1503,6 +1537,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
                         .Include(x => x.Grupo)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
                         .Select(x => new FolioCierreDTO()
                         {
                             Folio = x.Folio,
@@ -1510,7 +1547,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
-                            Grupo = x.Grupo
+                            Grupo = x.Grupo,
+                            Estado = x.OrdenEmbarque.Estado.den,
+                            Activa = x.Activa,
+                            Precio = x.Precio,
+                            Volumen = x.Volumen,
+                            Observaciones = x.Observaciones
                         })
                         .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
@@ -1523,6 +1565,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                        .Include(x => x.Destino)
                        .Include(x => x.Producto)
                        .Include(x => x.Grupo)
+                       .Include(x => x.OrdenEmbarque)
+                       .ThenInclude(x => x.Orden)
+                       .ThenInclude(x => x.Estado)
                        .Select(x => new FolioCierreDTO()
                        {
                            Folio = x.Folio,
@@ -1530,7 +1575,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                            destino = x.Destino,
                            Producto = x.Producto,
                            FchCierre = x.FchCierre,
-                           Grupo = x.Grupo
+                           Grupo = x.Grupo,
+                           Estado = x.OrdenEmbarque.Estado.den,
+                           Activa = x.Activa,
+                           Precio = x.Precio,
+                           Volumen = x.Volumen,
+                           Observaciones = x.Observaciones
                        })
                        .OrderByDescending(x => x.FchCierre)
                        .ToListAsync();
@@ -1560,6 +1610,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
                         .Include(x => x.Grupo)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
                         .Select(x => new FolioCierreDTO()
                         {
                             Folio = x.Folio,
@@ -1567,7 +1620,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
-                            Grupo = x.Grupo
+                            Grupo = x.Grupo,
+                            Estado = x.OrdenEmbarque.Estado.den,
+                            Activa = x.Activa,
+                            Precio = x.Precio,
+                            Volumen = x.Volumen,
+                            Observaciones = x.Observaciones
                         })
                         .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
@@ -1579,6 +1637,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                        .Include(x => x.Cliente)
                        .Include(x => x.Destino)
                        .Include(x => x.Producto)
+                        .Include(x => x.Grupo)
+                       .Include(x => x.OrdenEmbarque)
+                       .ThenInclude(x => x.Orden)
+                       .ThenInclude(x => x.Estado)
                        .Select(x => new FolioCierreDTO()
                        {
                            Folio = x.Folio,
@@ -1586,7 +1648,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                            destino = x.Destino,
                            Producto = x.Producto,
                            FchCierre = x.FchCierre,
-                           Grupo = x.Grupo
+                           Grupo = x.Grupo,
+                           Estado = x.OrdenEmbarque.Estado.den,
+                           Activa = x.Activa,
+                           Precio = x.Precio,
+                           Volumen = x.Volumen,
+                           Observaciones = x.Observaciones
                        })
                        .OrderByDescending(x => x.FchCierre)
                        .ToListAsync();

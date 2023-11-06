@@ -17,14 +17,6 @@
                             AllowVirtualization="true" AllowClear="true" />
         </div>
     </div>
-    @*<div class="col-3 mb-2">
-            <div class="col-12">
-                <label>Cliente</label>
-                <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codCte"
-                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                AllowVirtualization="true" AllowClear="true" />
-            </div>
-        </div>*@
     <div class="col-2 mb-2">
         <label>Del:</label>
         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value="fechas.FchInicio" @bind-Value:format="yyyy-MM-dd hh:MM:ss" />
@@ -52,6 +44,11 @@
     <Columns>
         <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Fecha de Cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
         <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="200px;" />
+        <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Grupo" Filterable="false">
+            <Template Context="data">
+                @(data.Grupo is not null ? data.Grupo.Den : "Sin grupo")
+            </Template>
+        </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Cliente" Filterable="false">
             <Template Context="data">
                 @("Sin clientes")
@@ -93,6 +90,29 @@
                     <div class="col-11">
                         @data.Producto?.Den
                     </div>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Estado" Filterable="false" Width="130px">
+            <Template Context="data">
+                @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
+                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+            </Template>
+        </RadzenDataGridColumn>
+        <!--Precio Volumen y observaciones-->
+        <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+        <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
+        <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Volumen" Width="110px" FormatString="{0:N2}" Filterable="false">
+            <Template Context="item">
+                <div class="col-12">
+                    @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                    item?.ordenEmbarque?.Orden is not null ? item?.ordenEmbarque?.Orden?.Vol :
+                    item?.ordenEmbarque?.Compartment == 1 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom
+                    : item?.ordenEmbarque?.Compartment == 2 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom2
+                    : item?.ordenEmbarque?.Compartment == 3 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom3
+                    : item?.ordenEmbarque?.Compartment == 4 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom4
+                    : item?.Volumen
+                    )
                 </div>
             </Template>
         </RadzenDataGridColumn>
@@ -207,7 +227,7 @@
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:D1"];
+                var header = ws.Cells["A1:G1"];
                 // var ordenFilter = new List<FolioCierreDTO>();
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection(
                     Folios
