@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-//using ServiceReference7;//prod
-using ServiceReference2;//qa
+using ServiceReference7;//prod
+//using ServiceReference2;//qa
 using System;
 using System.Diagnostics;
 
@@ -306,7 +306,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                     foreach (var line in billOfLading.LineItems)
                                         if (line.CompartmentId != null && line.CompartmentId.Value.ToString() == x.CompartmentId.ToString())
                                             if (line.CustomFieldInstances != null)
-                                                x.FolioSyn = line.CustomFieldInstances.First(y => y.CustomFieldMetaData.Name.Equals(x.Cod.ToString())).FieldStringValue ?? string.Empty;
+                                                x.FolioSyn = line.CustomFieldInstances.FirstOrDefault(y =>y.CustomFieldMetaData != null && y.CustomFieldMetaData.Name.Equals(x.Cod.ToString()))?.FieldStringValue ?? string.Empty;
                                     //x.Chofer = null!;
                                     //x.Destino = null!;
                                     //x.Estado = null!;
