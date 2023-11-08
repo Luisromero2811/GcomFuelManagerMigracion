@@ -344,7 +344,11 @@ namespace GComFuelManager.Server
                 .WithOne(x => x.Orden)
                 .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
                 .HasForeignKey<Orden>(x => x.BatchId);
-
+            modelBuilder.Entity<OrdenCierre>()
+                .HasMany(x => x.OrdenPedidos)
+                .WithOne(x => x.OrdenCierre)
+                .HasPrincipalKey(x => x.Cod)
+                .HasForeignKey(x => x.CodCierre);
         }
 
 

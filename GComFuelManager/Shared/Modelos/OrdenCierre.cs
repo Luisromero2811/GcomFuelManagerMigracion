@@ -12,8 +12,8 @@ namespace GComFuelManager.Shared.Modelos
     {
         [Key, JsonPropertyName("cod"), EpplusIgnore]
         public int Cod { get; set; }
-        
-        [JsonPropertyName("fchCierre"),EpplusIgnore]
+
+        [JsonPropertyName("fchCierre"), EpplusIgnore]
         public DateTime? FchCierre { get; set; } = DateTime.Today;
         [JsonPropertyName("fchVencimiento"), EpplusIgnore]
         public DateTime? FchVencimiento { get; set; } = DateTime.Today;
@@ -29,27 +29,27 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("contacto"), EpplusIgnore]
         public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
-        
+
         [JsonPropertyName("email"), EpplusIgnore]
         public string? Email { get { return ContactoN != null ? ContactoN.Correo : string.Empty; } }
-        
+
         [JsonPropertyName("codPrd"), EpplusIgnore]
         public byte? CodPrd { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Producto? Producto { get; set; } = null!;
         [DisplayName("producto")]
-        public string? Pro { get { return Producto != null ? Producto.Den : string.Empty; } }
-        
+        public string? Pro { get { return Producto != null ? Producto.Den : "Sin producto asignado"; } }
+
         [JsonPropertyName("codCte"), EpplusIgnore]
         public int? CodCte { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Cliente? Cliente { get; set; } = null!;
-        
+
         [JsonPropertyName("modeloVenta"), EpplusIgnore]
         public string? ModeloVenta { get; set; } = string.Empty;
 
@@ -61,24 +61,24 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double Precio { get; set; } = 0;
-        
+
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;
-        
+
         [JsonPropertyName("vendedor"), DisplayName("Vendedor")]
         public string? Vendedor { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("codDes"), EpplusIgnore]
         public int? CodDes { get; set; }
-        
-        [NotMapped, EpplusIgnore] 
+
+        [NotMapped, EpplusIgnore]
         public Destino? Destino { get; set; } = null!;
 
         [DisplayName("destino")]
-        public string? Des { get { return Destino != null ? Destino.Den : string.Empty; } }
+        public string? Des { get { return Destino != null ? Destino.Den : "Sin destino asignado"; } }
 
         [DisplayName("cliente")]
-        public string? Cli { get { return Cliente != null ? Cliente.Den : string.Empty; } }
+        public string? Cli { get { return Cliente != null ? Cliente.Den : "Sin cliente asignado"; } }
 
         [JsonPropertyName("volumen"), DisplayName("Volumen"), EpplusIgnore]
         public int? Volumen { get; set; }
@@ -87,7 +87,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
-        
+
         [JsonPropertyName("estatus"), EpplusIgnore]
         public bool? Estatus { get; set; } = true;
 
@@ -151,17 +151,134 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? fchPrecio { get; set; } = DateTime.Now;
         [DisplayName("Fecha de Precio"), NotMapped]
         public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
-
-        //Props de navegación
-      
-        [NotMapped] public Cliente? Cllientes { get; set; } = null!;
-        [NotMapped] public Destino? Destinos { get; set; } = null!;
-        [NotMapped] public Producto? Prods { get; set; } = null!;
-        [NotMapped] public Grupo? Grups { get; set; } = null!;
-
         public OrdenCierre ShallowCopy()
         {
             return (OrdenCierre)this.MemberwiseClone();
         }
-    } 
+        [NotMapped, EpplusIgnore] public int? Cantidad_Sugerida { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public int? Cantidad_Confirmada { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;
+        [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado > 42000 ? Volumen_Seleccionado / 2 : 20000; } }
+        [NotMapped, EpplusIgnore] public List<OrdenPedido>? OrdenPedidos { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
+        public double? GetVolumenSolicitado()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Volumen_Solicitado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                        && x.OrdenEmbarque.Codprd == CodPrd
+                        && x.OrdenEmbarque.Codest == 9
+                        && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid)
+                        && x.OrdenEmbarque.FchOrd is null).Sum(x => x.OrdenEmbarque?.Vol);
+                }
+                return Volumen_Solicitado;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public double? Volumen_Programado { get; set; } = 0;
+        public double? GetVolumenProgramado()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Volumen_Programado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque.Folio is null
+                    && x.OrdenEmbarque.Codprd == CodPrd
+                    && x.OrdenEmbarque.Codest == 3
+                    && x.OrdenEmbarque.FchOrd is null
+                    && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid))
+                        .Sum(x => x.OrdenEmbarque?.Vol);
+                }
+                return Volumen_Programado;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public double? Volumen_Cosumido { get; set; } = 0;
+        public double? GetVolumenConsumido()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Volumen_Cosumido = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque.Folio is not null && x.OrdenEmbarque?.Orden?.Codprd == CodPrd
+                    && x.OrdenEmbarque?.Codest != 14 && x.OrdenEmbarque?.Orden?.Codest != 14
+                    && x.OrdenEmbarque?.Orden?.BatchId is not null)
+                    .Sum(x => x.OrdenEmbarque?.Vol);
+                }
+                return Volumen_Cosumido;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+        [NotMapped, EpplusIgnore] public double? Volumen_Espera_Carga { get; set; } = 0;
+        public double? GetVolumenEsperaCarga()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Volumen_Espera_Carga = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque?.Codprd == CodPrd && x.OrdenEmbarque?.Codest == 22
+                    && x.OrdenEmbarque?.Folio is not null && x.OrdenEmbarque?.Orden is null)
+                        .Sum(x => x.OrdenEmbarque?.Compartment == 1 && x.OrdenEmbarque?.Tonel is not null ? double.Parse(x?.OrdenEmbarque?.Tonel?.Capcom?.ToString() ?? "0")
+                        : x.OrdenEmbarque?.Compartment == 2 && x.OrdenEmbarque?.Tonel is not null ? double.Parse(x?.OrdenEmbarque?.Tonel?.Capcom2?.ToString() ?? "0")
+                        : x.OrdenEmbarque?.Compartment == 3 && x.OrdenEmbarque?.Tonel is not null ? double.Parse(x?.OrdenEmbarque?.Tonel?.Capcom3?.ToString() ?? "0")
+                        : x.OrdenEmbarque?.Compartment == 4 && x.OrdenEmbarque?.Tonel is not null ? double.Parse(x?.OrdenEmbarque?.Tonel?.Capcom4?.ToString() ?? "0")
+                        : x.OrdenEmbarque?.Vol);
+                }
+                return Volumen_Espera_Carga;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public double? Volumen_Disponible { get; set; } = 0;
+        public double? GetVolumenDisponible()
+        {
+            try
+            {
+                Volumen_Disponible = Volumen - (Volumen_Espera_Carga + Volumen_Programado + Volumen_Cosumido);
+                return Volumen_Disponible;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        public void SetVolumen()
+        {
+            try
+            {
+                Volumen_Solicitado = GetVolumenSolicitado();
+                Volumen_Programado = GetVolumenProgramado();
+                Volumen_Espera_Carga = GetVolumenEsperaCarga();
+                Volumen_Cosumido = GetVolumenConsumido();
+                Volumen_Disponible = GetVolumenDisponible();
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+        }
+
+        public bool Precio_Manual { get; set; } = true;
+    }
 }

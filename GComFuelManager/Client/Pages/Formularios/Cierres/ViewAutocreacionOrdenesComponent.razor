@@ -3,25 +3,24 @@
 
 <div class="col-12 row">
     <div class="col-12">
-
     </div>
     <div class="col-12 row">
-        <div class="col-3">
-            Volumen de cierre: @ordenCierre.Volumen
+        <div class="col-2">
+            Tipo de unidad:
         </div>
         <div class="col-6">
             <div class="col-12">
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="62000" @onchange="SetSelection">
-                    <label class="form-check-label" for="fullcheck">Full</label>
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="31000" @onchange="SetSelection">
+                    <label class="form-check-label" for="fullcheck">Full (62,000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="42000"  @onchange="SetSelection">
-                    <label class="form-check-label" for="patonacheck">Patona</label>
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="21000" @onchange="SetSelection">
+                    <label class="form-check-label" for="patonacheck">Patona (42,000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="22000" @onchange="SetSelection">
-                    <label class="form-check-label" for="palomacheck">Paloma</label>
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="20000" @onchange="SetSelection">
+                    <label class="form-check-label" for="palomacheck">Paloma (20,000)</label>
                 </div>
             </div>
         </div>
@@ -30,13 +29,55 @@
         <table class="table table-bordered table-sm table-striped">
             <thead>
                 <tr>
-                    <th></th>
+                    <th>Volumen</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Fecha de carga</th>
+                    <th>Ordenes sugeridas</th>
+                    <th>Ordenes confirmadas</th>
+                    <th>Confirmar</th>
+                    <th>Denegar</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td></td>
-                </tr>
+                @if (ordenCierres.Count > 0)
+                {
+                    @foreach (var ordenCierre in ordenCierres)
+                    {
+                        <tr>
+                            <td>@ordenCierre.Volumen</td>
+                            <td>
+                                @ordenCierre.Des
+                            </td>
+                            <td>
+                                @ordenCierre.Pro
+                            </td>
+                            <td>
+                                <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm"/>
+                            </td>
+                            <td>
+                                @ordenCierre.Cantidad_Sugerida
+                            </td>
+                            <td>
+                                <InputNumber @bind-Value="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
+                            </td>
+                            <td>
+                                <div class="col">
+                                    <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>ConfirmarOrdenes(ordenCierre))">
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col">
+                                    <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>DenegarOrdenes(ordenCierre))">
+                                        Denegar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
     </div>
@@ -44,19 +85,91 @@
 
 @code {
 
-    [Parameter] public string folio { get; set; } = string.Empty;
+    [Parameter] public List<OrdenCierre> CierresList { get; set; } = new List<OrdenCierre>();
     List<OrdenEmbarque> ordenEmbarques { get; set; } = new List<OrdenEmbarque>();
-    OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+    List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
 
     bool loading = false;
-    int? volumen = 62000;
-    protected override async Task OnInitializedAsync()
+    int volumen = 31000;
+    int? cantidad_aprox = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if(CierresList is not null)
+        {
+            ordenCierres = CierresList;
+            ordenEmbarques = await CreateOrdens(volumen);
+        }
+    }
+
+    private async void SetSelection(ChangeEventArgs args)
+    {
+        volumen = args.Value is not null ? int.Parse(args.Value.ToString() ?? "0") : 0;
+        ordenEmbarques = await CreateOrdens(volumen);
+    }
+
+    private async Task<List<OrdenEmbarque>> CreateOrdens(int? volumen_vehiculo)
     {
         try
         {
-            loading = true;
+            List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
+            foreach (var ordenCierre in ordenCierres)
+            {
+                ordenCierre.Cantidad_Sugerida = ordenCierre.Volumen / volumen_vehiculo;
+                ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+                ordenCierre.Volumen_Seleccionado = volumen;
+            }
+            return ordens;
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
 
-            var response = await http.Get<OrdenCierre>($"api/cierre/get/{folio}");
+    private async Task ConfirmarOrdenes(OrdenCierre cierre)
+    {
+        try
+        {
+            var response = await http.Post<OrdenCierre, List<OrdenEmbarque>>($"api/cierre/autocreate/orden", cierre);
+            if (response.Error)
+            {
+                loading = false;
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Ordenes creadas", SweetAlertIcon.Success);
+
+                var responseEmail = await http.Post<OrdenCierre, bool>($"api/email/confirmar/creacion/ordenes", cierre);
+                if (response.Error)
+                {
+                    loading = false;
+                    var responseHttp = await responseEmail.ObtenerMensajeError();
+                    await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loading = false;
+                    await swal.FireAsync("Exito", "Se ha enviado un correo notificando la creacion de las ordenes", SweetAlertIcon.Success);
+
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task DenegarOrdenes(OrdenCierre cierre)
+    {
+        try
+        {
+            var response = await http.Post<OrdenCierre, bool>($"api/email/denegar/creacion/ordenes", cierre);
             if (response.Error)
             {
                 loading = false;
@@ -66,35 +179,13 @@
             else
             {
                 loading = false;
-                if(response.Response is not null)
-                {
-                    ordenCierre = response.Response;
-                }
+                await swal.FireAsync("Exito", "Se ha enviado un correo notificando la denegacion de las ordenes", SweetAlertIcon.Success);
             }
-            loading = false;
         }
         catch (Exception e)
         {
-            loading = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
-    }
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            if(ordenCierre.Volumen > 0)
-            {
-
-            }
-        }
-        return base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void SetSelection(ChangeEventArgs args)
-    {
-        volumen = args.Value is not null ? (int)args.Value : 0;
     }
 }

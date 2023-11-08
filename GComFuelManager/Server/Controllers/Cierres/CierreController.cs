@@ -91,6 +91,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
                 var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
+                    .Include(x => x.OrdenPedidos)
                     .Include(x => x.OrdenEmbarque)
                     .Include(x => x.Cliente)
                         .Include(x => x.Producto)
@@ -266,12 +267,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 context.Update(orden);
                 await context.SaveChangesAsync();
 
-                orden.Destino = await context.Destino.FirstOrDefaultAsync(x => x.Cod == orden.CodDes);
-                orden.Producto = await context.Producto.FirstOrDefaultAsync(x => x.Cod == orden.CodPrd);
-                orden.Cliente = await context.Cliente.FirstOrDefaultAsync(x => x.Cod == orden.CodCte);
-                orden.ContactoN = await context.Contacto.FirstOrDefaultAsync(x => x.Cod == orden.CodCon);
-                var Embarque = await context.OrdenEmbarque.Where(x => x.Cod == orden.CodPed).Include(x => x.Tad).Include(x => x.Estado).FirstOrDefaultAsync();
-                orden.OrdenEmbarque = Embarque;
+                var newOrden = context.OrdenCierre.Where(x => x.Cod == orden.Cod)
+                    .Include(x => x.OrdenEmbarque)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Cliente)
+                    .FirstOrDefault();
 
                 return Ok(orden);
             }
@@ -374,6 +375,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .ThenInclude(x => x.Tad)
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Orden)
+                            .Include(x => x.OrdenPedidos)
+                            .ThenInclude(x => x.OrdenEmbarque)
                             .ToListAsync();
                     }
                     else
@@ -697,13 +700,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    if (context.OrdenPedido.Any(x => x.Folio.Equals(filtro.Folio)))
+                    if (context.OrdenPedido.Any(x => string.IsNullOrEmpty(x.Folio) && x.Folio == filtro.Folio))
                     {
-                        var cierres = await context.OrdenCierre.Where(x => x.Folio!.Equals(filtro.Folio)).Include(x => x.Producto).ToListAsync();
+                        var cierres = await context.OrdenCierre.Where(x => string.IsNullOrEmpty(x.Folio) && x.Folio == filtro.Folio).Include(x => x.Producto).ToListAsync();
                         if (cierres is null)
                             return BadRequest("No existe el cierre.");
 
-                        var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(filtro.Folio))
+                        var pedidos = await context.OrdenPedido.Where(x => string.IsNullOrEmpty(x.Folio) && x.Folio == filtro.Folio)
                             .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).ToListAsync();
 
                         foreach (var item in cierres)
@@ -2106,6 +2109,81 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 await context.SaveChangesAsync();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("autocreate/orden")]
+        public async Task<ActionResult> AutocrearOrdenes([FromBody] OrdenCierre cierre)
+        {
+            try
+            {
+                List<OrdenEmbarque> embarques = new List<OrdenEmbarque>();
+
+                if (cierre is null)
+                    return BadRequest("No se envio cierre para crear ordenes");
+
+                for (int i = 0; i < cierre.Cantidad_Confirmada; i++)
+                {
+                    //var litros = cierre.Volumen_Seleccionado >= 42000 ? cierre.Volumen_Seleccionado / 2 : 20000;
+
+                    var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
+
+                    var embarque = new OrdenEmbarque()
+                    {
+                        Codprd = cierre.CodPrd,
+                        Coddes = cierre.CodDes,
+                        Codtad = cierre.CodTad,
+                        Pre = cierre.Precio,
+                        Fchpet = DateTime.Now,
+                        Codest = 9,
+                        Vol = cierre.Volumen_Seleccionado,
+                        Fchcar = cierre.FchCar,
+                        Bin = i == 0 ? ++bin : i % 2 == 0 ? ++bin : bin
+                    };
+
+                    context.Add(embarque);
+                    await context.SaveChangesAsync();
+
+                    var ordenpedido = new OrdenPedido()
+                    {
+                        CodPed = embarque.Cod,
+                        CodCierre = cierre.Cod,
+                        Folio = cierre.Folio,
+                        OrdenEmbarque = null
+                    };
+
+                    context.Add(ordenpedido);
+                    await context.SaveChangesAsync();
+
+                    var ordencierre = cierre.ShallowCopy();
+                    ordencierre.Cod = 0;
+                    ordencierre.Vendedor = string.Empty;
+                    ordencierre.Observaciones = string.Empty;
+                    ordencierre.CodPed = embarque.Cod;
+                    ordencierre.Folio = $"O-{Guid.NewGuid().ToString().Split("-")[4]}";
+                    ordencierre.Activa = true;
+                    ordencierre.Estatus = true;
+                    ordencierre.Cliente = null;
+                    ordencierre.Destino = null;
+                    ordencierre.OrdenEmbarque = null;
+                    ordencierre.OrdenPedidos = null;
+                    ordencierre.Producto = null;
+                    ordencierre.Grupo = null;
+                    ordencierre.Volumen = (int)embarque.Vol;
+
+                    context.Add(ordencierre);
+                    await context.SaveChangesAsync();
+                    //embarques.Add(embarque);
+                }
+
+                //context.AddRange(embarques);
+                //await context.SaveChangesAsync();
+
+                return Ok(embarques);
             }
             catch (Exception e)
             {

@@ -25,7 +25,7 @@
                             <div class="col-12 card-body">
                                 <h4><b>Buscar</b></h4>
                                 <div class="col-12 row">
-                                    <div class="col-3 row">
+                                    <div class="col-4 row">
                                         <div class="col-6">
                                             <label>Folio</label>
                                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
@@ -179,7 +179,7 @@
                                             <div class="col row d-flex justify-content-start">
                                                 <RadzenStack Orientation="Orientation.Horizontal">
                                                     <RadzenText Text="Precio automatico" />
-                                                    <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
+                                                    <RadzenSwitch @bind-Value="@ordenCierre.Precio_Manual" Change="@(()=>ChangePrecioType())" />
                                                 </RadzenStack>
                                             </div>
                                         </Authorized>
@@ -448,7 +448,7 @@
                                                 </button>
                                             </div>
                                             <div class="col-3 mx-2">
-                                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@(()=>OpenModalCreateOrdens("P-Sis4-8caf6b54"))">
+                                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@(()=>OpenModalCreateOrdens())">
                                                     <i class="fa fa-solid fa-broom"></i>
                                                     <b>Crear Ordenes</b>
                                                 </button>
@@ -772,19 +772,6 @@
         try
         {
 
-            var cm = await js.GetItemLocalStorage("CloseMenu");
-            if (!string.IsNullOrEmpty(cm))
-                isClose = bool.Parse(cm);
-
-            if (isClose)
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-            else
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-            if (width < 0)
-                width = 500;
-            TotalWidth = $"{width}px";
-
             var authState = await auth.GetAuthenticationStateAsync();
             if (authState is not null)
                 User = authState.User;
@@ -813,6 +800,18 @@
     {
         if (first)
         {
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
             await LoadStateAsync();
             StateHasChanged();
         }
@@ -1683,12 +1682,12 @@
         }
     }
 
-    private async Task OpenModalCreateOrdens(string folio)
+    private async Task OpenModalCreateOrdens()
     {
         try
         {
             await ds.OpenAsync<ViewAutocreacionOrdenesComponent>("Crear ordenes de pedido",
-                new Dictionary<string, object>() { { "folio", folio} },
+                new Dictionary<string, object>() { { "CierresList", ordenCierres } },
                 new DialogOptions()
                 {
                     Width = "90%",

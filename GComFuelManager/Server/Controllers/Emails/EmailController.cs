@@ -27,13 +27,17 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly IVencimientoService vencimientoService;
         private readonly IPreciosService preciosService;
         private readonly IConfirmOrden confirmOrden;
+        private readonly IConfirmarCreacionOrdenes confirmarCreacion;
+        private readonly IDenegarCreacionOrdenes denegarCreacion;
 
         public EmailController(ApplicationDbContext context,
             IRazorViewToStringRenderer razorView,
             IRegisterAccountService registerAccount,
             IVencimientoService vencimientoService,
             IPreciosService preciosService,
-            IConfirmOrden confirmOrden)
+            IConfirmOrden confirmOrden,
+            IConfirmarCreacionOrdenes confirmarCreacion,
+            IDenegarCreacionOrdenes denegarCreacion)
         {
             this.context = context;
             this.razorView = razorView;
@@ -41,6 +45,8 @@ namespace GComFuelManager.Server.Controllers.Emails
             this.vencimientoService = vencimientoService;
             this.preciosService = preciosService;
             this.confirmOrden = confirmOrden;
+            this.confirmarCreacion = confirmarCreacion;
+            this.denegarCreacion = denegarCreacion;
         }
 
         [HttpPost("confirmacion")]
@@ -392,6 +398,62 @@ namespace GComFuelManager.Server.Controllers.Emails
                     await confirmOrden.NotifyConfirmOrden(emailContent);
 
                 }
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("confirmar/creacion/ordenes")]
+        public async Task<ActionResult> SendEmailConfirmarCreacionOrdenes(OrdenCierre cierre)
+        {
+            try
+            {
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+
+                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true 
+                && x.Accion.Nombre.Equals("Confirmar Creacion Ordenes"))
+                    .Include(x=>x.Contacto)
+                    .Include(x=>x.Accion)
+                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo)).AsEnumerable();
+
+                emailContent.CC = new List<MailboxAddress>();
+                emailContent.ToList = cc;
+                emailContent.Subject = "Creacion de ordenes de cierre";
+                emailContent.Item = cierre;
+
+                await confirmarCreacion.Confirmar(emailContent);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("denegar/creacion/ordenes")]
+        public async Task<ActionResult> SendEmailDenegarCreacionOrdenes(OrdenCierre cierre)
+        {
+            try
+            {
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+
+                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true
+                && x.Accion.Nombre.Equals("Denegar Creacion Ordenes"))
+                    .Include(x => x.Contacto)
+                    .Include(x => x.Accion)
+                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo)).AsEnumerable();
+
+                emailContent.CC = new List<MailboxAddress>();
+                emailContent.ToList = cc;
+                emailContent.Subject = "Cierre pendiente";
+                emailContent.Item = cierre;
+
+                await denegarCreacion.Denegar(emailContent);
 
                 return Ok(true);
             }

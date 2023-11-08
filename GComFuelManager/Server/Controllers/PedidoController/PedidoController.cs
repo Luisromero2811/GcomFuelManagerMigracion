@@ -673,37 +673,47 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<ActionResult> PutPedido([FromBody] OrdenEmbarque orden)
+        public async Task<ActionResult> PutPedido([FromBody] OrdenCierre cierre)
         {
             try
             {
-                orden.Producto = null;
-                orden.Chofer = null;
-                orden.Destino = null;
-                orden.Tonel = null;
-                orden.Tad = null;
-                orden.OrdenCompra = null;
-                orden.Estado = null;
-                orden.Cliente = null!;
-                orden.OrdenCierre = null!;
+                OrdenEmbarque? orden = cierre.OrdenEmbarque;
+
+                cierre.Producto = null!;
+                cierre.Destino = null!;
+                cierre.Cliente = null!;
+                cierre.ContactoN = null!;
+                cierre.OrdenEmbarque = null!;
+                cierre.OrdenPedidos = null!;
+
+                context.Update(cierre);
+                await context.SaveChangesAsync();
+
+                orden!.Producto = null!;
+                orden!.Chofer = null!;
+                orden!.Destino = null!;
+                orden!.Tonel = null!;
+                orden!.Tad = null!;
+                orden!.OrdenCompra = null!;
+                orden!.Estado = null!;
+                orden!.Cliente = null!;
+                orden!.OrdenCierre = null!;
+                orden!.OrdenPedido = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
 
-                var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
-                    .Include(x => x.Producto)
+                var newOrden = context.OrdenCierre.Where(x => x.Cod == cierre.Cod)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x=>x.OrdenEmbarque)
+                    .ThenInclude(x=>x.Estado)
                     .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.OrdenCierre)
-                    .FirstOrDefaultAsync();
+                    .Include(x => x.Producto)
+                    .Include(x => x.Cliente)
+                    .FirstOrDefault();
 
-                return Ok(ord);
+                return Ok(newOrden);
             }
             catch (Exception e)
             {
@@ -1023,7 +1033,7 @@ namespace GComFuelManager.Server.Controllers
                     var destino = context.Destino.FirstOrDefault(x => x.Cod == ordercopy.Coddes);
                     if (destino is null)
                         return BadRequest("No se encontro el destino");
-                    
+
                     var cliente = context.Cliente.FirstOrDefault(x => x.Cod == destino.Codcte);
                     if (cliente is null)
                         return BadRequest("No se encontro el cliente");
@@ -1070,7 +1080,7 @@ namespace GComFuelManager.Server.Controllers
                         context.Add(ordencierrecopy);
                     }
 
-                    if(ordenCierre is null)
+                    if (ordenCierre is null)
                     {
                         var cierre = new OrdenCierre()
                         {
@@ -1088,7 +1098,7 @@ namespace GComFuelManager.Server.Controllers
                             CodPrd = ordercopy.Codprd,
                             CodTad = ordercopy.Codtad,
                             Volumen = int.Parse($"{ordercopy.Vol}"),
-                            
+
                         };
                         context.Add(cierre);
                     }

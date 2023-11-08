@@ -13,17 +13,17 @@
     <h4><b>Órdenes - Pedidos</b></h4>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
-            <div class="col-12 mb-3 row">
+            <div class="col-12 mb-1 row">
                 <div class="col-12 row">
                     <div class="col-3">
-                        <label class="form-label">Folio</label>
+                        <label>Folio</label>
                         @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
                         <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="10" />
 
                         @*<FolioListSearch folio="@filtro.Folio">
                         </FolioListSearch>*@
                     </div>
-                    <div class="col-9 d-flex row mb-2">
+                    <div class="col-9 d-flex row mb-1">
                         <div class="col-2 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFiltroCierres">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
@@ -57,7 +57,7 @@
                 <div class="col row d-flex justify-content-start">
                     <RadzenStack Orientation="Orientation.Horizontal">
                         <RadzenText Text="Precio automatico" />
-                        <RadzenSwitch @bind-Value="@ordenCierre.IsAutoPrecio" Change="@(()=>ChangePrecioType())" />
+                        <RadzenSwitch @bind-Value="@ordenCierre.Precio_Manual" Change="@(()=>ChangePrecioType())" />
                     </RadzenStack>
                 </div>
             </div>
@@ -65,8 +65,8 @@
                 @*<DataAnnotationsValidator />*@
                 <FluentValidationValidator Validator="validation" />
                 <ValidationSummary />
-                <div class="row col-12 g-3 mb-3 px-4">
-                    <div class="col-4 mb-1">
+                <div class="row col-12">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Terminal</label>
                             <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodTad"
@@ -74,7 +74,7 @@
                                             AllowVirtualization="true" />
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Grupo</label>
                             <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
@@ -82,7 +82,7 @@
                                             AllowVirtualization="true" Change="@GetClientes" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Cliente</label>
                             <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
@@ -90,7 +90,7 @@
                                             AllowVirtualization="true" Change="@GetEstaciones" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Estacion</label>
                             <RadzenDropDown Data="Estaciones" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
@@ -98,7 +98,7 @@
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                         </div>
                     </div>
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Producto</label>
                             @if (ordenCierre.IsAutoPrecio)
@@ -153,10 +153,10 @@
                     </div>
                     @if (!ordenCierre.IsDifferentVol)
                     {
-                        <div class="col-2 mb-1">
+                        <div class="col-2">
                             <div class="col-12">
-                                <label class="form-label">Volumen</label>
-                               
+                                <label>Volumen</label>
+
                                 <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select" disabled="@(isFolio && !ordenCierre.IsCierreVolumen)">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Cantidades is null)
@@ -181,33 +181,33 @@
 
                     @if (ordenCierre.IsDifferentVol)
                     {
-                        <div class="col-2 mb-1">
+                        <div class="col-2">
                             <div class="col-12">
-                                <label class="form-label">Volumen</label>
+                                <label>Volumen</label>
                                 <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" />
                             </div>
                         </div>
                     }
 
-                    <div class="col-2 mb-1 d-flex">
+                    <div class="col-2 d-flex">
                         <div class="col-12 my-auto d-flex">
                             <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentVol Name="CheckBox1" class="me-2" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
                             <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipVolumen(infoIconVolumen))" @ref="infoIconVolumen">
-                                <label class="form-label" for="CheckBox1">
+                                <label for="CheckBox1">
                                     Volumen Libre <i class="fa-solid fa-circle-info fa-xs"></i>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Fecha de carga en terminal</label>
                             <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" DateFormat="dd/MM/yyy" ShowTime="false" />
                         </div>
                     </div>
 
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Fecha estimada de llegada</label>
                             <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" DateFormat="dd/MM/yyy" ShowTime="false" />
@@ -215,7 +215,7 @@
                     </div>
                     @if (!ordenCierre.IsDifferentTurn)
                     {
-                        <div class="col-2 mb-1">
+                        <div class="col-2">
                             <div class="col-12">
                                 <label>Turno</label>
                                 <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
@@ -241,9 +241,9 @@
                     }
                     @if (ordenCierre.IsDifferentTurn)
                     {
-                        <div class="col-2 mb-1">
+                        <div class="col-2">
                             <div class="col-12">
-                                <label class="form-label">Turno</label>
+                                <label>Turno</label>
                                 <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
                             </div>
                         </div>
@@ -252,14 +252,14 @@
                         <div class="col-12 my-auto d-flex">
                             <RadzenCheckBox @bind-Value=@ordenCierre.IsDifferentTurn Name="CheckBox2" class="me-2" />
                             <div class="col-12 row p-0" @onmouseenter="@(args => ShowTooltipTurno(infoIconVolumen))" @ref="infoIconVolumen">
-                                <label class="form-label" for="CheckBox2">
+                                <label for="CheckBox2">
                                     Turno Libre <i class="fa-solid fa-circle-info fa-xs"></i>
                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-4 mb-1">
+                    <div class="col-4">
                         <div class="col-12">
                             @if (ordenCierre.IsAutoPrecio)
                             {
@@ -285,7 +285,7 @@
                     </div>
                     @if (!isFolio || ordenCierre.IsCierreVolumen)
                     {
-                        <div class="col-4 mb-1">
+                        <div class="col-4">
                             <div class="col-12">
                                 <label @onmouseenter="@(args => ShowTooltip(infoFolio))" @ref="infoFolio">
                                     Folio <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -297,7 +297,7 @@
                         </div>
                     }
                 </div>
-                <div class="col-12 d-flex justify-content-center mt-2">
+                <div class="col-12 d-flex justify-content-center mt-1">
                     @if (isEditing)
                     {
                         <div class="col-4 px-2">
@@ -786,37 +786,21 @@
         loadingAgregar = true;
         try
         {
-            var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre/update", ordenCierre);
-            if (responseOC.Error)
+            var response = await http.Post<OrdenCierre, OrdenCierre>("api/pedido/update", ordenCierre);
+            if (response.Error)
             {
                 loadingAgregar = false;
-                string? message = await responseOC.ObtenerMensajeError();
+                string? message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                if (ordenCierre.OrdenEmbarque is null)
-                {
-                    await Swal.FireAsync("Error", "No se encontro una orden.", SweetAlertIcon.Error);
-                    return;
-                }
-
-                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>("api/pedido/update", ordenCierre.OrdenEmbarque);
-                if (response.Error)
-                {
-                    loadingAgregar = false;
-                    string? message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    loadingAgregar = false;
-                    CancelEdit();
-                    // await GetFiltroCierres();
-                    var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
-                    ordenCierres.RemoveAt(index);
-                    ordenCierres.Insert(index, responseOC.Response);
-                }
+                loadingAgregar = false;
+                // CancelEdit();
+                // await GetFiltroCierres();
+                var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                ordenCierres.RemoveAt(index);
+                ordenCierres.Insert(index, response.Response);
             }
         }
         catch (Exception e)
@@ -847,7 +831,6 @@
         }
         catch (Exception e)
         {
-            Console.WriteLine(JsonConvert.SerializeObject(e));
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
@@ -1169,18 +1152,20 @@
                         OrdenPedido ordenPedido = new OrdenPedido();
                         ordenPedido.CodPed = ordenCierre.CodPed;
                         ordenPedido.Folio = filtro.Folio;
-
-                        var responseOP = await http.Post<OrdenPedido>($"api/pedido/orden/add", ordenPedido);
-                        if (responseOP.Error)
+                        if (!string.IsNullOrEmpty(ordenPedido.Folio))
                         {
-                            var message = await responseOC.ObtenerMensajeError();
-                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                        }
-                        else
-                        {
-                            ordenCierres.Add(responseOC.Response);
-                            await gridOC.Reload();
-                            count++;
+                            var responseOP = await http.Post<OrdenPedido>($"api/pedido/orden/add", ordenPedido);
+                            if (responseOP.Error)
+                            {
+                                var message = await responseOC.ObtenerMensajeError();
+                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                            }
+                            else
+                            {
+                                ordenCierres.Add(responseOC.Response);
+                                await gridOC.Reload();
+                                count++;
+                            }
                         }
                     }
                 }
