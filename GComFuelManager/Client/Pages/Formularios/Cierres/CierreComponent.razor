@@ -25,7 +25,7 @@
                             <div class="col-12 card-body">
                                 <h4><b>Buscar</b></h4>
                                 <div class="col-12 row">
-                                    <div class="col-4 row">
+                                    <div class="col-6 row">
                                         <div class="col-6">
                                             <label>Folio</label>
                                             <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
@@ -417,10 +417,10 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-12 d-flex justify-content-center mt-3">
+                                        <div class="col-12 mt-2 row">
                                             @if (monthFilter == false)
                                             {
-                                                <div class="col-3 mx-2" @onmouseenter="@(args => ShowToolTipVigencia(infoVigencia))" @ref="infoVigencia">
+                                                <div class="col-3" @onmouseenter="@(args => ShowToolTipVigencia(infoVigencia))" @ref="infoVigencia">
                                                     <button class="btn gcom-bg-amarillo col-12" type="submit" disabled="@loadingCreate">
                                                         <i class="fa fa-solid fa-plus"></i>
                                                         <b>Crear cierre</b>
@@ -430,7 +430,7 @@
                                                         }
                                                     </button>
                                                 </div>
-                                                <div class="col-3 mx-2">
+                                                <div class="col-3">
                                                     <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@SendEmail" disabled="@loadingSend">
                                                         <i class="fa fa-solid fa-envelope"></i>
                                                         <b>Enviar cierre</b>
@@ -441,13 +441,13 @@
                                                     </button>
                                                 </div>
                                             }
-                                            <div class="col-3 mx-2">
+                                            <div class="col-3">
                                                 <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@(()=>ClearForm())">
                                                     <i class="fa fa-solid fa-broom"></i>
                                                     <b>Limpiar formulario</b>
                                                 </button>
                                             </div>
-                                            <div class="col-3 mx-2">
+                                            <div class="col-3">
                                                 <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@(()=>OpenModalCreateOrdens())">
                                                     <i class="fa fa-solid fa-broom"></i>
                                                     <b>Crear Ordenes</b>

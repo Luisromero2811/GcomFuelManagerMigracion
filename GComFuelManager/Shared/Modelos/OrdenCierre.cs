@@ -280,5 +280,19 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         public bool Precio_Manual { get; set; } = true;
+        [NotMapped, EpplusIgnore]
+        public bool Tiene_Volumen_Disponible { get; set; } = false;
+        public bool GetTieneVolumenDisponible()
+        {
+            try
+            {
+                SetVolumen();
+                return (Volumen_Disponible < (Volumen_Seleccionado * Cantidad_Confirmada));
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
     }
 }

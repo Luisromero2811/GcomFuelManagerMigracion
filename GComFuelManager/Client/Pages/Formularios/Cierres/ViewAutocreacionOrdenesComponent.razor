@@ -1,5 +1,6 @@
 ﻿@inject SweetAlertService swal
 @inject IRepositorio http
+@inject NotificationService ns
 
 <div class="col-12 row">
     <div class="col-12">
@@ -78,6 +79,14 @@
                         </tr>
                     }
                 }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            No hay cierres
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -132,6 +141,17 @@
     {
         try
         {
+            if(cierre.GetTieneVolumenDisponible())
+            {
+                await swal.FireAsync("Volumen Insuficiente", $"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Seleccionado * cierre.Cantidad_Confirmada}", SweetAlertIcon.Warning);
+                return;
+            }
+            if(cierre.Cantidad_Confirmada <= 0)
+            {
+                await swal.FireAsync("Cantidad incorrecta", $"Las ordenes cofirmadas no pueden ser menoes o igual a 0", SweetAlertIcon.Warning);
+                return;
+            }
+
             var response = await http.Post<OrdenCierre, List<OrdenEmbarque>>($"api/cierre/autocreate/orden", cierre);
             if (response.Error)
             {
@@ -141,8 +161,13 @@
             }
             else
             {
-                await swal.FireAsync("Exito", "Ordenes creadas", SweetAlertIcon.Success);
-
+                ns.Notify(new NotificationMessage()
+                    {
+                        Summary = "Ordees creadas",
+                        Detail = $"Se han creado {cierre.Cantidad_Confirmada} orden/es correctamente. Se enviara un correo notificando de su creacion para ser confirmadas",
+                        Duration = 10000,
+                        Severity = NotificationSeverity.Success
+                    });
                 var responseEmail = await http.Post<OrdenCierre, bool>($"api/email/confirmar/creacion/ordenes", cierre);
                 if (response.Error)
                 {
@@ -153,7 +178,13 @@
                 else
                 {
                     loading = false;
-                    await swal.FireAsync("Exito", "Se ha enviado un correo notificando la creacion de las ordenes", SweetAlertIcon.Success);
+                    ns.Notify(new NotificationMessage()
+                        {
+                            Summary = "Correo enviado",
+                            Detail = "Se ha enviado el correo.",
+                            Duration = 5000,
+                            Severity = NotificationSeverity.Info
+                        });
 
                 }
             }

@@ -354,11 +354,10 @@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
     <div class="col-12 d-flex justify-content-center row">
-        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
+        @* @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
         {
             <div class="col-12 mt-2">
                 <b class="my-auto">
-                    @*Volumen: @(volumenDisponible.VolumenTotal.ToString("N2"))*@
                     @foreach (var item in volumenDisponible.Productos)
                     {
                         @if (!string.IsNullOrEmpty(item.Nombre))
@@ -371,8 +370,8 @@
                     }
                 </b>
             </div>
-        }
-        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+        } *@
+        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" Density="Density.Compact"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
