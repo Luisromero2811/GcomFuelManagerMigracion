@@ -50,31 +50,24 @@
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
     <Columns>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="200px;" />
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Grupo" Property="Grupo" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="130px" />
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="140px;" />
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Grupo" Property="Grupo" Filterable="false" Width="160px;">
             <Template Context="data">
                 @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Cliente" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Cliente" Filterable="false" Width="180px;">
             <Template Context="data">
                 @(data.cliente is not null ? data.cliente.Den : "Sin clientes")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Destino" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Destino" Filterable="false" Width="180px;">
             <Template Context="data">
                 @(data.destino is not null ? data.destino.Den : "Sin destino")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
-            @*<FilterTemplate Context="filter">
-                <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                    <ValueTemplate Context="data">
-                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
-                    </ValueTemplate>
-                </RadzenDropDown>
-            </FilterTemplate>*@
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Filterable="false" Width="160px;">
             <Template Context="data">
                 <div class="col-12 row">
                     <div class="col-1">
@@ -98,6 +91,29 @@
                     <div class="col-11">
                         @data.Producto?.Den
                     </div>
+                </div>
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Filterable="false" Width="100px">
+            <Template Context="data">
+                @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
+                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+            </Template>
+        </RadzenDataGridColumn>
+        <!--Precio Volumen y observaciones-->
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Volumen" Width="110px" FormatString="{0:N2}" Filterable="false">
+            <Template Context="item">
+                <div class="col-12">
+                    @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                    item?.ordenEmbarque?.Orden is not null ? item?.ordenEmbarque?.Orden?.Vol :
+                    item?.ordenEmbarque?.Compartment == 1 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom
+                    : item?.ordenEmbarque?.Compartment == 2 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom2
+                    : item?.ordenEmbarque?.Compartment == 3 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom3
+                    : item?.ordenEmbarque?.Compartment == 4 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom4
+                    : item?.Volumen
+                    )
                 </div>
             </Template>
         </RadzenDataGridColumn>
@@ -233,7 +249,7 @@
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:F1"];
+                var header = ws.Cells["A1:I1"];
                 // var ordenFilter = new List<FolioCierreDTO>();
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection(
                     Folios

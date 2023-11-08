@@ -5,6 +5,7 @@
 @inject DialogService ds
 @inject NotificationService ns
 @inject PreciosValidation validation
+@inject TooltipService ts 
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios")]
 
@@ -211,7 +212,7 @@
                                 <label class="form-label">Precio</label>
                                 <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" MaxLenght="10" />
                             </div>
-                            <div class="col-12 d-flex justify-content-center row">
+                            <div class="col-12 d-flex ms-2 mt-2 justify-content-center row">
                                 <div class="col-4">
                                     <button class="btn col-12 gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
@@ -224,7 +225,7 @@
                                 </div>
                                 <AuthorizeView Roles="Envio Precios, Admin, Administrador Sistema" Context="SendPrecios">
                                     <Authorized>
-                                        <div class="col-4">
+                                        <div class="col-4"  @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
                                             <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
                                                 Enviar precios por cliente
@@ -238,7 +239,7 @@
                                 </AuthorizeView>
                                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="SendPrecioGrupal">
                                     <Authorized>
-                                        <div class="col-4">
+                                        <div class="col-4"  @onmouseenter="@(args => ShowGroupTip(infosIcon))" @ref="infosIcon">
                                             <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
                                                 Enviar precios grupal
@@ -542,7 +543,8 @@
     </style>*@
 
 @code {
-
+    ElementReference infoIcon;
+    ElementReference infosIcon;
     private string ProductoSeleccionado = string.Empty;
     private string CurrentCliente = string.Empty;
     RadzenAlert alert = new RadzenAlert();
@@ -604,6 +606,9 @@
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
     Dictionary<string, string> queryStringObjectPro = new Dictionary<string, string>();
     Dictionary<string, string> queryStringObjectPre = new Dictionary<string, string>();
+
+    void ShowToolTip(ElementReference elementReference, TooltipService option = null!) => ts.Open(elementReference, "Opcion para solo mandar correo a clientes de manera individual");
+    void ShowGroupTip(ElementReference elementReference, TooltipService service = null!) => ts.Open(elementReference, "Opcion para mandar correos a clientes ligados a grupos empresariales. NOTA: Tener para cada cliente un correo asignado");
 
     protected override async Task OnInitializedAsync()
     {
