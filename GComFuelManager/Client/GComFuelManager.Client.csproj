@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
+    <Folder Include="Componentes\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\Formularios\ETA\" />

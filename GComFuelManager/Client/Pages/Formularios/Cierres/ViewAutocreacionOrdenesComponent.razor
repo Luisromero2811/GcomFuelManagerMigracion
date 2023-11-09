@@ -12,16 +12,16 @@
         <div class="col-6">
             <div class="col-12">
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="31000" @onchange="SetSelection">
-                    <label class="form-check-label" for="fullcheck">Full (62,000)</label>
+                    <InputRadio Value="62000" class="form-check-input" id="full" />
+                    <label class="form-check-label" for="full">Full (62000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="21000" @onchange="SetSelection">
-                    <label class="form-check-label" for="patonacheck">Patona (42,000)</label>
+                    <InputRadio Value="42000" class="form-check-input" id="patona" />
+                    <label class="form-check-label" for="patona">Patona (42000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
-                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="20000" @onchange="SetSelection">
-                    <label class="form-check-label" for="palomacheck">Paloma (20,000)</label>
+                    <InputRadio Value="20000" class="form-check-input" id="paloma" />
+                    <label class="form-check-label" for="paloma">Paloma (20000)</label>
                 </div>
             </div>
         </div>
@@ -31,6 +31,8 @@
             <thead>
                 <tr>
                     <th>Volumen</th>
+                    <th>Volumen disponible</th>
+                    <th>Ordenes relacionadas</th>
                     <th>Destino</th>
                     <th>Producto</th>
                     <th>Fecha de carga</th>
@@ -47,6 +49,8 @@
                     {
                         <tr>
                             <td>@ordenCierre.Volumen</td>
+                            <td>@ordenCierre.GetVolumenDisponible()</td>
+                            <td>@ordenCierre.OrdenPedidos?.Count</td>
                             <td>
                                 @ordenCierre.Des
                             </td>
@@ -54,7 +58,7 @@
                                 @ordenCierre.Pro
                             </td>
                             <td>
-                                <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm"/>
+                                <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm" />
                             </td>
                             <td>
                                 @ordenCierre.Cantidad_Sugerida
@@ -64,16 +68,34 @@
                             </td>
                             <td>
                                 <div class="col">
-                                    <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>ConfirmarOrdenes(ordenCierre))">
-                                        Confirmar
-                                    </button>
+                                    @if (ordenCierre.GetTieneVolumenDisponible())
+                                    {
+                                        <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>ConfirmarOrdenes(ordenCierre))">
+                                            Confirmar
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-primary col-12" disabled>
+                                            Confirmar
+                                        </button>
+                                    }
                                 </div>
                             </td>
                             <td>
                                 <div class="col">
-                                    <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>DenegarOrdenes(ordenCierre))">
-                                        Denegar
-                                    </button>
+                                    @if (ordenCierre.GetTieneVolumenDisponible())
+                                    {
+                                        <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>DenegarOrdenes(ordenCierre))">
+                                            Denegar
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-danger col-12" disabled>
+                                            Denegar
+                                        </button>
+                                    }
                                 </div>
                             </td>
                         </tr>
@@ -104,7 +126,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        if(CierresList is not null)
+        if (CierresList is not null)
         {
             ordenCierres = CierresList;
             ordenEmbarques = await CreateOrdens(volumen);
@@ -141,18 +163,18 @@
     {
         try
         {
-            if(cierre.GetTieneVolumenDisponible())
+            if (cierre.GetPuedeCrearOrden())
             {
                 await swal.FireAsync("Volumen Insuficiente", $"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Seleccionado * cierre.Cantidad_Confirmada}", SweetAlertIcon.Warning);
                 return;
             }
-            if(cierre.Cantidad_Confirmada <= 0)
+            if (cierre.Cantidad_Confirmada <= 0)
             {
                 await swal.FireAsync("Cantidad incorrecta", $"Las ordenes cofirmadas no pueden ser menoes o igual a 0", SweetAlertIcon.Warning);
                 return;
             }
 
-            var response = await http.Post<OrdenCierre, List<OrdenEmbarque>>($"api/cierre/autocreate/orden", cierre);
+            var response = await http.Post<OrdenCierre, OrdenCierre>($"api/cierre/autocreate/orden", cierre);
             if (response.Error)
             {
                 loading = false;

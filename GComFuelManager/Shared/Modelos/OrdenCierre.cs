@@ -160,6 +160,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;
         [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado > 42000 ? Volumen_Seleccionado / 2 : 20000; } }
         [NotMapped, EpplusIgnore] public List<OrdenPedido>? OrdenPedidos { get; set; } = null!;
+        public bool Precio_Manual { get; set; } = true;
+
+        #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
         public double? GetVolumenSolicitado()
         {
@@ -174,6 +177,27 @@ namespace GComFuelManager.Shared.Modelos
                         && x.OrdenEmbarque.FchOrd is null).Sum(x => x.OrdenEmbarque?.Vol);
                 }
                 return Volumen_Solicitado;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public double? Cantidad_De_Solicitado { get; set; } = 0;
+        public double? GetCantidadSolicitado()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Cantidad_De_Solicitado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                        && x.OrdenEmbarque.Codprd == CodPrd
+                        && x.OrdenEmbarque.Codest == 9
+                        && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid)
+                        && x.OrdenEmbarque.FchOrd is null).Count();
+                }
+                return Cantidad_De_Solicitado;
             }
             catch (Exception e)
             {
@@ -204,6 +228,28 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
 
+        [NotMapped, EpplusIgnore] public double? Cantidad_De_Programado { get; set; } = 0;
+        public double? GetCantidadProgramado()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Cantidad_De_Programado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque.Folio is null
+                    && x.OrdenEmbarque.Codprd == CodPrd
+                    && x.OrdenEmbarque.Codest == 3
+                    && x.OrdenEmbarque.FchOrd is null
+                    && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid)).Count();
+                }
+                return Cantidad_De_Programado;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
         [NotMapped, EpplusIgnore] public double? Volumen_Cosumido { get; set; } = 0;
         public double? GetVolumenConsumido()
         {
@@ -224,6 +270,27 @@ namespace GComFuelManager.Shared.Modelos
                 return 0;
             }
         }
+
+        [NotMapped, EpplusIgnore] public double? Cantidad_De_Cosumido { get; set; } = 0;
+        public double? GetCantidadConsumido()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Cantidad_De_Cosumido = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque.Folio is not null && x.OrdenEmbarque?.Orden?.Codprd == CodPrd
+                    && x.OrdenEmbarque?.Codest != 14 && x.OrdenEmbarque?.Orden?.Codest != 14
+                    && x.OrdenEmbarque?.Orden?.BatchId is not null).Count();
+                }
+                return Cantidad_De_Cosumido;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
         [NotMapped, EpplusIgnore] public double? Volumen_Espera_Carga { get; set; } = 0;
         public double? GetVolumenEsperaCarga()
         {
@@ -241,6 +308,25 @@ namespace GComFuelManager.Shared.Modelos
                         : x.OrdenEmbarque?.Vol);
                 }
                 return Volumen_Espera_Carga;
+            }
+            catch (Exception e)
+            {
+                return 0;
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public double? Cantidad_De_Espera_Carga { get; set; } = 0;
+        public double? GetCantidadEsperaCarga()
+        {
+            try
+            {
+                if (OrdenPedidos is not null && CodPed == 0)
+                {
+                    Cantidad_De_Espera_Carga = OrdenPedidos.Where(x => x.OrdenEmbarque != null
+                    && x.OrdenEmbarque?.Codprd == CodPrd && x.OrdenEmbarque?.Codest == 22
+                    && x.OrdenEmbarque?.Folio is not null && x.OrdenEmbarque?.Orden is null).Count();
+                }
+                return Cantidad_De_Espera_Carga;
             }
             catch (Exception e)
             {
@@ -278,11 +364,22 @@ namespace GComFuelManager.Shared.Modelos
                 throw;
             }
         }
-
-        public bool Precio_Manual { get; set; } = true;
-        [NotMapped, EpplusIgnore]
         public bool Tiene_Volumen_Disponible { get; set; } = false;
-        public bool GetTieneVolumenDisponible()
+        public bool GetTieneVolumenDisponible(Porcentaje porcentaje)
+        {
+            try
+            {
+                SetVolumen();
+                Tiene_Volumen_Disponible = (GetPromedioCarga() >= (Volumen_Disponible * porcentaje.Porcen != 0 ? porcentaje.Porcen : 1));
+                return Tiene_Volumen_Disponible;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
+        public bool GetPuedeCrearOrden()
         {
             try
             {
@@ -294,5 +391,36 @@ namespace GComFuelManager.Shared.Modelos
                 return false;
             }
         }
+
+        public void SetCantidades()
+        {
+            Cantidad_De_Cosumido = GetCantidadConsumido();
+            Cantidad_De_Espera_Carga = GetCantidadEsperaCarga();
+            Cantidad_De_Programado = GetCantidadProgramado();
+            Cantidad_De_Solicitado = GetCantidadSolicitado();
+        }
+
+        [NotMapped, EpplusIgnore]
+        public double? Promedio_Carga { get; set; } = 0;
+        public double? GetPromedioCarga()
+        {
+            try
+            {
+                SetVolumen();
+                SetCantidades();
+                var totalvolumen = Volumen_Cosumido + Volumen_Espera_Carga + Volumen_Programado;
+                var totalcantidad = Cantidad_De_Cosumido + Cantidad_De_Espera_Carga + Cantidad_De_Programado;
+
+                if (totalcantidad > 0 && totalvolumen > 0)
+                    Promedio_Carga = totalvolumen / totalcantidad;
+                
+                return Promedio_Carga;
+            }
+            catch (DivideByZeroException e)
+            {
+                return 0;
+            }
+        }
+        #endregion
     }
 }
