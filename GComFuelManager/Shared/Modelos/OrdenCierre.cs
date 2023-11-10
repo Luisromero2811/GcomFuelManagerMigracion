@@ -159,7 +159,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public int? Cantidad_Confirmada { get; set; } = 0;
         [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;
         [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado > 42000 ? Volumen_Seleccionado / 2 : 20000; } }
-        [NotMapped, EpplusIgnore] public List<OrdenPedido>? OrdenPedidos { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public List<OrdenPedido> OrdenPedidos { get; set; } = new List<OrdenPedido>();
         public bool Precio_Manual { get; set; } = true;
 
         #region Calculo de volumenes
@@ -168,7 +168,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Volumen_Solicitado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                         && x.OrdenEmbarque.Codprd == CodPrd
@@ -189,7 +189,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Cantidad_De_Solicitado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                         && x.OrdenEmbarque.Codprd == CodPrd
@@ -210,13 +210,13 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Volumen_Programado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque.Folio is null
                     && x.OrdenEmbarque.Codprd == CodPrd
                     && x.OrdenEmbarque.Codest == 3
-                    && x.OrdenEmbarque.FchOrd is null
+                    && x.OrdenEmbarque.FchOrd is not null
                     && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid))
                         .Sum(x => x.OrdenEmbarque?.Vol);
                 }
@@ -233,13 +233,13 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Cantidad_De_Programado = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque.Folio is null
                     && x.OrdenEmbarque.Codprd == CodPrd
                     && x.OrdenEmbarque.Codest == 3
-                    && x.OrdenEmbarque.FchOrd is null
+                    && x.OrdenEmbarque.FchOrd is not null
                     && string.IsNullOrEmpty(x.OrdenEmbarque.Bolguidid)).Count();
                 }
                 return Cantidad_De_Programado;
@@ -255,13 +255,13 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Volumen_Cosumido = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque.Folio is not null && x.OrdenEmbarque?.Orden?.Codprd == CodPrd
                     && x.OrdenEmbarque?.Codest != 14 && x.OrdenEmbarque?.Orden?.Codest != 14
                     && x.OrdenEmbarque?.Orden?.BatchId is not null)
-                    .Sum(x => x.OrdenEmbarque?.Vol);
+                    .Sum(x => x.OrdenEmbarque?.Orden?.Vol);
                 }
                 return Volumen_Cosumido;
             }
@@ -276,7 +276,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Cantidad_De_Cosumido = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque.Folio is not null && x.OrdenEmbarque?.Orden?.Codprd == CodPrd
@@ -296,7 +296,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Volumen_Espera_Carga = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque?.Codprd == CodPrd && x.OrdenEmbarque?.Codest == 22
@@ -320,7 +320,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                if (OrdenPedidos is not null && CodPed == 0)
+                if (OrdenPedidos is not null && CodPed == 0 && OrdenPedidos.Count > 0)
                 {
                     Cantidad_De_Espera_Carga = OrdenPedidos.Where(x => x.OrdenEmbarque != null
                     && x.OrdenEmbarque?.Codprd == CodPrd && x.OrdenEmbarque?.Codest == 22
@@ -364,13 +364,13 @@ namespace GComFuelManager.Shared.Modelos
                 throw;
             }
         }
-        public bool Tiene_Volumen_Disponible { get; set; } = false;
+        [NotMapped, EpplusIgnore] public bool Tiene_Volumen_Disponible { get; set; } = false;
         public bool GetTieneVolumenDisponible(Porcentaje porcentaje)
         {
             try
             {
                 SetVolumen();
-                Tiene_Volumen_Disponible = (GetPromedioCarga() >= (Volumen_Disponible * porcentaje.Porcen != 0 ? porcentaje.Porcen : 1));
+                Tiene_Volumen_Disponible = !(GetPromedioCarga() >= (Volumen_Disponible * (porcentaje.Porcen != 0 ? porcentaje.Porcen : 100)/100));
                 return Tiene_Volumen_Disponible;
             }
             catch (Exception e)
@@ -384,7 +384,7 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 SetVolumen();
-                return (Volumen_Disponible < (Volumen_Seleccionado * Cantidad_Confirmada));
+                return (Volumen_Disponible < (Volumen_Por_Unidad * Cantidad_Confirmada));
             }
             catch (Exception e)
             {

@@ -961,6 +961,33 @@
                 {
                     await OpenModalCreateOrdens();
                 }
+                else
+                {
+                    var confirmCancel = await Swal.FireAsync(new SweetAlertOptions
+                        {
+                            Icon = SweetAlertIcon.Info,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "¿Desea enviar una notificacion de cierre pendente al equipo interno?"
+                        });
+                    if (!string.IsNullOrEmpty(confirmCancel.Value))
+                    {
+
+                        var response = await http.Post<OrdenCierre, bool>($"api/email/denegar/creacion/ordenes", responseOC.Response);
+                        if (response.Error)
+                        {
+                            loading = false;
+                            var responseHttp = await response.ObtenerMensajeError();
+                            await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                        }
+                        else
+                        {
+                            loading = false;
+                            await Swal.FireAsync("Exito", "Se ha enviado un correo notificando la denegacion de las ordenes", SweetAlertIcon.Success);
+                        }
+                    }
+                }
             }
 
         }
@@ -1025,7 +1052,7 @@
             if (filtro != null)
             {
                 filtro.forFolio = forFolio;
-                var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
+                var response = await http.Get<List<OrdenCierre>>($"api/cierre/get/{filtro.Folio}");
                 if (response != null)
                 {
                     if (response.Error)
@@ -1068,7 +1095,7 @@
                         //StateHasChanged();
                         if (ordenCierres is not null && ordenCierres.Count > 0)
                             foreach (var item in ordenCierres)
-                                if (item.GetPuedeCrearOrden())
+                                if (item.Tiene_Volumen_Disponible)
                                     Can_Make_Orden = true;
                     }
                 }

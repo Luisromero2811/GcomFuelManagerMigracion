@@ -81,6 +81,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.OrdenPedidos)
+                    .ThenInclude(x => x.OrdenEmbarque)
                     .ToListAsync();
 
                 cierres.ForEach(x => x.GetTieneVolumenDisponible(porcentaje));
@@ -208,6 +209,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.Estado)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
+                    .Include(x => x.OrdenPedidos)
+                    .ThenInclude(x => x.OrdenEmbarque)
                     .FirstOrDefaultAsync();
 
                 if (orden.PrecioOverDate)
@@ -223,6 +226,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     await context.SaveChangesAsync();
                 }
 
+                NewOrden.SetVolumen();
+                
                 return Ok(NewOrden);
             }
             catch (Exception e)
@@ -2173,13 +2178,16 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
                     .Include(x => x.OrdenPedidos)
+                    .ThenInclude(x => x.OrdenEmbarque)
                     .FirstOrDefault();
 
                 if (newCierre is null)
                     return BadRequest();
 
+                newCierre.SetVolumen();
+
                 if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
-                    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Seleccionado * cierre.Cantidad_Confirmada}");
+                    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
                 for (int i = 0; i < cierre.Cantidad_Confirmada; i++)
                 {
@@ -2195,7 +2203,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Pre = cierre.Precio,
                         Fchpet = DateTime.Now,
                         Codest = 9,
-                        Vol = cierre.Volumen_Seleccionado,
+                        Vol = cierre.Volumen_Por_Unidad,
                         Fchcar = cierre.FchCar,
                         Bin = i == 0 ? ++bin : i % 2 == 0 ? ++bin : bin
                     };
