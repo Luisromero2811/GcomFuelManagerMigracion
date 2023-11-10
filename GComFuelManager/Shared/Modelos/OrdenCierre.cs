@@ -156,9 +156,22 @@ namespace GComFuelManager.Shared.Modelos
             return (OrdenCierre)this.MemberwiseClone();
         }
         [NotMapped, EpplusIgnore] public int? Cantidad_Sugerida { get; set; } = 0;
+        public int? GetCantidadSugerida()
+        {
+            try
+            {
+                Cantidad_Sugerida = Volumen / Volumen_Por_Unidad;
+                Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1;
+                return Cantidad_Sugerida;
+            }
+            catch (DivideByZeroException e)
+            {
+                return 0;
+            }
+        }
         [NotMapped, EpplusIgnore] public int? Cantidad_Confirmada { get; set; } = 0;
         [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;
-        [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado > 42000 ? Volumen_Seleccionado / 2 : 20000; } }
+        [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado >= 62000 ? Volumen_Seleccionado / 2 : Volumen_Seleccionado; } }
         [NotMapped, EpplusIgnore] public List<OrdenPedido> OrdenPedidos { get; set; } = new List<OrdenPedido>();
         public bool Precio_Manual { get; set; } = true;
 
@@ -364,7 +377,7 @@ namespace GComFuelManager.Shared.Modelos
                 throw;
             }
         }
-        [NotMapped, EpplusIgnore] public bool Tiene_Volumen_Disponible { get; set; } = false;
+        [NotMapped, EpplusIgnore] public bool Tiene_Volumen_Disponible { get; set; } = true;
         public bool GetTieneVolumenDisponible(Porcentaje porcentaje)
         {
             try

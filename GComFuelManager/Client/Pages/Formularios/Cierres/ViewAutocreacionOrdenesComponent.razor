@@ -11,26 +11,18 @@
         </div>
         <div class="col-6">
             <div class="col-12 row">
-                <InputRadioGroup @bind-Value="volumen">
-                    <div class="col">
-                        <div class="form-check">
-                            <InputRadio Value="62000" class="form-check-input" id="full" @onchange="SetSelection"/>
-                            <label class="form-check-label" for="full">Full (62000)</label>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-check">
-                            <InputRadio Value="42000" class="form-check-input" id="patona" />
-                            <label class="form-check-label" for="patona">Patona (42000)</label>
-                        </div>
-                    </div>
-                    <div class="col">
-                        <div class="form-check">
-                            <InputRadio Value="20000" class="form-check-input" id="paloma" />
-                            <label class="form-check-label" for="paloma">Paloma (20000)</label>
-                        </div>
-                    </div>
-                </InputRadioGroup>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="62000" @onchange="SetSelection" checked="@(volumen == 62000)">
+                    <label class="form-check-label" for="fullcheck">Full (62,000)</label>
+                </div>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="42000" @onchange="SetSelection" checked="@(volumen == 42000)">
+                    <label class="form-check-label" for="patonacheck">Patona (42,000)</label>
+                </div>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="20000" @onchange="SetSelection" checked="@(volumen == 20000)">
+                    <label class="form-check-label" for="palomacheck">Paloma (20,000)</label>
+                </div>
             </div>
         </div>
     </div>
@@ -58,7 +50,7 @@
                         <tr>
                             <td>@ordenCierre.Volumen</td>
                             <td>@ordenCierre.GetVolumenDisponible()</td>
-                            <td>@ordenCierre.OrdenPedidos?.Count</td>
+                            <td>@ordenCierre.OrdenPedidos?.Where(x=>x.OrdenEmbarque?.Coddes != 14).Count()</td>
                             <td>
                                 @ordenCierre.Des
                             </td>
@@ -69,7 +61,7 @@
                                 <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm" />
                             </td>
                             <td>
-                                @ordenCierre.Cantidad_Sugerida
+                                @ordenCierre.GetCantidadSugerida()
                             </td>
                             <td>
                                 <InputNumber @bind-Value="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
@@ -137,45 +129,51 @@
         if (CierresList is not null)
         {
             ordenCierres = CierresList;
-            // ordenEmbarques = await CreateOrdens(volumen);
+            ordenEmbarques = await CreateOrdens(volumen);
+            //     ordenCierres.ForEach(ordenCierre =>
+            // {
+            //     ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
+            //     ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
+            //     ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+            //     ordenCierre.Volumen_Seleccionado = volumen;
+            // });
         }
     }
 
-    private async void SetSelection(ChangeEventArgs args)
+    private async Task SetSelection(ChangeEventArgs args)
     {
         volumen = args.Value is not null ? int.Parse(args.Value.ToString() ?? "0") : 0;
-        
-        ordenCierres.ForEach(ordenCierre =>
+        Console.WriteLine(volumen);
+        foreach (var ordenCierre in ordenCierres)
         {
-            ordenCierre.Cantidad_Sugerida = ordenCierre.Volumen / ordenCierre.Volumen_Por_Unidad;
+            ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
             ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
             ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
             ordenCierre.Volumen_Seleccionado = volumen;
-        });
-
-        // ordenEmbarques = await CreateOrdens(volumen);
+        }
+        ordenEmbarques = await CreateOrdens(volumen);
     }
 
-    // private async Task<List<OrdenEmbarque>> CreateOrdens(int? volumen_vehiculo)
-    // {
-    //     try
-    //     {
-    //         List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
-    //         foreach (var ordenCierre in ordenCierres)
-    //         {
-    //             ordenCierre.Cantidad_Sugerida = ordenCierre.Volumen / ordenCierre.Volumen_Por_Unidad;
-    //             ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
-    //             ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
-    //             ordenCierre.Volumen_Seleccionado = volumen;
-    //         }
-    //         return ordens;
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //         throw e;
-    //     }
-    // }
+    private async Task<List<OrdenEmbarque>> CreateOrdens(int? volumen_vehiculo)
+    {
+        try
+        {
+            List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
+            foreach (var ordenCierre in ordenCierres)
+            {
+                ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
+                ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
+                ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+                ordenCierre.Volumen_Seleccionado = volumen;
+            }
+            return ordens;
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
 
     private async Task ConfirmarOrdenes(OrdenCierre cierre)
     {
