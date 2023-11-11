@@ -921,7 +921,7 @@
                                 await GetEstaciones();
                                 ordenCierre.CodPrd = response.Response.FirstOrDefault()?.CodPrd;
                                 await GetPrecios();
-                                ordenCierre.Precio = response.Response.FirstOrDefault().Precio;
+                                ordenCierre.Precio = response.Response.FirstOrDefault()?.Precio ?? 0;
                                 var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
                                 if (responseDetalle.Error)
                                 {
@@ -946,7 +946,6 @@
                             }
                             else
                             {
-                                ordenCierre.IsCierreVolumen = false;
                                 ordenCierres = response.Response;
                             }
                         else
