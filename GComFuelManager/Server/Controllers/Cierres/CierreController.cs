@@ -242,7 +242,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     await context.SaveChangesAsync();
                 }
 
-                NewOrden.SetVolumen();
+                if (NewOrden is not null)
+                    NewOrden.SetVolumen();
+
                 return Ok(NewOrden);
             }
             catch (Exception e)
@@ -584,10 +586,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         if (context.OrdenPedido.Any(x => x.Folio.Equals(item.Folio)))
                         {
-                            var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(filtro.Folio))
-                                .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
-
-                            pedidos = pedidos.DistinctBy(x => x.Cod).ToList();
 
                             var VolumenDisponible = item.Volumen;
 
@@ -714,11 +712,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             return BadRequest("No existe el cierre.");
 
                         cierres = cierres.DistinctBy(x => x.Cod).ToList();
-
-                        var pedidos = await context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == filtro.Folio)
-                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).ToListAsync();
-
-                        pedidos = pedidos.DistinctBy(x => x.Cod).ToList();
 
                         foreach (var item in cierres.DistinctBy(x => x.Cod))
                         {
@@ -936,10 +929,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         if (context.OrdenPedido.Any(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio)))
                         {
-                            var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(filtro.Folio))
-                                .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
-
-                            pedidos = pedidos.DistinctBy(x => x.Cod).ToList();
 
                             var VolumenDisponible = item.Volumen;
 
@@ -1080,9 +1069,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         if (cierres is null)
                             return BadRequest("No existe el cierre.");
 
-                        var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(filtro.Folio))
-                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).ToListAsync();
-
                         foreach (var item in cierres)
                         {
                             var VolumenDisponible = item.Volumen;
@@ -1207,7 +1193,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         return Ok(volumen);
                     }
                 }
-                return Ok(volumen);
             }
             catch (Exception e)
             {
@@ -1791,8 +1776,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     if (context.OrdenPedido.Any(x => x.Folio.Equals(item.Folio)))
                     {
-                        var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(item.Folio))
-                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
 
                         var VolumenDisponible = item.Volumen;
 
@@ -1919,10 +1902,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     if (context.OrdenPedido.Any(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio)))
                     {
-                        var pedidos = await context.OrdenPedido.Where(x => x.Folio!.Equals(item.Folio))
-                            .Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).Include(x => x.OrdenEmbarque).ThenInclude(x => x.Orden).ToListAsync();
-
-                        pedidos = pedidos.DistinctBy(x => x.Cod).ToList();
 
                         var VolumenDisponible = item.Volumen;
 
@@ -2305,6 +2284,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     return BadRequest();
 
                 newCierre.SetVolumen();
+
+                if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
+                    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {newCierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
                 if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
                     return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");

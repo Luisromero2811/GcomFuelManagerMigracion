@@ -49,7 +49,7 @@
                     {
                         <tr>
                             <td>@ordenCierre.Volumen</td>
-                            <td>@ordenCierre.GetVolumenDisponible()</td>
+                            <td>@ordenCierre.Volumen_Disponible</td>
                             <td>@ordenCierre.OrdenPedidos?.Where(x=>x.OrdenEmbarque?.Coddes != 14).Count()</td>
                             <td>
                                 @ordenCierre.Des
@@ -64,7 +64,7 @@
                                 @ordenCierre.GetCantidadSugerida()
                             </td>
                             <td>
-                                <InputNumber @bind-Value="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
+                                <input type="number" @bind="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
                             </td>
                             <td>
                                 <div class="col">
@@ -129,44 +129,29 @@
         if (CierresList is not null)
         {
             ordenCierres = CierresList;
-            ordenEmbarques = await CreateOrdens(volumen);
-            //     ordenCierres.ForEach(ordenCierre =>
-            // {
-            //     ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
-            //     ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
-            //     ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
-            //     ordenCierre.Volumen_Seleccionado = volumen;
-            // });
+            await SetCantidadOrdenes();
         }
     }
 
     private async Task SetSelection(ChangeEventArgs args)
     {
         volumen = args.Value is not null ? int.Parse(args.Value.ToString() ?? "0") : 0;
-        Console.WriteLine(volumen);
-        foreach (var ordenCierre in ordenCierres)
-        {
-            ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
-            ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
-            ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
-            ordenCierre.Volumen_Seleccionado = volumen;
-        }
-        ordenEmbarques = await CreateOrdens(volumen);
+
+        await SetCantidadOrdenes();
     }
 
-    private async Task<List<OrdenEmbarque>> CreateOrdens(int? volumen_vehiculo)
+    private async Task SetCantidadOrdenes()
     {
         try
         {
-            List<OrdenEmbarque> ordens = new List<OrdenEmbarque>();
-            foreach (var ordenCierre in ordenCierres)
+            ordenCierres.ForEach(ordenCierre =>
             {
                 ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
                 ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
-                ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+                // ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
                 ordenCierre.Volumen_Seleccionado = volumen;
-            }
-            return ordens;
+                ordenCierre.SetVolumen();
+            });
         }
         catch (Exception e)
         {

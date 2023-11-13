@@ -948,6 +948,11 @@
                 ordenCierres.Add(responseOC.Response);
                 await grid.Reload();
 
+                if (ordenCierres is not null && ordenCierres.Count > 0)
+                    foreach (var item in ordenCierres)
+                        if (item.Tiene_Volumen_Disponible)
+                            Can_Make_Orden = true;
+
                 var confirm = await Swal.FireAsync(new SweetAlertOptions
                     {
                         Icon = SweetAlertIcon.Info,

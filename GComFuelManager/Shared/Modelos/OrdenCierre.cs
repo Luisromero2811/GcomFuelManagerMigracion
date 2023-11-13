@@ -160,7 +160,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                Cantidad_Sugerida = Volumen / Volumen_Por_Unidad;
+                Cantidad_Sugerida = Convert.ToInt32(Volumen_Disponible) / Volumen_Por_Unidad;
                 Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1;
                 return Cantidad_Sugerida;
             }
@@ -352,7 +352,7 @@ namespace GComFuelManager.Shared.Modelos
         {
             try
             {
-                Volumen_Disponible = Volumen - (Volumen_Espera_Carga + Volumen_Programado + Volumen_Cosumido);
+                Volumen_Disponible = Volumen - (Volumen_Solicitado + Volumen_Espera_Carga + Volumen_Programado + Volumen_Cosumido);
                 return Volumen_Disponible;
             }
             catch (Exception e)
@@ -421,8 +421,8 @@ namespace GComFuelManager.Shared.Modelos
             {
                 SetVolumen();
                 SetCantidades();
-                var totalvolumen = Volumen_Cosumido + Volumen_Espera_Carga + Volumen_Programado;
-                var totalcantidad = Cantidad_De_Cosumido + Cantidad_De_Espera_Carga + Cantidad_De_Programado;
+                var totalvolumen = Volumen_Cosumido + Volumen_Espera_Carga + Volumen_Programado + Volumen_Solicitado;
+                var totalcantidad = Cantidad_De_Cosumido + Cantidad_De_Espera_Carga + Cantidad_De_Programado + Cantidad_De_Solicitado;
 
                 if (totalcantidad > 0 && totalvolumen > 0)
                     Promedio_Carga = totalvolumen / totalcantidad;
