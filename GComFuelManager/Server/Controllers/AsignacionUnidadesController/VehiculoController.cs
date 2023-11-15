@@ -118,25 +118,25 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                                     foreach (var com in item.VehicleCompartments)
                                     {
-                                        if (com.CompartmentId.Id.Value == 1)
+                                        if (com.CompartmentNumber.Value == 1)
                                         {
                                             t.Idcom = Convert.ToInt32(com.CompartmentId.Id.Value);
                                             t.Nrocom = Convert.ToInt32(com.CompartmentNumber.Value);
                                             t.Capcom = com.Capacity.Value;
                                         }
-                                        if (com.CompartmentId.Id.Value == 2)
+                                        if (com.CompartmentNumber.Value == 2)
                                         {
                                             t.Idcom2 = Convert.ToInt32(com.CompartmentId.Id.Value);
                                             t.Nrocom2 = Convert.ToInt32(com.CompartmentNumber.Value);
                                             t.Capcom2 = com.Capacity.Value;
                                         }
-                                        if (com.CompartmentId.Id.Value == 3)
+                                        if (com.CompartmentNumber.Value == 3)
                                         {
                                             t.Idcom3 = Convert.ToInt32(com.CompartmentId.Id.Value);
                                             t.Nrocom3 = Convert.ToInt32(com.CompartmentNumber.Value);
                                             t.Capcom3 = com.Capacity.Value;
                                         }
-                                        if (com.CompartmentId.Id.Value == 4)
+                                        if (com.CompartmentNumber.Value == 4)
                                         {
                                             t.Idcom4 = Convert.ToInt32(com.CompartmentId.Id.Value);
                                             t.Nrocom4 = Convert.ToInt32(com.CompartmentNumber.Value);

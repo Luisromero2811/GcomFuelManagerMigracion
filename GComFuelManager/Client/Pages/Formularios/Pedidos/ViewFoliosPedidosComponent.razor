@@ -1,14 +1,15 @@
 ﻿@inject IRepositorio http
 @inject SweetAlertService Swal
 @inject DialogService ds
+@inject IJSRuntime js
 
 <div class="col-12 row">
     <div class="col-8">
         <label><b>Filtro de folios</b></label>
     </div>
 </div>
-<div class="col-12 row">
-    <div class="col-3 mb-2">
+<div class="col-12 row mb-1">
+    <div class="col-3">
         <div class="col-12">
             <label>Grupo</label>
             <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codGru"
@@ -16,7 +17,7 @@
                             AllowVirtualization="true" Change="@GetClientesFiltro" AllowClear="true" />
         </div>
     </div>
-    <div class="col-3 mb-2">
+    <div class="col-3">
         <div class="col-12">
             <label>Cliente</label>
             <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codCte"
@@ -24,35 +25,42 @@
                             AllowVirtualization="true" AllowClear="true" />
         </div>
     </div>
-    <div class="col-2 mb-2">
+    <div class="col-2">
         <label>Del:</label>
-        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
+        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@fechas.FchInicio" />
     </div>
-    <div class="col-2 mb-2">
+    <div class="col-2">
         <label>A:</label>
-        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
+        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd" @bind-Value="@fechas.FchFin" />
     </div>
-    <div class="col-2 mt-2">
-        <label></label>
-        <button class="col-12 btn gcom-bg-amarillo" @onclick="@(() => GetFoliosPedidoActivos(true))">
+    <div class="col-2">
+        <div class="mt-auto">
+            <button class="col-12 btn gcom-bg-amarillo" @onclick="@(() => GetFoliosPedidoActivos(true))">
             <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
         </button>
+        </div>
     </div>
-    <div class="col-12">
+    <div class="col-4">
         <div class="rz-text-align-start">
             <RadzenCheckBox TValue="bool" Value=@ShowPedidos Change=@(args => ShowPedidos = args) Name="CheckBox2" />
             <RadzenLabel Text="Mostrar folios de pedidos" Component="CheckBox2" Style="margin-left: 8px; vertical-align: middle;" />
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="rz-text-align-start">
+            <RadzenCheckBox TValue="bool" Value=@ShowPedidosCopiados Change=@(args => ShowPedidosCopiados = args) Name="CheckBox3" />
+            <RadzenLabel Text="Mostrar folios de pedidos copiados" Component="CheckBox3" Style="margin-left: 8px; vertical-align: middle;" />
         </div>
     </div>
 </div>
 
 <RadzenDataGrid TItem="FolioDetalleDTO" Data="@FoliosFiltrados" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
+                IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Density="Density.Compact">
     <Columns>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" />
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false"> 
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false">
             <Template Context="data">
                 @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo asignado")
                 @*@(data.Grupo.Den)*@
@@ -115,7 +123,7 @@
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Estado" Filterable="false" Width="130px">
             <Template Context="data">
                 @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
-                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+                    : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Acciones" Filterable="false" Width="130px">
@@ -142,7 +150,8 @@
     private short? GrupoSeleccionadoFiltroB = 0;
     private List<FolioDetalleDTO> Folios { get; set; } = new List<FolioDetalleDTO>();
     private IEnumerable<FolioDetalleDTO> FoliosFiltrados => Folios.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("P") && ShowPedidos ||
-    !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("G") && ShowPedidos || !ShowPedidos);
+    !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("G") && ShowPedidos ||
+    !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("RE") && ShowPedidosCopiados || !ShowPedidos && !ShowPedidosCopiados);
     RadzenDataGrid<FolioDetalleDTO> grid { get; set; } = new RadzenDataGrid<FolioDetalleDTO>();
 
     private string ProductoSeleccionado = string.Empty;
@@ -153,6 +162,7 @@
 
     bool loading = false;
     bool ShowPedidos = false;
+    bool ShowPedidosCopiados = false;
 
     protected override async Task OnInitializedAsync()
     {
