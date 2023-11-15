@@ -272,10 +272,12 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
-            modelBuilder.Entity<OrdenPedido>()
-                .HasOne(x => x.OrdenEmbarque)
-                .WithMany()
-                .HasForeignKey(x => x.CodPed);
+
+            //modelBuilder.Entity<OrdenPedido>()
+            //    .HasOne(x => x.OrdenEmbarque)
+            //    .WithOne(x => x.OrdenPedido)
+            //    .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+            //    .HasForeignKey<OrdenPedido>(x => x.CodPed);
             //OrdenEmbarque a Órdenes
             //modelBuilder.Entity<OrdenEmbarque>()
             //    .HasOne(x => x.Orden)
@@ -335,16 +337,24 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Grupo)
                 .WithOne()
                 .HasForeignKey<OrdenCierre>(x => x.CodGru);
+
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.OrdenPedido)
                 .WithOne(x => x.OrdenEmbarque)
+                .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
                 .HasForeignKey<OrdenPedido>(x => x.CodPed);
+
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.OrdEmbDet)
                 .WithOne(x => x.Orden)
                 .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
                 .HasForeignKey<Orden>(x => x.BatchId);
 
+            modelBuilder.Entity<OrdenCierre>()
+                .HasMany(x => x.OrdenPedidos)
+                .WithOne(x => x.OrdenCierre)
+                .HasPrincipalKey(x => x.Cod)
+                .HasForeignKey(x => x.CodCierre);
         }
 
 

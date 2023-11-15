@@ -59,5 +59,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
         [NotMapped] public int? Compartimento { get; set; } = null!;
         public string? FolioSyn { get; set; } = string.Empty;
+        public OrdenEmbarque ShallowCopy()
+        {
+            return (OrdenEmbarque)this.MemberwiseClone();
+        }
     }
 }

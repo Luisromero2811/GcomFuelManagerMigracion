@@ -673,37 +673,47 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("update")]
-        public async Task<ActionResult> PutPedido([FromBody] OrdenEmbarque orden)
+        public async Task<ActionResult> PutPedido([FromBody] OrdenCierre cierre)
         {
             try
             {
-                orden.Producto = null;
-                orden.Chofer = null;
-                orden.Destino = null;
-                orden.Tonel = null;
-                orden.Tad = null;
-                orden.OrdenCompra = null;
-                orden.Estado = null;
-                orden.Cliente = null!;
-                orden.OrdenCierre = null!;
+                OrdenEmbarque? orden = cierre.OrdenEmbarque;
+
+                cierre.Producto = null!;
+                cierre.Destino = null!;
+                cierre.Cliente = null!;
+                cierre.ContactoN = null!;
+                cierre.OrdenEmbarque = null!;
+                cierre.OrdenPedidos = null!;
+
+                context.Update(cierre);
+                await context.SaveChangesAsync();
+
+                orden!.Producto = null!;
+                orden!.Chofer = null!;
+                orden!.Destino = null!;
+                orden!.Tonel = null!;
+                orden!.Tad = null!;
+                orden!.OrdenCompra = null!;
+                orden!.Estado = null!;
+                orden!.Cliente = null!;
+                orden!.OrdenCierre = null!;
+                orden!.OrdenPedido = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
 
-                var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
-                    .Include(x => x.Producto)
+                var newOrden = context.OrdenCierre.Where(x => x.Cod == cierre.Cod)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                     .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.OrdenCierre)
-                    .FirstOrDefaultAsync();
+                    .Include(x => x.Producto)
+                    .Include(x => x.Cliente)
+                    .FirstOrDefault();
 
-                return Ok(ord);
+                return Ok(newOrden);
             }
             catch (Exception e)
             {
@@ -755,6 +765,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Producto)
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenCierre)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -999,62 +1010,126 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpDelete("recrear")]
+        [HttpPost("recrear")]
         public async Task<ActionResult> RecrearOrden([FromBody] List<OrdenEmbarque> ordenes)
         {
             try
             {
                 List<OrdenCierre> cierres = new List<OrdenCierre>();
                 List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
-                OrdenCierre ordenCierre = new OrdenCierre();
+                OrdenCierre? ordenCierre = new OrdenCierre();
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque();
                 OrdenPedido ordenPedido = new OrdenPedido();
 
                 var guid = Guid.NewGuid().ToString().Split("-");
-                ordenCierre = new OrdenCierre()
-                {
-                    Folio = $"RE-{guid[0]}",
-                    FchCierre = DateTime.Today,
-                    FchVencimiento = DateTime.Today.AddDays(1)
-                };
+                var guidfolio = $"RE-{guid[4]}";
 
                 foreach (var item in ordenes)
                 {
+                    var ordercopy = item.ShallowCopy();
+
                     var folioguid = Guid.NewGuid().ToString().Split("-");
-                    ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codprd = item.Codprd,
-                        Coddes = item.Coddes,
-                        Codchf = item.Codchf,
-                        Codest = 3,
-                        Codtad = item.Codtad,
-                        Codton = item.Codton,
-                        Codusu = item.Codusu,
-                        Fchcar = DateTime.Today,
-                        Fchpet = DateTime.Now,
-                        Bin = item.Bin,
-                        Compartment = item.Compartment,
-                        CompartmentId = item.CompartmentId,
-                        FolioSyn = string.Empty
-                    };
-                    context.Add(ordenEmbarque);
+
+                    var destino = context.Destino.FirstOrDefault(x => x.Cod == ordercopy.Coddes);
+                    if (destino is null)
+                        return BadRequest("No se encontro el destino");
+
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == destino.Codcte);
+                    if (cliente is null)
+                        return BadRequest("No se encontro el cliente");
+
+                    ordercopy.Cod = 0;
+                    ordercopy.Codest = 3;
+                    ordercopy.Fchcar = DateTime.Today;
+                    ordercopy.Fchpet = DateTime.Now;
+                    ordercopy.Bolguidid = null;
+                    ordercopy.Folio = null;
+                    ordercopy.CodordCom = null;
+                    ordenCierre = ordercopy.OrdenCierre;
+
+                    ordercopy.Chofer = null!;
+                    ordercopy.Destino = null!;
+                    ordercopy.Producto = null!;
+                    ordercopy.Cliente = null!;
+                    ordercopy.OrdenCierre = null!;
+                    ordercopy.OrdenCompra = null!;
+                    ordercopy.OrdenPedido = null!;
+                    ordercopy.Estado = null!;
+                    ordercopy.Transportista = null!;
+                    ordercopy.Tonel = null!;
+                    ordercopy.Tad = null!;
+
+                    context.Add(ordercopy);
                     await context.SaveChangesAsync();
 
-                    if (item.OrdenCierre != null)
+                    if (ordenCierre != null)
                     {
-                        ordenCierre = new OrdenCierre()
+                        var ordencierrecopy = ordenCierre.ShallowCopy();
+                        ordencierrecopy.Folio = guidfolio;
+                        ordencierrecopy.CodPed = ordercopy.Cod;
+                        ordencierrecopy.Cod = 0;
+                        ordencierrecopy.FchCar = DateTime.Today;
+                        ordencierrecopy.FchCierre = DateTime.Today;
+
+                        ordencierrecopy.Destino = null!;
+                        ordencierrecopy.Cliente = null!;
+                        ordencierrecopy.Producto = null!;
+                        ordencierrecopy.OrdenEmbarque = null!;
+                        ordencierrecopy.Grupo = null!;
+
+                        context.Add(ordencierrecopy);
+                        await context.SaveChangesAsync();
+
+                        ordenPedido = new OrdenPedido()
                         {
-                            fchPrecio = item.OrdenCierre.fchPrecio,
-                            FchCierre = DateTime.Today,
-                            FchCar = DateTime.Today,
-                            FchLlegada = item.OrdenCierre.FchLlegada,
-                            FchVencimiento = DateTime.Today.AddDays(1),
-                            
+                            Folio = guidfolio,
+                            CodPed = ordercopy.Cod,
+                            CodCierre = ordencierrecopy.Cod,
                         };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
                     }
+
+                    if (ordenCierre is null)
+                    {
+                        var cierre = new OrdenCierre()
+                        {
+                            Folio = guidfolio,
+                            CodPed = ordercopy.Cod,
+                            FchCar = DateTime.Today,
+                            FchCierre = DateTime.Today,
+                            fchPrecio = DateTime.Now,
+                            FchVencimiento = DateTime.Today.AddDays(8),
+                            FchLlegada = DateTime.Today.AddDays(1),
+                            Precio = ordercopy.Pre ?? 0,
+                            CodDes = ordercopy.Coddes,
+                            CodGru = cliente?.codgru,
+                            CodCte = cliente?.Cod,
+                            CodPrd = ordercopy.Codprd,
+                            CodTad = ordercopy.Codtad,
+                            Volumen = int.Parse($"{ordercopy.Vol}"),
+
+                        };
+
+                        context.Add(cierre);
+                        await context.SaveChangesAsync();
+
+                        ordenPedido = new OrdenPedido()
+                        {
+                            Folio = guidfolio,
+                            CodPed = ordercopy.Cod,
+                            CodCierre = cierre.Cod,
+                        };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
+                    }
+
+
                 }
 
-                return Ok(true);
+                return Ok(new CodDenDTO() { Den = guidfolio });
             }
             catch (Exception e)
             {
