@@ -19,15 +19,26 @@
             <div class="col-4 d-flex">
                 <button class="col-12 btn gcom-bg-amarillo mt-auto" @onclick="@SendPercent">
                     <i class="fa-solid fa-percent"></i>
+                    @if (loading)
+                    {
+                        <SpinnerLoading/>
+                    }
                 </button>
             </div>
+        </div>
+        <div class="col-12 text-muted font-monospace">
+            <p>*Ejemplo:*</p>
+            <p>Volumen disponible: 124,000</p>
+            <p>Promedio de cargas: 31,000</p>
+            <p>124,000(volumen disponible) * .90(Porcentaje guardado) = 111,600</p>
+            <p>31,000(promedio de carga) es mayor a 111,600(volumen calculado por el porcentaje) = no (el cierre sigue activo)</p>
         </div>
     </div>
 </div>
 
 @code {
     Porcentaje Porcentaje { get; set; } = new Porcentaje();
-
+    bool loading = false;
     protected override async Task OnInitializedAsync()
     {
         await GetPercent();
@@ -37,20 +48,24 @@
     {
         try
         {
+            loading = true;
             var responseHttp = await repositorio.Get<Porcentaje>($"api/porcentaje/cierre");
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
                 await Swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                loading = false;
             }
             else
             {
                 Porcentaje = responseHttp.Response;
+                loading = false;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            loading = false;
         }
     }
 

@@ -62,7 +62,6 @@
                 </div>
             </div>
             <EditForm Model="@ordenCierre" class="form col-12" OnValidSubmit="@GetFolio">
-                @*<DataAnnotationsValidator />*@
                 <FluentValidationValidator Validator="validation" />
                 <ValidationSummary />
                 <div class="row col-12">
@@ -137,18 +136,6 @@
                                     }
                                 </InputSelect>
                             }
-                            @*<RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
-                            <Template Context="data">
-                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                            <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
-
-                            </Template>
-                            <ValueTemplate Context="data">
-                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                            </ValueTemplate>
-                            </RadzenDropDown>*@
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentVol)
@@ -354,29 +341,11 @@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
     <div class="col-12 d-flex justify-content-center row">
-        @* @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
-        {
-            <div class="col-12 mt-2">
-                <b class="my-auto">
-                    @foreach (var item in volumenDisponible.Productos)
-                    {
-                        @if (!string.IsNullOrEmpty(item.Nombre))
-                        {
-                            <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                            </div>
-
-                        }
-                    }
-                </b>
-            </div>
-        } *@
-        <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" Density="Density.Compact"
+        @* <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" Density="Density.Compact"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
             <Columns>
-                @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
-                <Authorized>*@
+                
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
                     <Template Context="item">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
@@ -402,8 +371,7 @@
                         </AuthorizeView>
                     </Template>
                 </RadzenDataGridColumn>
-                @*</Authorized>
-                </AuthorizeView>*@
+                
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
@@ -435,15 +403,235 @@
                     </Template>
                 </RadzenDataGridColumn>
             </Columns>
-        </RadzenDataGrid>
+        </RadzenDataGrid> *@
+        <div class="col-12 overflow-scroll ancho mt-4" style="height:450px;resize:both;">
+            <table class="table table-sm table-bordered table-hover" id="miTabla">
+                <thead class="fila">
+                    <tr style="max-height:50px;white-space:nowrap;">
+                        <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:120px;">
+                            editar / cancelar
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Folio
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Bin
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Terminal
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Destino
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Producto
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Volumen
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Precio
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Fecha de carga
+                        </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                            Estado
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* <tr>
+                        <td class="sticky-column" style="background-color:white;"></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                            <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
+                        </td>
+                        <td>
+                            <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
+
+                        </td>
+                        <td>
+                            <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr> *@
+                    <Virtualize Items="@ordenCierres" Context="item" TItem="OrdenCierre">
+                        <tr class="@(ordenCierre == item ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                            <td class="sticky-column" style="background-color:white;">
+                                <div class="col-12 row">
+                                    @if (item.OrdenEmbarque is not null && item.Estatus == true)
+                                    {
+                                        @if (item.OrdenEmbarque.CodordCom == null)
+                                        {
+                                            <div class="col">
+                                                <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                            </div>
+                                        }
+                                        @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
+                                        {
+                                            <div class="col">
+                                                <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="rz-text-truncate">
+                                    @item?.Folio
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="rz-text-truncate">
+                                    @item?.OrdenEmbarque?.Bin
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="rz-text-truncate">
+                                    @item?.OrdenEmbarque?.Tad?.Den
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">@item?.Destino?.Den</td>
+                            <td class="overflow-hidden">@item?.Producto?.Den</td>
+                            <td class="overflow-hidden">
+                                <div class="col-12">
+                                    <div class="col-12">
+                                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+                                        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                        : item?.Volumen
+                                        )
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">@item?.OrdenEmbarque?.Pre</td>
+                            <td class="overflow-hidden">@item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy")</td>
+                            <td class="overflow-hidden">@item?.OrdenEmbarque?.Estado?.den</td>
+                        </tr>
+                    </Virtualize>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-12 row m-0">
+            <div class="col-3">
+                <p class="text-muted">
+                    Ordenes totales: @ordenCierres.Count
+                </p>
+            </div>
+        </div>
+        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
+        {
+            <div class="col-12 mt-2">
+                <b class="my-auto">
+                    @foreach (var item in volumenDisponible.Productos)
+                    {
+                        @if (!string.IsNullOrEmpty(item.Nombre))
+                        {
+                            <div class="col-12 row">
+                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
+                            </div>
+
+                        }
+                    }
+                </b>
+            </div>
+        }
     </div>
 </AuthorizeView>
+
 <style type="text/css">
     .ancho {
         width: @TotalWidth;
     }
-</style>
 
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        table-layout: fixed;
+    }
+
+    table, th, td {
+        background-color: white;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .ancho {
+        width: @TotalWidth;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    .asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
+
+    .table-container {
+        overflow: auto;
+        width: 100%;
+        border: 1px solid #ccc;
+        max-height: 400px; /* Establece una altura máxima si es necesario */
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px; /* Ancho del área de redimensionamiento */
+            background: transparent;
+        }
+</style>
 @code {
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
@@ -513,6 +701,7 @@
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+    private IJSObjectReference importedJs;
 
     protected override async Task OnInitializedAsync()
     {
@@ -542,6 +731,21 @@
     {
         if (first)
         {
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
+            // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
+            importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+
             await LoadStateAsync();
             StateHasChanged();
         }
@@ -814,6 +1018,12 @@
     {
         try
         {
+            if (orden is null)
+            {
+                await Swal.FireAsync("Error", "No se selecciono ninguna orden", SweetAlertIcon.Error);
+                return;
+            }
+
             ordenCierre = orden;
 
             await GetClientes();
@@ -824,7 +1034,10 @@
                 ordenCierre.IsDifferentVol = true;
             else
                 ordenCierre.IsDifferentVol = false;
+
             isEditing = true;
+
+            gridOC?.SelectRow(orden);
 
             StateHasChanged();
         }

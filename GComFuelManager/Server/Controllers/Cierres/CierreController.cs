@@ -96,6 +96,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
+                    .Include(x => x.Grupo)
                     .Include(x => x.OrdenPedidos)
                     .ThenInclude(x => x.OrdenEmbarque)
                     .ToListAsync();
@@ -116,26 +117,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
-                var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
-                    .Include(x => x.OrdenPedidos)
-                    .Include(x => x.OrdenEmbarque)
-                    .Include(x => x.Cliente)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Destino)
-                        .Include(x => x.ContactoN)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tad)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Estado)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Orden)
-                    .ThenInclude(x => x.Estado)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Orden)
-                    .ThenInclude(x => x.OrdEmbDet)
-                    .ToListAsync();
+                var ordenes = context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true).ToList();
 
                 if (ordenes.Count > 0)
                 {
@@ -143,12 +125,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var pedidos = context.OrdenPedido.Where(x => x.Folio == folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
                     foreach (var item1 in pedidos)
                     {
-                        var pedido = await context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
+                        var pedido = context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
                             .Include(x => x.OrdenEmbarque)
                             .Include(x => x.Cliente)
                             .Include(x => x.Producto)
                             .Include(x => x.Destino)
-                            .Include(x => x.ContactoN)
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Tad)
                             .Include(x => x.OrdenEmbarque)
@@ -158,8 +139,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Orden)
                             .ThenInclude(x => x.Estado)
-                            .DefaultIfEmpty()
-                            .FirstOrDefaultAsync();
+                            .FirstOrDefault();
 
                         if (pedido != null)
                             cierresVolumen.Add(pedido);
@@ -187,19 +167,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Destino = null!;
                 if (!orden.isGroup)
                 {
-                    var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
-                    if (user == null)
-                        return NotFound();
-
-                    if (await UserManager.IsInRoleAsync(user, "Comprador"))
-                    {
-                        var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
-                        if (userSis == null)
-                            return NotFound();
-                        orden.CodCte = userSis.CodCte;
-                        orden.CodGru = userSis.CodGru;
-                        orden.Vendedor = userSis.Den;
-                    }
                     var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
 
                     orden.TipoVenta = cliente.Tipven;
@@ -221,6 +188,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var NewOrden = await context.OrdenCierre.Where(x => x.Cod == orden.Cod)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
+                    .Include(x => x.Grupo)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Estado)
                     .Include(x => x.Cliente)
@@ -2104,6 +2072,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         precio.Fecha_De_Precio = orden.OrdenEmbarque.OrdenCierre.fchPrecio;
 
                     precio.Es_Precio_De_Creacion = true;
+                    precio.Precio_Encontrado_En = "Creacion";
                 }
 
                 return Ok(precio);

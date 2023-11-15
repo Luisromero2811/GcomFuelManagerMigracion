@@ -706,8 +706,8 @@ namespace GComFuelManager.Server.Controllers
                 var newOrden = context.OrdenCierre.Where(x => x.Cod == cierre.Cod)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Tad)
-                    .Include(x=>x.OrdenEmbarque)
-                    .ThenInclude(x=>x.Estado)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .Include(x => x.Cliente)
@@ -1078,6 +1078,17 @@ namespace GComFuelManager.Server.Controllers
                         ordencierrecopy.Grupo = null!;
 
                         context.Add(ordencierrecopy);
+                        await context.SaveChangesAsync();
+
+                        ordenPedido = new OrdenPedido()
+                        {
+                            Folio = guidfolio,
+                            CodPed = ordercopy.Cod,
+                            CodCierre = ordencierrecopy.Cod,
+                        };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
                     }
 
                     if (ordenCierre is null)
@@ -1100,10 +1111,22 @@ namespace GComFuelManager.Server.Controllers
                             Volumen = int.Parse($"{ordercopy.Vol}"),
 
                         };
+
                         context.Add(cierre);
+                        await context.SaveChangesAsync();
+
+                        ordenPedido = new OrdenPedido()
+                        {
+                            Folio = guidfolio,
+                            CodPed = ordercopy.Cod,
+                            CodCierre = cierre.Cod,
+                        };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
                     }
 
-                    await context.SaveChangesAsync();
+
                 }
 
                 return Ok(new CodDenDTO() { Den = guidfolio });

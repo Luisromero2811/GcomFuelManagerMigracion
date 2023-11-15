@@ -9,15 +9,23 @@
         <div class="col-2">
             Tipo de unidad:
         </div>
-        <div class="col-6">
+        <div class="col-12">
             <div class="col-12 row">
                 <div class="form-check form-check-inline col">
                     <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcheck" value="62000" @onchange="SetSelection" checked="@(volumen == 62000)">
                     <label class="form-check-label" for="fullcheck">Full (62,000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="fullcomcheck" value="10000" @onchange="SetSelection" checked="@(volumen == 10000)">
+                    <label class="form-check-label" for="fullcomcheck">Full compartimentado(10,000)</label>
+                </div>
+                <div class="form-check form-check-inline col">
                     <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacheck" value="42000" @onchange="SetSelection" checked="@(volumen == 42000)">
                     <label class="form-check-label" for="patonacheck">Patona (42,000)</label>
+                </div>
+                <div class="form-check form-check-inline col">
+                    <input class="form-check-input" type="radio" name="inlineRadioOptions" id="patonacomcheck" value="21000" @onchange="SetSelection" checked="@(volumen == 21000)">
+                    <label class="form-check-label" for="patonacomcheck">Patona compartimentada(21,000)</label>
                 </div>
                 <div class="form-check form-check-inline col">
                     <input class="form-check-input" type="radio" name="inlineRadioOptions" id="palomacheck" value="20000" @onchange="SetSelection" checked="@(volumen == 20000)">
