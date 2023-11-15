@@ -19,8 +19,8 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? Fch { get; set; } = DateTime.Now;
         [JsonProperty("fchDoc")]
         public DateTime? FchDoc { get; set; } = DateTime.Now;
-        [JsonProperty("eta"), MaxLength(5)]
-        public string? Eta { get; set; } = string.Empty;
+        [JsonProperty("eta")]
+        public int? Eta { get; set; } = 0;
 
         [JsonProperty("fchlleest")]
         public DateTime? Fchlleest { get; set; } = DateTime.Today;
@@ -48,8 +48,16 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped, EpplusIgnore]
         public int EtaNumber { get; set; } = 0;
+
         [NotMapped, EpplusIgnore]
-        public byte CodEst { get; set; } = 20;
+        public int PruebaEtaNumber { get { return Convert.ToInt32(Eta); } }
+
+        //[NotMapped, EpplusIgnore]
+        //public byte CodEst { get; set; } = 20;
+
+        //[NotMapped, EpplusIgnore]
+        //public byte? codEst { get { return Orden!.Codest; } }
+
         //Propiedad de navegación
         [NotMapped] public Orden? Orden { get; set; } = null!;
     }

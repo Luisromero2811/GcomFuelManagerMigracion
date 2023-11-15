@@ -205,6 +205,7 @@
             else
             {
                 Folios = responseHttp.Response;
+                ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
             }
         }
         catch (Exception e)
@@ -217,10 +218,10 @@
     {
         try
         {
-           
+
             if (Folios != null)
             {
-              
+
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var ws = excel.Workbook.Worksheets.Add("Cierres");

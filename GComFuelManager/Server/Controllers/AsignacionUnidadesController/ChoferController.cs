@@ -44,6 +44,51 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet("lista/{transportista:int}")]
+        public async Task<ActionResult> GetChoferes(int transportista)
+        {
+            try
+            {
+                var transportistas = await context.Chofer
+                    .Where(x => x.Codtransport == transportista)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("status/{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                {
+                    return BadRequest();
+                }
+
+                var chofer = context.Chofer.Where(x => x.Cod == cod).FirstOrDefault();
+                if (chofer == null)
+                {
+                    return NotFound();
+                }
+
+                chofer.Activo = status;
+                context.Update(chofer);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
         [Route("service/{code:long}")]
         [HttpGet]

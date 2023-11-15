@@ -67,7 +67,14 @@
                 @(data.destino is not null ? data.destino.Den : "Sin destino")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Filterable="false" Width="160px;">
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Width="160px;">
+            <FilterTemplate Context="filter">
+                <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
+                    </ValueTemplate>
+                </RadzenDropDown>
+            </FilterTemplate>
             <Template Context="data">
                 <div class="col-12 row">
                     <div class="col-1">
@@ -210,6 +217,7 @@
             else
             {
                 Folios = responseHttp.Response;
+                ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
             }
         }
         catch (Exception e)

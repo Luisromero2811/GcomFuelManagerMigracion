@@ -55,6 +55,7 @@
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false"> 
             <Template Context="data">
                 @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo asignado")
+                @*@(data.Grupo.Den)*@
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Cliente" Filterable="false">
@@ -63,6 +64,13 @@
             </Template>
         </RadzenDataGridColumn>
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Destino" Filterable="false">
+            @*<FilterTemplate Context="filter">
+                <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"> 
+                    <ValueTemplate Context="data">
+                        <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190"/>
+                    </ValueTemplate>
+                </RadzenDropDown>
+            </FilterTemplate>*@
             <Template Context="data">
                 @(data.Destino is not null ? data.Destino.Den : "Sin destino asignado")
             </Template>
@@ -221,6 +229,8 @@
                 else
                 {
                     Folios = response.Response;
+                    ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                    DestinoList = Folios?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     loading = false;
                 }
             }//Entra al else if
@@ -236,6 +246,8 @@
                 else
                 {
                     Folios = response.Response;
+                    ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                    DestinoList = Folios?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     loading = false;
                 }
             }

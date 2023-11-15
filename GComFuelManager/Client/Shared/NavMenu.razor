@@ -30,7 +30,7 @@
                 </Template>
                 <ChildContent>
                     @*auth*@
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
                         <RadzenPanelMenuItem>
                             <Template>
                                 <div class="text-white">
@@ -56,7 +56,15 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
-
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Choferes">
+                                    <RadzenPanelMenuItem Path="datos/Catalogo/Chofer" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-id-card"></i> Choferes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
                             </ChildContent>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
