@@ -40,7 +40,8 @@
                         </div>
                         <div class="col-4">
                             <label>ETA:</label>
-                            <RadzenNumeric Change="@AddTime" class="form-control" @bind-value="@Ordenes.EtaNumber" TValue="int" />
+                            <RadzenNumeric Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta" TValue="int?" />
+                            @*<RadzenText Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta"/>*@
                         </div>
                         <div class="col-4">
                             <label>Fecha de llegada estimada:</label>
@@ -55,7 +56,7 @@
                     <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Trayectos">
                         <div class="col-4">
                             <label>En trayecto:</label>
-                            <InputSelect @bind-Value="@Ordenes.CodEst" class="form-select" TValue="byte">
+                            <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
                                 <option value=20>NO</option>
                                 <option value=26>SI</option>
                             </InputSelect>
@@ -105,9 +106,11 @@
                         <!--Format="#,0.00" Format="n2"-->
                     </div>
                 </div>
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador, Coordinador" Context="Observaciones">
                 <div class="row g-3 mt-1 mb-2">
-                    <div class="col-6">
-                        <label>Observaciones</label>
+                    <div class="col-6" @onmouseenter="@(args => ToolTipObs(infoObsIcon))" @ref="infoObsIcon">
+                        <label>Observaciones</label><i class="fa-solid fa-circle-info fa-xs"></i>
                         <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLenght="260" Placeholder="Máximo de 260 caracteres"></InputTextArea>
                     </div>
                 </div>
@@ -132,44 +135,78 @@
         <div class="card-body">
             <EditForm Model="@ordenEmbarque">
                 <div class="row g3 d-flex">
-                    <div class="row">
+                    <div class="row justify-content-center">
                         <label><b>Reporte</b></label>
-                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
                             <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label>Fecha final</label>
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
                         </div>
-                        <div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
-                            <label>Tipo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                            <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
-                                <option>--Seleccione una opcion</option>
-                                @if (TpVenta is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (TpVenta.Count == 0)
-                                {
-                                    <option disabled> No hay tipos de venta</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in TpVenta)
+                        @*<div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
+                                <label>Modelo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                                <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
+                                    <option value="">--Seleccione una opcion--</option>
+                                    @if (TpVenta is null)
                                     {
-                                        <option value="@item">@item</option>
+                                        <option disabled> Cargando ...</option>
                                     }
-                                }
+                                    @if (TpVenta.Count == 0)
+                                    {
+                                        <option disabled> No hay tipos de venta</option>
+                                    }
+                                    else
+                                    {
+                                        foreach (var item in TpVenta)
+                                        {
+                                            <option value="@item">@item</option>
+                                        }
+                                    }
 
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-3">
+                                </InputSelect>
+                            </div>*@
+                        @*<div class="col-md-1">
+                                <label></label>
+                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@ClearForm">
+                                    <i class="fa fa-solid fa-broom"></i>
+                                </button>
+                            </div>*@
+                        <div class="col-md-4">
                             <label></label>
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
                         </div>
                     </div>
+                    <!--RadioButtons-->
+                    <div class="row col-12 mt-3" style="text-align: center;">
+                        <div style="text-align: center;">
+                            <label style="text-align: center;">Modelos de Venta (Rack, Delivery's Interno-Externo)</label>
+                        </div>
+                    </div>
+                    <div class="row col-12 mt-3">
+                        <div class="d-flex justify-content-center">
+                            @*<label>Modelos de Venta</label>*@
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                <label class="form-check-label" for="Ambas">Ambos Delivery's</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                <label class="form-check-label" for="Interno">Interno</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                <label class="form-check-label" for="Externo">Externo</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                <label class="form-check-label" for="Todos">Delivery-Rack</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+                <!--Tabla de muestreo de datos-->
                 <div class="col-12 mt-4 table-responsive ancho" style="height:450px;resize:both;">
                     <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
                         <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
@@ -178,7 +215,7 @@
                                     <th>
                                         Referencia
                                     </th>
-                                    <th >
+                                    <th>
                                         Fecha de Programa
                                     </th>
                                     <th>
@@ -301,6 +338,7 @@
                                         <td>@data?.Unidad</td>
                                         <td>@data?.Operador</td>
                                         <td style="text-align: center;">@data?.FechaDoc?</td>
+                                        <!--Horas Estimadas de Viaje-->
                                         <td>@data?.Eta</td>
                                         <td>@data?.FechaEst</td>
                                         <td style="text-align: center;">@data?.Trayecto</td>
@@ -308,10 +346,10 @@
                                         <td style="text-align: center;">@data?.FechaRealEta</td>
                                         <td>@data?.EntLit</td>
                                         @*@(data?.Compartimento == 1 ? data.Capcom
-        : data?.Compartimento == 2 ? data.Capcom2
-        : data?.Compartimento == 3 ? data.Capcom3
-        : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
-        : data?.Volms)*@
+                                            : data?.Compartimento == 2 ? data.Capcom2
+                                            : data?.Compartimento == 3 ? data.Capcom3
+                                            : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
+                                            : data?.Volms)*@
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -374,18 +412,22 @@
     ElementReference infossIcon;
     ElementReference infosIcon;
     ElementReference infoIcons;
+    ElementReference infoObsIcon;
     private ElementReference BOLInput;
     //Tooltips de reportes
-    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de exportar órdenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
-    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de exportar órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
+    void ShowToolsTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "En caso de obtener órdenes de tipo Delivery, seleccione un rango de fechas y escoja una opción de venta", options);
+    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de obtener órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
     void ShowToolTips(ElementReference elementReference, TooltipOptions option = null!) => ts.Open(elementReference, "Favor de de utilzar formato de separadores de miles. Ejemplo: 11.000,00 = Once mil", option);
+    void ToolTipObs(ElementReference elementReference, TooltipOptions opt = null!) => ts.Open(elementReference, "Por favor, Utilicen las observaciones en caso de detalles u anomalias", opt);
 
     private RadzenDataGrid<EtaDTO>? Grid = new RadzenDataGrid<EtaDTO>();
     bool loadingFiltro = false;
     //Obtención de datos de la tabla Orden enlistados
     private Orden ordenEmbarque { get; set; } = new Orden();
     private List<EtaDTO> ordens { get; set; } = new List<EtaDTO>();
-    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo" };
+
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Ambas" };
+    private string selectedOption = "";
 
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
@@ -516,7 +558,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reporte", fechas);
+            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reportes", fechas);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -524,7 +566,7 @@
             }
             else
             {
-                ordens = responseHttp.Response;
+                ordens = responseHttp.Response!;
             }
         }
         catch (Exception e)
@@ -538,7 +580,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reporte", fechas);
+            var responseHttp = await repositorio.Post<FechasF, List<EtaDTO>?>($"api/Eta/Reportes", fechas);
             if (responseHttp.Error)
             {
                 var respuestaHttp = await responseHttp.ObtenerMensajeError();
@@ -546,7 +588,7 @@
             }
             else
             {
-                ordens = responseHttp.Response;
+                ordens = responseHttp.Response!;
                 //Licencia para guardado de Excel
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 //Generacion de Excel
@@ -622,8 +664,15 @@
 
     private void AddTime()
     {
-        if (Ordenes.EtaNumber >= 0)
-            Ordenes.Fchlleest = Ordenes.FchDoc?.AddHours(Ordenes.EtaNumber);
+        if (Ordenes.Eta >= 0)
+            Ordenes.Fchlleest = Ordenes.FchDoc?.AddHours(Convert.ToDouble(Ordenes.Eta));
     }
+
+    private void ClearForm()
+    {
+        selectedOption = "";
+    }
+
+
 }
 
