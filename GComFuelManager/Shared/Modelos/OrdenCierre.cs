@@ -161,7 +161,7 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 Cantidad_Sugerida = Convert.ToInt32(Volumen_Disponible) / Volumen_Por_Unidad;
-                Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1;
+                Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1 == 0? 1 : Cantidad_Sugerida - 1;
                 return Cantidad_Sugerida;
             }
             catch (DivideByZeroException e)
