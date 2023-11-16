@@ -100,7 +100,7 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Producto</label>
-                            @if (ordenCierre.IsAutoPrecio)
+                            @if (ordenCierre.Precio_Manual)
                             {
                                 <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
@@ -248,7 +248,7 @@
 
                     <div class="col-4">
                         <div class="col-12">
-                            @if (ordenCierre.IsAutoPrecio)
+                            @if (ordenCierre.Precio_Manual)
                             {
                                 <div>
                                     <label>
