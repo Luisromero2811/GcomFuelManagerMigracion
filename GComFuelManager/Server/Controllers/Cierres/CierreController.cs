@@ -850,6 +850,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         precio.Fecha_De_Precio = orden.OrdenEmbarque.OrdenCierre.fchPrecio;
 
                     precio.Es_Precio_De_Creacion = true;
+                    precio.Precio_Encontrado_En = "Creacion";
                 }
 
                 return Ok(precio);
