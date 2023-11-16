@@ -1121,9 +1121,9 @@ namespace GComFuelManager.Server.Controllers
                         context.Add(ordencierrecopy);
                         await context.SaveChangesAsync();
 
-                        if (context.OrdenPedido.Any(x => x.CodPed == ordercopy.Cod))
+                        if (context.OrdenPedido.Any(x => x.CodPed == item.Cod))
                         {
-                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordercopy.Cod);
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == item.Cod);
 
                             ordenPedido = new OrdenPedido()
                             {
@@ -1163,9 +1163,9 @@ namespace GComFuelManager.Server.Controllers
                         context.Add(cierre);
                         await context.SaveChangesAsync();
 
-                        if (context.OrdenPedido.Any(x => x.CodPed == ordercopy.Cod))
+                        if (context.OrdenPedido.Any(x => x.CodPed == item.Cod))
                         {
-                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordercopy.Cod);
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == item.Cod);
 
                             ordenPedido = new OrdenPedido()
                             {
