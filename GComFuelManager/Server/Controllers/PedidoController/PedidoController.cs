@@ -1,5 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -721,6 +722,45 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("asignar/unidad")]
+        public async Task<ActionResult> AsignarPedido([FromBody] OrdenEmbarque orden)
+        {
+            try
+            {
+                orden.Producto = null;
+                orden.Chofer = null;
+                orden.Destino = null;
+                orden.Tonel = null;
+                orden.Tad = null;
+                orden.OrdenCompra = null;
+                orden.Estado = null;
+                orden.Cliente = null!;
+                orden.OrdenCierre = null!;
+
+                context.Update(orden);
+                await context.SaveChangesAsync();
+
+                var ord = await context.OrdenEmbarque.Where(x => x.Cod == orden.Cod)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.OrdenCierre)
+                    .FirstOrDefaultAsync();
+
+                return Ok(ord);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
         [HttpPut("cierre/update/{cod:int}")]
         public async Task<ActionResult> PutPedidoCierre([FromBody] OrdenCierre orden, [FromRoute] int cod)
         {
@@ -766,6 +806,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
+                    .Include(x => x.OrdenPedido)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToListAsync();
@@ -1086,7 +1127,7 @@ namespace GComFuelManager.Server.Controllers
 
                             ordenPedido = new OrdenPedido()
                             {
-                                Folio = guidfolio,
+                                Folio = op.Folio,
                                 CodPed = ordercopy.Cod,
                                 CodCierre = ordencierrecopy.Cod,
                                 Folio_Cierre_Copia = guidfolio,
@@ -1121,8 +1162,11 @@ namespace GComFuelManager.Server.Controllers
 
                         context.Add(cierre);
                         await context.SaveChangesAsync();
+
                         if (context.OrdenPedido.Any(x => x.CodPed == ordercopy.Cod))
                         {
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordercopy.Cod);
+
                             ordenPedido = new OrdenPedido()
                             {
                                 Folio = ordenCierre?.Folio,
