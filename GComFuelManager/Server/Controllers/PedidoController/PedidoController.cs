@@ -1080,15 +1080,22 @@ namespace GComFuelManager.Server.Controllers
                         context.Add(ordencierrecopy);
                         await context.SaveChangesAsync();
 
-                        ordenPedido = new OrdenPedido()
+                        if (context.OrdenPedido.Any(x => x.CodPed == ordercopy.Cod))
                         {
-                            Folio = guidfolio,
-                            CodPed = ordercopy.Cod,
-                            CodCierre = ordencierrecopy.Cod,
-                        };
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordercopy.Cod);
 
-                        context.Add(ordenPedido);
-                        await context.SaveChangesAsync();
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = guidfolio,
+                                CodPed = ordercopy.Cod,
+                                CodCierre = ordencierrecopy.Cod,
+                                Folio_Cierre_Copia = guidfolio,
+                                Pedido_Original = item.Cod
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
                     }
 
                     if (ordenCierre is null)
@@ -1114,19 +1121,21 @@ namespace GComFuelManager.Server.Controllers
 
                         context.Add(cierre);
                         await context.SaveChangesAsync();
-
-                        ordenPedido = new OrdenPedido()
+                        if (context.OrdenPedido.Any(x => x.CodPed == ordercopy.Cod))
                         {
-                            Folio = guidfolio,
-                            CodPed = ordercopy.Cod,
-                            CodCierre = cierre.Cod,
-                        };
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = ordenCierre?.Folio,
+                                CodPed = ordercopy.Cod,
+                                CodCierre = cierre.Cod,
+                                Pedido_Original = item?.Cod,
+                                Folio_Cierre_Copia = guidfolio
+                            };
 
-                        context.Add(ordenPedido);
-                        await context.SaveChangesAsync();
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
                     }
-
-
                 }
 
                 return Ok(new CodDenDTO() { Den = guidfolio });
