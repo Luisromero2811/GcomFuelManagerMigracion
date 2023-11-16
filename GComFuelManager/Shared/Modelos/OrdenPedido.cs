@@ -14,6 +14,8 @@ namespace GComFuelManager.Shared.Modelos
         public int? CodPed { get; set; } = 0;
         public int? CodCierre { get; set; } = 0;
         public string? Folio { get; set; } = string.Empty;
+        public int? Pedido_Original { get; set; } = 0;
+        public string? Folio_Cierre_Copia { get; set; } = string.Empty;
         [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
     }
