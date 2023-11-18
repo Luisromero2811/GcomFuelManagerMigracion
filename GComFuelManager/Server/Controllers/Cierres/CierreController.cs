@@ -139,6 +139,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Orden)
                             .ThenInclude(x => x.Estado)
+                            .DefaultIfEmpty()
                             .FirstOrDefault();
 
                         if (pedido != null)
@@ -2285,9 +2286,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var ordenpedido = new OrdenPedido()
                     {
                         CodPed = embarque.Cod,
-                        CodCierre = cierre.Cod,
-                        Folio = cierre.Folio,
-                        OrdenEmbarque = null
+                        CodCierre = newCierre.Cod,
+                        Folio = newCierre.Folio,
+                        OrdenEmbarque = null,
+                        OrdenCierre = null
                     };
 
                     context.Add(ordenpedido);
