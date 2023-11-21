@@ -1113,7 +1113,7 @@
                 filtro.forFolio = true;
                 if (!string.IsNullOrEmpty(filtro.Folio))
                 {
-                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar/activo", filtro);
+                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
                     if (response.Error)
                     {
                         var message = await response.ObtenerMensajeError();
