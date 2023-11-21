@@ -73,7 +73,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.CodSyn = row[4].Value?.ToString();
                                 precio.CodTux = row[5].Value?.ToString();
                                 precio.Fecha = row[6].Value?.ToString();
-                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 6);
+                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
                                 precios.Add(precio);
                             }
                         }
@@ -131,7 +131,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                         precio.CodSyn = row[4].Value?.ToString();
                                         precio.CodTux = row[5].Value?.ToString();
                                         precio.Fecha = row[6].Value?.ToString();
-                                        precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 6);
+                                        precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
                                         precios.Add(precio);
                                     }
                                 }
@@ -371,7 +371,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
                         var aumento = (porcentaje.Porcen / 100) + 1;
-                        x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 6) : Math.Round(x.Pre, 6);
+                        x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
                     }
                 });
 
@@ -424,6 +424,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PrecioProgramado> prec = new List<PrecioProgramado>();
                 foreach (var item in precios)
                 {
+                    //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
                     var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte));
                     if (cliente is null)
