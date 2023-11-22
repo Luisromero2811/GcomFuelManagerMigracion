@@ -1219,6 +1219,33 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet("folios")]
+        public ActionResult GetFoliosFromPedidos([FromQuery] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                List<FolioDetalleDTO> Folios = new List<FolioDetalleDTO>();
+                if (ordenCierre is null)
+                    return BadRequest("Datos vacios");
 
+                Folios = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && (x.CodGru == ordenCierre.CodGru || x.CodCte == ordenCierre.CodCte)
+                && x.Estatus == true && x.Activa == true && !x.Folio.StartsWith("RE")).Include(x => x.Producto).Select(x => new FolioDetalleDTO()
+                {
+                    Folio = x.Folio,
+                    Producto = x.Producto,
+                    FchCierre = x.FchCierre,
+                    Comentarios = x.Observaciones
+                }).ToList();
+
+                if (Folios is not null)
+                    return Ok(Folios);
+                else
+                    return Ok(new List<FolioDetalleDTO>());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

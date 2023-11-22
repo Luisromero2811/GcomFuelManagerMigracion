@@ -89,7 +89,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     ordEmb.Orden = null!;
 
                     ordEmb.Codusu = user.UserCod;
-                    ordEmb.Eta = ordEmb.EtaNumber.ToString();
+                    ordEmb.Eta = ordEmb.EtaNumber;
 
                     context.Add(ordEmb);
                     acc = 29;
@@ -113,7 +113,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //TimeSpan? time = ordEmb.Fchlleest?.Subtract(ordEmb.FchDoc!.Value);
 
                     //ordEmb.Eta = time?.ToString("HHmm") ?? string.Empty;
-                    ordEmb.Eta = ordEmb.EtaNumber.ToString();
+                    ordEmb.Eta = ordEmb.EtaNumber;
 
                     context.Update(ordEmb);
                     acc = 30;

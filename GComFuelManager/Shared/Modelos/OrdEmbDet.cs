@@ -20,7 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fchDoc")]
         public DateTime? FchDoc { get; set; } = DateTime.Now;
         [JsonProperty("eta"), MaxLength(5)]
-        public string? Eta { get; set; } = string.Empty;
+        public int? Eta { get; set; } = 0;
 
         [JsonProperty("fchlleest")]
         public DateTime? Fchlleest { get; set; } = DateTime.Today;

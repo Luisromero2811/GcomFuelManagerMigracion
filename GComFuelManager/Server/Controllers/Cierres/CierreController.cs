@@ -1982,7 +1982,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 PrecioBol precio = new PrecioBol();
 
-                var orden = context.Orden.Where(x => x.BatchId == Bol)
+                var orden = context.Orden.Where(x => x.Folio == Bol)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.OrdenCierre)
                     .Include(x => x.OrdenEmbarque)

@@ -283,14 +283,55 @@
                             </div>
                         </div>
                     }
-                    @* <div class="col-4">
+                    <div class="col-4">
                         <div class="col-12">
                             <label>Folios de pedidos</label>
-                            <select @bind="@ordenCierre.Folio_Perteneciente">
-                                <option>Sin pedido</option>
-                            </select>
+                            <button class="form-control col-12 dropdown-toggle" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Seleccione un folio" : ordenCierre.Folio_Perteneciente)</button>
+                            @if (show)
+                            {
+                                <ul class="card dropdown-content">
+                                    <li>
+                                        <div class="col-12 row">
+                                            <div class="col-9">
+                                                <input type="text" @bind="folioSearch" class="form-control-sm col-12" placeholder="Buscar folio" />
+                                            </div>
+                                            <div class="col-3">
+                                                <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" @onclick="@FilterFolios">
+                                                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li @onclick="@(()=>ToggleSelection(string.Empty))" class="dropdown-item col-12">
+                                        Sin pedido
+                                    </li>
+                                    @if (foliosFiltro is not null)
+                                    {
+                                        @if (foliosFiltro.Count > 0)
+                                        {
+                                            @foreach (var item in foliosFiltro)
+                                            {
+                                                <li @onclick="@(()=>ToggleSelection(item?.Folio))" class="dropdown-item col-12 text-wrap">
+                                                    @item.FchCierre?.ToString("dd/MM/yyyy") | @item.Folio | @item.Producto?.Den
+                                                </li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li class="dropdown-item col-12 text-wrap">
+                                                <div class="col-12 d-flex justify-content-center">
+                                                    No se encontraron folios
+                                                </div>
+                                            </li>
+                                        }
+                                    }
+                                    <li>
+                                        <InputText @bind-Value="ordenCierre.Folio_Perteneciente" class="form-control" placeholder="Otro folio"></InputText>
+                                    </li>
+                                </ul>
+                            }
                         </div>
-                    </div> *@
+                    </div>
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1">
                     @if (isEditing)
@@ -350,67 +391,67 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
     <div class="col-12 d-flex justify-content-center row">
         @* <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" Density="Density.Compact"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
-                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
-            <Columns>
-                
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
-                    <Template Context="item">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
-                            <Authorized>
-                                <div class="col-12 row">
-                                    @if (item.OrdenEmbarque is not null && item.Estatus == true)
-                                    {
-                                        @if (item.OrdenEmbarque.CodordCom == null)
-                                        {
-                                            <div class="col">
-                                                <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                            </div>
-                                        }
-                                        @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
-                                        {
-                                            <div class="col">
-                                                <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                            </Authorized>
-                        </AuthorizeView>
-                    </Template>
-                </RadzenDataGridColumn>
-                
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Width="300px" OrderIndex="5" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="280px" OrderIndex="6" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
+        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
+        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
+        <Columns>
 
-                    <Template Context="item">
-                        <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                            item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                            : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                            : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                            : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                            : item?.Volumen
-                            )
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Width="130px" Filterable="false" OrderIndex="10">
-                    <Template Context="item">
-                        <div class="col-12">
-                            @(item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den :
-                                item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den : "Sin estado")
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-            </Columns>
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Acciones" Filterable="false" Width="170px" OrderIndex="1">
+        <Template Context="item">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Acciones">
+        <Authorized>
+        <div class="col-12 row">
+        @if (item.OrdenEmbarque is not null && item.Estatus == true)
+        {
+        @if (item.OrdenEmbarque.CodordCom == null)
+        {
+        <div class="col">
+        <button class="btn btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+        </div>
+        }
+        @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
+        {
+        <div class="col">
+        <button class="btn btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
+        </div>
+        }
+        }
+        </div>
+        </Authorized>
+        </AuthorizeView>
+        </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Width="110px" Filterable="false" OrderIndex="2" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Bin" Property="OrdenEmbarque.Bin" Width="100px" OrderIndex="3" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Terminal" Property="OrdenEmbarque.Tad.Den" Width="140px" OrderIndex="4" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Width="300px" OrderIndex="5" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Property="Producto.Den" Width="280px" OrderIndex="6" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false" OrderIndex="7">
+
+        <Template Context="item">
+        <div class="col-12">
+        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+        : item?.Volumen
+        )
+        </div>
+        </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" OrderIndex="8" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" OrderIndex="9" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado" Width="130px" Filterable="false" OrderIndex="10">
+        <Template Context="item">
+        <div class="col-12">
+        @(item?.OrdenEmbarque?.Orden != null ? item?.OrdenEmbarque?.Orden?.Estado?.den :
+        item?.OrdenEmbarque?.Estado != null ? item.OrdenEmbarque.Estado.den : "Sin estado")
+        </div>
+        </Template>
+        </RadzenDataGridColumn>
+        </Columns>
         </RadzenDataGrid> *@
         <div class="col-12 overflow-scroll ancho mt-4" style="height:450px;resize:both;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
@@ -450,28 +491,28 @@
                 </thead>
                 <tbody>
                     @* <tr>
-                        <td class="sticky-column" style="background-color:white;"></td>
-                        <td></td>
-                        <td></td>
-                        <td>
-                            <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
-                        </td>
-                        <td>
-                            <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
+                    <td class="sticky-column" style="background-color:white;"></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
+                    </td>
+                    <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
 
-                        </td>
-                        <td>
-                            <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                    </td>
+                    <td>
+                    <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     </tr> *@
                     <Virtualize Items="@ordenCierres" Context="item" TItem="OrdenCierre">
                         <tr class="@(ordenCierre == item ? "table-active" : string.Empty)" style="white-space:nowrap;">
@@ -639,6 +680,18 @@
             width: 8px; /* Ancho del área de redimensionamiento */
             background: transparent;
         }
+
+    .dropdown-content {
+        position: absolute;
+        background-color: #f6f6f6;
+        border: 1px solid #ccc;
+        max-height: 300px;
+        z-index: 2;
+        overflow: auto;
+        list-style: none;
+        max-width:25%;
+        font-size:12px;
+    }
 </style>
 @code {
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
@@ -700,7 +753,7 @@
     int width = 0;
     string TotalWidth = string.Empty;
     bool isClose = false;
-
+    private bool show = false;
     int count = 0;
 
     DataGridSettings _settings;
@@ -709,7 +762,13 @@
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+    Dictionary<string, string> queryStringObjectFolios = new Dictionary<string, string>();
     private IJSObjectReference importedJs;
+
+    public List<FolioDetalleDTO> folioDetalles { get; set; } = new List<FolioDetalleDTO>();
+    private string folioSearch = string.Empty;
+    // private IList<FolioDetalleDTO> foliosFiltro => folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch) || string.IsNullOrEmpty(folioSearch)).ToList();
+    private IList<FolioDetalleDTO> foliosFiltro { get; set; } = new List<FolioDetalleDTO>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -1074,6 +1133,25 @@
                     ClienteSeleccionado = ordenCierre.CodCte;
                     StateHasChanged();
                 }
+                queryStringObjectFolios = new Dictionary<string, string>();
+                queryStringObjectFolios["codGru"] = ordenCierre?.CodGru?.ToString() ?? "";
+                queryStringObjectFolios["codCte"] = ordenCierre?.CodCte?.ToString() ?? "";
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+                var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+                var responseFolio = await http.Get<List<FolioDetalleDTO>>($"api/pedido/folios?{uri}");
+                if (responseFolio.Error)
+                {
+                    var message = await responseFolio.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    folioDetalles = responseFolio.Response;
+                    foliosFiltro = folioDetalles;
+                }
             }
         }
         catch (Exception e)
@@ -1099,6 +1177,24 @@
                     GrupoSeleccionado = ordenCierre.CodGru;
                     Clientes = response.Response;
                     StateHasChanged();
+                }
+                queryStringObjectFolios = new Dictionary<string, string>();
+                queryStringObjectFolios["codGru"] = ordenCierre.CodGru.ToString() ?? "";
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+                var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+                var responseFolio = await http.Get<List<FolioDetalleDTO>>($"api/pedido/folios?{uri}");
+                if (responseFolio.Error)
+                {
+                    var message = await responseFolio.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    folioDetalles = responseFolio.Response;
+                    foliosFiltro = folioDetalles;
                 }
             }
 
@@ -1207,7 +1303,7 @@
                     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                     SendOrden = false;
                 }
-                
+
             }
 
             var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
@@ -1525,5 +1621,16 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
         }
+    }
+
+    private void ToggleSelection(string? folioDetalle)
+    {
+        if (!string.IsNullOrEmpty(folioDetalle))
+            ordenCierre.Folio_Perteneciente = folioDetalle;
+    }
+
+    private void FilterFolios()
+    {
+        foliosFiltro = folioDetalles.Where(x => x.Folio.Contains(folioSearch, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 }
