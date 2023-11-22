@@ -1464,8 +1464,8 @@
             }
 
             var fch = ordenCierres.FirstOrDefault();
-            fchCaducidad.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
-            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(8) : fch.FchVencimiento;
+            fchCaducidad.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(6) : fch.FchVencimiento;
+            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre?.AddDays(6) : fch.FchVencimiento;
             fchVencimiento.Folio = ordenCierres.FirstOrDefault().Folio;
             fchCaducidad.Folio = ordenCierres.FirstOrDefault().Folio;
             AddDaysExpiration = true;
@@ -1512,7 +1512,7 @@
             }
 
             var fch = ordenCierres.FirstOrDefault();
-            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(8) : fch.FchVencimiento;
+            fchVencimiento.FchFin = string.IsNullOrEmpty(fch.FchVencimiento.ToString()) ? fch.FchCierre!.Value.AddDays(6) : fch.FchVencimiento;
             fchVencimiento.Folio = filtro.Folio;
             AddDaysExpiration = true;
         }

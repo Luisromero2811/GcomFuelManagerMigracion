@@ -1164,7 +1164,7 @@ namespace GComFuelManager.Server.Controllers
                             FchCar = DateTime.Today,
                             FchCierre = DateTime.Today,
                             fchPrecio = DateTime.Now,
-                            FchVencimiento = DateTime.Today.AddDays(8),
+                            FchVencimiento = DateTime.Today.AddDays(6),
                             FchLlegada = DateTime.Today.AddDays(1),
                             Precio = ordercopy.Pre ?? 0,
                             CodDes = ordercopy.Coddes,
