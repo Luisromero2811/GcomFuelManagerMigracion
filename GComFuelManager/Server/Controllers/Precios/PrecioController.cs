@@ -333,7 +333,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 if (!string.IsNullOrEmpty(folio))
                 {
-                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
                             .Include(x => x.Cliente)
                             .ToListAsync();
                     var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
