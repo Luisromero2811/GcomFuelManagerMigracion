@@ -286,7 +286,7 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Folios de pedidos</label>
-                            <button class="form-control col-12 dropdown-toggle" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Seleccione un folio" : ordenCierre.Folio_Perteneciente)</button>
+                            <button class="form-control col-12 dropdown-toggle" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Sin pedido" : ordenCierre.Folio_Perteneciente)</button>
                             @if (show)
                             {
                                 <ul class="card dropdown-content">
@@ -689,8 +689,8 @@
         z-index: 2;
         overflow: auto;
         list-style: none;
-        max-width:25%;
-        font-size:12px;
+        max-width: 25%;
+        font-size: 12px;
     }
 </style>
 @code {
@@ -1403,6 +1403,27 @@
                 StateHasChanged();
             }
 
+            queryStringObjectFolios = new Dictionary<string, string>();
+            queryStringObjectFolios["codGru"] = ordenCierre?.CodGru?.ToString() ?? "";
+            queryStringObjectFolios["codCte"] = ordenCierre?.CodCte?.ToString() ?? "";
+            queryStringObjectFolios["codDes"] = ordenCierre?.CodDes?.ToString() ?? "";
+
+            var DefaultValues = new List<string>() { "false", "", "0" };
+            var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+            var responseFolio = await http.Get<List<FolioDetalleDTO>>($"api/pedido/folios?{uri}");
+            if (responseFolio.Error)
+            {
+                var message = await responseFolio.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                folioDetalles = responseFolio.Response;
+                foliosFiltro = folioDetalles;
+            }
+
         }
         catch (Exception e)
         {
@@ -1458,7 +1479,7 @@
 
                         OrdenPedido ordenPedido = new OrdenPedido();
                         ordenPedido.CodPed = ordenCierre.CodPed;
-                        ordenPedido.Folio = filtro.Folio;
+                        ordenPedido.Folio = ordenCierre.Folio_Perteneciente;
                         if (!string.IsNullOrEmpty(ordenPedido.Folio))
                         {
                             var responseOP = await http.Post<OrdenPedido>($"api/pedido/orden/add", ordenPedido);
@@ -1625,12 +1646,11 @@
 
     private void ToggleSelection(string? folioDetalle)
     {
-        if (!string.IsNullOrEmpty(folioDetalle))
-            ordenCierre.Folio_Perteneciente = folioDetalle;
+        ordenCierre.Folio_Perteneciente = folioDetalle;
     }
 
     private void FilterFolios()
     {
-        foliosFiltro = folioDetalles.Where(x => x.Folio.Contains(folioSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+        foliosFiltro = folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch, StringComparison.OrdinalIgnoreCase)).ToList();
     }
 }

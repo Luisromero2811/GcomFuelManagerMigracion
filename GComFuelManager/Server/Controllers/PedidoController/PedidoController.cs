@@ -1228,17 +1228,33 @@ namespace GComFuelManager.Server.Controllers
                 if (ordenCierre is null)
                     return BadRequest("Datos vacios");
 
-                Folios = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && (x.CodGru == ordenCierre.CodGru || x.CodCte == ordenCierre.CodCte)
-                && x.Estatus == true && x.Activa == true && !x.Folio.StartsWith("RE")).Include(x => x.Producto).Select(x => new FolioDetalleDTO()
-                {
-                    Folio = x.Folio,
-                    Producto = x.Producto,
-                    FchCierre = x.FchCierre,
-                    Comentarios = x.Observaciones
-                }).ToList();
+                var foliosquery = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.Activa == true
+                    && !x.Folio.StartsWith("RE") && !x.Folio.StartsWith("OP"))
+                    .Include(x => x.Producto).Include(x => x.Cliente).Include(x => x.Destino).AsQueryable();
 
-                if (Folios is not null)
-                    return Ok(Folios);
+                if (ordenCierre.CodGru != 0 && ordenCierre.CodGru != null)
+                    foliosquery = foliosquery.Where(x => x.CodGru == ordenCierre.CodGru);
+                if (ordenCierre.CodCte != 0 && ordenCierre.CodCte != null)
+                    foliosquery = foliosquery.Where(x => x.CodCte == ordenCierre.CodCte);
+                if (ordenCierre.CodDes != 0 && ordenCierre.CodDes != null)
+                    foliosquery = foliosquery.Where(x => x.CodDes == ordenCierre.CodDes);
+
+                if (foliosquery is not null)
+                {
+                    var folioDetalle = foliosquery
+                    //    .Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.Activa == true 
+                    //&& !x.Folio.StartsWith("RE") && !x.Folio.StartsWith("OP"))
+                        .Select(x => new FolioDetalleDTO()
+                        {
+                            Folio = x.Folio,
+                            Producto = x.Producto,
+                            Cliente = x.Cliente,
+                            Destino = x.Destino,
+                            Comentarios = x.Observaciones,
+                            FchCierre = x.FchCierre
+                        }).OrderBy(x => x.FchCierre);
+                    return Ok(folioDetalle);
+                }
                 else
                     return Ok(new List<FolioDetalleDTO>());
             }
