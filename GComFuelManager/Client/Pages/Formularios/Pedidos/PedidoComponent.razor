@@ -100,7 +100,7 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Producto</label>
-                            @if (ordenCierre.IsAutoPrecio)
+                            @if (ordenCierre.Precio_Manual)
                             {
                                 <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
@@ -248,7 +248,7 @@
 
                     <div class="col-4">
                         <div class="col-12">
-                            @if (ordenCierre.IsAutoPrecio)
+                            @if (ordenCierre.Precio_Manual)
                             {
                                 <div>
                                     <label>
@@ -283,6 +283,14 @@
                             </div>
                         </div>
                     }
+                    @* <div class="col-4">
+                        <div class="col-12">
+                            <label>Folios de pedidos</label>
+                            <select @bind="@ordenCierre.Folio_Perteneciente">
+                                <option>Sin pedido</option>
+                            </select>
+                        </div>
+                    </div> *@
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1">
                     @if (isEditing)
@@ -746,8 +754,8 @@
             // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
             importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
 
-            await LoadStateAsync();
-            StateHasChanged();
+            // await LoadStateAsync();
+            // StateHasChanged();
         }
     }
 
@@ -1113,7 +1121,7 @@
                 filtro.forFolio = true;
                 if (!string.IsNullOrEmpty(filtro.Folio))
                 {
-                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar/activo", filtro);
+                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
                     if (response.Error)
                     {
                         var message = await response.ObtenerMensajeError();
@@ -1192,22 +1200,14 @@
                 var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
                 .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
 
-                var responseVerify = await http.Get<OrdenCierre>($"api/cierre/caducidad/verify?{uri}");
+                var responseVerify = await http.Get<bool>($"api/cierre/caducidad/verify?{uri}");
                 if (responseVerify.Error)
                 {
                     var message = await responseVerify.ObtenerMensajeError();
                     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
                     SendOrden = false;
                 }
-                else
-                {
-                    if (responseVerify.Response.Activa == false)
-                    {
-                        await Swal.FireAsync("Aviso", $"Este pedido ya no se encuentra vigente. Fecha de vecimiento: {responseVerify.Response.FchVencimiento?.ToString("dd/MM/yyyy")}", SweetAlertIcon.Error);
-                        return;
-                    }
-                }
-
+                
             }
 
             var response = await http.Get<Cliente>($"api/clientes/{ordenCierre.CodCte}");
@@ -1373,11 +1373,14 @@
                             }
                             else
                             {
-                                ordenCierres.Add(responseOC.Response);
-                                await gridOC.Reload();
-                                count++;
+                                // ordenCierres.Add(responseOC.Response);
+                                // await gridOC.Reload();
+                                // count++;
                             }
                         }
+
+                        ordenCierres.Add(responseOC.Response);
+                        count++;
                     }
                 }
             }

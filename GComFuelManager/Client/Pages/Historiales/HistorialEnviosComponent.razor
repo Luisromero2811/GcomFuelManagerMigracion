@@ -96,14 +96,15 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px" FormatString="{0:N2}" Filterable="false">
-                <Template Context="data">
+                <Template Context="item">
                     <div class="col-12">
                         @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                        data?.Compartment == 1 ? data?.Tonel?.Capcom
-                        : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                        : data?.Compartment == 3 ? data?.Tonel?.Capcom3
-                        : data?.Compartment == 4 ? data?.Tonel?.Capcom4
-                        : data?.Vol
+                        item?.Orden is not null ? item?.Orden?.Vol :
+                        item?.Compartment == 1 && item?.Tonel is not null ? item?.Tonel?.Capcom
+                        : item?.Compartment == 2 && item?.Tonel is not null ? item?.Tonel?.Capcom2
+                        : item?.Compartment == 3 && item?.Tonel is not null ? item?.Tonel?.Capcom3
+                        : item?.Compartment == 4 && item?.Tonel is not null ? item?.Tonel?.Capcom4
+                        : item?.Vol
                         )
                     </div>
                 </Template>

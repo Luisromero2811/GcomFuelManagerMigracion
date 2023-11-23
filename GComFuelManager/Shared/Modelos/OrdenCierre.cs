@@ -175,6 +175,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public List<OrdenPedido> OrdenPedidos { get; set; } = new List<OrdenPedido>();
         public bool Precio_Manual { get; set; } = true;
 
+        [NotMapped, EpplusIgnore] public string? Folio_Perteneciente { get; set; } = string.Empty;
         #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
         public double? GetVolumenSolicitado()

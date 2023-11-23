@@ -333,7 +333,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 if (!string.IsNullOrEmpty(folio))
                 {
-                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
                             .Include(x => x.Cliente)
                             .ToListAsync();
                     var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
@@ -424,6 +424,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PrecioProgramado> prec = new List<PrecioProgramado>();
                 foreach (var item in precios)
                 {
+                    //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
                     var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte));
                     if (cliente is null)

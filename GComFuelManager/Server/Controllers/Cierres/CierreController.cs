@@ -139,6 +139,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Orden)
                             .ThenInclude(x => x.Estado)
+                            .DefaultIfEmpty()
                             .FirstOrDefault();
 
                         if (pedido != null)
@@ -176,7 +177,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     else
                         orden.ModeloVenta = string.Empty;
                 }
-                orden.FchVencimiento = orden.FchCierre?.AddDays(8);
+                orden.FchVencimiento = orden.FchCierre?.AddDays(6);
                 context.Add(orden);
 
                 var id = await verifyUser.GetId(HttpContext, UserManager);
@@ -1237,6 +1238,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     return BadRequest("No se encontro la orden");
 
                 orden.Activa = false;
+                orden.Estatus = false;
 
                 context.Update(orden);
 
@@ -2165,10 +2167,24 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(dTO.Folio))
                     return BadRequest("No se encontro un folio");
 
-                var cierre = context.OrdenCierre.FirstOrDefault(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio));
+                var activo = false;
+                var fchActiva = string.Empty;
+
+                var cierre = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio)).ToList();
+
+                foreach (var item in cierre)
+                    if (item?.Activa == true)
+                        activo = true;
+                    else
+                        fchActiva = item?.FchVen;
 
                 if (cierre is not null)
-                    return Ok(cierre);
+                {
+                    if (activo)
+                        return Ok(activo);
+                    else
+                        return BadRequest($"Este pedido ya no se encuentra vigente.Fecha de vecimiento: {fchActiva}");
+                }
                 else
                     return BadRequest($"No se encontro algun cierre perteneciente al folio {dTO.Folio}");
             }
@@ -2285,9 +2301,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var ordenpedido = new OrdenPedido()
                     {
                         CodPed = embarque.Cod,
-                        CodCierre = cierre.Cod,
-                        Folio = cierre.Folio,
-                        OrdenEmbarque = null
+                        CodCierre = newCierre.Cod,
+                        Folio = newCierre.Folio,
+                        OrdenEmbarque = null,
+                        OrdenCierre = null
                     };
 
                     context.Add(ordenpedido);
