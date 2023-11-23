@@ -777,6 +777,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     PrecioBol precio = new PrecioBol();
 
                     precio.Fecha_De_Carga = item.Fchcar;
+                    precio.Referencia = item.Ref;
 
                     if (item.Producto is not null)
                         precio.Producto_Synthesis = item.Producto.Den;
@@ -871,6 +872,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         public class PrecioBol
         {
             public double? Precio { get; set; } = 0;
+            public string? Referencia { get; set; } = string.Empty;
             public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
             public DateTime? Fecha_De_Precio { get; set; } = DateTime.MinValue;
             public string? Destino_Synthesis { get; set; } = string.Empty;
