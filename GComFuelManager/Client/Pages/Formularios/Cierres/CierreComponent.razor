@@ -10,14 +10,14 @@
 @inject OrdenCierreClientValidation clientValidation
 @inject AuthenticationStateProvider auth
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Validador Precio Automatico")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Validador Precio Automatico, Revision Precios")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="VISTA">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Revision Precios" Context="VISTA">
     <Authorized>
 
         <h3><b>Cierre de Pedidos</b></h3>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden" Context="FILTRO">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Lectura de Cierre de Orden, Revision Precios" Context="FILTRO">
             <Authorized>
                 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
                     <div class="col-12">
@@ -555,7 +555,7 @@
 
             @if (ordenCierres.Count != 0)
             {
-                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Listado">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Revision Precios" Context="Listado">
                     <Authorized>
                         @if (isFilter is true && ordenCierres.Count > 0)
                         {
@@ -572,7 +572,7 @@
                     </Authorized>
                 </AuthorizeView>
                 <div class="col-12 d-flex justify-content-start my-2 row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="General">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Revision Precios" Context="General">
                         <Authorized>
                             <div class="col-3">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@ClearList">
@@ -643,7 +643,7 @@
                             }
                         </Authorized>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia" Context="Exportaciones">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Direccion, Gerencia, Revision Precios" Context="Exportaciones">
                         <Authorized>
                             <div class="col-3">
                                 <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@GenerateExcel">

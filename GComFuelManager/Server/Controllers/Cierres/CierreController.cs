@@ -15,7 +15,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Programador, Ejecutivo de Cuenta Operativo, Lectura de Cierre de Orden, Cierre Pedidos, Consulta Precios, Cliente Lectura")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Revision Precios ,Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Programador, Ejecutivo de Cuenta Operativo, Lectura de Cierre de Orden, Cierre Pedidos, Consulta Precios, Cliente Lectura")]
     public class CierreController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -1301,6 +1301,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .Include(x => x.Grupo)
+                    .Include(x => x.OrdenEmbarque)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
@@ -1308,6 +1309,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        Precio = x.Precio,
+                        ordenEmbarque = x.OrdenEmbarque,
                         FchCierre = x.FchCierre,
                         Comentarios = x.Observaciones
                     })
@@ -1330,6 +1333,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
                          .Include(x => x.Grupo)
+                         .Include(x => x.OrdenEmbarque)
                         .Select(x => new FolioDetalleDTO()
                         {
                             Folio = x.Folio,
@@ -1337,13 +1341,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             Cliente = x.Cliente,
                             Destino = x.Destino,
                             Producto = x.Producto,
+                            ordenEmbarque = x.OrdenEmbarque,
+                            Precio = x.Precio,
                             FchCierre = x.FchCierre,
                             Comentarios = x.Observaciones
-
                         })
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
-
+              
                     //Filtro de órdenes solamente obteniendo el grupo
                     else if (filtro.codGru != null)
                     {
@@ -1358,6 +1363,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                      .Include(x => x.Grupo)
+                     .Include(x => x.OrdenEmbarque)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
@@ -1365,6 +1371,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        Precio = x.Precio,
+                        ordenEmbarque = x.OrdenEmbarque,
                         FchCierre = x.FchCierre,
                         Comentarios = x.Observaciones
                     })
@@ -1387,6 +1395,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                      .Include(x => x.Grupo)
+                     .Include(x => x.OrdenEmbarque)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
@@ -1394,7 +1403,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        Precio = x.Precio,
                         FchCierre = x.FchCierre,
+                        ordenEmbarque = x.OrdenEmbarque,
                         Comentarios = x.Observaciones
                     })
                     .OrderByDescending(x => x.FchCierre)
@@ -1433,6 +1444,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                      .Include(x => x.Grupo)
+                     .Include(x => x.OrdenEmbarque)
                     .Select(x => new FolioDetalleDTO()
                     {
                         Folio = x.Folio,
@@ -1440,7 +1452,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        Precio = x.Precio,
                         FchCierre = x.FchCierre,
+                        ordenEmbarque = x.OrdenEmbarque,
                         Comentarios = x.Observaciones
                     })
                     .OrderByDescending(x => x.FchCierre)
@@ -1470,6 +1484,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             Cliente = x.Cliente,
                             Destino = x.Destino,
                             Producto = x.Producto,
+                            Precio = x.Precio,
+                            ordenEmbarque = x.OrdenEmbarque,
                             FchCierre = x.FchCierre,
                             Comentarios = x.Observaciones,
                             Estado = x.OrdenEmbarque.Estado.den,
@@ -1477,6 +1493,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         })
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
+
+             
                     //Cuando se filtra solo por su grupo 
                     else if (filtro.codGru != null)
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
@@ -1499,7 +1517,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        ordenEmbarque = x.OrdenEmbarque,
                         FchCierre = x.FchCierre,
+                        Precio = x.Precio,
                         Comentarios = x.Observaciones,
                         Estado = x.OrdenEmbarque.Estado.den,
                         Activa = x.Activa
@@ -1529,6 +1549,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente = x.Cliente,
                         Destino = x.Destino,
                         Producto = x.Producto,
+                        Precio = x.Precio,
+                        ordenEmbarque = x.OrdenEmbarque,
                         FchCierre = x.FchCierre,
                         Comentarios = x.Observaciones,
                         Estado = x.OrdenEmbarque.Estado.den,
@@ -1544,6 +1566,48 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        //Filtro para obtener los cierres grupales y de pedido
+        [HttpPost("cierrescompletos")]
+        public async Task<ActionResult> GetCierresGP([FromBody] CierreDiarioDTO filtro)
+        {
+            try
+            {
+                List<FolioCierreDTO> folios = new List<FolioCierreDTO>();
+                folios = await context.OrdenCierre.OrderBy(x => x.FchCierre)
+                      .Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("P")
+                   || x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("G"))
+                      .Include(x => x.Cliente)
+                      .Include(x => x.Destino)
+                      .Include(x => x.Producto)
+                      .Include(x => x.Grupo)
+                      .Include(x => x.OrdenEmbarque)
+                      .ThenInclude(x => x.Orden)
+                      .ThenInclude(x => x.Estado)
+                      .Select(x => new FolioCierreDTO()
+                      {
+                          Folio = x.Folio,
+                          cliente = x.Cliente,
+                          destino = x.Destino,
+                          Producto = x.Producto,
+                          FchCierre = x.FchCierre,
+                          Grupo = x.Grupo,
+                          Estado = x.OrdenEmbarque.Estado.den,
+                          Activa = x.Activa,
+                          Precio = x.Precio,
+                          Volumen = x.Volumen,
+                          Observaciones = x.Observaciones
+                      })
+                      .OrderByDescending(x => x.FchCierre)
+                      .ToListAsync();
+                return Ok(folios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         //Filtro para cierre de pedidos
         [HttpPost("cierrefolio/detalle")]
         public async Task<ActionResult> GetFoliosCierres([FromBody] CierreDiarioDTO filtro)

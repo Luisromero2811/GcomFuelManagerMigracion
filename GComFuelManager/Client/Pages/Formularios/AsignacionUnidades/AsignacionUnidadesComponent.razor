@@ -4,174 +4,186 @@
 @inject SweetAlertService swal
 @inject NotificationService ns
 @inject AsignacionUnidadValidation validation
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Lectura Asignacion")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="FORM">
-    <RadzenAlert Variant="@Variant.Flat" AlertStyle="@AlertStyle.Info" Size="@AlertSize.Large" AllowClose="true" Visible="@AlertVisible">
-        Se estan enviano las ordenes a synthesis, este proceso puede tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.
-    </RadzenAlert>
-    <div class="col-12 row m-0">
-        <div class="col-6 my-1">
-            <div class="d-flex justify-content-center">
-                <div class="col-12">
-                    <div class="col-12 card">
-                        <div class="col-12 card-body">
-                            <div class="col-12 row m-0">
-                                <div class="col-6">
-                                    <label>
-                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                            Del:
-                                        </RadzenText>
-                                    </label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
-                                </div>
-                                <div class="col-6">
-                                    <label>
-                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                            A:
-                                        </RadzenText>
-                                    </label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
-                                </div>
-                                <div class="col-4">
-                                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@MostrarOrdenFecha">
-                                        <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
-                                    </button>
+<RadzenAlert Variant="@Variant.Flat" AlertStyle="@AlertStyle.Info" Size="@AlertSize.Large" AllowClose="true" Visible="@AlertVisible">
+    Se estan enviano las ordenes a synthesis, este proceso puede tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.
+</RadzenAlert>
+<div class="col-12 row m-0">
+    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Lectura Asignacion" Context="ShowOrden">
+        <Authorized>
+            <div class="col-6 my-1">
+                <div class="d-flex justify-content-center">
+                    <div class="col-12">
+                        <div class="col-12 card">
+                            <div class="col-12 card-body">
+                                <div class="col-12 row m-0">
+                                    <div class="col-6">
+                                        <label>
+                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                                Del:
+                                            </RadzenText>
+                                        </label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                                    </div>
+                                    <div class="col-6">
+                                        <label>
+                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                                A:
+                                            </RadzenText>
+                                        </label>
+                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
+                                    </div>
+                                    <div class="col-4">
+                                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@MostrarOrdenFecha">
+                                            <i class="fa fa-solid fa-eye"></i> <b>Mostrar ordenes</b>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-6 my-1">
-            <div class="d-flex justify-content-center">
-                <div class="col card shadow-sm">
-                    <div class="col-12 card-body">
-                        <EditForm Model="asignacion" class="form col-12" OnInvalidSubmit="@AsignarUnidad">
-                            <FluentValidationValidator Validator="validation" />
-                            <ValidationSummary />
-                            <div class="row mb-1">
-                                <div class="col-4">
-                                    <label>
-                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                            Transportista:
-                                        </RadzenText>
-                                    </label>
-                                    <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px">
-                                        <Template Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+        </Authorized>
+    </AuthorizeView>
+    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="SendOrders">
+        <Authorized>
+            <div class="col-6 my-1">
+                <div class="d-flex justify-content-center">
+                    <div class="col card shadow-sm">
+                        <div class="col-12 card-body">
+                            <EditForm Model="asignacion" class="form col-12" OnInvalidSubmit="@AsignarUnidad">
+                                <FluentValidationValidator Validator="validation" />
+                                <ValidationSummary />
+                                <div class="row mb-1">
+                                    <div class="col-4">
+                                        <label>
+                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                                Transportista:
                                             </RadzenText>
-                                        </Template>
-                                        <ValueTemplate Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
-                                            </RadzenText>
-                                        </ValueTemplate>
-                                    </RadzenDropDown>
-                                </div>
-                                <div class="col-4">
-                                    <label>
-                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                            Chofer:
-                                        </RadzenText>
-                                    </label>
-                                    <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="FullName" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true" Style="height:20px">
-                                        <Template Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Chofer)?.Dricod)  | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) |  @((data as Chofer)?.Shortden)
-                                            </RadzenText>
-                                        </Template>
-                                        <ValueTemplate Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Chofer)?.Dricod) | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) | @((data as Chofer)?.Shortden)
-                                            </RadzenText>
-                                        </ValueTemplate>
-                                    </RadzenDropDown>
-                                </div>
-                                <div class="col-4">
-                                    <label>
-                                        <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                            Vehiculo:
-                                        </RadzenText>
-                                    </label>
-                                    <RadzenDropDown Data="Vehiculos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true" Style="height:20px">
-                                        <Template Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Tonel)?.Den)
-                                            </RadzenText>
-                                        </Template>
-                                        <ValueTemplate Context="data">
-                                            <RadzenText TextStyle="TextStyle.Body2">
-                                                @((data as Tonel)?.Den)
-                                            </RadzenText>
-                                        </ValueTemplate>
-                                    </RadzenDropDown>
-
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="row d-flex justify-content-end">
-                                    <div class="col-8 row">
-                                        @if (Vehiculos != null)
-                                        {
-                                            @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
-                                            {
-                                                @if (asignacion.CodTon != 0)
-
-                                                {
-
-                                                    <InputRadioGroup @bind-Value="asignacion.Compartimiento">
-                                                        @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
-                                                        {
-                                                            <div class="col">
-                                                                <div class="form-check">
-                                                                    <InputRadio Value="@i" class="form-check-input" id="@i" />
-                                                                    <label class="form-check-label" for="@i">Com @i</label>
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                    </InputRadioGroup>
-
-                                                }
-                                            }
-                                        }
+                                        </label>
+                                        <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px">
+                                            <Template Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                                                </RadzenText>
+                                            </Template>
+                                            <ValueTemplate Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                                                </RadzenText>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
                                     </div>
                                     <div class="col-4">
-                                        <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null || SendAsignacion)">
-                                            <i class="fa fa-solid fa-truck-front"></i>
-                                            <b>Asignar</b>
-                                            @if (SendAsignacion)
-                                            {
-                                                <SpinnerLoading />
-                                            }
-                                        </button>
+                                        <label>
+                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                                Chofer:
+                                            </RadzenText>
+                                        </label>
+                                        <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="FullName" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowVirtualization="true" Style="height:20px">
+                                            <Template Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Chofer)?.Dricod)  | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) |  @((data as Chofer)?.Shortden)
+                                                </RadzenText>
+                                            </Template>
+                                            <ValueTemplate Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Chofer)?.Dricod) | @((data as Chofer)?.Den is null ? "" : (data as Chofer)?.Den) | @((data as Chofer)?.Shortden)
+                                                </RadzenText>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
+                                    </div>
+                                    <div class="col-4">
+                                        <label>
+                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
+                                                Vehiculo:
+                                            </RadzenText>
+                                        </label>
+                                        <RadzenDropDown Data="Vehiculos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
+                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowVirtualization="true" Style="height:20px">
+                                            <Template Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Tonel)?.Den)
+                                                </RadzenText>
+                                            </Template>
+                                            <ValueTemplate Context="data">
+                                                <RadzenText TextStyle="TextStyle.Body2">
+                                                    @((data as Tonel)?.Den)
+                                                </RadzenText>
+                                            </ValueTemplate>
+                                        </RadzenDropDown>
+
                                     </div>
                                 </div>
-                            </div>
-                        </EditForm>
+                                <div class="col-12">
+                                    <div class="row d-flex justify-content-end">
+                                        <div class="col-8 row">
+                                            @if (Vehiculos != null)
+                                            {
+                                                @if (Vehiculos.Count > 0 && asignacion.CodTon != null)
+                                                {
+                                                    @if (asignacion.CodTon != 0)
+
+                                                    {
+
+                                                        <InputRadioGroup @bind-Value="asignacion.Compartimiento">
+                                                            @for (int i = 1; i <= Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon)!.CapDisponible; i++)
+                                                            {
+                                                                <div class="col">
+                                                                    <div class="form-check">
+                                                                        <InputRadio Value="@i" class="form-check-input" id="@i" />
+                                                                        <label class="form-check-label" for="@i">Com @i</label>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        </InputRadioGroup>
+
+                                                    }
+                                                }
+                                            }
+                                        </div>
+                                        <div class="col-4">
+                                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit" @onclick="@AsignarUnidad" disabled="@(ordenEmbarque is null || SendAsignacion)">
+                                                <i class="fa fa-solid fa-truck-front"></i>
+                                                <b>Asignar</b>
+                                                @if (SendAsignacion)
+                                                {
+                                                    <SpinnerLoading />
+                                                }
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </EditForm>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</AuthorizeView>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+           
 <div class="col-12 overflow-scroll ancho" style="height:450px;resize:both;">
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
-                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cancelar
-                </th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Checks">
+                    <Authorized>
+                        <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
+                            <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                            Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                            Asignar / cancelar
+                        </th>
+                    </Authorized>
+                </AuthorizeView>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
                 </th>
@@ -211,9 +223,13 @@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
                     Estatus
                 </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
-                    Desasignar
-                </th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Unassigned">
+                    <Authorized>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                            Desasignar
+                        </th>
+                    </Authorized>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -243,22 +259,26 @@
             </tr>
             <Virtualize Items="@ordenesFiltradas" Context="data" TItem="OrdenEmbarque">
                 <tr class="@(ordenEmbarque == data || ordenesSeleccionada.Contains(data) ? "table-active" : string.Empty)" style="white-space:nowrap;">
-                    <td class="sticky-column" style="background-color:white;">
-                        <div class="col-12 row m-0">
-                            <div class="col-2">
-                                <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                                TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                            </div>
-                            <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
-                                <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
-                                    <i class="fa fa-solid fa-pen-to-square"></i>
-                                </button>
-                                <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
-                                    <i class="fa fa-solid fa-cancel"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </td>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RChecks">
+                        <Authorized>
+                            <td class="sticky-column" style="background-color:white;">
+                                <div class="col-12 row m-0">
+                                    <div class="col-2">
+                                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                                    </div>
+                                    <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
+                                        <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
+                                            <i class="fa fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </Authorized>
+                    </AuthorizeView>
                     <td class="overflow-hidden">
                         <div class="rz-text-truncate">
                             @data?.OrdenCompra?.den
@@ -295,13 +315,17 @@
                     <td class="overflow-hidden">@data?.Chofer?.FullName</td>
                     <td class="overflow-hidden">@data?.Bin</td>
                     <td class="overflow-hidden">@data?.Estado?.den</td>
-                    <td class="overflow-hidden">
-                        <div class="col-12">
-                            <button class="btn btn-primary col-12 btn-sm" @onclick="@(()=>DesasignarUnidad(data))">
-                                <i class="fa-solid fa-broom"></i>
-                            </button>
-                        </div>
-                    </td>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Dessasignar">
+                        <Authorized>
+                            <td class="overflow-hidden">
+                                <div class="col-12">
+                                    <button class="btn btn-primary col-12 btn-sm" @onclick="@(()=>DesasignarUnidad(data))">
+                                        <i class="fa-solid fa-broom"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </Authorized>
+                    </AuthorizeView>
                 </tr>
             </Virtualize>
         </tbody>
