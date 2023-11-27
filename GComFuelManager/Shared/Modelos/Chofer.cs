@@ -26,6 +26,10 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("activo")]
         public bool? Activo { get; set; } = true;
+
+        [JsonProperty("Activo_Permanente")]
+        public bool? Activo_Permanente { get; set; } = true; 
+
         [NotMapped]
         public string FullName
         {

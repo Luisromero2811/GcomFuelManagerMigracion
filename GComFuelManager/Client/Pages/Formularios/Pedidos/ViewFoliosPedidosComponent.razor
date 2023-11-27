@@ -246,7 +246,7 @@
             fechas.forFolio = forFolio;
             if (!isStatus)
             {
-                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle", fechas);
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle/status", fechas);
                 if (response.Error)
                 {
                     loading = false;

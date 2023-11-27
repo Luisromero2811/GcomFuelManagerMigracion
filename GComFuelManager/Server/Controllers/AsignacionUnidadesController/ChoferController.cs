@@ -33,7 +33,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var transportistas = await context.Chofer
-                    .Where(x => x.Codtransport == transportista && x.Activo == true)
+                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true)
                     //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -77,7 +77,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return NotFound();
                 }
 
-                chofer.Activo = status;
+                chofer.Activo_Permanente = status;
                 context.Update(chofer);
 
                 await context.SaveChangesAsync();
