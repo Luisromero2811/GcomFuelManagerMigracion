@@ -1352,11 +1352,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     //Filtro de órdenes solamente obteniendo el grupo
                     else if (filtro.codGru != null)
                     {
-                        folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
-                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                        folios = await context.OrdenCierre.OrderByDescending(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
+                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
+                    //  x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio)
-                    && x.Activa == true
+                    //&& x.Activa == true
                     && x.Folio.StartsWith("OP")
                     && x.Estatus == true && x.CodGru == filtro.codGru)
                     .Include(x => x.Cliente)
@@ -1494,15 +1495,17 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .OrderByDescending(x => x.FchCierre)
                         .ToListAsync();
 
-             
-                    //Cuando se filtra solo por su grupo 
+
+                    //Cuando se filtra solo por su grupo  && x.Estatus == true  
                     else if (filtro.codGru != null)
                         folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
-                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodGru == filtro.codGru ||
-                    x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                    && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0  && x.CodGru == filtro.codGru && x.Estatus == true ||
+                      //x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                      x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                     && !string.IsNullOrEmpty(x.Folio)
-                    && x.Folio.StartsWith("OP")
-                    && x.Estatus == true && x.CodGru == filtro.codGru)
+                   && x.Folio.StartsWith("OP")
+                   && x.Estatus == true
+                    && x.CodGru == filtro.codGru)
                     .Include(x => x.Cliente)
                      .Include(x => x.Grupo)
                     .Include(x => x.Destino)

@@ -175,15 +175,15 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Checks">
-                    <Authorized>
+                @*<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Checks">
+                    <Authorized>*@
                         <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
                             <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                             Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
                             Asignar / cancelar
                         </th>
-                    </Authorized>
-                </AuthorizeView>
+                    @*</Authorized>
+                </AuthorizeView>*@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
                 </th>
@@ -259,26 +259,36 @@
             </tr>
             <Virtualize Items="@ordenesFiltradas" Context="data" TItem="OrdenEmbarque">
                 <tr class="@(ordenEmbarque == data || ordenesSeleccionada.Contains(data) ? "table-active" : string.Empty)" style="white-space:nowrap;">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RChecks">
-                        <Authorized>
+               
                             <td class="sticky-column" style="background-color:white;">
                                 <div class="col-12 row m-0">
-                                    <div class="col-2">
-                                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                                    </div>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RChecks">
+                                        <Authorized>
+                                            <div class="col-2">
+                                                <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                                                TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
+                                            </div>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
-                                        <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
-                                            <i class="fa fa-solid fa-pen-to-square"></i>
-                                        </button>
-                                        <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
-                                            <i class="fa fa-solid fa-cancel"></i>
-                                        </button>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RSelect">
+                                            <Authorized>
+                                                <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
+                                                    <i class="fa fa-solid fa-pen-to-square"></i>
+                                                </button>
+                                            </Authorized>
+                                        </AuthorizeView>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Lectura Asignacion" Context="RCancel">
+                                            <Authorized>
+                                                <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
+                                                    <i class="fa fa-solid fa-cancel"></i>
+                                                </button>
+                                            </Authorized>
+                                        </AuthorizeView>
                                     </div>
                                 </div>
                             </td>
-                        </Authorized>
-                    </AuthorizeView>
+                   
                     <td class="overflow-hidden">
                         <div class="rz-text-truncate">
                             @data?.OrdenCompra?.den
