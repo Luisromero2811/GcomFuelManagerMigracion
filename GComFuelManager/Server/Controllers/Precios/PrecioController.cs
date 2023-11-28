@@ -156,19 +156,19 @@ namespace GComFuelManager.Server.Controllers.Precios
             try
             {
                 List<PrecioBol> precios = new List<PrecioBol>();
-
+                /*obtener las ordenes pertenecientes a la orden de compra*/
                 var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ToList();
-
+                /*validar que no venga nulo*/
                 if (ordenes is null)
                     return BadRequest($"No se encontro la orden con el numero de compra: {Orden_Compra}");
 
                 foreach (var item in ordenes)
                 {
                     PrecioBol precio = new PrecioBol();
-
+                    /*buscar la orden que incluya el folio de synthesis de la orden encontrada*/
                     Orden? orden = new Orden();
                     orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).FirstOrDefault();
 
@@ -195,7 +195,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                         if (item.Producto is not null)
                             precio.Producto_Original = item.Producto.Den ?? "";
                     }
-
+                    
+                    /*buscar el precio en las 3 tablas de precios*/
                     var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
 
                     if (orden is not null)
@@ -216,7 +217,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
-
+                    /*asignar los valores de precio dependiendo de los precios encontrados*/
                     if (precioHis is not null)
                     {
                         precio.Precio = precioHis.pre;
@@ -244,7 +245,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Programado";
                     }
-
+                    /*uscar si pertenece a un cierre*/
                     if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
                     {
                         var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
@@ -264,7 +265,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             }
                         }
                     }
-
+                    /*si no se encontro ningun precio se le asignara el precio con el que se creo la orde en gcom*/
                     if (item is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
                     {
                         precio.Precio = item.Pre;
