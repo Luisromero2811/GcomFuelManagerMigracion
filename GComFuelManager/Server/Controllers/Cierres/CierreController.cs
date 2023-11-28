@@ -901,7 +901,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenDisponible = item.Volumen;
 
-                            var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
+                            var listConsumido = context.OrdenPedido.Where(x => x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
                             && x.OrdenEmbarque.Codest == 22
                             && x.OrdenEmbarque.Folio != null
                             && x.OrdenEmbarque.Bolguidid != null)
@@ -2048,7 +2048,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var cierre = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio)).ToList();
 
                 foreach (var item in cierre)
-                    if (item?.Activa == true)
+                    if (item?.FchVencimiento > DateTime.Today)
                         activo = true;
                     else
                         fchActiva = item?.FchVen;
