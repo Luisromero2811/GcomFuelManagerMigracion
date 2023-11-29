@@ -69,7 +69,18 @@
                             <label>Terminal</label>
                             <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodTad"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" />
+                                            AllowVirtualization="true" Style="height:31px;">
+                                <Template Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as Tad)?.Den)
+                                    </RadzenText>
+                                </Template>
+                                <ValueTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as Tad)?.Den)
+                                    </RadzenText>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </div>
                     </div>
                     <div class="col-4">
@@ -77,7 +88,18 @@
                             <label>Grupo</label>
                             <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodGru"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetClientes" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
+                                            AllowVirtualization="true" Change="@GetClientes" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
+                                <Template Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as Grupo)?.Den)
+                                    </RadzenText>
+                                </Template>
+                                <ValueTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as Grupo)?.Den)
+                                    </RadzenText>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </div>
                     </div>
                     <div class="col-4">
@@ -85,7 +107,18 @@
                             <label>Cliente</label>
                             <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodCte"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetEstaciones" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
+                                            AllowVirtualization="true" Change="@GetEstaciones" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
+                                <Template Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as CodDenDTO)?.Den)
+                                    </RadzenText>
+                                </Template>
+                                <ValueTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as CodDenDTO)?.Den)
+                                    </RadzenText>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </div>
                     </div>
                     <div class="col-4">
@@ -93,20 +126,31 @@
                             <label>Estacion</label>
                             <RadzenDropDown Data="Estaciones" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
-                                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" />
+                                            AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
+                                <Template Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as CodDenDTO)?.Den)
+                                    </RadzenText>
+                                </Template>
+                                <ValueTemplate Context="data">
+                                    <RadzenText TextStyle="TextStyle.Body2">
+                                        @((data as CodDenDTO)?.Den)
+                                    </RadzenText>
+                                </ValueTemplate>
+                            </RadzenDropDown>
                         </div>
                     </div>
                     <div class="col-4">
                         <div class="col-12">
                             <label>Folios de pedidos</label>
-                            <button class="form-control col-12 dropdown-toggle" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Sin pedido" : ordenCierre.Folio_Perteneciente)</button>
+                            <button class="form-control col-12 dropdown-toggle form-control-sm" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Sin pedido" : ordenCierre.Folio_Perteneciente)</button>
                             @if (show)
                             {
                                 <ul class="card dropdown-content">
                                     <li>
                                         <div class="col-12 row">
                                             <div class="col-9">
-                                                <input type="text" @bind="folioSearch" class="form-control-sm col-12" placeholder="Buscar folio" />
+                                                <input type="text" @bind="folioSearch" class="form-control form-control-sm col-12" placeholder="Buscar folio" />
                                             </div>
                                             <div class="col-3">
                                                 <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" @onclick="@FilterFolios">
@@ -152,20 +196,23 @@
                             {
                                 <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen">
+                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
                                     <Template Context="data">
-                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                        <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
-
+                                        <RadzenText TextStyle="TextStyle.Body2">
+                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+                                        </RadzenText>
                                     </Template>
                                     <ValueTemplate Context="data">
-                                        @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                        <RadzenText TextStyle="TextStyle.Body2">
+                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                        </RadzenText>
                                     </ValueTemplate>
                                 </RadzenDropDown>
                             }
                             else
                             {
-                                <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select">
+                                <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select form-select-sm">
                                     <option>-- Selecciona una Opcion --</option>
                                     @if (Productos is null)
                                     {
@@ -192,7 +239,7 @@
                             <div class="col-12">
                                 <label>Volumen</label>
 
-                                <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select" disabled="@(isFolio && !ordenCierre.IsCierreVolumen)">
+                                <InputSelect @bind-Value="ordenCierre.Volumen" class="form-select form-select-sm" disabled="@(isFolio && !ordenCierre.IsCierreVolumen)">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Cantidades is null)
                                     {
@@ -219,7 +266,7 @@
                         <div class="col-2">
                             <div class="col-12">
                                 <label>Volumen</label>
-                                <InputNumber class="form-control col-12" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" />
+                                <InputNumber class="form-control col-12 form-control-sm" @bind-Value="ordenCierre.Volumen" disabled="@(isFolio  && !ordenCierre.IsCierreVolumen)" />
                             </div>
                         </div>
                     }
@@ -238,14 +285,14 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Fecha de carga en terminal</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchCar" DateFormat="dd/MM/yyy" ShowTime="false" />
+                            <input type="date" class="col-12 form-control form-control-sm" @bind="@ordenCierre.FchCar" />
                         </div>
                     </div>
 
                     <div class="col-4">
                         <div class="col-12">
                             <label>Fecha estimada de llegada</label>
-                            <RadzenDatePicker class="col-12" TValue="DateTime?" @bind-Value="@ordenCierre.FchLlegada" DateFormat="dd/MM/yyy" ShowTime="false" />
+                            <input type="date" class="col-12 form-control form-control-sm" @bind="@ordenCierre.FchLlegada" />
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentTurn)
@@ -253,7 +300,7 @@
                         <div class="col-2">
                             <div class="col-12">
                                 <label>Turno</label>
-                                <InputSelect @bind-Value="ordenCierre.Turno" class="form-select">
+                                <InputSelect @bind-Value="ordenCierre.Turno" class="form-select form-select-sm">
                                     <option>-- Selecciona una opcion --</option>
                                     @if (Turnos is null)
                                     {
@@ -279,7 +326,7 @@
                         <div class="col-2">
                             <div class="col-12">
                                 <label>Turno</label>
-                                <InputText class="form-control col-12" @bind-Value="ordenCierre.Turno" />
+                                <InputText class="form-control col-12 form-control-sm" @bind-Value="ordenCierre.Turno" />
                             </div>
                         </div>
                     }
@@ -302,7 +349,7 @@
                                     <label>
                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                     </label>
-                                    <input type="number" class="form-control col-12 disabled" @bind="ordenCierre.Precio" disabled />
+                                    <input type="number" class="form-control form-control-sm col-12 disabled" @bind="ordenCierre.Precio" disabled />
                                 </div>
                             }
                             else
@@ -311,7 +358,7 @@
                                     <label>
                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                     </label>
-                                    <InputNumber class=" col-12" TValue="double" @bind-Value="@ordenCierre.Precio"></InputNumber>
+                                    <input type="number" class="form-control form-control-sm col-12" @bind="@ordenCierre.Precio" />
                                 </div>
                             }
 
@@ -451,20 +498,20 @@
                     <td></td>
                     </tr> *@
                     <Virtualize Items="@ordenCierres" Context="item" TItem="OrdenCierre">
-                        <tr class="@(ordenCierre == item ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                        <tr class="@(ordenCierre.Cod == item.Cod ? "table-active" : string.Empty)" style="white-space:nowrap;">
                             <td class="sticky-column" style="background-color:white;">
                                 <div class="col-12 row">
                                     @if (item.OrdenEmbarque is not null && item.Estatus == true)
                                     {
                                         @if (item.OrdenEmbarque.CodordCom == null)
                                         {
-                                            <div class="col">
+                                            <div class="col-6">
                                                 <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                             </div>
                                         }
                                         @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
                                         {
-                                            <div class="col">
+                                            <div class="col-6">
                                                 <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
                                             </div>
                                         }
@@ -1036,7 +1083,7 @@
 
             isEditing = true;
 
-            gridOC?.SelectRow(orden);
+            // gridOC?.SelectRow(orden);
 
             StateHasChanged();
         }
@@ -1574,7 +1621,7 @@
     {
         ordenCierre.Folio_Perteneciente = folioDetalle;
         isFolio = true;
-        
+
         ZonaCliente zonaCliente = new ZonaCliente();
         zonaCliente.DesCod = ordenCierre.CodDes;
         zonaCliente.CteCod = ordenCierre.CodCte;
