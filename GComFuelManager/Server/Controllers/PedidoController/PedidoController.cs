@@ -1391,15 +1391,12 @@ namespace GComFuelManager.Server.Controllers
 
         private VolumenDisponibleDTO GetVolumenDisponible(string Folio)
         {
+            VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+
             if (context.OrdenPedido.Any(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio))
             {
-                var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio).Include(x => x.Producto).ToList();
-                if (cierres is null)
-                    throw new InvalidParameterException(,);
-
-                cierres = cierres.DistinctBy(x => x.Cod).ToList();
-
-                foreach (var item in cierres.DistinctBy(x => x.Cod))
+                var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
+                foreach (var item in cierres)
                 {
                     var VolumenDisponible = item.Volumen;
 
@@ -1453,9 +1450,8 @@ namespace GComFuelManager.Server.Controllers
 
                     volumen.Productos.Add(productoVolumen);
                 }
-                return Ok(volumen);
-
             }
+            return volumen;
         }
     }
 }

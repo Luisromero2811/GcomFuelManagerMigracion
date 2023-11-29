@@ -125,7 +125,7 @@
                                             @foreach (var item in foliosFiltro)
                                             {
                                                 <li @onclick="@(()=>ToggleSelection(item?.Folio))" class="dropdown-item col-12 text-wrap">
-                                                    @item.Fecha_Cierre?.ToString("dd/MM/yyyy") | @item.Folio | @item.Producto | @item.Volumen_Disponible
+                                                    @item.Fecha_Cierre?.ToString("dd/MM/yyyy") | @item.Folio | @item.Producto
                                                 </li>
                                             }
                                         }
@@ -1083,6 +1083,8 @@
                 {
                     folioDetalles = responseFolio.Response;
                     foliosFiltro = folioDetalles;
+                    ordenCierre.Folio_Perteneciente = string.Empty;
+                    volumenDisponible = new VolumenDisponibleDTO();
                 }
             }
         }
@@ -1127,6 +1129,8 @@
                 {
                     folioDetalles = responseFolio.Response;
                     foliosFiltro = folioDetalles;
+                    ordenCierre.Folio_Perteneciente = string.Empty;
+                    volumenDisponible = new VolumenDisponibleDTO();
                 }
             }
 
@@ -1282,7 +1286,7 @@
         try
         {
             if (ordenCierre.CodPrd != null && Precios.Count > 0)
-                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto != null && x.Producto?.Cod == ordenCierre?.CodPrd).Pre;
+                ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto != null && x.Producto?.Cod == ordenCierre?.CodPrd)?.Pre ?? 0;
             else
                 ordenCierre.Precio = 0;
             // if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
@@ -1322,26 +1326,28 @@
                 // StateHasChanged();
             }
 
-            // queryStringObjectFolios = new Dictionary<string, string>();
-            // queryStringObjectFolios["codGru"] = ordenCierre?.CodGru?.ToString() ?? "";
-            // queryStringObjectFolios["codCte"] = ordenCierre?.CodCte?.ToString() ?? "";
-            // queryStringObjectFolios["codDes"] = ordenCierre?.CodDes?.ToString() ?? "";
+            queryStringObjectFolios = new Dictionary<string, string>();
+            queryStringObjectFolios["codGru"] = ordenCierre?.CodGru?.ToString() ?? "";
+            queryStringObjectFolios["codCte"] = ordenCierre?.CodCte?.ToString() ?? "";
+            queryStringObjectFolios["codDes"] = ordenCierre?.CodDes?.ToString() ?? "";
 
-            // var DefaultValues = new List<string>() { "false", "", "0" };
-            // var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-            // .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+            var DefaultValues = new List<string>() { "false", "", "0" };
+            var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
 
-            // var responseFolio = await http.Get<List<FolioDetalleDTO>>($"api/pedido/folios?{uri}");
-            // if (responseFolio.Error)
-            // {
-            //     var message = await responseFolio.ObtenerMensajeError();
-            //     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            // }
-            // else
-            // {
-            //     folioDetalles = responseFolio.Response;
-            //     foliosFiltro = folioDetalles;
-            // }
+            var responseFolio = await http.Get<List<ListadoFolioDetalle>>($"api/pedido/folios?{uri}");
+            if (responseFolio.Error)
+            {
+                var message = await responseFolio.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                folioDetalles = responseFolio.Response;
+                foliosFiltro = folioDetalles;
+                ordenCierre.Folio_Perteneciente = string.Empty;
+                volumenDisponible = new VolumenDisponibleDTO();
+            }
 
         }
         catch (Exception e)
@@ -1568,7 +1574,44 @@
     {
         ordenCierre.Folio_Perteneciente = folioDetalle;
         isFolio = true;
-        await GetPrecios();
+        
+        ZonaCliente zonaCliente = new ZonaCliente();
+        zonaCliente.DesCod = ordenCierre.CodDes;
+        zonaCliente.CteCod = ordenCierre.CodCte;
+        var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
+        var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Precios = response.Response;
+            DestinoSeleccionado = ordenCierre.CodDes;
+            await ChangeProducto();
+            // StateHasChanged();
+        }
+
+        if (!string.IsNullOrEmpty(folioDetalle))
+        {
+            CierreFiltroDTO filtro_volume = new CierreFiltroDTO();
+
+            filtro_volume.Folio = folioDetalle ?? string.Empty;
+            filtro_volume.forFolio = true;
+            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/activo", filtro_volume);
+            if (responseVolumen.Error)
+            {
+                var message = await responseVolumen.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                volumenDisponible = responseVolumen.Response;
+        }
+        else
+        {
+            volumenDisponible = new VolumenDisponibleDTO();
+        }
         show = false;
     }
 
