@@ -1,0 +1,263 @@
+﻿@inject IJSRuntime js
+@inject IRepositorio http
+<table class="table table-sm table-bordered table-hover" id="miTabla">
+    <thead class="fila">
+        <tr style="max-height:50px;white-space:nowrap;">
+            <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:120px;">
+                Programar
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                Fecha de vigencia
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                Folio
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                Volumen Disponible
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                Grupo
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                Cliente
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                Destino
+            </th>
+            <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                Producto
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @* <tr>
+        <td class="sticky-column" style="background-color:white;"></td>
+        <td></td>
+        <td></td>
+        <td>
+        <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
+        </td>
+        <td>
+        <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
+
+        </td>
+        <td>
+        <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
+        </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        </tr> *@
+        @if (Loading_Get_Folios)
+        {
+            <tr>
+                <td colspan="8">
+                    <SpinnerLoading />
+                </td>
+            </tr>
+        }
+        else
+        {
+            <Virtualize Items="@Folios" Context="item" TItem="Folio_Activo_Vigente">
+                <tr class="@(Folio.ID_Cierre == item.ID_Cierre ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                    <td class="sticky-column" style="background-color:white;">
+                        <div class="col-12 row">
+                            <div class="col-12">
+                                <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item.Folio))">
+                                    <i class="fa fa-solid fa-list-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            <p>
+                                @(item.Fecha_Cierre.ToShortDateString()) - @(item.Fecha_Vigencia.ToShortDateString())
+                            </p> 
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Folio
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Volumen_Disponible
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Nombre_Grupo
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Nombre_Cliente
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Nombre_Destino
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="text-hidden-overflow">
+                            @item?.Nombre_Producto
+                        </div>
+                    </td>
+                </tr>
+            </Virtualize>
+        }
+    </tbody>
+</table>
+
+<style type="text/css">
+    .ancho {
+        width: contain;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        table-layout: fixed;
+    }
+
+    table, th, td {
+        background-color: white;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    .asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
+
+    .table-container {
+        overflow: auto;
+        width: 100%;
+        border: 1px solid #ccc;
+        max-height: 400px; /* Establece una altura máxima si es necesario */
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px; /* Ancho del área de redimensionamiento */
+            background: transparent;
+        }
+
+    .dropdown-content {
+        position: absolute;
+        background-color: #f6f6f6;
+        border: 1px solid #ccc;
+        max-height: 300px;
+        z-index: 2;
+        overflow: auto;
+        list-style: none;
+        max-width: 25%;
+        font-size: 12px;
+    }
+
+    .text-hidden-overflow {
+        width: 100%;
+        white-space: nowrap; /*Evita saltos de linea*/
+        overflow: hidden; /*oculta el texto que desborda*/
+        text-overflow: ellipsis; /*Mustra puntos suspensivos para texto recortado*/
+    }
+</style>
+
+@code {
+    // [Parameter] public string Folio_Seleccionado { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> Cambiar_Folio { get; set; }
+
+    List<Folio_Activo_Vigente> Folios { get; set; } = new List<Folio_Activo_Vigente>();
+    Folio_Activo_Vigente Folio { get; set; } = new Folio_Activo_Vigente();
+    private bool Loading_Get_Folios = false;
+    // private async Task OnValorChanged(ChangeEventArgs e)
+    // {
+    //     if (e.Value is not null)
+    //         Folio_Seleccionado = e.Value.ToString() ?? string.Empty;
+    //     await Folio_SeleccionadoChanged.InvokeAsync(Folio_Seleccionado);
+    // }
+
+    // private void SetFlioSeleccionado(string Folio)
+    // {
+    //     Folio_Seleccionado = Folio;
+    // }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetFolios();
+    }
+
+    private async Task GetFolios()
+    {
+        try
+        {
+            Loading_Get_Folios = true;
+            var response = await http.Get<List<Folio_Activo_Vigente>>($"api/pedido/folios/activo/vigente");
+            if (response.Error)
+            {
+                Loading_Get_Folios = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Folios = response.Response;
+            }
+            Loading_Get_Folios = false;
+        }
+        catch (Exception e)
+        {
+            Loading_Get_Folios = false;
+        }
+    }
+}

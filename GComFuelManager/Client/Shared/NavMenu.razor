@@ -230,10 +230,20 @@
                 </Template>
                 <ChildContent>
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
-                        <RadzenPanelMenuItem Path="pedidos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                        <RadzenPanelMenuItem Path="ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
-                                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes
+                                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes sin pedido
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+                    
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+                        <RadzenPanelMenuItem Path="ordenes/pedido" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes de pedido
                                 </div>
                             </Template>
                         </RadzenPanelMenuItem>

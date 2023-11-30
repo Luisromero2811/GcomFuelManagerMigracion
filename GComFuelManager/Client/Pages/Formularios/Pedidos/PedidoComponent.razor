@@ -1,4 +1,4 @@
-@page "/pedidos"
+@page "/ordenes"
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject TooltipService ts
@@ -8,51 +8,10 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
-    <h4><b>Órdenes - Pedidos</b></h4>
-    <div class="col-12 card shadow-sm mb-3">
-        <div class="col-12 card-body">
-            <div class="col-12 mb-1 row">
-                <div class="col-12 row">
-                    <div class="col-3">
-                        <label>Folio</label>
-                        @*<InputText class="form-control col-12" @bind-Value="filtro.Folio" />*@
-                        <InputText class="form-control col-12 form-control-sm" @bind-Value="@filtro.Folio" MaxLenght="10" />
-
-                        @*<FolioListSearch folio="@filtro.Folio">
-                        </FolioListSearch>*@
-                    </div>
-                    <div class="col-9 d-flex row mb-1">
-                        <div class="col-2 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@GetFiltroCierres">
-                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                            </button>
-                        </div>
-                        <div class="col-2 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@ClearGridData">
-                                <i class="fa fa-solid fa-broom"></i>
-                            </button>
-                        </div>
-                        <div class="col-6 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModal">
-                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                                Ver Folios de pedidos
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</AuthorizeView>
-
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
             <div class="col-12 row">
-                <div class="col-2">
-                    <h4><b>Crear orden</b></h4>
-                </div>
                 <div class="col row d-flex justify-content-start">
                     <RadzenStack Orientation="Orientation.Horizontal">
                         <RadzenText Text="Precio automatico" />
@@ -138,55 +97,6 @@
                                     </RadzenText>
                                 </ValueTemplate>
                             </RadzenDropDown>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="col-12">
-                            <label>Folios de pedidos</label>
-                            <button class="form-control col-12 dropdown-toggle form-control-sm" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente) ? "Sin pedido" : ordenCierre.Folio_Perteneciente)</button>
-                            @if (show)
-                            {
-                                <ul class="card dropdown-content">
-                                    <li>
-                                        <div class="col-12 row">
-                                            <div class="col-9">
-                                                <input type="text" @bind="folioSearch" class="form-control form-control-sm col-12" placeholder="Buscar folio" />
-                                            </div>
-                                            <div class="col-3">
-                                                <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" @onclick="@FilterFolios">
-                                                    <i class="fa fa-solid fa-magnifying-glass"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li @onclick="@(()=>ToggleSelection(string.Empty))" class="dropdown-item col-12">
-                                        Sin pedido
-                                    </li>
-                                    @if (foliosFiltro is not null)
-                                    {
-                                        @if (foliosFiltro.Count > 0)
-                                        {
-                                            @foreach (var item in foliosFiltro)
-                                            {
-                                                <li @onclick="@(()=>ToggleSelection(item?.Folio))" class="dropdown-item col-12 text-wrap">
-                                                    @item.Fecha_Cierre?.ToString("dd/MM/yyyy") | @item.Folio | @item.Producto
-                                                </li>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            <li class="dropdown-item col-12 text-wrap">
-                                                <div class="col-12 d-flex justify-content-center">
-                                                    No se encontraron folios
-                                                </div>
-                                            </li>
-                                        }
-                                    }
-                                    <li>
-                                        <InputText @bind-Value="ordenCierre.Folio_Perteneciente" class="form-control form-control-sm" placeholder="Otro folio"></InputText>
-                                    </li>
-                                </ul>
-                            }
                         </div>
                     </div>
                     <div class="col-4">
@@ -564,23 +474,6 @@
                 </p>
             </div>
         </div>
-        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
-        {
-            <div class="col-12 mt-2">
-                <b class="my-auto">
-                    @foreach (var item in volumenDisponible.Productos)
-                    {
-                        @if (!string.IsNullOrEmpty(item.Nombre))
-                        {
-                            <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                            </div>
-
-                        }
-                    }
-                </b>
-            </div>
-        }
     </div>
 </AuthorizeView>
 
@@ -738,9 +631,6 @@
     private bool show = false;
     int count = 0;
 
-    DataGridSettings _settings;
-    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
-
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
@@ -758,19 +648,6 @@
         await GetGrupos();
         await GetCantidades();
         await GetProductos();
-
-        // var cm = await js.GetItemLocalStorage("CloseMenu");
-        // if (!string.IsNullOrEmpty(cm))
-        //     isClose = bool.Parse(cm);
-
-        // if (isClose)
-        //     width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-        // else
-        //     width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-        // if (width < 0)
-        //     width = 500;
-        // TotalWidth = $"{width}px";
     }
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -789,29 +666,21 @@
             if (width < 0)
                 width = 500;
             TotalWidth = $"{width}px";
-            // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
             importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
-
-            // await LoadStateAsync();
-            // StateHasChanged();
         }
     }
 
     private void ClearGridData()
     {
-        count = 0;
         ordenCierres = new List<OrdenCierre>();
         ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() };
         isEditing = false;
         ordenCierre.IsCierreVolumen = false;
         isFolio = false;
-        filtro.Folio = string.Empty;
     }
 
     void ShowTooltipVolumen(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca una cantidad diferente.", options);
     void ShowTooltipTurno(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Introduzca un turno de forma manual.", options);
-    void ShowTooltip(ElementReference elementReference, TooltipOptions options = null!) =>
-    ts.Open(elementReference, "El Folio se llenara automaticamente al crear el pedido.", options);
 
     private void changeEdit()
     {
@@ -820,31 +689,6 @@
         else
             ordenCierre.IsDifferentVol = false;
         isEditing = !isEditing;
-    }
-
-    public async Task GetPedidoFolio()
-    {
-        try
-        {
-            var response = await http.Get<List<OrdenCierre>>($"api/cierre/filtrar");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ordenCierres = response.Response;
-                ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
-                isFolio = true;
-                StateHasChanged();
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
     }
 
     private async Task CancelPedido(OrdenCierre orden)
@@ -1189,83 +1033,6 @@
         }
     }
 
-    private async Task GetFiltroCierres()
-    {
-        try
-        {
-            isFolio = true;
-
-            if (filtro != null)
-            {
-                filtro.forFolio = true;
-                if (!string.IsNullOrEmpty(filtro.Folio))
-                {
-                    var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtrar", filtro);
-                    if (response.Error)
-                    {
-                        var message = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        if (response.Response.Count > 0)
-                            if (response.Response.FirstOrDefault()!.CodPed == 0)
-                            {
-                                ordenCierre.IsCierreVolumen = true;
-                                ordenCierre.Folio_Perteneciente = filtro.Folio;
-                                filtro.forFolio = true;
-                                ordenCierre.CodGru = response.Response.FirstOrDefault()?.CodGru;
-                                ordenCierre.CodCte = response.Response.FirstOrDefault()?.CodCte;
-                                await GetClientes();
-                                ordenCierre.CodDes = response.Response.FirstOrDefault()?.CodDes;
-                                await GetEstaciones();
-                                ordenCierre.CodPrd = response.Response.FirstOrDefault()?.CodPrd;
-                                await GetPrecios();
-                                ordenCierre.Precio = response.Response.FirstOrDefault()?.Precio ?? 0;
-                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
-                                if (responseDetalle.Error)
-                                {
-                                    var message = await responseDetalle.ObtenerMensajeError();
-                                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                                }
-                                else
-                                {
-                                    var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/activo", filtro);
-                                    if (response.Error)
-                                    {
-                                        var message = await response.ObtenerMensajeError();
-                                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                                    }
-                                    else
-                                    {
-                                        volumenDisponible = responseVolumen.Response;
-                                        ordenCierres = responseDetalle.Response;
-                                        count = 0;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                ordenCierres = response.Response;
-                            }
-                        else
-                            await Swal.FireAsync("", "No se encontraron pedidos activos en este folio.", SweetAlertIcon.Info);
-
-                    }
-                }
-                else
-                {
-                    await Swal.FireAsync("Alerta", "Introduzca un valor valido para el folio.", SweetAlertIcon.Warning);
-                    return;
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     public async Task GetFolio()
     {
         try
@@ -1311,23 +1078,6 @@
         }
     }
 
-    private async Task PutClientes()
-    {
-        try
-        {
-            var response = await http.Put<Cliente>("api/clientes", Cliente);
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     private async Task ChangeProducto()
     {
         try
@@ -1358,8 +1108,7 @@
             ZonaCliente zonaCliente = new ZonaCliente();
             zonaCliente.DesCod = ordenCierre.CodDes;
             zonaCliente.CteCod = ordenCierre.CodCte;
-            var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
-            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
+            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos", zonaCliente);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -1371,108 +1120,6 @@
                 DestinoSeleccionado = ordenCierre.CodDes;
                 await ChangeProducto();
                 // StateHasChanged();
-            }
-
-            queryStringObjectFolios = new Dictionary<string, string>();
-            queryStringObjectFolios["codGru"] = ordenCierre?.CodGru?.ToString() ?? "";
-            queryStringObjectFolios["codCte"] = ordenCierre?.CodCte?.ToString() ?? "";
-            queryStringObjectFolios["codDes"] = ordenCierre?.CodDes?.ToString() ?? "";
-
-            var DefaultValues = new List<string>() { "false", "", "0" };
-            var uri = string.Join("&", queryStringObjectFolios.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
-
-            var responseFolio = await http.Get<List<ListadoFolioDetalle>>($"api/pedido/folios?{uri}");
-            if (responseFolio.Error)
-            {
-                var message = await responseFolio.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                folioDetalles = responseFolio.Response;
-                foliosFiltro = folioDetalles;
-                ordenCierre.Folio_Perteneciente = string.Empty;
-                volumenDisponible = new VolumenDisponibleDTO();
-            }
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task CreateCierre()
-    {
-        try
-        {
-            var responseBIN = await http.Get<int>("api/pedido/binNumber");
-            if (responseBIN.Error)
-            {
-                var message = await responseBIN.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                var bin = responseBIN.Response;
-                OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
-                    {
-                        Codest = 9,
-                        Codtad = ordenCierre.CodTad,
-                        Codprd = ordenCierre.CodPrd,
-                        Pre = ordenCierre.Precio,
-                        Vol = ordenCierre.Volumen,
-                        Coddes = ordenCierre.CodDes,
-                        Fchpet = DateTime.Now,
-                        Fchcar = ordenCierre.FchCar,
-                        Bin = count == 0 ? ++bin : count % 2 == 0 ? ++bin : bin
-                    };
-
-                var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/pedido/cierre/{filtro.Folio}", ordenEmbarque);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    ordenCierre.CodPed = response.Response.Cod;
-                    var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
-                    if (responseOC.Error)
-                    {
-                        var message = await responseOC.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        var orden = responseOC.Response;
-                        orden.OrdenEmbarque = response.Response;
-
-                        if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-                        {
-                            OrdenPedido ordenPedido = new OrdenPedido();
-                            ordenPedido.CodPed = ordenCierre.CodPed;
-                            ordenPedido.Folio = ordenCierre.Folio_Perteneciente;
-
-                            var responseOP = await http.Post<OrdenPedido>($"api/pedido/orden/add", ordenPedido);
-                            if (responseOP.Error)
-                            {
-                                var message = await responseOC.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                // ordenCierres.Add(responseOC.Response);
-                                // await gridOC.Reload();
-                                // count++;
-                            }
-                        }
-
-                        ordenCierres.Add(responseOC.Response);
-                        count++;
-                    }
-                }
             }
         }
         catch (Exception e)
@@ -1491,58 +1138,6 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task SaveStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            await js.SetItemLocalStorage("settingPedido", JsonConvert.SerializeObject(Settings));
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task LoadStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            var result = await js.GetItemLocalStorage("settingsPedido");
-            if (!string.IsNullOrEmpty(result))
-            {
-                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    public async Task GetFoliosFiltro()
-    {
-        try
-        {
-            var response = await http.Post<CierreFiltroDTO, List<string>>($"api/cierre/folios/{ClienteSeleccionadoFiltro}", fechas);
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Folios = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
