@@ -1441,64 +1441,62 @@ namespace GComFuelManager.Server.Controllers
         {
             VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
 
-            if (context.OrdenPedido.Any(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio))
+            var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio && x.CodPrd == ID_Producto).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
+            foreach (var item in cierres)
             {
-                var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio && x.CodPrd == ID_Producto).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
-                foreach (var item in cierres)
-                {
-                    var VolumenDisponible = item.Volumen;
+                var VolumenDisponible = item.Volumen;
 
-                    var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
-                    && x.OrdenEmbarque.Codest == 22
-                    && x.OrdenEmbarque.Folio != null
-                    && x.OrdenEmbarque.Bolguidid != null)
+                var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Codest == 22
+                && x.OrdenEmbarque.Folio != null
+                && x.OrdenEmbarque.Bolguidid != null)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Tonel).ToList();
+
+                var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 2 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom2!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 3 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom3!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 4 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom4!.ToString())
+                                : item.OrdenEmbarque!.Vol);
+
+                var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
+                    && x.OrdenEmbarque.Orden.Codest != 14
+                    && x.OrdenEmbarque.Codest != 14
+                && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Orden.BatchId != null)
                     .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel).ToList();
+                    .ThenInclude(x => x.Orden)
+                    .Sum(x => x.OrdenEmbarque!.Orden!.Vol);
 
-                    var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
-                                    : item.OrdenEmbarque!.Compartment == 2 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom2!.ToString())
-                                    : item.OrdenEmbarque!.Compartment == 3 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom3!.ToString())
-                                    : item.OrdenEmbarque!.Compartment == 4 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom4!.ToString())
-                                    : item.OrdenEmbarque!.Vol);
-
-                    var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
-                        && x.OrdenEmbarque.Orden.Codest != 14
-                        && x.OrdenEmbarque.Codest != 14
+                var VolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
                     && x.OrdenEmbarque.Codprd == item.CodPrd
-                    && x.OrdenEmbarque.Orden.BatchId != null)
-                        .Include(x => x.OrdenEmbarque)
-                        .ThenInclude(x => x.Orden)
-                        .Sum(x => x.OrdenEmbarque!.Orden!.Vol);
-
-                    var VolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
-                        && x.OrdenEmbarque.Codprd == item.CodPrd
-                        && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
-                        && x.OrdenEmbarque.FchOrd != null)
-                        .Include(x => x.OrdenEmbarque)
-                            .Sum(x => x.OrdenEmbarque!.Vol);
-
-                    var VolumenSolicitado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
-                    && x.OrdenEmbarque.Codprd == item.CodPrd
-                    && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 9
-                    && x.OrdenEmbarque.FchOrd == null)
-                        .Include(x => x.OrdenEmbarque)
+                    && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
+                    && x.OrdenEmbarque.FchOrd != null)
+                    .Include(x => x.OrdenEmbarque)
                         .Sum(x => x.OrdenEmbarque!.Vol);
 
-                    var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado + VolumenSolicitado);
+                var VolumenSolicitado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
+                && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 9
+                && x.OrdenEmbarque.FchOrd == null)
+                    .Include(x => x.OrdenEmbarque)
+                    .Sum(x => x.OrdenEmbarque!.Vol);
 
-                    ProductoVolumen productoVolumen = new ProductoVolumen();
+                var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado + VolumenSolicitado);
 
-                    productoVolumen.Nombre = item.Producto?.Den;
-                    productoVolumen.Disponible += VolumenTotalDisponible;
-                    productoVolumen.Congelado += VolumenCongelado;
-                    productoVolumen.Consumido += VolumenConsumido;
-                    productoVolumen.Total += VolumenDisponible;
-                    productoVolumen.Solicitud += VolumenSolicitado;
-                    productoVolumen.Programado += VolumenProgramado;
+                ProductoVolumen productoVolumen = new ProductoVolumen();
 
-                    volumen.Productos.Add(productoVolumen);
-                }
+                productoVolumen.Nombre = item.Producto?.Den;
+                productoVolumen.Disponible += VolumenTotalDisponible;
+                productoVolumen.Congelado += VolumenCongelado;
+                productoVolumen.Consumido += VolumenConsumido;
+                productoVolumen.Total += VolumenDisponible;
+                productoVolumen.Solicitud += VolumenSolicitado;
+                productoVolumen.Programado += VolumenProgramado;
+
+                volumen.Productos.Add(productoVolumen);
             }
+
             return volumen;
         }
     }

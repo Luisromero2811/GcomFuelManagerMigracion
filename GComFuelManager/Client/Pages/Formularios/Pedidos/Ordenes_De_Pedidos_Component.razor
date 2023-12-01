@@ -15,11 +15,11 @@
                 <div class="col-12 row">
                     <div class="col-3">
                         <label>Folio</label>
-                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Seleccionado" maxlength="30" />
+                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="30" />
                     </div>
                     <div class="col-9 d-flex row mb-1">
                         <div class="col-2 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm">
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@SearchFolio">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
@@ -58,7 +58,7 @@ else
 }
 <style type="text/css">
     .ancho {
-        max-width:contain;
+        max-width:@TotalWidth;
     }
 </style>
 @code {
@@ -76,6 +76,7 @@ else
     private IJSObjectReference importedJs;
 
     private string Folio_Seleccionado = string.Empty;
+    private string Folio_Busqueda= string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -99,6 +100,11 @@ else
             // await LoadStateAsync();
             // StateHasChanged();
         }
+    }
+
+    private void SearchFolio()
+    {
+        Folio_Seleccionado = Folio_Busqueda;
     }
 
     void ChangeFolio(string Folio)
