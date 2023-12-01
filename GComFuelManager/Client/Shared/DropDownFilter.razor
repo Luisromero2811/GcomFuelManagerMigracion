@@ -1,83 +1,29 @@
-﻿<button class="form-control col-12 dropdown-toggle" type="button" @onclick="@(()=>show = !show)">@(string.IsNullOrEmpty(folio) ? "Seleccione un folio" : folio)</button>
-@if (show)
-{
-    <ul class="card dropdown-content">
-        <li>
-            <InputText @bind-Value="folioSearch" class="form-control" placeholder="Buscar folio" @onkeyup="@SearchFolio"></InputText>
-        </li>
-        <li @onclick="@(()=>ToggleSelection(string.Empty))" class="dropdown-item col-12">
-            Sin pedido
-        </li>
-        @if (foliosFiltro is not null)
-        {
-            @if (foliosFiltro.Count > 0)
-            {
-                @foreach (var item in foliosFiltro)
-                {
-                    <li @onclick="@(()=>ToggleSelection(item?.Folio))" class="dropdown-item col-12">
-                        @item.Folio | @item.Producto?.Den
-                    </li>
-                }
-            }
-            else
-            {
-                <li class="dropdown-item col-12">
-                    <div class="col-12 d-flex justify-content-center">
-                        No se encontraron folios
-                    </div>
-                </li>
-            }
-        }
-        <li>
-            <InputText @bind-Value="Value" class="form-control" placeholder="Otro folio"></InputText>
-        </li>
-    </ul>
-}
-<style>
-
-    /* Dropdown Content (Hidden by Default) */
-    .dropdown-content {
-        position: absolute;
-        background-color: #f6f6f6;
-        border: 1px solid #ccc;
-        max-height: 300px;
-        z-index: 1;
-        overflow: auto;
-        list-style: none;
+﻿@* <div class="col-12">
+    <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
+    @if (showDropDown)
+    {
+        <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
+            <li class="list-group-item">
+                <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
+            </li>
+            <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
+                <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
+            </Virtualize>
+        </ul>
     }
-
-</style>
+</div>
 
 @code {
-    private bool show = false;
-    private string folio = string.Empty;
-    private string folioSearch = string.Empty;
-
-    [Parameter] public List<FolioDetalleDTO> folioDetalles { get; set; } = new List<FolioDetalleDTO>();
-    [Parameter] public string Value { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> ValueChanged { get; set; }
-
-    private List<FolioDetalleDTO> foliosFiltro = new List<FolioDetalleDTO>();
-
-    protected override void OnParametersSet()
+    private void GrupoChange(Grupo e)
     {
-        if (folioDetalles is not null)
-            foliosFiltro = folioDetalles;
+        Grupo_Seleccionado = e;
+        showDropDown = false;
     }
 
-    private void SearchFolio()
+    private async Task FilterGrupo(ChangeEventArgs e)
     {
-        foliosFiltro = folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch) || string.IsNullOrEmpty(folioSearch)).ToList();
+        Grupo_Filtrado = e.Value.ToString();
+        queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
     }
-    private async Task OnValueChanged(ChangeEventArgs e)
-    {
-        Value = e.Value.ToString();
-        await ValueChanged.InvokeAsync(Value);
-    }
-
-    private void ToggleSelection(string? folioDetalle)
-    {
-        if (!string.IsNullOrEmpty(folioDetalle))
-            Value = folioDetalle;
-    }
-}
+} *@

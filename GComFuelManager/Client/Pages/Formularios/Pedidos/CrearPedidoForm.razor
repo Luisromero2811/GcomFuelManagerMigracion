@@ -11,6 +11,12 @@
     <div class="col-12 card shadow">
         <div class="card-body">
             <div class="col-12 row">
+                <div class="col-2">
+                    <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(string.Empty))">
+                        <i class="fa fa-solid fa-arrow-left"></i>
+                        <b>Regresar</b>
+                    </button>
+                </div>
                 <div class="col-4">
                     <h4><b>Crear orden del pedido @Folio_Seleccionado</b></h4>
                 </div>
@@ -324,12 +330,6 @@
                         </div>
 
                     }
-                    <div class="col-4">
-                        <button class="btn btn-danger col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(string.Empty))">
-                            <i class="fa fa-solid fa-xmark"></i>
-                            <b>Cancelar creacion de ordenes</b>
-                        </button>
-                    </div>
                 </div>
             </EditForm>
         </div>

@@ -1,58 +1,6 @@
 ﻿@inject IJSRuntime js
 @inject IRepositorio http
-<div class="col-12 row mb-1">
-    <div class="col-4">
-        <div class="col-12">
-            <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
-            @if (showDropDown)
-            {
-                <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
-                    <li class="list-group-item">
-                        <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
-                    </li>
-                    <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
-                        <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
-                    </Virtualize>
-                </ul>
-            }
-        </div>
-    </div>
 
-    <div class="col-4">
-        <div class="col-12">
-            <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
-            @if (showDropDown)
-            {
-                <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
-                    <li class="list-group-item">
-                        <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
-                    </li>
-                    <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
-                        <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
-                    </Virtualize>
-                </ul>
-            }
-        </div>
-    </div>
-
-    <div class="col-4">
-        <div class="col-12">
-            <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
-            @if (showDropDown)
-            {
-                <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
-                    <li class="list-group-item">
-                        <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
-                    </li>
-                    <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
-                        <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
-                    </Virtualize>
-                </ul>
-            }
-        </div>
-    </div>
-
-</div>
 <table class="table table-sm table-bordered table-hover" id="miTabla">
     <thead class="fila">
         <tr style="max-height:50px;white-space:nowrap;">
@@ -83,11 +31,29 @@
         </tr>
     </thead>
     <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterGrupo" @bind="Grupo_Filtrado"/></td>
+            <td><input placeholder="Buscar cliente..." class="form-control form-control-sm" @oninput="@FilterCliente" @bind="Cliente_Filtrado" /></td>
+            <td><input placeholder="Buscar destino..." class="form-control form-control-sm" @oninput="@FilterDestino" @bind="Destino_Filtrado" /></td>
+            <td><input placeholder="Buscar producto..." class="form-control form-control-sm" @oninput="@FilterProducto" @bind="Producto_Filtrado" /></td>
+        </tr>
         @if (Loading_Get_Folios)
         {
             <tr>
                 <td colspan="8">
-                    <SpinnerLoading />
+                    <SpinnerLoading /> Cargando...
+                </td>
+            </tr>
+        }
+        else if ((Folios is null || Folios.Count == 0) && Loading_Get_Folios == false)
+        {
+            <tr>
+                <td colspan="8">
+                    No hay registros
                 </td>
             </tr>
         }
@@ -276,47 +242,51 @@
     Folio_Activo_Vigente Folio { get; set; } = new Folio_Activo_Vigente();
     private bool Loading_Get_Folios = false;
 
-    Grupo? Grupo_Seleccionado;
     string Grupo_Filtrado = string.Empty;
+    string Cliente_Filtrado = string.Empty;
+    string Destino_Filtrado = string.Empty;
+    string Producto_Filtrado = string.Empty;
+
     bool showDropDown = false;
+    bool showDropDownCliente = false;
+    bool showDropDownDestino = false;
 
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     IList<Grupo> Grupos_Filtrados => Grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.Contains(Grupo_Filtrado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(Grupo_Filtrado)).ToList();
 
+    Dictionary<string, string> queryParams = new Dictionary<string, string>();
+
     protected async override Task OnInitializedAsync()
     {
-        await GetGrupos();
         await GetFolios();
     }
 
-    private void GrupoChange(Grupo e)
-    {
-        Grupo_Seleccionado = e;
-    }
-
-    private void FilterGrupo(ChangeEventArgs e)
+    private async Task FilterGrupo(ChangeEventArgs e)
     {
         Grupo_Filtrado = e.Value.ToString();
+        queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
     }
 
-    public async Task GetGrupos()
+    private async Task FilterCliente(ChangeEventArgs e)
     {
-        try
-        {
-            var response = await http.Get<List<Grupo>>("api/grupo/all");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-            {
-                Grupos = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            throw e;
-        }
+        Cliente_Filtrado = e.Value.ToString();
+        queryParams["Cliente_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
+    }
+
+    private async Task FilterDestino(ChangeEventArgs e)
+    {
+        Destino_Filtrado = e.Value.ToString();
+        queryParams["Destino_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
+    }
+
+    private async Task FilterProducto(ChangeEventArgs e)
+    {
+        Producto_Filtrado = e.Value.ToString();
+        queryParams["Producto_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
     }
 
     private async Task GetFolios()
@@ -324,7 +294,8 @@
         try
         {
             Loading_Get_Folios = true;
-            var response = await http.Get<List<Folio_Activo_Vigente>>($"api/pedido/folios/activo/vigente");
+            var url = Constructor_De_URL_Parametros.Generar_URL(queryParams);
+            var response = await http.Get<List<Folio_Activo_Vigente>>($"api/pedido/folios/activo/vigente?{url}");
             if (response.Error)
             {
                 Loading_Get_Folios = false;

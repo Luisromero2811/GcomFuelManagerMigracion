@@ -17,6 +17,10 @@ namespace GComFuelManager.Shared.DTOs
         public string? Nombre_Cliente { get { return Cliente is not null ? Cliente.Den : "Sin cliente"; } }
         public string? Nombre_Destino { get { return Destino is not null ? Destino.Den : "Sin destino"; } }
         public string? Nombre_Producto { get { return Producto is not null ? Producto.Den : "Sin producto"; } }
+        public string? Grupo_Filtrado { get; set; } = string.Empty;
+        public string? Cliente_Filtrado { get; set; } = string.Empty;
+        public string? Destino_Filtrado { get; set; } = string.Empty;
+        public string? Producto_Filtrado { get; set; } = string.Empty;
         public VolumenDisponibleDTO? VolumenDisponibleDTO { get; set; } = null;
     }
 }
