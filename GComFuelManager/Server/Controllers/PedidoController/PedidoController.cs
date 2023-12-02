@@ -1466,6 +1466,56 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("dividir")]
+        public async Task<ActionResult> DividirOrdenes([FromBody] OrdenEmbarque ordenEmbarque)
+        {
+            try
+            {
+                if (ordenEmbarque is null)
+                    return BadRequest("No se encontro ninguna orden");
+
+                if (ordenEmbarque.Ordenes_A_Crear == 0)
+                    return BadRequest("No se aceptan valores iguales o menores a 0");
+
+                var Volumen_A_Dividir = ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear;
+
+                for (int i = 0; i < ordenEmbarque.Ordenes_A_Crear; i++)
+                {
+                    var orden = ordenEmbarque.ShallowCopy();
+                    orden.Cod = 0;
+                    orden.Vol = (double?)Math.Round(Convert.ToDecimal(Volumen_A_Dividir.ToString()), 2);
+
+                    orden.Chofer = null!;
+                    orden.Destino = null!;
+                    orden.Producto = null!;
+                    orden.Cliente = null!;
+                    orden.OrdenCierre = null!;
+                    orden.OrdenCompra = null!;
+                    orden.OrdenPedido = null!;
+                    orden.Estado = null!;
+                    orden.Transportista = null!;
+                    orden.Tonel = null!;
+                    orden.Tad = null!;
+
+                    context.Add(orden);
+                }
+
+                ordenEmbarque.Codest = 14;
+                context.Update(ordenEmbarque);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (DivideByZeroException e)
+            {
+                return BadRequest("No se pueden divir valores entre 0");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         private VolumenDisponibleDTO ObtenerVolumenDisponibleDeProducto(string Folio, byte? ID_Producto)
         {
             VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();

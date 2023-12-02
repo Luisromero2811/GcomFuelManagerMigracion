@@ -18,7 +18,7 @@
                     </button>
                 </div>
                 <div class="col-4">
-                    <h4><b>Crear orden del pedido @Folio_Seleccionado</b></h4>
+                    <p><b>Crear orden del pedido @Folio_Seleccionado</b></p>
                 </div>
                 <div class="col row d-flex justify-content-start">
                     <RadzenStack Orientation="Orientation.Horizontal">
@@ -662,6 +662,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        await GetTerminales();
+        await GetCantidades();
         await GetFiltroCierres();
     }
 

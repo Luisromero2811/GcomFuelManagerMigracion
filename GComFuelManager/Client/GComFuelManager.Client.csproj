@@ -58,7 +58,6 @@
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\Formularios\ETA\" />
-    <Folder Include="wwwroot\js\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />

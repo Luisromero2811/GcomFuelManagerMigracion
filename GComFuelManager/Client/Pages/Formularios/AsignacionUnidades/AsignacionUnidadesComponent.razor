@@ -4,6 +4,8 @@
 @inject SweetAlertService swal
 @inject NotificationService ns
 @inject AsignacionUnidadValidation validation
+@inject DialogService ds
+
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="FORM">
@@ -211,7 +213,7 @@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
                     Estatus
                 </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
                     Desasignar
                 </th>
             </tr>
@@ -297,9 +299,14 @@
                     <td class="overflow-hidden">@data?.Estado?.den</td>
                     <td class="overflow-hidden">
                         <div class="col-12">
-                            <button class="btn btn-primary col-12 btn-sm" @onclick="@(()=>DesasignarUnidad(data))">
-                                <i class="fa-solid fa-broom"></i>
-                            </button>
+                            <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
+                                <button class="btn btn-primary col-12 btn-sm" @onclick="@(()=>DesasignarUnidad(data))">
+                                    <i class="fa-solid fa-broom"></i>
+                                </button>
+                                <button class="btn btn-success col-12 btn-sm" @onclick="@(()=>AbrirModalDivicion(data))">
+                                    <i class="fa-solid fa-divide"></i>
+                                </button>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -372,6 +379,7 @@
     table, th, td {
         background-color: white;
     }
+
     .fila th {
         position: -webkit-sticky;
         position: sticky;
@@ -379,6 +387,7 @@
         top: 0;
         background-color: #f2f2f2;
     }
+
     .ancho {
         width: @TotalWidth;
     }
@@ -704,17 +713,17 @@
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = asignacion.CodChf,
-                    Tonel = asignacion.CodTon,
-                    Compartimento = Vehiculos?.Count == null ? 0 :
-                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = asignacion.CodChf,
+                        Tonel = asignacion.CodTon,
+                        Compartimento = Vehiculos?.Count == null ? 0 :
+                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                    : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                    : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                    : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -750,13 +759,13 @@
                         else
                         {
                             var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                                {
+                                    Icon = SweetAlertIcon.Warning,
+                                    ShowCancelButton = true,
+                                    ConfirmButtonText = "Aceptar",
+                                    CancelButtonText = "Cancelar",
+                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                                });
 
                             if (!string.IsNullOrEmpty(confirm.Value))
                             {
@@ -848,28 +857,28 @@
                        && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                        {
-                            OrdenCompra = item?.OrdenCompra?.den ?? "",
-                            Referencia = item?.OrdenCierre?.Folio ?? "",
-                            Cliente = item?.Destino?.Cliente?.Den ?? "",
-                            Destino = item?.Destino?.Den ?? "",
-                            Producto = item?.Producto?.Den ?? "",
-                            //Volumen = item?.Vol,
-                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                    Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                    Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                    Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                    Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                            Unidad = item?.Tonel?.Veh ?? "",
-                            Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                            Bin = item?.Bin,
-                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                            Turno = item?.OrdenCierre?.Turno ?? ""
-                            //Status = item?.Estado?.den
-                        });
+                            {
+                                OrdenCompra = item?.OrdenCompra?.den ?? "",
+                                Referencia = item?.OrdenCierre?.Folio ?? "",
+                                Cliente = item?.Destino?.Cliente?.Den ?? "",
+                                Destino = item?.Destino?.Den ?? "",
+                                Producto = item?.Producto?.Den ?? "",
+                                //Volumen = item?.Vol,
+                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                                Unidad = item?.Tonel?.Veh ?? "",
+                                Compartimento = item?.Compartment,
+                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                                Bin = item?.Bin,
+                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                                Turno = item?.OrdenCierre?.Turno ?? ""
+                                //Status = item?.Estado?.den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -948,23 +957,23 @@
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Ordenes a Synthesis",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                        Duration = 150000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Enviando Ordenes a Synthesis",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                            Duration = 150000
+                        });
 
                     loadingSend = true;
                     AlertVisible = true;
@@ -1095,13 +1104,13 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Info,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1138,13 +1147,13 @@
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+                });
             ordenEmbarque = orden;
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1181,6 +1190,27 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task AbrirModalDivicion(OrdenEmbarque? ordenEmbarque)
+    {
+        try
+        {
+            if (ordenEmbarque is null)
+                return;
+
+            var Validar_Creacion = await ds.OpenAsync<Dividir_Orden_A_Compartimentada_Component>($"Dividir orden",
+            new Dictionary<string, object> { { "ordenEmbarque", ordenEmbarque } },
+            new DialogOptions() { Height = "400px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            if (Validar_Creacion != null && Validar_Creacion == true)
+            {
+                await MostrarOrdenFecha();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

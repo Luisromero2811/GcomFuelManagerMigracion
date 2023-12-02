@@ -88,7 +88,7 @@
                             {
                                 @foreach (var data in item.VolumenDisponibleDTO.Productos)
                                 {
-                                    @data.Disponible
+                                    @data.Disponible?.ToString("###,###,###.##")
                                 }
                             }
                         </div>
@@ -259,6 +259,15 @@
     protected async override Task OnInitializedAsync()
     {
         await GetFolios();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await js.InvokeVoidAsync("makeTableResizable");
+            // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+        }
     }
 
     private async Task FilterGrupo(ChangeEventArgs e)
