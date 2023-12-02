@@ -1202,7 +1202,7 @@
 
             var Validar_Creacion = await ds.OpenAsync<Dividir_Orden_A_Compartimentada_Component>($"Dividir orden",
             new Dictionary<string, object> { { "ordenEmbarque", ordenEmbarque } },
-            new DialogOptions() { Height = "400px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            new DialogOptions() { Height = "200px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
             if (Validar_Creacion != null && Validar_Creacion == true)
             {
                 await MostrarOrdenFecha();

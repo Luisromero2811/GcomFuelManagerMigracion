@@ -1477,14 +1477,30 @@ namespace GComFuelManager.Server.Controllers
                 if (ordenEmbarque.Ordenes_A_Crear == 0)
                     return BadRequest("No se aceptan valores iguales o menores a 0");
 
-                var Volumen_A_Dividir = ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear;
+                if(ordenEmbarque.Ordenes_A_Crear > 4)
+                    return BadRequest("No se aceptan valores mayores a 4");
+
+                var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
+                if (destino is null)
+                    return BadRequest("No se encontro el destino");
+
+                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == destino.Codcte);
+                if (cliente is null)
+                    return BadRequest("No se encontro el cliente");
+
+                var guid = Guid.NewGuid().ToString().Split("-");
+                var guidfolio = $"O-{guid[4]}";
+
+                var Volumen_A_Dividir = Math.Round((ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear) ?? 10000,2);
+                var ordenCierre = ordenEmbarque.OrdenCierre;
+
+                OrdenPedido ordenPedido = new OrdenPedido();
 
                 for (int i = 0; i < ordenEmbarque.Ordenes_A_Crear; i++)
                 {
                     var orden = ordenEmbarque.ShallowCopy();
                     orden.Cod = 0;
-                    orden.Vol = (double?)Math.Round(Convert.ToDecimal(Volumen_A_Dividir.ToString()), 2);
-
+                    orden.Vol = Volumen_A_Dividir;
                     orden.Chofer = null!;
                     orden.Destino = null!;
                     orden.Producto = null!;
@@ -1498,7 +1514,128 @@ namespace GComFuelManager.Server.Controllers
                     orden.Tad = null!;
 
                     context.Add(orden);
+                    await context.SaveChangesAsync();
+
+                    if (ordenCierre != null)
+                    {
+                        var ordencierrecopy = ordenCierre.ShallowCopy();
+                        ordencierrecopy.OrdenPedidos = null!;
+                        ordencierrecopy.CodPed = orden.Cod;
+                        ordencierrecopy.Cod = 0;
+                        ordencierrecopy.Volumen = Convert.ToInt32(Volumen_A_Dividir);
+
+                        ordencierrecopy.Destino = null!;
+                        ordencierrecopy.Cliente = null!;
+                        ordencierrecopy.Producto = null!;
+                        ordencierrecopy.OrdenEmbarque = null!;
+                        ordencierrecopy.Grupo = null!;
+
+                        context.Add(ordencierrecopy);
+                        await context.SaveChangesAsync();
+
+                        if (context.OrdenPedido.Any(x => x.CodPed == ordenEmbarque.Cod))
+                        {
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordenEmbarque.Cod);
+                            if (op is not null)
+                            {
+                                ordenPedido = new OrdenPedido()
+                                {
+                                    Folio = op.Folio,
+                                    CodPed = orden.Cod,
+                                    CodCierre = ordencierrecopy.Cod,
+                                    Pedido_Original = ordenEmbarque.Cod,
+                                    Folio_Cierre_Copia = ordenCierre.Folio
+                                };
+
+                                context.Add(ordenPedido);
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = ordenCierre?.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = ordencierrecopy.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = ordenCierre?.Folio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                    }
+
+                    if (ordenCierre is null)
+                    {
+                        var cierre = new OrdenCierre()
+                        {
+                            Folio = guidfolio,
+                            CodPed = orden.Cod,
+                            FchCar = DateTime.Today,
+                            FchCierre = DateTime.Today,
+                            fchPrecio = DateTime.Now,
+                            FchVencimiento = DateTime.Today.AddDays(6),
+                            FchLlegada = DateTime.Today.AddDays(1),
+                            Precio = orden.Pre ?? 0,
+                            CodDes = orden.Coddes,
+                            CodGru = cliente?.codgru,
+                            CodCte = cliente?.Cod,
+                            CodPrd = orden.Codprd,
+                            CodTad = orden.Codtad, 
+                            Volumen = Convert.ToInt32(orden.Vol),
+
+                        };
+
+                        context.Add(cierre);
+                        await context.SaveChangesAsync();
+
+                        if (context.OrdenPedido.Any(x => ordenEmbarque != null && x.CodPed == ordenEmbarque.Cod))
+                        {
+                            var op = context.OrdenPedido.FirstOrDefault(x => ordenEmbarque != null && x.CodPed == ordenEmbarque.Cod);
+
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = op.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = cierre.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = guidfolio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = ordenCierre?.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = cierre.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = guidfolio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                    }
+
                 }
+
+                ordenEmbarque.Chofer = null!;
+                ordenEmbarque.Destino = null!;
+                ordenEmbarque.Producto = null!;
+                ordenEmbarque.Cliente = null!;
+                ordenEmbarque.OrdenCierre = null!;
+                ordenEmbarque.OrdenCompra = null!;
+                ordenEmbarque.OrdenPedido = null!;
+                ordenEmbarque.Estado = null!;
+                ordenEmbarque.Transportista = null!;
+                ordenEmbarque.Tonel = null!;
+                ordenEmbarque.Tad = null!;
 
                 ordenEmbarque.Codest = 14;
                 context.Update(ordenEmbarque);

@@ -64,6 +64,6 @@ namespace GComFuelManager.Shared.Modelos
             return (OrdenEmbarque)this.MemberwiseClone();
         }
 
-        [NotMapped, EpplusIgnore] public int Ordenes_A_Crear { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public int Ordenes_A_Crear { get; set; } = 1;
     }
 }
