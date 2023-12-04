@@ -17,19 +17,25 @@
                         <label>Folio</label>
                         <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="30" />
                     </div>
-                    <div class="col-9 d-flex row mb-1">
-                        <div class="col-2 mt-auto">
+                    @*<div class="col-12 d-flex row mb-1">*@
+                        <div class="col-3 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@SearchFolio">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
-                        <div class="col-6 mt-auto">
+                        <div class="col-3 mt-auto">
                             <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModal">
                                 <i class="fa fa-solid fa-magnifying-glass"></i>
                                 Ver Folios de pedidos
                             </button>
                         </div>
-                    </div>
+                        <div class="col-3 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModalCierre">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                                Ver folios de cierres
+                            </button>
+                        </div>
+                    @*</div>*@
                 </div>
             </div>
         </div>
@@ -122,7 +128,7 @@ else
             }
             else
             {
-                
+
             }
         }
         catch (Exception e)
@@ -137,12 +143,31 @@ else
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task OpenModalCierre()
+    {
+        try
+        {
+            await ds.OpenAsync<ViewFoliosCierresComponent>("Folios de cierres", options: new DialogOptions()
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {
