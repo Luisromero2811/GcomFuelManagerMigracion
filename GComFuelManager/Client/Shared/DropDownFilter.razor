@@ -1,0 +1,29 @@
+﻿@* <div class="col-12">
+    <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
+    @if (showDropDown)
+    {
+        <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
+            <li class="list-group-item">
+                <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
+            </li>
+            <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
+                <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
+            </Virtualize>
+        </ul>
+    }
+</div>
+
+@code {
+    private void GrupoChange(Grupo e)
+    {
+        Grupo_Seleccionado = e;
+        showDropDown = false;
+    }
+
+    private async Task FilterGrupo(ChangeEventArgs e)
+    {
+        Grupo_Filtrado = e.Value.ToString();
+        queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
+        await GetFolios();
+    }
+} *@

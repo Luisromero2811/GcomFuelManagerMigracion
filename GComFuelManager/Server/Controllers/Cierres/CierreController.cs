@@ -928,7 +928,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenDisponible = item.Volumen;
 
-                            var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
+                            var listConsumido = context.OrdenPedido.Where(x => x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
                             && x.OrdenEmbarque.Codest == 22
                             && x.OrdenEmbarque.Folio != null
                             && x.OrdenEmbarque.Bolguidid != null)
@@ -2174,131 +2174,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpGet("bol/{bol}")]
-        public async Task<ActionResult> GetPrecioByBol([FromRoute] int Bol)
-        {
-            try
-            {
-                PrecioBol precio = new PrecioBol();
-
-                var orden = context.Orden.Where(x => x.BatchId == Bol)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.OrdenCierre)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Destino)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Producto)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .FirstOrDefault();
-
-                if (orden is null)
-                    return BadRequest($"No se encontro el BOL. BOL: {Bol}");
-
-                precio.Fecha_De_Carga = orden.Fchcar;
-
-                if (orden.Producto is not null)
-                    precio.Producto_Synthesis = orden.Producto.Den;
-
-                if (orden.Destino is not null)
-                    precio.Destino_Synthesis = orden.Destino.Den;
-
-                if (orden.OrdenEmbarque is not null)
-                {
-                    if (orden.OrdenEmbarque.Destino is not null)
-                        precio.Destino_Original = orden.OrdenEmbarque.Destino.Den ?? "";
-
-                    if (orden.OrdenEmbarque.Producto is not null)
-                        precio.Producto_Original = orden.OrdenEmbarque.Producto.Den ?? "";
-                }
-
-                var precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
-
-                var precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
-
-                var precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                if (precioHis is not null)
-                {
-                    precio.Precio = precioHis.pre;
-                    precio.Fecha_De_Precio = precioHis.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Historial";
-                }
-
-                if (precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
-                {
-                    precio.Precio = precioVig.Pre;
-                    precio.Fecha_De_Precio = precioVig.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Vigente";
-                }
-
-                if (precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
-                {
-                    precio.Precio = precioPro.Pre;
-                    precio.Fecha_De_Precio = precioPro.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Programado";
-                }
-
-                if (orden.OrdenEmbarque != null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod))
-                {
-                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
-
-                    if (ordenepedido is not null)
-                    {
-                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
-                         && x.CodPrd == orden.Codprd).FirstOrDefault();
-
-                        if (cierre is not null)
-                        {
-                            precio.Precio = cierre.Precio;
-                            precio.Fecha_De_Precio = cierre.fchPrecio;
-                            precio.Es_Cierre = true;
-                            precio.Precio_Encontrado = true;
-                            precio.Precio_Encontrado_En = "Cierre";
-                        }
-                    }
-                }
-
-                if (orden.OrdenEmbarque is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
-                {
-                    precio.Precio = orden.OrdenEmbarque.Pre;
-
-                    if (orden.OrdenEmbarque.OrdenCierre is not null)
-                        precio.Fecha_De_Precio = orden.OrdenEmbarque.OrdenCierre.fchPrecio;
-
-                    precio.Es_Precio_De_Creacion = true;
-                    precio.Precio_Encontrado_En = "Creacion";
-                }
-
-                return Ok(precio);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        public class PrecioBol
-        {
-            public double? Precio { get; set; } = 0;
-            public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
-            public DateTime? Fecha_De_Precio { get; set; } = DateTime.MinValue;
-            public string? Destino_Synthesis { get; set; } = string.Empty;
-            public string? Destino_Original { get; set; } = string.Empty;
-            public string? Producto_Synthesis { get; set; } = string.Empty;
-            public string? Producto_Original { get; set; } = string.Empty;
-            public bool Es_Cierre { get; set; } = false;
-            public bool Es_Precio_De_Creacion { get; set; } = false;
-            public bool Precio_Encontrado { get; set; } = false;
-            public string Precio_Encontrado_En { get; set; } = string.Empty;
-        }
-
         [HttpPost("filtrar/pendientes")]
         public async Task<ActionResult> GetCierresPendentes([FromBody] FechasF fechas)
         {
@@ -2372,7 +2247,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var cierre = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio)).ToList();
 
                 foreach (var item in cierre)
-                    if (item?.Activa == true)
+                    if (item?.FchVencimiento > DateTime.Today)
                         activo = true;
                     else
                         fchActiva = item?.FchVen;

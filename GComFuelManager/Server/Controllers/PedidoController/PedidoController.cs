@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
@@ -8,7 +9,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -685,23 +688,26 @@ namespace GComFuelManager.Server.Controllers
                 cierre.Cliente = null!;
                 cierre.ContactoN = null!;
                 cierre.OrdenEmbarque = null!;
-                cierre.OrdenPedidos = null!;
+                //cierre.OrdenPedidos = null!;
 
                 context.Update(cierre);
-                await context.SaveChangesAsync();
 
-                orden!.Producto = null!;
-                orden!.Chofer = null!;
-                orden!.Destino = null!;
-                orden!.Tonel = null!;
-                orden!.Tad = null!;
-                orden!.OrdenCompra = null!;
-                orden!.Estado = null!;
-                orden!.Cliente = null!;
-                orden!.OrdenCierre = null!;
-                orden!.OrdenPedido = null!;
+                if (orden != null)
+                {
+                    orden.Producto = null!;
+                    orden.Chofer = null!;
+                    orden.Destino = null!;
+                    orden.Tonel = null!;
+                    orden.Tad = null!;
+                    orden.OrdenCompra = null!;
+                    orden.Estado = null!;
+                    orden.Cliente = null!;
+                    orden.OrdenCierre = null!;
+                    orden.OrdenPedido = null!;
 
-                context.Update(orden);
+                    context.Update(orden);
+                }
+
                 await context.SaveChangesAsync();
 
                 var newOrden = context.OrdenCierre.Where(x => x.Cod == cierre.Cod)
@@ -736,6 +742,7 @@ namespace GComFuelManager.Server.Controllers
                 orden.Estado = null;
                 orden.Cliente = null!;
                 orden.OrdenCierre = null!;
+                orden.OrdenPedido = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
@@ -1219,6 +1226,525 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+        [HttpGet("folios")]
+        public ActionResult GetFoliosFromPedidos([FromQuery] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                List<FolioDetalleDTO> Folios = new List<FolioDetalleDTO>();
+                if (ordenCierre is null)
+                    return BadRequest("Datos vacios");
 
+                var foliosquery = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.Activa == true
+                    && !x.Folio.StartsWith("RE") && !x.Folio.StartsWith("OP") && x.FchVencimiento > DateTime.Today)
+                    .Include(x => x.Producto).Include(x => x.Cliente).Include(x => x.Destino).AsQueryable();
+
+                if (ordenCierre.CodGru != 0 && ordenCierre.CodGru != null)
+                    foliosquery = foliosquery.Where(x => x.CodGru == ordenCierre.CodGru);
+                if (ordenCierre.CodCte != 0 && ordenCierre.CodCte != null)
+                    foliosquery = foliosquery.Where(x => x.CodCte == ordenCierre.CodCte || x.Folio.StartsWith("G"));
+                if (ordenCierre.CodDes != 0 && ordenCierre.CodDes != null)
+                    foliosquery = foliosquery.Where(x => x.CodDes == ordenCierre.CodDes || x.Folio.StartsWith("G"));
+
+                if (foliosquery is not null)
+                {
+                    var folioDetalle = foliosquery
+                        .Select(x => new ListadoFolioDetalle()
+                        {
+                            Folio = x.Folio,
+                            Producto = x.Producto.Den ?? string.Empty,
+                            Cliente = x.Cliente.Den ?? string.Empty,
+                            Destino = x.Destino.Den ?? string.Empty,
+                            Comentarios = x.Observaciones,
+                            Fecha_Cierre = x.FchCierre
+                        }).OrderBy(x => x.Fecha_Cierre);
+                    return Ok(folioDetalle);
+                }
+                else
+                    return Ok(new List<FolioDetalleDTO>());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("create/all")]
+        public async Task<ActionResult> GetFolioToOrden([FromBody] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                //{
+                //    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
+                //    if (cierre is not null)
+                //    {
+                //        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
+                //        {
+                //            return BadRequest("El producto seleccionado no se encuentra en el cierre");
+                //        }
+                //    }
+                //}
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                if (ordenCierre is null)
+                    return BadRequest("No se encontro ninguna orden");
+
+                string folio = string.Empty;
+
+                //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
+                && x.CodPed != 0 && x.FchCierre == DateTime.Today)?.Folio ?? string.Empty;
+
+                var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+                if (user == null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(folio))
+                {
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
+
+                    if (cliente is null)
+                        return BadRequest("No se encontro el cliente");
+
+                    cliente.Consecutivo = cliente.Consecutivo is not null ? cliente.Consecutivo + 1 : 1;
+
+                    var userCod = user?.Den?.Substring(0, 3);
+                    var guid = Guid.NewGuid().ToString().Split("-");
+                    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                        ordenCierre.Folio = $"O-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+                    else
+                        ordenCierre.Folio = $"OP-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+
+                }
+                else
+                {
+                    ordenCierre.Folio = folio;
+                }
+
+                var bin = context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefault();
+
+                var bincount = context.OrdenEmbarque.Count(x => x.Bin == bin);
+
+                var count = context.OrdenCierre.Count(x => x.Folio == folio && x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte
+                && x.CodPrd == ordenCierre.CodPrd);
+
+                OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
+                {
+                    Codest = 9,
+                    Codtad = ordenCierre.CodTad,
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Fchcar = ordenCierre.FchCar,
+                    Bin = count == 0 || bincount >= 2 ? ++bin : count % 2 == 0 ? ++bin : bin,
+                    Codusu = user?.Cod
+                };
+
+                context.Add(ordenEmbarque);
+                await context.SaveChangesAsync();
+
+                ordenCierre.Producto = null!;
+                ordenCierre.Destino = null!;
+                ordenCierre.Grupo = null!;
+                ordenCierre.OrdenEmbarque = null!;
+                ordenCierre.OrdenPedidos = null!;
+                ordenCierre.Cliente = null!;
+
+                ordenCierre.CodPed = ordenEmbarque.Cod;
+                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(6);
+
+                context.Add(ordenCierre);
+
+                await context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                {
+                    var cierre = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenCierre.Folio_Perteneciente);
+
+                    OrdenPedido ordenPedido = new OrdenPedido()
+                    {
+                        CodPed = ordenEmbarque.Cod,
+                        CodCierre = cierre?.Cod ?? 0,
+                        Folio = ordenCierre.Folio_Perteneciente,
+                    };
+
+                    context.Add(ordenPedido);
+                    await context.SaveChangesAsync();
+                }
+
+                var newOrden = context.OrdenCierre.Where(x => x.Cod == ordenCierre.Cod)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                    .FirstOrDefault();
+
+                return Ok(newOrden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("folios/activo/vigente")]
+        public ActionResult GetFoliosActivoVigente([FromQuery] Folio_Activo_Vigente parametros)
+        {
+            try
+            {
+                Porcentaje porcentaje = new Porcentaje();
+                var por = context.Porcentaje.FirstOrDefault(x => x.Accion == "cierre");
+                if (por != null)
+                    porcentaje = por;
+
+                IEnumerable<Folio_Activo_Vigente> folios = new List<Folio_Activo_Vigente>();
+                List<OrdenCierre> ordenCierres = new List<OrdenCierre>();
+                var orden_cierres_query = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento >= DateTime.Today
+                && x.CodPed == 0 && !x.Folio.StartsWith("RE") && x.Activa == true && x.Estatus == true)
+                    .Include(x => x.Grupo).Include(x => x.Cliente).Include(x => x.Destino).Include(x => x.Producto).OrderBy(x => x.FchCierre).AsQueryable();
+
+                if (orden_cierres_query is not null)
+                {
+                    if (!string.IsNullOrEmpty(parametros.Grupo_Filtrado))
+                        orden_cierres_query = orden_cierres_query.Where(x => x.Grupo != null && !string.IsNullOrEmpty(x.Grupo.Den)
+                        && x.Grupo.Den.ToLower().Contains(parametros.Grupo_Filtrado.ToLower()));
+                    if (!string.IsNullOrEmpty(parametros.Cliente_Filtrado))
+                        orden_cierres_query = orden_cierres_query.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente.Den)
+                        && x.Cliente.Den.ToLower().Contains(parametros.Cliente_Filtrado.ToLower()));
+                    if (!string.IsNullOrEmpty(parametros.Destino_Filtrado))
+                        orden_cierres_query = orden_cierres_query.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den)
+                        && x.Destino.Den.ToLower().Contains(parametros.Destino_Filtrado.ToLower()));
+                    if (!string.IsNullOrEmpty(parametros.Producto_Filtrado))
+                        orden_cierres_query = orden_cierres_query.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den)
+                        && x.Producto.Den.ToLower().Contains(parametros.Producto_Filtrado.ToLower()));
+
+                    ordenCierres = orden_cierres_query.ToList();
+                }
+
+                foreach (var item in ordenCierres)
+                {
+                    if (!string.IsNullOrEmpty(item.Folio) && item.CodPrd != null)
+                    {
+                        ordenCierres.First(x => x.Cod == item.Cod).VolumenDisponible = ObtenerVolumenDisponibleDeProducto(item.Folio, item.CodPrd);
+                        if (item.VolumenDisponible is not null)
+                            foreach (var item1 in item.VolumenDisponible.Productos)
+                            {
+                                if (item1.PromedioCarga >= (item1.Disponible * (porcentaje.Porcen / 100)))
+                                {
+                                    item.Activa = false;
+                                }
+                            }
+                    }
+                }
+
+                folios = ordenCierres.Where(x => x.Activa == true).Select(x => new Folio_Activo_Vigente()
+                {
+                    Folio = x.Folio ?? string.Empty,
+                    Grupo = x.Grupo,
+                    Cliente = x.Cliente,
+                    Destino = x.Destino,
+                    Producto = x.Producto,
+                    Fecha_Vigencia = x.FchVencimiento ?? DateTime.MinValue,
+                    ID_Cierre = x.Cod,
+                    Fecha_Cierre = x.FchCierre ?? DateTime.MinValue,
+                    VolumenDisponibleDTO = x.VolumenDisponible
+                });
+
+                return Ok(folios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("dividir")]
+        public async Task<ActionResult> DividirOrdenes([FromBody] OrdenEmbarque ordenEmbarque)
+        {
+            try
+            {
+                if (ordenEmbarque is null)
+                    return BadRequest("No se encontro ninguna orden");
+
+                if (ordenEmbarque.Ordenes_A_Crear == 0)
+                    return BadRequest("No se aceptan valores iguales o menores a 0");
+
+                if(ordenEmbarque.Ordenes_A_Crear > 4)
+                    return BadRequest("No se aceptan valores mayores a 4");
+
+                var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
+                if (destino is null)
+                    return BadRequest("No se encontro el destino");
+
+                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == destino.Codcte);
+                if (cliente is null)
+                    return BadRequest("No se encontro el cliente");
+
+                var guid = Guid.NewGuid().ToString().Split("-");
+                var guidfolio = $"O-{guid[4]}";
+
+                var Volumen_A_Dividir = Math.Round((ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear) ?? 10000,2);
+                var ordenCierre = ordenEmbarque.OrdenCierre;
+
+                OrdenPedido ordenPedido = new OrdenPedido();
+
+                for (int i = 0; i < ordenEmbarque.Ordenes_A_Crear; i++)
+                {
+                    var orden = ordenEmbarque.ShallowCopy();
+                    orden.Cod = 0;
+                    orden.Vol = Volumen_A_Dividir;
+                    orden.Chofer = null!;
+                    orden.Destino = null!;
+                    orden.Producto = null!;
+                    orden.Cliente = null!;
+                    orden.OrdenCierre = null!;
+                    orden.OrdenCompra = null!;
+                    orden.OrdenPedido = null!;
+                    orden.Estado = null!;
+                    orden.Transportista = null!;
+                    orden.Tonel = null!;
+                    orden.Tad = null!;
+
+                    context.Add(orden);
+                    await context.SaveChangesAsync();
+
+                    if (ordenCierre != null)
+                    {
+                        var ordencierrecopy = ordenCierre.ShallowCopy();
+                        ordencierrecopy.OrdenPedidos = null!;
+                        ordencierrecopy.CodPed = orden.Cod;
+                        ordencierrecopy.Cod = 0;
+                        ordencierrecopy.Volumen = Convert.ToInt32(Volumen_A_Dividir);
+
+                        ordencierrecopy.Destino = null!;
+                        ordencierrecopy.Cliente = null!;
+                        ordencierrecopy.Producto = null!;
+                        ordencierrecopy.OrdenEmbarque = null!;
+                        ordencierrecopy.Grupo = null!;
+
+                        context.Add(ordencierrecopy);
+                        await context.SaveChangesAsync();
+
+                        if (context.OrdenPedido.Any(x => x.CodPed == ordenEmbarque.Cod))
+                        {
+                            var op = context.OrdenPedido.FirstOrDefault(x => x.CodPed == ordenEmbarque.Cod);
+                            if (op is not null)
+                            {
+                                ordenPedido = new OrdenPedido()
+                                {
+                                    Folio = op.Folio,
+                                    CodPed = orden.Cod,
+                                    CodCierre = ordencierrecopy.Cod,
+                                    Pedido_Original = ordenEmbarque.Cod,
+                                    Folio_Cierre_Copia = ordenCierre.Folio
+                                };
+
+                                context.Add(ordenPedido);
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                        else
+                        {
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = ordenCierre?.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = ordencierrecopy.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = ordenCierre?.Folio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                    }
+
+                    if (ordenCierre is null)
+                    {
+                        var cierre = new OrdenCierre()
+                        {
+                            Folio = guidfolio,
+                            CodPed = orden.Cod,
+                            FchCar = DateTime.Today,
+                            FchCierre = DateTime.Today,
+                            fchPrecio = DateTime.Now,
+                            FchVencimiento = DateTime.Today.AddDays(6),
+                            FchLlegada = DateTime.Today.AddDays(1),
+                            Precio = orden.Pre ?? 0,
+                            CodDes = orden.Coddes,
+                            CodGru = cliente?.codgru,
+                            CodCte = cliente?.Cod,
+                            CodPrd = orden.Codprd,
+                            CodTad = orden.Codtad, 
+                            Volumen = Convert.ToInt32(orden.Vol),
+
+                        };
+
+                        context.Add(cierre);
+                        await context.SaveChangesAsync();
+
+                        if (context.OrdenPedido.Any(x => ordenEmbarque != null && x.CodPed == ordenEmbarque.Cod))
+                        {
+                            var op = context.OrdenPedido.FirstOrDefault(x => ordenEmbarque != null && x.CodPed == ordenEmbarque.Cod);
+
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = op.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = cierre.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = guidfolio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            ordenPedido = new OrdenPedido()
+                            {
+                                Folio = ordenCierre?.Folio,
+                                CodPed = orden.Cod,
+                                CodCierre = cierre.Cod,
+                                Pedido_Original = ordenEmbarque?.Cod,
+                                Folio_Cierre_Copia = guidfolio
+                            };
+
+                            context.Add(ordenPedido);
+                            await context.SaveChangesAsync();
+                        }
+                    }
+
+                }
+
+                ordenEmbarque.Chofer = null!;
+                ordenEmbarque.Destino = null!;
+                ordenEmbarque.Producto = null!;
+                ordenEmbarque.Cliente = null!;
+                ordenEmbarque.OrdenCierre = null!;
+                ordenEmbarque.OrdenCompra = null!;
+                ordenEmbarque.OrdenPedido = null!;
+                ordenEmbarque.Estado = null!;
+                ordenEmbarque.Transportista = null!;
+                ordenEmbarque.Tonel = null!;
+                ordenEmbarque.Tad = null!;
+
+                ordenEmbarque.Codest = 14;
+                context.Update(ordenEmbarque);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (DivideByZeroException e)
+            {
+                return BadRequest("No se pueden divir valores entre 0");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        private VolumenDisponibleDTO ObtenerVolumenDisponibleDeProducto(string Folio, byte? ID_Producto)
+        {
+            VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+
+            var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio && x.CodPrd == ID_Producto).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
+            foreach (var item in cierres)
+            {
+                var VolumenDisponible = item.Volumen;
+
+                var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
+                    && x.OrdenEmbarque.Codest == 22
+                    && x.OrdenEmbarque.Folio != null
+                    && x.OrdenEmbarque.Bolguidid != null)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tonel).ToList();
+
+                var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 2 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom2!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 3 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom3!.ToString())
+                                : item.OrdenEmbarque!.Compartment == 4 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom4!.ToString())
+                                : item.OrdenEmbarque!.Vol);
+
+                var countCongelado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Codest == 22
+                && x.OrdenEmbarque.Folio != null)
+                    .Include(x => x.OrdenEmbarque)
+                    .Count();
+
+                var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
+                    && x.OrdenEmbarque.Orden.Codest != 14
+                    && x.OrdenEmbarque.Codest != 14
+                && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Orden.BatchId != null)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .Sum(x => x.OrdenEmbarque!.Orden!.Vol);
+
+                var countConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
+                    && x.OrdenEmbarque.Orden.Codest != 14
+                    && x.OrdenEmbarque.Codest != 14
+                    && x.OrdenEmbarque.Codprd == item.CodPrd
+                    && x.OrdenEmbarque.Orden.BatchId != null)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Orden)
+                    .Count();
+
+                var VolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
+                    && x.OrdenEmbarque.Codprd == item.CodPrd
+                    && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
+                    && x.OrdenEmbarque.FchOrd != null)
+                    .Include(x => x.OrdenEmbarque)
+                        .Sum(x => x.OrdenEmbarque!.Vol);
+
+                var CountVolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
+                    && x.OrdenEmbarque.Codprd == item.CodPrd
+                    && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
+                    && x.OrdenEmbarque.FchOrd != null)
+                    .Include(x => x.OrdenEmbarque).Count();
+
+                var VolumenSolicitado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
+                && x.OrdenEmbarque.Codprd == item.CodPrd
+                && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 9
+                && x.OrdenEmbarque.FchOrd == null)
+                    .Include(x => x.OrdenEmbarque)
+                    .Sum(x => x.OrdenEmbarque!.Vol);
+
+                var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
+                double? PromedioCargas = 0;
+                var sumVolumen = VolumenConsumido + VolumenCongelado + VolumenProgramado;
+                var sumCount = countCongelado + countConsumido + CountVolumenProgramado;
+
+                if (sumVolumen != 0 && sumCount != 0)
+                    PromedioCargas = sumVolumen / sumCount;
+
+                ProductoVolumen productoVolumen = new ProductoVolumen();
+
+                productoVolumen.Nombre += item.Producto?.Den;
+                productoVolumen.Disponible += VolumenTotalDisponible;
+                productoVolumen.Congelado += VolumenCongelado;
+                productoVolumen.Consumido += VolumenConsumido;
+                productoVolumen.Total += VolumenDisponible;
+                productoVolumen.PromedioCarga += PromedioCargas;
+                productoVolumen.Solicitud += VolumenSolicitado;
+                productoVolumen.Programado += VolumenProgramado;
+
+                volumen?.Productos?.Add(productoVolumen);
+
+
+            }
+
+            return volumen;
+        }
     }
 }
