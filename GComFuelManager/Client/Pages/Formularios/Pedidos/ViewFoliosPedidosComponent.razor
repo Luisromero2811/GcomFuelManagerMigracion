@@ -9,7 +9,7 @@
     </div>
 </div>
 <div class="col-12 row mb-1">
-    <div class="col-3">
+    <div class="col-2">
         <div class="col-12">
             <label>Grupo</label>
             <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codGru"
@@ -17,7 +17,7 @@
                             AllowVirtualization="true" Change="@GetClientesFiltro" AllowClear="true" />
         </div>
     </div>
-    <div class="col-3">
+    <div class="col-2">
         <div class="col-12">
             <label>Cliente</label>
             <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codCte"
@@ -35,10 +35,17 @@
     </div>
     <div class="col-2">
         <div class="mt-auto">
+            <label></label>
             <button class="col-12 btn gcom-bg-amarillo" @onclick="@(() => GetFoliosPedidoActivos(true))">
-            <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
-        </button>
+                <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+            </button>
         </div>
+    </div>
+    <div class="col-2">
+        <label></label>
+        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="GenerateExcel">
+            <i class="fa fa-solid fa-file-excel"></i> Exportar
+        </button>
     </div>
     <div class="col-4">
         <div class="rz-text-align-start">
@@ -58,24 +65,32 @@
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Density="Density.Compact">
     <Columns>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" />
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" OrderIndex="1" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" OrderIndex="2" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Grupo" Filterable="false" OrderIndex="3">
             <Template Context="data">
                 @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo asignado")
+                @*@(data.Grupo.Den)*@
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Cliente" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Cliente" Filterable="false" OrderIndex="4">
             <Template Context="data">
                 @(data.Cliente is not null ? data.Cliente.Den : "Sin cliente asignado")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Destino" Filterable="false">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Destino" Filterable="false" OrderIndex="5">
+            @*<FilterTemplate Context="filter">
+                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="190"/>
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </FilterTemplate>*@
             <Template Context="data">
                 @(data.Destino is not null ? data.Destino.Den : "Sin destino asignado")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="6">
             <FilterTemplate Context="filter">
                 <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                     <ValueTemplate Context="data">
@@ -112,13 +127,22 @@
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Estado" Filterable="false" Width="130px">
+        <AuthorizeView Roles="Revision Precios, Admin, Administrador Sistema">
+            <Authorized>
+                <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Precio" Filterable="false" Width="120px" OrderIndex="7">
+                    <Template Context="data">
+                        @data.Precio
+                    </Template>
+                </RadzenDataGridColumn>
+            </Authorized>
+        </AuthorizeView>
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Estado" Filterable="false" Width="130px" OrderIndex="8">
             <Template Context="data">
                 @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
                     : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Acciones" Filterable="false" Width="130px">
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Acciones" Filterable="false" Width="130px" OrderIndex="9">
             <Template Context="data">
                 <div class="col-12">
                     <button class="btn gcom-bg-amarillo" @onclick="@(()=>ViewOrdens(data.Folio, data?.Producto?.Den))">
@@ -144,6 +168,7 @@
     private IEnumerable<FolioDetalleDTO> FoliosFiltrados => Folios.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("P") && ShowPedidos ||
     !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("G") && ShowPedidos ||
     !string.IsNullOrEmpty(x.Folio) && x.Folio.StartsWith("RE") && ShowPedidosCopiados || !ShowPedidos && !ShowPedidosCopiados);
+    List<FolioDetalleDTO> Seguimiento { get; set; } = new List<FolioDetalleDTO>();
     RadzenDataGrid<FolioDetalleDTO> grid { get; set; } = new RadzenDataGrid<FolioDetalleDTO>();
 
     private string ProductoSeleccionado = string.Empty;
@@ -221,7 +246,7 @@
             fechas.forFolio = forFolio;
             if (!isStatus)
             {
-                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle", fechas);
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalle/status", fechas);
                 if (response.Error)
                 {
                     loading = false;
@@ -231,6 +256,8 @@
                 else
                 {
                     Folios = response.Response;
+                    ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                    DestinoList = Folios?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     loading = false;
                 }
             }//Entra al else if
@@ -246,6 +273,8 @@
                 else
                 {
                     Folios = response.Response;
+                    ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                    DestinoList = Folios?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                     loading = false;
                 }
             }
@@ -289,4 +318,48 @@
             throw e;
         }
     }
+
+    private async Task GenerateExcel()
+    {
+        try
+        {
+            if (FoliosFiltrados != null)
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Cierres/Órdenes");
+                ws.Columns.Width = 66;
+                ws.Columns.AutoFit();
+
+                var header = ws.Cells["A1:H1"];
+
+                var ordenfilter = new List<FolioDetalleDTO>();
+                foreach (var item in FoliosFiltrados)
+                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado)))
+                        ordenfilter.Add(item);
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Folios, true);
+                   
+                tablebody.Style.Font.Size = 14;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Cierres/Órdenes_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "No hay datos que exportar", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }

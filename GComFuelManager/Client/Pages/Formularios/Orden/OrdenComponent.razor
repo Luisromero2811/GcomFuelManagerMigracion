@@ -6,9 +6,9 @@
 @inject IJSRuntime js
 @inject DialogService ds
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial, Revision Precios")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial, Revision Precios">
     <Authorized>
         <RadzenStack Gap="1rem" Orientation="Orientation.Vertical">
 
