@@ -175,15 +175,11 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                @*<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Checks">
-                    <Authorized>*@
                         <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
                             <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                             Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
                             Asignar / cancelar
                         </th>
-                    @*</Authorized>
-                </AuthorizeView>*@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                     Orden de compra
                 </th>
@@ -353,7 +349,7 @@
         </p>
     </div>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia" Context="SendSynthesis">
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia,  Lectura Asignacion" Context="SendSynthesis">
     <div class="col-12 card mt-2 mb-3">
         <div class="col-12 card-body">
             <div class="col-12 mb-2">
@@ -383,7 +379,7 @@
                         </div>
                     }
                     <div class="col-4">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador,  Lectura Asignacion">
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
                         </AuthorizeView>
 

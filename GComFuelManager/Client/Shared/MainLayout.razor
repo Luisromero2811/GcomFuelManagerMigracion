@@ -41,11 +41,10 @@
         await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
     }
 
-    [CascadingParameter]
-    public Task<AuthenticationState> AuthenticationStateTask { get; set; } = null!;
+  
     protected async override Task OnInitializedAsync()
     {
-        await js.InvokeVoidAsync("timerInactivo", DotNetObjectReference.Create(this));
+      
 
         var cm = await js.GetItemLocalStorage("CloseMenu");
         if (cm is not null)
@@ -54,14 +53,5 @@
         renovadorToken.Iniciar();
     }
 
-    [JSInvokable]
-    public async Task Logoute()
-    {
-        var authState = await AuthenticationStateTask;
-        if (authState.User.Identity!.IsAuthenticated)
-        {
-            navigationManager.NavigateTo("logout");
-        }
-    }
 
 }
