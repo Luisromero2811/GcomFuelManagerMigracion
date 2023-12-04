@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -15,5 +16,9 @@ namespace GComFuelManager.Shared.DTOs
         public short? codGru { get; set; }
         public bool forFolio { get; set; } = false;
         public bool byMonth { get; set; } = false;
+        [EpplusIgnore]
+        public DateTime Month { get; set; } = DateTime.Now;
+        [EpplusIgnore]
+        public DateTime Year { get; set; } = DateTime.Now;
     }
 }
