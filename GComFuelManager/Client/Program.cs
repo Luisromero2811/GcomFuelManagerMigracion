@@ -1,6 +1,7 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
 using GComFuelManager.Shared.Modelos;
@@ -61,7 +62,8 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<ClienteDestinoValidation>();
     services.AddScoped<AsignarContactoClienteValidation>();
     services.AddScoped<CierreGrupoValidation>();
-
-
     services.AddScoped<PreciosValidation>();
+
+    services.AddScoped<Constructor_De_URL_Parametros>();
+
 }

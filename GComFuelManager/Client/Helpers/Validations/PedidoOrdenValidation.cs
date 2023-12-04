@@ -16,6 +16,7 @@ namespace GComFuelManager.Client.Helpers.Validations
             RuleFor(o => o.Volumen).NotEmpty().WithName("Volumen");
             RuleFor(o => o.CodTad).NotEmpty().WithName("Terminal");
             RuleFor(o => o.FchCar).NotEmpty().WithName("Fecha de carga");
+            RuleFor(o => o.Folio_Perteneciente).NotNull().WithName("Folio de pedido");
         }
     }
 }
