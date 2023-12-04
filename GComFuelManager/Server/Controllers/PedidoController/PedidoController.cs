@@ -742,6 +742,7 @@ namespace GComFuelManager.Server.Controllers
                 orden.Estado = null;
                 orden.Cliente = null!;
                 orden.OrdenCierre = null!;
+                orden.OrdenPedido = null!;
 
                 context.Update(orden);
                 await context.SaveChangesAsync();
