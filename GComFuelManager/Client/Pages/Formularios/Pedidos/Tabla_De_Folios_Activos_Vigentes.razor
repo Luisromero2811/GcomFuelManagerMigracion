@@ -1,5 +1,7 @@
 ﻿@inject IJSRuntime js
 @inject IRepositorio http
+@inject DialogService ds
+@inject SweetAlertService swal
 
 <table class="table table-sm table-bordered table-hover" id="miTabla">
     <thead class="fila">
@@ -63,9 +65,14 @@
                 <tr class="@(Folio.ID_Cierre == item.ID_Cierre ? "table-active" : string.Empty)" style="white-space:nowrap;">
                     <td class="sticky-column" style="background-color:white;">
                         <div class="col-12 row">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item.Folio))">
                                     <i class="fa fa-solid fa-list-check"></i>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn gcom-bg-amarillo col-12 btn-sm" @onclick="@(()=>ViewComments(item?.Folio, item?.Comentarios))">
+                                    <i class="fa-solid fa-comments"></i>
                                 </button>
                             </div>
                         </div>
@@ -180,7 +187,7 @@
         border: 1px solid #ccc;
     }
 
-/*     .th-resizable {
+    .th-resizable {
         position: relative;
         cursor: col-resize;
     }
@@ -193,7 +200,7 @@
             bottom: 0;
             width: 8px;
             background: transparent;
-        } */
+        }
 
     .dropdown-content-gcom {
         position: absolute;
@@ -222,13 +229,6 @@
         width: 100%;
         padding: 5px;
         margin-bottom: 5px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
-
-    select {
-        width: 100%;
-        padding: 5px;
         border-radius: 4px;
         border: 1px solid #ccc;
     }
@@ -262,7 +262,6 @@
         await GetFolios();
         // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/resizableTable.js");
         // Console.WriteLine("JS cargado");
-        // await js.InvokeVoidAsync("importarScript", ".js/resizableTable.js");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -270,6 +269,7 @@
         if (firstRender)
         {
             // await js.InvokeVoidAsync("makeTableResizable");
+            await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
         }
         // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/resizableTable.js");
 
@@ -324,6 +324,24 @@
         catch (Exception e)
         {
             Loading_Get_Folios = false;
+        }
+    }
+
+    private async Task ViewComments(string? folio, string? comment)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(comment))
+                comment = string.Empty;
+
+            await ds.OpenAsync<ViewComentariosComponent>($"Comentarios pedido {folio}",
+                new Dictionary<string, object>() { { "comentarios", comment } },
+                new DialogOptions() { Height = "auto", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 }
