@@ -1410,7 +1410,7 @@ namespace GComFuelManager.Server.Controllers
                 List<OrdenCierre> ordenCierres = new List<OrdenCierre>();
                 var orden_cierres_query = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento >= DateTime.Today
                 && x.CodPed == 0 && !x.Folio.StartsWith("RE") && x.Activa == true && x.Estatus == true)
-                    .Include(x => x.Grupo).Include(x => x.Cliente).Include(x => x.Destino).Include(x => x.Producto).OrderBy(x => x.FchCierre).AsQueryable();
+                    .Include(x=>x.Destino).Include(x=>x.Cliente).Include(x=>x.Producto).Include(x=>x.Grupo).OrderBy(x => x.FchCierre).AsQueryable();
 
                 if (orden_cierres_query is not null)
                 {
@@ -1456,7 +1456,8 @@ namespace GComFuelManager.Server.Controllers
                     Fecha_Vigencia = x.FchVencimiento ?? DateTime.MinValue,
                     ID_Cierre = x.Cod,
                     Fecha_Cierre = x.FchCierre ?? DateTime.MinValue,
-                    VolumenDisponibleDTO = x.VolumenDisponible
+                    VolumenDisponibleDTO = x.VolumenDisponible,
+                    Comentarios = x.Observaciones
                 });
 
                 return Ok(folios);
@@ -1478,7 +1479,7 @@ namespace GComFuelManager.Server.Controllers
                 if (ordenEmbarque.Ordenes_A_Crear == 0)
                     return BadRequest("No se aceptan valores iguales o menores a 0");
 
-                if(ordenEmbarque.Ordenes_A_Crear > 4)
+                if (ordenEmbarque.Ordenes_A_Crear > 4)
                     return BadRequest("No se aceptan valores mayores a 4");
 
                 var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
@@ -1492,7 +1493,7 @@ namespace GComFuelManager.Server.Controllers
                 var guid = Guid.NewGuid().ToString().Split("-");
                 var guidfolio = $"O-{guid[4]}";
 
-                var Volumen_A_Dividir = Math.Round((ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear) ?? 10000,2);
+                var Volumen_A_Dividir = Math.Round((ordenEmbarque.Vol / ordenEmbarque.Ordenes_A_Crear) ?? 10000, 2);
                 var ordenCierre = ordenEmbarque.OrdenCierre;
 
                 OrdenPedido ordenPedido = new OrdenPedido();
@@ -1584,7 +1585,7 @@ namespace GComFuelManager.Server.Controllers
                             CodGru = cliente?.codgru,
                             CodCte = cliente?.Cod,
                             CodPrd = orden.Codprd,
-                            CodTad = orden.Codtad, 
+                            CodTad = orden.Codtad,
                             Volumen = Convert.ToInt32(orden.Vol),
 
                         };
@@ -1658,7 +1659,7 @@ namespace GComFuelManager.Server.Controllers
         {
             VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
 
-            var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio && x.CodPrd == ID_Producto).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
+            var cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == Folio && x.CodPrd == ID_Producto && x.Estatus == true).Include(x => x.Producto).ToList() ?? new List<OrdenCierre>();
             foreach (var item in cierres)
             {
                 var VolumenDisponible = item.Volumen;
