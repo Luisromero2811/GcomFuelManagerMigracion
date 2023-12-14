@@ -268,13 +268,23 @@
                                     <label>
                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                     </label>
-                                    <input type="number" step="0.0001" class="form-control form-control-sm col-12" @bind="@ordenCierre.Precio"/>
+                                    <input type="number" step="0.0001" class="form-control form-control-sm col-12" @bind="@ordenCierre.Precio" />
                                 </div>
                             }
 
                             @*<InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>*@
                         </div>
                     </div>
+                    @* <div class="col-4">
+                        <div class="col-12">
+                            <select @bind="@ordenCierre.Moneda">
+                                @foreach (var item in Enum.GetValues(typeof(Moneda)).Cast<Moneda>())
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            </select>
+                        </div>
+                    </div> *@
                     @* @if (!isFolio || ordenCierre.IsCierreVolumen)
                     {
                     <div class="col-4">
@@ -380,6 +390,9 @@
                         <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
                             Estado
                         </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                            Moneda
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -449,19 +462,20 @@
                                 <div class="col-12">
                                     <div class="col-12">
                                         @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-     item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-     item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-     : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-     : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-     : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-     : item?.Volumen
-     )
+                                        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+                                        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                        : item?.Volumen
+                                        )
                                     </div>
                                 </div>
                             </td>
                             <td class="overflow-hidden">@item?.OrdenEmbarque?.Pre</td>
                             <td class="overflow-hidden">@item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy")</td>
                             <td class="overflow-hidden">@item?.OrdenEmbarque?.Estado?.den</td>
+                            <td class="overflow-hidden">@item?.Moneda</td>
                         </tr>
                     </Virtualize>
                 </tbody>
@@ -666,7 +680,7 @@
             if (width < 0)
                 width = 500;
             TotalWidth = $"{width}px";
-            importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+            await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
         }
     }
 
@@ -696,13 +710,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1083,16 +1097,15 @@
         try
         {
             if (ordenCierre.CodPrd != null && Precios.Count > 0)
+            {
                 ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto != null && x.Producto?.Cod == ordenCierre?.CodPrd)?.Pre ?? 0;
+                ordenCierre.Equibalencia = Precios.FirstOrDefault(x => x.Producto != null && x.Producto?.Cod == ordenCierre?.CodPrd)?.Equibalencia ?? 1;
+            }
             else
+            {
                 ordenCierre.Precio = 0;
-            // if (ordenCierre.CodPrd != null && CodProductoSeleccionado != ordenCierre.CodPrd)
-            // {
-            //     ordenCierre.Precio = Precios.FirstOrDefault(x => x.Producto?.Cod == ordenCierre?.CodPrd).Pre;
-            //     CodProductoSeleccionado = ordenCierre.CodPrd;
-            //     //StateHasChanged();
-            // }
-            //CodProductoSeleccionado = ordenCierre.CodPrd;
+                ordenCierre.Equibalencia = 1;
+            }
         }
         catch (Exception e)
         {
@@ -1198,12 +1211,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-            {
-                Width = "90%",
-                Height = "600px",
-                Resizable = true,
-                Draggable = false
-            });
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {
@@ -1267,12 +1280,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosCierresComponent>("Folios de cierres", options: new DialogOptions()
-            {
-                Width = "90%",
-                Height = "600px",
-                Resizable = true,
-                Draggable = false
-            });
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {

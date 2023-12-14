@@ -1,5 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -44,28 +45,33 @@ namespace GComFuelManager.Server.Controllers.Precios
                 await file.CopyToAsync(stream);
                 //file.OpenReadStream();
                 file.CopyTo(stream);
-                
+
                 List<PreciosDTO> precios = new List<PreciosDTO>();
 
                 //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                
+
                 ExcelPackage package = new ExcelPackage();
-                
+
                 package.Load(stream);
                 //package = new ExcelPackage(stream);
                 if (package.Workbook.Worksheets.Count > 0)
                 {
                     using (ExcelWorksheet worksheet = package.Workbook.Worksheets.First())
                     {
+                        //for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         {
                             PreciosDTO precio = new PreciosDTO();
 
-                            var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+                            //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+                            var row = worksheet.Cells[r, 1, r, 10].ToList();
 
-                            if (row.Count == 8)
+                            if (row.Count == 10)
                             {
+                                if (!Enum.IsDefined(typeof(Moneda), row[8].Value))
+                                    return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
+
                                 precio.Producto = row[0].Value?.ToString();
                                 precio.Zona = row[1].Value?.ToString();
                                 precio.Cliente = row[2].Value?.ToString();
@@ -73,7 +79,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.CodSyn = row[4].Value?.ToString();
                                 precio.CodTux = row[5].Value?.ToString();
                                 precio.Fecha = row[6].Value?.ToString();
-                                precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
+                                precio.Precio = Math.Round((double)row[7].Value, 4);
+                                precio.Moneda = row[8].Value?.ToString();
+                                precio.Equibalencia = Math.Round((double)row[9].Value, 4);
                                 precios.Add(precio);
                             }
                         }
@@ -120,10 +128,14 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 {
                                     PreciosDTO precio = new PreciosDTO();
 
-                                    var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+                                    //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
+                                    var row = worksheet.Cells[r, 1, r, 10].ToList();
 
                                     if (row.Count == 8)
                                     {
+                                        if (!Enum.IsDefined(typeof(Moneda), row[8].Value))
+                                            return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
+
                                         precio.Producto = row[0].Value?.ToString();
                                         precio.Zona = row[1].Value?.ToString();
                                         precio.Cliente = row[2].Value?.ToString();
@@ -131,7 +143,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                                         precio.CodSyn = row[4].Value?.ToString();
                                         precio.CodTux = row[5].Value?.ToString();
                                         precio.Fecha = row[6].Value?.ToString();
-                                        precio.Precio = Math.Round(double.Parse(row[7].Value?.ToString()), 4);
+                                        precio.Precio = Math.Round((double)row[7].Value, 4);
+                                        precio.Moneda = row[8].Value?.ToString();
+                                        precio.Equibalencia = Math.Round((double)row[9].Value, 4);
                                         precios.Add(precio);
                                     }
                                 }
@@ -305,7 +319,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                     codPrd = precio?.codPrd,
                     codZona = precio?.codZona,
                     FchDia = precio.FchDia,
-                    FchActualizacion = precio.FchActualizacion
+                    FchActualizacion = precio.FchActualizacion,
+                    Moneda = precio.Moneda,
+                    Equibalencia = precio.Equibalencia
                 };
 
                 context.Add(precioH);
@@ -340,18 +356,23 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     foreach (var item in ordenesUnic)
                     {
-                        var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                        Precio precio = new Precio()
+                        if (item is not null)
                         {
-                            Pre = item.Precio,
-                            codCte = item.CodCte,
-                            codDes = item.CodDes,
-                            codPrd = item.CodPrd,
-                            codGru = item.Cliente?.codgru,
-                            codZona = zona?.CteCod,
-                            Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
-                        };
-                        precios.Add(precio);
+                            var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
+                            Precio precio = new Precio()
+                            {
+                                Pre = item.Precio,
+                                codCte = item.CodCte,
+                                codDes = item.CodDes,
+                                codPrd = item.CodPrd,
+                                codGru = item.Cliente?.codgru,
+                                codZona = zona?.CteCod,
+                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd),
+                                Moneda = item.Moneda ?? Moneda.NONE,
+                                Equibalencia = item.Equibalencia ?? 1
+                            };
+                            precios.Add(precio);
+                        }
                     }
                     return Ok(precios);
                 }
@@ -431,6 +452,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
                     var codprd = string.Empty;
+                    if (string.IsNullOrEmpty(item.Producto))
+                        return BadRequest("No se admiten valores vacios en el nombre del producto");
                     var arrprd = item.Producto.Split(" ");
                     if (arrprd.Count() > 1)
                         codprd = arrprd[0];
@@ -449,8 +472,25 @@ namespace GComFuelManager.Server.Controllers.Precios
                     if (destino is null)
                         return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
 
-                    if (item.Precio == null || item.Precio == 0)
+                    if (item?.Precio == null || item.Precio == 0)
                         return BadRequest($"El destino {destino.Den} no tiene un precio con valor");
+
+                    if (string.IsNullOrEmpty(item.Fecha))
+                        return BadRequest("No se admiten valores vacios en la fecha de vigencia");
+
+                    if (string.IsNullOrEmpty(item.Moneda))
+                        return BadRequest("No se admiten valores vacios en la moneda");
+
+                    if (!Enum.IsDefined(typeof(Moneda), item.Moneda))
+                        return BadRequest($"No se encontro la moneda ingresada. Moneda: {item.Moneda}");
+
+                    if (item.Equibalencia is null || item.Equibalencia == 0)
+                        return BadRequest("La equibalencia no puede estar vacia o con valor 0");
+
+                    Moneda mon = Moneda.NONE;
+
+                    if (Enum.TryParse(item.Moneda, out Moneda moneda))
+                        mon = moneda;
 
                     if (DateTime.Parse(item.Fecha) > DateTime.Today)
                     {
@@ -460,10 +500,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                             codDes = destino.Cod,
                             codGru = cliente.codgru,
                             codPrd = producto.Cod,
-                            codZona = zona.Cod,
+                            codZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
-                            Pre = item.Precio
+                            Pre = item.Precio,
+                            Moneda = mon,
+                            Equibalencia = (double)item.Equibalencia
                         };
 
                         var p = context.PrecioProgramado.FirstOrDefault(x => x.codGru == precio.codGru
@@ -477,6 +519,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                             p.Pre = precio.Pre;
                             p.FchDia = precio.FchDia;
                             p.FchActualizacion = DateTime.Now;
+                            p.Moneda = precio.Moneda;
+                            p.Equibalencia = precio.Equibalencia;
                             context.Update(p);
                         }
                         else
@@ -491,10 +535,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                             codDes = destino.Cod,
                             codGru = cliente.codgru,
                             codPrd = producto.Cod,
-                            codZona = zona.Cod,
+                            codZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
-                            Pre = item.Precio
+                            Pre = item.Precio,
+                            Moneda = mon,
+                            Equibalencia = (double)item.Equibalencia
                         };
 
                         var p = context.Precio.FirstOrDefault(x => x.codGru == precio.codGru
@@ -507,6 +553,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             p.Pre = precio.Pre;
                             p.FchActualizacion = DateTime.Now;
+                            p.Moneda = precio.Moneda;
+                            p.Equibalencia = precio.Equibalencia;
 
                             context.Update(p);
                         }
@@ -523,7 +571,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                             codPrd = precio.codPrd == null ? 0 : precio.codPrd,
                             codZona = precio.codZona == null ? 0 : precio.codZona,
                             FchDia = precio.FchDia,
-                            FchActualizacion = precio.FchActualizacion
+                            FchActualizacion = precio.FchActualizacion,
+                            Moneda = precio.Moneda,
+                            Equibalencia = precio.Equibalencia
                         };
 
                         context.Add(precioH);
@@ -553,7 +603,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                             Destino = item.Den,
                             Cliente = item.Cliente?.Den,
                             CodSyn = item.Codsyn,
-                            CodTux = item.CodGamo.ToString()
+                            CodTux = item.CodGamo.ToString(),
+                            Equibalencia = 1
                         };
                         destinosSinPre.Add(dTO);
                     }
@@ -607,44 +658,53 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     foreach (var item in precios)
                     {
-                        var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
-                        if (precio is null)
+                        if (item is not null)
                         {
-                            var precioN = new Precio
+                            var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
+                            if (precio is null)
                             {
+                                var precioN = new Precio
+                                {
+                                    codCte = item.codCte,
+                                    codDes = item.codDes,
+                                    codGru = item?.codGru,
+                                    codPrd = item?.codPrd,
+                                    codZona = item?.codZona,
+                                    FchDia = item?.FchDia ?? DateTime.MinValue,
+                                    FchActualizacion = DateTime.Now,
+                                    Pre = item?.Pre ?? 0,
+                                    Moneda = item.Moneda,
+                                    Equibalencia = item.Equibalencia
+                                };
+                                preciosDia.Add(precioN);
+                                //context.Add(precioN);
+                            }
+                            else
+                            {
+                                precio.Pre = item.Pre;
+                                precio.FchDia = item.FchDia;
+                                precio.FchActualizacion = DateTime.Now;
+                                precio.Moneda = item.Moneda;
+                                precio.Equibalencia = item.Equibalencia;
+                                context.Update(precio);
+                            }
+
+                            var precioH = new PrecioHistorico
+                            {
+                                Cod = null!,
+                                pre = item.Pre,
                                 codCte = item.codCte,
                                 codDes = item.codDes,
                                 codGru = item?.codGru,
-                                codPrd = item.codPrd,
+                                codPrd = item?.codPrd,
                                 codZona = item?.codZona,
                                 FchDia = item.FchDia,
-                                FchActualizacion = DateTime.Now,
-                                Pre = item.Pre
+                                FchActualizacion = item.FchActualizacion,
+                                Moneda = item.Moneda,
+                                Equibalencia = item.Equibalencia
                             };
-                            preciosDia.Add(precioN);
-                            //context.Add(precioN);
+                            precioHistoricos.Add(precioH);
                         }
-                        else
-                        {
-                            precio.Pre = item.Pre;
-                            precio.FchDia = item.FchDia;
-                            precio.FchActualizacion = DateTime.Now;
-                            context.Update(precio);
-                        }
-
-                        var precioH = new PrecioHistorico
-                        {
-                            Cod = null!,
-                            pre = item.Pre,
-                            codCte = item.codCte,
-                            codDes = item.codDes,
-                            codGru = item?.codGru,
-                            codPrd = item.codPrd,
-                            codZona = item.codZona,
-                            FchDia = item.FchDia,
-                            FchActualizacion = item.FchActualizacion
-                        };
-                        precioHistoricos.Add(precioH);
                         //context.Add(precioH);
                     }
                     await context.AddRangeAsync(preciosDia);
@@ -709,7 +769,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                     FchDia = precio.FchDia,
                     FchActualizacion = DateTime.Now,
                     Pre = precio.Pre,
-                    Activo = precio.Activo
+                    Activo = precio.Activo,
+                    Moneda = precio.Moneda,
+                    Equibalencia = precio.Equibalencia
                 };
 
                 if (precio.Cod != null)
@@ -732,70 +794,68 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("{Orden_Compra}")]
-        public ActionResult GetPrecioByBol([FromRoute] int Orden_Compra)
+        [HttpGet("{BOL}")]
+        public ActionResult GetPrecioByBol([FromRoute] int BOL)
         {
             try
             {
                 List<PrecioBol> precios = new List<PrecioBol>();
 
-                var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
+                var ordenes = context.Orden.Where(x => x.BatchId == BOL)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ToList();
 
-                if (ordenes is null)
-                    return BadRequest($"No se encontro la orden con el numero de compra: {Orden_Compra}");
+                if (ordenes is null || ordenes.Count == 0)
+                    return Ok(new List<PrecioBol>() { new PrecioBol() });
 
                 foreach (var item in ordenes)
                 {
                     PrecioBol precio = new PrecioBol();
 
-                    Orden? orden = new Orden();
-                    orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).FirstOrDefault();
+                    OrdenEmbarque? orden = new OrdenEmbarque();
+                    orden = context.OrdenEmbarque.Where(x => x.FolioSyn == item.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
 
-                    precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
+                    precio.Fecha_De_Carga = item.Fchcar;
 
-                    precio.Referencia = orden?.Ref ?? item.FolioSyn;
+                    precio.Referencia = item.Ref;
 
                     if (orden is not null)
                     {
                         if (orden.Producto is not null)
-                            precio.Producto_Synthesis = orden.Producto.Den;
+                            precio.Producto_Original = orden.Producto.Den;
 
                         if (orden.Destino is not null)
-                            precio.Destino_Synthesis = orden.Destino.Den;
+                        {
+                            precio.Destino_Original = orden.Destino.Den;
+                            if (orden.Destino.Cliente is not null)
+                                if (!string.IsNullOrEmpty(orden.Destino.Cliente.Den))
+                                    precio.Cliente_Original = orden.Destino.Cliente.Den;
 
-                        precio.BOL = orden.BatchId ?? 0;
+                        }
                     }
 
-                    if (item is not null)
+                    precio.BOL = item.BatchId;
+                    precio.Volumen_Cargado = item.Vol;
+                    if (orden is not null)
                     {
-                        if (item.Destino is not null)
-                            precio.Destino_Original = item.Destino.Den ?? "";
+                        if (orden.Destino is not null)
+                            precio.Destino_Original = orden.Destino.Den ?? "";
 
-                        if (item.Producto is not null)
-                            precio.Producto_Original = item.Producto.Den ?? "";
+                        if (orden.Producto is not null)
+                            precio.Producto_Original = orden.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
-
-                    if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
-
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
-
-                    if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
-
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
-                        && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
+                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
-                    if (orden is not null)
-                        precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                        && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                        && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
@@ -805,36 +865,38 @@ namespace GComFuelManager.Server.Controllers.Precios
                         precio.Fecha_De_Precio = precioHis.FchDia;
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Historial";
+                        precio.Moneda = Enum.GetName(typeof(Moneda), precioHis.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        precio.Tipo_De_Cambio = precioHis.Equibalencia ?? 1;
                     }
 
-                    if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today ||
-                        orden is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && precioVig is not null)
+                    if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today)
                     {
                         precio.Precio = precioVig.Pre;
                         precio.Fecha_De_Precio = precioVig.FchDia;
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Vigente";
+                        precio.Moneda = Enum.GetName(typeof(Moneda), precioVig.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        precio.Tipo_De_Cambio = precioVig.Equibalencia ?? 1;
                     }
 
-                    if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)
-                        && context.PrecioProgramado.Any() ||
-                        orden is not null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16,0,0) 
-                        && context.PrecioProgramado.Any())
+                    if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
                     {
                         precio.Precio = precioPro.Pre;
                         precio.Fecha_De_Precio = precioPro.FchDia;
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Programado";
+                        precio.Moneda = Enum.GetName(typeof(Moneda), precioPro.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        precio.Tipo_De_Cambio = precioPro.Equibalencia ?? 1;
                     }
 
-                    if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
+                    if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
                     {
-                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
 
                         if (ordenepedido is not null)
                         {
                             var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
-                             && x.CodPrd == item.Codprd).FirstOrDefault();
+                             && x.CodPrd == orden.Codprd).FirstOrDefault();
 
                             if (cierre is not null)
                             {
@@ -843,19 +905,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Es_Cierre = true;
                                 precio.Precio_Encontrado = true;
                                 precio.Precio_Encontrado_En = "Cierre";
+                                precio.Moneda = Enum.GetName(typeof(Moneda), cierre.Moneda ?? Moneda.NONE) ?? string.Empty;
+                                precio.Tipo_De_Cambio = cierre.Equibalencia ?? 1;
                             }
                         }
-                    }
-
-                    if (item is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
-                    {
-                        precio.Precio = item.Pre;
-
-                        if (item.OrdenCierre is not null)
-                            precio.Fecha_De_Precio = item.OrdenCierre.fchPrecio;
-
-                        precio.Es_Precio_De_Creacion = true;
-                        precio.Precio_Encontrado_En = "Creacion";
                     }
 
                     precios.Add(precio);
@@ -869,6 +922,143 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
+        //[HttpGet("{Orden_Compra}")]
+        //public ActionResult GetPrecioByBol([FromRoute] int Orden_Compra)
+        //{
+        //    try
+        //    {
+        //        List<PrecioBol> precios = new List<PrecioBol>();
+
+        //        var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
+        //            .Include(x => x.Producto)
+        //            .Include(x => x.Destino)
+        //            .ToList();
+
+        //        if (ordenes is null)
+        //            return BadRequest($"No se encontro la orden con el numero de compra: {Orden_Compra}");
+
+        //        foreach (var item in ordenes)
+        //        {
+        //            PrecioBol precio = new PrecioBol();
+
+        //            Orden? orden = new Orden();
+        //            orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).FirstOrDefault();
+
+        //            precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
+
+        //            precio.Referencia = orden?.Ref ?? item.FolioSyn;
+
+        //            if (orden is not null)
+        //            {
+        //                if (orden.Producto is not null)
+        //                    precio.Producto_Synthesis = orden.Producto.Den;
+
+        //                if (orden.Destino is not null)
+        //                    precio.Destino_Synthesis = orden.Destino.Den;
+
+        //                precio.BOL = orden.BatchId ?? 0;
+        //            }
+
+        //            if (item is not null)
+        //            {
+        //                if (item.Destino is not null)
+        //                    precio.Destino_Original = item.Destino.Den ?? "";
+
+        //                if (item.Producto is not null)
+        //                    precio.Producto_Original = item.Producto.Den ?? "";
+        //            }
+
+        //            var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
+
+        //            if (orden is not null)
+        //                precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+
+        //            var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
+
+        //            if (orden is not null)
+        //                precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+
+        //            var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+        //                && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
+        //                .OrderByDescending(x => x.FchDia)
+        //                .FirstOrDefault();
+
+        //            if (orden is not null)
+        //                precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
+        //                && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+        //                .OrderByDescending(x => x.FchDia)
+        //                .FirstOrDefault();
+
+        //            if (precioHis is not null)
+        //            {
+        //                precio.Precio = precioHis.pre;
+        //                precio.Fecha_De_Precio = precioHis.FchDia;
+        //                precio.Precio_Encontrado = true;
+        //                precio.Precio_Encontrado_En = "Historial";
+        //            }
+
+        //            if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today ||
+        //                orden is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && precioVig is not null)
+        //            {
+        //                precio.Precio = precioVig.Pre;
+        //                precio.Fecha_De_Precio = precioVig.FchDia;
+        //                precio.Precio_Encontrado = true;
+        //                precio.Precio_Encontrado_En = "Vigente";
+        //            }
+
+        //            if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)
+        //                && context.PrecioProgramado.Any() ||
+        //                orden is not null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)
+        //                && context.PrecioProgramado.Any())
+        //            {
+        //                precio.Precio = precioPro.Pre;
+        //                precio.Fecha_De_Precio = precioPro.FchDia;
+        //                precio.Precio_Encontrado = true;
+        //                precio.Precio_Encontrado_En = "Programado";
+        //            }
+
+        //            if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
+        //            {
+        //                var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+
+        //                if (ordenepedido is not null)
+        //                {
+        //                    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+        //                     && x.CodPrd == item.Codprd).FirstOrDefault();
+
+        //                    if (cierre is not null)
+        //                    {
+        //                        precio.Precio = cierre.Precio;
+        //                        precio.Fecha_De_Precio = cierre.fchPrecio;
+        //                        precio.Es_Cierre = true;
+        //                        precio.Precio_Encontrado = true;
+        //                        precio.Precio_Encontrado_En = "Cierre";
+        //                    }
+        //                }
+        //            }
+
+        //            if (item is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+        //            {
+        //                precio.Precio = item.Pre;
+
+        //                if (item.OrdenCierre is not null)
+        //                    precio.Fecha_De_Precio = item.OrdenCierre.fchPrecio;
+
+        //                precio.Es_Precio_De_Creacion = true;
+        //                precio.Precio_Encontrado_En = "Creacion";
+        //            }
+
+        //            precios.Add(precio);
+        //        }
+
+        //        return Ok(precios);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
         public class PrecioBol
         {
             public double? Precio { get; set; } = 0;
@@ -876,14 +1066,18 @@ namespace GComFuelManager.Server.Controllers.Precios
             public int? BOL { get; set; } = 0;
             public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
             public DateTime? Fecha_De_Precio { get; set; } = DateTime.MinValue;
-            public string? Destino_Synthesis { get; set; } = string.Empty;
+            public string Destino_Synthesis { get; set; } = string.Empty;
             public string? Destino_Original { get; set; } = string.Empty;
-            public string? Producto_Synthesis { get; set; } = string.Empty;
+            public string Producto_Synthesis { get; set; } = string.Empty;
             public string? Producto_Original { get; set; } = string.Empty;
             public bool Es_Cierre { get; set; } = false;
             public bool Es_Precio_De_Creacion { get; set; } = false;
             public bool Precio_Encontrado { get; set; } = false;
             public string Precio_Encontrado_En { get; set; } = string.Empty;
+            public double Tipo_De_Cambio { get; set; } = 1;
+            public string Moneda { get; set; } = string.Empty;
+            public string? Cliente_Original { get; set; } = string.Empty;
+            public double? Volumen_Cargado { get; set; } = 0;
         }
     }
 }

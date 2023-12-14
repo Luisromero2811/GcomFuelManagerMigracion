@@ -50,7 +50,7 @@ else
 {
     <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
         <div class="col-12">
-            <CrearPedidoForm Folio_Seleccionado="@Folio_Seleccionado" CancelCreation="ChangeFolio"/>
+            <CrearPedidoForm Folio_Seleccionado="@Folio_Seleccionado" Producto_Pedido="@Producto_Pedido" ID_Cierre="@ID_Cierre" CancelCreation="ChangeFolio"/>
         </div>
     </AuthorizeView>
 }
@@ -74,6 +74,8 @@ else
     private IJSObjectReference importedJs;
 
     private string Folio_Seleccionado = string.Empty;
+    private byte? Producto_Pedido = 0;
+    private int ID_Cierre = 0;
     private string Folio_Busqueda= string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -102,12 +104,17 @@ else
 
     private void SearchFolio()
     {
+        ChangeFolio(new Folio_Activo_Vigente());
         Folio_Seleccionado = Folio_Busqueda;
+        ID_Cierre = 0;
+        Producto_Pedido = 0;
     }
 
-    void ChangeFolio(string Folio)
+    void ChangeFolio(Folio_Activo_Vigente folio)
     {
-        Folio_Seleccionado = Folio;
+        Folio_Seleccionado = folio.Folio;
+        Producto_Pedido = folio.ID_Producto;
+        ID_Cierre = folio.ID_Cierre;
     }
 
     public async Task GetFoliosFiltro()

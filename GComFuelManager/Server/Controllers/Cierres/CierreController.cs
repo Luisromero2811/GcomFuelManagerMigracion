@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ServiceReference10;
 using System.Linq;
 using System.Security.Claims;
 
@@ -101,7 +102,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .ThenInclude(x => x.OrdenEmbarque)
                     .ToListAsync();
 
-                cierres.ForEach(x => x.GetTieneVolumenDisponible(porcentaje));
+                cierres.ForEach(x =>
+                {
+                    x.GetTieneVolumenDisponible(porcentaje);
+                    x.SetCantidades();
+                    x.SetCantidades();
+                    x.GetCantidadSugerida();
+                    x.Ordenes_Relacionadas = x.OrdenPedidos.Count;
+                });
 
                 return Ok(cierres);
             }
@@ -2347,8 +2355,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
                     return BadRequest($"No tiene suficiente volumen disponible. Disponible: {newCierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
-                if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
-                    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
+                //if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
+                //    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
                 for (int i = 0; i < cierre.Cantidad_Confirmada; i++)
                 {
@@ -2407,8 +2415,234 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 //context.AddRange(embarques);
                 //await context.SaveChangesAsync();
+                newCierre = context.OrdenCierre.Where(x => x.Cod == cierre.Cod)
+                    .Include(x => x.Grupo)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .IgnoreAutoIncludes()
+                    .FirstOrDefault();
+
+                if (newCierre is null)
+                    return BadRequest();
+
+                newCierre.Volumen_Seleccionado = cierre.Volumen_Seleccionado;
+
+                newCierre.SetCantidades();
+                newCierre.SetVolumen();
+                newCierre.GetCantidadSugerida();
+
+                newCierre.Ordenes_Relacionadas = newCierre.OrdenPedidos.Count;
+
+                newCierre.OrdenPedidos = new List<OrdenPedido>();
 
                 return Ok(newCierre);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("detalle")]
+        public ActionResult Obtener_Detalle_Cierre([FromQuery] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+
+                OrdenCierre? orden = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.Folio) && x.Cod == ordenCierre.Cod && x.Folio == ordenCierre.Folio);
+
+                if (orden is null)
+                    return BadRequest("No se encontro el cierre");
+
+                if (!string.IsNullOrEmpty(ordenCierre.Folio))
+                    crear_Orden_Template_DTO.Puede_Seleccionar_Cliete_Destino = ordenCierre.Folio.StartsWith("G");
+
+                crear_Orden_Template_DTO.OrdenCierre = orden;
+
+                crear_Orden_Template_DTO.ID_Grupo = orden.CodGru;
+
+                crear_Orden_Template_DTO.ID_Cliente = orden.CodCte;
+
+                crear_Orden_Template_DTO.ID_Destino = orden.CodDes;
+
+                crear_Orden_Template_DTO.ID_Producto = orden.CodPrd;
+
+                if (crear_Orden_Template_DTO.ID_Grupo is not null)
+                    crear_Orden_Template_DTO.Grupos = context.Grupo.Where(x => x.Cod == crear_Orden_Template_DTO.ID_Grupo).ToList();
+                else
+                    crear_Orden_Template_DTO.Grupos = context.Grupo.ToList();
+
+                if (crear_Orden_Template_DTO.ID_Cliente is not null)
+                    crear_Orden_Template_DTO.Clientes = context.Cliente.Where(x => x.Cod == crear_Orden_Template_DTO.ID_Cliente).ToList();
+                else if (crear_Orden_Template_DTO.ID_Cliente is null && crear_Orden_Template_DTO.ID_Grupo is not null)
+                    crear_Orden_Template_DTO.Clientes = context.Cliente.Where(x => x.codgru == crear_Orden_Template_DTO.ID_Grupo).ToList();
+
+                if (crear_Orden_Template_DTO.ID_Destino is not null)
+                    crear_Orden_Template_DTO.Destinos = context.Destino.Where(x => x.Cod == crear_Orden_Template_DTO.ID_Destino).ToList();
+
+                if (crear_Orden_Template_DTO.ID_Producto is not null)
+                    crear_Orden_Template_DTO.Producto = context.Producto.First(x => x.Cod == crear_Orden_Template_DTO.ID_Producto);
+
+                Precio precio = new Precio()
+                {
+                    Pre = orden.Precio,
+                    Producto = crear_Orden_Template_DTO.Producto,
+                    Moneda = orden.Moneda ?? Moneda.NONE,
+                    Equibalencia = orden.Equibalencia ?? 1
+                };
+
+                crear_Orden_Template_DTO.Precio = precio;
+
+                var pedidos = context.OrdenPedido.Where(x => x.Folio == orden.Folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+
+                foreach (var item in pedidos)
+                {
+                    var pedido = context.OrdenCierre.Where(x => x.CodPed == item.CodPed && x.CodPrd == orden.CodPrd)
+                        .Include(x => x.OrdenEmbarque)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tad)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tonel)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Estado)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
+                        .IgnoreAutoIncludes()
+                        .DefaultIfEmpty()
+                        .FirstOrDefault();
+
+                    if (pedido != null)
+                        crear_Orden_Template_DTO.OrdenCierres.Add(pedido);
+                }
+
+                return Ok(crear_Orden_Template_DTO);
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest("Parametros vacios");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("detalle/general")]
+        public ActionResult Obtener_Detalle_Cierre_General([FromQuery] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+
+                List<OrdenCierre> ordenes = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == ordenCierre.Folio).Include(x => x.Producto).IgnoreAutoIncludes().ToList();
+
+                if (ordenes is null)
+                    return BadRequest("No se encontro el cierre");
+
+                if (!string.IsNullOrEmpty(ordenCierre.Folio))
+                {
+                    crear_Orden_Template_DTO.Puede_Seleccionar_Cliete_Destino = ordenCierre.Folio.StartsWith("G") || ordenCierre.Folio.StartsWith("RE"); ;
+                    crear_Orden_Template_DTO.Es_Orden_Copiada = ordenCierre.Folio.StartsWith("RE");
+                }
+
+                foreach (var item in ordenes)
+                {
+                    if (crear_Orden_Template_DTO.ID_Grupo is not null && !crear_Orden_Template_DTO.Es_Orden_Copiada)
+                    {
+                        if (!crear_Orden_Template_DTO.Grupos.Any(x => x.Cod == item.CodGru))
+                            crear_Orden_Template_DTO.Grupos.AddRange(context.Grupo.Where(x => x.Cod == item.CodGru).ToList());
+                    }
+                    else
+                        crear_Orden_Template_DTO.Grupos = context.Grupo.ToList();
+
+                    if (crear_Orden_Template_DTO.ID_Cliente is not null && !crear_Orden_Template_DTO.Es_Orden_Copiada)
+                        if (!crear_Orden_Template_DTO.Clientes.Any(x => x.Cod == item.CodCte))
+                            crear_Orden_Template_DTO.Clientes.AddRange(context.Cliente.Where(x => x.Cod == item.CodCte).ToList());
+
+                    if (crear_Orden_Template_DTO.ID_Destino is not null && !crear_Orden_Template_DTO.Es_Orden_Copiada)
+                        if (!crear_Orden_Template_DTO.Destinos.Any(x => x.Cod == item.CodDes))
+                            crear_Orden_Template_DTO.Destinos.AddRange(context.Destino.Where(x => x.Cod == item.CodDes).ToList());
+
+                    if (crear_Orden_Template_DTO.ID_Producto is not null && !crear_Orden_Template_DTO.Es_Orden_Copiada)
+                        if (!crear_Orden_Template_DTO.Productos.Any(x => x.Cod == item.CodPrd))
+                            crear_Orden_Template_DTO.Productos.AddRange(context.Producto.Where(x => x.Cod == item.CodPrd).ToList());
+
+                    Precio precio = new Precio()
+                    {
+                        Pre = item.Precio,
+                        Producto = item.Producto,
+                        Moneda = item.Moneda ?? Moneda.NONE,
+                        Equibalencia = item.Equibalencia ?? 1
+                    };
+
+                    crear_Orden_Template_DTO.Precios.Add(precio);
+                }
+                if (!crear_Orden_Template_DTO.Es_Orden_Copiada)
+                {
+                    var pedidos = context.OrdenPedido.Where(x => x.Folio == ordenCierre.Folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+                    foreach (var item in pedidos)
+                    {
+                        var pedido = context.OrdenCierre.Where(x => x.CodPed == item.CodPed)
+                            .Include(x => x.OrdenEmbarque)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tonel)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Estado)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Orden)
+                            .ThenInclude(x => x.Estado)
+                            .IgnoreAutoIncludes()
+                            .DefaultIfEmpty()
+                            .FirstOrDefault();
+
+                        if (pedido != null)
+                            crear_Orden_Template_DTO.OrdenCierres.Add(pedido);
+                    }
+                }
+                else
+                {
+                    var pedidos = context.OrdenPedido.Where(x => x.Folio_Cierre_Copia == ordenCierre.Folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+                    foreach (var item in pedidos)
+                    {
+                        var pedido = context.OrdenCierre.Where(x => x.CodPed == item.CodPed)
+                            .Include(x => x.OrdenEmbarque)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tonel)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Estado)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Orden)
+                            .ThenInclude(x => x.Estado)
+                            .IgnoreAutoIncludes()
+                            .DefaultIfEmpty()
+                            .FirstOrDefault();
+
+                        if (pedido != null)
+                            crear_Orden_Template_DTO.OrdenCierres.Add(pedido);
+                    }
+                }
+
+                return Ok(crear_Orden_Template_DTO);
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest("Parametros vacios");
             }
             catch (Exception e)
             {

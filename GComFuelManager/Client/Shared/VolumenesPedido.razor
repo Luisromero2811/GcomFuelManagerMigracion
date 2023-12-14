@@ -1,0 +1,35 @@
+﻿
+<table class="table table-sm table-responsive">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Total</th>
+            <th>Disponile</th>
+            <th>Solicitado</th>
+            <th>Programado</th>
+            <th>Espera de carga</th>
+            <th>Cargado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if(volumenes is not null)
+        {
+            <Virtualize TItem="ProductoVolumen" Items="volumenes" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>@item.Total</td>
+                    <td>@item.Disponible</td>
+                    <td>@item.Solicitud</td>
+                    <td>@item.Programado</td>
+                    <td>@item.Congelado</td>
+                    <td>@item.Consumido</td>
+                </tr>
+            </Virtualize>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<ProductoVolumen> volumenes { get; set; } = new List<ProductoVolumen>();
+
+}

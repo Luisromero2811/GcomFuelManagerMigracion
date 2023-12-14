@@ -8,11 +8,17 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
+    @if (Loading_Detalle)
+    {
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+    }
     <div class="col-12 card shadow">
         <div class="card-body">
             <div class="col-12 row">
                 <div class="col-2">
-                    <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(string.Empty))">
+                    <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(new Folio_Activo_Vigente()))">
                         <i class="fa fa-solid fa-arrow-left"></i>
                         <b>Regresar</b>
                     </button>
@@ -90,7 +96,7 @@
                     </div>
                     <div class="col-4">
                         <div class="col-12">
-                            <label>Estacion</label>
+                            <label>Destino</label>
                             <RadzenDropDown Data="Estaciones" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodDes"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@GetPrecios"
                                             AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
@@ -110,45 +116,37 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Producto</label>
-                            @if (ordenCierre.Precio_Manual)
-                            {
-                                <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
-                                                AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
-                                    <Template Context="data">
-                                        <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                            <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
-                                        </RadzenText>
-                                    </Template>
-                                    <ValueTemplate Context="data">
-                                        <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
-                                        </RadzenText>
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            }
-                            else
-                            {
-                                <InputSelect @bind-Value="ordenCierre.CodPrd" class="form-select form-select-sm">
-                                    <option>-- Selecciona una Opcion --</option>
-                                    @if (Productos is null)
+                            <div class="col-12">
+                                @if (!Es_Cierre_Individual)
+                                {
+                                    <RadzenDropDown Data="Precios" class="col-12" TextProperty="Producto.Den" ValueProperty="Producto.Cod" @bind-Value="ordenCierre.CodPrd"
+                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Change="@ChangeProducto"
+                                                    AllowVirtualization="true" Disabled="isFolio && !ordenCierre.IsCierreVolumen" Style="height:31px;">
+                                        <Template Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                                <RadzenBadge Variant="Variant.Outlined" Text="@((data as Precio)?.FchDia.ToShortDateString())" />
+                                            </RadzenText>
+                                        </Template>
+                                        <ValueTemplate Context="data">
+                                            <RadzenText TextStyle="TextStyle.Body2">
+                                                @((data as Precio).Producto.Den) | $@((data as Precio).Pre)
+                                            </RadzenText>
+                                        </ValueTemplate>
+                                    </RadzenDropDown>
+                                }
+                                else
+                                {
+                                    @if (!string.IsNullOrEmpty(PrecioDetalle?.NombreProducto))
                                     {
-                                        <option disabled> Cargando ...</option>
+                                        <p>
+                                            @PrecioDetalle?.NombreProducto
+                                            @(ordenCierre.Precio_Manual ? $"| {PrecioDetalle?.Pre}" : "")
+                                            @(ordenCierre.Precio_Manual ? $"| {PrecioDetalle?.Moneda}" : "")
+                                        </p>
                                     }
-                                    else if (Productos.Count == 0)
-                                    {
-                                        <option disabled> No hay productos </option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Productos)
-                                        {
-                                            <option value="@item.Cod">@item.Den</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            }
+                                }
+                            </div>
                         </div>
                     </div>
                     @if (!ordenCierre.IsDifferentVol)
@@ -272,11 +270,11 @@
                             }
                             else
                             {
-                                <div >
+                                <div>
                                     <label>
                                         Precio <i class="fa-solid fa-circle-info fa-xs"></i>
                                     </label>
-                                    <input type="number" step="0.0001" class="form-control form-control-sm col-12" @bind="@ordenCierre.Precio"/>
+                                    <input type="number" step="0.0001" class="form-control form-control-sm col-12" @bind="@ordenCierre.Precio" />
                                 </div>
                             }
 
@@ -304,11 +302,11 @@
                             </button>
                         </div>
                     }
-                    @if (!isEditing)
+                    @if (!isEditing && !Es_Orden_Copiada)
                     {
 
                         <div class="col-4">
-                            <button class="btn gcom-bg-amarillo col-12 btn-sm @(SendOrden ? "disabled" : "" )" type="submit" disabled="@SendOrden">
+                            <button class="btn gcom-bg-amarillo col-12 btn-sm @(SendOrden || Loading_Detalle ? "disabled" : "" )" type="submit" disabled="@(SendOrden || Loading_Detalle)">
                                 <i class="fa fa-solid fa-check"></i>
                                 <b>Crear orden</b>
                                 @if (SendOrden)
@@ -319,7 +317,7 @@
                         </div>
 
                         <div class="col-4">
-                            <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@ConfirmPedido">
+                            <button class="btn gcom-bg-amarillo col-12 btn-sm @(SendOrden || Loading_Detalle ? "disabled" : "" )" type="button" @onclick="@ConfirmPedido" disabled="@(SendOrden || Loading_Detalle)">
                                 <i class="fa fa-solid fa-check"></i>
                                 <b>Confirmar ordenes</b>
                                 @if (loadingConfirm)
@@ -439,22 +437,9 @@
                 </p>
             </div>
         </div>
-        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
+        @if (ordenCierre.IsCierreVolumen is true && Producto_Volumen.Count > 0)
         {
-            <div class="col-12 mt-2">
-                <b class="my-auto">
-                    @foreach (var item in volumenDisponible.Productos)
-                    {
-                        @if (!string.IsNullOrEmpty(item.Nombre))
-                        {
-                            <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                            </div>
-
-                        }
-                    }
-                </b>
-            </div>
+            <VolumenesPedido volumenes="Producto_Volumen"></VolumenesPedido>
         }
     </div>
 </AuthorizeView>
@@ -554,7 +539,9 @@
 
 @code {
     [Parameter] public string Folio_Seleccionado { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> CancelCreation { get; set; }
+    [Parameter] public byte? Producto_Pedido { get; set; } = 0;
+    [Parameter] public int ID_Cierre { get; set; } = 0;
+    [Parameter] public EventCallback<Folio_Activo_Vigente> CancelCreation { get; set; }
 
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
@@ -568,20 +555,20 @@
 
     private List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
     private OrdenCierre ordenCierre { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
-    private VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
+    private List<ProductoVolumen> Producto_Volumen { get; set; } = new List<ProductoVolumen>();
 
     //listas
     private List<Tad> Terminales { get; set; } = null!;
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
     private List<CodDenDTO> Clientes { get; set; } = null!;
     private List<CodDenDTO> Estaciones { get; set; } = null!;
-    private List<Precio> Precios { get; set; } = null!;
+    private List<Precio> Precios { get; set; } = new List<Precio>();
     private List<Producto> Productos { get; set; } = new List<Producto>();
     private List<Precio> ProductosDisponibles { get; set; } = null!;
     private IEnumerable<CodDenDTO> Destino { get; set; } = null!;
     private List<int> Cantidades { get; set; } = null!;
     private List<string> Folios { get; set; } = new List<string>();
-
+    private Precio? PrecioDetalle { get; set; } = new Precio();
     private float Precio = 0;
 
     private string folio { get; set; } = string.Empty;
@@ -594,6 +581,10 @@
     bool isEditing = false;
     bool IsCierreVolumen = false;
     bool SendOrden = false;
+    bool Loading_Detalle = true;
+    bool Es_Cierre_Individual = false;
+    bool Puede_Buscar_Cliente_Destino = false;
+    bool Es_Orden_Copiada = false;
 
     private byte? CodProductoSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
@@ -621,20 +612,11 @@
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
     Dictionary<string, string> queryStringObjectFolios = new Dictionary<string, string>();
-    private IJSObjectReference importedJs;
+    Dictionary<string, string> query = new Dictionary<string, string>();
 
     public List<ListadoFolioDetalle> folioDetalles { get; set; } = new List<ListadoFolioDetalle>();
     private string folioSearch = string.Empty;
-    // private IList<FolioDetalleDTO> foliosFiltro => folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch) || string.IsNullOrEmpty(folioSearch)).ToList();
     private IList<ListadoFolioDetalle> foliosFiltro { get; set; } = new List<ListadoFolioDetalle>();
-
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     await GetTerminales();
-    //     await GetGrupos();
-    //     await GetCantidades();
-    //     await GetProductos();
-    // }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -653,10 +635,10 @@
                 width = 500;
             TotalWidth = $"{width}px";
             // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
-            importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
-
+            await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
             // await LoadStateAsync();
             // StateHasChanged();
+
         }
     }
 
@@ -664,7 +646,18 @@
     {
         await GetTerminales();
         await GetCantidades();
-        await GetFiltroCierres();
+        // await GetFiltroCierres();
+        if (ID_Cierre != 0)
+            Es_Cierre_Individual = true;
+        else
+            Es_Cierre_Individual = false;
+
+        if (ID_Cierre != 0)
+            await Obtener_Detalle_Cierre();
+        else
+            await Obtener_Detalle_Cierre_General();
+
+        StateHasChanged();
     }
 
     private void ClearGridData()
@@ -690,31 +683,6 @@
         else
             ordenCierre.IsDifferentVol = false;
         isEditing = !isEditing;
-    }
-
-    public async Task GetPedidoFolio()
-    {
-        try
-        {
-            var response = await http.Get<List<OrdenCierre>>($"api/cierre/filtrar");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                ordenCierres = response.Response;
-                ordenCierre = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
-                isFolio = true;
-                StateHasChanged();
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
     }
 
     private async Task CancelPedido(OrdenCierre orden)
@@ -751,6 +719,7 @@
                     {
                         await Swal.FireAsync("Orden cancelada", $"La orden ha sido cancelada.", SweetAlertIcon.Info);
                         ordenCierres.Remove(orden);
+                        await GetVolumenActivo();
                     }
                 }
             }
@@ -968,21 +937,23 @@
     {
         try
         {
-            if (ordenCierre.CodCte != null && ClienteSeleccionado != ordenCierre.CodCte)
-            {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ordenCierre.CodCte}");
-                if (response.Error)
-                {
-                    var responseHttp = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Estaciones = response.Response;
-                    ClienteSeleccionado = ordenCierre.CodCte;
-                    StateHasChanged();
-                }
-            }
+            if (Es_Cierre_Individual || Es_Orden_Copiada)
+                if (Puede_Buscar_Cliente_Destino)
+                    if (ordenCierre.CodCte != null && ClienteSeleccionado != ordenCierre.CodCte)
+                    {
+                        var response = await http.Get<List<CodDenDTO>>($"api/estacion/{ordenCierre.CodCte}");
+                        if (response.Error)
+                        {
+                            var responseHttp = await response.ObtenerMensajeError();
+                            await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                        }
+                        else
+                        {
+                            Estaciones = response.Response;
+                            ClienteSeleccionado = ordenCierre.CodCte;
+                            StateHasChanged();
+                        }
+                    }
         }
         catch (Exception e)
         {
@@ -994,21 +965,23 @@
     {
         try
         {
-            if (ordenCierre.CodGru != null && GrupoSeleccionado != ordenCierre.CodGru)
-            {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenCierre.CodGru}");
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    GrupoSeleccionado = ordenCierre.CodGru;
-                    Clientes = response.Response;
-                    StateHasChanged();
-                }
-            }
+            if (!Es_Cierre_Individual || Es_Orden_Copiada)
+                if (Puede_Buscar_Cliente_Destino)
+                    if (ordenCierre.CodGru != null && GrupoSeleccionado != ordenCierre.CodGru)
+                    {
+                        var response = await http.Get<List<CodDenDTO>>($"api/cliente/{ordenCierre.CodGru}");
+                        if (response.Error)
+                        {
+                            var message = await response.ObtenerMensajeError();
+                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        }
+                        else
+                        {
+                            GrupoSeleccionado = ordenCierre.CodGru;
+                            Clientes = response.Response;
+                            StateHasChanged();
+                        }
+                    }
 
         }
         catch (Exception e)
@@ -1049,7 +1022,7 @@
                                 await GetClientes();
                                 ordenCierre.CodDes = response.Response.FirstOrDefault()?.CodDes;
                                 await GetEstaciones();
-                                ordenCierre.CodPrd = response.Response.FirstOrDefault()?.CodPrd;
+                                ordenCierre.CodPrd = response.Response.FirstOrDefault(x => x.CodPrd == Producto_Pedido)?.CodPrd;
                                 await GetPrecios();
                                 ordenCierre.Precio = response.Response.FirstOrDefault()?.Precio ?? 0;
                                 var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
@@ -1060,18 +1033,9 @@
                                 }
                                 else
                                 {
-                                    var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/activo", filtro);
-                                    if (response.Error)
-                                    {
-                                        var message = await response.ObtenerMensajeError();
-                                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                                    }
-                                    else
-                                    {
-                                        volumenDisponible = responseVolumen.Response;
-                                        ordenCierres = responseDetalle.Response;
+                                    await GetVolumenActivo();
+                                    ordenCierres = responseDetalle.Response;
                                         count = 0;
-                                    }
                                 }
                             }
                             else
@@ -1105,10 +1069,7 @@
             {
                 queryStringObject["folio"] = ordenCierre.Folio_Perteneciente;
 
-                var DefaultValues = new List<string>() { "false", "", "0" };
-                var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
-
+                var uri = Constructor_De_URL_Parametros.Generar_URL(queryStringObject);
                 var responseVerify = await http.Get<bool>($"api/cierre/caducidad/verify?{uri}");
                 if (responseVerify.Error)
                 {
@@ -1120,6 +1081,46 @@
 
             }
 
+            var response = await http.Post<OrdenCierre, bool>($"api/pedido/verificar/carga/{ID_Cierre}", ordenCierre);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                SendOrden = false;
+            }
+            else
+            {
+                if (response.Response)
+                    await CreateOrden();
+                else
+                {
+                    var confirm = await Swal.FireAsync(new SweetAlertOptions
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Sobrepasara el volumen limite del cierre, ¿Quiere agregar esta orden?"
+                        });
+
+                    if (!string.IsNullOrEmpty(confirm.Value))
+                        await CreateOrden();
+                }
+            }
+
+            SendOrden = false;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task CreateOrden()
+    {
+        try
+        {
             var response = await http.Post<OrdenCierre, OrdenCierre>($"api/pedido/create/all", ordenCierre);
             if (response.Error)
             {
@@ -1130,14 +1131,37 @@
             else
             {
                 ordenCierres.Add(response.Response);
+                await GetVolumenActivo();
             }
-
-            SendOrden = false;
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
+        }
+    }
+
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Cod"] = ID_Cierre.ToString();
+            Volumen_Query["Folio"] = Folio_Seleccionado;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 
@@ -1184,23 +1208,28 @@
     {
         try
         {
+            if (!Es_Cierre_Individual || Es_Orden_Copiada)
+            {
+                ZonaCliente zonaCliente = new ZonaCliente();
+                zonaCliente.DesCod = ordenCierre.CodDes;
+                zonaCliente.CteCod = ordenCierre.CodCte;
+                var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
+                var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Precios = response.Response;
+                    Precios = Precios.Where(x => x.codPrd == Producto_Pedido).ToList();
+                    PrecioDetalle = Precios.FirstOrDefault(x => x.codPrd == Producto_Pedido);
 
-            ZonaCliente zonaCliente = new ZonaCliente();
-            zonaCliente.DesCod = ordenCierre.CodDes;
-            zonaCliente.CteCod = ordenCierre.CodCte;
-            var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
-            var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
-            if (response.Error)
-            {
-                var responseHttp = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Precios = response.Response;
-                DestinoSeleccionado = ordenCierre.CodDes;
-                await ChangeProducto();
-                // StateHasChanged();
+                    DestinoSeleccionado = ordenCierre.CodDes;
+                    await ChangeProducto();
+                    // StateHasChanged();
+                }
             }
         }
         catch (Exception e)
@@ -1318,5 +1347,110 @@
     private void FilterFolios()
     {
         foliosFiltro = folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private async Task Obtener_Detalle_Cierre()
+    {
+        try
+        {
+            Loading_Detalle = true;
+            StateHasChanged();
+
+            query = new Dictionary<string, string>();
+
+            query["Cod"] = ID_Cierre.ToString();
+            query["Folio"] = Folio_Seleccionado;
+
+            ordenCierre.Folio_Perteneciente = Folio_Seleccionado;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<Crear_Orden_Template_DTO>($"api/cierre/detalle?{uri}");
+            if (response.Error)
+            {
+                Loading_Detalle = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var template = response.Response;
+
+                Grupos = template.Grupos;
+                Clientes = template.Clientes.Count > 0 ? template.Clientes.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x?.Den ?? string.Empty }).ToList() : new List<CodDenDTO>();
+                Estaciones = template.Destinos.Count > 0 ? template.Destinos.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x?.Den ?? string.Empty }).ToList() : new List<CodDenDTO>();
+
+                ordenCierre.CodGru = template.ID_Grupo;
+                ordenCierre.CodCte = template.ID_Cliente;
+                ordenCierre.CodDes = template.ID_Destino;
+                ordenCierre.CodPrd = template.ID_Producto;
+
+                Precios.Add(template.Precio);
+                PrecioDetalle = template.Precio;
+                ordenCierre.Precio = template.Precio.Pre;
+                Puede_Buscar_Cliente_Destino = template.Puede_Seleccionar_Cliete_Destino;
+                ordenCierres = template.OrdenCierres;
+            }
+
+            await GetVolumenActivo();
+
+            Loading_Detalle = false;
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Loading_Detalle = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Detalle_Cierre_General()
+    {
+        try
+        {
+            Loading_Detalle = true;
+            StateHasChanged();
+
+            query = new Dictionary<string, string>();
+
+            query["Folio"] = Folio_Seleccionado;
+
+            ordenCierre.Folio_Perteneciente = Folio_Seleccionado;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<Crear_Orden_Template_DTO>($"api/cierre/detalle/general?{uri}");
+            if (response.Error)
+            {
+                Loading_Detalle = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var template = response.Response;
+
+                Grupos = template.Grupos;
+                Clientes = template.Clientes.Count > 0 ? template.Clientes.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x?.Den ?? string.Empty }).ToList() : new List<CodDenDTO>();
+                Estaciones = template.Destinos.Count > 0 ? template.Destinos.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x?.Den ?? string.Empty }).ToList() : new List<CodDenDTO>();
+
+                // Precios.Add(template.Precio);
+                Precios = template.Precios;
+                PrecioDetalle = template.Precio;
+                ordenCierre.Precio = template.Precio.Pre;
+                Puede_Buscar_Cliente_Destino = template.Puede_Seleccionar_Cliete_Destino;
+                Es_Orden_Copiada = template.Es_Orden_Copiada;
+
+                ordenCierres = template.OrdenCierres;
+            }
+
+            await GetVolumenActivo();
+
+            Loading_Detalle = false;
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Loading_Detalle = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

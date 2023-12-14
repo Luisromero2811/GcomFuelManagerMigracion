@@ -66,7 +66,7 @@
                     <td class="sticky-column" style="background-color:white;">
                         <div class="col-12 row">
                             <div class="col-6">
-                                <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item.Folio))">
+                                <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item))">
                                     <i class="fa fa-solid fa-list-check"></i>
                                 </button>
                             </div>
@@ -126,6 +126,31 @@
     </tbody>
 </table>
 
+@* <div class="col-12">
+    <Tabla T="Folio_Activo_Vigente" Listado="Folios">
+        <Cabeceras>
+            <Cabecera_De_Tabla Nombre_Cabecera="Fecha de vigencia" />
+            <Cabecera_De_Tabla>
+                <Template_Cabecera>
+                    <b>Folio</b>
+                </Template_Cabecera>
+            </Cabecera_De_Tabla> 
+        </Cabeceras>
+        <Columna>
+            <Columna_De_Tabla>
+                <Template_Contenido>
+                    <div class="text-hidden-overflow">
+                        <p>
+                            @(context.Fecha_Cierre.ToShortDateString()) - @(context.Fecha_Vigencia.ToShortDateString())
+                        </p>
+                    </div>
+                </Template_Contenido>
+            </Columna_De_Tabla>
+            <Columna_De_Tabla Contenido="@context.Folio"/>
+        </Columna>
+    </Tabla>
+</div>
+ *@
 <style type="text/css">
     .ancho {
         width: contain;
@@ -236,7 +261,7 @@
 
 @code {
     // [Parameter] public string Folio_Seleccionado { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> Cambiar_Folio { get; set; }
+    [Parameter] public EventCallback<Folio_Activo_Vigente> Cambiar_Folio { get; set; }
 
     List<Folio_Activo_Vigente> Folios { get; set; } = new List<Folio_Activo_Vigente>();
     Folio_Activo_Vigente Folio { get; set; } = new Folio_Activo_Vigente();

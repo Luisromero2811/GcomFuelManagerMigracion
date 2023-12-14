@@ -1,0 +1,43 @@
+﻿@typeparam T
+<table>
+    <thead>
+        @if (Cabeceras is not null)
+        {
+            <tr>@Cabeceras</tr>
+        }
+    </thead>
+    <tbody>
+        @if (Listado is not null)
+        {
+            <Virtualize TItem="T" Items="Listado" Context="item">
+                <tr>
+                    @if (Columna is not null)
+                    {
+                        @Columna(item)
+                    }
+                </tr>
+            </Virtualize>
+        }
+        else
+        {
+            <tr>
+                <td>No hay registros</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            @if (Inferior is not null)
+            {
+                @Inferior
+            }
+        </tr>
+    </tfoot>
+</table>
+
+@code {
+    [Parameter] public List<T> Listado { get; set; } = new List<T>();
+    [Parameter] public RenderFragment<T> Columna { get; set; } = null!;
+    [Parameter] public RenderFragment<T> Cabeceras { get; set; } = null!;
+    [Parameter] public RenderFragment<T> Inferior { get; set; } = null!;
+}
