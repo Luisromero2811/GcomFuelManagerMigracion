@@ -142,7 +142,7 @@
                                         <p>
                                             @PrecioDetalle?.NombreProducto
                                             @(ordenCierre.Precio_Manual ? $"| {PrecioDetalle?.Pre}" : "")
-                                            @(ordenCierre.Precio_Manual ? $"| {PrecioDetalle?.Moneda}" : "")
+                                            @(ordenCierre.Precio_Manual ? $"| {PrecioDetalle?.Moneda?.Nombre}" : "")
                                         </p>
                                     }
                                 }
@@ -332,6 +332,10 @@
             </EditForm>
         </div>
     </div>
+    @if (ordenCierre.IsCierreVolumen is true && Producto_Volumen.Count > 0)
+    {
+        <VolumenesPedido volumenes="Producto_Volumen"></VolumenesPedido>
+    }
     <div class="col-12 d-flex justify-content-center row">
         <div class="col-12 overflow-scroll ancho mt-4" style="height:450px;resize:both;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
@@ -437,10 +441,6 @@
                 </p>
             </div>
         </div>
-        @if (ordenCierre.IsCierreVolumen is true && Producto_Volumen.Count > 0)
-        {
-            <VolumenesPedido volumenes="Producto_Volumen"></VolumenesPedido>
-        }
     </div>
 </AuthorizeView>
 
@@ -701,7 +701,7 @@
             if (!string.IsNullOrEmpty(confirm.Value))
             {
 
-                var responseOC = await http.Delete($"api/cierre/{orden.Cod}/cancel");
+                var responseOC = await http.Get<OrdenCierre>($"api/cierre/cancelar/{orden.Cod}");
                 if (responseOC.Error)
                 {
                     var responseHttp = await responseOC.ObtenerMensajeError();
@@ -709,18 +709,13 @@
                 }
                 else
                 {
-                    var response = await http.Delete($"api/pedido/{orden.OrdenEmbarque.Cod}/cancel");
-                    if (response.Error)
-                    {
-                        var responseHttp = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        await Swal.FireAsync("Orden cancelada", $"La orden ha sido cancelada.", SweetAlertIcon.Info);
-                        ordenCierres.Remove(orden);
-                        await GetVolumenActivo();
-                    }
+                    await Swal.FireAsync("Orden cancelada", $"La orden ha sido cancelada.", SweetAlertIcon.Info);
+
+                    var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
+                    ordenCierres.RemoveAt(index);
+                    ordenCierres.Insert(index, responseOC.Response);
+
+                    await GetVolumenActivo();
                 }
             }
         }
@@ -843,8 +838,16 @@
                     else
                     {
                         loadingConfirm = false;
+
                         await Swal.FireAsync("Folio", response.Response.den, SweetAlertIcon.Info);
-                        ClearGridData();
+
+                        if (ID_Cierre != 0)
+                            await Obtener_Detalle_Cierre();
+                        else
+                            await Obtener_Detalle_Cierre_General();
+
+                        await GetVolumenActivo();
+
                     }
                 }
                 else
@@ -1035,7 +1038,7 @@
                                 {
                                     await GetVolumenActivo();
                                     ordenCierres = responseDetalle.Response;
-                                        count = 0;
+                                    count = 0;
                                 }
                             }
                             else
@@ -1436,6 +1439,7 @@
                 Precios = template.Precios;
                 PrecioDetalle = template.Precio;
                 ordenCierre.Precio = template.Precio.Pre;
+                ordenCierre.ID_Moneda = template.Precio.ID_Moneda;
                 Puede_Buscar_Cliente_Destino = template.Puede_Seleccionar_Cliete_Destino;
                 Es_Orden_Copiada = template.Es_Orden_Copiada;
 

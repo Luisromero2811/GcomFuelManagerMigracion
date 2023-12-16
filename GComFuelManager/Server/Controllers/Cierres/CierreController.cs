@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using ServiceReference10;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -170,27 +171,69 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                if (orden is null)
+                    return BadRequest("No se aceptan ordenes vacios");
+
+                Cliente? Cliente = null!;
+                Grupo? Grupo = null!;
+
+                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                consecutivo.Numeracion = consecutivo.Numeracion + 1;
+
+                context.Update(consecutivo);
+                await context.SaveChangesAsync();
+
+                if (!orden.isGroup)
+                {
+                    Cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
+
+                    orden.TipoVenta = Cliente?.Tipven;
+
+                    if (!string.IsNullOrEmpty(Cliente?.Tipven))
+                    {
+                        orden.ModeloVenta = Cliente?.MdVenta;
+                        orden.TipoVenta = Cliente?.Tipven;
+                    }
+                    else
+                    {
+                        orden.ModeloVenta = string.Empty;
+                        orden.TipoVenta = string.Empty;
+                    }
+                }
+                else
+                {
+                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == orden.CodCte);
+
+                    orden.TipoVenta = Grupo?.Tipven;
+
+                    if (!string.IsNullOrEmpty(Grupo?.Tipven))
+                    {
+                        orden.ModeloVenta = Grupo?.MdVenta;
+                        orden.TipoVenta = Grupo?.Tipven;
+                    }
+                    else
+                    {
+                        orden.ModeloVenta = string.Empty;
+                        orden.TipoVenta = string.Empty;
+                    }
+                }
+
+                if (!orden.isGroup)
+                    orden.Folio = $"P{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}";
+                else
+                    orden.Folio = $"G{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}";
+
                 orden.OrdenEmbarque = null!;
                 orden.Cliente = null!;
                 orden.Producto = null!;
                 orden.Destino = null!;
-                if (!orden.isGroup)
-                {
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
 
-                    orden.TipoVenta = cliente.Tipven;
-
-                    if (!string.IsNullOrEmpty(cliente.Tipven))
-                        orden.ModeloVenta = cliente.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
-                    else
-                        orden.ModeloVenta = string.Empty;
-                }
                 orden.FchVencimiento = orden.FchCierre?.AddDays(6);
                 context.Add(orden);
-
-                var id = await verifyUser.GetId(HttpContext, UserManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
 
                 await context.SaveChangesAsync(id, 1);
 
@@ -2451,7 +2494,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
 
-                OrdenCierre? orden = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.Folio) && x.Cod == ordenCierre.Cod && x.Folio == ordenCierre.Folio);
+                OrdenCierre? orden = context.OrdenCierre
+                    .Include(x => x.Moneda)
+                    .IgnoreAutoIncludes()
+                    .FirstOrDefault(x => !string.IsNullOrEmpty(x.Folio) && x.Cod == ordenCierre.Cod && x.Folio == ordenCierre.Folio);
 
                 if (orden is null)
                     return BadRequest("No se encontro el cierre");
@@ -2489,7 +2535,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 {
                     Pre = orden.Precio,
                     Producto = crear_Orden_Template_DTO.Producto,
-                    Moneda = orden.Moneda ?? Moneda.NONE,
+                    Moneda = orden.Moneda ?? new Moneda(),
+                    ID_Moneda = orden.ID_Moneda,
                     Equibalencia = orden.Equibalencia ?? 1
                 };
 
@@ -2540,7 +2587,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
             {
                 Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
 
-                List<OrdenCierre> ordenes = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == ordenCierre.Folio).Include(x => x.Producto).IgnoreAutoIncludes().ToList();
+                List<OrdenCierre> ordenes = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == ordenCierre.Folio)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Moneda)
+                    .IgnoreAutoIncludes().ToList();
 
                 if (ordenes is null)
                     return BadRequest("No se encontro el cierre");
@@ -2577,7 +2627,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         Pre = item.Precio,
                         Producto = item.Producto,
-                        Moneda = item.Moneda ?? Moneda.NONE,
+                        Moneda = item.Moneda,
+                        ID_Moneda = item.ID_Moneda,
                         Equibalencia = item.Equibalencia ?? 1
                     };
 
@@ -2643,6 +2694,44 @@ namespace GComFuelManager.Server.Controllers.Cierres
             catch (ArgumentNullException e)
             {
                 return BadRequest("Parametros vacios");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("cancelar/{ID_Orden}")]
+        public async Task<ActionResult> Cancelar_Orden([FromRoute] int ID_Orden)
+        {
+            try
+            {
+                var orden = context.OrdenCierre.FirstOrDefault(x => x.Cod == ID_Orden);
+                if (orden == null)
+                    return NotFound();
+
+                var ordenembarque = context.OrdenEmbarque.FirstOrDefault(x => x.Cod == orden.CodPed);
+                if (ordenembarque is null)
+                    return NotFound();
+
+                orden.Estatus = false;
+                ordenembarque.Codest = 14;
+
+                context.Update(orden);
+                context.Update(ordenembarque);
+
+                await context.SaveChangesAsync();
+
+                var newOrden = context.OrdenCierre
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .FirstOrDefault(x => x.Cod == orden.Cod);
+
+                return Ok(newOrden);
             }
             catch (Exception e)
             {

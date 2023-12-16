@@ -38,7 +38,8 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
         [JsonProperty("compartment")] public int? Compartment { get; set; } = 1;
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
-        public Moneda? Moneda { get; set; } = Modelos.Moneda.MXN;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;

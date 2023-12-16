@@ -176,7 +176,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool Precio_Manual { get; set; } = true;
         [NotMapped, EpplusIgnore] public int? Ordenes_Relacionadas { get; set; } = 0;
         [NotMapped, EpplusIgnore] public string? Folio_Perteneciente { get; set; } = string.Empty;
-        public Moneda? Moneda { get; set; } = Modelos.Moneda.MXN;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
         #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;

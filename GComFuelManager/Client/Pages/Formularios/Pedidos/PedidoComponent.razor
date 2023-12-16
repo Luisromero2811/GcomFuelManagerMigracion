@@ -276,14 +276,14 @@
                         </div>
                     </div>
                     @* <div class="col-4">
-                        <div class="col-12">
-                            <select @bind="@ordenCierre.Moneda">
-                                @foreach (var item in Enum.GetValues(typeof(Moneda)).Cast<Moneda>())
-                                {
-                                    <option value="@item">@item</option>
-                                }
-                            </select>
-                        </div>
+                    <div class="col-12">
+                    <select @bind="@ordenCierre.Moneda">
+                    @foreach (var item in Enum.GetValues(typeof(Moneda)).Cast<Moneda>())
+                    {
+                    <option value="@item">@item</option>
+                    }
+                    </select>
+                    </div>
                     </div> *@
                     @* @if (!isFolio || ordenCierre.IsCierreVolumen)
                     {
@@ -1070,7 +1070,15 @@
                 }
 
             }
+            foreach (var item in Precios)
+            {
+                if (item.PrecioOverDate)
+                    if (ordenCierre.Precio == item.Pre)
+                        ordenCierre.PrecioOverDate = true;
 
+                if (ordenCierre.Precio == item.Pre)
+                    ordenCierre.ID_Moneda = item.ID_Moneda;
+            }
             var response = await http.Post<OrdenCierre, OrdenCierre>($"api/pedido/create/all", ordenCierre);
             if (response.Error)
             {

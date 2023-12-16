@@ -158,6 +158,18 @@
                                         </RadzenMenuItem>
 
                                     </AuthorizeView>
+
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="Monedas">
+                                        <RadzenPanelMenuItem Path="configuracion/moneda" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-coins" aria-hidden="true"></i> Moneda
+                                                </div>
+                                            </Template>
+                                        </RadzenPanelMenuItem>
+
+                                    </AuthorizeView>
+
                                 </ChildContent>
                             </RadzenMenuItem>
 

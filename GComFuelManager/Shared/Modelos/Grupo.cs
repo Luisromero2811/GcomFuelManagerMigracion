@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -25,9 +26,7 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("tipven"), MaxLength(16)]
 		public string? Tipven { get; set; } = string.Empty;
 		public string? MdVenta { get; set; } = string.Empty;
-
-        [ForeignKey("codgru")]
-		public List<Cliente> Clientes { get; set; } = new List<Cliente>();
+		[EpplusIgnore] public string? CodGru { get; set; } = string.Empty;
 
 		//[NotMapped]
 		//public Cliente clientess { get; set; }

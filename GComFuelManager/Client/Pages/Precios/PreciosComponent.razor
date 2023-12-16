@@ -202,10 +202,10 @@
                             <div class="col-4">
                                 <div class="col-12">
                                     <label>Moneda</label>
-                                    <select @bind="@Precio.Moneda" class="form-select">
-                                        @foreach (var item in Enum.GetValues(typeof(Moneda)).Cast<Moneda>())
+                                    <select @bind="@Precio.ID_Moneda" class="form-select">
+                                        @foreach (var item in Monedas)
                                         {
-                                            <option value="@item">@item</option>
+                                            <option value="@item.Id">@item.Nombre</option>
                                         }
                                     </select>
                                 </div>
@@ -360,7 +360,7 @@
                                             <td>
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
-                                            <td>@(item?.Moneda ?? Moneda.NONE)</td>
+                                            <td>@item?.Moneda?.Nombre</td>
                                             <td>@(item?.Equibalencia ?? 1)</td>
                                             <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
@@ -494,7 +494,7 @@
                                             <td>
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
-                                            <td>@(item?.Moneda ?? Moneda.NONE)</td>
+                                            <td>@item?.Moneda?.Nombre</td>
                                             <td>@(item?.Equibalencia ?? 1)</td>
                                             <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                 <td>
@@ -567,6 +567,7 @@
     List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+    List<Moneda> Monedas { get; set; } = new List<Moneda>();
 
     private string Token { get; set; } = string.Empty;
 
@@ -619,6 +620,7 @@
         await GetProductos();
         await GetGrupos();
         await GetZonas();
+        await Obtener_Monedas();
         await LoadData();
         await LoadDataProgramados();
 
@@ -1396,5 +1398,25 @@
         PaginaActualPro = pagina;
         busquedaPreciosPro.pagina = PaginaActualPro;
         await LoadDataProgramados();
+    }
+
+    private async Task Obtener_Monedas()
+    {
+        try
+        {
+            var response = await http.Get<List<Moneda>>($"api/moneda");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Monedas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

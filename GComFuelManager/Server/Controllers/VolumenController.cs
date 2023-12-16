@@ -127,7 +127,8 @@ namespace GComFuelManager.Server.Controllers
                 .Include(x => x.OrdenEmbarque)
                 .Sum(x => x.OrdenEmbarque!.Vol);
 
-            var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
+            var Volumen_Resevado = VolumenSolicitado + VolumenProgramado + VolumenCongelado + VolumenConsumido;
+            var VolumenTotalDisponible = VolumenDisponible - (Volumen_Resevado);
             double? PromedioCargas = 0;
             var sumVolumen = VolumenConsumido + VolumenCongelado + VolumenProgramado;
             var sumCount = countCongelado + countConsumido + CountVolumenProgramado;
@@ -138,6 +139,7 @@ namespace GComFuelManager.Server.Controllers
             ProductoVolumen productoVolumen = new ProductoVolumen();
 
             productoVolumen.Nombre = context.Producto.FirstOrDefault(x => x.Cod == ordenCierre.CodPrd)?.Den ?? string.Empty;
+            productoVolumen.Reservado = Volumen_Resevado;
             productoVolumen.Disponible = VolumenTotalDisponible;
             productoVolumen.Congelado = VolumenCongelado;
             productoVolumen.Consumido = VolumenConsumido;

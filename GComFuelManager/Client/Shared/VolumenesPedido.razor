@@ -4,8 +4,8 @@
         <tr>
             <th>Producto</th>
             <th>Total</th>
+            <th>Reservado</th>
             <th>Disponile</th>
-            <th>Solicitado</th>
             <th>Programado</th>
             <th>Espera de carga</th>
             <th>Cargado</th>
@@ -17,12 +17,12 @@
             <Virtualize TItem="ProductoVolumen" Items="volumenes" Context="item">
                 <tr>
                     <td>@item.Nombre</td>
-                    <td>@item.Total</td>
-                    <td>@item.Disponible</td>
-                    <td>@item.Solicitud</td>
-                    <td>@item.Programado</td>
-                    <td>@item.Congelado</td>
-                    <td>@item.Consumido</td>
+                    <td>@(item.Total?.ToString("###,###,###.##"))</td>
+                    <td>@(item.Reservado?.ToString("###,###,###.##"))</td>
+                    <td>@(item.Disponible?.ToString("###,###,###.##"))</td>
+                    <td>@(item.Programado?.ToString("###,###,###.##"))</td>
+                    <td>@(item.Congelado?.ToString("###,###,###.##"))</td>
+                    <td>@(item.Consumido?.ToString("###,###,###.##"))</td>
                 </tr>
             </Virtualize>
         }
