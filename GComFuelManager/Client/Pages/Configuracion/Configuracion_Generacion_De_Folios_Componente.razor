@@ -12,7 +12,7 @@
                 <Tabs>
                     <RadzenTabsItem Text="Clientes">
                         <div class="col-12">
-                            <table class="table table-sm table-responsive table-bordered" style="min-height:400px; overflow-y:scroll">
+                            <table class="table table-sm table-responsive table-bordered" style="max-height:400px; overflow-y:scroll">
                                 <thead>
                                     <tr>
                                         <th>Cliente</th>
@@ -47,7 +47,7 @@
                                                         else
                                                         {
                                                             <div class="col-4">
-                                                                <input type="text" maxlength="15" @bind="item.Nuevo_Codigo" class="col-12 form-control form-control-sm" />
+                                                                <input type="text" maxlength="8" @bind="item.Nuevo_Codigo" class="col-12 form-control form-control-sm" />
                                                             </div>
                                                         }
                                                     </td>
@@ -85,7 +85,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="3">
                                             <div class="col-12 row">
                                                 <div class="text-muted col-2">
                                                     <p>total de registros: @Conteo_Total_Cliente</p>
@@ -102,7 +102,7 @@
                     </RadzenTabsItem>
                     <RadzenTabsItem Text="Grupos">
                         <div class="col-12">
-                            <table class="table table-sm table-responsive table-bordered" style="min-height:400px; overflow-y:scroll">
+                            <table class="table table-sm table-responsive table-bordered" style="max-height:400px; overflow-y:scroll">
                                 <thead>
                                     <tr>
                                         <th>Grupo</th>
@@ -137,7 +137,7 @@
                                                         else
                                                         {
                                                             <div class="col-4">
-                                                                <input type="text" maxlength="15" @bind="item.Nuevo_Codigo" />
+                                                                <input type="text" maxlength="8" @bind="item.Nuevo_Codigo" />
                                                             </div>
                                                         }
                                                     </td>
@@ -175,7 +175,7 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="3">
                                             <div class="col-12 row">
                                                 <div class="text-muted col-2">
                                                     <p>total de registros: @Conteo_Total_Grupo</p>
@@ -331,6 +331,10 @@
     {
         try
         {
+            if (string.IsNullOrEmpty(cliente.Nuevo_Codigo))
+                if (cliente.Nuevo_Codigo.Length > 8)
+                    await swal.FireAsync("Alerta", "El codigo no puede ser mayor a 8 caracteres", SweetAlertIcon.Warning);
+
             Loading_Grupos = true;
             cliente.CodCte = cliente.Nuevo_Codigo;
             var response = await http.Put<Cliente>($"api/clientes", cliente);
@@ -356,6 +360,10 @@
     {
         try
         {
+            if (string.IsNullOrEmpty(grupo.Nuevo_Codigo))
+                if (grupo.Nuevo_Codigo.Length > 8)
+                    await swal.FireAsync("Alerta", "El codigo no puede ser mayor a 8 caracteres", SweetAlertIcon.Warning);
+
             Loading_Grupos = true;
             grupo.CodGru = grupo.Nuevo_Codigo;
             var response = await http.Post<Grupo>($"api/grupo", grupo);

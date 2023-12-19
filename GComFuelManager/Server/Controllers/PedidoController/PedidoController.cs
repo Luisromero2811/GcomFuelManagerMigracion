@@ -1090,7 +1090,7 @@ namespace GComFuelManager.Server.Controllers
                     await context.SaveChangesAsync();
                 }
 
-                var guidfolio = $"RE{DateTime.Now:yy}-{consecutivo.Numeracion:000000}-{DateTime.Now:yyyyMMddHHmmss}";
+                var guidfolio = $"RE{DateTime.Now:yy}-{consecutivo.Numeracion:000000}";
 
                 foreach (var item in ordenes)
                 {
