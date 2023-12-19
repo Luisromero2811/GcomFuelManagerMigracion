@@ -158,5 +158,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Destino? Destinos { get; set; } = null!;
         [NotMapped] public Producto? Prods { get; set; } = null!;
         [NotMapped] public Grupo? Grups { get; set; } = null!;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
     }
 }

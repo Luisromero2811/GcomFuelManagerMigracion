@@ -54,5 +54,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
     }
 }

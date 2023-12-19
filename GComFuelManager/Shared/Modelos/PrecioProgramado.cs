@@ -53,5 +53,8 @@ namespace GComFuelManager.Shared.Modelos
                 return new Precio();
             }
         }
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
     }
 }
