@@ -821,12 +821,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .FirstOrDefault();
 
                 if (ordenes is null)
-                    return Ok(new List<PrecioBol>() { new PrecioBol() });
+                    return Ok(new PrecioBol());
 
                 PrecioBol precio = new PrecioBol();
 
                 OrdenEmbarque? orden = new OrdenEmbarque();
-                orden = context.OrdenEmbarque.Where(x => x.FolioSyn == ordenes.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
+                orden = context.OrdenEmbarque.Where(x => x.FolioSyn == ordenes.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.OrdenCierre).FirstOrDefault();
 
                 precio.Fecha_De_Carga = ordenes.Fchcar;
 
@@ -921,6 +921,17 @@ namespace GComFuelManager.Server.Controllers.Precios
                             precio.Tipo_De_Cambio = cierre?.Equibalencia ?? 1;
                         }
                     }
+                }
+
+                if (orden is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                {
+                    precio.Precio = orden.Pre;
+
+                    if (orden.OrdenCierre is not null)
+                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
+
+                    precio.Es_Precio_De_Creacion = true;
+                    precio.Precio_Encontrado_En = "Creacion";
                 }
 
                 return Ok(precios);

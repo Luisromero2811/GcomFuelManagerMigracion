@@ -280,7 +280,6 @@
     IList<Grupo> Grupos_Filtrados => Grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.Contains(Grupo_Filtrado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(Grupo_Filtrado)).ToList();
 
     Dictionary<string, string> queryParams = new Dictionary<string, string>();
-    private IJSObjectReference importedJs;
 
     protected async override Task OnInitializedAsync()
     {

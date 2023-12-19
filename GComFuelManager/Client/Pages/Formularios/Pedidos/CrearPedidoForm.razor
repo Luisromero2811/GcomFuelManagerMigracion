@@ -585,6 +585,7 @@
     bool Es_Cierre_Individual = false;
     bool Puede_Buscar_Cliente_Destino = false;
     bool Es_Orden_Copiada = false;
+    bool Abrir_Alerta = false;
 
     private byte? CodProductoSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
@@ -709,13 +710,14 @@
                 }
                 else
                 {
-                    await Swal.FireAsync("Orden cancelada", $"La orden ha sido cancelada.", SweetAlertIcon.Info);
+                    // await Swal.FireAsync("Orden cancelada", $"La orden ha sido cancelada.", SweetAlertIcon.Info);
 
                     var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == responseOC.Response.Cod)!);
                     ordenCierres.RemoveAt(index);
                     ordenCierres.Insert(index, responseOC.Response);
-
                     await GetVolumenActivo();
+
+                    Abrir_Alerta = true;
                 }
             }
         }

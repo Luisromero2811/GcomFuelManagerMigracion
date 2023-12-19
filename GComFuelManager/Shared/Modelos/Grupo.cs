@@ -27,7 +27,8 @@ namespace GComFuelManager.Shared.Modelos
 		public string? Tipven { get; set; } = string.Empty;
 		public string? MdVenta { get; set; } = string.Empty;
 		[EpplusIgnore] public string? CodGru { get; set; } = string.Empty;
-
+		[EpplusIgnore, NotMapped] public bool IsEditing { get; set; } = false;
+		[EpplusIgnore, NotMapped] public string Nuevo_Codigo { get; set; } = string.Empty;
 		//[NotMapped]
 		//public Cliente clientess { get; set; }
 		//[NotMapped]

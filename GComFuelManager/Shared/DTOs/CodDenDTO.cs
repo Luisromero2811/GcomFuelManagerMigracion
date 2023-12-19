@@ -16,5 +16,7 @@ namespace GComFuelManager.Shared.DTOs
         public Cliente? cliente { get; set; }
         public Destino? destino { get; set; }
         public Grupo? grupo { get; set; }
+        public int pagina { get; set; } = 1;
+        public int tamanopagina { get; set; } = 10;
     }
 }

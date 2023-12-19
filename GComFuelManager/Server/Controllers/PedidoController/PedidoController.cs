@@ -1072,14 +1072,29 @@ namespace GComFuelManager.Server.Controllers
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque();
                 OrdenPedido ordenPedido = new OrdenPedido();
 
-                var guid = Guid.NewGuid().ToString().Split("-");
-                var guidfolio = $"RE-{guid[4]}";
+                Cliente? Cliente = null!;
+                Grupo? Grupo = null!;
+
+                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
+                if (consecutivo is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Orden" };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                    consecutivo = Nuevo_Consecutivo;
+                }
+                else
+                {
+                    consecutivo.Numeracion++;
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+                }
+
+                var guidfolio = $"RE{DateTime.Now:yy}-{consecutivo.Numeracion:000000}-{DateTime.Now:yyyyMMddHHmmss}";
 
                 foreach (var item in ordenes)
                 {
                     var ordercopy = item.ShallowCopy();
-
-                    var folioguid = Guid.NewGuid().ToString().Split("-");
 
                     var destino = context.Destino.FirstOrDefault(x => x.Cod == ordercopy.Coddes);
                     if (destino is null)
@@ -1278,17 +1293,17 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-                //{
-                //    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
-                //    if (cierre is not null)
-                //    {
-                //        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
-                //        {
-                //            return BadRequest("El producto seleccionado no se encuentra en el cierre");
-                //        }
-                //    }
-                //}
+                if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                {
+                    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
+                    if (cierre is not null)
+                    {
+                        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
+                        {
+                            return BadRequest("El producto seleccionado no se encuentra en el cierre");
+                        }
+                    }
+                }
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
@@ -1301,7 +1316,7 @@ namespace GComFuelManager.Server.Controllers
 
                 //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
                 folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
-                && x.CodPed != 0 && x.FchCierre == DateTime.Today)?.Folio ?? string.Empty;
+                && x.CodPed != 0 && x.FchCierre == DateTime.Today && x.Estatus == true)?.Folio ?? string.Empty;
 
                 var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
                 if (user == null)
@@ -1309,19 +1324,33 @@ namespace GComFuelManager.Server.Controllers
 
                 if (string.IsNullOrEmpty(folio))
                 {
+                    var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                    if (consecutivo is null)
+                    {
+                        Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Folio" };
+                        context.Add(Nuevo_Consecutivo);
+                        await context.SaveChangesAsync();
+                        consecutivo = Nuevo_Consecutivo;
+                    }
+                    else
+                    {
+                        consecutivo.Numeracion++;
+                        context.Update(consecutivo);
+                        await context.SaveChangesAsync();
+                    }
+
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+
                     var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
 
                     if (cliente is null)
                         return BadRequest("No se encontro el cliente");
 
-                    cliente.Consecutivo = cliente.Consecutivo is not null ? cliente.Consecutivo + 1 : 1;
-
-                    var userCod = user?.Den?.Substring(0, 3);
-                    var guid = Guid.NewGuid().ToString().Split("-");
                     if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-                        ordenCierre.Folio = $"O-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+                        ordenCierre.Folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
                     else
-                        ordenCierre.Folio = $"OP-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+                        ordenCierre.Folio = $"OP{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
 
                 }
                 else

@@ -182,10 +182,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 Grupo? Grupo = null!;
 
                 var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
-                consecutivo.Numeracion = consecutivo.Numeracion + 1;
-
-                context.Update(consecutivo);
-                await context.SaveChangesAsync();
+                if (consecutivo is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Folio" };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                    consecutivo = Nuevo_Consecutivo;
+                }
+                else
+                {
+                    consecutivo.Numeracion++;
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+                }
 
                 if (!orden.isGroup)
                 {
@@ -2401,6 +2410,65 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 //if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
                 //    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
+                Cliente? Cliente = null!;
+                Grupo? Grupo = null!;
+                string folio = string.Empty;
+
+                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
+                if (consecutivo is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Orden" };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                    consecutivo = Nuevo_Consecutivo;
+                }
+                else
+                {
+                    consecutivo.Numeracion++;
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+                }
+
+                if (!cierre.isGroup)
+                {
+                    Cliente = context.Cliente.FirstOrDefault(x => x.Cod == cierre.CodCte);
+
+                    cierre.TipoVenta = Cliente?.Tipven;
+
+                    if (!string.IsNullOrEmpty(Cliente?.Tipven))
+                    {
+                        cierre.ModeloVenta = Cliente?.MdVenta;
+                        cierre.TipoVenta = Cliente?.Tipven;
+                    }
+                    else
+                    {
+                        cierre.ModeloVenta = string.Empty;
+                        cierre.TipoVenta = string.Empty;
+                    }
+                }
+                else
+                {
+                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == cierre.CodCte);
+
+                    cierre.TipoVenta = Grupo?.Tipven;
+
+                    if (!string.IsNullOrEmpty(Grupo?.Tipven))
+                    {
+                        cierre.ModeloVenta = Grupo?.MdVenta;
+                        cierre.TipoVenta = Grupo?.Tipven;
+                    }
+                    else
+                    {
+                        cierre.ModeloVenta = string.Empty;
+                        cierre.TipoVenta = string.Empty;
+                    }
+                }
+
+                if (!cierre.isGroup)
+                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}";
+                else
+                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}";
+
                 for (int i = 0; i < cierre.Cantidad_Confirmada; i++)
                 {
                     //var litros = cierre.Volumen_Seleccionado >= 42000 ? cierre.Volumen_Seleccionado / 2 : 20000;
@@ -2440,7 +2508,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     ordencierre.Vendedor = string.Empty;
                     ordencierre.Observaciones = string.Empty;
                     ordencierre.CodPed = embarque.Cod;
-                    ordencierre.Folio = $"O-{Guid.NewGuid().ToString().Split("-")[4]}";
+                    ordencierre.Folio = folio;
                     ordencierre.Activa = true;
                     ordencierre.Estatus = true;
                     ordencierre.Cliente = null;
