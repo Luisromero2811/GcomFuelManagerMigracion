@@ -290,6 +290,16 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
 
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+                        <RadzenPanelMenuItem Path="ordenes/copiadas" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Confirmar ordenes copiadas
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial">
                         <RadzenPanelMenuItem Path="confirm-ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>

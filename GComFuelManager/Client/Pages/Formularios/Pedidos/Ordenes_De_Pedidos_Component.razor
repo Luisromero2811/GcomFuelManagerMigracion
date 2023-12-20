@@ -15,7 +15,7 @@
                 <div class="col-12 row">
                     <div class="col-3">
                         <label>Folio</label>
-                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="30" />
+                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="20" />
                     </div>
                     <div class="col-9 d-flex row mb-1">
                         <div class="col-2 mt-auto">
@@ -50,13 +50,13 @@ else
 {
     <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
         <div class="col-12">
-            <CrearPedidoForm Folio_Seleccionado="@Folio_Seleccionado" Producto_Pedido="@Producto_Pedido" ID_Cierre="@ID_Cierre" CancelCreation="ChangeFolio"/>
+            <CrearPedidoForm Folio_Seleccionado="@Folio_Seleccionado" Producto_Pedido="@Producto_Pedido" ID_Cierre="@ID_Cierre" CancelCreation="ChangeFolio" />
         </div>
     </AuthorizeView>
 }
 <style type="text/css">
     .ancho {
-        max-width:@TotalWidth;
+        max-width: @TotalWidth;
     }
 </style>
 @code {
@@ -76,7 +76,7 @@ else
     private string Folio_Seleccionado = string.Empty;
     private byte? Producto_Pedido = 0;
     private int ID_Cierre = 0;
-    private string Folio_Busqueda= string.Empty;
+    private string Folio_Busqueda = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -102,8 +102,17 @@ else
         }
     }
 
-    private void SearchFolio()
+    private async Task SearchFolio()
     {
+        if (string.IsNullOrEmpty(Folio_Busqueda) || string.IsNullOrWhiteSpace(Folio_Busqueda))
+            return;
+
+        if(!Folio_Busqueda.StartsWith("P") && !Folio_Busqueda.StartsWith("G"))
+        {
+            await Swal.FireAsync("Alerta", "Solo se admiten folios que inicien con P o G", SweetAlertIcon.Warning);
+            return;
+        }
+
         ChangeFolio(new Folio_Activo_Vigente());
         Folio_Seleccionado = Folio_Busqueda;
         ID_Cierre = 0;
@@ -115,28 +124,6 @@ else
         Folio_Seleccionado = folio.Folio;
         Producto_Pedido = folio.ID_Producto;
         ID_Cierre = folio.ID_Cierre;
-    }
-
-    public async Task GetFoliosFiltro()
-    {
-        try
-        {
-            var response = await http.Post<CierreFiltroDTO, List<string>>($"api/cierre/folios", fechas);
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
     }
 
     private async Task OpenModal()
@@ -154,7 +141,6 @@ else
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 }

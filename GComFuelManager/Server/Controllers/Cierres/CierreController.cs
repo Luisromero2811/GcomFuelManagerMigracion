@@ -2769,6 +2769,54 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("detalle/copia")]
+        public ActionResult Obtener_Detalle_Cierre_Copiado([FromQuery] OrdenCierre ordenCierre)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(ordenCierre.Folio) || string.IsNullOrWhiteSpace(ordenCierre.Folio))
+                    return BadRequest("No se admiten valores vacios");
+
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+
+                var pedidos = context.OrdenPedido.Where(x => x.Folio_Cierre_Copia == ordenCierre.Folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+
+                foreach (var item in pedidos)
+                {
+                    var pedido = context.OrdenCierre.Where(x => x.CodPed == item.CodPed)
+                        .Include(x => x.OrdenEmbarque)
+                        .Include(x => x.Cliente)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Destino)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tad)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Tonel)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Estado)
+                        .Include(x => x.OrdenEmbarque)
+                        .ThenInclude(x => x.Orden)
+                        .ThenInclude(x => x.Estado)
+                        .IgnoreAutoIncludes()
+                        .DefaultIfEmpty()
+                        .FirstOrDefault();
+
+                    if (pedido != null)
+                        crear_Orden_Template_DTO.OrdenCierres.Add(pedido);
+                }
+
+                return Ok(crear_Orden_Template_DTO);
+            }
+            catch (ArgumentNullException e)
+            {
+                return BadRequest("Parametros vacios");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("cancelar/{ID_Orden}")]
         public async Task<ActionResult> Cancelar_Orden([FromRoute] int ID_Orden)
         {

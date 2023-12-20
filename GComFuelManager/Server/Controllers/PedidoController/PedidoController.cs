@@ -705,6 +705,13 @@ namespace GComFuelManager.Server.Controllers
                     orden.OrdenCierre = null!;
                     orden.OrdenPedido = null!;
 
+                    orden.Codprd = cierre.CodPrd;
+                    orden.Coddes = cierre.CodDes;
+                    orden.Fchcar = cierre.FchCar;
+                    orden.Codtad = cierre.CodTad;
+                    orden.Vol = cierre.Volumen;
+                    orden.Pre = cierre.Precio;
+
                     context.Update(orden);
                 }
 
@@ -718,6 +725,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .Include(x => x.Cliente)
+                    .IgnoreAutoIncludes()
                     .FirstOrDefault();
 
                 return Ok(newOrden);
