@@ -240,7 +240,7 @@
                                             </Template>
                                         </RadzenMenuItem>
                                     </AuthorizeView>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="ReportesCierre">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Revision Precios" Context="ReportesCierre">
                                         <RadzenMenuItem Path="reporte/cierres">
                                             <Template>
                                                 <div class="text-white"> 
@@ -255,7 +255,7 @@
                         </AuthorizeView>
 
                         <!--Menú de órdenes-->
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador" Context="Ordenes">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
                             <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                                 <Template>
                                     <div class="text-white">
@@ -263,7 +263,7 @@
                                     </div>
                                 </Template>
                                 <ChildContent>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Revision Precios">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
                                         <RadzenPanelMenuItem Path="ordenes" class="gcom-bg-rojo col-12">
                                             <Template>
                                                 <div class="text-white">
@@ -315,6 +315,26 @@
                                             </Template>
                                         </RadzenMenuItem>
 
+                                    </AuthorizeView>
+
+                                    @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Operativo">
+                                        <RadzenMenuItem Path="/consulta/Orden" class="gcom-bg-rojo col-12">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Consulta de Orden 
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>*@
+
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios">
+                                        <RadzenMenuItem Path="/consulta/ordencliente" class="gcom-bg-rojo col-12">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa-solid fa-list-check"></i> Filtro de Órdenes
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
                                     </AuthorizeView>
 
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador">
