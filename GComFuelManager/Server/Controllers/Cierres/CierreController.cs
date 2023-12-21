@@ -177,7 +177,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     else
                         orden.ModeloVenta = string.Empty;
                 }
-                orden.FchVencimiento = orden.FchCierre?.AddDays(6);
+                orden.FchVencimiento = orden.FchCierre?.AddDays(5);
                 context.Add(orden);
 
                 var id = await verifyUser.GetId(HttpContext, UserManager);
