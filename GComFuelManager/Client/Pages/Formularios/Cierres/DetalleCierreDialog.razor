@@ -12,21 +12,7 @@
     {
         <div class="col-12">
             <div class="col-12">
-                <div class="col-12 row mb-3">
-                    <div class="col-12">
-                        <b class="my-auto">
-                            @if (volumenDisponible.Productos.Count > 0)
-                            {
-                                @foreach (var item in volumenDisponible.Productos)
-                                {
-                                    <div class="col-12 row">
-                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                                    </div>
-                                }
-                            }
-                        </b>
-                    </div>
-                </div>
+                <VolumenesPedido volumenes="Producto_Volumen"/>
             </div>
             <div class="row justify-content-end">
                 <div class="col-6 d-flex justify-content-end">
@@ -118,6 +104,8 @@
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
     [Parameter] public string? producto { get; set; } = string.Empty;
+    [Parameter] public int? ID_Cierre { get; set; } = 0;
+
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
@@ -131,10 +119,7 @@
 
     VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
-    private int? FullesRestantes { get; set; } = 0;
-    private int? ProductosRestantes { get; set; } = 0;
-    private int index { get; set; } = 0;
-    private int indexRow { get; set; } = 0;
+    List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
 
     bool loadingExport = false;
     bool loading = false;
@@ -199,16 +184,8 @@
                 filtro.Folio = folio;
                 filtro.forFolio = true;
 
-                var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    volumenDisponible = responseVolumen.Response;
-                }
+                await GetVolumenActivo();
+
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 
                 ProductoSeleccionado = producto;
@@ -288,6 +265,31 @@
             {
                 _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Folio"] = folio;
+            Volumen_Query["Cod"] = ID_Cierre.ToString() ?? string.Empty;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
         }
         catch (Exception e)
         {
