@@ -23,64 +23,12 @@
                                             <label><b>Filtro de folios</b></label>
                                         </div>
                                     </div>
-
-                                    @*<div class="col-12 row">
-                                    <div class="col-3 mb-2">
-                                    <div class="col-12">
-                                    <label class="form-label">Grupo</label>
-                                    <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
-                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    AllowVirtualization="true" Change="@GetClientesFiltro" />
-                                    </div>
-                                    </div>
-                                    <div class="col-3 mb-2">
-                                    <div class="col-12">
-                                    <label class="form-label">Cliente</label>
-                                    <RadzenDropDown Data="@ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ClienteSeleccionadoFiltro"
-                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                    AllowVirtualization="true" />
-                                    </div>
-                                    </div>
-                                    <div class="col-3 mb-2">
-                                    <label class="form-label">Del:</label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
-                                    </div>
-                                    <div class="col-3 mb-2">
-                                    <label class="form-label">A:</label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
-                                    </div>
-                                    <div class="col-2">
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
-                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar folios
-                                    </button>
-                                    </div>
-                                    </div>
-                                    <div class="col-3 mb-2">
-                                    <label class="form-label">Del:</label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchInicio" />
-                                    </div>
-                                    <div class="col-3 mb-2">
-                                    <label class="form-label">A:</label>
-                                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.FchFin" />
-                                    </div>
-                                    <div class="col-3">
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetFoliosFiltro">
-                                    <i class="fa fa-solid fa-magnifying-glass"></i> Buscar folios
-                                    </button>
-                                    </div>*@
                                 </div>
                             </AuthorizeView>
                             <div class="col-12 row">
                                 <div class="col-3">
                                     <label class="form-label">Folio</label>
-                                    <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="30"/>
-                                    @*<RadzenDropDown Data="Folios" class="col-12" @bind-Value="@filtro.Folio" Style="height:50px"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true">
-                                        <ValueTemplate Context="data">
-                                            <InputText class="form-control col-12" @bind-Value="@filtro.Folio" MaxLenght="30" />
-                                        </ValueTemplate>
-                                    </RadzenDropDown>*@
+                                    <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="20"/>
                                 </div>
                                 <div class="col-3 d-flex">
                                     <div class="col-12 mt-auto">

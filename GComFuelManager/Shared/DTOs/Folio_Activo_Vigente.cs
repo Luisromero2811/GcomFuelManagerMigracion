@@ -10,6 +10,8 @@ namespace GComFuelManager.Shared.DTOs
         public Destino? Destino { get; set; } = null;
         public Grupo? Grupo { get; set; } = null;
         public Producto? Producto { get; set; } = null;
+        public OrdenCierre? OrdenCierre { get; set; } = null;
+        public List<OrdenCierre>? OrdenCierres { get; set; } = new List<OrdenCierre>();
         public DateTime Fecha_Vigencia { get; set; } = DateTime.Now;
         public DateTime Fecha_Cierre { get; set; } = DateTime.Now;
         public int ID_Cierre { get; set; }
@@ -23,5 +25,10 @@ namespace GComFuelManager.Shared.DTOs
         public string? Producto_Filtrado { get; set; } = string.Empty;
         public VolumenDisponibleDTO? VolumenDisponibleDTO { get; set; } = null;
         public string? Comentarios { get; set; } = string.Empty;
+        public List<ProductoVolumen> ProductoVolumenes { get; set; } = new List<ProductoVolumen>();
+        public Int16? ID_Grupo { get; set; } = 0;
+        public int? ID_Cliente { get; set; } = 0;
+        public int? ID_Destino { get; set; } = 0;
+        public byte? Id_Producto { get; set; } = 0;
     }
 }
