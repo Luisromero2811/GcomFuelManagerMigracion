@@ -160,33 +160,33 @@
                 Console.WriteLine(ordenCierre.Cantidad_Sugerida);
                 Console.WriteLine(volumen);
             });
-        // await SetCantidadOrdenes();
+        await SetCantidadOrdenes();
     }
 
-    // private async Task SetCantidadOrdenes()
-    // {
-    //     try
-    //     {
-    //         ordenCierres.ForEach(ordenCierre =>
-    //         {
-    //             ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
-    //             ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
-    //             // ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
-    //             ordenCierre.Volumen_Seleccionado = volumen;
-    //             // ordenCierre.SetVolumen();
-    //             Console.WriteLine(ordenCierre.Volumen_Disponible);
-    //             Console.WriteLine(ordenCierre.Volumen_Por_Unidad);
-    //             Console.WriteLine(ordenCierre.Cantidad_Sugerida);
-    //             Console.WriteLine(volumen);
-    //         });
-    //         // StateHasChanged();
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //         throw e;
-    //     }
-    // }
+    private async Task SetCantidadOrdenes()
+    {
+        try
+        {
+            ordenCierres.ForEach(ordenCierre =>
+            {
+                ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
+                ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
+                // ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+                ordenCierre.Volumen_Seleccionado = volumen;
+                // ordenCierre.SetVolumen();
+                Console.WriteLine(ordenCierre.Volumen_Disponible);
+                Console.WriteLine(ordenCierre.Volumen_Por_Unidad);
+                Console.WriteLine(ordenCierre.Cantidad_Sugerida);
+                Console.WriteLine(volumen);
+            });
+            // StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
 
     private async Task ConfirmarOrdenes(OrdenCierre cierre)
     {

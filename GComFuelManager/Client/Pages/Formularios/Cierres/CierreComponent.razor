@@ -28,7 +28,7 @@
                                     @*<div class="col-6 row">*@
                                     <div class="col-3">
                                         <label>Folio</label>
-                                        <InputText class="form-control col-12" @bind-Value="filtro.Folio" MaxLenght="10" />
+                                        <input type="text" class="form-control col-12" @bind="filtro.Folio" maxlength="20" />
                                     </div>
                                     <div class="col-3 d-flex">
                                         <div class="col-12 mt-auto">
@@ -392,7 +392,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="col-4 mb-1">
+                                        @* <div class="col-4 mb-1">
                                             <div class="col-12">
                                                 <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
                                                     Folio <i class="fa-solid fa-circle-info fa-xs"></i>
@@ -401,7 +401,7 @@
                                                     <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
                                                 </div>
                                             </div>
-                                        </div>
+                                        </div> *@
 
                                         <div class="col-12 mb-1">
                                             <div class="col-12">
