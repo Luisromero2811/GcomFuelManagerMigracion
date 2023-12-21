@@ -2507,7 +2507,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var cierre = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio)).ToList();
 
                 foreach (var item in cierre)
-                    if (item?.FchVencimiento > DateTime.Today)
+                    if (item?.FchVencimiento >= DateTime.Today)
                         activo = true;
                     else
                         fchActiva = item?.FchVen;

@@ -1,5 +1,7 @@
 ﻿@inject IJSRuntime js
 @inject IRepositorio http
+@inject DialogService ds
+@inject SweetAlertService swal
 
 <table class="table table-sm table-bordered table-hover" id="miTabla">
     <thead class="fila">
@@ -36,7 +38,7 @@
             <td></td>
             <td></td>
             <td></td>
-            <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterGrupo" @bind="Grupo_Filtrado"/></td>
+            <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterGrupo" @bind="Grupo_Filtrado" /></td>
             <td><input placeholder="Buscar cliente..." class="form-control form-control-sm" @oninput="@FilterCliente" @bind="Cliente_Filtrado" /></td>
             <td><input placeholder="Buscar destino..." class="form-control form-control-sm" @oninput="@FilterDestino" @bind="Destino_Filtrado" /></td>
             <td><input placeholder="Buscar producto..." class="form-control form-control-sm" @oninput="@FilterProducto" @bind="Producto_Filtrado" /></td>
@@ -63,9 +65,14 @@
                 <tr class="@(Folio.ID_Cierre == item.ID_Cierre ? "table-active" : string.Empty)" style="white-space:nowrap;">
                     <td class="sticky-column" style="background-color:white;">
                         <div class="col-12 row">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item.Folio))">
                                     <i class="fa fa-solid fa-list-check"></i>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn gcom-bg-amarillo col-12 btn-sm" @onclick="@(()=>ViewComments(item?.Folio, item?.Comentarios))">
+                                    <i class="fa-solid fa-comments"></i>
                                 </button>
                             </div>
                         </div>
@@ -191,7 +198,7 @@
             top: 0;
             right: 0;
             bottom: 0;
-            width: 8px; /* Ancho del área de redimensionamiento */
+            width: 8px;
             background: transparent;
         }
 
@@ -225,13 +232,6 @@
         border-radius: 4px;
         border: 1px solid #ccc;
     }
-
-    select {
-        width: 100%;
-        padding: 5px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-    }
 </style>
 
 @code {
@@ -255,10 +255,13 @@
     IList<Grupo> Grupos_Filtrados => Grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.Contains(Grupo_Filtrado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(Grupo_Filtrado)).ToList();
 
     Dictionary<string, string> queryParams = new Dictionary<string, string>();
+    private IJSObjectReference importedJs;
 
     protected async override Task OnInitializedAsync()
     {
         await GetFolios();
+        // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/resizableTable.js");
+        // Console.WriteLine("JS cargado");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -266,35 +269,37 @@
         if (firstRender)
         {
             // await js.InvokeVoidAsync("makeTableResizable");
-            // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+            await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
         }
+        // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/resizableTable.js");
+
     }
 
     private async Task FilterGrupo(ChangeEventArgs e)
     {
         Grupo_Filtrado = e.Value.ToString();
-        queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
+        queryParams["Grupo_Filtrado"] = Grupo_Filtrado ?? string.Empty;
         await GetFolios();
     }
 
     private async Task FilterCliente(ChangeEventArgs e)
     {
         Cliente_Filtrado = e.Value.ToString();
-        queryParams["Cliente_Filtrado"] = Grupo_Filtrado;
+        queryParams["Cliente_Filtrado"] = Cliente_Filtrado ?? string.Empty;
         await GetFolios();
     }
 
     private async Task FilterDestino(ChangeEventArgs e)
     {
         Destino_Filtrado = e.Value.ToString();
-        queryParams["Destino_Filtrado"] = Grupo_Filtrado;
+        queryParams["Destino_Filtrado"] = Destino_Filtrado ?? string.Empty;
         await GetFolios();
     }
 
     private async Task FilterProducto(ChangeEventArgs e)
     {
         Producto_Filtrado = e.Value.ToString();
-        queryParams["Producto_Filtrado"] = Grupo_Filtrado;
+        queryParams["Producto_Filtrado"] = Producto_Filtrado ?? string.Empty;
         await GetFolios();
     }
 
@@ -319,6 +324,24 @@
         catch (Exception e)
         {
             Loading_Get_Folios = false;
+        }
+    }
+
+    private async Task ViewComments(string? folio, string? comment)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(comment))
+                comment = string.Empty;
+
+            await ds.OpenAsync<ViewComentariosComponent>($"Comentarios pedido {folio}",
+                new Dictionary<string, object>() { { "comentarios", comment } },
+                new DialogOptions() { Height = "auto", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 }

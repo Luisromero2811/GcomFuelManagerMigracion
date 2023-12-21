@@ -22,5 +22,6 @@ namespace GComFuelManager.Shared.DTOs
         public string? Destino_Filtrado { get; set; } = string.Empty;
         public string? Producto_Filtrado { get; set; } = string.Empty;
         public VolumenDisponibleDTO? VolumenDisponibleDTO { get; set; } = null;
+        public string? Comentarios { get; set; } = string.Empty;
     }
 }

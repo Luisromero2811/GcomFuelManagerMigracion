@@ -172,137 +172,231 @@
     </AuthorizeView>
 </div>
 
-           
+
 <div class="col-12 overflow-scroll ancho" style="height:450px;resize:both;">
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                        <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
-                            <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                            Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                            Asignar / cancelar
-                        </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Orden de compra
+                <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                    Asignar / cancelar
                 </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Folio
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Cliente
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Destino
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Producto
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                    Volumen
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                    Fecha de carga
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Transportista
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Unidad
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                    Compartimiento
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                    Operador
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                    Bin
-                </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                    Estatus
-                </th>
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Orden de compra
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Folio
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Cliente
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Destino
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Producto
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Volumen
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Fecha de carga
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Transportista
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Unidad
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Compartimiento
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Operador
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Bin
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Estatus
+                    </th>
+                }
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
                     Desasignar
                 </th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="sticky-column" style="background-color:white;"></td>
-                <td></td>
-                <td></td>
-                <td>
-                    <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
-                </td>
-                <td>
-                    <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
+            <tr class="fila">
+                <td class="sticky-column-header" style="background-color:white;"></td>
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
+                {
+                    <td>
+                        <InputText class="form-control form-control-sm" @bind-Value="ClienteSeleccionado" />
+                    </td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
+                {
+                    <td>
+                        <InputText class="form-control form-control-sm" @bind-Value="DestinosSeleccionado" />
 
-                </td>
-                <td>
-                    <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
-                </td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                    </td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
+                {
+                    <td>
+                        <InputText class="form-control form-control-sm" @bind-Value="ProductosSeleccionado" />
+                    </td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
+                {
+                    <td></td>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
+                {
+                    <td></td>
+                }
                 <td></td>
             </tr>
             <Virtualize Items="@ordenesFiltradas" Context="data" TItem="OrdenEmbarque">
                 <tr class="@(ordenEmbarque == data || ordenesSeleccionada.Contains(data) ? "table-active" : string.Empty)" style="white-space:nowrap;">
-               
-                            <td class="sticky-column" style="background-color:white;">
-                                <div class="col-12 row m-0">
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RChecks">
-                                        <Authorized>
-                                            <div class="col-2">
-                                                <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
-                                                                TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
-                                            </div>
-                                        </Authorized>
-                                    </AuthorizeView>
-                                    <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RSelect">
-                                            <Authorized>
-                                                <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
-                                                    <i class="fa fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                            </Authorized>
-                                        </AuthorizeView>
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Lectura Asignacion" Context="RCancel">
-                                            <Authorized>
-                                                <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
-                                                    <i class="fa fa-solid fa-cancel"></i>
-                                                </button>
-                                            </Authorized>
-                                        </AuthorizeView>
+
+                    <td class="sticky-column" style="background-color:white;">
+                        <div class="col-12 row m-0">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RChecks">
+                                <Authorized>
+                                    <div class="col-2">
+                                        <RadzenCheckBox TriState="false" Value="@(ordenesSeleccionada.Contains(data))"
+                                                        TValue="bool" Change="@((bool args) => ToggleCheck(args, data))" />
                                     </div>
-                                </div>
-                            </td>
-                   
-                    <td class="overflow-hidden">
-                        <div class="rz-text-truncate">
-                            @data?.OrdenCompra?.den
+                                </Authorized>
+                            </AuthorizeView>
+                            <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="RSelect">
+                                    <Authorized>
+                                        <button class="btn btn-primary" @onclick="@(() => SetOrden(data))">
+                                            <i class="fa fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Lectura Asignacion" Context="RCancel">
+                                    <Authorized>
+                                        <button class="btn btn-danger" @onclick="@(()=>CancelOrden(data))">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                    </Authorized>
+                                </AuthorizeView>
+                            </div>
                         </div>
                     </td>
-                    <td class="overflow-hidden">
-                        <div class="rz-text-truncate">
-                            @data?.OrdenCierre?.Folio
-                        </div>
-                    </td>
-                    <td class="overflow-hidden">
-                        <div class="rz-text-truncate">
-                            @data?.Destino?.Cliente?.Den
-                        </div>
-                    </td>
-                    <td class="overflow-hidden">@data?.Destino?.Den</td>
-                    <td class="overflow-hidden">@data?.Producto?.Den</td>
-                    <td class="overflow-hidden">
-                        <div class="col-12">
-                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
+                    {
+                        <td class="overflow-hidden">
+                            <div class="rz-text-truncate">
+                                @data?.OrdenCompra?.den
+                            </div>
+                        </td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
+                    {
+                        <td class="overflow-hidden">
+                            <div class="rz-text-truncate">
+                                @data?.OrdenCierre?.Folio
+                            </div>
+                        </td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
+                    {
+                        <td class="overflow-hidden">
+                            <div class="rz-text-truncate">
+                                @data?.Destino?.Cliente?.Den
+                            </div>
+                        </td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Destino?.Den</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Producto?.Den</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
+                    {
+                        <td class="overflow-hidden">
+                            <div class="col-12">
+                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
                             data?.Orden is not null ? data?.Orden?.Vol :
                             data?.Compartment == 1 && data.Tonel is not null ? data?.Tonel?.Capcom
                             : data?.Compartment == 2 && data.Tonel is not null ? data?.Tonel?.Capcom2
@@ -310,15 +404,37 @@
                             : data?.Compartment == 4 && data.Tonel is not null ? data?.Tonel?.Capcom4
                             : data?.Vol
                             )
-                        </div>
-                    </td>
-                    <td class="overflow-hidden">@data?.Fchcar?.ToString("dd/MM/yyyy")</td>
-                    <td class="overflow-hidden">@data?.Tonel?.Transportista?.Den</td>
-                    <td class="overflow-hidden">@data?.Tonel?.Veh</td>
-                    <td class="overflow-hidden">@data?.Compartment</td>
-                    <td class="overflow-hidden">@data?.Chofer?.FullName</td>
-                    <td class="overflow-hidden">@data?.Bin</td>
-                    <td class="overflow-hidden">@data?.Estado?.den</td>
+                            </div>
+                        </td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Fchcar?.ToString("dd/MM/yyyy")</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Tonel?.Transportista?.Den</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Tonel?.Veh</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Compartment</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Chofer?.FullName</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Bin</td>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
+                    {
+                        <td class="overflow-hidden">@data?.Estado?.den</td>
+                    }
                     <td class="overflow-hidden">
                         <div class="col-12">
                             <div class="btn-group btn-group-sm col-10" role="group" aria-label="Basic mixed styles example">
@@ -346,6 +462,26 @@
         <p class="text-muted">
             Ordenes seleccionadas: @ordenesSeleccionada.Count
         </p>
+    </div>
+    <div class="col-3">
+        <div class="col-12">
+            <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">Mostrar columnas</button>
+            @if (showDropDown)
+            {
+                <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
+                    <Virtualize Items="Columnas" Context="Item" TItem="Columna_Tabla">
+                        <li class="list-group-item " style="cursor:pointer;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="@Item.ID" checked="@(Item.Visible == true)" @onchange="@((e)=>ChangeColumnState(e,Item))" />
+                                <label class="form-check-label">
+                                    @Item.Nombre_Columna
+                                </label>
+                            </div>
+                        </li>
+                    </Virtualize>
+                </ul>
+            }
+        </div>
     </div>
 </div>
 <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia,  Lectura Asignacion" Context="SendSynthesis">
@@ -402,11 +538,19 @@
         background-color: white;
     }
 
-    .fila th {
+    .fila th{
         position: -webkit-sticky;
         position: sticky;
         text-align: center;
         top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td{
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
         background-color: #f2f2f2;
     }
 
@@ -431,6 +575,14 @@
         position: sticky;
         left: 0;
         z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left:0;
+        z-index: 2;
         background-color: white;
     }
 
@@ -538,18 +690,42 @@
     //bool isClose = false;
     bool updateData = false;
 
-    DataGridSettings _settings;
-    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
     bool AlertVisible = false;
-    private IJSObjectReference importedJs;
+    bool showDropDown = false;
+    List<Columna_Tabla> Columnas = new List<Columna_Tabla>();
+
     protected override async Task OnInitializedAsync()
     {
         //await GetDestinos();
         //await GetProductos();
         await GetTransportista();
         // await importedJs.InvokeVoidAsync("columnSize.SetTable", "miTabla", DotNetObjectReference.Create(this));
+        Columnas.AddRange(new List<Columna_Tabla>()
+        {
+            new Columna_Tabla{ID = 1, Nombre_Columna = "Orde de compra"},
+            new Columna_Tabla{ID = 2, Nombre_Columna = "Folio"},
+            new Columna_Tabla{ID = 3, Nombre_Columna = "Cliente"},
+            new Columna_Tabla{ID = 4, Nombre_Columna = "Destino"},
+            new Columna_Tabla {ID = 5, Nombre_Columna = "Producto"},
+            new Columna_Tabla {ID = 6, Nombre_Columna = "Volumen"},
+            new Columna_Tabla {ID = 7, Nombre_Columna = "Fecha de carga"},
+            new Columna_Tabla {ID = 8, Nombre_Columna = "Transportista"},
+            new Columna_Tabla {ID = 9, Nombre_Columna = "Unidad"},
+            new Columna_Tabla {ID = 10, Nombre_Columna = "Compartimento"},
+            new Columna_Tabla {ID = 11, Nombre_Columna = "Operador"},
+            new Columna_Tabla {ID = 12, Nombre_Columna = "Bin"},
+            new Columna_Tabla {ID = 13, Nombre_Columna = "Estatus"},
+        });
+
+        await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
     }
 
+    private class Columna_Tabla
+    {
+        public string Nombre_Columna { get; set; } = string.Empty;
+        public bool Visible { get; set; } = true;
+        public int ID { get; set; } = 0;
+    }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -568,10 +744,7 @@
                 width = 500;
             TotalWidth = $"{width}px";
             // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
-            importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
-
-            await LoadStateAsync();
-            StateHasChanged();
+            // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
         }
     }
 
@@ -739,10 +912,10 @@
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                    : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                    : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                    : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                                                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -887,10 +1060,10 @@
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                                                                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                                                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                                                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                                                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",
@@ -1091,36 +1264,6 @@
         }
     }
 
-    private async Task SaveStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            await js.SetItemLocalStorage("settingsAsignacion", JsonConvert.SerializeObject(Settings));
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task LoadStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            var result = await js.GetItemLocalStorage("settingsAsignacion");
-            if (!string.IsNullOrEmpty(result))
-            {
-                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     private async Task CancelOrden(OrdenEmbarque orden)
     {
         try
@@ -1229,6 +1372,20 @@
             {
                 await MostrarOrdenFecha();
             }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ChangeColumnState(ChangeEventArgs args, Columna_Tabla columna)
+    {
+        try
+        {
+            columna.Visible = (bool)args.Value;
+            if (columna.Visible)
+                await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
         }
         catch (Exception e)
         {
