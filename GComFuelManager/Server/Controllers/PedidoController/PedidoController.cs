@@ -1171,7 +1171,7 @@ namespace GComFuelManager.Server.Controllers
                             FchCar = DateTime.Today,
                             FchCierre = DateTime.Today,
                             fchPrecio = DateTime.Now,
-                            FchVencimiento = DateTime.Today.AddDays(6),
+                            FchVencimiento = DateTime.Today.AddDays(5),
                             FchLlegada = DateTime.Today.AddDays(1),
                             Precio = ordercopy.Pre ?? 0,
                             CodDes = ordercopy.Coddes,
@@ -1357,7 +1357,7 @@ namespace GComFuelManager.Server.Controllers
                 ordenCierre.Cliente = null!;
 
                 ordenCierre.CodPed = ordenEmbarque.Cod;
-                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(6);
+                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(5);
 
                 context.Add(ordenCierre);
 
