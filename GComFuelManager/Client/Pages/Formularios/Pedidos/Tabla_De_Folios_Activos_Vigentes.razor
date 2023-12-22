@@ -66,7 +66,7 @@
                     <td class="sticky-column" style="background-color:white;">
                         <div class="col-12 row">
                             <div class="col-6">
-                                <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item.Folio))">
+                                <button class="btn gcom-bg-amarillo btn-sm col-12" @onclick="@(()=>Cambiar_Folio.InvokeAsync(item))">
                                     <i class="fa fa-solid fa-list-check"></i>
                                 </button>
                             </div>
@@ -236,7 +236,7 @@
 
 @code {
     // [Parameter] public string Folio_Seleccionado { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> Cambiar_Folio { get; set; }
+    [Parameter] public EventCallback<Folio_Activo_Vigente> Cambiar_Folio { get; set; }
 
     List<Folio_Activo_Vigente> Folios { get; set; } = new List<Folio_Activo_Vigente>();
     Folio_Activo_Vigente Folio { get; set; } = new Folio_Activo_Vigente();

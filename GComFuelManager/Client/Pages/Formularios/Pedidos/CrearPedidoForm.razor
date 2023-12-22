@@ -12,7 +12,7 @@
         <div class="card-body">
             <div class="col-12 row">
                 <div class="col-2">
-                    <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(string.Empty))">
+                    <button class="btn gcom-bg-amarillo col-12 btn-sm" type="button" @onclick="@(()=>CancelCreation.InvokeAsync(new Folio_Activo_Vigente()))">
                         <i class="fa fa-solid fa-arrow-left"></i>
                         <b>Regresar</b>
                     </button>
@@ -283,6 +283,31 @@
                             @*<InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>*@
                         </div>
                     </div>
+
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Tipo de pago</label>
+                            <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (TpPago is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (TpPago.Count == 0)
+                                {
+                                    <option disabled> No hay tipos de pago</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in TpPago)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1 row">
                     @if (isEditing)
@@ -334,6 +359,11 @@
             </EditForm>
         </div>
     </div>
+    @if (ordenCierre.IsCierreVolumen is true && Producto_Volumen.Count > 0)
+    {
+        <VolumenesPedido volumenes="Producto_Volumen"></VolumenesPedido>
+    }
+
     <div class="col-12 d-flex justify-content-center row">
         <div class="col-12 overflow-scroll ancho mt-4" style="height:450px;resize:both;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
@@ -439,23 +469,6 @@
                 </p>
             </div>
         </div>
-        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
-        {
-            <div class="col-12 mt-2">
-                <b class="my-auto">
-                    @foreach (var item in volumenDisponible.Productos)
-                    {
-                        @if (!string.IsNullOrEmpty(item.Nombre))
-                        {
-                            <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                            </div>
-
-                        }
-                    }
-                </b>
-            </div>
-        }
     </div>
 </AuthorizeView>
 
@@ -554,7 +567,9 @@
 
 @code {
     [Parameter] public string Folio_Seleccionado { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> CancelCreation { get; set; }
+    [Parameter] public byte? Producto_Pedido { get; set; } = 0;
+    [Parameter] public int ID_Cierre { get; set; } = 0;
+    [Parameter] public EventCallback<Folio_Activo_Vigente> CancelCreation { get; set; }
 
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
@@ -568,7 +583,7 @@
 
     private List<OrdenCierre> ordenCierres { get; set; } = new List<OrdenCierre>();
     private OrdenCierre ordenCierre { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
-    private VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
+    private List<ProductoVolumen> Producto_Volumen { get; set; } = new List<ProductoVolumen>();
 
     //listas
     private List<Tad> Terminales { get; set; } = null!;
@@ -627,6 +642,7 @@
     private string folioSearch = string.Empty;
     // private IList<FolioDetalleDTO> foliosFiltro => folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch) || string.IsNullOrEmpty(folioSearch)).ToList();
     private IList<ListadoFolioDetalle> foliosFiltro { get; set; } = new List<ListadoFolioDetalle>();
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     // protected override async Task OnInitializedAsync()
     // {
@@ -1060,18 +1076,9 @@
                                 }
                                 else
                                 {
-                                    var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/activo", filtro);
-                                    if (response.Error)
-                                    {
-                                        var message = await response.ObtenerMensajeError();
-                                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                                    }
-                                    else
-                                    {
-                                        volumenDisponible = responseVolumen.Response;
-                                        ordenCierres = responseDetalle.Response;
-                                        count = 0;
-                                    }
+                                    await GetVolumenActivo();
+                                    ordenCierres = responseDetalle.Response;
+                                    count = 0;
                                 }
                             }
                             else
@@ -1105,10 +1112,7 @@
             {
                 queryStringObject["folio"] = ordenCierre.Folio_Perteneciente;
 
-                var DefaultValues = new List<string>() { "false", "", "0" };
-                var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
-
+                var uri = Constructor_De_URL_Parametros.Generar_URL(queryStringObject);
                 var responseVerify = await http.Get<bool>($"api/cierre/caducidad/verify?{uri}");
                 if (responseVerify.Error)
                 {
@@ -1120,6 +1124,46 @@
 
             }
 
+            var response = await http.Post<OrdenCierre, bool>($"api/pedido/verificar/carga/{ID_Cierre}", ordenCierre);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                SendOrden = false;
+            }
+            else
+            {
+                if (response.Response)
+                    await CreateOrden();
+                else
+                {
+                    var confirm = await Swal.FireAsync(new SweetAlertOptions
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Sobrepasara el volumen limite del cierre, ¿Quiere agregar esta orden?"
+                        });
+
+                    if (!string.IsNullOrEmpty(confirm.Value))
+                        await CreateOrden();
+                }
+            }
+
+            SendOrden = false;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task CreateOrden()
+    {
+        try
+        {
             var response = await http.Post<OrdenCierre, OrdenCierre>($"api/pedido/create/all", ordenCierre);
             if (response.Error)
             {
@@ -1130,14 +1174,37 @@
             else
             {
                 ordenCierres.Add(response.Response);
+                await GetVolumenActivo();
             }
-
-            SendOrden = false;
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
+        }
+    }
+
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Cod"] = ID_Cierre.ToString();
+            Volumen_Query["Folio"] = Folio_Seleccionado;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 

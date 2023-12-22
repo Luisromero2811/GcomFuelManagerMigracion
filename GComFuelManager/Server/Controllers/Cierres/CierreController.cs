@@ -118,6 +118,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
             try
             {
                 List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
+                List<OrdenCierre> Ordenes_Adicionales_Modificadas = new List<OrdenCierre>();
                 var ordenes = context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true).ToList();
 
                 if (ordenes.Count > 0)
@@ -140,11 +141,54 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             .Include(x => x.OrdenEmbarque)
                             .ThenInclude(x => x.Orden)
                             .ThenInclude(x => x.Estado)
+                            .IgnoreAutoIncludes()
                             .DefaultIfEmpty()
                             .FirstOrDefault();
 
                         if (pedido != null)
+                        {
                             cierresVolumen.Add(pedido);
+
+                            if (context.Orden.Count(x => pedido.OrdenEmbarque != null && pedido.OrdenEmbarque.Orden != null && x.Ref == pedido.OrdenEmbarque.FolioSyn
+                            && x.Codest != 14 && pedido.OrdenEmbarque.Codest != 14) > 1)
+                            {
+                                var Ordenes_Adicionales = context.Orden.Where(x => pedido.OrdenEmbarque != null && pedido.OrdenEmbarque.Orden != null && x.Ref == pedido.OrdenEmbarque.FolioSyn
+                                && x.Cod != pedido.OrdenEmbarque.Orden.Cod).ToList();
+
+                                foreach (var oa in Ordenes_Adicionales)
+                                {
+                                    OrdenCierre ordenCierre = new();
+
+                                    if (pedido?.OrdenEmbarque != null && pedido?.OrdenEmbarque.Orden != null)
+                                    {
+                                        ordenCierre.Folio = pedido.Folio;
+                                        ordenCierre.FchCierre = pedido.FchCierre;
+                                        ordenCierre.FchLlegada = pedido.FchLlegada;
+                                        ordenCierre.Observaciones = pedido.Observaciones;
+                                        ordenCierre.Precio = pedido.Precio;
+                                        ordenCierre.Destino = new() { Den = pedido?.Destino?.Den };
+                                        ordenCierre.Cliente = new() { Den = pedido?.Cliente?.Den };
+                                        ordenCierre.Producto = new() { Den = pedido?.Producto?.Den };
+                                        ordenCierre.OrdenEmbarque = new() { Folio = pedido?.OrdenEmbarque?.Folio };
+                                        ordenCierre.OrdenEmbarque.Tonel = new()
+                                        {
+                                            Tracto = pedido?.OrdenEmbarque?.Tonel?.Tracto,
+                                            Placa = pedido?.OrdenEmbarque?.Tonel?.Placa
+                                        };
+                                        ordenCierre.OrdenEmbarque.Orden = new()
+                                        {
+                                            BatchId = pedido?.OrdenEmbarque?.Orden?.BatchId,
+                                            Fchcar = pedido?.OrdenEmbarque?.Orden?.Fchcar,
+                                            Vol = oa.Vol,
+                                            Vol2 = oa.Vol2,
+                                            Liniteid = oa.Liniteid,
+                                        };
+                                        ordenCierre.OrdenEmbarque.Orden.Estado = new() { den = pedido?.OrdenEmbarque?.Orden?.Estado?.den };
+                                        cierresVolumen.Add(ordenCierre);
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     return Ok(cierresVolumen);
