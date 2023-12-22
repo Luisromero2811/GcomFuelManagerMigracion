@@ -921,7 +921,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("verificar/carga/{ID_Cierre:int}")]
-        public async Task<ActionResult> VerifyVolumenAsignacion([FromBody] OrdenCierre orden, [FromRoute] int ID_Cierre)
+        public async Task<ActionResult> Verificar_Volumen_Creacion_Orden([FromBody] OrdenCierre orden, [FromRoute] int ID_Cierre)
         {
             try
             {
