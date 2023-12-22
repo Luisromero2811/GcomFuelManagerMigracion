@@ -6,7 +6,7 @@
 @inject DialogService ds
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
 
-<h4>Reportes de cierres</h4>
+<h4>Reporte de volumen de cierres</h4>
 <div class="col-12 card shadow-sm">
     <div class="col-12 card-body">
         <label><b>Mostrar cierres:</b></label>
@@ -69,7 +69,7 @@
                 </div>
             </div>
             <div class="col-4">
-                <InputSelect @bind-Value="folio_Activo_Vigente.Id_Producto" class="form-select col-12 form-select-sm">
+                <InputSelect @bind-Value="folio_Activo_Vigente.ID_Producto" class="form-select col-12 form-select-sm">
                     <option value="0">-- Selecciona un producto --</option>
                     @if (Productos is null)
                     {
@@ -413,7 +413,7 @@
             query["ID_Grupo"] = folio_Activo_Vigente.ID_Grupo.ToString() ?? string.Empty;
             query["ID_Cliente"] = folio_Activo_Vigente.ID_Cliente.ToString() ?? string.Empty;
             query["ID_Destino"] = folio_Activo_Vigente.ID_Destino.ToString() ?? string.Empty;
-            query["Id_Producto"] = folio_Activo_Vigente.Id_Producto.ToString() ?? string.Empty;
+            query["ID_Producto"] = folio_Activo_Vigente.ID_Producto.ToString() ?? string.Empty;
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             var response = await repositorio.Get<Folio_Activo_Vigente>($"api/volumen/reporte?{uri}");

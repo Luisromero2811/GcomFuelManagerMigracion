@@ -57,7 +57,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? TipoVenta { get; set; } = string.Empty;
 
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
-        public string? TipoPago { get; set; } = string.Empty;
+        public string? TipoPago { get; set; } = "Credito";
 
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double Precio { get; set; } = 0;

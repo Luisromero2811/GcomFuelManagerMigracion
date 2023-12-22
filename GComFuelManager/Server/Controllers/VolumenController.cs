@@ -97,8 +97,8 @@ namespace GComFuelManager.Server.Controllers
                 if (parametros.ID_Destino is not null && parametros.ID_Destino != 0)
                     cierres = cierres.Where(x => !string.IsNullOrEmpty(x.Folio) && (x.CodDes == parametros.ID_Destino || x.Folio.StartsWith("G")));
 
-                if (parametros.Id_Producto is not null && parametros.Id_Producto != 0)
-                    cierres = cierres.Where(x => x.CodPrd == parametros.Id_Producto);
+                if (parametros.ID_Producto is not null && parametros.ID_Producto != 0)
+                    cierres = cierres.Where(x => x.CodPrd == parametros.ID_Producto);
 
                 if (cierres is not null)
                 {
