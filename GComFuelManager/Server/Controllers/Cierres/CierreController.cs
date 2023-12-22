@@ -574,6 +574,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var ordenes = context.Orden.Where(x => x.Fchcar >= fechas.FchInicio && x.Fchcar <= fechas.FchFin)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
                     .ToList();
 
                 if (ordenes is null || ordenes.Count == 0)
@@ -607,6 +609,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
+                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
                     if (orden is not null)
                     {
                         if (orden.Destino is not null)
@@ -635,6 +638,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         precio.Fecha_De_Precio = precioHis.FchDia;
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Historial";
+                        //precio.TipoVenta = precioHis.OrdenCierre.TipoPago;
                         //precio.Moneda = Enum.GetName(typeof(Moneda), precioHis.Moneda ?? Moneda.NONE) ?? string.Empty;
                         //precio.Tipo_De_Cambio = precioHis.Equibalencia ?? 1;
                     }
@@ -645,6 +649,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         precio.Fecha_De_Precio = precioVig.FchDia;
                         precio.Precio_Encontrado = true;
                         precio.Precio_Encontrado_En = "Vigente";
+                        //precio.TipoVenta = precioVig.OrdenCierre.TipoPago;
                         //precio.Moneda = Enum.GetName(typeof(Moneda), precioVig.Moneda ?? Moneda.NONE) ?? string.Empty;
                         //precio.Tipo_De_Cambio = precioVig.Equibalencia ?? 1;
                     }
@@ -654,6 +659,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         precio.Precio = precioPro.Pre;
                         precio.Fecha_De_Precio = precioPro.FchDia;
                         precio.Precio_Encontrado = true;
+                        //precio.TipoVenta = precioPro.OrdenCierre.TipoPago;
                         precio.Precio_Encontrado_En = "Programado";
                         //precio.Moneda = Enum.GetName(typeof(Moneda), precioPro.Moneda ?? Moneda.NONE) ?? string.Empty;
                         //precio.Tipo_De_Cambio = precioPro.Equibalencia ?? 1;
@@ -675,6 +681,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 precio.Es_Cierre = true;
                                 precio.Precio_Encontrado = true;
                                 precio.Precio_Encontrado_En = "Cierre";
+                                //precio.TipoVenta = cierre.TipoPago;
                                 //precio.Moneda = Enum.GetName(typeof(Moneda), cierre.Moneda ?? Moneda.NONE) ?? string.Empty;
                                 //precio.Tipo_De_Cambio = cierre.Equibalencia ?? 1;
                             }
