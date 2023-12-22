@@ -167,12 +167,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         }
                     }
 
-                    var id = await verifyUser.GetId(HttpContext, UserManager);
-                    if (string.IsNullOrEmpty(id))
-                        return BadRequest();
-
                     //Guarda los cambios
-                    await context.SaveChangesAsync(id, 12);
+                    await context.SaveChangesAsync();
 
                 }
                 catch (Exception e)
