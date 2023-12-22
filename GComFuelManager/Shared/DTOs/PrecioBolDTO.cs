@@ -6,26 +6,19 @@ using System.ComponentModel;
 
 namespace GComFuelManager.Shared.DTOs
 {
-	public class PrecioBolDTO
-	{
-        public double? Precio { get; set; } = 0;
+    public class PrecioBolDTO
+    {
+
         [EpplusIgnore]
         public string? Referencia { get; set; } = string.Empty;
         [EpplusIgnore]
-        public int? Folio { get; set; } 
-        public int? BOL { get; set; } = 0;
-        [EpplusIgnore]
-        public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
+        public int? Folio { get; set; }
         [EpplusIgnore]
         public DateTime? Fecha_De_Precio { get; set; } = DateTime.MinValue;
         [EpplusIgnore]
         public string? Destino_Synthesis { get; set; } = string.Empty;
-        [DisplayName("Destino")]
-        public string? Destino_Original { get; set; } = string.Empty;
         [EpplusIgnore]
         public string? Producto_Synthesis { get; set; } = string.Empty;
-        [DisplayName("Producto")]
-        public string? Producto_Original { get; set; } = string.Empty;
         [EpplusIgnore]
         public bool Es_Cierre { get; set; } = false;
         [EpplusIgnore]
@@ -38,10 +31,27 @@ namespace GComFuelManager.Shared.DTOs
         public double Tipo_De_Cambio { get; set; } = 1;
         [EpplusIgnore]
         public string Moneda { get; set; } = string.Empty;
+
+
+        [EpplusIgnore]
+        public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
+        [DisplayName("Fecha de Carga")]
+        public string Fechas { get { return Fecha_De_Carga.ToString(); } }
+        [DisplayName("BOL")]
+        public int? BOL { get; set; } = 0;
         [DisplayName("Cliente")]
         public string? Cliente_Original { get; set; } = string.Empty;
+        [DisplayName("Destino")]
+        public string? Destino_Original { get; set; } = string.Empty;
+        [DisplayName("Producto")]
+        public string? Producto_Original { get; set; } = string.Empty;
         [DisplayName("Volumen")]
         public double? Volumen_Cargado { get; set; } = 0;
+        [DisplayName("Precio")]
+        public double? Precio { get; set; } = 0;
+        [DisplayName("Tipo de venta")]
+        //public string? TipoVenta { get { return OrdenCierre!.TipoPago; } }
+        public string TipoVenta { get; set; } = string.Empty;
 
         //Grupo-Cliente
         [EpplusIgnore]
@@ -50,6 +60,8 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime FchFin { get; set; } = DateTime.Now;
 
         //Propiedades de navegación
+        [NotMapped, EpplusIgnore] public Orden? Orden { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
