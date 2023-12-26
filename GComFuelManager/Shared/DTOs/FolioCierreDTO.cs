@@ -52,16 +52,18 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public int? Volumen { get; set; }
         [DisplayName("Volumen Total"), NotMapped]
-        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N2}", Volumen); } }
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         [EpplusIgnore]
         public double? Volumen_Disponible { get; set; }
         [DisplayName("Volumen Disponible"), NotMapped]
-        public string VolumenDisponible { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N2}", Volumen_Disponible); } }
+        public string VolumenDisponible { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Disponible); } }
         //Precio
         [NotMapped]
         public double Precio { get; set; } = 0;
         //Observaciones
         public string? Observaciones { get; set; } = string.Empty;
+       
     }
+
 }
 

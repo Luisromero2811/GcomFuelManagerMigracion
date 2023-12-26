@@ -529,7 +529,7 @@
         overflow: auto;
         width: 100%;
         border: 1px solid #ccc;
-        max-height: 400px; /* Establece una altura máxima si es necesario */
+        max-height: 400px; /* Establece una altura mï¿½xima si es necesario */
     }
 
     th, td {
@@ -548,7 +548,7 @@
             top: 0;
             right: 0;
             bottom: 0;
-            width: 8px; /* Ancho del área de redimensionamiento */
+            width: 8px; /* Ancho del ï¿½rea de redimensionamiento */
             background: transparent;
         }
 
@@ -743,7 +743,7 @@
                     ShowCancelButton = true,
                     ConfirmButtonText = "Aceptar",
                     CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
+                    Text = "ï¿½Desea cancelar la orden?"
                 });
 
             if (!string.IsNullOrEmpty(confirm.Value))
@@ -1068,7 +1068,7 @@
                                 ordenCierre.CodPrd = response.Response.FirstOrDefault()?.CodPrd;
                                 await GetPrecios();
                                 ordenCierre.Precio = response.Response.FirstOrDefault()?.Precio ?? 0;
-                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
+                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalles");
                                 if (responseDetalle.Error)
                                 {
                                     var message = await responseDetalle.ObtenerMensajeError();
@@ -1143,7 +1143,7 @@
                             ShowCancelButton = true,
                             ConfirmButtonText = "Aceptar",
                             CancelButtonText = "Cancelar",
-                            Text = "Sobrepasara el volumen limite del cierre, ¿Quiere agregar esta orden?"
+                            Text = "Sobrepasara el volumen limite del cierre, ï¿½Quiere agregar esta orden?"
                         });
 
                     if (!string.IsNullOrEmpty(confirm.Value))

@@ -21,8 +21,13 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("Fecha de cierre"), NotMapped]
         public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
 
+        [EpplusIgnore, NotMapped]
+        public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         [DisplayName("BOL")]
         public string? BOL { get { return OrdenEmbarque is not null ? OrdenEmbarque.Orden is not null ? OrdenEmbarque.Orden.BatchId.ToString() : string.Empty : string.Empty; } }
+
+        [NotMapped, EpplusIgnore]
+        public Orden? Orden { get; set; } = null!;
 
         [DisplayName("Fecha de vencimiento"), NotMapped]
         public string? FchVen { get { return FchVencimiento?.ToString("dd/MM/yyyy"); } }
@@ -103,8 +108,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codPed"), EpplusIgnore]
         public int? CodPed { get; set; } = 0;
 
-        [EpplusIgnore, NotMapped]
-        public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
+
 
         [NotMapped, EpplusIgnore]
         public Contacto? ContactoN { get; set; } = null!;
