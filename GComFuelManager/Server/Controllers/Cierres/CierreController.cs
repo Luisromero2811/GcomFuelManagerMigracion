@@ -202,6 +202,53 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("{folio}/detalles")]
+        public async Task<ActionResult> GetDetaislByFolios([FromRoute] string folio)
+        {
+            try
+            {
+                List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
+                var ordenes = context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true).ToList();
+
+                if (ordenes.Count > 0)
+                {
+
+                    var pedidos = context.OrdenPedido.Where(x => x.Folio == folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+                    foreach (var item1 in pedidos)
+                    {
+                        var pedido = context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
+                            .Include(x => x.OrdenEmbarque)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tonel)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Estado)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Orden)
+                            .ThenInclude(x => x.Estado)
+                            .DefaultIfEmpty()
+                            .FirstOrDefault();
+
+                        if (pedido != null)
+                            cierresVolumen.Add(pedido);
+                    }
+
+                    return Ok(cierresVolumen);
+                }
+
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrdenCierre orden)
         {
