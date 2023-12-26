@@ -14,8 +14,10 @@ namespace GComFuelManager.Shared.DTOs
 
     public class ProductoVolumen
     {
+        public byte? ID_Producto { get; set; } = 0;
         public string? Nombre { get; set; } = string.Empty;
         public double? Total { get; set; } = 0;
+        public double? Reservado { get; set; } = 0;
         public double? Disponible { get; set; } = 0;
         public double? Congelado { get; set; } = 0;
         public double? Consumido { get; set; } = 0;

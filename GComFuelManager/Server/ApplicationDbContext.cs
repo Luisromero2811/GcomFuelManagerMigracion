@@ -335,8 +335,8 @@ namespace GComFuelManager.Server
             //Cierre - grupo
             modelBuilder.Entity<OrdenCierre>()
                 .HasOne(x => x.Grupo)
-                .WithOne()
-                .HasForeignKey<OrdenCierre>(x => x.CodGru);
+                .WithMany()
+                .HasForeignKey(x => x.CodGru);
 
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.OrdenPedido)

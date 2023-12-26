@@ -192,11 +192,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         context.UpdateRange(toneles);
 
-                        var id = await verifyUser.GetId(HttpContext, UserManager);
-                        if (string.IsNullOrEmpty(id))
-                            return BadRequest();
-
-                        await context.SaveChangesAsync(id, 14);
+                        await context.SaveChangesAsync();
 
                         return Ok(true);
                     }

@@ -275,6 +275,30 @@
                             @*<InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>*@
                         </div>
                     </div>
+
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Tipo de pago</label>
+                            <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
+                                @if (TpPago is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (TpPago.Count == 0)
+                                {
+                                    <option disabled> No hay tipos de pago</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in TpPago)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
                     @* @if (!isFolio || ordenCierre.IsCierreVolumen)
                     {
                     <div class="col-4">
@@ -573,6 +597,7 @@
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
     public List<string> Turnos { get; set; } = new List<string>() { "11:00 pm - 7:00 am", "7:00 am - 3:00 pm", "3:00 pm - 11:00 pm" };
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     //grid
     private RadzenDataGrid<OrdenCierre> gridOC = new RadzenDataGrid<OrdenCierre>();

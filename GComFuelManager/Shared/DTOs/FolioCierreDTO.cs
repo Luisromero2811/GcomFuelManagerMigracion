@@ -22,7 +22,9 @@ namespace GComFuelManager.Shared.DTOs
 		public Producto? Producto { get; set; } = null!;
 		[EpplusIgnore]
 		public DateTime? FchCierre { get; set; } = DateTime.MinValue;
-		[EpplusIgnore]
+        [EpplusIgnore]
+		public DateTime? FchCierre_Vencimiento { get; set; } = DateTime.MinValue;
+        [EpplusIgnore]
 		public Grupo? Grupo { get; set; } = null!;
         [EpplusIgnore]
         public string? Estado { get; set; } = null!;
@@ -32,6 +34,8 @@ namespace GComFuelManager.Shared.DTOs
 
         [DisplayName("Fecha de Cierre")]
         public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
+        [DisplayName("Fecha de vencimiento")]
+        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
         [DisplayName("Grupo")]
 		public string NGrupo { get { return Grupo != null ? Grupo.Den! : string.Empty; } } 
         [DisplayName("Cliente")]
@@ -47,8 +51,12 @@ namespace GComFuelManager.Shared.DTOs
         //Volumenes
         [EpplusIgnore]
         public int? Volumen { get; set; }
-        [DisplayName("Volumen"), NotMapped]
-        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
+        [DisplayName("Volumen Total"), NotMapped]
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N2}", Volumen); } }
+        [EpplusIgnore]
+        public double? Volumen_Disponible { get; set; }
+        [DisplayName("Volumen Disponible"), NotMapped]
+        public string VolumenDisponible { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N2}", Volumen_Disponible); } }
         //Precio
         [NotMapped]
         public double Precio { get; set; } = 0;

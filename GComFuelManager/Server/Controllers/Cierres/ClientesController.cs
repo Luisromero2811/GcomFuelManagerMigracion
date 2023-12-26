@@ -243,9 +243,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
 
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
@@ -357,7 +354,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         else
                         {
                             context.Add(cliente);
-                            await context.SaveChangesAsync(id, 11);
+                            await context.SaveChangesAsync();
                             //Obtención del código del cliente
                             Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
                                 .DefaultIfEmpty()
@@ -386,7 +383,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo 
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}, nombre {d.Den}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -396,10 +392,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
-                                        Debug.WriteLine($"antes");
 
                                         context.Update(d);
-                                        Debug.WriteLine($"completo");
 
                                     }
                                     else
@@ -411,7 +405,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 else
                                 {
                                     //Actualiza el campo activo del destino
-                                    Debug.WriteLine($"inactivo: {destino.Cod}");
                                     var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
@@ -427,7 +420,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                     }
 
-                    await context.SaveChangesAsync(id, 11);
+                    await context.SaveChangesAsync();
                     return Ok(true);
                 }
                 catch (Exception e)

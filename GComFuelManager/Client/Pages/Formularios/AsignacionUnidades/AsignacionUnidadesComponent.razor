@@ -925,67 +925,58 @@
                 ordenEmbarque.Compartment = asignacion.Compartimiento;
                 ordenEmbarque.CompartmentId = checkChofer.Compartimento;
 
-                var response = await repositorio.Post<OrdenEmbarque>($"api/pedido/verificar/carga", ordenEmbarque);
-                if (response.Error)
+                var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
+
+                if (responseHttp.Error)
                 {
-                    var message = await response.ObtenerMensajeError();
-                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                    await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
                     SendAsignacion = false;
                 }
                 else
                 {
-                    var responseHttp = await repositorio.Post<CheckChofer, int>($"api/pedido/check/chofer", checkChofer);
-
-                    if (responseHttp.Error)
+                    if (responseHttp.Response == 0)
                     {
-                        var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                        await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-                        SendAsignacion = false;
+
+                        await UpdateOrden();
+                        asignacion.Compartimiento = 1;
+
                     }
                     else
                     {
-                        if (responseHttp.Response == 0)
-                        {
-
-                            await UpdateOrden();
-                            asignacion.Compartimiento = 1;
-
-                        }
-                        else
-                        {
-                            var confirm = await swal.FireAsync(new SweetAlertOptions
-                                {
-                                    Icon = SweetAlertIcon.Warning,
-                                    ShowCancelButton = true,
-                                    ConfirmButtonText = "Aceptar",
-                                    CancelButtonText = "Cancelar",
-                                    Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                                });
-
-                            if (!string.IsNullOrEmpty(confirm.Value))
+                        var confirm = await swal.FireAsync(new SweetAlertOptions
                             {
-                                var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
-                                if (responseDes.Error)
-                                {
-                                    var message = await responseDes.ObtenerMensajeError();
-                                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                                    SendAsignacion = false;
-                                }
-                                else
-                                {
-                                    await UpdateOrden();
-                                    await MostrarOrdenFecha();
-                                    asignacion.Compartimiento = 1;
-                                    SendAsignacion = false;
-                                    //ordenesSeleccionada = new List<OrdenEmbarque>();
-                                }
+                        if (!string.IsNullOrEmpty(confirm.Value))
+                        {
+                            var responseDes = await repositorio.Put<OrdenEmbarque>($"api/pedido/desasignar/{responseHttp.Response}", new OrdenEmbarque());
+
+                            if (responseDes.Error)
+                            {
+                                var message = await responseDes.ObtenerMensajeError();
+                                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                                SendAsignacion = false;
+                            }
+                            else
+                            {
+                                await UpdateOrden();
+                                await MostrarOrdenFecha();
+                                asignacion.Compartimiento = 1;
+                                SendAsignacion = false;
+                                //ordenesSeleccionada = new List<OrdenEmbarque>();
                             }
                         }
-                        SendAsignacion = false;
-
                     }
+                    SendAsignacion = false;
+
                 }
+
             }
             SendAsignacion = false;
         }
