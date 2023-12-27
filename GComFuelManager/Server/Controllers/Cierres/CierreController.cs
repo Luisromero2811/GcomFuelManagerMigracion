@@ -1979,6 +1979,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           destino = x.Destino,
                           Producto = x.Producto,
                           FchCierre = x.FchCierre,
+                          FchCierre_Vencimiento = x.FchVencimiento,
                           Grupo = x.Grupo,
                           Estado = x.OrdenEmbarque.Estado.den,
                           Activa = x.Activa,
