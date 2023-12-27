@@ -11,7 +11,7 @@
     <div class="col-12 card-body">
         <label><b>Mostrar cierres:</b></label>
         <div class="row col-12">
-            <div class="col-4">
+            <div class="col-3">
                 <div class="col-12">
                     <label>Grupo</label>
                     <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="folio_Activo_Vigente.ID_Grupo"
@@ -30,7 +30,7 @@
                     </RadzenDropDown>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <div class="col-12">
                     <label>Cliente</label>
                     <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="folio_Activo_Vigente.ID_Cliente"
@@ -49,7 +49,7 @@
                     </RadzenDropDown>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-3">
                 <div class="col-12">
                     <label>Estacion</label>
                     <RadzenDropDown Data="Estaciones" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="folio_Activo_Vigente.ID_Destino"
@@ -68,7 +68,8 @@
                     </RadzenDropDown>
                 </div>
             </div>
-            <div class="col-4">
+            <div class="col-3">
+                <label>Productos:</label>
                 <InputSelect @bind-Value="folio_Activo_Vigente.ID_Producto" class="form-select col-12 form-select-sm">
                     <option value="0">-- Selecciona un producto --</option>
                     @if (Productos is null)
@@ -88,17 +89,29 @@
                     }
                 </InputSelect>
             </div>
-            <div class="col-4 row">
-                <div class="col-6">
-                    <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Volumen">
-                        Filtrar
-                    </button>
-                </div>
-                <div class="col-6">
-                    <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@(()=>folio_Activo_Vigente = new Folio_Activo_Vigente())">
-                        Limpiar
-                    </button>
-                </div>
+            @*<div class="col-12 row mt-2 d-flex justify-content-center">
+                    <div class="col-6">
+                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Volumen">
+                            <i class="fa fa-solid fa-magnifying-glass"></i> Filtrar
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@(()=>folio_Activo_Vigente = new Folio_Activo_Vigente())">
+                            <i class="fa fa-solid fa-broom"></i> Limpiar formulario
+                        </button>
+                    </div>
+                </div>*@
+        </div>
+        <div class="col-12 row mt-2 d-flex justify-content-center">
+            <div class="col-4">
+                <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Volumen">
+                    <i class="fa fa-solid fa-magnifying-glass"></i> Filtrar
+                </button>
+            </div>
+            <div class="col-4">
+                <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@(()=>folio_Activo_Vigente = new Folio_Activo_Vigente())">
+                    <i class="fa fa-solid fa-broom"></i> Limpiar formulario
+                </button>
             </div>
         </div>
     </div>
@@ -112,13 +125,18 @@
 <div class="col-12 card">
     <div class="card-header col-12">
         <div class="col-12 row">
-            <div class="col-1">
+            <div class="col-2">
                 <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Mostrar_Detalle = !Mostrar_Detalle)">
-                    <i class="fa fa-solid fa-eye"></i>
+                    <i class="fa fa-solid fa-eye"></i> Mostrar detalle
                 </button>
             </div>
-            <div class="col" style="font-size:12px;">
-                <p> Mostrar detalle</p>
+            @*<div class="col" style="font-size:12px;">
+                    <p> Mostrar detalle</p>
+                </div>*@
+            <div class="col-1">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ClearFormData">
+                    <i class="fa fa-solid fa-broom"></i> Limpiar
+                </button>
             </div>
             <div class="col-2 offset-7">
                 <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ExportarCierre">
@@ -207,6 +225,7 @@
 </style>
 @code {
     private OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+    private List<OrdenCierre> ordenCierr { get; set; } = new List<OrdenCierre>();
     private List<FolioCierreDTO> Folios { get; set; } = new List<FolioCierreDTO>();
 
     Folio_Activo_Vigente folio_Activo_Vigente { get; set; } = new Folio_Activo_Vigente();
@@ -255,6 +274,11 @@
                 width = 500;
             TotalWidth = $"{width}px";
         }
+    }
+
+    private void ClearFormData()
+    {
+        folio_Activo_Vigente_Response  = new Folio_Activo_Vigente();
     }
 
     private async Task ExportarCierre()
