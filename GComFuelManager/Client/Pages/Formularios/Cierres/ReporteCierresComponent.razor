@@ -46,14 +46,13 @@
                     GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                     IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
         <Columns>
-            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="130px" />
-            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Vencimiento" Property="FchCierre_Vencimiento" FormatString="{0:d}" Filterable="false" Width="130px"/>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="130px" />
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="140px;" />
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Grupo" FilterValue="GrupoSeleccionado" Property="Grupo.Den" Width="160px;">
                 <FilterTemplate>
                     <RadzenDropDown Data="GroupList" @bind-Value="GrupoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                         <ValueTemplate Context="data">
-                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="80"/>
+                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="80" />
                         </ValueTemplate>
                     </RadzenDropDown>
                 </FilterTemplate>
@@ -65,7 +64,7 @@
                 <FilterTemplate>
                     <RadzenDropDown Data="ClientList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                         <ValueTemplate Context="data">
-                            <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="100"/>
+                            <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="100" />
                         </ValueTemplate>
                     </RadzenDropDown>
                 </FilterTemplate>
@@ -77,7 +76,7 @@
                 <FilterTemplate>
                     <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
                         <ValueTemplate Context="data">
-                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="100"/>
+                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="100" />
                         </ValueTemplate>
                     </RadzenDropDown>
                 </FilterTemplate>
@@ -119,15 +118,6 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Filterable="true" Width="100px">
-                <Template Context="data">
-                    @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
-                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
-                </Template>
-            </RadzenDataGridColumn>
-            <!--Precio Volumen y observaciones-->
-            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
-            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Volumen" Width="110px" FormatString="{0:N2}" Filterable="false">
                 <Template Context="item">
                     <div class="col-12">
@@ -142,6 +132,16 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Vencimiento" Property="FchCierre_Vencimiento" FormatString="{0:d}" Filterable="false" Width="130px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Filterable="false" Width="100px">
+                <Template Context="data">
+                    @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
+                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+                </Template>
+            </RadzenDataGridColumn>
+            <!--Precio Volumen y observaciones-->
         </Columns>
     </RadzenDataGrid>
 </div>
@@ -206,7 +206,7 @@
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:I1"];
+                var header = ws.Cells["A1:L1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Folios, true);
                 tablebody.Style.Font.Size = 14;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

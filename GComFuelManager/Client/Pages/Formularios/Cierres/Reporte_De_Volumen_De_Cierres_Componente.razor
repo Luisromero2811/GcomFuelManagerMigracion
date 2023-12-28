@@ -152,16 +152,14 @@
             <RadzenDataGrid TItem="OrdenCierre" Data="@folio_Activo_Vigente_Response.OrdenCierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                             GridLines="DataGridGridLines.Both" Style="height:600px;" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de Cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="180px">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="180px">
                         <Template Context="item">
                             <p>
-                                @(item.FchCierre?.ToShortDateString()) - @(item.FchVencimiento?.ToShortDateString())
+                                @(item.FchCierre?.ToShortDateString()) 
                             </p>
                         </Template>
                     </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio del cierre" Property="Folio" Filterable="false" Width="180px;" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumenes" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Disponible" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumen_Disponible" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio del cierre / OC" Property="Folio" Filterable="false" Width="180px;" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Grupo" Property="Grupo" Filterable="false" Width="180px;">
                         <Template Context="data">
                             @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo")
@@ -204,7 +202,18 @@
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
+
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumenes" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+                    <!--Aplicar Fecha de Vencimiento-->
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vencimiento" FormatString="{0:d}" Filterable="false" Width="100px">
+                        <Template Context="item">
+                            <div class="col-12">
+                                <p> @item.FchVencimiento?.ToShortDateString() </p>
+                            </div>
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Disponible" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumen_Disponible" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" Width="250px" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Ver ordenes" Filterable="false" Width="150px">
                         <Template Context="item">
@@ -301,7 +310,7 @@
                     ws.Columns.Width = 60;
                     ws.Columns.AutoFit();
 
-                    var header = ws.Cells["A1:K1"];
+                    var header = ws.Cells["A1:L1"];
                     var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response, true);
                     tablebody.Style.Font.Size = 12;
                     tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

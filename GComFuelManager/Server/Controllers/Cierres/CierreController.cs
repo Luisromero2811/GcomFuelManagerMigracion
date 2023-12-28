@@ -100,6 +100,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Grupo)
                     .Include(x => x.OrdenPedidos)
                     .ThenInclude(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                     .ToListAsync();
 
                 cierres.ForEach(x => x.GetTieneVolumenDisponible(porcentaje));
