@@ -129,6 +129,9 @@ namespace GComFuelManager.Shared.Modelos
         public Grupo? Grupo { get; set; } = null!;
 
         [EpplusIgnore, NotMapped]
+        public OrdenPedido? ordenPedido { get; set; } = null!;
+
+        [EpplusIgnore, NotMapped]
         public bool IsCierreVolumen { get; set; } = true;
 
         [EpplusIgnore, NotMapped]
@@ -155,6 +158,17 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? fchPrecio { get; set; } = DateTime.Now;
         [DisplayName("Fecha de Precio"), NotMapped]
         public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
+
+        [DisplayName("Estado"), NotMapped]
+        public string? Estado_Pedido
+        {
+            get
+            {
+                return Activa == false ? "Cerrada" : OrdenEmbarque?.Orden != null ? OrdenEmbarque?.Orden?.Estado?.den
+                : OrdenEmbarque?.Estado != null ? OrdenEmbarque?.Estado?.den : "Activa";
+            }
+        }
+
         public OrdenCierre ShallowCopy()
         {
             return (OrdenCierre)this.MemberwiseClone();
