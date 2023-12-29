@@ -79,13 +79,14 @@ namespace GComFuelManager.Server.Controllers
                 List<OrdenCierre> ordenCierres = new List<OrdenCierre>();
 
                 Folio_Activo_Vigente folio = new Folio_Activo_Vigente();
-
-                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Activa == true)
+                //&& x.Activa == true
+                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0)
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .IgnoreAutoIncludes()
+                    .OrderByDescending(x => x.FchCierre)
                     .AsQueryable();
 
                 if (parametros.ID_Grupo is not null && parametros.ID_Grupo != 0)
