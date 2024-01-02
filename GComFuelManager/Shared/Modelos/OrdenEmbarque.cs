@@ -18,7 +18,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("vol"), DisplayName("Volumen"), EpplusIgnore]
         public double? Vol { get; set; } = 0;
         [DisplayName("Volumen")]
-        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",  Vol); } }
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Vol); } }
 
 
 
@@ -38,7 +38,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
         [JsonProperty("compartment")] public int? Compartment { get; set; } = 1;
         [JsonProperty("numTonel")] public int? NumTonel { get; set; }
-
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;

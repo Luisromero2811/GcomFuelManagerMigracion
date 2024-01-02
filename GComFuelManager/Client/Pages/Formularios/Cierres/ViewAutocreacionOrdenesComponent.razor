@@ -55,58 +55,61 @@
                 {
                     @foreach (var ordenCierre in ordenCierres)
                     {
-                        <tr>
-                            <td>@ordenCierre.Volumen</td>
-                            <td>@ordenCierre.Volumen_Disponible</td>
-                            <td>@ordenCierre.OrdenPedidos?.Where(x=>x.OrdenEmbarque?.Coddes != 14).Count()</td>
-                            <td>
-                                @ordenCierre.Des
-                            </td>
-                            <td>
-                                @ordenCierre.Pro
-                            </td>
-                            <td>
-                                <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm" />
-                            </td>
-                            <td>
-                                @ordenCierre.GetCantidadSugerida()
-                            </td>
-                            <td>
-                                <input type="number" @bind="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
-                            </td>
-                            <td>
-                                <div class="col">
-                                    @if (ordenCierre.Tiene_Volumen_Disponible)
-                                    {
-                                        <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>ConfirmarOrdenes(ordenCierre))">
-                                            Confirmar
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-sm btn-primary col-12" disabled>
-                                            Confirmar
-                                        </button>
-                                    }
-                                </div>
-                            </td>
-                            <td>
-                                <div class="col">
-                                    @if (ordenCierre.Tiene_Volumen_Disponible)
-                                    {
-                                        <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>DenegarOrdenes(ordenCierre))">
-                                            Denegar
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-sm btn-danger col-12" disabled>
-                                            Denegar
-                                        </button>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
+                        @if (ordenCierre.Activa == true)
+                        {
+                            <tr>
+                                <td>@ordenCierre.Volumen</td>
+                                <td>@ordenCierre.Volumen_Disponible</td>
+                                <td>@ordenCierre.OrdenPedidos?.Where(x=>x.OrdenEmbarque?.Coddes != 14).Count()</td>
+                                <td>
+                                    @ordenCierre.Des
+                                </td>
+                                <td>
+                                    @ordenCierre.Pro
+                                </td>
+                                <td>
+                                    <InputDate @bind-Value="@ordenCierre.FchCar" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    @ordenCierre.Cantidad_Sugerida
+                                </td>
+                                <td>
+                                    <input type="number" @bind="@ordenCierre.Cantidad_Confirmada" class="form-control form-control-sm" />
+                                </td>
+                                <td>
+                                    <div class="col">
+                                        @if (ordenCierre.Tiene_Volumen_Disponible)
+                                        {
+                                            <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>ConfirmarOrdenes(ordenCierre))">
+                                                Confirmar
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-primary col-12" disabled>
+                                                Confirmar
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="col">
+                                        @if (ordenCierre.Tiene_Volumen_Disponible)
+                                        {
+                                            <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>DenegarOrdenes(ordenCierre))">
+                                                Denegar
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-danger col-12" disabled>
+                                                Denegar
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     }
                 }
                 else
@@ -137,7 +140,7 @@
         if (CierresList is not null)
         {
             ordenCierres = CierresList;
-            await SetCantidadOrdenes();
+            // await SetCantidadOrdenes();
         }
     }
 
@@ -145,6 +148,18 @@
     {
         volumen = args.Value is not null ? int.Parse(args.Value.ToString() ?? "0") : 0;
 
+        ordenCierres.ForEach(ordenCierre =>
+            {
+                ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
+                ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
+                // ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
+                ordenCierre.Volumen_Seleccionado = volumen;
+                // ordenCierre.SetVolumen();
+                Console.WriteLine(ordenCierre.Volumen_Disponible);
+                Console.WriteLine(ordenCierre.Volumen_Por_Unidad);
+                Console.WriteLine(ordenCierre.Cantidad_Sugerida);
+                Console.WriteLine(volumen);
+            });
         await SetCantidadOrdenes();
     }
 
@@ -155,11 +170,16 @@
             ordenCierres.ForEach(ordenCierre =>
             {
                 ordenCierre.Cantidad_Sugerida = int.Parse(ordenCierre.Volumen_Disponible?.ToString() ?? "1") / ordenCierre.Volumen_Por_Unidad;
-                ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Confirmada : ordenCierre.Cantidad_Sugerida - 1;
+                ordenCierre.Cantidad_Sugerida = ordenCierre.Cantidad_Sugerida % 2 == 0 ? ordenCierre.Cantidad_Sugerida : ordenCierre.Cantidad_Sugerida - 1;
                 // ordenCierre.Cantidad_Confirmada = ordenCierre.Cantidad_Sugerida;
                 ordenCierre.Volumen_Seleccionado = volumen;
-                ordenCierre.SetVolumen();
+                // ordenCierre.SetVolumen();
+                Console.WriteLine(ordenCierre.Volumen_Disponible);
+                Console.WriteLine(ordenCierre.Volumen_Por_Unidad);
+                Console.WriteLine(ordenCierre.Cantidad_Sugerida);
+                Console.WriteLine(volumen);
             });
+            // StateHasChanged();
         }
         catch (Exception e)
         {
@@ -218,6 +238,9 @@
                         });
 
                 }
+                var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
+                ordenCierres.RemoveAt(index);
+                ordenCierres.Insert(index, response.Response);
             }
         }
         catch (Exception e)

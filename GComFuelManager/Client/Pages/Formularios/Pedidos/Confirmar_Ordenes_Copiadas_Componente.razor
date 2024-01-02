@@ -1,4 +1,4 @@
-@page "/ordenes"
+﻿@page "/ordenes/copiadas"
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject TooltipService ts
@@ -7,7 +7,39 @@
 @inject DialogService ds
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Revision Precios")]
-
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+    <div class="col-12 card shadow-sm mb-3">
+        <div class="col-12 card-body">
+            <div class="col-12 mb-1 row">
+                <div class="col-12 row">
+                    <div class="col-3">
+                        <label>Folio</label>
+                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="20" />
+                    </div>
+                    <div class="col-9 d-flex row mb-1">
+                        <div class="col-2 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Detalle_Cierre">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                        <div class="col-6 mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModal">
+                                <i class="fa fa-solid fa-magnifying-glass"></i>
+                                Ver Folios de pedidos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+@if (Loading_Detalle)
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+    </div>
+}
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
@@ -273,43 +305,6 @@
                             }
                         </div>
                     </div>
-
-                    <div class="col-4 mb-1">
-                        <div class="col-12">
-                            <label>Tipo de pago</label>
-                            <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
-                                @if (TpPago is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (TpPago.Count == 0)
-                                {
-                                    <option disabled> No hay tipos de pago</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in TpPago)
-                                    {
-                                        <option value="@item">@item</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                    </div>
-
-                    @* @if (!isFolio || ordenCierre.IsCierreVolumen)
-                    {
-                    <div class="col-4">
-                    <div class="col-12">
-                    <label @onmouseenter="@(args => ShowTooltip(infoFolio))" @ref="infoFolio">
-                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                    </label>
-                    <div class="col-12">
-                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
-                    </div>
-                    </div>
-                    </div>
-                    } *@
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1">
                     @if (isEditing)
@@ -333,20 +328,6 @@
                     }
                     @if (!isEditing)
                     {
-
-                        @if (!isFolio || ordenCierre.IsCierreVolumen)
-                        {
-                            <div class="col-4 px-2">
-                                <button class="btn gcom-bg-amarillo col-12 mx-2 btn-sm @(SendOrden ? "disabled" : "" )" type="submit" disabled="@SendOrden">
-                                    <i class="fa fa-solid fa-check"></i>
-                                    <b>Crear orden</b>
-                                    @if (SendOrden)
-                                    {
-                                        <SpinnerLoading></SpinnerLoading>
-                                    }
-                                </button>
-                            </div>
-                        }
 
                         <div class="col-4 px-2">
                             <button class="btn gcom-bg-amarillo col-12 mx-2 btn-sm" type="button" @onclick="@ConfirmPedido">
@@ -575,7 +556,6 @@
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
 
     public List<string> Turnos { get; set; } = new List<string>() { "11:00 pm - 7:00 am", "7:00 am - 3:00 pm", "3:00 pm - 11:00 pm" };
-    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     //grid
     private RadzenDataGrid<OrdenCierre> gridOC = new RadzenDataGrid<OrdenCierre>();
@@ -611,6 +591,7 @@
     bool isEditing = false;
     bool IsCierreVolumen = false;
     bool SendOrden = false;
+    bool Loading_Detalle = false;
 
     private byte? CodProductoSeleccionado = 0;
     private int? DestinoSeleccionado = 0;
@@ -638,12 +619,13 @@
 
     Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
     Dictionary<string, string> queryStringObjectFolios = new Dictionary<string, string>();
-    private IJSObjectReference importedJs;
 
     public List<ListadoFolioDetalle> folioDetalles { get; set; } = new List<ListadoFolioDetalle>();
     private string folioSearch = string.Empty;
     // private IList<FolioDetalleDTO> foliosFiltro => folioDetalles.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Contains(folioSearch) || string.IsNullOrEmpty(folioSearch)).ToList();
     private IList<ListadoFolioDetalle> foliosFiltro { get; set; } = new List<ListadoFolioDetalle>();
+
+    string Folio_Busqueda = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -1283,4 +1265,47 @@
         }
     }
 
+    private async Task Obtener_Detalle_Cierre()
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Folio_Busqueda))
+                if (!Folio_Busqueda.StartsWith("RE"))
+                {
+                    await Swal.FireAsync("Alerta", "Folio invalido. Solo se admiten folios que empiezen con RE", SweetAlertIcon.Warning);
+                    return;
+                }
+
+            Loading_Detalle = true;
+            StateHasChanged();
+
+            Dictionary<string, string> query = new Dictionary<string, string>();
+
+            query["Folio"] = Folio_Busqueda;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<Crear_Orden_Template_DTO>($"api/cierre/detalle/copia?{uri}");
+            if (response.Error)
+            {
+                Loading_Detalle = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                var template = response.Response;
+
+                ordenCierres = template.OrdenCierres;
+            }
+
+            Loading_Detalle = false;
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            Loading_Detalle = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }
+

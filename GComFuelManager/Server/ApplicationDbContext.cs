@@ -355,6 +355,31 @@ namespace GComFuelManager.Server
                 .WithOne(x => x.OrdenCierre)
                 .HasPrincipalKey(x => x.Cod)
                 .HasForeignKey(x => x.CodCierre);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
         }
 
 
@@ -400,5 +425,7 @@ namespace GComFuelManager.Server
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
         public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
         public DbSet<Errors> Errors { get; set; }
+        public DbSet<Moneda> Moneda { get; set; }
+        public DbSet<Consecutivo> Consecutivo { get; set; }
     }
 }

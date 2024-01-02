@@ -27,5 +27,9 @@ namespace GComFuelManager.Shared.DTOs
         public string? Fecha { get; set; } = string.Empty;
         [DisplayName("PRECIO FINAL")]
         public double Precio { get; set; } = 0;
+        [DisplayName("MONEDA")]
+        public string? Moneda { get; set; } = string.Empty;
+        [DisplayName("EQUIBALENCIA")]
+        public double? Equibalencia { get; set; } = 1;
     }
 }

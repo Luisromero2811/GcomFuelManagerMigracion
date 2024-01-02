@@ -192,8 +192,11 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado >= 62000 ? Volumen_Seleccionado / 2 : Volumen_Seleccionado; } }
         [NotMapped, EpplusIgnore] public List<OrdenPedido> OrdenPedidos { get; set; } = new List<OrdenPedido>();
         public bool Precio_Manual { get; set; } = true;
-
+        [NotMapped, EpplusIgnore] public int? Ordenes_Relacionadas { get; set; } = 0;
         [NotMapped, EpplusIgnore] public string? Folio_Perteneciente { get; set; } = string.Empty;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
         #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
         public double? GetVolumenSolicitado()
