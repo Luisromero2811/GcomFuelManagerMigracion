@@ -15,7 +15,6 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime Fecha_Vigencia { get; set; } = DateTime.Now;
         public DateTime Fecha_Cierre { get; set; } = DateTime.Now;
         public int ID_Cierre { get; set; }
-        public byte? ID_Producto { get; set; } = 0;
         public string? Nombre_Grupo { get { return Grupo is not null ? Grupo.Den : "Sin grupo"; } }
         public string? Nombre_Cliente { get { return Cliente is not null ? Cliente.Den : "Sin cliente"; } }
         public string? Nombre_Destino { get { return Destino is not null ? Destino.Den : "Sin destino"; } }
