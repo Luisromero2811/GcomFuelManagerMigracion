@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -12,6 +12,7 @@ using ServiceReference10;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using static GComFuelManager.Server.Controllers.Precios.PrecioController;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -101,6 +102,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     .Include(x => x.Grupo)
                     .Include(x => x.OrdenPedidos)
                     .ThenInclude(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
                     .ToListAsync();
 
                 cierres.ForEach(x =>
@@ -122,6 +124,96 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
         [HttpGet("{folio}/detalle")]
         public async Task<ActionResult> GetDetailByFolio([FromRoute] string folio)
+        {
+            try
+            {
+                List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
+                List<OrdenCierre> Ordenes_Adicionales_Modificadas = new List<OrdenCierre>();
+                var ordenes = context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true).ToList();
+
+                if (ordenes.Count > 0)
+                {
+
+                    var pedidos = context.OrdenPedido.Where(x => x.Folio == folio && x.CodPed != null && x.OrdenEmbarque != null).ToList();
+                    foreach (var item1 in pedidos)
+                    {
+                        var pedido = context.OrdenCierre.Where(x => x.CodPed == item1.CodPed)
+                            .Include(x => x.OrdenEmbarque)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Producto)
+                            .Include(x => x.Destino)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tad)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Tonel)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Estado)
+                            .Include(x => x.OrdenEmbarque)
+                            .ThenInclude(x => x.Orden)
+                            .ThenInclude(x => x.Estado)
+                            .IgnoreAutoIncludes()
+                            .DefaultIfEmpty()
+                            .FirstOrDefault();
+
+                        if (pedido != null)
+                        {
+                            cierresVolumen.Add(pedido);
+
+                            if (context.Orden.Count(x => pedido.OrdenEmbarque != null && pedido.OrdenEmbarque.Orden != null && x.Ref == pedido.OrdenEmbarque.FolioSyn
+                            && x.Codest != 14 && pedido.OrdenEmbarque.Codest != 14) > 1)
+                            {
+                                var Ordenes_Adicionales = context.Orden.Where(x => pedido.OrdenEmbarque != null && pedido.OrdenEmbarque.Orden != null && x.Ref == pedido.OrdenEmbarque.FolioSyn
+                                && x.Cod != pedido.OrdenEmbarque.Orden.Cod).ToList();
+
+                                foreach (var oa in Ordenes_Adicionales)
+                                {
+                                    OrdenCierre ordenCierre = new();
+
+                                    if (pedido?.OrdenEmbarque != null && pedido?.OrdenEmbarque.Orden != null)
+                                    {
+                                        ordenCierre.Folio = pedido.Folio;
+                                        ordenCierre.FchCierre = pedido.FchCierre;
+                                        ordenCierre.FchLlegada = pedido.FchLlegada;
+                                        ordenCierre.Observaciones = pedido.Observaciones;
+                                        ordenCierre.Precio = pedido.Precio;
+                                        ordenCierre.Destino = new() { Den = pedido?.Destino?.Den };
+                                        ordenCierre.Cliente = new() { Den = pedido?.Cliente?.Den };
+                                        ordenCierre.Producto = new() { Den = pedido?.Producto?.Den };
+                                        ordenCierre.OrdenEmbarque = new() { Folio = pedido?.OrdenEmbarque?.Folio };
+                                        ordenCierre.OrdenEmbarque.Tonel = new()
+                                        {
+                                            Tracto = pedido?.OrdenEmbarque?.Tonel?.Tracto,
+                                            Placa = pedido?.OrdenEmbarque?.Tonel?.Placa
+                                        };
+                                        ordenCierre.OrdenEmbarque.Orden = new()
+                                        {
+                                            BatchId = pedido?.OrdenEmbarque?.Orden?.BatchId,
+                                            Fchcar = pedido?.OrdenEmbarque?.Orden?.Fchcar,
+                                            Vol = oa.Vol,
+                                            Vol2 = oa.Vol2,
+                                            Liniteid = oa.Liniteid,
+                                        };
+                                        ordenCierre.OrdenEmbarque.Orden.Estado = new() { den = pedido?.OrdenEmbarque?.Orden?.Estado?.den };
+                                        cierresVolumen.Add(ordenCierre);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(cierresVolumen);
+                }
+
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{folio}/detalles")]
+        public async Task<ActionResult> GetDetaislByFolios([FromRoute] string folio)
         {
             try
             {
@@ -165,6 +257,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrdenCierre orden)
@@ -241,7 +334,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 orden.Producto = null!;
                 orden.Destino = null!;
 
-                orden.FchVencimiento = orden.FchCierre?.AddDays(6);
+                orden.FchVencimiento = orden.FchCierre?.AddDays(5);
                 context.Add(orden);
 
                 await context.SaveChangesAsync(id, 1);
@@ -441,6 +534,272 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
 
                 return Ok(cierres);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("Folio/{Referencia}")]
+        public ActionResult GetPrecioByFolio([FromRoute] string referencia)
+        {
+            try
+            {
+                List<PrecioBolDTO> precios = new List<PrecioBolDTO>();
+
+                var ordenes = context.Orden.Where(x => x.Ref == referencia)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ToList();
+
+                if (ordenes is null || ordenes.Count == 0)
+                    return Ok(new List<PrecioBolDTO>() { new PrecioBolDTO() });
+
+                foreach (var item in ordenes)
+                {
+                    PrecioBolDTO precio = new PrecioBolDTO();
+
+                    OrdenEmbarque? orden = new OrdenEmbarque();
+                    orden = context.OrdenEmbarque.Where(x => x.FolioSyn == item.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
+
+                    precio.Fecha_De_Carga = item.Fchcar;
+
+                    precio.Referencia = item.Ref;
+                    precio.Folio = item.Folio;
+                    if (orden is not null)
+                    {
+                        if (orden.Producto is not null)
+                            precio.Producto_Original = orden.Producto.Den;
+
+                        if (orden.Destino is not null)
+                        {
+                            precio.Destino_Original = orden.Destino.Den;
+                            if (orden.Destino.Cliente is not null)
+                                if (!string.IsNullOrEmpty(orden.Destino.Cliente.Den))
+                                    precio.Cliente_Original = orden.Destino.Cliente.Den;
+
+                        }
+                    }
+
+                    precio.BOL = item.BatchId;
+                    precio.Volumen_Cargado = item.Vol;
+                    if (orden is not null)
+                    {
+                        if (orden.Destino is not null)
+                            precio.Destino_Original = orden.Destino.Den ?? "";
+
+                        if (orden.Producto is not null)
+                            precio.Producto_Original = orden.Producto.Den ?? "";
+                    }
+
+                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                        && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    if (precioHis is not null)
+                    {
+                        precio.Precio = precioHis.pre;
+                        precio.Fecha_De_Precio = precioHis.FchDia;
+                        precio.Precio_Encontrado = true;
+                        precio.Precio_Encontrado_En = "Historial";
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioHis.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioHis.Equibalencia ?? 1;
+                    }
+
+                    if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today)
+                    {
+                        precio.Precio = precioVig.Pre;
+                        precio.Fecha_De_Precio = precioVig.FchDia;
+                        precio.Precio_Encontrado = true;
+                        precio.Precio_Encontrado_En = "Vigente";
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioVig.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioVig.Equibalencia ?? 1;
+                    }
+
+                    if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
+                    {
+                        precio.Precio = precioPro.Pre;
+                        precio.Fecha_De_Precio = precioPro.FchDia;
+                        precio.Precio_Encontrado = true;
+                        precio.Precio_Encontrado_En = "Programado";
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioPro.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioPro.Equibalencia ?? 1;
+                    }
+
+                    if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
+                    {
+                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+
+                        if (ordenepedido is not null)
+                        {
+                            var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                             && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                            if (cierre is not null)
+                            {
+                                precio.Precio = cierre.Precio;
+                                precio.Fecha_De_Precio = cierre.fchPrecio;
+                                precio.Es_Cierre = true;
+                                precio.Precio_Encontrado = true;
+                                precio.Precio_Encontrado_En = "Cierre";
+                                //precio.Moneda = Enum.GetName(typeof(Moneda), cierre.Moneda ?? Moneda.NONE) ?? string.Empty;
+                                //precio.Tipo_De_Cambio = cierre.Equibalencia ?? 1;
+                            }
+                        }
+                    }
+
+                    precios.Add(precio);
+                }
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        //Selección de grupo-cliente para obtener precio
+        [HttpPost("fechasGroup")]
+        public ActionResult GetPrecioByGroup([FromBody] CierreDiarioDTO fechas)
+        {
+            try
+            {
+                List<PrecioBolDTO> precios = new List<PrecioBolDTO>();
+
+                //var ordenes = context.OrdenCierre.Where(x => x.CodGru == fechas.codGru && x.CodCte == fechas.codCte && x.FchCierre >= fechas.FchInicio && x.FchCierre <= fechas.FchFin && x.Folio.StartsWith("OP"));
+
+                var ordenes = context.Orden.Where(x => x.Fchcar >= fechas.FchInicio && x.Fchcar <= fechas.FchFin)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
+                    .ToList();
+
+                if (ordenes is null || ordenes.Count == 0)
+                    return Ok(new List<PrecioBolDTO>() { new PrecioBolDTO() });
+
+                foreach (var item in ordenes)
+                {
+                    PrecioBolDTO precio = new PrecioBolDTO();
+
+                    OrdenEmbarque? orden = new OrdenEmbarque();
+                    orden = context.OrdenEmbarque.Where(x => x.FolioSyn == item.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
+
+                    precio.Fecha_De_Carga = item.Fchcar;
+
+                    precio.Referencia = item.Ref;
+                    precio.Folio = item.Folio;
+                    if (orden is not null)
+                    {
+                        if (orden.Producto is not null)
+                            precio.Producto_Original = orden.Producto.Den;
+
+                        if (orden.Destino is not null)
+                        {
+                            precio.Destino_Original = orden.Destino.Den;
+                            if (orden.Destino.Cliente is not null)
+                                if (!string.IsNullOrEmpty(orden.Destino.Cliente.Den))
+                                    precio.Cliente_Original = orden.Destino.Cliente.Den;
+
+                        }
+                    }
+
+                    precio.BOL = item.BatchId;
+                    precio.Volumen_Cargado = item.Vol;
+                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
+                    if (orden is not null)
+                    {
+                        if (orden.Destino is not null)
+                            precio.Destino_Original = orden.Destino.Den ?? "";
+
+                        if (orden.Producto is not null)
+                            precio.Producto_Original = orden.Producto.Den ?? "";
+                    }
+
+                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                        && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
+                        .OrderByDescending(x => x.FchDia)
+                        .FirstOrDefault();
+
+                    if (precioHis is not null)
+                    {
+                        precio.Precio = precioHis.pre;
+                        precio.Fecha_De_Precio = precioHis.FchDia;
+                        precio.Precio_Encontrado = true;
+                        precio.Precio_Encontrado_En = "Historial";
+                        //precio.TipoVenta = precioHis.OrdenCierre.TipoPago;
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioHis.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioHis.Equibalencia ?? 1;
+                    }
+
+                    if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today)
+                    {
+                        precio.Precio = precioVig.Pre;
+                        precio.Fecha_De_Precio = precioVig.FchDia;
+                        precio.Precio_Encontrado = true;
+                        precio.Precio_Encontrado_En = "Vigente";
+                        //precio.TipoVenta = precioVig.OrdenCierre.TipoPago;
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioVig.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioVig.Equibalencia ?? 1;
+                    }
+
+                    if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
+                    {
+                        precio.Precio = precioPro.Pre;
+                        precio.Fecha_De_Precio = precioPro.FchDia;
+                        precio.Precio_Encontrado = true;
+                        //precio.TipoVenta = precioPro.OrdenCierre.TipoPago;
+                        precio.Precio_Encontrado_En = "Programado";
+                        //precio.Moneda = Enum.GetName(typeof(Moneda), precioPro.Moneda ?? Moneda.NONE) ?? string.Empty;
+                        //precio.Tipo_De_Cambio = precioPro.Equibalencia ?? 1;
+                    }
+
+                    if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
+                    {
+                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+
+                        if (ordenepedido is not null)
+                        {
+                            var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                             && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                            if (cierre is not null)
+                            {
+                                precio.Precio = cierre.Precio;
+                                precio.Fecha_De_Precio = cierre.fchPrecio;
+                                precio.Es_Cierre = true;
+                                precio.Precio_Encontrado = true;
+                                precio.Precio_Encontrado_En = "Cierre";
+                                //precio.TipoVenta = cierre.TipoPago;
+                                //precio.Moneda = Enum.GetName(typeof(Moneda), cierre.Moneda ?? Moneda.NONE) ?? string.Empty;
+                                //precio.Tipo_De_Cambio = cierre.Equibalencia ?? 1;
+                            }
+                        }
+                    }
+
+                    precios.Add(precio);
+                }
+
+                return Ok(precios);
             }
             catch (Exception e)
             {
@@ -1681,6 +2040,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           destino = x.Destino,
                           Producto = x.Producto,
                           FchCierre = x.FchCierre,
+                          FchCierre_Vencimiento = x.FchVencimiento,
                           Grupo = x.Grupo,
                           Estado = x.OrdenEmbarque.Estado.den,
                           Activa = x.Activa,

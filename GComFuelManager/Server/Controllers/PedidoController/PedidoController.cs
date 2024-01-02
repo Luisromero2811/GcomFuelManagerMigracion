@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Client.Shared;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Server.Migrations;
@@ -929,7 +929,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("verificar/carga/{ID_Cierre:int}")]
-        public async Task<ActionResult> VerifyVolumenAsignacion([FromBody] OrdenCierre orden, [FromRoute] int ID_Cierre)
+        public async Task<ActionResult> Verificar_Volumen_Creacion_Orden([FromBody] OrdenCierre orden, [FromRoute] int ID_Cierre)
         {
             try
             {
@@ -1197,7 +1197,7 @@ namespace GComFuelManager.Server.Controllers
                             FchCar = DateTime.Today,
                             FchCierre = DateTime.Today,
                             fchPrecio = DateTime.Now,
-                            FchVencimiento = DateTime.Today.AddDays(6),
+                            FchVencimiento = DateTime.Today.AddDays(5),
                             FchLlegada = DateTime.Today.AddDays(1),
                             Precio = ordercopy.Pre ?? 0,
                             CodDes = ordercopy.Coddes,
@@ -1400,7 +1400,7 @@ namespace GComFuelManager.Server.Controllers
                 ordenCierre.Cliente = null!;
 
                 ordenCierre.CodPed = ordenEmbarque.Cod;
-                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(6);
+                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(5);
 
                 context.Add(ordenCierre);
 

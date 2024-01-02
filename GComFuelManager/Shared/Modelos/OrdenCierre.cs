@@ -21,8 +21,13 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("Fecha de cierre"), NotMapped]
         public string? Fch { get { return FchCierre!.Value.ToString("dd/MM/yyyy"); } }
 
+        [EpplusIgnore, NotMapped]
+        public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         [DisplayName("BOL")]
         public string? BOL { get { return OrdenEmbarque is not null ? OrdenEmbarque.Orden is not null ? OrdenEmbarque.Orden.BatchId.ToString() : string.Empty : string.Empty; } }
+
+        [NotMapped, EpplusIgnore]
+        public Orden? Orden { get; set; } = null!;
 
         [DisplayName("Fecha de vencimiento"), NotMapped]
         public string? FchVen { get { return FchVencimiento?.ToString("dd/MM/yyyy"); } }
@@ -57,7 +62,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? TipoVenta { get; set; } = string.Empty;
 
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
-        public string? TipoPago { get; set; } = string.Empty;
+        public string? TipoPago { get; set; } = "Credito";
 
         [JsonPropertyName("precio"), DisplayName("Precio")]
         public double Precio { get; set; } = 0;
@@ -103,8 +108,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codPed"), EpplusIgnore]
         public int? CodPed { get; set; } = 0;
 
-        [EpplusIgnore, NotMapped]
-        public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
+
 
         [NotMapped, EpplusIgnore]
         public Contacto? ContactoN { get; set; } = null!;
@@ -123,6 +127,9 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped]
         public Grupo? Grupo { get; set; } = null!;
+
+        [EpplusIgnore, NotMapped]
+        public OrdenPedido? ordenPedido { get; set; } = null!;
 
         [EpplusIgnore, NotMapped]
         public bool IsCierreVolumen { get; set; } = true;
@@ -151,6 +158,17 @@ namespace GComFuelManager.Shared.Modelos
         public DateTime? fchPrecio { get; set; } = DateTime.Now;
         [DisplayName("Fecha de Precio"), NotMapped]
         public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
+
+        [DisplayName("Estado"), NotMapped]
+        public string? Estado_Pedido
+        {
+            get
+            {
+                return Activa == false ? "Cerrada" : OrdenEmbarque?.Orden != null ? OrdenEmbarque?.Orden?.Estado?.den
+                : OrdenEmbarque?.Estado != null ? OrdenEmbarque?.Estado?.den : "Activa";
+            }
+        }
+
         public OrdenCierre ShallowCopy()
         {
             return (OrdenCierre)this.MemberwiseClone();

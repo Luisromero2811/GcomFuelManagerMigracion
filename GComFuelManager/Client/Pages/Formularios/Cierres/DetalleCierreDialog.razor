@@ -12,21 +12,7 @@
     {
         <div class="col-12">
             <div class="col-12">
-                <div class="col-12 row mb-3">
-                    <div class="col-12">
-                        <b class="my-auto">
-                            @if (volumenDisponible.Productos.Count > 0)
-                            {
-                                @foreach (var item in volumenDisponible.Productos)
-                                {
-                                    <div class="col-12 row">
-                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                                    </div>
-                                }
-                            }
-                        </b>
-                    </div>
-                </div>
+                <VolumenesPedido volumenes="Producto_Volumen"/>
             </div>
             <div class="row justify-content-end">
                 <div class="col-6 d-flex justify-content-end">
@@ -63,15 +49,15 @@
                     <Template Context="data">
                         <div class="col-12 row">
                             <div class="col-1">
-                                @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                                @if (data?.Producto?.Cod == 25 || data?.Producto?.Cod == 26 || data?.Producto?.Cod == 27)
                                 {
                                     <div class="badge rounded-pill regular">&nbsp;</div>
                                 }
-                                else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                                else if (data?.Producto?.Cod == 11 || data?.Producto?.Cod == 12 || data?.Producto?.Cod == 116)
                                 {
                                     <div class="badge rounded-pill regular-vdm">&nbsp;</div>
                                 }
-                                else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                                else if (data?.Producto?.Cod == 19 || data?.Producto?.Cod == 20 || data?.Producto?.Cod == 21)
                                 {
                                     <div class="badge rounded-pill premium">&nbsp;</div>
                                 }
@@ -118,6 +104,8 @@
 @code {
     [Parameter] public string folio { get; set; } = string.Empty;
     [Parameter] public string? producto { get; set; } = string.Empty;
+    [Parameter] public int? ID_Cierre { get; set; } = 0;
+
     CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
     OrdenCierre OrdenCierre { get; set; } = new OrdenCierre();
 
@@ -131,10 +119,7 @@
 
     VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
 
-    private int? FullesRestantes { get; set; } = 0;
-    private int? ProductosRestantes { get; set; } = 0;
-    private int index { get; set; } = 0;
-    private int indexRow { get; set; } = 0;
+    List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
 
     bool loadingExport = false;
     bool loading = false;
@@ -147,30 +132,6 @@
     protected async override Task OnInitializedAsync()
     {
         await GetFiltroCierres();
-
-        foreach (var item in cierres!)
-        {
-            detalleCierres.Add(new DetalleCierreDTO
-                {
-                    OC = item.Folio,
-                    FolioReferencia = item?.OrdenEmbarque?.Folio.ToString(),
-                    Precio = item.Precio.ToString(),
-                    Volumen = item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Vol
-                            : item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom?.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom2?.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom3?.ToString())
-                            : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? double.Parse(item?.OrdenEmbarque?.Tonel?.Capcom4?.ToString())
-                            : item?.OrdenEmbarque?.Vol,
-                    Observaciones = item?.Observaciones,
-                    FchCierre = item?.FchCierre?.ToString("dd/MM/yyyy"),
-                    Destino = item?.Destino?.Den,
-                    Producto = item?.Producto?.Den,
-                    BOL = item?.OrdenEmbarque?.Orden?.BatchId.ToString(),
-                    Unidad = item?.OrdenEmbarque?.Tonel?.Veh,
-                    Estatus = item?.OrdenEmbarque?.Orden != null ? item.OrdenEmbarque?.Orden?.Estado?.den : item?.OrdenEmbarque?.Estado?.den,
-                    FchLlegada = item?.FechaLlegada
-                });
-        }
     }
 
     protected override async Task OnAfterRenderAsync(bool first)
@@ -199,16 +160,8 @@
                 filtro.Folio = folio;
                 filtro.forFolio = true;
 
-                var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    volumenDisponible = responseVolumen.Response;
-                }
+                await GetVolumenActivo();
+
                 ProductList = cierres.DistinctBy(x => x.Producto.Den).Select(x => x.Producto.Den);
 
                 ProductoSeleccionado = producto;
@@ -226,32 +179,42 @@
         {
             if (cierres != null)
             {
-                loadingExport = true;
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                var excel = new ExcelPackage();
-                var ws = excel.Workbook.Worksheets.Add("Cierre");
-                ws.Columns.Width = 50;
-                ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:L1"];
-                var ordenFilter = new List<DetalleCierreDTO>();
-                foreach (var item in detalleCierres)
-                    if (item.Producto == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
-                        ordenFilter.Add(item);
+                var response = await http.Post<List<OrdenCierre>, List<DetalleCierreDTO>>($"api/excel/reporte/detalle/cierre", cierres);
+                if (response.Error)
+                {
+                    var responseHttp = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    loadingExport = true;
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    var excel = new ExcelPackage();
+                    var ws = excel.Workbook.Worksheets.Add("Cierre");
+                    ws.Columns.Width = 50;
+                    ws.Columns.AutoFit();
 
-                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(ordenFilter, true);
-                tablebody.Style.Font.Size = 14;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                tablebody.Style.Font.Bold = true;
+                    var header = ws.Cells["A1:L1"];
+                    var ordenFilter = new List<DetalleCierreDTO>();
+                    foreach (var item in detalleCierres)
+                        if (item.Producto == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                            ordenFilter.Add(item);
 
-                header.Style.Font.Size = 14;
+                    var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(response.Response, true);
+                    tablebody.Style.Font.Size = 14;
+                    tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    tablebody.Style.Font.Bold = true;
 
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
-                header.Style.Font.Bold = true;
+                    header.Style.Font.Size = 14;
 
-                await js.GuardarComo($"Detalle_Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
-                loadingExport = false;
+                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                    header.Style.Font.Bold = true;
+
+                    await js.GuardarComo($"Detalle_Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
+                    loadingExport = false;
+                }
             }
             else
             {
@@ -288,6 +251,31 @@
             {
                 _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Folio"] = folio;
+            Volumen_Query["Cod"] = ID_Cierre.ToString() ?? string.Empty;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
         }
         catch (Exception e)
         {

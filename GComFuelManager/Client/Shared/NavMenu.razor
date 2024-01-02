@@ -247,11 +247,21 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="ReportesCierre">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Revision Precios" Context="ReportesCierre">
                         <RadzenPanelMenuItem Path="reporte/cierres" class="gcom-bg-rojo" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
                                     <i class="fa fa-solid fa-file-excel" aria-hidden="true"></i> Reportes Cierres
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="ReportesCierre">
+                        <RadzenPanelMenuItem Path="reporte/cierres/volumen" class="gcom-bg-rojo" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-file-excel" aria-hidden="true"></i> Reporte de Volumen de Cierres
                                 </div>
                             </Template>
                         </RadzenPanelMenuItem>
@@ -262,7 +272,7 @@
         </AuthorizeView>
 
         <!--Menú de órdenes-->
-        <AuthorizeView Roles="Admin, Administrador Sistema, Lectura Asignacion, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador" Context="Ordenes">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Lectura Asignacion, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -330,6 +340,26 @@
                             </Template>
                         </RadzenPanelMenuItem>
 
+                    </AuthorizeView>
+
+                    @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Analista Credito">
+                        <RadzenPanelMenuItem Path="/consulta/Orden" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Consulta de Orden
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>*@
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Revision Precios, Analista Credito">
+                        <RadzenPanelMenuItem Path="/consulta/ordencliente" class="gcom-bg-rojo col-12" Style="border:hidden">
+                           <Template>
+                               <div class="text-white">
+                                   <i class="fa-solid fa-list-check"></i>Reporte de órdenes / precios de venta
+                               </div>
+                           </Template>
+                        </RadzenPanelMenuItem>
                     </AuthorizeView>
 
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador">

@@ -281,6 +281,31 @@
                             @*<InputNumber class="form-control col-12" TValue="double" @bind-Value="@ordenCierre.Precio" disabled="true"></InputNumber>*@
                         </div>
                     </div>
+
+                    <div class="col-4 mb-1">
+                        <div class="col-12">
+                            <label>Tipo de pago</label>
+                            <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
+                                <option>-- Selecciona una opcion --</option>
+                                @if (TpPago is null)
+                                {
+                                    <option disabled> Cargando ...</option>
+                                }
+                                else if (TpPago.Count == 0)
+                                {
+                                    <option disabled> No hay tipos de pago</option>
+                                }
+                                else
+                                {
+                                    foreach (var item in TpPago)
+                                    {
+                                        <option value="@item">@item</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1 row">
                     @if (isEditing)
@@ -501,7 +526,7 @@
         overflow: auto;
         width: 100%;
         border: 1px solid #ccc;
-        max-height: 400px; /* Establece una altura máxima si es necesario */
+        max-height: 400px; /* Establece una altura mï¿½xima si es necesario */
     }
 
     th, td {
@@ -520,7 +545,7 @@
             top: 0;
             right: 0;
             bottom: 0;
-            width: 8px; /* Ancho del área de redimensionamiento */
+            width: 8px; /* Ancho del ï¿½rea de redimensionamiento */
             background: transparent;
         }
 
@@ -618,6 +643,7 @@
     public List<ListadoFolioDetalle> folioDetalles { get; set; } = new List<ListadoFolioDetalle>();
     private string folioSearch = string.Empty;
     private IList<ListadoFolioDetalle> foliosFiltro { get; set; } = new List<ListadoFolioDetalle>();
+    private List<string> TpPago { get; set; } = new List<string> { "Credito", "Contado", "Contraentrega" };
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
@@ -696,7 +722,7 @@
                     ShowCancelButton = true,
                     ConfirmButtonText = "Aceptar",
                     CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
+                    Text = "ï¿½Desea cancelar la orden?"
                 });
 
             if (!string.IsNullOrEmpty(confirm.Value))
@@ -1030,7 +1056,7 @@
                                 ordenCierre.CodPrd = response.Response.FirstOrDefault(x => x.CodPrd == Producto_Pedido)?.CodPrd;
                                 await GetPrecios();
                                 ordenCierre.Precio = response.Response.FirstOrDefault()?.Precio ?? 0;
-                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalle");
+                                var responseDetalle = await http.Get<List<OrdenCierre>>($"api/cierre/{filtro.Folio}/detalles");
                                 if (responseDetalle.Error)
                                 {
                                     var message = await responseDetalle.ObtenerMensajeError();
@@ -1105,7 +1131,7 @@
                             ShowCancelButton = true,
                             ConfirmButtonText = "Aceptar",
                             CancelButtonText = "Cancelar",
-                            Text = "Sobrepasara el volumen limite del cierre, ¿Quiere agregar esta orden?"
+                            Text = "Sobrepasara el volumen limite del cierre, ï¿½Quiere agregar esta orden?"
                         });
 
                     if (!string.IsNullOrEmpty(confirm.Value))
