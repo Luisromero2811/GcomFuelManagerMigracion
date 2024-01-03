@@ -657,11 +657,21 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             }
                         }
                     }
+                    if (item is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                    {
+                        precio.Precio = item.OrdenEmbarque!.Pre;
 
+                        if (item.OrdenCierre is not null)
+                            precio.Fecha_De_Precio = item.OrdenCierre.fchPrecio;
+
+                        precio.Es_Precio_De_Creacion = true;
+                        precio.Precio_Encontrado_En = "Creacion";
+                    }
                     precios.Add(precio);
                 }
 
                 return Ok(precios);
+              
             }
             catch (Exception e)
             {
