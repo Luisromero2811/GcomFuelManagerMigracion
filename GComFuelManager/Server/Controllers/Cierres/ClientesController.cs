@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -59,7 +59,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("{cod:int}")]
-        public async Task<ActionResult> GetByCod([FromRoute] int cod)
+        public ActionResult GetByCod([FromRoute] int cod)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult> GetAll()
+        public ActionResult GetAll()
         {
             try
             {
@@ -243,7 +243,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-
                 BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
@@ -392,9 +391,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
-
                                         context.Update(d);
-
                                     }
                                     else
                                     {
@@ -443,7 +440,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("buscar")]
-        public async Task<ActionResult> GetClienteBusqueda([FromQuery] CodDenDTO cliente)
+        public ActionResult GetClienteBusqueda([FromQuery] CodDenDTO cliente)
         {
             try
             {
@@ -451,7 +448,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (string.IsNullOrEmpty(cliente.Den))
                 {
-                    clientes = clientes.Where(x => x.Den.ToLower().Contains(cliente.Den.ToLower()));
+                    clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(cliente.Den.ToLower()));
                 }
 
                 var newclientes = clientes.Select(x => x.Den);
@@ -465,7 +462,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("buscarGrupo")]
-        public async Task<ActionResult> GetGrupoBusqueda([FromQuery] CodDenDTO grupo)
+        public ActionResult GetGrupoBusqueda([FromQuery] CodDenDTO grupo)
         {
             try
             {
@@ -473,7 +470,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (string.IsNullOrEmpty(grupo.Den))
                 {
-                    grupos = grupos.Where(x => x.Den.ToLower().Contains(grupo.Den.ToLower()));
+                    grupos = grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(grupo.Den.ToLower()));
                 }
 
                 var newgrupos = grupos.Select(x => x.Den);
@@ -486,5 +483,37 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("filtrar")]
+        public async Task<ActionResult> Filtrar_Clientes([FromQuery] CodDenDTO parametros)
+        {
+            try
+            {
+                var clientes = context.Cliente.AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.Den))
+                {
+                    clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(parametros.Den.ToLower()));
+                }
+
+                await HttpContext.InsertarParametrosPaginacion(clientes, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                clientes = clientes.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

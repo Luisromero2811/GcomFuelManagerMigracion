@@ -63,19 +63,6 @@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" Filterable="true" Property="Producto" />
-                                                @*<FilterTemplate Context="filter">
-                                                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true" AllowFiltering="true">
-                                                    <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="180" />
-                                                    </RadzenDropDown>
-                                                    </FilterTemplate>
-                                                    <Template Context="data">
-                                                    <div class="col-12 d-flex">
-                                                    <div class="col-11">
-                                                    @data.Producto
-                                                    </div>
-                                                    </div>
-                                                    </Template>
-                                                    </RadzenDataGridColumn>*@
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
                                             </Columns>
                                         </RadzenDataGrid>
@@ -103,7 +90,7 @@
                             <FluentValidationValidator Validator="validation" />
                             <ValidationSummary />
                             <div class="col-4 mb-2">
-                                <label class="form-label">Zona</label>
+                                <label>Zona</label>
                                 <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Zonas == null)
@@ -124,7 +111,7 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Grupo</label>
+                                <label>Grupo</label>
                                 <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Grupos == null)
@@ -145,7 +132,7 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Cliente</label>
+                                <label>Cliente</label>
                                 <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Clientes == null)
@@ -167,7 +154,7 @@
                             </div>
                             <div class="col-4 mb-1">
                                 <div class="col-12">
-                                    <label class="form-label">Destino</label>
+                                    <label>Destino</label>
                                     <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
                                         <option>-- Seleccione una opcion</option>
                                         @if (Destinos == null)
@@ -189,7 +176,7 @@
                                 </div>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Producto</label>
+                                <label>Producto</label>
                                 <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Productos == null)
@@ -210,12 +197,27 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Fecha</label>
+                                <label>Fecha</label>
                                 <InputDate @bind-Value="Precio.FchDia" class="form-control col-12" />
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Precio</label>
-                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" MaxLenght="10" />
+                                <label>Precio</label>
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
+                            </div>
+                            <div class="col-4">
+                                <div class="col-12">
+                                    <label>Moneda</label>
+                                    <select @bind="@Precio.ID_Moneda" class="form-select">
+                                        @foreach (var item in Monedas)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label>Tipo de cambio</label>
+                                <InputNumber TValue="double?" @bind-Value="Precio.Equibalencia" class="form-control col-12" />
                             </div>
                             <div class="col-12 d-flex ms-2 mt-2 justify-content-center row">
                                 <div class="col-4">
@@ -271,38 +273,37 @@
         <RadzenTabs RenderMode="TabRenderMode.Client" TabPosition="TabPosition" Change="@OnChangeIndex">
             <Tabs>
                 <RadzenTabsItem Text="Precios Vigentes">
-                    <div class="col-12">
-                        <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
+                    <div class="col-12 ancho overflow-scroll">
+                        <table class="table table-sm table-bordered table-hover">
                             <thead>
                                 <tr>
-
-                                    <th scope="col" width="100px">
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
-                                            <Authorized>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th>
                                                 Editar
-                                            </Authorized>
-                                        </AuthorizeView>
-                                    </th>
+                                            </th>
+                                        </Authorized>
+                                    </AuthorizeView>
 
-                                    <th scope="col">Fecha</th>
-                                    <th scope="col">Precio</th>
-                                    <th scope="col">Producto</th>
-                                    <th scope="col">Destino</th>
-                                    <th scope="col" width="150px">Zona</th>
-                                    <th scope="col">Cliente</th>
-
-                                    <th scope="col">
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
-                                            <Authorized>
+                                    <th>Fecha</th>
+                                    <th>Precio</th>
+                                    <th>Producto</th>
+                                    <th>Destino</th>
+                                    <th>Zona</th>
+                                    <th>Cliente</th>
+                                    <th>Moneda</th>
+                                    <th>Cambio</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th style="min-width:20px;width:200px;">
                                                 Habilitar / deshabilitar
-                                            </Authorized>
-                                        </AuthorizeView>
-                                    </th>
-
+                                            </th>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr style="height:50px;">
+                                <tr>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -319,11 +320,13 @@
                                         <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
                                     </td>
                                     <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 @if (precios is null)
                                 {
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="10">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -332,9 +335,9 @@
                                 {
                                     @foreach (var item in precios)
                                     {
-                                        <tr style="height:50px">
+                                        <tr>
 
-                                            <td width="100px">
+                                            <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                                     <div class="col-12">
                                                         <div class="col p-2">
@@ -362,17 +365,18 @@
                                             <td>
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
+                                            <td>@item?.Moneda?.Nombre</td>
+                                            <td>@(item?.Equibalencia ?? 1)</td>
                                             <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
                                                 </AuthorizeView>
                                             </td>
-
                                         </tr>
                                     }
 
@@ -380,7 +384,7 @@
                                 else if (precios?.Count == 0)
                                 {
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="10">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -388,7 +392,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="10">
                                         <div class="col-12 row">
                                             <div class="text-muted col-2">
                                                 <p>total de registros: @ConteoTotal</p>
@@ -404,35 +408,36 @@
                     </div>
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Precios Programados">
-                    <div class="col-12">
-                        <table class="table table-hover table-bordered table-sm table-responsive" style="max-height:600px;overflow:auto;width:100%">
+                    <div class="col-12 ancho overflow-scroll">
+                        <table class="table table-sm table-bordered table-hover">
                             <thead>
                                 <tr>
-                                    <th scope="col" width="100px">
+                                    <th>
                                         <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
                                             <Authorized>
                                                 Editar
                                             </Authorized>
                                         </AuthorizeView>
                                     </th>
-                                    <th scope="col">Fecha</th>
-                                    <th scope="col">Precio</th>
-                                    <th scope="col">Producto</th>
-                                    <th scope="col">Destino</th>
-                                    <th scope="col" width="150px">Zona</th>
-                                    <th scope="col">Cliente</th>
-                                    <th scope="col">
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
-                                            <Authorized>
+                                    <th>Fecha</th>
+                                    <th>Precio</th>
+                                    <th>Producto</th>
+                                    <th>Destino</th>
+                                    <th>Zona</th>
+                                    <th>Cliente</th>
+                                    <th>Moneda</th>
+                                    <th>Cambio</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                        <Authorized>
+                                            <th>
                                                 Habilitar / deshabilitar
-                                            </Authorized>
-                                        </AuthorizeView>
-                                    </th>
-
+                                            </th>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr style="height:50px;">
+                                <tr>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -449,11 +454,13 @@
                                         <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.cliente" />
                                     </td>
                                     <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 @if (preciosPro is null)
                                 {
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="10">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -462,9 +469,9 @@
                                 {
                                     @foreach (var item in preciosPro)
                                     {
-                                        <tr style="height:50px">
+                                        <tr>
 
-                                            <td width="100px">
+                                            <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                                     <div class="col-12">
                                                         <div class="col p-2">
@@ -492,19 +499,18 @@
                                             <td>
                                                 <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
-
-
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                                            <td>@item?.Moneda?.Nombre</td>
+                                            <td>@(item?.Equibalencia ?? 1)</td>
+                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                                                <td>
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
-                                                </AuthorizeView>
-                                            </td>
-
+                                                </td>
+                                            </AuthorizeView>
                                         </tr>
                                     }
 
@@ -512,7 +518,7 @@
                                 else if (preciosPro?.Count == 0)
                                 {
                                     <tr>
-                                        <td colspan="8">
+                                        <td colspan="10">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -520,7 +526,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="8">
+                                    <td colspan="10">
                                         <div class="col-12 row">
                                             <div class="text-muted col-2">
                                                 <p>total de registros: @ConteoTotalPro</p>
@@ -541,11 +547,11 @@
     </Authorized>
 </AuthorizeView>
 
-@*<style type="text/css">
-        .ancho {
-            width: @TotalWidth;
-        }
-    </style>*@
+<style type="text/css">
+    .ancho {
+        width: @TotalWidth;
+    }
+</style>
 
 @code {
     ElementReference infoIcon;
@@ -567,6 +573,7 @@
     List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
+    List<Moneda> Monedas { get; set; } = new List<Moneda>();
 
     private string Token { get; set; } = string.Empty;
 
@@ -594,8 +601,6 @@
     int width = 0;
     string TotalWidth = string.Empty;
     bool isClose = false;
-    DataGridSettings _settings;
-    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
     IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
 
@@ -621,6 +626,7 @@
         await GetProductos();
         await GetGrupos();
         await GetZonas();
+        await Obtener_Monedas();
         await LoadData();
         await LoadDataProgramados();
 
@@ -665,8 +671,18 @@
     {
         if (first)
         {
-            await LoadStateAsync();
-            StateHasChanged();
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
         }
     }
 
@@ -1018,12 +1034,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Generando reporte",
-                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Generando reporte",
+                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                            Duration = 15000
+                        });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -1083,12 +1099,12 @@
             }
             totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
 
@@ -1097,12 +1113,12 @@
                 count++;
 
                 Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = $"Enviando {count} de {totalcount}",
-                    Duration = 15000
-                });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = cliente;
@@ -1126,12 +1142,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al cliente {cliente}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
                     }
                 }
                 else if (clientes.TipoEnvio == 2)
@@ -1147,12 +1163,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al cliente {cliente}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
                     }
                 }
             }
@@ -1201,12 +1217,12 @@
             totalcount = grupos.Grupos.Count;
             //Alerta de que los correos se estan enviando
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
             //Por cada grupo seleccionado, se realiza la accion de mostrar las alertas y hacer la peticion para mandar el correo
@@ -1215,12 +1231,12 @@
                 count++;
                 //Enviando correo # de #...
                 Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = $"Enviando {count} de {totalcount}",
-                    Duration = 15000
-                });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = grupo;
@@ -1244,12 +1260,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
+                                Duration = 15000
+                            });
                     }
                 }
                 else if (grupos.TipoEnvio == 2)
@@ -1266,12 +1282,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al grupo {grupo}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al grupo {grupo}",
+                                Duration = 15000
+                            });
                     }
                 }
             }
@@ -1333,36 +1349,6 @@
                     else
                         Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
                 }
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task SaveStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            await js.SetItemLocalStorage("settingsPrecios", JsonConvert.SerializeObject(Settings));
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task LoadStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            var result = await js.GetItemLocalStorage("settingsPrecios");
-            if (!string.IsNullOrEmpty(result))
-            {
-                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
             }
         }
         catch (Exception e)
@@ -1444,5 +1430,25 @@
         PaginaActualPro = pagina;
         busquedaPreciosPro.pagina = PaginaActualPro;
         await LoadDataProgramados();
+    }
+
+    private async Task Obtener_Monedas()
+    {
+        try
+        {
+            var response = await http.Get<List<Moneda>>($"api/moneda");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Monedas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

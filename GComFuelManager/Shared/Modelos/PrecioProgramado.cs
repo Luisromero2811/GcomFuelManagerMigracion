@@ -23,6 +23,10 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("fchActualizacion"), EpplusIgnore] public DateTime FchActualizacion { get; set; } = DateTime.Now;
         [JsonProperty("fchDia"), EpplusIgnore] public DateTime FchDia { get; set; } = DateTime.Now;
         [JsonProperty("Activo"), EpplusIgnore] public bool Activo { get; set; } = true;
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
+        public double? Equibalencia { get; set; } = 1;
+
         [NotMapped, EpplusIgnore] public Zona? Zona { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;

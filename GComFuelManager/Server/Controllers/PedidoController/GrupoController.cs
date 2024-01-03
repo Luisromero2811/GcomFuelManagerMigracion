@@ -68,13 +68,16 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 grupo.Fch = DateTime.Now;
-                context.Add(grupo);
+                if (grupo.Cod == 0)
+                    context.Add(grupo);
+                else
+                    context.Update(grupo);
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,28);
+                await context.SaveChangesAsync(id, 28);
                 return Ok();
             }
             catch (Exception e)
@@ -85,10 +88,10 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("cliente")]
-        public async Task<ActionResult> AsignCliente([FromBody]Cliente cliente)
+        public async Task<ActionResult> AsignCliente([FromBody] Cliente cliente)
         {
             try
-            {   
+            {
                 if (cliente == null)
                 {
                     return NotFound();
@@ -98,6 +101,39 @@ namespace GComFuelManager.Server.Controllers
                 await context.SaveChangesAsync();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtrar")]
+        public async Task<ActionResult> Filtrar_Grupo([FromQuery] CodDenDTO parametros)
+        {
+            try
+            {
+                var clientes = context.Grupo.AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.Den))
+                {
+                    clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(parametros.Den.ToLower()));
+                }
+
+                await HttpContext.InsertarParametrosPaginacion(clientes, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                clientes = clientes.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(clientes);
             }
             catch (Exception e)
             {

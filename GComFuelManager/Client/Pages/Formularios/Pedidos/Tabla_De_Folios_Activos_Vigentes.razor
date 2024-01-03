@@ -126,6 +126,31 @@
     </tbody>
 </table>
 
+@* <div class="col-12">
+    <Tabla T="Folio_Activo_Vigente" Listado="Folios">
+        <Cabeceras>
+            <Cabecera_De_Tabla Nombre_Cabecera="Fecha de vigencia" />
+            <Cabecera_De_Tabla>
+                <Template_Cabecera>
+                    <b>Folio</b>
+                </Template_Cabecera>
+            </Cabecera_De_Tabla> 
+        </Cabeceras>
+        <Columna>
+            <Columna_De_Tabla>
+                <Template_Contenido>
+                    <div class="text-hidden-overflow">
+                        <p>
+                            @(context.Fecha_Cierre.ToShortDateString()) - @(context.Fecha_Vigencia.ToShortDateString())
+                        </p>
+                    </div>
+                </Template_Contenido>
+            </Columna_De_Tabla>
+            <Columna_De_Tabla Contenido="@context.Folio"/>
+        </Columna>
+    </Tabla>
+</div>
+ *@
 <style type="text/css">
     .ancho {
         width: contain;
@@ -255,7 +280,6 @@
     IList<Grupo> Grupos_Filtrados => Grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.Contains(Grupo_Filtrado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(Grupo_Filtrado)).ToList();
 
     Dictionary<string, string> queryParams = new Dictionary<string, string>();
-    private IJSObjectReference importedJs;
 
     protected async override Task OnInitializedAsync()
     {

@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Client.Shared;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Server.Migrations;
@@ -688,7 +688,7 @@ namespace GComFuelManager.Server.Controllers
                 cierre.Cliente = null!;
                 cierre.ContactoN = null!;
                 cierre.OrdenEmbarque = null!;
-                //cierre.OrdenPedidos = null!;
+                cierre.OrdenPedidos = null!;
 
                 context.Update(cierre);
 
@@ -705,6 +705,13 @@ namespace GComFuelManager.Server.Controllers
                     orden.OrdenCierre = null!;
                     orden.OrdenPedido = null!;
 
+                    orden.Codprd = cierre.CodPrd;
+                    orden.Coddes = cierre.CodDes;
+                    orden.Fchcar = cierre.FchCar;
+                    orden.Codtad = cierre.CodTad;
+                    orden.Vol = cierre.Volumen;
+                    orden.Pre = cierre.Precio;
+
                     context.Update(orden);
                 }
 
@@ -718,6 +725,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Destino)
                     .Include(x => x.Producto)
                     .Include(x => x.Cliente)
+                    .IgnoreAutoIncludes()
                     .FirstOrDefault();
 
                 return Ok(newOrden);
@@ -1072,14 +1080,29 @@ namespace GComFuelManager.Server.Controllers
                 OrdenEmbarque ordenEmbarque = new OrdenEmbarque();
                 OrdenPedido ordenPedido = new OrdenPedido();
 
-                var guid = Guid.NewGuid().ToString().Split("-");
-                var guidfolio = $"RE-{guid[4]}";
+                Cliente? Cliente = null!;
+                Grupo? Grupo = null!;
+
+                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
+                if (consecutivo is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Orden" };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                    consecutivo = Nuevo_Consecutivo;
+                }
+                else
+                {
+                    consecutivo.Numeracion++;
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+                }
+
+                var guidfolio = $"RE{DateTime.Now:yy}-{consecutivo.Numeracion:000000}";
 
                 foreach (var item in ordenes)
                 {
                     var ordercopy = item.ShallowCopy();
-
-                    var folioguid = Guid.NewGuid().ToString().Split("-");
 
                     var destino = context.Destino.FirstOrDefault(x => x.Cod == ordercopy.Coddes);
                     if (destino is null)
@@ -1183,7 +1206,8 @@ namespace GComFuelManager.Server.Controllers
                             CodPrd = ordercopy.Codprd,
                             CodTad = ordercopy.Codtad,
                             Volumen = int.Parse($"{ordercopy.Vol}"),
-
+                            Moneda = ordercopy.Moneda,
+                            Equibalencia = ordercopy.Equibalencia
                         };
 
                         context.Add(cierre);
@@ -1277,17 +1301,17 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-                //{
-                //    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
-                //    if (cierre is not null)
-                //    {
-                //        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
-                //        {
-                //            return BadRequest("El producto seleccionado no se encuentra en el cierre");
-                //        }
-                //    }
-                //}
+                if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                {
+                    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
+                    if (cierre is not null)
+                    {
+                        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
+                        {
+                            return BadRequest("El producto seleccionado no se encuentra en el cierre");
+                        }
+                    }
+                }
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
@@ -1300,7 +1324,7 @@ namespace GComFuelManager.Server.Controllers
 
                 //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
                 folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
-                && x.CodPed != 0 && x.FchCierre == DateTime.Today)?.Folio ?? string.Empty;
+                && x.CodPed != 0 && x.FchCierre == DateTime.Today && x.Estatus == true)?.Folio ?? string.Empty;
 
                 var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
                 if (user == null)
@@ -1308,19 +1332,33 @@ namespace GComFuelManager.Server.Controllers
 
                 if (string.IsNullOrEmpty(folio))
                 {
+                    var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                    if (consecutivo is null)
+                    {
+                        Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Folio" };
+                        context.Add(Nuevo_Consecutivo);
+                        await context.SaveChangesAsync();
+                        consecutivo = Nuevo_Consecutivo;
+                    }
+                    else
+                    {
+                        consecutivo.Numeracion++;
+                        context.Update(consecutivo);
+                        await context.SaveChangesAsync();
+                    }
+
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+
                     var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
 
                     if (cliente is null)
                         return BadRequest("No se encontro el cliente");
 
-                    cliente.Consecutivo = cliente.Consecutivo is not null ? cliente.Consecutivo + 1 : 1;
-
-                    var userCod = user?.Den?.Substring(0, 3);
-                    var guid = Guid.NewGuid().ToString().Split("-");
                     if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
-                        ordenCierre.Folio = $"O-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+                        ordenCierre.Folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
                     else
-                        ordenCierre.Folio = $"OP-{userCod ?? "Def"}{cliente.Consecutivo}-{guid[0]}";
+                        ordenCierre.Folio = $"OP{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
 
                 }
                 else
@@ -1346,7 +1384,9 @@ namespace GComFuelManager.Server.Controllers
                     Fchpet = DateTime.Now,
                     Fchcar = ordenCierre.FchCar,
                     Bin = count == 0 || bincount >= 2 ? ++bin : count % 2 == 0 ? ++bin : bin,
-                    Codusu = user?.Cod
+                    Codusu = user?.Cod,
+                    Moneda = ordenCierre.Moneda,
+                    Equibalencia = ordenCierre.Equibalencia
                 };
 
                 context.Add(ordenEmbarque);
@@ -1413,7 +1453,7 @@ namespace GComFuelManager.Server.Controllers
                 List<OrdenCierre> ordenCierres = new List<OrdenCierre>();
                 var orden_cierres_query = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento >= DateTime.Today
                 && x.CodPed == 0 && !x.Folio.StartsWith("RE") && x.Activa == true && x.Estatus == true)
-                    .Include(x=>x.Destino).Include(x=>x.Cliente).Include(x=>x.Producto).Include(x=>x.Grupo).OrderBy(x => x.FchCierre).AsQueryable();
+                    .Include(x => x.Destino).Include(x => x.Cliente).Include(x => x.Producto).Include(x => x.Grupo).OrderBy(x => x.FchCierre).IgnoreAutoIncludes().AsQueryable();
 
                 if (orden_cierres_query is not null)
                 {
@@ -1458,10 +1498,19 @@ namespace GComFuelManager.Server.Controllers
                     Producto = x.Producto,
                     Fecha_Vigencia = x.FchVencimiento ?? DateTime.MinValue,
                     ID_Cierre = x.Cod,
+                    ID_Producto = x.CodPrd,
                     Fecha_Cierre = x.FchCierre ?? DateTime.MinValue,
                     VolumenDisponibleDTO = x.VolumenDisponible,
                     Comentarios = x.Observaciones
                 });
+
+                foreach (var item in folios)
+                {
+                    var o = context.OrdenCierre.FirstOrDefault(x => x.Cod == item.ID_Cierre);
+                    if (o != null)
+                        if (o.CodGru != null)
+                            folios.FirstOrDefault(x => x.ID_Cierre == item.ID_Cierre).Grupo = context.Grupo.FirstOrDefault(x => x.Cod == o.CodGru);
+                }
 
                 return Ok(folios);
             }
@@ -1590,7 +1639,8 @@ namespace GComFuelManager.Server.Controllers
                             CodPrd = orden.Codprd,
                             CodTad = orden.Codtad,
                             Volumen = Convert.ToInt32(orden.Vol),
-
+                            Moneda = orden.Moneda,
+                            Equibalencia = orden.Equibalencia
                         };
 
                         context.Add(cierre);

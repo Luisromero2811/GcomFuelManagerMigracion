@@ -1,0 +1,82 @@
+﻿@if (Show)
+{
+    <div class="static">
+        <div class="alert @(notifyType == AlertNotifyType.Exito ? "success" : string.Empty) @(notifyType == AlertNotifyType.Error ? "danger" : string.Empty)
+@(notifyType == AlertNotifyType.Alerta ? "warning":string.Empty) @(notifyType == AlertNotifyType.Info ? "info": string.Empty) p-top sticky">
+            <span class="closebtn" @onclick="@(()=>Show = !Show)">&times;</span>
+            <strong>@Titulo</strong>
+            @if (Contenido is not null)
+            {
+                @Contenido
+            }
+            else
+            {
+                @Detalle
+            }
+        </div>
+    </div>
+
+}
+<style>
+    .alert {
+        padding: 20px;
+        background-color: #00b300;
+        color: white;
+        opacity: 1;
+        transition: opacity 0.6s;
+        z-index: 10;
+    }
+
+        .alert.success {
+            background-color: #04AA6D;
+        }
+
+        .alert.info {
+            background-color: #2196F3;
+        }
+
+        .alert.warning {
+            background-color: #ff9800;
+        }
+
+        .alert.danger {
+            background-color: #ff1a1a;
+        }
+
+        .alert.p-top {
+            top: 0;
+        }
+
+        .alert.sticky {
+            position: -webkit-sticky;
+            position: sticky;
+        }
+
+        .alert.static {
+            position: absolute;
+        }
+    /* The close button */
+    .closebtn {
+        margin-left: 15px;
+        color: white;
+        font-weight: bold;
+        float: right;
+        font-size: 22px;
+        line-height: 20px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+        /* When moving the mouse over the close button */
+        .closebtn:hover {
+            color: black;
+        }
+</style>
+
+@functions {
+    [Parameter] public bool Show { get; set; } = false;
+    [Parameter] public string Detalle { get; set; } = string.Empty;
+    [Parameter] public string Titulo { get; set; } = string.Empty;
+    [Parameter] public RenderFragment Contenido { get; set; } = null!;
+    [Parameter] public AlertNotifyType notifyType { get; set; }
+}

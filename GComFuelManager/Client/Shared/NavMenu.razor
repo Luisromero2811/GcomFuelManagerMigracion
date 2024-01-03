@@ -141,6 +141,29 @@
                         </RadzenPanelMenuItem>
 
                     </AuthorizeView>
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial" Context="Monedas">
+                        <RadzenPanelMenuItem Path="configuracion/moneda" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-coins" aria-hidden="true"></i> Moneda
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+
+                    </AuthorizeView>
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AsignarCliDest">
+                        <RadzenPanelMenuItem Path="configuracion/generacion/folios" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-marker" aria-hidden="true"></i> Generacion de folios
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+
+                    </AuthorizeView>
+
                 </ChildContent>
             </RadzenPanelMenuItem>
 
@@ -272,6 +295,16 @@
                             <Template>
                                 <div class="text-white">
                                     <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes de pedido
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+                        <RadzenPanelMenuItem Path="ordenes/copiadas" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Confirmar ordenes copiadas
                                 </div>
                             </Template>
                         </RadzenPanelMenuItem>
