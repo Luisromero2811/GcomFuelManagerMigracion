@@ -77,7 +77,9 @@
             </div>
         </div>
     </div>
-
+    <div>
+        Total de registros: @ordens?.Count()
+    </div>
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
@@ -190,11 +192,12 @@
                         {
                             <div class="col-12">
                                 @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                               data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                               : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                               : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                               : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                               : data?.Vol2
+                               //data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                               //: data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                               //: data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                               //: data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                               //:
+                               data?.Vol2
                                )
                             </div>
                         }
@@ -219,11 +222,12 @@
                         {
                             <div class="col-12">
                                 @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                 data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                               : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                               : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                               : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                               : data?.Vol)
+                               //  data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
+                               //: data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
+                               //: data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
+                               //: data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
+                              // :
+                               data?.Vol)
                             </div>
                         }
 
@@ -241,6 +245,7 @@
             </Columns>
         </RadzenDataGrid>
     </div>
+
 </AuthorizeView>
 <style type="text/css">
     .ancho {
@@ -414,7 +419,7 @@
                                 Transportista = item?.Tonel?.Transportista?.Den,
                                 Unidad = item?.Tonel?.Veh,
                                 Operador = item?.Chofer?.Den,
-                            }); ;
+                            }); 
                     }
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     var excel = new ExcelPackage();

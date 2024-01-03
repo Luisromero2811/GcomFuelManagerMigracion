@@ -48,6 +48,7 @@ namespace GComFuelManager.Shared.Modelos
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
 
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
-
-    }
+        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
+        [NotMapped] public Producto? Producto { get; set; } = null!;
+     }
 }
