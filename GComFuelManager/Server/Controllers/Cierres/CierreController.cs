@@ -308,7 +308,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == orden.CodCte);
+                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == orden.CodGru);
 
                     orden.TipoVenta = Grupo?.Tipven;
 
