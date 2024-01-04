@@ -934,7 +934,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                     precio.Precio_Encontrado_En = "Creacion";
                 }
 
-                return Ok(precios);
+                precio.Moneda = !string.IsNullOrEmpty(precio.Moneda) ? precio.Moneda : "MXN";
+
+                return Ok(precio);
             }
             catch (Exception e)
             {
@@ -1095,7 +1097,7 @@ namespace GComFuelManager.Server.Controllers.Precios
             public bool Precio_Encontrado { get; set; } = false;
             public string Precio_Encontrado_En { get; set; } = string.Empty;
             public double Tipo_De_Cambio { get; set; } = 1;
-            public string? Moneda { get; set; } = string.Empty;
+            public string? Moneda { get; set; } = "MXN";
             public string? Cliente_Original { get; set; } = string.Empty;
             public double? Volumen_Cargado { get; set; } = 0;
         }
