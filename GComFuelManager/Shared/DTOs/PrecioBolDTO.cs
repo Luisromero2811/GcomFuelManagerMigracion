@@ -49,9 +49,9 @@ namespace GComFuelManager.Shared.DTOs
         public double? Volumen_Cargado { get; set; } = 0;
         [DisplayName("Precio")]
         public double? Precio { get; set; } = 0;
-        [DisplayName("Tipo de venta")]
-        //public string? TipoVenta { get { return OrdenCierre!.TipoPago; } }
-        public string TipoVenta { get; set; } = string.Empty;
+        //[DisplayName("Tipo de venta")]
+        ////public string? TipoVenta { get { return OrdenCierre!.TipoPago; } }
+        //public string TipoVenta { get; set; } = string.Empty;
 
         //Grupo-Cliente
         [EpplusIgnore]
