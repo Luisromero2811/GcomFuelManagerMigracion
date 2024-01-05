@@ -8,11 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference10;
-using System.Linq;
-using System.Security.Claims;
-using System.Text.RegularExpressions;
-using static GComFuelManager.Server.Controllers.Precios.PrecioController;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -271,13 +266,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (orden is null)
                     return BadRequest("No se aceptan ordenes vacios");
 
-                Cliente? Cliente = null!;
-                Grupo? Grupo = null!;
+                Cliente? Cliente = new();
+                Grupo? Grupo = new();
 
                 var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
                 if (consecutivo is null)
                 {
-                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Folio" };
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
                     context.Add(Nuevo_Consecutivo);
                     await context.SaveChangesAsync();
                     consecutivo = Nuevo_Consecutivo;
@@ -308,7 +303,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == orden.CodCte);
+                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == orden.CodGru);
 
                     orden.TipoVenta = Grupo?.Tipven;
 
@@ -727,7 +722,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
-                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
+                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago ?? string.Empty;
                     if (orden is not null)
                     {
                         if (orden.Destino is not null)
@@ -2756,7 +2751,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                List<OrdenEmbarque> embarques = new List<OrdenEmbarque>();
+                List<OrdenEmbarque> embarques = new();
 
                 if (cierre is null)
                     return BadRequest("No se envio cierre para crear ordenes");
@@ -2780,14 +2775,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 //if ((cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada) > newCierre.GetVolumenDisponible())
                 //    return BadRequest($"No tiene suficiente volumen disponible. Disponible: {cierre.GetVolumenDisponible()}. Solicitado: {cierre.Volumen_Por_Unidad * cierre.Cantidad_Confirmada}");
 
-                Cliente? Cliente = null!;
-                Grupo? Grupo = null!;
+                Cliente? Cliente = new();
+                Grupo? Grupo = new();
                 string folio = string.Empty;
 
                 var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
                 if (consecutivo is null)
                 {
-                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Orden" };
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Orden" };
                     context.Add(Nuevo_Consecutivo);
                     await context.SaveChangesAsync();
                     consecutivo = Nuevo_Consecutivo;
@@ -2818,7 +2813,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
                 else
                 {
-                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == cierre.CodCte);
+                    Grupo = context.Grupo.FirstOrDefault(x => x.Cod == cierre.CodGru);
 
                     cierre.TipoVenta = Grupo?.Tipven;
 
@@ -3008,7 +3003,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 return Ok(crear_Orden_Template_DTO);
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
                 return BadRequest("Parametros vacios");
             }
@@ -3129,7 +3124,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 return Ok(crear_Orden_Template_DTO);
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
                 return BadRequest("Parametros vacios");
             }
@@ -3177,7 +3172,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 return Ok(crear_Orden_Template_DTO);
             }
-            catch (ArgumentNullException e)
+            catch (ArgumentNullException)
             {
                 return BadRequest("Parametros vacios");
             }
