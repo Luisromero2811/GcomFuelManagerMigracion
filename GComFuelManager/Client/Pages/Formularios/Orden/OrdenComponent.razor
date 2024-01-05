@@ -58,18 +58,9 @@
             <div class="col-12">
                 <div class="col-12 row mb-3">
                     <div class="col-12 d-flex">
-                        @if (cierres.Count > 0)
-                        {
-                            @if (volumenDisponible.Productos.Count > 0)
-                            {
-                                <div class="col-12 row">
-                                    @foreach (var item in volumenDisponible.Productos)
-                                    {
-                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado :@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                                    }
-                                </div>
-                            }
-                        }
+                        <div class="col-12">
+                            <VolumenesPedido volumenes="Producto_Volumen" />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -316,6 +307,8 @@
     string TotalWidth = string.Empty;
     bool isClose = false;
 
+    List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
+
     protected async override Task OnInitializedAsync()
     {
         var cm = await js.GetItemLocalStorage("CloseMenu");
@@ -434,17 +427,8 @@
                             }
                         }
 
-                        var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                        if (response.Error)
-                        {
-                            var message = await response.ObtenerMensajeError();
-                            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            loadingBuscar = false;
-                        }
-                        else
-                        {
-                            volumenDisponible = responseVolumen.Response;
-                        }
+                        await GetVolumenActivo();
+
                         ProductList = cierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                         DestinoList = cierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                         //StateHasChanged();
@@ -628,6 +612,30 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
             throw e;
+        }
+    }
+
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Folio"] = filtro.Folio;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
 }

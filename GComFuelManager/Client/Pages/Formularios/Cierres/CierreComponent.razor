@@ -54,117 +54,6 @@
                                     </div>
                                     @*</div>*@
                                 </div>
-                                <div class="col-12 row mt-2">
-                                    <!--<div class="col-2">
-                                        <div class="col-12">
-                                            <label>Grupo</label>-->
-                                    @*<InputSelect @bind-Value="GrupoSeleccionadoFiltro" class="form-select" onchange="@GetClientesFiltro()">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (Grupos is null)
-                                    {
-                                    <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Grupos.Count() == 0)
-                                    {
-                                    <option disabled> No hay grupos</option>
-                                    }
-                                    else
-                                    {
-                                    foreach (var item in Grupos)
-                                    {
-                                    <option value="@item.Cod">@item.Den</option>
-                                    }
-                                    }
-                                    </InputSelect>*@
-                                    <!--<RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="GrupoSeleccionadoFiltro"
-                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
-                                                            AllowVirtualization="true" Change="@GetClientesFiltro" onchange="@GetClientesFiltro()" />
-                                        </div>
-                                    </div>-->
-                                    <!--<div class="col-2">
-                                        <div class="col-12">
-                                            <label>Cliente</label>-->
-                                    @*<InputSelect @bind-Value="filtro.codCte" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (ClientesFiltro is null)
-                                    {
-                                    <option disabled> Cargando ...</option>
-                                    }
-                                    else if (ClientesFiltro.Count == 0)
-                                    {
-                                    <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                    foreach (var item in ClientesFiltro)
-                                    {
-                                    <option value="@item.Cod">@item.Den</option>
-                                    }
-                                    }
-                                    </InputSelect>*@
-                                    <!--<RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="filtro.codCte"
-                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                            AllowVirtualization="true" AllowClear="true" />
-                                        </div>
-                                    </div>-->
-                                    @*<div class="col-2">
-                                    <label>Año</label>
-                                    <InputSelect @bind-Value="añoSeleccionado" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (años is null)
-                                    {
-                                    <option disabled> Cargando ...</option>
-                                    }
-                                    else if (años.Count == 0)
-                                    {
-                                    <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                    foreach (var item in años)
-                                    {
-                                    <option value="@item">@item</option>
-                                    }
-                                    }
-                                    </InputSelect>
-                                    </div>
-                                    <div class="col-2">
-                                    <label>Mes</label>
-                                    <InputSelect @bind-Value="mesSeleccionado" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (meses is null)
-                                    {
-                                    <option disabled> Cargando ...</option>
-                                    }
-                                    else if (meses.Count == 0)
-                                    {
-                                    <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                    foreach (var item in meses)
-                                    {
-                                    <option value="@item.Cod">@item.Den.ToUpper()</option>
-                                    }
-                                    }
-                                    </InputSelect>
-                                    </div>*@
-                                    @*<div class="col-2 mt-auto">
-                                    <div class="col-12 mt-auto">
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>GetFiltroCierres(false))">
-                                    <i class="fa fa-solid fa-magnifying-glass"></i>
-                                    </button>
-                                    </div>
-                                    </div>*@
-                                    @*<div class="col-2 mt-auto">
-                                    <div class="col-12 mt-auto">
-                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@OpenModall">
-                                    <i class="fa fa-solid fa-magnifying-glass"></i>
-                                    Ver cierres
-                                    </button>
-                                    </div>
-                                    </div>*@
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -393,14 +282,14 @@
                                         </div>
 
                                         @* <div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
-                                                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                </label>
-                                                <div class="col-12">
-                                                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
-                                                </div>
-                                            </div>
+                                        <div class="col-12">
+                                        <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                        </label>
+                                        <div class="col-12">
+                                        <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                                        </div>
+                                        </div>
                                         </div> *@
 
                                         <div class="col-12 mb-1">
@@ -563,7 +452,7 @@
                             <div class="col-12">
                                 @*@item.ordenPedido?.OrdenEmbarque?.Estado?.den*@
                                 @(data.Activa == false ? "Cerrada" : data.OrdenEmbarque?.Orden != null ? data.OrdenEmbarque?.Orden?.Estado?.den
-                                            : data?.OrdenEmbarque?.Estado != null ? data?.OrdenEmbarque?.Estado?.den : "Activa")
+                                    : data?.OrdenEmbarque?.Estado != null ? data?.OrdenEmbarque?.Estado?.den : "Activa")
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
@@ -574,17 +463,11 @@
             {
                 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Revision Precios" Context="Listado">
                     <Authorized>
-                        @if (isFilter is true && ordenCierres.Count > 0)
+                        @if (isFilter is true)
                         {
-                            @if (volumenDisponible.Productos.Count > 0)
-                            {
-                                <div class="col-12 row">
-                                    @foreach (var item in volumenDisponible.Productos)
-                                    {
-                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                                    }
-                                </div>
-                            }
+                            <div class="col-12">
+                                <VolumenesPedido volumenes="Producto_Volumen" />
+                            </div>
                         }
                     </Authorized>
                 </AuthorizeView>
@@ -700,8 +583,6 @@
 
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
-    VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
-
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     private List<CodDenDTO> ClientesFiltro { get; set; } = new List<CodDenDTO>();
 
@@ -776,26 +657,12 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
-    private ClaimsPrincipal User { get; set; } = null!;
+    List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-
-            var authState = await auth.GetAuthenticationStateAsync();
-            if (authState is not null)
-                User = authState.User;
-
-            var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
-            months.RemoveAt(months.IndexOf(months.Last()));
-            var i = 1;
-            foreach (var item in months)
-            {
-
-                meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
-                i++;
-            }
             await GetGrupos();
             await GetYears();
             await GetCantidades();
@@ -1089,32 +956,8 @@
                     else
                     {
                         ordenCierres = response.Response;
-                        if (monthFilter)
-                        {
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/mes", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
-                        else
-                        {
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
+
+                        await GetVolumenActivo();
 
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                         DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
@@ -1660,4 +1503,27 @@
         }
     }
 
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Folio"] = filtro.Folio;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

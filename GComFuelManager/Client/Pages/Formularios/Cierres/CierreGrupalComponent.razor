@@ -333,17 +333,12 @@
             {
                 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo, Revision Precios" Context="Listado">
                     <Authorized>
-                        @if (isFilter is true && ordenCierres.Count > 0)
-                        {
-                            @if (volumenDisponible.Productos.Count > 0)
-                            {
-                                <div class="col-12 row">
-                                    @foreach (var item in volumenDisponible.Productos)
-                                    {
-                                        <p>@(item.Nombre) | Total : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Total) | Disponible : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Disponible) | Solicitado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Solicitud) | Programado : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Programado) | Espera Carga : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Congelado) | Consumido : @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @item.Consumido)</p>
-                                    }
-                                </div>
-                            }
+                        @if(isFilter is true){
+                            <div class="col-12">
+                            <div class="col-12">
+                                <VolumenesPedido volumenes="Producto_Volumen" />
+                            </div>
+                        </div>                            
                         }
                     </Authorized>
                 </AuthorizeView>
@@ -462,8 +457,6 @@
 
     RadzenDataGrid<OrdenCierre> grid { get; set; } = new RadzenDataGrid<OrdenCierre>();
 
-    VolumenDisponibleDTO volumenDisponible { get; set; } = new VolumenDisponibleDTO();
-
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     private List<CodDenDTO> ClientesFiltro { get; set; } = new List<CodDenDTO>();
 
@@ -538,7 +531,7 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
-    private ClaimsPrincipal User { get; set; } = null!;
+    List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -803,120 +796,12 @@
         }
     }
 
-    private async Task GetFiltroCierress(bool forFolio)
-    {
-        //  var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtroMensualGrupo", filtro);
-        try
-        {
-            ordenCierres = new List<OrdenCierre>();
-            isFilter = true;
-            monthFilter = false;
-
-            if (!forFolio)
-            {
-                if (mesSeleccionado != 0 && añoSeleccionado != 0)
-                {
-
-                    int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-                    filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-                    filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
-                    monthFilter = true;
-                }
-                else
-                {
-                    await Swal.FireAsync("Alerta", "De tener datos para filtrar.", SweetAlertIcon.Warning);
-                    return;
-                }
-            }
-
-            if (filtro != null)
-            {
-                var response = await http.Post<CierreFiltroDTO, List<OrdenCierre>>("api/cierre/filtroMensualGrupo", filtro);
-                //var response = await http.Get<List<OrdenCierre>>($"api/cierre/get/{filtro.Folio}");
-                if (response != null)
-                {
-                    if (response.Error)
-                    {
-                        var message = await response.ObtenerMensajeError();
-                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        ordenCierres = response.Response;
-                        if (monthFilter)
-                        {
-                            int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-                            filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-                            filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
-                            monthFilter = true;
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/mes", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
-                        else
-                        {
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
-
-                        ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
-                        DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
-                        //StateHasChanged();
-                        if (ordenCierres is not null && ordenCierres.Count > 0)
-                            foreach (var item in ordenCierres)
-                                if (item.Tiene_Volumen_Disponible)
-                                    Can_Make_Orden = true;
-                    }
-                }
-            }
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
     private async Task GetFiltroCierres(bool forFolio)
     {
         try
         {
             ordenCierres = new List<OrdenCierre>();
             isFilter = true;
-            monthFilter = false;
-
-            //if (!forFolio)
-            //{
-            //    if (mesSeleccionado != 0 && añoSeleccionado != 0)
-            //    {
-
-            //        int fchFin = DateTime.DaysInMonth(Convert.ToInt32(mesSeleccionado), mesSeleccionado);
-            //        filtro.FchInicio = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, 1);
-            //        filtro.FchFin = new DateTime(Convert.ToInt32(añoSeleccionado), mesSeleccionado, fchFin).AddHours(11).AddMinutes(59).AddSeconds(59);
-            //        monthFilter = true;
-            //    }
-            //    else
-            //    {
-            //        await Swal.FireAsync("Alerta", "xpara filtrar.", SweetAlertIcon.Warning);
-            //        return;
-            //    }
-            //}
 
             if (filtro != null)
             {
@@ -933,32 +818,8 @@
                     else
                     {
                         ordenCierres = response.Response;
-                        if (monthFilter)
-                        {
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen/mes", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
-                        else
-                        {
-                            var responseVolumen = await http.Post<CierreFiltroDTO, VolumenDisponibleDTO>($"api/cierre/volumen", filtro);
-                            if (response.Error)
-                            {
-                                var message = await response.ObtenerMensajeError();
-                                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                            }
-                            else
-                            {
-                                volumenDisponible = responseVolumen.Response;
-                            }
-                        }
+
+                        await GetVolumenActivo();
 
                         ProductList = ordenCierres?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                         DestinoList = ordenCierres?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
@@ -1438,4 +1299,28 @@
         }
     }
 
+    private async Task GetVolumenActivo()
+    {
+        try
+        {
+            Dictionary<string, string> Volumen_Query = new Dictionary<string, string>();
+
+            Volumen_Query["Folio"] = filtro.Folio;
+            // Volumen_Query["Cod"] = ID_Cierre.ToString() ?? string.Empty;
+
+            var url = Constructor_De_URL_Parametros.Generar_URL(Volumen_Query);
+            var response = await http.Get<List<ProductoVolumen>>($"api/volumen?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+                Producto_Volumen = response.Response;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

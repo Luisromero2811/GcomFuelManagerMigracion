@@ -282,30 +282,6 @@
                         </div>
                     </div>
 
-                    <div class="col-4 mb-1">
-                        <div class="col-12">
-                            <label>Tipo de pago</label>
-                            <InputSelect @bind-Value="ordenCierre.TipoPago" class="form-select">
-                                <option>-- Selecciona una opcion --</option>
-                                @if (TpPago is null)
-                                {
-                                    <option disabled> Cargando ...</option>
-                                }
-                                else if (TpPago.Count == 0)
-                                {
-                                    <option disabled> No hay tipos de pago</option>
-                                }
-                                else
-                                {
-                                    foreach (var item in TpPago)
-                                    {
-                                        <option value="@item">@item</option>
-                                    }
-                                }
-                            </InputSelect>
-                        </div>
-                    </div>
-
                 </div>
                 <div class="col-12 d-flex justify-content-center mt-1 row">
                     @if (isEditing)

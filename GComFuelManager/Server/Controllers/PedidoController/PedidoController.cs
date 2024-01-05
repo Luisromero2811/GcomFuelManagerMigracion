@@ -269,10 +269,10 @@ namespace GComFuelManager.Server.Controllers
                 else if (fechas.Estado == 2)
                 {
                     //List<Orden> pedidosDate = new List<Orden>();
-                    List<Orden> newOrden = new List<Orden>();
+                    List<Orden> newOrden = new();
                     //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
                     var pedidosDate = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20 && x.Tonel!.Transportista.Activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Estado)
@@ -284,7 +284,6 @@ namespace GComFuelManager.Server.Controllers
                      .OrderBy(x => x.Fchcar)
                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
                     //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
-
                     .Take(10000)
                     .ToListAsync();
                     // pedidosDate.OrderByDescending(x => x.Fchcar);
@@ -1074,19 +1073,19 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
-                List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
-                OrdenCierre? ordenCierre = new OrdenCierre();
-                OrdenEmbarque ordenEmbarque = new OrdenEmbarque();
-                OrdenPedido ordenPedido = new OrdenPedido();
+                List<OrdenCierre> cierres = new();
+                List<OrdenEmbarque> ordenEmbarques = new();
+                OrdenCierre? ordenCierre = new();
+                OrdenEmbarque ordenEmbarque = new();
+                OrdenPedido ordenPedido = new();
 
-                Cliente? Cliente = null!;
-                Grupo? Grupo = null!;
+                Cliente? Cliente = new();
+                Grupo? Grupo = new();
 
                 var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
                 if (consecutivo is null)
                 {
-                    Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Orden" };
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Orden" };
                     context.Add(Nuevo_Consecutivo);
                     await context.SaveChangesAsync();
                     consecutivo = Nuevo_Consecutivo;
@@ -1335,7 +1334,7 @@ namespace GComFuelManager.Server.Controllers
                     var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
                     if (consecutivo is null)
                     {
-                        Consecutivo Nuevo_Consecutivo = new Consecutivo { Numeracion = 1, Nombre = "Folio" };
+                        Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
                         context.Add(Nuevo_Consecutivo);
                         await context.SaveChangesAsync();
                         consecutivo = Nuevo_Consecutivo;
@@ -1373,7 +1372,7 @@ namespace GComFuelManager.Server.Controllers
                 var count = context.OrdenCierre.Count(x => x.Folio == folio && x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte
                 && x.CodPrd == ordenCierre.CodPrd);
 
-                OrdenEmbarque ordenEmbarque = new OrdenEmbarque()
+                OrdenEmbarque ordenEmbarque = new()
                 {
                     Codest = 9,
                     Codtad = ordenCierre.CodTad,
@@ -1410,15 +1409,21 @@ namespace GComFuelManager.Server.Controllers
                 {
                     var cierre = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenCierre.Folio_Perteneciente);
 
-                    OrdenPedido ordenPedido = new OrdenPedido()
+                    if (cierre is not null)
                     {
-                        CodPed = ordenEmbarque.Cod,
-                        CodCierre = cierre?.Cod ?? 0,
-                        Folio = ordenCierre.Folio_Perteneciente,
-                    };
+                        ordenCierre.TipoPago = cierre.TipoPago ?? string.Empty;
+                        context.Update(ordenCierre);
 
-                    context.Add(ordenPedido);
-                    await context.SaveChangesAsync();
+                        OrdenPedido ordenPedido = new()
+                        {
+                            CodPed = ordenEmbarque.Cod,
+                            CodCierre = cierre?.Cod ?? 0,
+                            Folio = ordenCierre.Folio_Perteneciente,
+                        };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
+                    }
                 }
 
                 var newOrden = context.OrdenCierre.Where(x => x.Cod == ordenCierre.Cod)
@@ -1508,8 +1513,8 @@ namespace GComFuelManager.Server.Controllers
                 {
                     var o = context.OrdenCierre.FirstOrDefault(x => x.Cod == item.ID_Cierre);
                     if (o != null)
-                        if (o.CodGru != null)
-                            folios.FirstOrDefault(x => x.ID_Cierre == item.ID_Cierre).Grupo = context.Grupo.FirstOrDefault(x => x.Cod == o.CodGru);
+                        if (o.CodGru != null && folios.FirstOrDefault(x => x.ID_Cierre == item.ID_Cierre) is not null)
+                            folios.First(x => x.ID_Cierre == item.ID_Cierre).Grupo = context.Grupo.FirstOrDefault(x => x.Cod == o.CodGru);
                 }
 
                 return Ok(folios);
