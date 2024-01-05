@@ -112,7 +112,7 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterCliente" @bind="Grupo_Filtrado" /></td>
+                                        <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterGrupo" @bind="Grupo_Filtrado" /></td>
                                         <td></td>
                                         <td></td>
                                     </tr>
@@ -238,7 +238,7 @@
     {
         Cliente_Filtrado = e.Value.ToString();
         queryParams_Grupo["Den"] = Cliente_Filtrado ?? string.Empty;
-        await GetClientes();
+        await GetGrupos();
     }
 
     private async Task GetClientes()

@@ -37,6 +37,16 @@
             <i class="fa fa-solid fa-file-excel"></i> Exportar
         </button>
     </div>
+    <div class="col-12 row">
+        <div class="col-4">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" @bind="@Incluir_Cancelados" id="Incluir_Cancelados">
+                <label class="form-check-label" for="Incluir_Cancelados">
+                    Incluir pedidos cerrados
+                </label>
+            </div>
+        </div>
+    </div>
 </div>
 <RadzenDataGrid TItem="FolioCierreGrupalDTO" Data="@Folios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -96,7 +106,7 @@
         <RadzenDataGridColumn TItem="FolioCierreGrupalDTO" Title="Estado" Filterable="false" Width="130px">
             <Template Context="data">
                 @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
-                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+                    : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
             </Template>
         </RadzenDataGridColumn>
         <!--Precio Volumen y observaciones-->
@@ -137,7 +147,7 @@
     RadzenDataGrid<FolioCierreGrupalDTO> grid { get; set; } = new RadzenDataGrid<FolioCierreGrupalDTO>();
 
     bool loading = false;
-
+    bool Incluir_Cancelados = false;
     protected override async Task OnInitializedAsync()
     {
         await GetGrupos();
@@ -221,7 +231,7 @@
 
             if (Folios != null)
             {
-
+                List<FolioCierreGrupalDTO> Folios_Excel = new();
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var ws = excel.Workbook.Worksheets.Add("Cierres");
@@ -230,8 +240,13 @@
 
                 var header = ws.Cells["A1:G1"];
                 // var ordenFilter = new List<FolioCierreDTO>();
+                if (Incluir_Cancelados is false)
+                    Folios_Excel = Folios.Where(x => x.Activa == true).ToList();
+                else
+                    Folios_Excel = Folios;
+
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection(
-                    Folios
+                    Folios_Excel
                     , true);
                 tablebody.Style.Font.Size = 14;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
