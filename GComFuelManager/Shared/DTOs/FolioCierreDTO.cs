@@ -53,7 +53,7 @@ namespace GComFuelManager.Shared.DTOs
         [NotMapped]
         public double Precio { get; set; } = 0;
         [DisplayName("Fecha de vencimiento")]
-        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
+        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre_Vencimiento); } }
         [EpplusIgnore]
         public double? Volumen_Disponible { get; set; }
         [DisplayName("Volumen Disponible"), NotMapped]
@@ -68,6 +68,8 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Estado")]
         public string? Estado_Pedido { get { return Activa == false ? "Cerrada" : ordenEmbarque?.Orden != null ? ordenEmbarque?.Orden?.Estado?.den
                 : ordenEmbarque?.Estado != null ? ordenEmbarque?.Estado?.den : "Activa"; } }
+        [DisplayName("Tipo de Venta")]
+        public string? Tipo_Venta { get; set; } = string.Empty;
     }
 }
 

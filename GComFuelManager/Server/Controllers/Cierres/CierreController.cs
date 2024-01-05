@@ -722,7 +722,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
-                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago ?? string.Empty;
+                   // precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
                     if (orden is not null)
                     {
                         if (orden.Destino is not null)
@@ -2051,7 +2051,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           Activa = x.Activa,
                           Precio = x.Precio,
                           Volumen = x.Volumen,
-                          Observaciones = x.Observaciones
+                          Observaciones = x.Observaciones,
+                          Tipo_Venta = x.TipoPago
                       })
                       .OrderByDescending(x => x.FchCierre)
                       .ToListAsync();
