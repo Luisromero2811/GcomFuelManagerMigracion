@@ -1,0 +1,70 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService swal
+
+<div class="col-12 card">
+    <div class="col-12 card-header">
+        <b>No de pedimento: @Pedimento.Numero_Pedimento</b>
+    </div>
+    <div class="col-12 card-body">
+        <div class="col-12">
+            <div class="col-4">
+                <p>Producto: @Pedimento?.Producto?.Den</p>
+            </div>
+            <div class="col-4">
+                <p>Volumen: @Pedimento?.Litros_Totales.ToString("N",CultureInfo.InvariantCulture)</p>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Referencia</th>
+                    <th>Volumen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="Pedimento?.Ordens">
+                    <tr>
+                        <td>@context.FolioSyn</td>
+                        <td>@context.Vol</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
+</div>
+@code {
+    [Parameter] public Pedimento Pedimento { get; set; } = new();
+
+    bool Loading_Buscar = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Buscar_Pedimento();
+    }
+
+    private async Task Buscar_Pedimento()
+    {
+        try
+        {
+            Loading_Buscar = true;
+
+            var response = await http.Get<Pedimento>($"api/pedimento/{Pedimento.Id}/detalle");
+            if (response.Error)
+            {
+                Loading_Buscar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Buscar = false;
+                Pedimento = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

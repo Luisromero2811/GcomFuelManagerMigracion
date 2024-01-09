@@ -33,7 +33,7 @@ namespace GComFuelManager.Server.Controllers
 
                 if (ordenCierre.Cod != 0)
                 {
-                    var cierre = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => x.Cod == ordenCierre.Cod && x.Folio == ordenCierre.Folio);
+                    var cierre = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => x.Cod == ordenCierre.Cod && x.Folio == ordenCierre.Folio && x.Estatus == true);
                     if (cierre is not null)
                     {
                         var volumen = ObtenerVolumenDisponibleDeProducto(cierre);
@@ -43,7 +43,7 @@ namespace GComFuelManager.Server.Controllers
                 }
                 else
                 {
-                    var cierres = context.OrdenCierre.Where(x =>x.Folio == ordenCierre.Folio).IgnoreAutoIncludes().ToList();
+                    var cierres = context.OrdenCierre.Where(x =>x.Folio == ordenCierre.Folio && x.Estatus == true).IgnoreAutoIncludes().ToList();
                     if (cierres is not null)
                     {
                         foreach (var item in cierres)

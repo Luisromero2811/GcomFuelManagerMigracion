@@ -1,0 +1,257 @@
+﻿@page "/pedimento"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject DialogService ds
+
+<div class="col-12 card">
+    <div class="col-12 card-header">
+        <b>Pedimento</b>
+    </div>
+    <div class="col-12 card-body">
+        <div class="col-12">
+            <EditForm Model="@Pedimento" OnValidSubmit="Crear_Pedimento" class="col-12 form row">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-4">
+                    <label>RFC</label>
+                    <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.RFC_Exportador" maxlength="13" />
+                    <ValidationMessage For="@(()=>Pedimento.RFC_Exportador)" />
+                </div>
+                <div class="col-4">
+                    <label>Referencia</label>
+                    <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.Referencia" maxlength="" />
+                    <ValidationMessage For="@(()=>Pedimento.Referencia)" />
+                </div>
+                <div class="col-4">
+                    <label>Numero de pedimento</label>
+                    <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.Numero_Pedimento" maxlength="" />
+                    <ValidationMessage For="@(()=>Pedimento.Numero_Pedimento)" />
+                </div>
+                <div class="col-4">
+                    <label>Producto</label>
+                    <select @bind="@Pedimento.ID_Producto" class="col-12 form-select form-select-sm">
+                        <option value="0">-- Seleccione un producto --</option>
+                        @foreach (var item in Productos)
+                        {
+                            <option value="@item.Cod">@item.Den</option>
+                        }
+                    </select>
+                    <ValidationMessage For="@(()=>Pedimento.ID_Producto)" />
+                </div>
+                <div class="col-4">
+                    <label>Costo</label>
+                    <input type="number" step="0.1" class="col-12 form-control form-control-sm" @bind="@Pedimento.Costo" min="0" />
+                    <ValidationMessage For="@(()=>Pedimento.Costo)" />
+                </div>
+                <div class="col-12 d-flex justify-content-center mt-1">
+                    <div class="col-4">
+                        <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                            Guardar
+                            @if (Loading_Buscar)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="col-12 mt-1">
+    <div class="<ol-12">
+        <div class="col-12 row">
+            <div class="col-4">
+                <input type="date" @bind="@filtroDTO.Fecha_Inicio" class="form-control form-control-sm col-12" />
+            </div>
+            <div class="col-4">
+                <input type="date" @bind="@filtroDTO.Fecha_Fin" class="form-control form-control-sm col-12" />
+            </div>
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Buscar_Pedimento">
+                    Buscar
+                    @if (Loading_Buscar)
+                    {
+                        <SpinnerLoading />
+                    }
+                </button>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo col-12">
+                    Exportar
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <table class="col-12 table">
+            <thead>
+                <tr>
+                    <th>N.o pedimento</th>
+                    <th>Referecnia</th>
+                    <th>RFC</th>
+                    <th>Producto</th>
+                    <th>Costo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Loading_Buscar)
+                {
+                    <tr>
+                        <td colspan="6"><SpinnerLoading /></td>
+                    </tr>
+                }
+                <Virtualize Items="Pedimentos" Context="pedimento" TItem="Pedimento">
+                    <tr>
+                        <td>@pedimento.Numero_Pedimento</td>
+                        <td>@pedimento.Referencia</td>
+                        <td>@pedimento.RFC_Exportador</td>
+                        <td>
+                            @if (pedimento?.Producto?.Cod == 25 || pedimento?.Producto?.Cod == 26 || pedimento?.Producto?.Cod == 27)
+                            {
+                                <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                            }
+                            else if (pedimento?.Producto?.Cod == 11 || pedimento?.Producto?.Cod == 12 || pedimento?.Producto?.Cod == 116)
+                            {
+                                <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                            }
+                            else if (pedimento?.Producto?.Cod == 19 || pedimento?.Producto?.Cod == 20 || pedimento?.Producto?.Cod == 21)
+                            {
+                                <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                            }
+                            else
+                            {
+                                <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                            }
+                            @pedimento?.Producto?.Den
+                        </td>
+                        <td>@pedimento?.Costo.ToString("N",CultureInfo.InvariantCulture)</td>
+                        <td>
+                            @if (pedimento is not null)
+                            {
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modal_Detalle(pedimento))">
+                                    <i class="fa fa-solid fa-eye"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    Pedimento Pedimento { get; set; } = new();
+    CierreFiltroDTO filtroDTO = new();
+
+    Dictionary<string, string> Query = new();
+
+    List<Pedimento> Pedimentos { get; set; } = new();
+    List<Producto> Productos { get; set; } = new();
+
+    bool Loading_Guardar = false;
+    bool Loading_Buscar = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProductos();
+    }
+
+    private async Task Crear_Pedimento()
+    {
+        try
+        {
+            Loading_Guardar = true;
+            var response = await http.Post<Pedimento, Pedimento>("api/pedimento", Pedimento);
+            if (response.Error)
+            {
+                Loading_Guardar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Guardar = false;
+                Pedimentos.Add(response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Buscar_Pedimento()
+    {
+        try
+        {
+            Loading_Buscar = true;
+            Query["Fecha_Inicio"] = filtroDTO.Fecha_Inicio.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+            Query["Fecha_Fin"] = filtroDTO.Fecha_Fin.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(Query);
+            var response = await http.Get<List<Pedimento>>($"api/pedimento?{uri}");
+            if (response.Error)
+            {
+                Loading_Buscar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Buscar = false;
+                Pedimentos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<Producto>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task Abrir_Modal_Detalle(Pedimento pedimento)
+    {
+        try
+        {
+            await ds.OpenAsync<Vista_Detalle_Pedimento_Componente>("Detalle pedimento",
+                new Dictionary<string, object>() { { "Pedimento", pedimento } },
+                new DialogOptions()
+                    {
+                        Width = "80%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+}
