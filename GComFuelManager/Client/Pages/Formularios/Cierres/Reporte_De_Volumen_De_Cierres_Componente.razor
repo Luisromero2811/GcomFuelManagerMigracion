@@ -11,6 +11,28 @@
     <div class="col-12 card-body">
         <label><b>Mostrar cierres:</b></label>
         <div class="row col-12">
+            <div class="col-4">
+                <div class="col-12">
+                    <label class="form-label">Del:</label>
+                    <InputDate class="form-control" @bind-Value="folio_Activo_Vigente.ID_FchIni" @bind-Value:format="yyyy-MM-dd" Type="InputDateType.DateTimeLocal" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="form-outline">
+                    <label class="form-label">Al:</label>
+                    <InputDate class="form-control" @bind-Value="folio_Activo_Vigente.ID_FchFin" @bind-Value:format="yyyy-MM-dd" Type="InputDateType.DateTimeLocal" />
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="mt-2">
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_VolumenFecha">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Mostrar por fecha
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row col-12">
             <div class="col-3">
                 <div class="col-12">
                     <label>Grupo</label>
@@ -90,17 +112,17 @@
                 </InputSelect>
             </div>
             @*<div class="col-12 row mt-2 d-flex justify-content-center">
-                    <div class="col-6">
-                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Volumen">
-                            <i class="fa fa-solid fa-magnifying-glass"></i> Filtrar
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@(()=>folio_Activo_Vigente = new Folio_Activo_Vigente())">
-                            <i class="fa fa-solid fa-broom"></i> Limpiar formulario
-                        </button>
-                    </div>
-                </div>*@
+                <div class="col-6">
+                    <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@Obtener_Volumen">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Filtrar
+                    </button>
+                </div>
+                <div class="col-6">
+                    <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@(()=>folio_Activo_Vigente = new Folio_Activo_Vigente())">
+                        <i class="fa fa-solid fa-broom"></i> Limpiar formulario
+                    </button>
+                </div>
+            </div>*@
         </div>
         <div class="col-12 row mt-2 d-flex justify-content-center">
             <div class="col-4">
@@ -447,9 +469,43 @@
             query["ID_Cliente"] = folio_Activo_Vigente.ID_Cliente.ToString() ?? string.Empty;
             query["ID_Destino"] = folio_Activo_Vigente.ID_Destino.ToString() ?? string.Empty;
             query["ID_Producto"] = folio_Activo_Vigente.ID_Producto.ToString() ?? string.Empty;
+            //query["ID_FchIni"] = folio_Activo_Vigente.ID_FchIni.ToString("MM/dd/yyyy") ?? string.Empty;
+            //query["ID_FchFin"] = folio_Activo_Vigente.ID_FchFin.ToString("MM/dd/yyyy") ?? string.Empty;
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             var response = await repositorio.Get<Folio_Activo_Vigente>($"api/volumen/reporte?{uri}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                Loading_Volumen = false;
+            }
+            else
+            {
+                folio_Activo_Vigente_Response = response.Response;
+                Loading_Volumen = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Volumen = false;
+        }
+    }
+
+    public async Task Obtener_VolumenFecha()
+    {
+        try
+        {
+            Loading_Volumen = true;
+
+            query = new Dictionary<string, string>();
+
+            query["ID_FchIni"] = folio_Activo_Vigente.ID_FchIni.ToString("MM/dd/yyyy") ?? string.Empty;
+            query["ID_FchFin"] = folio_Activo_Vigente.ID_FchFin.ToString("MM/dd/yyyy") ?? string.Empty;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await repositorio.Get<Folio_Activo_Vigente>($"api/volumen/reportefecha?{uri}");
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
