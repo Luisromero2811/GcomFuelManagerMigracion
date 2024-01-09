@@ -1,0 +1,387 @@
+﻿@page "/configuracion/generacion/folios"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+
+<h4>Configuracion de generacion de folios</h4>
+<div class="col-12 card">
+    <div class="card-body col-12">
+        <div class="col-12">
+            <RadzenTabs RenderMode="TabRenderMode.Client">
+                <Tabs>
+                    <RadzenTabsItem Text="Clientes">
+                        <div class="col-12">
+                            <table class="table table-sm table-responsive table-bordered" style="max-height:400px; overflow-y:scroll">
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th>Codigo de folio</th>
+                                        <th>Editar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input placeholder="Buscar cliente..." class="form-control form-control-sm" @oninput="@FilterCliente" @bind="Cliente_Filtrado" /></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    @if (!Loading_Clientes)
+                                    {
+                                        @if (Clientes is null || Clientes.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="3">No hay registros</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <Virtualize Items="Clientes" TItem="Cliente" Context="item">
+                                                <tr>
+                                                    <td>@item.Den</td>
+                                                    <td>
+                                                        @if (!item.IsEditing)
+                                                        {
+                                                            @item.CodCte
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-4">
+                                                                <input type="text" maxlength="8" @bind="item.Nuevo_Codigo" class="col-12 form-control form-control-sm" />
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (!item.IsEditing)
+                                                        {
+                                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
+                                                                <i class="fa fa-solid fa-edit"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-12 row">
+                                                                <div class="col-6">
+                                                                    <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Cliente(item))">
+                                                                        <i class="fa fa-solid fa-check"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Cliente(item))">
+                                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </Virtualize>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="col-12 row">
+                                                <div class="text-muted col-2">
+                                                    <p>total de registros: @Conteo_Total_Cliente</p>
+                                                </div>
+                                                <div class="col-6 offset-4">
+                                                    <PaginacionComponent PaginaActual="Pagina_Actual_Cliente" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="Paginas_Totales_Cliente" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </RadzenTabsItem>
+                    <RadzenTabsItem Text="Grupos">
+                        <div class="col-12">
+                            <table class="table table-sm table-responsive table-bordered" style="max-height:400px; overflow-y:scroll">
+                                <thead>
+                                    <tr>
+                                        <th>Grupo</th>
+                                        <th>Codigo de folio</th>
+                                        <th>Editar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input placeholder="Buscar grupo..." class="form-control form-control-sm" @oninput="@FilterGrupo" @bind="Grupo_Filtrado" /></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    @if (!Loading_Grupos)
+                                    {
+                                        @if (Grupos is null || Grupos.Count == 0)
+                                        {
+                                            <tr>
+                                                <td colspan="3">No hay registros</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            <Virtualize Items="Grupos" TItem="Grupo" Context="item">
+                                                <tr>
+                                                    <td>@item.Den</td>
+                                                    <td>
+                                                        @if (!item.IsEditing)
+                                                        {
+                                                            @item.CodGru
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-4">
+                                                                <input type="text" maxlength="8" @bind="item.Nuevo_Codigo" />
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        @if (!item.IsEditing)
+                                                        {
+                                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
+                                                                <i class="fa fa-solid fa-edit"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col-12 row">
+                                                                <div class="col-6">
+                                                                    <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Grupo(item))">
+                                                                        <i class="fa fa-solid fa-check"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-6">
+                                                                    <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Grupo(item))">
+                                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </Virtualize>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3">
+                                            <div class="col-12 row">
+                                                <div class="text-muted col-2">
+                                                    <p>total de registros: @Conteo_Total_Grupo</p>
+                                                </div>
+                                                <div class="col-6 offset-4">
+                                                    <PaginacionComponent PaginaActual="Pagina_Actual_Grupo" PaginaSeleccionada="PaginasSeleccionadasGrupo" PaginasTotales="Paginas_Totales_Grupo" />
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </RadzenTabsItem>
+                </Tabs>
+            </RadzenTabs>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    List<Cliente> Clientes = new List<Cliente>();
+    List<Grupo> Grupos = new List<Grupo>();
+
+    int Paginas_Totales_Cliente;
+    int Pagina_Actual_Cliente = 1;
+    int Conteo_Total_Cliente;
+
+    int Paginas_Totales_Grupo;
+    int Pagina_Actual_Grupo = 1;
+    int Conteo_Total_Grupo;
+
+    string Cliente_Filtrado = string.Empty;
+    string Grupo_Filtrado = string.Empty;
+
+    CodDenDTO Filtro_Cliente = new();
+    CodDenDTO Filtro_Grupo = new();
+
+    Dictionary<string, string> queryParams_Cliente = new Dictionary<string, string>();
+    Dictionary<string, string> queryParams_Grupo = new Dictionary<string, string>();
+
+    bool Loading_Clientes = false;
+    bool Loading_Grupos = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await GetClientes();
+        await GetGrupos();
+    }
+
+    private async Task FilterCliente(ChangeEventArgs e)
+    {
+        Cliente_Filtrado = e.Value.ToString();
+        queryParams_Cliente["Den"] = Cliente_Filtrado ?? string.Empty;
+        await GetClientes();
+    }
+
+    private async Task FilterGrupo(ChangeEventArgs e)
+    {
+        Cliente_Filtrado = e.Value.ToString();
+        queryParams_Grupo["Den"] = Cliente_Filtrado ?? string.Empty;
+        await GetGrupos();
+    }
+
+    private async Task GetClientes()
+    {
+        try
+        {
+            Loading_Clientes = true;
+            queryParams_Cliente["pagina"] = Filtro_Cliente.pagina.ToString();
+            queryParams_Cliente["tamanopagina"] = Filtro_Cliente.tamanopagina.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(queryParams_Cliente);
+            var response = await http.Get<List<Cliente>>($"api/clientes/filtrar?{uri}");
+            if (response.Error)
+            {
+                Loading_Clientes = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Loading_Clientes = false;
+                Paginas_Totales_Cliente = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
+                Conteo_Total_Cliente = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                Pagina_Actual_Cliente = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Clientes = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetGrupos()
+    {
+        try
+        {
+            Loading_Grupos = true;
+            queryParams_Grupo["pagina"] = Filtro_Grupo.pagina.ToString();
+            queryParams_Grupo["tamanopagina"] = Filtro_Grupo.tamanopagina.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(queryParams_Grupo);
+            var response = await http.Get<List<Grupo>>($"api/grupo/filtrar?{uri}");
+            if (response.Error)
+            {
+                Loading_Grupos = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Loading_Grupos = false;
+                Paginas_Totales_Grupo = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
+                Conteo_Total_Grupo = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                Pagina_Actual_Grupo = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Grupos = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task PaginasSeleccionadasGrupo(int pagina)
+    {
+        Pagina_Actual_Grupo = pagina;
+        Filtro_Grupo.pagina = Pagina_Actual_Grupo;
+        await GetGrupos();
+    }
+
+    private async Task PaginasSeleccionadasPro(int pagina)
+    {
+        Pagina_Actual_Cliente = pagina;
+        Filtro_Cliente.pagina = Pagina_Actual_Cliente;
+        await GetClientes();
+    }
+
+    private void Cancelar_Editar_Cliente(Cliente cliente)
+    {
+        cliente.Nuevo_Codigo = string.Empty;
+        cliente.IsEditing = !cliente.IsEditing;
+    }
+
+    private void Cancelar_Editar_Grupo(Grupo grupo)
+    {
+        grupo.Nuevo_Codigo = string.Empty;
+        grupo.IsEditing = !grupo.IsEditing;
+    }
+
+    private async Task Guardar_Cliente(Cliente cliente)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(cliente.Nuevo_Codigo))
+                if (cliente.Nuevo_Codigo.Length > 8)
+                    await swal.FireAsync("Alerta", "El codigo no puede ser mayor a 8 caracteres", SweetAlertIcon.Warning);
+
+            Loading_Grupos = true;
+            cliente.CodCte = cliente.Nuevo_Codigo;
+            var response = await http.Put<Cliente>($"api/clientes", cliente);
+            if (response.Error)
+            {
+                Loading_Grupos = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Loading_Grupos = false;
+                cliente.IsEditing = !cliente.IsEditing;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Grupos = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Grupo(Grupo grupo)
+    {
+        try
+        {
+            if (string.IsNullOrEmpty(grupo.Nuevo_Codigo))
+                if (grupo.Nuevo_Codigo.Length > 8)
+                    await swal.FireAsync("Alerta", "El codigo no puede ser mayor a 8 caracteres", SweetAlertIcon.Warning);
+
+            Loading_Grupos = true;
+            grupo.CodGru = grupo.Nuevo_Codigo;
+            var response = await http.Post<Grupo>($"api/grupo", grupo);
+            if (response.Error)
+            {
+                Loading_Grupos = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Loading_Grupos = false;
+                grupo.IsEditing = !grupo.IsEditing;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Grupos = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

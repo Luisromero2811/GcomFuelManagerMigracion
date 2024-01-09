@@ -1,6 +1,7 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
 using GComFuelManager.Client.Repositorios;
 using GComFuelManager.Shared.Modelos;
@@ -18,7 +19,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton(sp => new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
-    Timeout = TimeSpan.FromMinutes(5),
+    Timeout = TimeSpan.FromMinutes(15),
 });
 ConfigureServices(builder.Services);
 
@@ -59,6 +60,10 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<AsignarContactoValidation>();
     services.AddScoped<AsignarZonaClienteValidation>();
     services.AddScoped<ClienteDestinoValidation>();
-
+    services.AddScoped<AsignarContactoClienteValidation>();
+    services.AddScoped<CierreGrupoValidation>();
     services.AddScoped<PreciosValidation>();
+
+    services.AddScoped<Constructor_De_URL_Parametros>();
+
 }

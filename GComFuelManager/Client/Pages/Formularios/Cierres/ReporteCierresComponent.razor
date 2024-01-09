@@ -1,0 +1,259 @@
+﻿@page "/reporte/cierres"
+@inject IJSRuntime JS
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject NotificationService ns
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Revision Precios")]
+
+<h4>Reportes de cierres</h4>
+<div class="row">
+    <div class="col-12 card shadow-sm">
+        <div class="col-12 card-body">
+            <label><b>Mostrar cierres:</b></label>
+            <!---->
+            <!---->
+            <div class="row col-12">
+                <div class="col-4">
+                    <div class="col-12">
+                        <label class="form-label">Del:</label>
+                        <InputDate class="form-control" @bind-Value="fechas.FchInicio" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="form-outline">
+                        <label class="form-label">Al:</label>
+                        <InputDate class="form-control" @bind-Value="fechas.FchFin" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                    </div>
+                </div>
+                <div class="col-2 d-flex mt-auto">
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarCierres">
+                        <i class="fa fa-solid fa-eye"></i>
+                        <b>Mostrar Cierres</b>
+                    </button>
+                </div>
+                <div class="col-2 d-flex mt-auto">
+                    <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportarCierre">
+                        <i class="fa fa-solid fa-file-excel"></i>
+                        <b>Exportar Cierres</b>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="mt-4">
+    <RadzenDataGrid TItem="FolioCierreDTO" Data="@Folios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
+                    GridLines="DataGridGridLines.Both"  class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    IsLoading="loading" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture">
+        <Columns>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="130px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="140px;" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Grupo" FilterValue="GrupoSeleccionado" Property="Grupo.Den" Width="160px;">
+                <FilterTemplate>
+                    <RadzenDropDown Data="GroupList" @bind-Value="GrupoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="80" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </FilterTemplate>
+                <Template Context="data">
+                    @(data.Grupo is not null ? data.Grupo.Den : "Sin Grupo")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Cliente" FilterValue="ClienteSeleccionado" Property="cliente.Den" Width="180px;">
+                <FilterTemplate>
+                    <RadzenDropDown Data="ClientList" @bind-Value="ClienteSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="100" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </FilterTemplate>
+                <Template Context="data">
+                    @(data.cliente is not null ? data.cliente.Den : "Sin clientes")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Destino" FilterValue="DestinoSeleccionado" Property="destino.Den" Width="180px;">
+                <FilterTemplate>
+                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="100" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </FilterTemplate>
+                <Template Context="data">
+                    @(data.destino is not null ? data.destino.Den : "Sin destino")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" Width="160px;">
+                <FilterTemplate Context="filter">
+                    <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="190" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
+                </FilterTemplate>
+                <Template Context="data">
+                    <div class="col-12 row">
+                        <div class="col-1">
+                            @if (data.Producto.Cod == 25 || data.Producto.Cod == 26 || data.Producto.Cod == 27)
+                            {
+                                <div class="badge rounded-pill regular">&nbsp;</div>
+                            }
+                            else if (data.Producto.Cod == 11 || data.Producto.Cod == 12 || data.Producto.Cod == 116)
+                            {
+                                <div class="badge rounded-pill regular-vdm">&nbsp;</div>
+                            }
+                            else if (data.Producto.Cod == 19 || data.Producto.Cod == 20 || data.Producto.Cod == 21)
+                            {
+                                <div class="badge rounded-pill premium">&nbsp;</div>
+                            }
+                            else
+                            {
+                                <div class="badge rounded-pill diesel">&nbsp;</div>
+                            }
+                        </div>
+                        <div class="col-11">
+                            @data.Producto?.Den
+                        </div>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Volumen" Width="110px" FormatString="{0:N2}" Filterable="false">
+                <Template Context="item">
+                    <div class="col-12">
+                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                        item?.ordenEmbarque?.Orden is not null ? item?.ordenEmbarque?.Orden?.Vol :
+                        item?.ordenEmbarque?.Compartment == 1 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom
+                        : item?.ordenEmbarque?.Compartment == 2 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom2
+                        : item?.ordenEmbarque?.Compartment == 3 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom3
+                        : item?.ordenEmbarque?.Compartment == 4 && item.ordenEmbarque?.Tonel is not null ? item?.ordenEmbarque?.Tonel?.Capcom4
+                        : item?.Volumen
+                        )
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de Vencimiento" Property="FchCierre_Vencimiento" FormatString="{0:d}" Filterable="false" Width="130px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Filterable="false" Width="100px">
+                <Template Context="data">
+                    @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
+                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Tipo de Pago" Property="Tipo_Venta" Filterable="false" Width="110px"/>
+            <!--Precio Volumen y observaciones-->
+        </Columns>
+    </RadzenDataGrid>
+</div>
+<style type="text/css">
+    .ancho {
+                            width: @TotalWidth;
+                            }
+</style>
+@code {
+    private RadzenDataGrid<FolioCierreDTO>? Grid = new RadzenDataGrid<FolioCierreDTO>();
+    CierreDiarioDTO fechas { get; set; } = new CierreDiarioDTO();
+    private OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
+    private List<FolioCierreDTO> Folios { get; set; } = new List<FolioCierreDTO>();
+    RadzenDataGrid<FolioCierreDTO> grid { get; set; } = new RadzenDataGrid<FolioCierreDTO>();
+    private string ProductoSeleccionado = string.Empty;
+    private IEnumerable<string> ProductList { get; set; } = new List<string>();
+    private string ClienteSeleccionado = string.Empty;
+    private IEnumerable<string> ClientList { get; set; } = new List<string>();
+    private string DestinoSeleccionado = string.Empty;
+    private IEnumerable<string> DestinoList { get; set; } = new List<string>();
+    private string GrupoSeleccionado = string.Empty;
+    private IEnumerable<string> GroupList { get; set; } = new List<string>();
+    private string EstadoSeleccionado = string.Empty;
+    private IEnumerable<string> EstadoList { get; set; } = new List<string>();
+
+    //Volumenes disponibles, cargados, etc.
+    CierreFiltroDTO filtro { get; set; } = new CierreFiltroDTO();
+    FolioCierreDTO volumenDisponible { get; set; } = new FolioCierreDTO();
+    VolumenDisponibleDTO volumenes { get; set; } = new VolumenDisponibleDTO();
+
+    bool loading = false;
+    int width = 0;
+    string TotalWidth = string.Empty;
+    bool isClose = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 640;
+        TotalWidth = $"{width}px";
+    }
+
+    private async Task MostrarCierres()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<CierreDiarioDTO, List<FolioCierreDTO>>("api/cierre/cierrescompletos", fechas);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Folios = responseHttp.Response;
+                ProductList = Folios?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+                ClientList = Folios?.DistinctBy(x => x.cliente?.Den).Select(x => x.cliente?.Den)!;
+                DestinoList = Folios?.DistinctBy(x => x.destino?.Den).Select(x => x.destino?.Den)!;
+                GroupList = Folios?.DistinctBy(x => x.Grupo?.Den).Select(x => x.Grupo?.Den)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task ExportarCierre()
+    {
+        try
+        {
+            if (Folios != null)
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Cierres");
+                ws.Columns.Width = 70;
+                ws.Columns.AutoFit();
+
+                var header = ws.Cells["A1:M1"];
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Folios, true);
+                tablebody.Style.Font.Size = 14;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header.Style.Font.Bold = true;
+
+                await JS.GuardarComo($"CierresGrupalesPedidos_{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+            }
+            else
+            {
+                await swal.FireAsync("Alerta", "Debe de tener datos filtrados para exportar", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+}
+

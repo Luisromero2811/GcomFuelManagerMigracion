@@ -272,15 +272,25 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
-            modelBuilder.Entity<OrdenPedido>()
-                .HasOne(x => x.OrdenEmbarque)
-                .WithMany()
-                .HasForeignKey(x => x.CodPed);
+
+            //modelBuilder.Entity<OrdenPedido>()
+            //    .HasOne(x => x.OrdenEmbarque)
+            //    .WithOne(x => x.OrdenPedido)
+            //    .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+            //    .HasForeignKey<OrdenPedido>(x => x.CodPed);
+            //OrdenEmbarque a Órdenes
+            //modelBuilder.Entity<OrdenEmbarque>()
+            //    .HasOne(x => x.Orden)
+            //    .WithOne(x => x.OrdenEmbarque)
+            //    .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
+            //    .HasPrincipalKey<Orden>("Folio", "CompartmentId");
+
+            //OrdenEmbarque a Órdenes
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.OrdenEmbarque)
-                .HasForeignKey<OrdenEmbarque>(x => x.Bolguidid)
-                .HasPrincipalKey<Orden>(x => x.Bolguiid);
+                .HasForeignKey<OrdenEmbarque>(x => x.FolioSyn)
+                .HasPrincipalKey<Orden>(x => x.Ref);
 
             modelBuilder.Entity<AccionCorreo>()
                 .HasOne(x => x.Accion)
@@ -322,6 +332,54 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.codDes);
+            //Cierre - grupo
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.CodGru);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.OrdenPedido)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+                .HasForeignKey<OrdenPedido>(x => x.CodPed);
+
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.OrdEmbDet)
+                .WithOne(x => x.Orden)
+                .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
+                .HasForeignKey<Orden>(x => x.BatchId);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasMany(x => x.OrdenPedidos)
+                .WithOne(x => x.OrdenCierre)
+                .HasPrincipalKey(x => x.Cod)
+                .HasForeignKey(x => x.CodCierre);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
         }
 
 
@@ -365,5 +423,9 @@ namespace GComFuelManager.Server
         public DbSet<Porcentaje> Porcentaje { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
+        public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
+        public DbSet<Errors> Errors { get; set; }
+        public DbSet<Moneda> Moneda { get; set; }
+        public DbSet<Consecutivo> Consecutivo { get; set; }
     }
 }

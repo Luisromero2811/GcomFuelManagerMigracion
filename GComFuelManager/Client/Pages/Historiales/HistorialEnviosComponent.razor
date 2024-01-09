@@ -35,9 +35,9 @@
 </div>
 
 <div class="col-12 d-flex justify-content-center">
-    <RadzenDataGrid TItem="OrdenEmbarque" Data="@orden" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple"
-                    GridLines="DataGridGridLines.Both" class="rz-my-2 ancho shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false"
-                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true">
+    <RadzenDataGrid TItem="OrdenEmbarque" Data="@orden" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    GridLines="DataGridGridLines.Both" class="rz-my-2 ancho shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" AllowPickAllColumns="true"
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture"> 
         <Columns>
             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                 <RadzenDataGridColumn TItem="OrdenEmbarque" Width="60px" Sortable="false" Filterable="false" Frozen="true" OrderIndex="1">
@@ -52,9 +52,14 @@
                 </RadzenDataGridColumn>
             </AuthorizeView>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Orden de compra" Property="OrdenCompra.den" Width="200px" Frozen="true" MinWidth="200px" Filterable="false" OrderIndex="2" />
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" FilterValue="ClienteSeleccionado" OrderIndex="3">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="OrdenCierre.Folio" Width="200px" Frozen="true" MinWidth="200px" Filterable="false" OrderIndex="3" />
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Cliente" Property="Destino.Cliente.Den" Width="200px" Frozen="true" MinWidth="200px" FilterValue="ClienteSeleccionado" OrderIndex="4">
                 <FilterTemplate Context="Cliente">
-                    <RadzenDropDown Data="ClienteList" @bind-Value="ClienteSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="ClienteList" AllowFiltering="true" @bind-Value="ClienteSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="180" />
+                        </ValueTemplate>
+                    </RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -62,9 +67,13 @@
                     </div>
                 </Template>
             </RadzenDataGridColumn>
-            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" FilterValue="DestinosSeleccionado" OrderIndex="4">
+            <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="200px" MinWidth="200px" FilterValue="DestinosSeleccionado" OrderIndex="5">
                 <FilterTemplate Context="Destinos">
-                    <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="DestinoList" AllowFiltering="true" @bind-Value="DestinosSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="190"/>
+                        </ValueTemplate>
+                    </RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -74,7 +83,11 @@
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="200px" MinWidth="200px" FilterValue="ProductosSeleccionado">
                 <FilterTemplate Context="Productos">
-                    <RadzenDropDown Data="ProductoList" @bind-Value="ProductosSeleccionado" AllowClear="true"></RadzenDropDown>
+                    <RadzenDropDown Data="ProductoList" @bind-Value="ProductosSeleccionado" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                        <ValueTemplate Context="data">
+                            <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190"/>
+                        </ValueTemplate>
+                    </RadzenDropDown>
                 </FilterTemplate>
                 <Template Context="data">
                     <div>
@@ -83,14 +96,15 @@
                 </Template>
             </RadzenDataGridColumn>
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="200px" MinWidth="200px" FormatString="{0:N2}" Filterable="false">
-                <Template Context="data">
+                <Template Context="item">
                     <div class="col-12">
-                        @string.Format("{0:N2}",
-                        data?.Compartment == 1 ? data?.Tonel?.Capcom
-                        : data?.Compartment == 2 ? data?.Tonel?.Capcom2
-                        : data?.Compartment == 3 ? data?.Tonel?.Capcom3
-                        : data?.Compartment == 4 ? data?.Tonel?.Capcom4
-                        : data?.Vol
+                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                        item?.Orden is not null ? item?.Orden?.Vol :
+                        item?.Compartment == 1 && item?.Tonel is not null ? item?.Tonel?.Capcom
+                        : item?.Compartment == 2 && item?.Tonel is not null ? item?.Tonel?.Capcom2
+                        : item?.Compartment == 3 && item?.Tonel is not null ? item?.Tonel?.Capcom3
+                        : item?.Compartment == 4 && item?.Tonel is not null ? item?.Tonel?.Capcom4
+                        : item?.Vol
                         )
                     </div>
                 </Template>
@@ -109,7 +123,7 @@
             <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Operador" Width="200px" MinWidth="200px" Filterable="false">
                 <Template Context="data">
                     <div class="col-12">
-                        @data?.Chofer?.Den @data?.Chofer?.Shortden
+                        @data?.Chofer?.Den 
                     </div>
                 </Template>
             </RadzenDataGridColumn>
@@ -124,23 +138,20 @@
         <div class="col card shadow-sm">
             <div class="col-12 card-body">
                 <div class="col-12 my-1">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                    @* <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                         <div class="row d-flex justify-content-start">
                             <div class="col-4">
                                 <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" />
                                 <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
                             </div>
                         </div>
-                    </AuthorizeView>
+                    </AuthorizeView> *@
                     <div class="row d-flex justify-content-end">
-                        @if (Synthesis)
-                        {
-                            <div class="col-4">
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                    <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Enviar a Syntesis</b></button>
-                                </AuthorizeView>
-                            </div>
-                        }
+                        <div class="col-4">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@SendToSynthesis"><i class="fa fa-solid fa-paper-plane"></i> <b>Copiar ordenes</b></button>
+                            </AuthorizeView>
+                        </div>
                         <div class="col-4">
                             <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
                                 <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerarExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
@@ -198,10 +209,18 @@
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
     protected override async Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
         if (width < 0)
             width = 500;
         TotalWidth = $"{width}px";
@@ -267,7 +286,8 @@
                             Unidad = item!.Tonel?.Veh,
                             Compartimento = item!.Compartment,
                             Operador = item!.Chofer?.Den,
-                            Bin = item!.Bin
+                            Bin = item!.Bin,
+                            Estado = item!.Estado?.den
                         });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -276,7 +296,7 @@
                 worksheet.Columns.Width = 60;
                 worksheet.Columns.AutoFit();
 
-                var header = worksheet.Cells["A1:K1"];
+                var header = worksheet.Cells["A1:L1"];
                 //Formación del Excel
 
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<HistorialOrdenDTO>(historialOrdens, true);
@@ -314,54 +334,32 @@
             {
                 if (ordenesSeleccionada.Count == 0)
                 {
-                    await swal.FireAsync("Alerta", "Selecciona alguna orden para enviar a synthesis", SweetAlertIcon.Warning);
+                    await swal.FireAsync("Alerta", "Selecciona alguna orden para copiar.", SweetAlertIcon.Warning);
                     return;
                 }
 
-                var confirm = await swal.FireAsync(new SweetAlertOptions
+                loadingSend = true;
+
+                var response = await repositorio.Post<List<OrdenEmbarque>, CodDenDTO>($"api/pedido/recrear", ordenesSeleccionada.ToList());
+
+                if (response.Error)
                 {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
-
-                if (!string.IsNullOrEmpty(confirm.Value))
+                    loadingSend = false;
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
                 {
-                    Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Actualizando Transportistas",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                        Duration = 15000
-                    });
+                    loadingSend = false;
+                    await swal.FireAsync("Exito", $"Las ordenes fueron copiadas. Use el siguiente folio para confirmarlas en el modulo de ordenes. Folio: {response.Response.Den}", SweetAlertIcon.Success);
 
-                    loadingSend = true;
-
-                    var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null).ToList();
-
-                    var response = await repositorio.Post<List<OrdenEmbarque>, bool>($"api/services/resend", ordens);
-
-                    if (response.Error)
-                    {
-                        loadingSend = false;
-                        var message = await response.ObtenerMensajeError();
-                        await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    }
-                    else
-                    {
-                        loadingSend = false;
-                        await swal.FireAsync("Exito", "Las ordenes fueron enviadas a synthesis.", SweetAlertIcon.Success);
-
-                        orden = new List<OrdenEmbarque>();
-                    }
+                    orden = new List<OrdenEmbarque>();
                 }
             }
             else
             {
                 loadingSend = false;
-                await swal.FireAsync("Alerta", "Debe de tener ordenes seleccionadas para poder enviar a synthesis", SweetAlertIcon.Warning);
+                await swal.FireAsync("Alerta", "Debe de tener ordenes seleccionadas para poder copiarlas", SweetAlertIcon.Warning);
             }
         }
         catch (Exception e)

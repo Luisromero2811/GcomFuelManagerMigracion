@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -39,11 +40,16 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("codCte")]
         public string? CodCte { get; set; } = string.Empty;
         [JsonProperty("consecutivo")]
-        public int? Consecutivo { get;set; } = 0;
+        public int? Consecutivo { get; set; } = 0;
         [JsonProperty("activo")]
         public bool Activo { get; set; } = true;
         [JsonProperty("precioSemanal")]
         public bool? precioSemanal { get; set; } = false;
+        [NotMapped] public bool IsEditing { get; set; } = false;
+        [NotMapped] public string Nuevo_Codigo { get; set; } = string.Empty;
 
+        [JsonProperty("mdVenta")]
+        public string? MdVenta { get; set; } = string.Empty;
+        [NotMapped] public Grupo? grupo { get; set; } = null!;
     }
 }

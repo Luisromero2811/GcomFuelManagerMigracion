@@ -1,0 +1,41 @@
+﻿
+<table class="table table-sm table-responsive">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Total</th>
+            <th>Reservado</th>
+            <th>Disponile</th>
+            <th>Programado</th>
+            <th>Espera de carga</th>
+            <th>Cargado</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (volumenes is not null)
+        {
+            <Virtualize TItem="ProductoVolumen" Items="volumenes" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    @*<td>@(item.Total?.ToString("###,###,###.##"))</td>*@
+                    <td>@item.Totales</td>
+                    @*<td>@(item.Reservado?.ToString("###,###,###.##"))</td>*@
+                    <td>@item.Reservados</td>
+                    @*<td>@(item.Disponible?.ToString("###,###,###.##"))</td>*@
+                        <td>@item.Disponibles</td>
+                    @*<td>@(item.Programado?.ToString("###,###,###.##"))</td>*@
+                   <td>@item.Programados</td>
+                    @*<td>@(item.Congelado?.ToString("###,###,###.##"))</td>*@
+                   <td>@item.Congelados</td>
+                    @*<td>@(item.Consumido?.ToString("###,###,###.##"))</td>*@
+                   <td>@item.Consumidos</td>
+                </tr>
+            </Virtualize>
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter] public List<ProductoVolumen> volumenes { get; set; } = new List<ProductoVolumen>();
+
+}
