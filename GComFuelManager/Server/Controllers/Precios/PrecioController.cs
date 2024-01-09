@@ -687,8 +687,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                     FchDia = item?.FchDia ?? DateTime.MinValue,
                                     FchActualizacion = DateTime.Now,
                                     Pre = item?.Pre ?? 0,
-                                    Moneda = item.Moneda,
-                                    Equibalencia = item.Equibalencia
+                                    Equibalencia = item?.Equibalencia,
+                                    ID_Moneda = item?.ID_Moneda
                                 };
                                 preciosDia.Add(precioN);
                                 //context.Add(precioN);
@@ -698,8 +698,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Pre = item.Pre;
                                 precio.FchDia = item.FchDia;
                                 precio.FchActualizacion = DateTime.Now;
-                                precio.Moneda = item.Moneda;
                                 precio.Equibalencia = item.Equibalencia;
+                                precio.ID_Moneda = item.ID_Moneda;
                                 context.Update(precio);
                             }
 
@@ -714,8 +714,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 codZona = item?.codZona,
                                 FchDia = item.FchDia,
                                 FchActualizacion = item.FchActualizacion,
-                                Moneda = item.Moneda,
-                                Equibalencia = item.Equibalencia
+                                Equibalencia = item?.Equibalencia,
+                                ID_Moneda = item?.ID_Moneda
                             };
                             precioHistoricos.Add(precioH);
                         }
@@ -730,9 +730,6 @@ namespace GComFuelManager.Server.Controllers.Precios
                     await context.SaveChangesAsync();
                 }
                 return Ok(preciosDia);
-                //}
-
-                return NoContent();
             }
             catch (Exception e)
             {
@@ -784,8 +781,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     FchActualizacion = DateTime.Now,
                     Pre = precio.Pre,
                     Activo = precio.Activo,
-                    Moneda = precio.Moneda,
-                    Equibalencia = precio.Equibalencia
+                    Equibalencia = precio.Equibalencia,
+                    ID_Moneda = precio.ID_Moneda
                 };
 
                 if (precio.Cod != null)
