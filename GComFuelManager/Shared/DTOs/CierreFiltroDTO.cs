@@ -21,5 +21,7 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime Month { get; set; } = DateTime.Now;
         [EpplusIgnore]
         public DateTime Year { get; set; } = DateTime.Now;
+        public DateTime Fecha_Inicio { get; set; } = DateTime.Now;
+        public DateTime Fecha_Fin { get; set; } = DateTime.Now;
     }
 }

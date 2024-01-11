@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.Modelos;
+using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Shared.DTOs
 {

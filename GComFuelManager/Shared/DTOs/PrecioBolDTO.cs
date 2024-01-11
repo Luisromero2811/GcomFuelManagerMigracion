@@ -30,7 +30,7 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public double Tipo_De_Cambio { get; set; } = 1;
         [EpplusIgnore]
-        public string Moneda { get; set; } = string.Empty;
+        public string Moneda { get; set; } = "MXN";
 
 
         [EpplusIgnore]
