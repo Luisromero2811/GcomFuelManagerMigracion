@@ -30,5 +30,7 @@ namespace GComFuelManager.Shared.DTOs
         public int? ID_Cliente { get; set; } = 0;
         public int? ID_Destino { get; set; } = 0;
         public byte? ID_Producto { get; set; } = 0;
+        public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
+        public DateTime Fecha_Fin { get; set; } = DateTime.Today;
     }
 }

@@ -412,13 +412,35 @@
                             </RadzenMenuItem>
                         </AuthorizeView>
 
-                        <RadzenPanelMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
-                            <Template>
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Pedimento
-                                </div>
-                            </Template>
-                        </RadzenPanelMenuItem>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+                            <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
+                                <Template>
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Pedimento
+                                    </div>
+                                </Template>
+                                <ChildContent>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Pedimento">
+                                        <RadzenMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Costos
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Listado_Pedimentos">
+                                        <RadzenMenuItem Path="listado/pedimentos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Listado de pedimentos
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>
+                                </ChildContent>
+                            </RadzenMenuItem>
+                        </AuthorizeView>
 
                     </RadzenMenu>
                 </div>

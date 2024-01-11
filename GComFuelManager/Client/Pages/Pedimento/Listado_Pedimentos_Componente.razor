@@ -1,0 +1,212 @@
+﻿@page "/listado/pedimentos"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject DialogService ds
+@inject IJSRuntime js
+
+<div class="col-12 card">
+    <div class="col-12 card-header">
+        <b>Buscar pedimentos</b>
+    </div>
+    <div class="col-12 card-body">
+        <div class="col-12 mt-1">
+            <div class="<ol-12">
+                <div class="col-12 row">
+                    <div class="col-4">
+                        <input type="date" @bind="@filtroDTO.Fecha_Inicio" class="form-control form-control-sm col-12" />
+                    </div>
+                    <div class="col-4">
+                        <input type="date" @bind="@filtroDTO.Fecha_Fin" class="form-control form-control-sm col-12" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Buscar_Pedimento">
+                            Buscar
+                            @if (Loading_Buscar)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Exportar_Excel">
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12">
+    <table class="col-12 table">
+        <thead>
+            <tr>
+                <th>Eliminar</th>
+                <th>Fecha efectiva</th>
+                <th>N.o pedimento</th>
+                <th>Referecnia</th>
+                <th>RFC</th>
+                <th>Producto</th>
+                <th>Costo</th>
+                <th>Ver ordenes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Loading_Buscar)
+            {
+                <tr>
+                    <td colspan="6"><SpinnerLoading /></td>
+                </tr>
+            }
+            <Virtualize Items="Pedimentos" Context="pedimento" TItem="Pedimento">
+                <tr>
+                    <td>
+                        <div class="col-12">
+                                <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>Desactivar_Pedimento(pedimento))"><i class="fa fa-solid fa-cancel"></i></button>
+                        </div>
+                    </td>
+                    <td>@pedimento.Fecha_Actual.ToShortDateString()</td>
+                    <td>@pedimento.Numero_Pedimento</td>
+                    <td>@pedimento.Referencia</td>
+                    <td>@pedimento.RFC_Exportador</td>
+                    <td>
+                        @if (pedimento?.Producto?.Cod == 25 || pedimento?.Producto?.Cod == 26 || pedimento?.Producto?.Cod == 27)
+                        {
+                            <div class="badge rounded-pill regular me-1">&nbsp;</div>
+                        }
+                        else if (pedimento?.Producto?.Cod == 11 || pedimento?.Producto?.Cod == 12 || pedimento?.Producto?.Cod == 116)
+                        {
+                            <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
+                        }
+                        else if (pedimento?.Producto?.Cod == 19 || pedimento?.Producto?.Cod == 20 || pedimento?.Producto?.Cod == 21)
+                        {
+                            <div class="badge rounded-pill premium me-1">&nbsp;</div>
+                        }
+                        else
+                        {
+                            <div class="badge rounded-pill diesel me-1">&nbsp;</div>
+                        }
+                        @pedimento?.Producto?.Den
+                    </td>
+                    <td>@pedimento?.Costo.ToString("N",CultureInfo.InvariantCulture)</td>
+                    <td>
+                        @if (pedimento is not null)
+                        {
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modal_Detalle(pedimento))">
+                                <i class="fa fa-solid fa-eye"></i>
+                            </button>
+                        }
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+
+@code {
+    private CierreFiltroDTO filtroDTO = new();
+    private bool Loading_Buscar = false;
+    private List<Pedimento> Pedimentos { get; set; } = new();
+    private Dictionary<string, string> Query { get; set; } = new();
+
+    private async Task Buscar_Pedimento()
+    {
+        try
+        {
+            Loading_Buscar = true;
+            Query["Fecha_Inicio"] = filtroDTO.Fecha_Inicio.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+            Query["Fecha_Fin"] = filtroDTO.Fecha_Fin.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(Query);
+            var response = await http.Get<List<Pedimento>>($"api/pedimento?{uri}");
+            if (response.Error)
+            {
+                Loading_Buscar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Buscar = false;
+                Pedimentos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Abrir_Modal_Detalle(Pedimento pedimento)
+    {
+        try
+        {
+            await ds.OpenAsync<Vista_Detalle_Pedimento_Componente>("Detalle pedimento",
+                new Dictionary<string, object>() { { "Pedimento", pedimento } },
+                new DialogOptions()
+                    {
+                        Width = "80%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            var excel = new ExcelPackage();
+            var ws = excel.Workbook.Worksheets.Add("ordenes de pedimento");
+            ws.Columns.Width = 60;
+            ws.Columns.AutoFit();
+
+            var header = ws.Cells["A1:L1"];
+            var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Pedimentos, true);
+            tablebody.Style.Font.Size = 12;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            tablebody.Style.Font.Bold = true;
+            header.Style.Font.Size = 14;
+
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            header.Style.Font.Bold = true;
+
+            await js.GuardarComo($"CierresGrupalesPedidos_{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Desactivar_Pedimento(Pedimento pedimento)
+    {
+        try
+        {
+            var response = await http.Delete($"api/pedimento/{pedimento.Id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Buscar_Pedimento();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

@@ -6,26 +6,39 @@
         <b>No de pedimento: @Pedimento.Numero_Pedimento</b>
     </div>
     <div class="col-12 card-body">
-        <div class="col-12">
+        <div class="col-12 row">
             <div class="col-4">
                 <p>Producto: @Pedimento?.Producto?.Den</p>
             </div>
             <div class="col-4">
-                <p>Volumen: @Pedimento?.Litros_Totales.ToString("N",CultureInfo.InvariantCulture)</p>
+                <p>Volumen total de las ordenes: @Pedimento?.Litros_Totales?.ToString("N",CultureInfo.InvariantCulture)</p>
+            </div>
+            <div class="col-4">
+                <p>Fecha de pedimento: @Pedimento?.Fecha_Actual.ToString("d")</p>
             </div>
         </div>
-        <table class="table">
+        <table class="table table-bordered" style="max-height:500px;overflow-y:scroll;">
             <thead>
                 <tr>
-                    <th>Referencia</th>
+                    <th>Cliente</th>
+                    <th>Destino</th>
+                    <th>Precio</th>
+                    <th>Costo</th>
+                    <th>Utilidad</th>
                     <th>Volumen</th>
+                    <th>Utilidad sobre volumen</th>
                 </tr>
             </thead>
             <tbody>
                 <Virtualize Items="Pedimento?.Ordens">
                     <tr>
-                        <td>@context.FolioSyn</td>
-                        <td>@context.Vol</td>
+                        <td>@context.Obtener_Cliente_De_Orden</td>
+                        <td>@context.Obtener_Destino_De_Orden</td>
+                        <td>@context.Pre?.ToString("N4",CultureInfo.InvariantCulture)</td>
+                        <td>@context.Costo.ToString("N4",CultureInfo.InvariantCulture)</td>
+                        <td>@context.Obtener_Utilidad_Coste().ToString("N4",CultureInfo.InvariantCulture)</td>
+                        <td>@context.Obtener_Volumen_De_Orden_En_Formato()</td>
+                        <td>@context.Obtener_Utilidad_Sobre_Volumen()?.ToString("N",CultureInfo.InvariantCulture)</td>
                     </tr>
                 </Virtualize>
             </tbody>
