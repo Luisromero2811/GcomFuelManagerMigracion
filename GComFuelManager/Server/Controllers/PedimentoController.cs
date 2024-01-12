@@ -91,6 +91,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Orden).ThenInclude(x => x.Destino)
                     .Include(x => x.Orden).Include(x => x.Producto)
                     .IgnoreAutoIncludes()
+                    .OrderByDescending(x=>x.Fchcar)
                     .AsQueryable();
 
                 Ordenes_Pedimento_Query = Ordenes_Pedimento_Query.Where(x => (x.Codest == 20 && x.Orden != null) || (x.Codest == 22) || (x.Codest == 26 && x.Orden != null));
