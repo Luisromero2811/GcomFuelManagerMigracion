@@ -396,7 +396,7 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria">
             <RadzenPanelMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -404,7 +404,7 @@
                     </div>
                 </Template>
                 <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Pedimento">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Pedimento">
                         <RadzenPanelMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
@@ -413,7 +413,7 @@
                             </Template>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Listado_Pedimentos">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Listado_Pedimentos">
                         <RadzenPanelMenuItem Path="listado/pedimentos" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">

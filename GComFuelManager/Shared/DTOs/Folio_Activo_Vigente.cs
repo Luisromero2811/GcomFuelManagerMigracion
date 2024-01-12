@@ -32,5 +32,7 @@ namespace GComFuelManager.Shared.DTOs
         public byte? ID_Producto { get; set; } = 0;
         public DateTime ID_FchIni { get; set; } = DateTime.Today.Date;
         public DateTime ID_FchFin { get; set; } = DateTime.Now;
+        public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
+        public DateTime Fecha_Fin { get; set; } = DateTime.Today;
     }
 }
