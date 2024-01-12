@@ -89,8 +89,8 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 if (Orden is not null)
-                    if(Orden.Vol is not null)
-                    return (double)Orden.Vol;
+                    if (Orden.Vol is not null)
+                        return (double)Orden.Vol;
 
                 if (Tonel is not null)
                 {
@@ -124,5 +124,21 @@ namespace GComFuelManager.Shared.Modelos
         public string Obtener_Cliente_De_Orden { get { return OrdenCierre?.Cliente?.Den ?? "Sin cliente asignado"; } }
         public string Obtener_Destino_De_Orden { get { return Destino?.Den ?? "Sin cliente asignado"; } }
         public string Obtener_Producto_De_Orden { get { return Producto?.Den ?? "Sin cliente asignado"; } }
+        public string Obtener_Estado_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Estado is not null)
+                        if (!string.IsNullOrEmpty(Orden.Estado.den))
+                            return Orden.Estado.den;
+
+                if (Estado is not null)
+                    if (!string.IsNullOrEmpty(Estado.den))
+                        return Estado.den;
+
+                return "Sin estado asignado";
+            }
+        }
     }
 }
