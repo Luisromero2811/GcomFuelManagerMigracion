@@ -56,7 +56,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
-                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+                client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(10);
 
                 try
                 {

@@ -358,15 +358,15 @@
 
                                     </AuthorizeView>
 
-                                    @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Operativo">
-                                <RadzenMenuItem Path="/consulta/Orden" class="gcom-bg-rojo col-12">
-                                <Template>
-                                <div class="text-white">
-                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Consulta de Orden
-                                </div>
-                                </Template>
-                                </RadzenMenuItem>
-                                </AuthorizeView>*@
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Operativo">
+                                        <RadzenMenuItem Path="/consulta/Orden" class="gcom-bg-rojo col-12">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Consulta de Orden 
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>
 
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios">
                                         <RadzenMenuItem Path="/consulta/ordencliente" class="gcom-bg-rojo col-12">
@@ -412,7 +412,7 @@
                             </RadzenMenuItem>
                         </AuthorizeView>
 
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria">
                             <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                                 <Template>
                                     <div class="text-white">
@@ -420,7 +420,7 @@
                                     </div>
                                 </Template>
                                 <ChildContent>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Pedimento">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Pedimento">
                                         <RadzenMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
                                             <Template>
                                                 <div class="text-white">
@@ -429,7 +429,7 @@
                                             </Template>
                                         </RadzenMenuItem>
                                     </AuthorizeView>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia" Context="Listado_Pedimentos">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Listado_Pedimentos">
                                         <RadzenMenuItem Path="listado/pedimentos" class="gcom-bg-rojo col-12" Style="border:hidden">
                                             <Template>
                                                 <div class="text-white">

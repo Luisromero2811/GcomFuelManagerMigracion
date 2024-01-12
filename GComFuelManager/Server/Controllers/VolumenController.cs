@@ -43,7 +43,7 @@ namespace GComFuelManager.Server.Controllers
                 }
                 else
                 {
-                    var cierres = context.OrdenCierre.Where(x =>x.Folio == ordenCierre.Folio && x.Estatus == true).IgnoreAutoIncludes().ToList();
+                    var cierres = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio && x.Estatus == true).IgnoreAutoIncludes().ToList();
                     if (cierres is not null)
                     {
                         foreach (var item in cierres)
@@ -100,6 +100,77 @@ namespace GComFuelManager.Server.Controllers
 
                 if (parametros.ID_Producto is not null && parametros.ID_Producto != 0)
                     cierres = cierres.Where(x => x.CodPrd == parametros.ID_Producto);
+
+                //if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
+                //    cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin);
+
+                if (cierres is not null)
+                {
+                    ordenCierres = cierres.ToList();
+
+                    folio.OrdenCierres = ordenCierres;
+
+                    foreach (var item in ordenCierres)
+                    {
+                        var volumen = ObtenerVolumenDisponibleDeProducto(item);
+                        if (volumen is not null)
+                        {
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Disponible = volumen.Disponible;
+
+                            if (volumen.Disponible >= volumen.PromedioCarga)
+                            {
+                                if (Producto_Volumen.Any(x => x.ID_Producto == item.CodPrd))
+                                {
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Total += volumen.Total;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Consumido += volumen.Consumido;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Reservado += volumen.Reservado;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Solicitud += volumen.Solicitud;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Congelado += volumen.Congelado;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Programado += volumen.Programado;
+                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Disponible += volumen.Disponible;
+                                }
+                                else
+                                    Producto_Volumen.Add(volumen);
+                            }
+
+                            folio.ProductoVolumenes = Producto_Volumen;
+                        }
+                    }
+                }
+
+                return Ok(folio);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("reportefecha")]
+        public ActionResult Obtener_Volumen_De_Pedido_De_ReporteFecha([FromQuery] Folio_Activo_Vigente parametros)
+        {
+            try
+            {
+                if (parametros is null)
+                    return BadRequest("No se recibio ningun orden");
+
+                List<ProductoVolumen> Producto_Volumen = new List<ProductoVolumen>();
+
+                List<OrdenCierre> ordenCierres = new List<OrdenCierre>();
+
+                Folio_Activo_Vigente folio = new Folio_Activo_Vigente();
+                //&& x.Activa == true
+                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0)
+                    .Include(x => x.Grupo)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .IgnoreAutoIncludes()
+                    .OrderByDescending(x => x.FchCierre)
+                    .AsQueryable();
+
+                if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
+                    cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin);
 
                 if (cierres is not null)
                 {

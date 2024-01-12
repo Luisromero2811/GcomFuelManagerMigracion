@@ -28,13 +28,11 @@
                 </button>
             </div>
         </div>
-        <hr />
-        <div class="col-12">
-            <div class="col-12">
+            @*<div class="col-12">
                 <label>Filtro clientes:</label>
-                <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" Change="@ChangeCliente" AllowClear="true"/>
-            </div>
-            <RadzenDataList Data="@Cierres" Style="height:500px;overflow-y:scroll;" TItem="OrdenCierre">
+                <RadzenDropDown @bind-Value="ClienteSeleccionado" Data="Clientes" Change="@ChangeCliente" AllowClear="true" />
+            </div>*@
+            @*<RadzenDataList Data="@Cierres" TItem="OrdenCierre" Style="height:500px;overflow-y:scroll;">
                 <Template Context="cierre">
                     <div class="col-12 row">
                         <div class="col-8">
@@ -77,25 +75,182 @@
                             </AuthorizeView>
                             <div class="col-6 my-auto">
                                 <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(cierre.Folio))">
-                                    <i class="fa-solid fa-eye"></i> Ver órdenes de Cargas 
+                                    <i class="fa-solid fa-eye"></i> Ver órdenes de Cargas
                                 </button>
                             </div>
                         </div>
                     </div>
                 </Template>
-            </RadzenDataList>
-        </div>
+            </RadzenDataList>*@
     </div>
 </div>
+<div class="col-12 d-flex justofy-content-center">
+    <RadzenDataGrid TItem="OrdenCierre" Data="@Cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+        <Columns>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="135px" Frozen="true" />
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Cliente" Width="140px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre.CodCte == null)
+                        {
 
+                        }
+                        else
+                        {
+                            @cierre?.Cliente?.Den
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Producto" Width="120px" Filterable="false">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @cierre?.Producto?.Den
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Total" Filterable="false" Width="85px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Total)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Disponible" Filterable="false" Width="85px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Solicitado" Filterable="false" Width="85px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Solicitud)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Programado" Filterable="false" Width="100px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Programado)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="En espera de carga" Filterable="false" Width="105px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Congelado)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Cargado" Filterable="false" Width="90px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.Consumido)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Promedio de Carga" Filterable="false" Width="115px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @cierre.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga)
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Total" Filterable="false" Width="90px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        @if (cierre?.VolumenDisponible?.Productos.Count > 0)
+                        {
+                            <div class="col-12">
+
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                @cierre?.Volumenes
+                            </div>
+                        }
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Cerrar Pedido" Filterable="false" Width="100px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>CloseOrden(cierre))">
+                            <i class="fa-solid fa-unlock"></i> Cerrar
+                        </button>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="OrdenCierre" Title="Ver órdenes de Carga" Filterable="false" Width="135px">
+                <Template Context="cierre">
+                    <div class="col-12">
+                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(cierre.Folio))">
+                            <i class="fa-solid fa-eye"></i> Ver órdenes de Cargas
+                        </button>
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</div>
 @code {
     List<OrdenCierre> Cierres { get; set; } = new List<OrdenCierre>();
     List<OrdenCierre> CierresCompleta { get; set; } = new List<OrdenCierre>();
     OrdenCierre Cierre { get; set; } = new OrdenCierre();
     CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
-
+    bool allowVirtualization;
     IEnumerable<string> Clientes { get; set; } = new List<string>();
     string ClienteSeleccionado { get; set; } = string.Empty;
+
+    bool loadingFiltro = false;
+    private RadzenDataGrid<OrdenCierre>? Grid = new RadzenDataGrid<OrdenCierre>();
+    int width = 0;
+    string TotalWidth = string.Empty;
+    bool isClose = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+    }
 
     private async Task MostrarOrdenFecha()
     {

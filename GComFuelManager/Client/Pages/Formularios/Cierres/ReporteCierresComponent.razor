@@ -1,5 +1,5 @@
 ﻿@page "/reporte/cierres"
-@inject IJSRuntime js
+@inject IJSRuntime JS
 @inject IRepositorio repositorio
 @inject SweetAlertService swal
 @inject NotificationService ns
@@ -43,8 +43,8 @@
 </div>
 <div class="mt-4">
     <RadzenDataGrid TItem="FolioCierreDTO" Data="@Folios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
-                    GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
+                    GridLines="DataGridGridLines.Both"  class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    IsLoading="loading" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture">
         <Columns>
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="130px" />
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Folio del cierre" Property="Folio" Filterable="false" Width="140px;" />
@@ -141,11 +141,18 @@
                                             : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
                 </Template>
             </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Tipo de Pago" Property="Tipo_Venta" Filterable="false" Width="110px"/>
             <!--Precio Volumen y observaciones-->
         </Columns>
     </RadzenDataGrid>
 </div>
+<style type="text/css">
+    .ancho {
+                            width: @TotalWidth;
+                            }
+</style>
 @code {
+    private RadzenDataGrid<FolioCierreDTO>? Grid = new RadzenDataGrid<FolioCierreDTO>();
     CierreDiarioDTO fechas { get; set; } = new CierreDiarioDTO();
     private OrdenCierre ordenCierre { get; set; } = new OrdenCierre();
     private List<FolioCierreDTO> Folios { get; set; } = new List<FolioCierreDTO>();
@@ -167,6 +174,24 @@
     VolumenDisponibleDTO volumenes { get; set; } = new VolumenDisponibleDTO();
 
     bool loading = false;
+    int width = 0;
+    string TotalWidth = string.Empty;
+    bool isClose = false;
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await JS.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 640;
+        TotalWidth = $"{width}px";
+    }
 
     private async Task MostrarCierres()
     {
@@ -206,7 +231,7 @@
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:L1"];
+                var header = ws.Cells["A1:M1"];
                 var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Folios, true);
                 tablebody.Style.Font.Size = 14;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
@@ -217,7 +242,7 @@
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 header.Style.Font.Bold = true;
 
-                await js.GuardarComo($"CierresGrupalesPedidos_{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+                await JS.GuardarComo($"CierresGrupalesPedidos_{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}.xlsx", excel.GetAsByteArray());
             }
             else
             {

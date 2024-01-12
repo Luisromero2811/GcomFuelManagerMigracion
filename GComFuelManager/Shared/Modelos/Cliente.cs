@@ -51,6 +51,5 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("mdVenta")]
         public string? MdVenta { get; set; } = string.Empty;
         [NotMapped] public Grupo? grupo { get; set; } = null!;
-
     }
 }

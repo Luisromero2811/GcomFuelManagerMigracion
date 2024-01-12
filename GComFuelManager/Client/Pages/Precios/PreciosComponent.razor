@@ -38,6 +38,11 @@
                             </button>
 
                         </div>
+                        <div class="col-3 d-flex">
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
+                                <i class="fa-solid fa-download"></i> Descarga el formato aquí <i class="fa fa-solid fa-file-excel"></i>
+                            </button>
+                        </div>
                         <div class="col-12 mt-3">
                             @if (preciosExcel.Count() > 0)
                             {
@@ -555,6 +560,7 @@
     private string CurrentCliente = string.Empty;
     RadzenAlert alert = new RadzenAlert();
     List<Precio> precios { get; set; } = new List<Precio>();
+    List<FormatoExcelPrecioDTO> formato { get; set; } = new List<FormatoExcelPrecioDTO>();
     List<Precio> preciosPro { get; set; } = new List<Precio>();
     IEnumerable<PreciosDTO> preciosExcel { get; set; } = new List<PreciosDTO>();
 
@@ -748,6 +754,32 @@
 
     }
 
+    private async Task DownloadFile()
+    {
+        ExcelPackage.LicenseContext = LicenseContext.Commercial;
+        var excel = new ExcelPackage();
+
+        var ws = excel.Workbook.Worksheets.Add("Precios");
+        ws.Columns.Width = 49;
+        ws.Columns.AutoFit();
+
+        var header = ws.Cells["A1:J1"];
+
+        var tablebody = ws.Cells["A1:A1"].LoadFromCollection<FormatoExcelPrecioDTO>(formato, true);
+        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        tablebody.Style.Font.Bold = true;
+        header.Style.Font.Size = 14;
+        header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        header.Style.Font.Color.SetColor(Color.White);
+        tablebody.Style.Font.Size = 14;
+        header.Style.Font.Size = 14;
+
+        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+        header.Style.Fill.BackgroundColor.SetColor(Color.Black);
+        header.Style.Font.Bold = true;
+
+        await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", excel.GetAsByteArray());
+    }
 
     private async Task GetProductos()
     {

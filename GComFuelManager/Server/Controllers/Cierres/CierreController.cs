@@ -652,11 +652,21 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             }
                         }
                     }
+                    if (item is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                    {
+                        precio.Precio = item.OrdenEmbarque!.Pre;
 
+                        if (item.OrdenCierre is not null)
+                            precio.Fecha_De_Precio = item.OrdenCierre.fchPrecio;
+
+                        precio.Es_Precio_De_Creacion = true;
+                        precio.Precio_Encontrado_En = "Creacion";
+                    }
                     precios.Add(precio);
                 }
 
                 return Ok(precios);
+              
             }
             catch (Exception e)
             {
@@ -712,7 +722,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
-                    precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago ?? string.Empty;
+                   // precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
                     if (orden is not null)
                     {
                         if (orden.Destino is not null)
@@ -2041,7 +2051,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           Activa = x.Activa,
                           Precio = x.Precio,
                           Volumen = x.Volumen,
-                          Observaciones = x.Observaciones
+                          Observaciones = x.Observaciones,
+                          Tipo_Venta = x.TipoPago
                       })
                       .OrderByDescending(x => x.FchCierre)
                       .ToListAsync();
