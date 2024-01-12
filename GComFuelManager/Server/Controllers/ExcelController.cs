@@ -100,5 +100,45 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("reporte/ordenes/pedimento")]
+        public ActionResult Obtener_Reporte_Ordenes_Pedimento([FromBody] List<OrdenEmbarque> datos)
+        {
+            try
+            {
+                if (datos is null)
+                    return BadRequest("No se aceptan valores vacios");
+
+                List<Excel_Ordenes_Pedimento> Datos_Excel = new();
+
+                foreach (var item in datos)
+                {
+                    Datos_Excel.Add(new Excel_Ordenes_Pedimento()
+                    {
+                        Referencia = item.FolioSyn ?? string.Empty,
+                        BOL = item.Orden?.BatchId,
+                        Precio = item.Pre ?? 0,
+                        Costo = item.Costo,
+                        Volumen_Cargado = item.Compartment == 1 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom!.ToString() ?? "0")
+                                        : item.Compartment == 2 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom2!.ToString() ?? "0")
+                                        : item.Compartment == 3 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom3!.ToString() ?? "0")
+                                        : item.Compartment == 4 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom4!.ToString() ?? "0")
+                                        : item.Vol ?? 0,
+                        Estado = item.Orden != null ? item.Orden.Estado?.den ?? "" : item.Estado?.den ?? "",
+                        Fecha_Carga = item?.Orden?.Fchcar?.ToString("d"),
+                        Cliente = item?.OrdenCierre?.Cliente?.Den ?? string.Empty,
+                        Destino = item?.Orden?.Destino?.Den ?? item?.Destino?.Den ?? string.Empty,
+                        Producto = item?.Orden?.Producto?.Den ?? item?.Producto?.Den ?? string.Empty,
+                        Fecha_Programa = item?.Fchcar?.ToString("d")
+                    });
+                }
+
+                return Ok(Datos_Excel);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

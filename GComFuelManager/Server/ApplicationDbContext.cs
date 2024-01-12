@@ -380,6 +380,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Moneda)
                 .WithMany()
                 .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Pedimento>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Producto);
         }
 
 
@@ -427,5 +432,6 @@ namespace GComFuelManager.Server
         public DbSet<Errors> Errors { get; set; }
         public DbSet<Moneda> Moneda { get; set; }
         public DbSet<Consecutivo> Consecutivo { get; set; }
+        public DbSet<Pedimento> Pedimentos { get; set; }
     }
 }

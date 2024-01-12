@@ -46,7 +46,7 @@ void ConfigureServices(IServiceCollection services)
     proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
 
     services.AddScoped<RenovadorToken>();
-    services.AddSingleton(new CultureInfo("es-Mx"));
+    services.AddSingleton(new CultureInfo("es-MX"));
     services.AddScoped<OrdenCierreAdminValidation>();
     services.AddScoped<OrdenCierreClientValidation>();
     services.AddScoped<PedidoOrdenValidation>();
