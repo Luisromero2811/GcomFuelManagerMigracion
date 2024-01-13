@@ -944,7 +944,7 @@
     {
         try
         {
-            if (Es_Cierre_Individual || Es_Orden_Copiada)
+            if (!Es_Cierre_Individual || Es_Orden_Copiada)
                 if (Puede_Buscar_Cliente_Destino)
                     if (ordenCierre.CodCte != null && ClienteSeleccionado != ordenCierre.CodCte)
                     {
