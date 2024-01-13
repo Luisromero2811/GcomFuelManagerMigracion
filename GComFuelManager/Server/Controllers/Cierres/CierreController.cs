@@ -666,7 +666,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
 
                 return Ok(precios);
-              
+
             }
             catch (Exception e)
             {
@@ -722,7 +722,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
-                   // precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
+                    // precio.TipoVenta = item?.OrdenEmbarque?.OrdenCierre?.TipoPago  ?? string.Empty;
                     if (orden is not null)
                     {
                         if (orden.Destino is not null)
@@ -2576,13 +2576,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         productoVolumen.PromedioCarga = PromedioCargas;
                         productoVolumen.Solicitud = VolumenSolicitado;
                         productoVolumen.Programado = VolumenProgramado;
-
+                        productoVolumen.ID_Producto = item.CodPrd;
                         item.VolumenDisponible?.Productos?.Add(productoVolumen);
 
                     }
 
-                    if (item.VolumenDisponible?.Productos?.FirstOrDefault()?.PromedioCarga >=
-                    (item.VolumenDisponible?.Productos?.FirstOrDefault()?.Disponible * (porcentaje.Porcen / 100)))
+                    if (item.VolumenDisponible?.Productos?.FirstOrDefault(x => x.ID_Producto == item.CodPrd)?.PromedioCarga >=
+                    (item.VolumenDisponible?.Productos?.FirstOrDefault(x => x.ID_Producto == item.CodPrd)?.Disponible * (porcentaje.Porcen / 100)))
                     {
                         item.Activa = false;
                         cierres.Add(item);

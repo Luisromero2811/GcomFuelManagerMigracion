@@ -306,7 +306,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                     foreach (var line in billOfLading.LineItems)
                                         if (line.CompartmentId != null && line.CompartmentId.Value.ToString() == x.CompartmentId.ToString())
                                             if (line.CustomFieldInstances != null)
-                                                x.FolioSyn = line.CustomFieldInstances.FirstOrDefault(y =>y.CustomFieldMetaData != null && y.CustomFieldMetaData.Name.Equals(x.Cod.ToString()))?.FieldStringValue ?? string.Empty;
+                                                x.FolioSyn = line.CustomFieldInstances.FirstOrDefault(y => y.CustomFieldMetaData != null && y.CustomFieldMetaData.Name.Equals(x.Cod.ToString()))?.FieldStringValue ?? string.Empty;
                                     //x.Chofer = null!;
                                     //x.Destino = null!;
                                     //x.Estado = null!;
@@ -650,35 +650,32 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+                List<OrdenEmbarque> ordenEmbarques = new();
+                ordenEmbarques = context.OrdenEmbarque.Where(x => ((x.Codest == 14) || (x.Orden != null && x.Orden.Codest == 14)) && x.Fchpet >= DateTime.Today.AddDays(-8) && x.Fchpet <= DateTime.Today)
+                    .Include(x => x.Orden)
+                    .IgnoreAutoIncludes()
+                    .ToList();
 
-                List<Orden> ordenes = new List<Orden>();
-
-                ordenes = await context.Orden.Where(x => x.Codest == 14 && x.Fch >= DateTime.Today.AddDays(-2) && x.Fch <= DateTime.Today.AddDays(2))
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.OrdenCierre)
-                    .ToListAsync();
-                foreach (var item in ordenes)
+                foreach (var item in ordenEmbarques)
                 {
-                    OrdenPedido ordenPedido = new OrdenPedido();
-                    if (item.OrdenEmbarque != null)
+                    if (context.OrdenPedido.Any(x => x.CodPed == item.Cod))
                     {
-                        if (context.OrdenPedido.Any(x => x.CodPed == item.OrdenEmbarque.Cod))
+                        OrdenPedido? ordenPedido = new();
+                        ordenPedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod).IgnoreAutoIncludes().FirstOrDefault();
+                        if (ordenPedido is not null)
                         {
-                            if (item.OrdenEmbarque.OrdenCierre != null)
+                            OrdenCierre? ordenCierre = new();
+                            ordenCierre = context.OrdenCierre.Where(x => x.Cod == ordenPedido.CodCierre && x.Activa == false).IgnoreAutoIncludes().FirstOrDefault();
+                            if (ordenCierre is not null)
                             {
-                                ordenPedido = context.OrdenPedido.First(x => x.CodPed == item.OrdenEmbarque.Cod);
-                                OrdenCierre orden = new OrdenCierre();
-                                orden = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenPedido.Folio && x.CodPrd == item.OrdenEmbarque.Codprd);
-                                if (orden != null)
-                                {
-                                    orden.Activa = true;
-                                    context.Update(orden);
-                                }
+                                ordenCierre.Activa = true;
+                                context.Update(ordenCierre);
                             }
                         }
+
                     }
                 }
+
                 await context.SaveChangesAsync();
                 return NoContent();
             }
