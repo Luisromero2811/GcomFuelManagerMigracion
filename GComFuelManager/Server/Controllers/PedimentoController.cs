@@ -91,6 +91,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Orden).ThenInclude(x => x.Destino)
                     .Include(x => x.Orden).Include(x => x.Producto)
                     .IgnoreAutoIncludes()
+                    .OrderByDescending(x=>x.Fchcar)
                     .AsQueryable();
 
                 Ordenes_Pedimento_Query = Ordenes_Pedimento_Query.Where(x => (x.Codest == 20 && x.Orden != null) || (x.Codest == 22) || (x.Codest == 26 && x.Orden != null));
@@ -185,7 +186,7 @@ namespace GComFuelManager.Server.Controllers
                     .FirstOrDefault();
 
                 var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                    && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+                    && orden.Fchcar != null && x.FchDia <= DateTime.Today)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 

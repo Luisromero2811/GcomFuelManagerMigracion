@@ -944,7 +944,7 @@
     {
         try
         {
-            if (Es_Cierre_Individual || Es_Orden_Copiada)
+
                 if (Puede_Buscar_Cliente_Destino)
                     if (ordenCierre.CodCte != null && ClienteSeleccionado != ordenCierre.CodCte)
                     {
@@ -1215,29 +1215,29 @@
     {
         try
         {
-            if (!Es_Cierre_Individual || Es_Orden_Copiada)
-            {
-                ZonaCliente zonaCliente = new ZonaCliente();
-                zonaCliente.DesCod = ordenCierre.CodDes;
-                zonaCliente.CteCod = ordenCierre.CodCte;
-                var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
-                var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
-                if (response.Error)
-                {
-                    var responseHttp = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    Precios = response.Response;
-                    Precios = Precios.Where(x => x.codPrd == Producto_Pedido).ToList();
-                    PrecioDetalle = Precios.FirstOrDefault(x => x.codPrd == Producto_Pedido);
+            // if (!Es_Cierre_Individual || Es_Orden_Copiada)
+            // {
+            //     ZonaCliente zonaCliente = new ZonaCliente();
+            //     zonaCliente.DesCod = ordenCierre.CodDes;
+            //     zonaCliente.CteCod = ordenCierre.CodCte;
+            //     var precioFolio = isFolio ? ordenCierre.Folio_Perteneciente : string.Empty;
+            //     var response = await http.Post<ZonaCliente, List<Precio>>($"api/precio/productos/{precioFolio}", zonaCliente);
+            //     if (response.Error)
+            //     {
+            //         var responseHttp = await response.ObtenerMensajeError();
+            //         await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            //     }
+            //     else
+            //     {
+            //         Precios = response.Response;
+            //         Precios = Precios.Where(x => x.codPrd == Producto_Pedido).ToList();
+            //         PrecioDetalle = Precios.FirstOrDefault(x => x.codPrd == Producto_Pedido);
 
-                    DestinoSeleccionado = ordenCierre.CodDes;
-                    await ChangeProducto();
-                    // StateHasChanged();
-                }
-            }
+            //         DestinoSeleccionado = ordenCierre.CodDes;
+            //         await ChangeProducto();
+            //         // StateHasChanged();
+            //     }
+            // }
         }
         catch (Exception e)
         {

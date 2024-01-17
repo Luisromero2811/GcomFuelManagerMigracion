@@ -119,17 +119,15 @@ namespace GComFuelManager.Server.Controllers
                         BOL = item.Orden?.BatchId,
                         Precio = item.Pre ?? 0,
                         Costo = item.Costo,
-                        Volumen_Cargado = item.Compartment == 1 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom!.ToString() ?? "0")
-                                        : item.Compartment == 2 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom2!.ToString() ?? "0")
-                                        : item.Compartment == 3 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom3!.ToString() ?? "0")
-                                        : item.Compartment == 4 && item.Tonel != null ? double.Parse(item!.Tonel!.Capcom4!.ToString() ?? "0")
-                                        : item.Vol ?? 0,
-                        Estado = item.Orden != null ? item.Orden.Estado?.den ?? "" : item.Estado?.den ?? "",
+                        Volumen_Cargado = item.Obtener_Volumen_De_Orden(),
+                        Estado = item.Obtener_Estado_De_Orden,
                         Fecha_Carga = item?.Orden?.Fchcar?.ToString("d"),
-                        Cliente = item?.OrdenCierre?.Cliente?.Den ?? string.Empty,
-                        Destino = item?.Orden?.Destino?.Den ?? item?.Destino?.Den ?? string.Empty,
-                        Producto = item?.Orden?.Producto?.Den ?? item?.Producto?.Den ?? string.Empty,
-                        Fecha_Programa = item?.Fchcar?.ToString("d")
+                        Cliente = item?.Obtener_Cliente_De_Orden,
+                        Destino = item?.Obtener_Destino_De_Orden,
+                        Producto = item?.Obtener_Producto_De_Orden,
+                        Fecha_Programa = item?.Fchcar?.ToString("d"),
+                        Utilidad = item?.Obtener_Utilidad_Coste(),
+                        Utilidad_Sobre_Volumen = item?.Obtener_Utilidad_Sobre_Volumen()
                     });
                 }
 

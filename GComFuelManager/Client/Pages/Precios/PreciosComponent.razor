@@ -293,6 +293,8 @@
                                     <th>Cliente</th>
                                     <th>Moneda</th>
                                     <th>Cambio</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha de subida</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
                                             <th style="min-width:20px;width:200px;">
@@ -322,11 +324,13 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 @if (precios is null)
                                 {
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="12">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -367,6 +371,8 @@
                                             </td>
                                             <td>@item?.Moneda?.Nombre</td>
                                             <td>@(item?.Equibalencia ?? 1)</td>
+                                            <td>@item?.Usuario?.Den</td>
+                                            <td>@item?.FchActualizacion</td>
                                             <td>
                                                 <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                     <div class="col-12">
@@ -384,7 +390,7 @@
                                 else if (precios?.Count == 0)
                                 {
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="12">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -392,7 +398,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="10">
+                                    <td colspan="12">
                                         <div class="col-12 row">
                                             <div class="text-muted col-2">
                                                 <p>total de registros: @ConteoTotal</p>
@@ -427,6 +433,8 @@
                                     <th>Cliente</th>
                                     <th>Moneda</th>
                                     <th>Cambio</th>
+                                    <th>Usuario</th>
+                                    <th>Fecha de subida</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
                                         <Authorized>
                                             <th>
@@ -456,11 +464,13 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
+                                    <td></td>
                                 </tr>
                                 @if (preciosPro is null)
                                 {
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="12">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -501,6 +511,8 @@
                                             </td>
                                             <td>@item?.Moneda?.Nombre</td>
                                             <td>@(item?.Equibalencia ?? 1)</td>
+                                            <td>@item?.Usuario?.Den</td>
+                                            <td>@item?.FchActualizacion</td>
                                             <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
                                                 <td>
                                                     <div class="col-12">
@@ -518,7 +530,7 @@
                                 else if (preciosPro?.Count == 0)
                                 {
                                     <tr>
-                                        <td colspan="10">
+                                        <td colspan="12">
                                             <p>No hay precios</p>
                                         </td>
                                     </tr>
@@ -526,7 +538,7 @@
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <td colspan="10">
+                                    <td colspan="12">
                                         <div class="col-12 row">
                                             <div class="text-muted col-2">
                                                 <p>total de registros: @ConteoTotalPro</p>

@@ -385,6 +385,21 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Producto)
                 .WithMany()
                 .HasForeignKey(x => x.ID_Producto);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
         }
 
 

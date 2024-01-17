@@ -286,7 +286,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             Codsyn = item.BusinessEntity.BusinessEntityId.Id.Value.ToString()
                         };
                         //Obtención de código del cliente
-                        Cliente? c = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                        Cliente? c = context.Cliente.Where(x => x.Codsyn == cliente.Codsyn)
                             .DefaultIfEmpty()
                             .FirstOrDefault();
                         //Si el cliente no es nulo 
@@ -308,7 +308,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     CodGamo = long.Parse(string.IsNullOrEmpty(items.DestinationCode) ? "0" : items.DestinationCode)
                                 };
                                 //Obtención del Cod del Destino 
-                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
+                                Destino? d = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
                                 //Si el destino esta activo 
@@ -477,7 +477,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 return Ok(newgrupos);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
