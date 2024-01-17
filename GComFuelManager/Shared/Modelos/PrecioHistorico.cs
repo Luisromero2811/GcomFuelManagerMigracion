@@ -25,6 +25,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
+        public int? ID_Usuario { get; set; } = 0;
 
         [JsonProperty("fechaActualizacion"), DisplayName("Fecha de actualizacion")]
         public string FechaActualizacion
@@ -46,10 +47,12 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, DisplayName("Cliente")] public string? NombreCliente { get { return Cliente?.Den; } }
         [NotMapped, DisplayName("Producto")] public string? NombreProducto { get { return Producto?.Den; } }
         [NotMapped,DisplayName("Destino")] public string? NombreDestino { get { return Destino?.Den; } }
+        [NotMapped, DisplayName("Usuario")] public string? NombreUsuario { get { return Usuario?.Den; } }
 
         [NotMapped, EpplusIgnore] public Zona? Zona { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Usuario? Usuario { get; set; } = null!;
     }
 }

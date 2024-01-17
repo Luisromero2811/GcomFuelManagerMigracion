@@ -26,12 +26,14 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
+        [EpplusIgnore] public int? ID_Usuario { get; set; } = 0;
 
         [NotMapped, EpplusIgnore] public Zona? Zona { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
-        
+        [NotMapped, EpplusIgnore] public Usuario? Usuario { get; set; } = null!;
+
         public Precio ToPrecio()
         {
             try

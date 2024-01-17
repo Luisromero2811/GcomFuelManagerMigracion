@@ -186,7 +186,7 @@ namespace GComFuelManager.Server.Controllers
                     .FirstOrDefault();
 
                 var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                    && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+                    && orden.Fchcar != null && x.FchDia <= DateTime.Today)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
