@@ -159,6 +159,13 @@
                                 </button>
                             </div>
                         </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="ExportExcel">
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@ExportarExcel" type="button">
+                                    <i class="fa fa-solid fa-file-excel"></i> Exportar
+                                </button>
+                            </div>
+                        </AuthorizeView>
                     </div>
                 </EditForm>
             </div>
@@ -194,7 +201,7 @@
                             <div class="col-12">
                                 <div class="form-check form-switch m-2">
                                     <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                    @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                           @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
                                 </div>
                             </div>
                         </Template>
@@ -392,13 +399,13 @@
     private async Task Message(string message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-            {
-                Position = "top-end",
-                ShowConfirmButton = false,
-                Timer = 1700,
-                TimerProgressBar = true,
-                Toast = true,
-            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1700,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
     private void SetCliente(Cliente cliente)
@@ -413,4 +420,33 @@
             throw e;
         }
     }
+
+    public async Task ExportarExcel()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Clientes");
+            worksheet.Columns.Width = 60;
+            worksheet.Columns.AutoFit();
+
+            //Formación del excel
+            var header = worksheet.Cells["A1:C1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<Cliente>(Clientes, true);
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+            //Guardado de Excell
+            await js.GuardarComo($"Clientes_Grupo{CliGru.grupo!.Den}_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
