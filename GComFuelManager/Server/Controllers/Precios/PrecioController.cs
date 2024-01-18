@@ -151,7 +151,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         }
 
         [HttpGet("{Orden_Compra}")]
-        public ActionResult GetPrecioByBol([FromRoute] int Orden_Compra)
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra)
         {
             try
             {
@@ -204,19 +204,19 @@ namespace GComFuelManager.Server.Controllers.Precios
                             precio.Producto_Original = item.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
+                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).FirstOrDefault();
+                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
-                        && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
-                        .OrderByDescending(x => x.FchDia)
+                        && x.FchDia <= DateTime.Today)
+                        .OrderByDescending(x => x.FchActualizacion)
                         .FirstOrDefault();
 
                     if (orden is not null)
@@ -235,28 +235,30 @@ namespace GComFuelManager.Server.Controllers.Precios
                         precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
                     }
 
-                    if (item != null && precioVig is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today ||
-                        orden is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && precioVig is not null)
+                    if (item != null && precioVig is not null && orden is null || orden is not null && precioVig is not null)
                     {
-                        precio.Precio = precioVig.Pre;
-                        precio.Fecha_De_Precio = precioVig.FchDia;
-                        precio.Precio_Encontrado = true;
-                        precio.Precio_Encontrado_En = "Vigente";
-                        precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
-                        precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
+                        if (precioVig.FchDia == DateTime.Today)
+                        {
+                            precio.Precio = precioVig.Pre;
+                            precio.Fecha_De_Precio = precioVig.FchDia;
+                            precio.Precio_Encontrado = true;
+                            precio.Precio_Encontrado_En = "Vigente";
+                            precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
+                            precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
+                        }
                     }
 
-                    if (item != null && precioPro is not null && item.Fchcar is not null && item.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)
-                        && context.PrecioProgramado.Any() ||
-                        orden is not null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)
-                        && context.PrecioProgramado.Any())
+                    if (item != null && precioPro is not null && context.PrecioProgramado.Any() || orden is not null && precioPro is not null && context.PrecioProgramado.Any())
                     {
-                        precio.Precio = precioPro.Pre;
-                        precio.Fecha_De_Precio = precioPro.FchDia;
-                        precio.Precio_Encontrado = true;
-                        precio.Precio_Encontrado_En = "Programado";
-                        precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
-                        precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
+                        if (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
+                        {
+                            precio.Precio = precioPro.Pre;
+                            precio.Fecha_De_Precio = precioPro.FchDia;
+                            precio.Precio_Encontrado = true;
+                            precio.Precio_Encontrado_En = "Programado";
+                            precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
+                            precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
+                        }
                     }
 
                     if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
