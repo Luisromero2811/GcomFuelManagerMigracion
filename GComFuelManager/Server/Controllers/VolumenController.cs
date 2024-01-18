@@ -170,11 +170,11 @@ namespace GComFuelManager.Server.Controllers
                     .AsQueryable();
 
                 if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
-                    cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin);
+                    cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
 
                 if (cierres is not null)
                 {
-                    ordenCierres = cierres.ToList();
+                    ordenCierres = cierres.OrderByDescending(x => x.FchCierre).ToList();
 
                     folio.OrdenCierres = ordenCierres;
 
