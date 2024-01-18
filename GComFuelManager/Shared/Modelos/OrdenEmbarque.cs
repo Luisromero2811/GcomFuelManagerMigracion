@@ -68,6 +68,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public double Costo { get; set; } = 0;
         [NotMapped, EpplusIgnore] public double Utilidad { get; set; } = 0;
         [NotMapped, EpplusIgnore] public double? Utilidad_Sobre_Volumen { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public bool Mostrar_Detalle_Orden { get; set; } = false;
+        [NotMapped, EpplusIgnore] public List<Orden> Ordenes_Synthesis { get; set; } = new();
 
         public double Obtener_Utilidad_Coste()
         {
@@ -121,9 +123,56 @@ namespace GComFuelManager.Shared.Modelos
                 return "0";
             }
         }
-        public string Obtener_Cliente_De_Orden { get { return OrdenCierre?.Cliente?.Den ?? "Sin cliente asignado"; } }
-        public string Obtener_Destino_De_Orden { get { return Destino?.Den ?? "Sin cliente asignado"; } }
-        public string Obtener_Producto_De_Orden { get { return Producto?.Den ?? "Sin cliente asignado"; } }
+        public string Obtener_Cliente_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Destino is not null)
+                        if (Orden.Destino.Cliente is not null)
+                            if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Den))
+                                return Orden.Destino.Cliente.Den;
+
+                if (OrdenCierre is not null)
+                    if (OrdenCierre.Cliente is not null)
+                        if (!string.IsNullOrEmpty(OrdenCierre.Cliente.Den))
+                            return OrdenCierre.Cliente.Den;
+
+                return "Sin cliente asignado";
+            }
+        }
+        public string Obtener_Destino_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Destino is not null)
+                        if (!string.IsNullOrEmpty(Orden.Destino.Den))
+                            return Orden.Destino.Den;
+
+                if (Destino is not null)
+                    if (!string.IsNullOrEmpty(Destino.Den))
+                        return Destino.Den;
+
+                return "Sin destino asignado";
+            }
+        }
+        public string Obtener_Producto_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Producto is not null)
+                        if (!string.IsNullOrEmpty(Orden.Producto.Den))
+                            return Orden.Producto.Den;
+
+                if (Producto is not null)
+                    if (!string.IsNullOrEmpty(Producto.Den))
+                        return Producto.Den;
+
+                return "Sin producto asignado";
+            }
+        }
         public string Obtener_Estado_De_Orden
         {
             get
@@ -138,6 +187,36 @@ namespace GComFuelManager.Shared.Modelos
                         return Estado.den;
 
                 return "Sin estado asignado";
+            }
+        }
+        public DateTime Obtener_Fecha_De_Carga_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Fchcar is not null)
+                        return (DateTime)Orden.Fchcar;
+
+                if (Fchcar is not null)
+                    return (DateTime)Fchcar;
+
+                return DateTime.MinValue;
+            }
+        }
+        public string Obtener_Tonel_De_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Tonel is not null)
+                        if (!string.IsNullOrEmpty(Orden.Tonel.Veh))
+                            return Orden.Tonel.Veh;
+
+                if (Tonel is not null)
+                    if (!string.IsNullOrEmpty(Tonel.Veh))
+                        return Tonel.Veh;
+
+                return "Si unidad asignada";
             }
         }
     }
