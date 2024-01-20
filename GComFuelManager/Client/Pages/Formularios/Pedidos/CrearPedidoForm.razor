@@ -387,7 +387,7 @@
                                                 <button class="btn btn-sm btn-primary col-12" @onclick="@(()=>SetEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
                                             </div>
                                         }
-                                        @if (string.IsNullOrEmpty(item.OrdenEmbarque.Bolguidid))
+                                        @if (item.OrdenEmbarque.Orden is null)
                                         {
                                             <div class="col-6">
                                                 <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>CancelPedido(item))"><i class="fa fa-solid fa-cancel"></i></button>
