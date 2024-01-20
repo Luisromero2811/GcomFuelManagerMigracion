@@ -2088,6 +2088,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           Grupo = x.Grupo,
                           Estado = x.OrdenEmbarque.Estado.den,
                           Activa = x.Activa,
+                          Estatus = x.Estatus,
                           Precio = x.Precio,
                           Volumen = x.Volumen,
                           Observaciones = x.Observaciones,

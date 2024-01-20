@@ -9,29 +9,32 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net.NetworkInformation;
 
 namespace GComFuelManager.Shared.DTOs
 {
-	public class FolioCierreDTO
-	{
-		
-		[EpplusIgnore]
-		public Cliente? cliente { get; set; } = null!;
-		[EpplusIgnore]
-		public Destino? destino { get; set; } = null!;
-		[EpplusIgnore]
-		public Producto? Producto { get; set; } = null!;
-		[EpplusIgnore]
-		public DateTime? FchCierre { get; set; } = DateTime.MinValue;
+    public class FolioCierreDTO
+    {
+
         [EpplusIgnore]
-		public DateTime? FchCierre_Vencimiento { get; set; } = DateTime.MinValue;
+        public Cliente? cliente { get; set; } = null!;
         [EpplusIgnore]
-		public Grupo? Grupo { get; set; } = null!;
+        public Destino? destino { get; set; } = null!;
+        [EpplusIgnore]
+        public Producto? Producto { get; set; } = null!;
+        [EpplusIgnore]
+        public DateTime? FchCierre { get; set; } = DateTime.MinValue;
+        [EpplusIgnore]
+        public DateTime? FchCierre_Vencimiento { get; set; } = DateTime.MinValue;
+        [EpplusIgnore]
+        public Grupo? Grupo { get; set; } = null!;
         [EpplusIgnore]
         public string? Estado { get; set; } = null!;
         [EpplusIgnore]
         public OrdenEmbarque? ordenEmbarque { get; set; } = null!;
-       
+        [EpplusIgnore]
+        public OrdenCierre? ordenCierre { get; set; } = null!;
+
 
         [DisplayName("Fecha")]
         public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
@@ -64,10 +67,49 @@ namespace GComFuelManager.Shared.DTOs
         //Estatus del cierre Activa-Cerrada
         [NotMapped, EpplusIgnore]
         public bool? Activa { get; set; } = true;
+        [NotMapped, EpplusIgnore]
+        public bool? Estatus { get; set; } = true;
         //Volumenes
-        [DisplayName("Estado")]
-        public string? Estado_Pedido { get { return Activa == false ? "Cerrada" : ordenEmbarque?.Orden != null ? ordenEmbarque?.Orden?.Estado?.den
-                : ordenEmbarque?.Estado != null ? ordenEmbarque?.Estado?.den : "Activa"; } }
+        [DisplayName("Estado"), EpplusIgnore]
+        public string? Estado_Pedido
+        {
+            get
+            {
+                return Activa == false ? "Cerrada" : ordenEmbarque?.Orden != null ? ordenEmbarque?.Orden?.Estado?.den
+                : ordenEmbarque?.Estado != null ? ordenEmbarque?.Estado?.den : "Activa";
+            }
+        }
+
+        [DisplayName("Estado de ODC")]
+        public string Estado_Pedidos
+        {
+            get
+            {
+                if (Estatus == false)
+                    return "Cancelada";
+
+                if (Activa == false)
+                    return "Cerrada";
+
+                if (Activa != false)
+                    return "Activa";
+
+                if (ordenEmbarque is not null)
+                    if (ordenEmbarque.Orden is not null)
+                        if (ordenEmbarque.Orden.Estado is not null)
+                            if (!string.IsNullOrEmpty(ordenEmbarque.Orden.Estado.den))
+                                return ordenEmbarque.Orden.Estado.den;
+
+                if (ordenEmbarque is not null)
+                    if (ordenEmbarque.Estado is not null)
+                        if (!string.IsNullOrEmpty(ordenEmbarque.Estado.den))
+                            return ordenEmbarque.Estado.den;
+
+                return "Sin estado asignado";
+
+            }
+        }
+
         [DisplayName("Tipo de Venta")]
         public string? Tipo_Venta { get; set; } = string.Empty;
     }
