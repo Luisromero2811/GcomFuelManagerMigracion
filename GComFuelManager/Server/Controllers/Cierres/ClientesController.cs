@@ -45,11 +45,21 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult> Get([FromQuery] Folio_Activo_Vigente filtro_)
         {
             try
             {
-                var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
+                var clientes_filtrados = context.Cliente.AsQueryable();
+
+                if (filtro_.ID_Grupo != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.codgru == filtro_.ID_Grupo);
+
+                if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
+                    clientes_filtrados = clientes_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Cliente_Filtrado));
+
+                //var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
+
+                var clientes = clientes_filtrados.OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
