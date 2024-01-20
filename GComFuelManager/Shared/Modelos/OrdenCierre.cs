@@ -170,6 +170,9 @@ namespace GComFuelManager.Shared.Modelos
                 if (Activa == false)
                     return "Cerrada";
 
+                if (Activa != false)
+                    return "Activa";
+
                 if (OrdenEmbarque is not null)
                     if (OrdenEmbarque.Orden is not null)
                         if (OrdenEmbarque.Orden.Estado is not null)
