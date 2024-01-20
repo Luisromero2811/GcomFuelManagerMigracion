@@ -400,6 +400,27 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Usuario)
                 .WithMany()
                 .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Orden)
+                .WithOne(x => x.Redireccionamiento)
+                .HasForeignKey<Redireccionamiento>(x => x.Id_Orden);
+            //.HasPrincipalKey<Orden>(x => x.Cod);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.Grupo_Red);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.Cliente_Red);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.Destino_Red);
         }
 
 
@@ -448,5 +469,6 @@ namespace GComFuelManager.Server
         public DbSet<Moneda> Moneda { get; set; }
         public DbSet<Consecutivo> Consecutivo { get; set; }
         public DbSet<Pedimento> Pedimentos { get; set; }
+        public DbSet<Redireccionamiento> Redireccionamientos { get; set; }
     }
 }

@@ -848,14 +848,6 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 precio.BOL = ordenes.BatchId;
                 precio.Volumen_Cargado = ordenes.Vol;
-                if (orden is not null)
-                {
-                    if (orden.Destino is not null)
-                        precio.Destino_Original = orden.Destino.Den ?? "";
-
-                    if (orden.Producto is not null)
-                        precio.Producto_Original = orden.Producto.Den ?? "";
-                }
 
                 var precioVig = context.Precio.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
                     .OrderByDescending(x => x.FchDia)

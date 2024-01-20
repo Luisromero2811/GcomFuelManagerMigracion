@@ -1011,6 +1011,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<OrdenEmbarque> ordenes = new List<OrdenEmbarque>();
+                //List<OrdenEmbarque> ordenes_adicionales = new List<OrdenEmbarque>();
 
                 if (folio != null && folio != 0)
                     ordenes = await context.OrdenEmbarque.Where(x => x.Folio == folio)
@@ -1020,11 +1021,67 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Tonel)
                         .Include(x => x.Chofer)
                         .Include(x => x.OrdenCierre)
-                        .Include(x => x.Orden)
-                        .ThenInclude(x => x.Estado)
+                        .IgnoreAutoIncludes()
                         .ToListAsync();
 
-                return Ok(ordenes);
+                foreach (var item in ordenes)
+                {
+                    List<Orden> Ordenes_Synthesis = context.Orden.Where(x => x.Ref == item.FolioSyn)
+                        .Include(x => x.Destino)
+                        .Include(x => x.Producto)
+                        .Include(x => x.Estado)
+                        .IgnoreAutoIncludes()
+                        .ToList();
+
+                    if (Ordenes_Synthesis is not null)
+                        item.Ordenes_Synthesis.AddRange(Ordenes_Synthesis);
+                }
+
+                //foreach (var item in ordenes)
+                //{
+                //    if (context.Orden.Count(x => item != null && item.Orden != null && x.Ref == item.FolioSyn
+                //            && x.Codest != 14 && item.Codest != 14) > 1)
+                //    {
+                //        var Ordenes_Adicionales = context.Orden.Where(x => item != null && item.Orden != null && x.Ref == item.FolioSyn
+                //        && x.Cod != item.Orden.Cod).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.Producto).Include(x => x.Tonel).Include(x => x.Estado).IgnoreAutoIncludes().ToList();
+
+                //        foreach (var oa in Ordenes_Adicionales)
+                //        {
+                //            OrdenEmbarque ordenEmbarque = new();
+
+                //            if (item != null && item.Orden != null)
+                //            {
+                //                ordenEmbarque.Folio = item.Folio;
+                //                ordenEmbarque.Pre = item.Pre;
+                //                ordenEmbarque.Destino = new() { Den = oa?.Destino?.Den };
+                //                ordenEmbarque.Cliente = new() { Den = oa?.Cliente?.Den };
+                //                ordenEmbarque.Producto = new() { Den = oa?.Producto?.Den };
+                //                ordenEmbarque.Tonel = new()
+                //                {
+                //                    Tracto = oa?.Tonel?.Tracto,
+                //                    Placa = oa?.Tonel?.Placa
+                //                };
+                //                ordenEmbarque.Orden = new()
+                //                {
+                //                    Cod = oa.Cod,
+                //                    BatchId = oa?.BatchId,
+                //                    Fchcar = oa?.Fchcar,
+                //                    Vol = oa.Vol,
+                //                    Vol2 = oa.Vol2,
+                //                    Liniteid = oa.Liniteid,
+                //                };
+                //                ordenEmbarque.Orden.Estado = new() { den = oa.Estado?.den };
+
+                //                if (!ordenes_adicionales.Contains(ordenEmbarque))
+                //                    ordenes_adicionales.Add(ordenEmbarque);
+                //            }
+                //        }
+                //    }
+                //}
+
+                //ordenes.AddRange(ordenes_adicionales);
+
+                return Ok(ordenes.OrderByDescending(x => x.Fchcar));
             }
             catch (Exception e)
             {
@@ -1067,6 +1124,78 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpDelete("cancel/orden/{cod:int}")]
+        public async Task<ActionResult> Cancelar_Orden_Y_Ordenes_Synthesis([FromRoute] int cod)
+        {
+            try
+            {
+                OrdenEmbarque? pedido = context.OrdenEmbarque.FirstOrDefault(x => x.Cod == cod);
+
+                if (pedido is null)
+                    return NotFound();
+
+                OrdenCierre? cierre = context.OrdenCierre.FirstOrDefault(x => x.CodPed == pedido.Cod);
+
+                pedido.Codest = 14;
+
+                if (cierre is not null)
+                    cierre.Estatus = false;
+
+                context.Update(pedido);
+
+                if (cierre is not null)
+                    context.Update(cierre);
+
+                List<Orden>? ordenes = context.Orden.Where(x => x.Folio == pedido.Folio).ToList();
+
+                foreach (var item in ordenes)
+                {
+                    item.Codest = 14;
+                    context.Update(item);
+                }
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 4);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("cancel/orden/synthesis/{cod:int}")]
+        public async Task<ActionResult> Cancelar_Ordenes_Synthesis([FromRoute] int cod)
+        {
+            try
+            {
+                Orden? orden = context.Orden.FirstOrDefault(x => x.Cod == cod);
+
+                if (orden is not null)
+                {
+                    orden.Codest = 14;
+                    context.Update(orden);
+                }
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 4);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         [HttpPost("recrear")]
         public async Task<ActionResult> RecrearOrden([FromBody] List<OrdenEmbarque> ordenes)

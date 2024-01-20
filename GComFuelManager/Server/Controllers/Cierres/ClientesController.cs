@@ -292,6 +292,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         //Si el cliente no es nulo 
                         if (c != null)
                         {
+                            c.Den = cliente.Den;
                             context.Update(c);
                             foreach (var items in item.BusinessEntity.Destinations)
                             {
@@ -355,7 +356,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             context.Add(cliente);
                             await context.SaveChangesAsync();
                             //Obtención del código del cliente
-                            Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                            Cliente? cli = context.Cliente.Where(x => x.Codsyn == cliente.Codsyn)
                                 .DefaultIfEmpty()
                                 .FirstOrDefault();
                             foreach (var itemss in item.BusinessEntity.Destinations)
@@ -373,7 +374,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     CodGamo = long.Parse(string.IsNullOrEmpty(itemss.DestinationCode) ? "0" : itemss.DestinationCode)
                                 };
                                 //Obtención del code del destino 
-                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
+                                Destino? d = context.Destino.Where(x => x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
                                    .DefaultIfEmpty()
                                    .FirstOrDefault();
                                 //Si el destino esta activo

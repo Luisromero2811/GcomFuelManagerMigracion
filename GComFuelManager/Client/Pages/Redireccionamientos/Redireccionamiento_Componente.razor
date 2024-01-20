@@ -1,0 +1,571 @@
+﻿@page "/redireccionamiento"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject DialogService ds
+@inject IJSRuntime js
+@inject NotificationService ms
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema" Context="Redireccionamiento">
+    <div class="col-12 card">
+        <div class="col-12 card-header">
+            <b>Redireccionamiento</b>
+        </div>
+        <div class="col-12 card-body">
+            <div class="col-12">
+                <div class="col-12 row my-1">
+                    <div class="col-2">
+                        <input class="col-12 form-control form-control-sm" type="number" @bind="filtroDTO.Bol" min="0" placeholder="BOL"/>
+                    </div>
+                    <div class="col-1">
+                        <button>
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-4">
+                    @* <label>RFC</label>
+                    <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.RFC_Capitales" maxlength="13" placeholder="RFC" />
+                    <ValidationMessage For="@(()=>Pedimento.RFC_Exportador)" /> *@
+                    <DropDownFilter Listado="Grupos" T="Grupo" Valor="@Redireccion.Grupo_Red" Propiedad_Valor="Cod" TValue="Int16" Propiedad_Filtro="Grupo_Filtrado" FiltrarValor="GetGrupos">
+                        <RenderValue Context="grupo">
+                            @grupo.Den
+                        </RenderValue>
+                        <Render Context="grupo">
+                            @grupo.Den
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                @* <EditForm Model="@Pedimento" OnValidSubmit="Crear_Pedimento" class="col-12 form row">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    
+                    <div class="col-4">
+                        <label>Referencia</label>
+                        <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.Referencia" maxlength="14" placeholder="Referencia" />
+                        <ValidationMessage For="@(()=>Pedimento.Referencia)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Numero de pedimento</label>
+                        <input type="text" class="col-12 form-control form-control-sm" @bind="@Pedimento.Numero_Pedimento" maxlength="20" placeholder="Numero de pedimento" />
+                        <ValidationMessage For="@(()=>Pedimento.Numero_Pedimento)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Producto</label>
+                        <select @bind="@Pedimento.ID_Producto" class="col-12 form-select form-select-sm">
+                            <option value="0">-- Seleccione un producto --</option>
+                            @foreach (var item in Productos)
+                            {
+                                <option value="@item.Cod">@item.Den</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(()=>Pedimento.ID_Producto)" />
+                    </div>
+                    <div class="col-4">
+                        <label>Costo</label>
+                        <input type="number" step="0.0001" class="col-12 form-control form-control-sm" @bind="@Pedimento.Costo" min="0" placeholder="Costo" />
+                        <ValidationMessage For="@(()=>Pedimento.Costo)" />
+                    </div>
+                    <div class="col">
+                        <label>Fecha efectiva</label>
+                        <input type="date" @bind="@Pedimento.Fecha_Actual" class="form-control form-control-sm col-12" />
+                    </div>
+                    <div class="col-12 d-flex justify-content-center mt-1">
+                        <div class="col-4">
+                            <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                                Guardar
+                                @if (Loading_Guardar)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm> *@
+            </div>
+        </div>
+    </div>
+    <div class="col-12 mt-1">
+        <div class="<ol-12">
+            <div class="col-12 row">
+                <div class="col">
+                    <p>Filtro de ordenes</p>
+                </div>
+                <div class="col">
+                    <input type="date" @bind="@filtroDTO.Fecha_Inicio" class="form-control form-control-sm col-12" />
+                </div>
+                <div class="col">
+                    <input type="date" @bind="@filtroDTO.Fecha_Fin" class="form-control form-control-sm col-12" />
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Buscar_Pedimento">
+                        Buscar
+                        @if (Loading_Buscar)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Exportar_Excel">
+                        Exportar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 overflow-scroll ancho" style="height:450px;resize:both;">
+        <table class="table table-sm table-bordered table-hover" id="miTabla">
+            <thead class="fila">
+                <tr style="max-height:50px;white-space:nowrap;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
+                        Fecha de programa
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
+                        Fecha de carga
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Cliente
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Producto
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Destino
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Precio de venta
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                        Costo
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:80px;">
+                        Utilidad
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
+                        Volumen cargado
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
+                        utilidad sobre volumen
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
+                        Referencia
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:120px;">
+                        BOL
+                    </th>
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:160px;">
+                        Estado
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Loading_Buscar || Loading_Guardar)
+                {
+                    <tr>
+                        <td colspan="11">
+                            <SpinnerLoading />
+                        </td>
+                    </tr>
+                }
+                else if (Ordenes.Count == 0 || Ordenes is null)
+                {
+                    <tr>
+                        <td colspan="11">
+                            No hay registros
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    <Virtualize Items="@Ordenes" Context="item" TItem="OrdenEmbarque">
+                        <tr style="white-space:nowrap;">
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Fchcar?.ToString("dd/MM/yyyy")
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Orden?.Fchcar?.ToString("dd/MM/yyyy")
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Cliente_De_Orden
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Producto_De_Orden
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Destino_De_Orden
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Pre?.ToString("N4", CultureInfo.InvariantCulture)
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Costo.ToString("N4", CultureInfo.InvariantCulture)
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Utilidad_Coste().ToString("N4", CultureInfo.InvariantCulture)
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Volumen_De_Orden_En_Formato()
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Obtener_Utilidad_Sobre_Volumen()?.ToString("N", CultureInfo.InvariantCulture)
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.FolioSyn
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Orden?.BatchId
+                                </div>
+                            </td>
+
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item?.Estado?.den
+                                </div>
+                            </td>
+                        </tr>
+                    </Virtualize>
+                }
+            </tbody>
+        </table>
+    </div>
+</AuthorizeView>
+<style type="text/css">
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        table-layout: fixed;
+    }
+
+    table, th, td {
+        background-color: white;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+
+    .ancho {
+        width: @TotalWidth;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    .asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .table-container {
+        overflow: auto;
+        width: 100%;
+        border: 1px solid #ccc;
+        max-height: 400px; /* Establece una altura máxima si es necesario */
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px; /* Ancho del área de redimensionamiento */
+            background: transparent;
+        }
+</style>
+
+@code {
+    Redireccionamiento Redireccion { get; set; } = new();
+    List<Grupo> Grupos { get; set; } = new();
+
+
+    Pedimento Pedimento { get; set; } = new();
+    CierreFiltroDTO filtroDTO = new();
+
+    Dictionary<string, string> Query = new();
+
+    List<Pedimento> Pedimentos { get; set; } = new();
+    List<Producto> Productos { get; set; } = new();
+    List<OrdenEmbarque> Ordenes { get; set; } = new();
+
+    bool Loading_Guardar = false;
+    bool Loading_Buscar = false;
+
+    int width = 0;
+    bool isClose = false;
+    string TotalWidth = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProductos();
+        await GetGrupos(string.Empty);
+
+        await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
+            // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
+            // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
+        }
+    }
+
+    public async Task GetGrupos(string? uri)
+    {
+        try
+        {
+
+            var response = await http.Get<List<Grupo>>($"api/grupo?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task Crear_Pedimento()
+    {
+        try
+        {
+            Loading_Guardar = true;
+            Pedimento.RFC_Exportador = Pedimento.RFC_Exportador.ToUpper();
+            var response = await http.Post<Pedimento, Pedimento>("api/pedimento", Pedimento);
+            if (response.Error)
+            {
+                Loading_Guardar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Guardar = false;
+                ms.Notify(new NotificationMessage()
+                    {
+                        Summary = "Datos guardados",
+                        Detail = $"Coste guardado con exito",
+                        Duration = 5000,
+                        Severity = NotificationSeverity.Success
+                    });
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Buscar_Pedimento()
+    {
+        try
+        {
+            Loading_Buscar = true;
+            Query["Fecha_Inicio"] = filtroDTO.Fecha_Inicio.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+            Query["Fecha_Fin"] = filtroDTO.Fecha_Fin.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(Query);
+            var response = await http.Get<List<OrdenEmbarque>>($"api/pedimento/ordenes?{uri}");
+            if (response.Error)
+            {
+                Loading_Buscar = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Loading_Buscar = false;
+                // Pedimentos = response.Response;
+                Ordenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            Loading_Buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetProductos()
+    {
+        try
+        {
+            var response = await http.Get<List<Producto>>("api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    // private async Task Abrir_Modal_Detalle(Pedimento pedimento)
+    // {
+    //     try
+    //     {
+    //         await ds.OpenAsync<Vista_Detalle_Pedimento_Componente>("Detalle pedimento",
+    //             new Dictionary<string, object>() { { "Pedimento", pedimento } },
+    //             new DialogOptions()
+    //                 {
+    //                     Width = "80%",
+    //                     Height = "600px",
+    //                     Resizable = true,
+    //                     Draggable = false
+    //                 });
+    //     }
+    //     catch (Exception e)
+    //     {
+    //         await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //         throw e;
+    //     }
+    // }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            var response = await http.Post<List<OrdenEmbarque>, List<Excel_Ordenes_Pedimento>>($"api/excel/reporte/ordenes/pedimento", Ordenes);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("ordenes de pedimento");
+                ws.Columns.Width = 50;
+
+                var header = ws.Cells["A1:M1"];
+
+                ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+                ws.Cells["I1:J1"].Style.Numberformat.Format = "#,##0.00";
+
+                // ws.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                // ws.Cells["K1:M1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                // ws.Cells["F1:J1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response, true);
+                tablebody.Style.Font.Size = 12;
+                // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Costos_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    }

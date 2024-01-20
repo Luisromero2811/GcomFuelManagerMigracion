@@ -19,6 +19,10 @@
         <div class="col-3">
             <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
                 <i class="fa fa-solid fa-magnifying-glass"></i>
+                @if (loading)
+                {
+                    <SpinnerLoading/>
+                }
             </button>
         </div>
     </div>
@@ -35,36 +39,147 @@
                 </button>
             </div>
         </div>
-        <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
-                        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
-            <Columns>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="Folio" Width="110px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Destino.Den" Width="300px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Producto.Den" Width="280px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
+        @* <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
+        GridLines="DataGridGridLines.Both" class="ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
+        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
+        <Columns>
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="Folio" Width="110px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Obtener_Destino_De_Orden" Width="300px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Obtener_Producto_De_Orden" Width="280px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
 
-                    <Template Context="item">
-                        <div class="col-12">
-                            @item.Obtener_Volumen_De_Orden_En_Formato()
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Precio" Width="140px" Property="OrdenEmbarque.Pre" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="OrdenEmbarque.Fchcar" FormatString="{0:d}" Width="180px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estado" Width="130px" Filterable="false">
-                    <Template Context="item">
-                        <div class="col-12">
-                            @item.Obtener_Estado_De_Orden
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Chofer" Property="Chofer.Den" Width="300px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Property="Tonel.Veh" Width="300px" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimento" Property="Compartment" Width="300px" Filterable="false" />
-            </Columns>
-        </RadzenDataGrid>
+        <Template Context="item">
+        <div class="col-12">
+        @item.Obtener_Volumen_De_Orden_En_Formato()
+        </div>
+        </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Precio" Width="140px" Property="Pre" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Obtener_Fecha_De_Carga_De_Orden" FormatString="{0:d}" Width="180px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estado" Property="Obtener_Estado_De_Orden" Width="130px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Chofer" Property="Chofer.Den" Width="300px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Property="Obtener_Tonel_De_Orden" Width="300px" Filterable="false" />
+        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimento" Property="Compartment" Width="300px" Filterable="false" />
+        </Columns>
+        </RadzenDataGrid> *@
     </div>
+
+    <div class="ancho" style="overflow:auto;max-height:450px;font-size:12px;resize:both;">
+        @* @if (ordens?.Count > 0)
+        {
+
+        } *@
+        <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>ver ordenes</th>
+                    <th>Folio</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen</th>
+                    <th>Precio</th>
+                    <th>Fecha de carga programada</th>
+                    <th>Chofer</th>
+                    <th>Unidad</th>
+                    <th>Compartimento</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (loading)
+                {
+                    <SpinnerLoading />
+                }
+                @if (ordens is not null || ordens?.Count > 0)
+                {
+                    <Virtualize Items="ordens" Context="item" TItem="OrdenEmbarque">
+                        <tr>
+                            <td style="min-width:150px;">
+                                <div class="col-12 row">
+                                    <div class="col-6">
+                                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>item.Mostrar_Detalle_Orden = !item.Mostrar_Detalle_Orden)">
+                                            <i class="fa fa-solid fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>ActualizarOrden(item))">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="min-width:100px;">@item.Folio</td>
+                            <td style="min-width:200px;">@item.Destino?.Den</td>
+                            <td style="min-width:200px;">@item.Producto?.Den</td>
+                            <td style="min-width:120px;">@item.Obtener_Volumen_De_Orden_En_Formato()</td>
+                            <td style="min-width:100px;">@item.Pre</td>
+                            <td style="min-width:120px;">@item.Fchcar?.ToString("d")</td>
+                            <td style="min-width:120px;">@item.Chofer?.FullName</td>
+                            <td style="min-width:120px;">@item.Tonel?.Veh</td>
+                            <td style="min-width:120px;">@item.Compartment</td>
+                            <td style="min-width:120px;">@item.Obtener_Estado_De_Orden</td>
+                        </tr>
+                        @if (item.Mostrar_Detalle_Orden)
+                        {
+                            <tr>
+                                <td colspan="9">
+                                    @if (item.Ordenes_Synthesis.Count > 0)
+                                    {
+                                        <div style="max-width:900%;overflow:auto;">
+                                            <table class="table table-bordered table-striped" style="max-width:95%;border-collapse:collapse;box-sizing:border-box;white-space:nowrap;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>cancelar</th>
+                                                        <th>Bol</th>
+                                                        <th>Destino</th>
+                                                        <th>Producto</th>
+                                                        <th>Volumen cargado</th>
+                                                        <th>Fecha de carga</th>
+                                                        <th>Chofer</th>
+                                                        <th>Unidad</th>
+                                                        <th>Compartimento</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (item.Ordenes_Synthesis is not null || item?.Ordenes_Synthesis?.Count > 0)
+                                                    {
+                                                        <Virtualize Items="item.Ordenes_Synthesis" Context="orden" TItem="Orden">
+                                                            <tr>
+                                                                <td style="min-width:80px;">
+                                                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrdenSynthesis(orden))">
+                                                                        <i class="fa fa-solid fa-cancel"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <td style="max-width:100px;">@orden.BatchId</td>
+                                                                <td style="max-width:300px;">@orden?.Destino?.Den</td>
+                                                                <td style="max-width:300px;">@orden?.Producto?.Den</td>
+                                                                <td style="max-width:120px;">@orden?.Vol</td>
+                                                                <td style="max-width:120px;">@orden?.Fchcar</td>
+                                                                <td style="max-width:300px;">@orden?.Chofer?.Den</td>
+                                                                <td style="max-width:200px;">@orden?.Tonel?.Veh</td>
+                                                                <td style="max-width:50px;">@item.Compartment</td>
+                                                                <td style="max-width:150px;">@orden?.Estado?.den</td>
+                                                            </tr>
+                                                        </Virtualize>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>No hay registros</p>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </Virtualize>
+                }
+            </tbody>
+        </table>
+    </div>
+
 </AuthorizeView>
 <style type="text/css">
     .ancho {
@@ -197,7 +312,6 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
@@ -205,21 +319,24 @@
     {
         try
         {
+            loading = true;
             var response = await http.Get<List<OrdenEmbarque>>($"api/pedido/orden/{folio}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loading = false;
             }
             else
             {
                 ordens = response.Response;
+                loading = false;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
+            loading = false;
         }
     }
 
@@ -228,7 +345,7 @@
         try
         {
             loadingUpdate = true;
-            var response = await http.Post<OrdenEmbarque, OrdenEmbarque>($"api/services/updates", orden);
+            var response = await http.Delete($"api/pedido/cancel/orden/{orden.Cod}");
             if (response.Error)
             {
                 loadingUpdate = false;
@@ -238,12 +355,33 @@
             else
             {
                 loadingUpdate = false;
-                if (response.Response is null)
-                    return;
+                await BuscarOrdenes();
+                await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
-                //var index = ordens.IndexOf(ordens.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
-                //ordens.RemoveAt(index);
-                //ordens.Insert(index, response.Response);
+    private async Task ActualizarOrdenSynthesis(Orden orden)
+    {
+        try
+        {
+            loadingUpdate = true;
+            var response = await http.Delete($"api/pedido/cancel/orden/synthesis/{orden.Cod}");
+            if (response.Error)
+            {
+                loadingUpdate = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingUpdate = false;
+
                 await BuscarOrdenes();
                 await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
 
@@ -254,7 +392,6 @@
         {
             loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
@@ -290,7 +427,6 @@
         {
             loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 }

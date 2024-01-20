@@ -1,29 +1,89 @@
-﻿@* <div class="col-12">
-    <button @onclick="@(()=>showDropDown = !showDropDown)" class="form-control-sm form-control">@(Grupo_Seleccionado is not null ? Grupo_Seleccionado.Den : "Seleccione un grupo")</button>
-    @if (showDropDown)
+﻿@typeparam T
+@typeparam TValue
+
+<div class="col-12">
+    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control">
+        @if (RenderValue is null || Valor_Seleleccionado is null)
+        {
+            <p>Seleccione un valor</p>
+        }
+        else
+        {
+            @if (Valor_Seleleccionado is not null)
+            {
+                @RenderValue(Valor_Seleleccionado)
+            }
+        }
+    </button>
+    @if (ShowDropDown)
     {
         <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
             <li class="list-group-item">
-                <input type="text" class="form-control-sm form-control col-12" @bind="Grupo_Filtrado" @oninput="@FilterGrupo" />
+                <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
             </li>
-            <Virtualize Items="Grupos_Filtrados" Context="Item" TItem="Grupo">
-                <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li>
+            <Virtualize Items="Listado" Context="Item" TItem="T">
+                @if (Render is not null)
+                {
+                    <li class="list-group-item" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
+                        @Render(Item)
+                    </li>
+                }
+                @* <li class="list-group-item @(Item.Cod == Grupo_Seleccionado?.Cod ? "active":"")" style="cursor:pointer;" @onclick="@(()=>GrupoChange(Item))">@Item.Den</li> *@
             </Virtualize>
         </ul>
     }
 </div>
 
 @code {
-    private void GrupoChange(Grupo e)
+    private bool ShowDropDown { get; set; } = false;
+    [Parameter] public List<T> Listado { get; set; } = new();
+    [Parameter] public RenderFragment<T>? Render { get; set; } = null!;
+    [Parameter] public RenderFragment<T>? RenderValue { get; set; } = null!;
+    private string Valor_Filtrado = string.Empty;
+
+    [Parameter] public EventCallback<string> FiltrarValor { get; set; }
+
+    private T? Valor_Seleleccionado { get; set; } = default(T);
+
+    [Parameter] public string Propiedad_Valor { get; set; } = string.Empty;
+    [Parameter] public string Propiedad_Filtro { get; set; } = string.Empty;
+
+    [Parameter] public TValue? Valor { get; set; } = default(TValue);
+
+    private void ValorChange(T item)
     {
-        Grupo_Seleccionado = e;
-        showDropDown = false;
+        ShowDropDown = false;
+
+        Valor_Seleleccionado = item;
+
+        var prop_name = item.GetType().GetProperty(Propiedad_Valor);
+        if (prop_name is not null)
+        {
+
+            Valor = (TValue)prop_name.GetValue(item);
+        }
     }
 
-    private async Task FilterGrupo(ChangeEventArgs e)
+    private async Task On_Change_Filter_Value(ChangeEventArgs e)
     {
-        Grupo_Filtrado = e.Value.ToString();
-        queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
-        await GetFolios();
+        Dictionary<string, string> query = new();
+
+        query[Propiedad_Filtro] = e.Value.ToString() ?? string.Empty;
+        
+        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+        await FiltrarValor.InvokeAsync(uri);
     }
-} *@
+    // private void GrupoChange(Grupo e)
+    // {
+    //     Grupo_Seleccionado = e;
+    //     ShowDropDown = false;
+    // }
+
+    // private async Task FilterGrupo(ChangeEventArgs e)
+    // {
+    //     Grupo_Filtrado = e.Value.ToString();
+    //     queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
+    //     await GetFolios();
+    // }
+}
