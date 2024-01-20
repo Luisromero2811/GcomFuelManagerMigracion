@@ -237,6 +237,7 @@
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Disponible" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumen_Disponible" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Observaciones" Property="Observaciones" Filterable="false" Width="250px" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Estado de Pedido" Property="Estado_Pedido" Filterable="false" Width="180px"/>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Ver ordenes" Filterable="false" Width="150px">
                         <Template Context="item">
                             <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item))">

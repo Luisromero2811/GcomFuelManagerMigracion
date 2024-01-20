@@ -46,7 +46,10 @@ namespace GComFuelManager.Server.Controllers
                             Volumen_Disponible = item.Volumen_Disponible,
                             Folio = item.Folio,
                             Observaciones = item.Observaciones,
-                            Precio = item.Precio
+                            Precio = item.Precio,
+                            Tipo_Venta = item.TipoPago,
+                            Activa = item.Activa,
+                            Estatus = item.Estatus
                         });
                     }
                 }
