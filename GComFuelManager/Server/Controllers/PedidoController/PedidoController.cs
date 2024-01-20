@@ -1842,6 +1842,30 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("ordenes/despachadas/{bol:int}")]
+        public ActionResult Obtener_Ordenes_Synhtesis_Por_BOL([FromRoute] int bol)
+        {
+            try
+            {
+                List<Orden> ordenes = context.Orden.Where(x => x.BatchId == bol)
+                    .Include(x => x.OrdenEmbarque)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tonel)
+                    .Include(x => x.Estado)
+                    .IgnoreAutoIncludes()
+                    .ToList();
+
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         private VolumenDisponibleDTO ObtenerVolumenDisponibleDeProducto(string Folio, byte? ID_Producto)
         {
             VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();

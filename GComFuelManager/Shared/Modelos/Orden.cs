@@ -84,6 +84,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped, EpplusIgnore]
         public OrdenCierre? Precio { get; set; } = null!;
-        public Redireccionamiento Redireccionamiento { get; set; } = null!;
+        public Redireccionamiento? Redireccionamiento { get; set; } = null!;
     }
 }

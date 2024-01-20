@@ -2,6 +2,8 @@
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ExcelController : ControllerBase
     {
         private readonly ApplicationDbContext context;

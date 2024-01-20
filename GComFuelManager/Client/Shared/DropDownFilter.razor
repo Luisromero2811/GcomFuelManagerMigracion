@@ -1,11 +1,19 @@
-﻿@typeparam T
+﻿@typeparam TListado
 @typeparam TValue
 
 <div class="col-12">
-    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control">
+    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button">
         @if (RenderValue is null || Valor_Seleleccionado is null)
         {
-            <p>Seleccione un valor</p>
+            @if (!string.IsNullOrEmpty(Default_Placeholder))
+            {
+                @Default_Placeholder
+            }
+            else
+            {
+                <p>Seleccione un valor</p>
+            }
+
         }
         else
         {
@@ -19,9 +27,9 @@
     {
         <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
             <li class="list-group-item">
-                <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
+                <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value"/>
             </li>
-            <Virtualize Items="Listado" Context="Item" TItem="T">
+            <Virtualize Items="Listado" Context="Item" TItem="TListado">
                 @if (Render is not null)
                 {
                     <li class="list-group-item" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
@@ -35,22 +43,26 @@
 </div>
 
 @code {
+    [Parameter] public string Default_Placeholder { get; set; } = string.Empty;
     private bool ShowDropDown { get; set; } = false;
-    [Parameter] public List<T> Listado { get; set; } = new();
-    [Parameter] public RenderFragment<T>? Render { get; set; } = null!;
-    [Parameter] public RenderFragment<T>? RenderValue { get; set; } = null!;
+    [Parameter] public List<TListado> Listado { get; set; } = new();
+    [Parameter] public RenderFragment<TListado>? Render { get; set; } = null!;
+    [Parameter] public RenderFragment<TListado>? RenderValue { get; set; } = null!;
     private string Valor_Filtrado = string.Empty;
 
     [Parameter] public EventCallback<string> FiltrarValor { get; set; }
+    [Parameter] public EventCallback On_Change_Method { get; set; }
 
-    private T? Valor_Seleleccionado { get; set; } = default(T);
+    private TListado? Valor_Seleleccionado { get; set; } = default(TListado);
 
     [Parameter] public string Propiedad_Valor { get; set; } = string.Empty;
     [Parameter] public string Propiedad_Filtro { get; set; } = string.Empty;
 
     [Parameter] public TValue? Valor { get; set; } = default(TValue);
+    [Parameter] public EventCallback<TValue> ValorChanged { get; set; }
+    [Parameter] public EventCallback<TValue> ValorChangedCustom { get; set; }
 
-    private void ValorChange(T item)
+    private async Task ValorChange(TListado item)
     {
         ShowDropDown = false;
 
@@ -61,18 +73,18 @@
         {
 
             Valor = (TValue)prop_name.GetValue(item);
+            await ValorChanged.InvokeAsync(Valor);
+            // ValorChangedCustom.InvokeAsync(Valor);
         }
+
+        await On_Change_Method.InvokeAsync();
     }
 
     private async Task On_Change_Filter_Value(ChangeEventArgs e)
     {
-        Dictionary<string, string> query = new();
+        var value = e.Value?.ToString() ?? string.Empty;
 
-        query[Propiedad_Filtro] = e.Value.ToString() ?? string.Empty;
-        
-        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-
-        await FiltrarValor.InvokeAsync(uri);
+        await FiltrarValor.InvokeAsync(value);
     }
     // private void GrupoChange(Grupo e)
     // {

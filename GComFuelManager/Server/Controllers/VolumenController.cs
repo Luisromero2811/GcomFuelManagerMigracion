@@ -2,6 +2,8 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class VolumenController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -169,8 +172,21 @@ namespace GComFuelManager.Server.Controllers
                     .OrderByDescending(x => x.FchCierre)
                     .AsQueryable();
 
+                //&& x.Activa == true
+                var cierres_para_volumen = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Activa == true)
+                    .Include(x => x.Grupo)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .IgnoreAutoIncludes()
+                    .OrderByDescending(x => x.FchCierre)
+                    .AsQueryable();
+
                 if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
+                {
                     cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
+                    cierres_para_volumen = cierres_para_volumen.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
+                }
 
                 if (cierres is not null)
                 {
@@ -178,7 +194,7 @@ namespace GComFuelManager.Server.Controllers
 
                     folio.OrdenCierres = ordenCierres;
 
-                    foreach (var item in ordenCierres)
+                    foreach (var item in cierres_para_volumen)
                     {
                         var volumen = ObtenerVolumenDisponibleDeProducto(item);
                         if (volumen is not null)
