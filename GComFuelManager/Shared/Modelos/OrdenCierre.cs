@@ -160,12 +160,29 @@ namespace GComFuelManager.Shared.Modelos
         public string? FchPre { get { return fchPrecio?.ToString("dd/MM/yyyy"); } }
 
         [DisplayName("Estado"), NotMapped]
-        public string? Estado_Pedido
+        public string Estado_Pedido
         {
             get
             {
-                return Activa == false ? "Cerrada" : OrdenEmbarque?.Orden != null ? OrdenEmbarque?.Orden?.Estado?.den
-                : OrdenEmbarque?.Estado != null ? OrdenEmbarque?.Estado?.den : "Activa";
+                if (Estatus == false)
+                    return "Cancelada";
+
+                if (Activa == false)
+                    return "Cerrada";
+
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Orden is not null)
+                        if (OrdenEmbarque.Orden.Estado is not null)
+                            if (!string.IsNullOrEmpty(OrdenEmbarque.Orden.Estado.den))
+                                return OrdenEmbarque.Orden.Estado.den;
+
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Estado is not null)
+                        if (!string.IsNullOrEmpty(OrdenEmbarque.Estado.den))
+                            return OrdenEmbarque.Estado.den;
+
+                return "Sin estado asignado";
+
             }
         }
 
@@ -179,7 +196,7 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 Cantidad_Sugerida = Convert.ToInt32(Volumen_Disponible) / Volumen_Por_Unidad;
-                Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1 == 0? 1 : Cantidad_Sugerida - 1;
+                Cantidad_Sugerida = Cantidad_Sugerida % 2 == 0 ? Cantidad_Sugerida : Cantidad_Sugerida - 1 == 0 ? 1 : Cantidad_Sugerida - 1;
                 return Cantidad_Sugerida;
             }
             catch (DivideByZeroException e)
@@ -405,7 +422,7 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 SetVolumen();
-                Tiene_Volumen_Disponible = !(GetPromedioCarga() >= (Volumen_Disponible * (porcentaje.Porcen != 0 ? porcentaje.Porcen : 100)/100));
+                Tiene_Volumen_Disponible = !(GetPromedioCarga() >= (Volumen_Disponible * (porcentaje.Porcen != 0 ? porcentaje.Porcen : 100) / 100));
                 return Tiene_Volumen_Disponible;
             }
             catch (Exception e)
@@ -448,7 +465,7 @@ namespace GComFuelManager.Shared.Modelos
 
                 if (totalcantidad > 0 && totalvolumen > 0)
                     Promedio_Carga = totalvolumen / totalcantidad;
-                
+
                 return Promedio_Carga;
             }
             catch (DivideByZeroException e)

@@ -12,34 +12,22 @@
         <div class="col-12 card-body">
             <label><b>Mostrar Órdenes</b></label>
             <div class="col-12 row">
-                @*<div class="col-3 mb-2">
-                        <div class="col-12">
-                            <label>Grupo Empresarial</label>
-                            <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codGru"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Change="@GetClientes" AllowClear="true" />
-                        </div>
-                    </div>
-                    <div class="col-3 mb-2">
-                        <div class="col-12">
-                            <label>Cliente</label>
-                            <RadzenDropDown Data="ClientesFiltro" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="fechas.codCte"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" AllowClear="true" />
-                        </div>
-                    </div>*@
                 <div class="col-2 mb-2">
                     <label>Del:</label>
-                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value="fechaPrecio.FchInicio" @bind-Value:format="yyyy-MM-dd" />
+                    <input type="date" @bind="@fechaPrecio.FchInicio" class="form-control col-12" />
                 </div>
                 <div class="col-2 mb-2">
                     <label>Al:</label>
-                    <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value="fechaPrecio.FchFin" @bind-Value:format="yyyy-MM-dd" />
+                    <input type="date" @bind="@fechaPrecio.FchFin" class="form-control col-12" />
                 </div>
                 <div class="col-2 mb-2">
                     <label></label>
                     <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetOrders">
                         <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                        @if (Loading_Busqueda)
+                        {
+                            <SpinnerLoading />
+                        }
                     </button>
                 </div>
                 <div class="col-2 mb-2">
@@ -128,15 +116,18 @@
     private string DestinoSeleccionado = string.Empty;
 
     private IList<PrecioBolDTO> PreciosFiltrados => PrecioBols.Where(x =>
- (string.IsNullOrEmpty(ProductoSeleccionado) || x.Producto_Original != null && x.Producto_Original != null && x.Producto_Original.Contains(ProductoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
-(string.IsNullOrEmpty(DestinoSeleccionado) || x.Destino_Original != null && x.Destino_Original.Contains(DestinoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
-  (string.IsNullOrEmpty(ClienteSeleccionado) || x.Cliente_Original != null && x.Cliente_Original.Contains(ClienteSeleccionado, StringComparison.OrdinalIgnoreCase))
-).ToList();
+     (string.IsNullOrEmpty(ProductoSeleccionado) || x.Producto_Original != null && x.Producto_Original != null && x.Producto_Original.Contains(ProductoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+    (string.IsNullOrEmpty(DestinoSeleccionado) || x.Destino_Original != null && x.Destino_Original.Contains(DestinoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+      (string.IsNullOrEmpty(ClienteSeleccionado) || x.Cliente_Original != null && x.Cliente_Original.Contains(ClienteSeleccionado, StringComparison.OrdinalIgnoreCase))
+    ).ToList();
+
+    private bool Loading_Busqueda = false;
 
     private async Task GetOrders()
     {
         try
         {
+            Loading_Busqueda = true;
             var responseHttp = await repositorio.Post<CierreDiarioDTO, IList<PrecioBolDTO>>($"api/cierre/fechasGroup", fechaPrecio);
             if (responseHttp.Error)
             {
@@ -146,11 +137,13 @@
             else
             {
                 PrecioBols = responseHttp.Response;
+                Loading_Busqueda = false;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Busqueda = false;
         }
     }
 
@@ -259,8 +252,5 @@
     //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
     //    }
     //}
-
-
-
-    }
+}
 

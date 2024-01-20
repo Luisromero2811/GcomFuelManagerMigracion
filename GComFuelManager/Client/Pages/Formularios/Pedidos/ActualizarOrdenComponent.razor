@@ -19,6 +19,10 @@
         <div class="col-3">
             <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
                 <i class="fa fa-solid fa-magnifying-glass"></i>
+                @if (loading)
+                {
+                    <SpinnerLoading/>
+                }
             </button>
         </div>
     </div>
@@ -60,62 +64,69 @@
         </RadzenDataGrid> *@
     </div>
 
-    <div style="width:95%;overflow-x:auto;max-height:450px;font-size:12px;">
-        @if (ordens?.Count > 0)
+    <div class="ancho" style="overflow:auto;max-height:450px;font-size:12px;resize:both;">
+        @* @if (ordens?.Count > 0)
         {
-            <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
-                <thead>
-                    <tr>
-                        <th>ver ordenes</th>
-                        <th>Folio</th>
-                        <th>Destino</th>
-                        <th>Producto</th>
-                        <th>Volumen</th>
-                        <th>Precio</th>
-                        <th>Fecha de carga programada</th>
-                        <th>Chofer</th>
-                        <th>Unidad</th>
-                        <th>Compartimento</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (ordens is not null || ordens?.Count > 0)
-                    {
-                        <Virtualize Items="ordens" Context="item" TItem="OrdenEmbarque">
-                            <tr>
-                                <td style="min-width:150px;">
-                                    <div class="col-12 row">
-                                        <div class="col-6">
-                                            <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>item.Mostrar_Detalle_Orden = !item.Mostrar_Detalle_Orden)">
-                                                <i class="fa fa-solid fa-eye"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>ActualizarOrden(item))">
-                                                <i class="fa fa-solid fa-cancel"></i>
-                                            </button>
-                                        </div>
+
+        } *@
+        <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>ver ordenes</th>
+                    <th>Folio</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen</th>
+                    <th>Precio</th>
+                    <th>Fecha de carga programada</th>
+                    <th>Chofer</th>
+                    <th>Unidad</th>
+                    <th>Compartimento</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (loading)
+                {
+                    <SpinnerLoading />
+                }
+                @if (ordens is not null || ordens?.Count > 0)
+                {
+                    <Virtualize Items="ordens" Context="item" TItem="OrdenEmbarque">
+                        <tr>
+                            <td style="min-width:150px;">
+                                <div class="col-12 row">
+                                    <div class="col-6">
+                                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>item.Mostrar_Detalle_Orden = !item.Mostrar_Detalle_Orden)">
+                                            <i class="fa fa-solid fa-eye"></i>
+                                        </button>
                                     </div>
-                                </td>
-                                <td style="min-width:100px;">@item.Folio</td>
-                                <td style="min-width:200px;">@item.Destino?.Den</td>
-                                <td style="min-width:200px;">@item.Producto?.Den</td>
-                                <td style="min-width:120px;">@item.Obtener_Volumen_De_Orden_En_Formato()</td>
-                                <td style="min-width:100px;">@item.Pre</td>
-                                <td style="min-width:120px;">@item.Fchcar?.ToString("d")</td>
-                                <td style="min-width:120px;">@item.Chofer?.FullName</td>
-                                <td style="min-width:120px;">@item.Tonel?.Veh</td>
-                                <td style="min-width:120px;">@item.Compartment</td>
-                                <td style="min-width:120px;">@item.Obtener_Estado_De_Orden</td>
-                            </tr>
-                            @if (item.Mostrar_Detalle_Orden)
-                            {
-                                <tr>
-                                    <td colspan="7">
-                                        @if (item.Ordenes_Synthesis.Count > 0)
-                                        {
-                                            <table class="table table-bordered table-striped" style="max-width:100%;border-collapse:collapse;box-sizing:border-box;white-space:nowrap;overflow-x:scroll;">
+                                    <div class="col-6">
+                                        <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>ActualizarOrden(item))">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="min-width:100px;">@item.Folio</td>
+                            <td style="min-width:200px;">@item.Destino?.Den</td>
+                            <td style="min-width:200px;">@item.Producto?.Den</td>
+                            <td style="min-width:120px;">@item.Obtener_Volumen_De_Orden_En_Formato()</td>
+                            <td style="min-width:100px;">@item.Pre</td>
+                            <td style="min-width:120px;">@item.Fchcar?.ToString("d")</td>
+                            <td style="min-width:120px;">@item.Chofer?.FullName</td>
+                            <td style="min-width:120px;">@item.Tonel?.Veh</td>
+                            <td style="min-width:120px;">@item.Compartment</td>
+                            <td style="min-width:120px;">@item.Obtener_Estado_De_Orden</td>
+                        </tr>
+                        @if (item.Mostrar_Detalle_Orden)
+                        {
+                            <tr>
+                                <td colspan="9">
+                                    @if (item.Ordenes_Synthesis.Count > 0)
+                                    {
+                                        <div style="max-width:900%;overflow:auto;">
+                                            <table class="table table-bordered table-striped" style="max-width:95%;border-collapse:collapse;box-sizing:border-box;white-space:nowrap;">
                                                 <thead>
                                                     <tr>
                                                         <th>cancelar</th>
@@ -154,20 +165,19 @@
                                                     }
                                                 </tbody>
                                             </table>
-                                        }
-                                        else
-                                        {
-                                            <p>No hay registros</p>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </Virtualize>
-                    }
-                </tbody>
-            </table>
-        }
-
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>No hay registros</p>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </Virtualize>
+                }
+            </tbody>
+        </table>
     </div>
 
 </AuthorizeView>
@@ -302,7 +312,6 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
@@ -310,21 +319,24 @@
     {
         try
         {
+            loading = true;
             var response = await http.Get<List<OrdenEmbarque>>($"api/pedido/orden/{folio}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loading = false;
             }
             else
             {
                 ordens = response.Response;
+                loading = false;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
+            loading = false;
         }
     }
 
@@ -351,7 +363,6 @@
         {
             loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
@@ -381,7 +392,6 @@
         {
             loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 
@@ -417,7 +427,6 @@
         {
             loadingUpdate = false;
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
         }
     }
 }

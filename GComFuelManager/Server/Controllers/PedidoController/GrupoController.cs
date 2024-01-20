@@ -28,14 +28,17 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public ActionResult Get([FromQuery] Folio_Activo_Vigente filtro_)
         {
             try
             {
-                var grupos = await context.Grupo
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
-                    .OrderBy(x => x.Den)
-                    .ToListAsync();
+                var grupos_filtrados = context.Grupo.AsQueryable();
+
+                if (!string.IsNullOrEmpty(filtro_.Grupo_Filtrado))
+                    grupos_filtrados = grupos_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Grupo_Filtrado.ToLower()));
+
+                var grupos = grupos_filtrados.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x.Den });
+
                 return Ok(grupos);
             }
             catch (Exception e)
