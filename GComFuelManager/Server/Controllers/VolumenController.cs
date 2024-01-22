@@ -173,20 +173,14 @@ namespace GComFuelManager.Server.Controllers
                     .AsQueryable();
 
                 //&& x.Activa == true
-                var cierres_para_volumen = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Activa == true)
-                    .Include(x => x.Grupo)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Destino)
+                var cierres_para_volumen = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Activa == true && x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin)
                     .Include(x => x.Producto)
                     .IgnoreAutoIncludes()
                     .OrderByDescending(x => x.FchCierre)
-                    .AsQueryable();
+                    .ToList();
 
                 if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
-                {
                     cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
-                    cierres_para_volumen = cierres_para_volumen.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
-                }
 
                 if (cierres is not null)
                 {

@@ -9,29 +9,29 @@ namespace GComFuelManager.Shared.Modelos
         public int Id { get; set; }
         public Int64 Id_Orden { get; set; }
 
-        [Validar_Cero]
+        [Validar_Cero(ErrorMessageResourceName = "Grupo")]
         public Int16 Grupo_Red { get; set; } = 0;
 
-        [Validar_Cero, DisplayName("Cliente")]
+        [Validar_Cero(ErrorMessageResourceName = "Cliente"), DisplayName("Cliente")]
         public int Cliente_Red { get; set; } = 0;
 
-        [Validar_Cero, DisplayName("Destino")]
+        [Validar_Cero(ErrorMessageResourceName = "Destino"), DisplayName("Destino")]
         public int Destino_Red { get; set; } = 0;
 
-        [Validar_Cero, Validar_Negativos]
-        public double Precio_Red { get; set; } = 0;
+        [Validar_Cero(ErrorMessageResourceName = "Precio"), Validar_Negativos]
+        public double Precio_Red { get; set; }
 
-        [Validar_Longitud, DisplayName("Motivo")]
+        [Validar_Longitud(ErrorMessageResourceName ="Motivo"), DisplayName("Motivo")]
         public string Motivo_Red { get; set; } = string.Empty;
         //[Required(ErrorMessageResourceName = "Fecha de redireccion", ErrorMessage = "{0} no tiene un valor valido.")]
         public DateTime Fecha_Red { get; set; } = DateTime.Today;
         public DateTime Fecha { get; set; } = DateTime.Now;
 
 
-        public Orden Orden { get; set; } = new();
-        public Grupo Grupo { get; set; } = new();
-        public Cliente Cliente { get; set; } = new();
-        public Destino Destino { get; set; } = new();
+        public Orden? Orden { get; set; } = null!;
+        public Grupo? Grupo { get; set; } = null!;
+        public Cliente? Cliente { get; set; } = null!;
+        public Destino? Destino { get; set; } = null!;
     }
 
     public class Validar_Longitud : ValidationAttribute

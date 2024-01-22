@@ -82,7 +82,7 @@
 
                     <div class="col-4">
                         <label>Motivo</label>
-                        <textarea class="form-control form-control-sm" @bind="Redireccion.Motivo_Red"/>
+                        <textarea class="form-control form-control-sm" @bind="Redireccion.Motivo_Red" maxlength="250" />
                         <ValidationMessage For="@(()=>Redireccion.Motivo_Red)" />
                     </div>
 
@@ -111,20 +111,23 @@
         <table class="table table-sm table-bordered table-hover" id="miTabla">
             <thead class="fila">
                 <tr style="max-height:50px;white-space:nowrap;">
+                    <th style="min-width:80px;max-width:80px;">
+                        Redireccionar
+                    </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
                         Fecha de carga
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Cliente
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Producto
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Destino
                     </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Precio de venta
+                        Precio
                     </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
                         Volumen cargado
@@ -160,7 +163,14 @@
                 else
                 {
                     <Virtualize Items="@Ordenes_Synthesis" Context="item" TItem="Orden">
-                        <tr style="white-space:nowrap;">
+                        <tr style="white-space:nowrap;" class="@(Ordenes_Synthesis.Any(x=>x.Cod == Redireccion.Id_Orden) ? "table-active" : string.Empty )">
+                            <td style="min-width:80px;max-width:80px;">
+                                <div>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Establecer_Redireccion(item))">
+                                        <i class="fa fa-solid fa-diamond-turn-right"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
                                     @item?.Fchcar?.ToString("dd/MM/yyyy")
@@ -411,8 +421,14 @@
     {
         try
         {
+            if (Redireccion.Id_Orden == 0)
+            {
+                await swal.FireAsync("Aviso", "Seleccione una orden para redireccionar.", SweetAlertIcon.Warning);
+                return;
+            }
+
             Loading_Guardar = true;
-            var response = await http.Post<Redireccionamiento>("api/redireccion",Redireccion);
+            var response = await http.Post<Redireccionamiento>("api/redireccion", Redireccion);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -421,7 +437,7 @@
             }
             else
             {
-                Buscar_Ordenes();
+                await Buscar_Ordenes();
                 Loading_Guardar = false;
             }
         }
@@ -466,7 +482,7 @@
         {
             Dictionary<string, string> query = new();
             query["Destino_Filtrado"] = value;
-            query["ID_Cliente"] = Redireccion.Grupo_Red.ToString();
+            query["ID_Cliente"] = Redireccion.Cliente_Red.ToString();
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
@@ -485,6 +501,12 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private void Establecer_Redireccion(Orden orden)
+    {
+        if (orden.Cod is not null)
+            Redireccion.Id_Orden = (long)orden.Cod;
     }
 
     private async Task Exportar_Excel()

@@ -33,6 +33,11 @@ namespace GComFuelManager.Server.Controllers
                     .IgnoreAutoIncludes()
                     .ToList();
 
+                redireccionamientos.ForEach(x =>
+                {
+
+                });
+
                 return Ok();
             }
             catch (Exception e)

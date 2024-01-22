@@ -1858,6 +1858,12 @@ namespace GComFuelManager.Server.Controllers
                     .IgnoreAutoIncludes()
                     .ToList();
 
+                ordenes.ForEach(x =>
+                {
+                    if (x.OrdenEmbarque is not null)
+                        x.OrdenEmbarque.Pre = Obtener_Precio_Del_Dia_De_Orden_Synthesis(x.Cod).Precio;
+                });
+
                 return Ok(ordenes);
             }
             catch (Exception e)
@@ -1957,6 +1963,73 @@ namespace GComFuelManager.Server.Controllers
             }
 
             return volumen;
+        }
+
+
+        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden_Synthesis(long? Id)
+        {
+            try
+            {
+                var orden = context.Orden.Where(x => x.Cod == Id)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
+                    .IgnoreAutoIncludes()
+                    .FirstOrDefault();
+
+                if (orden is null)
+                    return new PrecioBolDTO();
+
+                PrecioBolDTO precio = new();
+
+                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.FchDia <= orden.Fchcar)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                if (precioHis is not null)
+                    precio.Precio = precioHis.pre;
+
+                if (orden != null && precioVig is not null && precioVig.FchDia == DateTime.Today)
+                    precio.Precio = precioVig.Pre;
+
+                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)) && context.PrecioProgramado.Any())
+                    precio.Precio = precioPro.Pre;
+
+                if (orden != null && orden.OrdenEmbarque is not null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod))
+                {
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+
+                    if (ordenepedido is not null)
+                    {
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                         && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                        if (cierre is not null)
+                            precio.Precio = cierre.Precio;
+                    }
+                }
+
+                if (orden is not null && orden.OrdenEmbarque is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                {
+                    precio.Precio = orden.OrdenEmbarque.Pre;
+
+                    if (orden.OrdenCierre is not null)
+                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
+                }
+
+                return precio;
+            }
+            catch (Exception e)
+            {
+                return new PrecioBolDTO();
+            }
         }
     }
 }
