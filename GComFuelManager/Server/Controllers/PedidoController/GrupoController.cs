@@ -37,7 +37,7 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(filtro_.Grupo_Filtrado))
                     grupos_filtrados = grupos_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Grupo_Filtrado.ToLower()));
 
-                var grupos = grupos_filtrados.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x.Den });
+                var grupos = grupos_filtrados.Select(x => new CodDenDTO() { Cod = x.Cod, Den = x.Den }).OrderBy(x => x.Den);
 
                 return Ok(grupos);
             }

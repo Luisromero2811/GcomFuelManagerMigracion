@@ -48,8 +48,9 @@ namespace GComFuelManager.Shared.Modelos
     {
         protected override ValidationResult IsValid(object? value, ValidationContext validation)
         {
-            if (value.Equals(0))
-                return new ValidationResult("El valor no es valido");
+            if (value is not null)
+                if (value.Equals(0))
+                    return new ValidationResult($"{validation.DisplayName} no tiene un valor valido");
 
             return ValidationResult.Success!;
         }
