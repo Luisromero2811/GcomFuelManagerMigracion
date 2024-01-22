@@ -261,9 +261,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
                     }
 
-                    if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
+                    if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))
                     {
-                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio) && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)).FirstOrDefault();
 
                         if (ordenepedido is not null)
                         {
