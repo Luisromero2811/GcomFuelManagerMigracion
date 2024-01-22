@@ -2355,7 +2355,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpPost("folios/{cliente}")]
-        public ActionResult GetFoliosValidosFiltro([FromBody] CierreFiltroDTO filtroDTO, [FromRoute] int cliente)
+        public async Task<ActionResult> GetFoliosValidosFiltro([FromBody] CierreFiltroDTO filtroDTO, [FromRoute] int cliente)
         {
             try
             {
