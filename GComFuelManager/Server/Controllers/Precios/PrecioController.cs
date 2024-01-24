@@ -1035,7 +1035,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     if (item != null && precioPro is not null && context.PrecioProgramado.Any() || orden is not null && precioPro is not null && context.PrecioProgramado.Any())
                     {
-                        if (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
+                        if (precioPro.FchDia == DateTime.Today)
                         {
                             precio.Precio = precioPro.Pre;
                             precio.Fecha_De_Precio = precioPro.FchDia;
@@ -1167,7 +1167,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (orden != null && precioVig is not null && precioVig.FchDia == DateTime.Today)
                     precio.Precio = precioVig.Pre;
 
-                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)) && context.PrecioProgramado.Any())
+                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(23, 0, 0)) && context.PrecioProgramado.Any())
                     precio.Precio = precioPro.Pre;
 
                 if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))

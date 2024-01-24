@@ -1,8 +1,11 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,31 +17,55 @@ namespace GComFuelManager.Server.Controllers
     public class RedireccionController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserToken verifyUser;
 
-        public RedireccionController(ApplicationDbContext context)
+        public RedireccionController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
         {
             this.context = context;
+            this.userManager = userManager;
+            this.verifyUser = verifyUser;
         }
 
         [HttpGet]
-        public ActionResult Obtener_Redireccionamientos([FromQuery] CierreFiltroDTO filtroDTO)
+        public ActionResult Obtener_Redireccionamientos([FromQuery] Folio_Activo_Vigente filtro_)
         {
             try
             {
-                List<Redireccionamiento> redireccionamientos = context.Redireccionamientos.Where(x => x.Fecha_Red >= filtroDTO.Fecha_Inicio && x.Fecha_Red <= filtroDTO.Fecha_Fin)
+                var redireccionamientos = context.Redireccionamientos.Where(x => x.Fecha_Red >= filtro_.Fecha_Inicio && x.Fecha_Red <= filtro_.Fecha_Fin)
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
                     .Include(x => x.Orden)
+                    .ThenInclude(x => x.Producto)
+                    .Include(x => x.Orden)
+                    .ThenInclude(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
                     .IgnoreAutoIncludes()
-                    .ToList();
+                    .AsQueryable();
 
-                redireccionamientos.ForEach(x =>
-                {
+                if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
+                    redireccionamientos = redireccionamientos.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente.Den) && x.Cliente.Den.ToLower().Contains(filtro_.Cliente_Filtrado.ToLower()));
 
-                });
+                if (!string.IsNullOrEmpty(filtro_.Cliente_Original))
+                    redireccionamientos = redireccionamientos.Where(x => x.Orden != null && x.Orden.Destino != null && x.Orden.Destino.Cliente != null
+                    && !string.IsNullOrEmpty(x.Orden.Destino.Cliente.Den) && x.Orden.Destino.Cliente.Den.ToLower().Contains(filtro_.Cliente_Original.ToLower()));
 
-                return Ok();
+                if (!string.IsNullOrEmpty(filtro_.Destino_Filtrado))
+                    redireccionamientos = redireccionamientos.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(filtro_.Destino_Filtrado.ToLower()));
+
+                if (!string.IsNullOrEmpty(filtro_.Destino_Original))
+                    redireccionamientos = redireccionamientos.Where(x => x.Orden != null && x.Orden.Destino != null && !string.IsNullOrEmpty(x.Orden.Destino.Den)
+                    && x.Orden.Destino.Den.ToLower().Contains(filtro_.Destino_Original.ToLower()));
+
+                if (!string.IsNullOrEmpty(filtro_.Producto_Filtrado))
+                    redireccionamientos = redireccionamientos.Where(x => x.Orden != null && x.Orden.Producto != null && !string.IsNullOrEmpty(x.Orden.Producto.Den)
+                    && x.Orden.Producto.Den.ToLower().Contains(filtro_.Producto_Filtrado.ToLower()));
+
+                if (filtro_.BOL is not null)
+                    redireccionamientos = redireccionamientos.Where(x => x.Orden != null && x.Orden.BatchId != null && x.Orden.BatchId.ToString().Contains(filtro_.BOL.ToString()));
+
+                return Ok(redireccionamientos);
             }
             catch (Exception e)
             {
@@ -54,10 +81,41 @@ namespace GComFuelManager.Server.Controllers
                 if (redireccionamiento is null)
                     return BadRequest();
 
-                context.Add(redireccionamiento);
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
 
-                await context.SaveChangesAsync();
+                if (redireccionamiento.Id != 0)
+                {
+                    context.Update(redireccionamiento);
+                    await context.SaveChangesAsync(id,36);
+
+                }
+                else
+                {
+                    context.Add(redireccionamiento);
+                    await context.SaveChangesAsync(id,35);
+                }
+
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("checar")]
+        public ActionResult Checar_Redireccion([FromQuery] Folio_Activo_Vigente redireccionamiento)
+        {
+            try
+            {
+                if (redireccionamiento is null)
+                    return NotFound();
+
+                bool redireccion = context.Redireccionamientos.Any(x => x.Id_Orden == redireccionamiento.ID_Orden);
+
+                return Ok(redireccion);
             }
             catch (Exception e)
             {

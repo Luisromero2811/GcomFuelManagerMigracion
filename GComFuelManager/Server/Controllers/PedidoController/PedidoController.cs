@@ -1855,6 +1855,10 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tonel)
                     .Include(x => x.Estado)
+                    .Include(x => x.Redireccionamiento)
+                    .ThenInclude(x=>x.Destino)
+                    .Include(x => x.Redireccionamiento)
+                    .ThenInclude(x => x.Cliente)
                     .IgnoreAutoIncludes()
                     .ToList();
 
@@ -2002,9 +2006,9 @@ namespace GComFuelManager.Server.Controllers
                 if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)) && context.PrecioProgramado.Any())
                     precio.Precio = precioPro.Pre;
 
-                if (orden != null && orden.OrdenEmbarque is not null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod))
+                if (orden != null && orden.OrdenEmbarque is not null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))
                 {
-                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio) && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)).FirstOrDefault();
 
                     if (ordenepedido is not null)
                     {

@@ -1,0 +1,13 @@
+﻿.nav-total{
+    width:100vw;
+}
+.nav-menu {
+    width: calc(100vw - 15vw);
+    background-color: aqua;
+    padding: 5px;
+}
+.nav-usuario{
+    width: 15vw;
+    background-color:blueviolet;
+    padding:5px;
+}

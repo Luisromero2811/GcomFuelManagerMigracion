@@ -1,13 +1,7 @@
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -28,9 +22,6 @@ namespace GComFuelManager.Shared.Modelos
         //VOL
         [JsonProperty("vol"), EpplusIgnore]
         public double? Vol { get; set; } = null!;
-        //[JsonProperty("Volumen Cargado")]
-        [NotMapped]
-        public string Vols { get { return Vol != null ? Vol?.ToString("N2") : string.Empty; } }
 
         [JsonProperty("fchcar")]
         public DateTime? Fchcar { get; set; } = DateTime.MinValue;
@@ -79,11 +70,75 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         public int? Folio { get; set; } = 0;
         [NotMapped] public int? Compartimento { get; set; } = null!;
-        [NotMapped] public Grupo? Grupo { get; set; } = null!;
-        [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped, EpplusIgnore]
-        public OrdenCierre? Precio { get; set; } = null!;
         public Redireccionamiento? Redireccionamiento { get; set; } = null!;
+        public string Obtener_Cliente
+        {
+            get
+            {
+                if (Redireccionamiento is not null)
+                    return Redireccionamiento.Nombre_Cliente;
+
+                if (Destino is not null)
+                    if (Destino.Cliente is not null)
+                        if (!string.IsNullOrEmpty(Destino.Cliente.Den))
+                            return Destino.Cliente.Den;
+
+                return string.Empty;
+            }
+        }
+        public string Obtener_Cliente_De_Orden
+        {
+            get
+            {
+                if (Destino is not null)
+                    if (Destino.Cliente is not null)
+                        if (!string.IsNullOrEmpty(Destino.Cliente.Den))
+                            return Destino.Cliente.Den;
+
+                return string.Empty;
+            }
+        }
+        public string Obtener_Destino
+        {
+            get
+            {
+                if (Redireccionamiento is not null)
+                    return Redireccionamiento.Nombre_Destino;
+
+                if (Destino is not null)
+                    if (!string.IsNullOrEmpty(Destino.Den))
+                        return Destino.Den;
+
+                return string.Empty;
+            }
+        }
+        public string Obtener_Destino_De_Orden
+        {
+            get
+            {
+                if (Destino is not null)
+                    if (!string.IsNullOrEmpty(Destino.Den))
+                        return Destino.Den;
+
+                return string.Empty;
+            }
+        }
+
+        public double Obtener_Precio
+        {
+            get
+            {
+                if (Redireccionamiento is not null)
+                    return Redireccionamiento.Precio_Red;
+
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Pre is not null)
+                        return (double)OrdenEmbarque.Pre;
+
+                return 0;
+            }
+        }
     }
 }
