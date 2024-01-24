@@ -2003,7 +2003,7 @@ namespace GComFuelManager.Server.Controllers
                 if (orden != null && precioVig is not null && precioVig.FchDia == DateTime.Today)
                     precio.Precio = precioVig.Pre;
 
-                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)) && context.PrecioProgramado.Any())
+                if (orden != null && precioPro is not null && precioPro.FchDia == DateTime.Today && context.PrecioProgramado.Any())
                     precio.Precio = precioPro.Pre;
 
                 if (orden != null && orden.OrdenEmbarque is not null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))

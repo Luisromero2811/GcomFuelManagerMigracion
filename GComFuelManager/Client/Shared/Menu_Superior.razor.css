@@ -1,13 +1,25 @@
 ﻿.nav-total{
     width:100vw;
+    display:flex;
 }
 .nav-menu {
-    width: calc(100vw - 15vw);
+    width: calc(100vw - 25vw);
     background-color: aqua;
     padding: 5px;
+    overflow-x:scroll;
 }
+
+::-webkit-scrollbar{
+    height:5px;
+    background-color:yellow;
+}
+
 .nav-usuario{
-    width: 15vw;
+    width: 25vw;
     background-color:blueviolet;
     padding:5px;
+}
+.nav-item-menu-top{
+    width:150px;
+    background-color:brown;
 }
