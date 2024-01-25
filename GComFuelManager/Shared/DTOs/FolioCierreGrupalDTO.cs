@@ -39,10 +39,10 @@ namespace GComFuelManager.Shared.DTOs
         public string NProducto { get { return Producto != null ? Producto.Den! : string.Empty; } }
 
         //Volumenes
-        [EpplusIgnore]
+        //[EpplusIgnore]
         public int? Volumen { get; set; }
-        [DisplayName("Volumen"), NotMapped]
-        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
+        //[DisplayName("Volumen"), NotMapped]
+        //public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         //Precio
         [NotMapped]
         public double Precio { get; set; } = 0;

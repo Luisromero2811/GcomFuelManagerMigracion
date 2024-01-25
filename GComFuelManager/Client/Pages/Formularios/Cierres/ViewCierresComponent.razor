@@ -101,12 +101,7 @@
                 </div>
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Filterable="false" Width="100px">
-            <Template Context="data">
-                @(data.Activa == false ? "Cerrada" : data.ordenEmbarque?.Orden != null ? data.ordenEmbarque?.Orden?.Estado?.den
-                                            : data?.ordenEmbarque?.Estado != null ? data?.ordenEmbarque?.Estado?.den : "Activa")
-            </Template>
-        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Estado" Property="Estado_Pedidos" Filterable="false" Width="100px"/>
         <!--Precio Volumen y observaciones-->
         <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
         <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Observaciones" Property="Observaciones" Filterable="false" Width="160px" />
@@ -256,6 +251,8 @@
                 var ws = excel.Workbook.Worksheets.Add("Cierres");
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
+
+                ws.Cells["G1:H1"].Style.Numberformat.Format = "#,##0.00";
 
                 var header = ws.Cells["A1:L1"];
                 // var ordenFilter = new List<FolioCierreDTO>();

@@ -238,6 +238,8 @@
                 ws.Columns.Width = 70;
                 ws.Columns.AutoFit();
 
+                ws.Cells["E1:F1"].Style.Numberformat.Format = "#,##0.00";
+
                 var header = ws.Cells["A1:G1"];
                 // var ordenFilter = new List<FolioCierreDTO>();
                 if (Incluir_Cancelados is false)
