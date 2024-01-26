@@ -85,6 +85,26 @@ namespace GComFuelManager.Server.Controllers
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
+                var orden_synthesis = context.Orden.Find(redireccionamiento.Id_Orden);
+
+                if(orden_synthesis is not null)
+                {
+                    var orden_enviada = context.OrdenEmbarque.FirstOrDefault(x => x.FolioSyn == orden_synthesis.Ref);
+                    if(orden_enviada is not null)
+                    {
+                        var pertenece_a_cierre = context.OrdenPedido.Any(x => x.CodPed == orden_enviada.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia));
+                        if (pertenece_a_cierre)
+                        {
+                            var orden_pedido = context.OrdenPedido.FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
+
+                            if (orden_pedido is not null && !string.IsNullOrEmpty(orden_pedido.Folio))
+                            {
+
+                            }
+                        }
+                    }
+                }
+
                 if (redireccionamiento.Id != 0)
                 {
                     context.Update(redireccionamiento);

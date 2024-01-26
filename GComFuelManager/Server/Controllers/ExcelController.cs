@@ -162,7 +162,8 @@ namespace GComFuelManager.Server.Controllers
                         Destino_Red = item.Nombre_Destino,
                         Fecha_Redireccion = item.Fecha_Red.ToShortDateString(),
                         Motivo = item.Motivo_Red,
-                        Producto = item?.Orden?.Producto?.Nombre_Producto ?? string.Empty
+                        Producto = item?.Orden?.Producto?.Nombre_Producto ?? string.Empty,
+                        Precio = item?.Precio_Red
                     });
                 }
 
