@@ -4,23 +4,30 @@
 
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
+
         <div class="col-12 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") row d-flex m-0">
             @*menu parte final*@
+
             <div class="col-1 d-flex justify-content-center">
                 @if (close)
                 {
-                    <div class="col-4" style="cursor:pointer" @onclick="CloseMenuLateral">
-                        <img src="img/bar-de-hamburguesas(1).png" style="width:32px;" class="img-fluid" />
+                    <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
+                        <i class="fa fa-solid fa-bars my-auto"></i>
                     </div>
                 }
                 else
                 {
-                    <div class="col-6" style="cursor:pointer" @onclick="CloseMenuLateral">
-                        <img src="img/bar-de-hamburguesas.png" style="width:32px;" class="img-fluid" />
+                    <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
+                        <i class="fa fa-solid fa-bars my-auto"></i>
                     </div>
                 }
             </div>
 
+            @* <div class="col d-flex">
+                <button class="btn gcom-bg-rojo my-auto" onclick="openNav()">
+                    <i class="fa fa-solid fa-bars"></i>
+                </button>
+            </div> *@
             @if (close)
             {
                 <div class="col-8 d-flex">
@@ -481,9 +488,12 @@
             {
                 <div class="col-8" />
             }
-            <div class="col-3 d-flex">
+            <div class="col-3 d-flex gcom-bg-rojo-dark">
                 <div class="col-6 text-center my-auto d-flex justify-content-end">
-                    <h6> @MenuGeneral.User.Identity.Name</h6>
+                    @if (MenuGeneral.User.Identity is not null)
+                    {
+                        <h6> @MenuGeneral.User.Identity.Name</h6>
+                    }
                 </div>
                 <div class="col-6 text-center my-auto">
                     <button class="btn @(close ? "text-white" : "text-black") col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
@@ -493,6 +503,17 @@
 
     </Authorized>
 </AuthorizeView>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidepanel").style.width = "250px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidepanel").style.width = "0";
+    }
+</script>
+
 
 @code {
     [Parameter] public bool close { get; set; } = false;

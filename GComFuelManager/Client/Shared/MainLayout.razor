@@ -11,6 +11,8 @@
         <RadzenTooltip />
 
         <div class="page">
+            <Menu_Lateral_Emergente />
+
             @if (!isClosed)
             {
                 <div class="sidebar">
@@ -21,7 +23,6 @@
 
             <main>
                 <div>
-                    @* <Menu_Superior /> *@
                     <MenuNav close=@isClosed closeMenu="CloseMenu" />
                 </div>
 

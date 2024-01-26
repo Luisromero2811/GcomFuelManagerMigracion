@@ -1,0 +1,161 @@
+﻿<div id="mySidepanel" class="sidepanel">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
+    @foreach (var level_0 in Menus)
+    {
+        <AuthorizeView Roles="@level_0.roles" Context="level_0_context">
+            <Authorized>
+                @if (!level_0.isMenu)
+                {
+                    <NavLink href="@level_0.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+                        <div class="sidepanel-item">
+                            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                            @level_0.name
+                        </div>
+                    </NavLink>
+                }
+                else
+                {
+                    <div class="dropdown-menu-side" @onclick="@level_0.ToggleShow">
+                        <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                        @level_0.name
+                    </div>
+                    @if (level_0.showDropDown)
+                    {
+                        <div class="dropdown-menu-content">
+                            @foreach (var level_1 in level_0.Menus)
+                            {
+                                <AuthorizeView Roles="@level_1.roles" Context="level_1_context">
+                                    <Authorized>
+                                        @if (!level_1.isMenu)
+                                        {
+                                            <NavLink href="@level_1.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+                                                <div class="dropdown-menu-side-item">
+                                                    <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                                    @level_1.name
+                                                </div>
+                                            </NavLink>
+                                        }
+                                        else
+                                        {
+                                            <div class="dropdown-menu-side" @onclick="@level_1.ToggleShow">
+                                                <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                                @level_1.name
+                                            </div>
+                                            @if (level_1.showDropDown)
+                                            {
+                                                @foreach (var level_2 in level_1.Menus)
+                                                {
+                                                    <NavLink href="@level_2.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+                                                        <div class="dropdown-menu-side-item">
+                                                            <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
+                                                            @level_2.name
+                                                        </div>
+                                                    </NavLink>
+                                                }
+                                            }
+                                        }
+                                    </Authorized>
+                                </AuthorizeView>
+                            }
+                        </div>
+                    }
+                }
+            </Authorized>
+        </AuthorizeView>
+    }
+</div>
+
+
+@code {
+    List<Menu> Menus { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
+
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Configuracion",
+                icon = "gear",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                Menus = new()
+                {
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Datos",
+                        icon = "server",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                        Menus = new()
+                        {
+                            new()
+                            {
+                                name = "Tonel",
+                                icon = "truck-moving",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                            }
+                        }
+                    }
+                }
+            });
+
+        Menus.Add(new Menu()
+            {
+                name = "Precios",
+                icon = "money-bill-1-wave",
+                roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Precios", icon = "money-bill-1-wave", path = "precios",
+                        roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios"
+                    },
+                    new()
+                    {
+                        name = "Historial de Precios", icon = "file-invoice-dollar", path = "historial/precios",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito, Contador, Revision Precios"
+                    }
+                }
+            });
+
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Cierres",
+                icon = "store-slash",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios"
+            });
+
+        Menus.Add(new Menu()
+            {
+                name = "Ordenes",
+                icon = "rectangle-list",
+                roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios"
+            });
+
+        Menus.Add(new Menu() { name = "Pedimentos", icon = "file-circle-check", roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" });
+
+        Menus.Add(new Menu() { name = "Redireccionamientos", icon = "diamond-turn-right", roles = "Admin, Administrador Sistema" });
+
+    }
+
+    public class Menu
+    {
+        public string name { get; set; } = string.Empty;
+        public string path { get; set; } = string.Empty;
+        public string icon { get; set; } = string.Empty;
+        public string roles { get; set; } = string.Empty;
+        public string context_item { get; set; } = string.Empty;
+        public bool isMenu { get; set; } = false;
+        public bool showDropDown { get; set; } = false;
+        public List<Menu> Menus { get; set; } = new();
+
+        public void ToggleShow()
+        {
+            showDropDown = !showDropDown;
+        }
+    }
+}

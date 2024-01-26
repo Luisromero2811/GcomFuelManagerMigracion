@@ -55,7 +55,13 @@
                                         {
                                             <AuthorizeView Roles="@item.roles" Context="context_level_1">
                                                 <Authorized>
-                                                    @if (!level_1.isMenu)
+                                                    <NavLink href="@level_1.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                                        <div class="nav-menu-top-item">
+                                                            <i class="fa fa-solid fa-@level_1.icon"></i>
+                                                            @level_1.name
+                                                        </div>
+                                                    </NavLink>
+                                                    @* @if (!level_1.isMenu)
                                                     {
                                                         <NavLink href="@level_1.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
                                                             <div class="nav-menu-top-item">
@@ -120,7 +126,7 @@
                                                                 </div>
                                                             }
                                                         </div>
-                                                    }
+                                                    } *@
                                                 </Authorized>
                                             </AuthorizeView>
                                         }
