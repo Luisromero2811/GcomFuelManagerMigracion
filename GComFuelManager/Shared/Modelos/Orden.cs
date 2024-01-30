@@ -140,5 +140,17 @@ namespace GComFuelManager.Shared.Modelos
                 return 0;
             }
         }
+
+        public double Obtener_Precio_Original
+        {
+            get
+            {
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Pre is not null)
+                        return (double)OrdenEmbarque.Pre;
+
+                return 0;
+            }
+        }
     }
 }

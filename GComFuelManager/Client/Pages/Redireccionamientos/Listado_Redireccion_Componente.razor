@@ -53,7 +53,8 @@
                     <th>Cliente redireccionado</th>
                     <th>Destino original</th>
                     <th>Destino redireccionado</th>
-                    <th>Precio</th>
+                    <th>Precio original</th>
+                    <th>Precio redireccion</th>
                     <th>Motivo</th>
                     <th>Fecha de redireccion</th>
                 </tr>
@@ -78,6 +79,7 @@
                         <td>@redireccion.Nombre_Cliente</td>
                         <td>@redireccion.Nombre_Destino_Original</td>
                         <td>@redireccion.Nombre_Destino</td>
+                        <td>@redireccion.Orden?.Obtener_Precio.ToString("N4",CultureInfo.InvariantCulture)</td>
                         <td>@redireccion.Precio_Red.ToString("N4",CultureInfo.InvariantCulture)</td>
                         <td>
                             <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Mostrar_Motivo(redireccion))">
@@ -154,7 +156,7 @@
                 var ws = excel.Workbook.Worksheets.Add("redirecciones");
                 ws.Columns.Width = 50;
 
-                var header = ws.Cells["A1:H1"];
+                var header = ws.Cells["A1:J1"];
 
                 // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
                 // ws.Cells["I1:J1"].Style.Numberformat.Format = "#,##0.00";

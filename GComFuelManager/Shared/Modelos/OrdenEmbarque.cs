@@ -59,9 +59,43 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
         [NotMapped] public int? Compartimento { get; set; } = null!;
         public string? FolioSyn { get; set; } = string.Empty;
+        [EpplusIgnore]
+        public int? Bol { get; set; }
         public OrdenEmbarque ShallowCopy()
         {
             return (OrdenEmbarque)this.MemberwiseClone();
+        }
+
+        public OrdenEmbarque HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Codchf = Codchf,
+                Coddes = Coddes,
+                Codest = Codest,
+                CodordCom = CodordCom,
+                Codprd = Codprd,
+                Codtad = Codtad,
+                Codton = Codton,
+                Codusu = Codusu,
+                Fchcar = Fchcar,
+                FchOrd = FchOrd,
+                Fchpet = DateTime.Now,
+                FchPro = FchPro,
+                Folio = Folio,
+                FolioSyn = FolioSyn,
+                Bin = Bin,
+                Pre = Pre,
+                Bolguidid = Bolguidid,
+                Compartment = Compartment,
+                CompartmentId = CompartmentId,
+                NumTonel = NumTonel,
+                ID_Moneda = ID_Moneda,
+                Equibalencia = Equibalencia,
+                Bol = Bol,
+                Vol = Vol
+            };
         }
 
         [NotMapped, EpplusIgnore] public int Ordenes_A_Crear { get; set; } = 1;

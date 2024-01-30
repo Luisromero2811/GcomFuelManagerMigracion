@@ -1,6 +1,5 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
-using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,11 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using OfficeOpenXml;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Precios
 {
@@ -46,12 +41,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                 //file.OpenReadStream();
                 file.CopyTo(stream);
 
-                List<PreciosDTO> precios = new List<PreciosDTO>();
+                List<PreciosDTO> precios = new();
 
                 //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
-                ExcelPackage package = new ExcelPackage();
+                ExcelPackage package = new();
 
                 package.Load(stream);
                 //package = new ExcelPackage(stream);
@@ -62,7 +57,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         {
-                            PreciosDTO precio = new PreciosDTO();
+                            PreciosDTO precio = new();
 
                             //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
                             var row = worksheet.Cells[r, 1, r, 10].ToList();
@@ -117,12 +112,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     using (var packages = new OfficeOpenXml.ExcelPackage(stream))
                     {
-                        List<PreciosDTO> precios = new List<PreciosDTO>();
+                        List<PreciosDTO> precios = new();
 
                         //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                         ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
-                        ExcelPackage package = new ExcelPackage();
+                        ExcelPackage package = new();
                         var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                         if (worksheet != null)
                         {
@@ -130,7 +125,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             {
                                 for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                                 {
-                                    PreciosDTO precio = new PreciosDTO();
+                                    PreciosDTO precio = new();
 
                                     //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
                                     var row = worksheet.Cells[r, 1, r, 10].ToList();
@@ -342,8 +337,8 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<Precio> precios = new List<Precio>();
-                List<PrecioProgramado> preciosPro = new List<PrecioProgramado>();
+                List<Precio> precios = new();
+                List<PrecioProgramado> preciosPro = new();
                 var LimiteDate = DateTime.Today.AddHours(16);
 
                 if (!string.IsNullOrEmpty(folio))
@@ -358,7 +353,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         if (item is not null)
                         {
                             var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                            Precio precio = new Precio()
+                            Precio precio = new()
                             {
                                 Pre = item.Precio,
                                 codCte = item.CodCte,
@@ -455,7 +450,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (user_system is null)
                     return NotFound();
 
-                List<PrecioProgramado> prec = new List<PrecioProgramado>();
+                List<PrecioProgramado> prec = new();
                 foreach (var item in precios)
                 {
                     //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
@@ -607,13 +602,13 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 await context.SaveChangesAsync(id, 8);
 
-                List<Destino> destinos = new List<Destino>();
-                List<PreciosDTO> destinosSinPre = new List<PreciosDTO>();
+                List<Destino> destinos = new();
+                List<PreciosDTO> destinosSinPre = new();
                 destinos = context.Destino.ToList();
                 foreach (var item in destinos)
                     if (!context.PrecioProgramado.Any(x => x.codDes == item.Cod))
                     {
-                        PreciosDTO dTO = new PreciosDTO()
+                        PreciosDTO dTO = new()
                         {
                             Destino = item.Den,
                             Cliente = item.Cliente?.Den,
@@ -637,7 +632,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<PrecioHistorico> precios = new List<PrecioHistorico>();
+                List<PrecioHistorico> precios = new();
 
                 precios = await context.PreciosHistorico
                     .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
@@ -661,10 +656,10 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<Precio> preciosDia = new List<Precio>();
-                List<PrecioHistorico> precioHistoricos = new List<PrecioHistorico>();
+                List<Precio> preciosDia = new();
+                List<PrecioHistorico> precioHistoricos = new();
 
-                List<PrecioProgramado> precios = new List<PrecioProgramado>();
+                List<PrecioProgramado> precios = new();
                 precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
 
                 if (precios.Count > 0)
@@ -807,12 +802,12 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        //[HttpGet("{BOL}")]
+        [HttpGet("bol/{BOL}")]
         public ActionResult GetPrecioByBol([FromRoute] int BOL)
         {
             try
             {
-                PrecioBol precios = new PrecioBol();
+                PrecioBolDTO precios = new();
 
                 var ordenes = context.Orden.Where(x => x.BatchId == BOL)
                     .Include(x => x.Producto)
@@ -820,11 +815,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .FirstOrDefault();
 
                 if (ordenes is null)
-                    return Ok(new PrecioBol());
+                    return Ok(new PrecioBolDTO());
 
-                PrecioBol precio = new PrecioBol();
+                PrecioBolDTO precio = new();
 
-                OrdenEmbarque? orden = new OrdenEmbarque();
+                OrdenEmbarque? orden = new();
                 orden = context.OrdenEmbarque.Where(x => x.FolioSyn == ordenes.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.OrdenCierre).FirstOrDefault();
 
                 precio.Fecha_De_Carga = ordenes.Fchcar;
@@ -940,7 +935,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<PrecioBol> precios = new List<PrecioBol>();
+                List<PrecioBol> precios = new();
 
                 var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
                     .Include(x => x.Producto)
@@ -953,9 +948,9 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 foreach (var item in ordenes)
                 {
-                    PrecioBol precio = new PrecioBol();
+                    PrecioBol precio = new();
 
-                    Orden? orden = new Orden();
+                    Orden? orden = new();
                     orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
 
                     precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
@@ -1194,7 +1189,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 return precio;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new PrecioBolDTO();
             }

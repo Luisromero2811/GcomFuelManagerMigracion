@@ -411,6 +411,20 @@
             {
                 Ordenes_Synthesis = response.Response;
                 Loading_Buscar = false;
+                var response_Precio = await http.Get<PrecioBolDTO>($"api/precio/bol/{filtroDTO.Bol}");
+                if (response_Precio.Error)
+                {
+                    var message = await response_Precio.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Buscar = false;
+                }
+                else
+                {
+                    if (response_Precio.Response is not null && response_Precio.Response.Precio is not null)
+                        Redireccion.Precio_Red = (double)response_Precio.Response.Precio;
+
+                    Loading_Buscar = false;
+                }
             }
         }
         catch (Exception e)

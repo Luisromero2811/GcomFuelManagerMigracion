@@ -112,8 +112,10 @@ namespace GComFuelManager.Shared.Modelos
         public string Motivo { get; set; } = string.Empty;
         [DisplayName("Fecha de redireccion")]
         public string Fecha_Redireccion { get; set; } = string.Empty;
-        [DisplayName("Precio")]
+        [DisplayName("Precio original")]
         public double? Precio { get; set; } = 0;
+        [DisplayName("Precio redireccion")]
+        public double? Precio_redireccion { get; set; } = 0;
     }
 
     public class Validar_Longitud : ValidationAttribute
