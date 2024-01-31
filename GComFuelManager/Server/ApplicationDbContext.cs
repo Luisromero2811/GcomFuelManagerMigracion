@@ -421,6 +421,17 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.Destino_Red);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Vendedor);
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.Id_Vendedor)
+                .HasPrincipalKey(x => x.Id);
         }
 
 
@@ -470,5 +481,6 @@ namespace GComFuelManager.Server
         public DbSet<Consecutivo> Consecutivo { get; set; }
         public DbSet<Pedimento> Pedimentos { get; set; }
         public DbSet<Redireccionamiento> Redireccionamientos { get; set; }
+        public DbSet<Vendedor> Vendedores { get; set; }
     }
 }

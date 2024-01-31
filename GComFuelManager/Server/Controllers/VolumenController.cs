@@ -252,7 +252,7 @@ namespace GComFuelManager.Server.Controllers
             var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                 && x.OrdenEmbarque.Orden.Codest != 14
                 && x.OrdenEmbarque.Codest != 14
-            && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
+            && x.OrdenEmbarque.Orden.Codprd == ordenCierre.CodPrd
             && x.OrdenEmbarque.Orden.BatchId != null)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Orden)
@@ -261,7 +261,7 @@ namespace GComFuelManager.Server.Controllers
             var countConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                 && x.OrdenEmbarque.Orden.Codest != 14
                 && x.OrdenEmbarque.Codest != 14
-                && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
+                && x.OrdenEmbarque.Orden.Codprd == ordenCierre.CodPrd
                 && x.OrdenEmbarque.Orden.BatchId != null)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Orden)

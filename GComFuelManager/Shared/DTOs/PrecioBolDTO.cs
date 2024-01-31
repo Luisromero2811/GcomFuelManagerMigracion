@@ -31,7 +31,7 @@ namespace GComFuelManager.Shared.DTOs
         public double Tipo_De_Cambio { get; set; } = 1;
         [EpplusIgnore]
         public string Moneda { get; set; } = "MXN";
-
+        [EpplusIgnore] public int? Tipo_Moneda { get; set; } = 1;
 
         [EpplusIgnore]
         public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;

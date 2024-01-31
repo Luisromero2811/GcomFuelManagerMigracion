@@ -1,0 +1,130 @@
+﻿@page "/reporte/ventas"
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+
+<div class="card">
+    <div class="card-header">
+        <b>Reporte de ventas</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+        </div>
+    </div>
+</div>
+<div class="col-12 row">
+    <div class="col-1">
+        Litros
+    </div>
+    <div class="col-1">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" checked="@Show_Venta" @bind-value="@Show_Venta">
+        </div>
+    </div>
+    <div class="col-1">
+        Venta
+    </div>
+</div>
+<table class="table table-sm table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Vendedor</th>
+            @for (int mes = 1; mes <= 12; mes++)
+            {
+                <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMMM").ToUpper())</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @if (Loading_Reporte)
+        {
+            <tr>
+                <td colspan="13">
+                    <SpinnerLoading />
+                </td>
+            </tr>
+        }
+        <Virtualize Items="Vendedores" TItem="Vendedor" Context="item">
+            <tr>
+                <td>@item.Nombre</td>
+                @foreach (var venta_mes in item.Venta_Por_Meses)
+                {
+                    <td>
+                        @if (Show_Venta)
+                        {
+                            <p>@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture) Lts</p>
+                        }
+                        else
+                        {
+                            <p>$ @venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                        }
+                    </td>
+                }
+            </tr>
+        </Virtualize>
+    </tbody>
+</table>
+@code {
+    List<Vendedor> Vendedores { get; set; } = new();
+    Vendedor Vendedor { get; set; } = new();
+    List<DateTime> Fechas { get; set; } = new();
+
+    bool Show_Venta = false;
+    bool Loading_Reporte = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Reporte();
+        await Obtener_Fechas();
+    }
+
+    private async Task Obtener_Reporte()
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            Loading_Reporte = true;
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Reporte = false;
+            }
+            else
+            {
+                Vendedores = response.Response;
+                Loading_Reporte = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Reporte = false;
+        }
+    }
+
+    private async Task Obtener_Fechas()
+    {
+        try
+        {
+            var response = await http.Get<List<DateTime>>($"api/vendedor/años/reporte");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Fechas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

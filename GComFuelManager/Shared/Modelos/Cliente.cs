@@ -52,5 +52,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("mdVenta"), DisplayName("Modelo de venta")]
         public string? MdVenta { get; set; } = string.Empty;
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Vendedor? Vendedor { get; set; } = null!;
+        [EpplusIgnore] public int? Id_Vendedor { get; set; }
+        [EpplusIgnore] DateTime? Fecha_Registro { get; set; } = DateTime.Now;
+        [EpplusIgnore] bool? Es_Meta { get; set; } = true;
     }
 }
