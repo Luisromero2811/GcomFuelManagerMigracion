@@ -36,7 +36,7 @@ namespace GComFuelManager.Shared.DTOs
         public OrdenCierre? ordenCierre { get; set; } = null!;
 
         [DisplayName("Fecha")]
-        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:d}", FchCierre); } }
+        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre); } }
         [DisplayName("Folio de Cierre / OC")]
         public string? Folio { get; set; } = null!;
         [DisplayName("Grupo")]
@@ -55,7 +55,20 @@ namespace GComFuelManager.Shared.DTOs
         [NotMapped]
         public double Precio { get; set; } = 0;
         [DisplayName("Fecha de vencimiento")]
-        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:d}", FchCierre_Vencimiento); } }
+        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre_Vencimiento); } }
+        //public string FchCie_Ven => FchCierre_Vencimiento.ToString("dd/MM/yyyy");
+        [EpplusIgnore]
+        public double? Volumen_Cosumido { get; set; } = 0;
+        [DisplayName("Cargado")]
+        public string VolumenCargado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Cosumido); } }
+        [EpplusIgnore]
+        public double? Volumen_Programado { get; set; } = 0;
+        [DisplayName("Volumen Programado")]
+        public string VolumenProgramado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Programado); } }
+        [EpplusIgnore]
+        public double? Volumen_Espera_Carga { get; set; } = 0;
+        [DisplayName("Volumen en espera de carga")]
+        public string VolumenEsperaCarga { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Espera_Carga); } }
         [EpplusIgnore]
         public double? Volumen_Disponible { get; set; }
         [DisplayName("Volumen Disponible"), NotMapped]

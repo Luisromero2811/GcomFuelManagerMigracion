@@ -259,8 +259,10 @@ namespace GComFuelManager.Shared.Modelos
                 return 0;
             }
         }
-
+        //public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         [NotMapped, EpplusIgnore] public double? Volumen_Programado { get; set; } = 0;
+        [NotMapped, EpplusIgnore]
+        public string VolumenProgramadoFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Programado); } }
         public double? GetVolumenProgramado()
         {
             try
@@ -306,6 +308,8 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Cosumido { get; set; } = 0;
+        [NotMapped, EpplusIgnore]
+        public string ConsumidoFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Cosumido); } }
         public double? GetVolumenConsumido()
         {
             try
@@ -347,6 +351,7 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Espera_Carga { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public string VolumenEsperaFormateada { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Espera_Carga); } }
         public double? GetVolumenEsperaCarga()
         {
             try
@@ -390,6 +395,7 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Disponible { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public string DisponibleFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Disponible); } }
         public double? GetVolumenDisponible()
         {
             try
