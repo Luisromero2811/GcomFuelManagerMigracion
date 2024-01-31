@@ -175,10 +175,10 @@
                             GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Density="Density.Default"
                             Culture="CultureInfo.CurrentCulture" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
                 <Columns>
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="180px">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha" Property="FchCierre" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="180px">
                         <Template Context="item">
                             <p>
-                                @(item.FchCierre?.ToShortDateString())
+                                @(item.FchCierre?.ToString("dd/MM/yyyy"))
                             </p>
                         </Template>
                     </RadzenDataGridColumn>
@@ -239,12 +239,12 @@
                     </RadzenDataGridColumn>
 
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumenes" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="PrecioFormateado" Filterable="false" Width="90px" />
                     <!--Aplicar Fecha de Vencimiento-->
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vencimiento" FormatString="{0:d}" Filterable="false" Width="100px">
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Vencimiento" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="100px">
                         <Template Context="item">
                             <div class="col-12">
-                                <p> @item.FchVencimiento?.ToShortDateString() </p>
+                                <p> @item.FchVencimiento?.ToString("dd/MM/yyyy") </p>
                             </div>
                         </Template>
                     </RadzenDataGridColumn>

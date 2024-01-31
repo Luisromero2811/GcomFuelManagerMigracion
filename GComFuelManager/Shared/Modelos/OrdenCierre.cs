@@ -64,8 +64,10 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
         public string? TipoPago { get; set; } = "Credito";
 
-        [JsonPropertyName("precio"), DisplayName("Precio")]
+        [JsonPropertyName("precio"), DisplayName("Precio"), EpplusIgnore]
         public double Precio { get; set; } = 0;
+        [DisplayName("Precio"), NotMapped]
+        public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N4}", Precio); } }
 
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;
@@ -87,7 +89,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("volumen"), DisplayName("Volumen"), EpplusIgnore]
         public int? Volumen { get; set; }
-        [DisplayName("Volumen")]
+        [DisplayName("Volumen"), NotMapped]
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]

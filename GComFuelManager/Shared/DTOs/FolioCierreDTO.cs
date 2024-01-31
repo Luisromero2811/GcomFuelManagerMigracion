@@ -47,13 +47,16 @@ namespace GComFuelManager.Shared.DTOs
         public string NDestino { get { return destino != null ? destino.Den! : string.Empty; } }
         [DisplayName("Producto")]
         public string NProducto { get { return Producto != null ? Producto.Den! : string.Empty; } }
-        //[EpplusIgnore]
+        [EpplusIgnore]
         public int? Volumen { get; set; }
-        //[DisplayName("Volumen Total"), NotMapped]
-        //public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
+        [DisplayName("Volumen Total"), NotMapped]
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         //Precio
-        [NotMapped]
+        [NotMapped, EpplusIgnore]
         public double Precio { get; set; } = 0;
+        [DisplayName("Precio")]
+        public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N4}", Precio); } }
+
         [DisplayName("Fecha de vencimiento")]
         public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre_Vencimiento); } }
         //public string FchCie_Ven => FchCierre_Vencimiento.ToString("dd/MM/yyyy");
