@@ -7,7 +7,7 @@
 @inject PreciosValidation validation
 @inject TooltipService ts
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios, Revision Precios")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios, Revision Precios, Auditor")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
@@ -268,7 +268,7 @@
     </Authorized>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios" Context="Grid">
+<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios, Auditor" Context="Grid">
     <Authorized>
         <RadzenTabs RenderMode="TabRenderMode.Client" TabPosition="TabPosition" Change="@OnChangeIndex">
             <Tabs>

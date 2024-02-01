@@ -9,32 +9,34 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Net.NetworkInformation;
 
 namespace GComFuelManager.Shared.DTOs
 {
-	public class FolioCierreDTO
-	{
-		
-		[EpplusIgnore]
-		public Cliente? cliente { get; set; } = null!;
-		[EpplusIgnore]
-		public Destino? destino { get; set; } = null!;
-		[EpplusIgnore]
-		public Producto? Producto { get; set; } = null!;
-		[EpplusIgnore]
-		public DateTime? FchCierre { get; set; } = DateTime.MinValue;
+    public class FolioCierreDTO
+    {
+
         [EpplusIgnore]
-		public DateTime? FchCierre_Vencimiento { get; set; } = DateTime.MinValue;
+        public Cliente? cliente { get; set; } = null!;
         [EpplusIgnore]
-		public Grupo? Grupo { get; set; } = null!;
+        public Destino? destino { get; set; } = null!;
+        [EpplusIgnore]
+        public Producto? Producto { get; set; } = null!;
+        [EpplusIgnore]
+        public DateTime? FchCierre { get; set; } = DateTime.MinValue;
+        [EpplusIgnore]
+        public DateTime? FchCierre_Vencimiento { get; set; } = DateTime.MinValue;
+        [EpplusIgnore]
+        public Grupo? Grupo { get; set; } = null!;
         [EpplusIgnore]
         public string? Estado { get; set; } = null!;
         [EpplusIgnore]
         public OrdenEmbarque? ordenEmbarque { get; set; } = null!;
-       
+        [EpplusIgnore]
+        public OrdenCierre? ordenCierre { get; set; } = null!;
 
         [DisplayName("Fecha")]
-        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
+        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre); } }
         [DisplayName("Folio de Cierre / OC")]
         public string? Folio { get; set; } = null!;
         [DisplayName("Grupo")]
@@ -50,10 +52,26 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Volumen Total"), NotMapped]
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         //Precio
-        [NotMapped]
+        [NotMapped, EpplusIgnore]
         public double Precio { get; set; } = 0;
+        [DisplayName("Precio")]
+        public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N4}", Precio); } }
+
         [DisplayName("Fecha de vencimiento")]
-        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre_Vencimiento); } }
+        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre_Vencimiento); } }
+        //public string FchCie_Ven => FchCierre_Vencimiento.ToString("dd/MM/yyyy");
+        [EpplusIgnore]
+        public double? Volumen_Cosumido { get; set; } = 0;
+        [DisplayName("Cargado")]
+        public string VolumenCargado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Cosumido); } }
+        [EpplusIgnore]
+        public double? Volumen_Programado { get; set; } = 0;
+        [DisplayName("Volumen Programado")]
+        public string VolumenProgramado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Programado); } }
+        [EpplusIgnore]
+        public double? Volumen_Espera_Carga { get; set; } = 0;
+        [DisplayName("Volumen en espera de carga")]
+        public string VolumenEsperaCarga { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Espera_Carga); } }
         [EpplusIgnore]
         public double? Volumen_Disponible { get; set; }
         [DisplayName("Volumen Disponible"), NotMapped]
@@ -64,10 +82,49 @@ namespace GComFuelManager.Shared.DTOs
         //Estatus del cierre Activa-Cerrada
         [NotMapped, EpplusIgnore]
         public bool? Activa { get; set; } = true;
+        [NotMapped, EpplusIgnore]
+        public bool? Estatus { get; set; } = true;
         //Volumenes
-        [DisplayName("Estado")]
-        public string? Estado_Pedido { get { return Activa == false ? "Cerrada" : ordenEmbarque?.Orden != null ? ordenEmbarque?.Orden?.Estado?.den
-                : ordenEmbarque?.Estado != null ? ordenEmbarque?.Estado?.den : "Activa"; } }
+        [DisplayName("Estado"), EpplusIgnore]
+        public string? Estado_Pedido
+        {
+            get
+            {
+                return Activa == false ? "Cerrada" : ordenEmbarque?.Orden != null ? ordenEmbarque?.Orden?.Estado?.den
+                : ordenEmbarque?.Estado != null ? ordenEmbarque?.Estado?.den : "Activa";
+            }
+        }
+
+        [DisplayName("Estado de ODC")]
+        public string Estado_Pedidos
+        {
+            get
+            {
+                if (Estatus == false)
+                    return "Cancelada";
+
+                if (Activa == false)
+                    return "Cerrada";
+
+                if (Activa != false)
+                    return "Activa";
+
+                if (ordenEmbarque is not null)
+                    if (ordenEmbarque.Orden is not null)
+                        if (ordenEmbarque.Orden.Estado is not null)
+                            if (!string.IsNullOrEmpty(ordenEmbarque.Orden.Estado.den))
+                                return ordenEmbarque.Orden.Estado.den;
+
+                if (ordenEmbarque is not null)
+                    if (ordenEmbarque.Estado is not null)
+                        if (!string.IsNullOrEmpty(ordenEmbarque.Estado.den))
+                            return ordenEmbarque.Estado.den;
+
+                return "Sin estado asignado";
+
+            }
+        }
+
         [DisplayName("Tipo de Venta")]
         public string? Tipo_Venta { get; set; } = string.Empty;
     }

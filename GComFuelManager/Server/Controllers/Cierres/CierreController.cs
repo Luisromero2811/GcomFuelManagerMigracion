@@ -2088,6 +2088,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                           Grupo = x.Grupo,
                           Estado = x.OrdenEmbarque.Estado.den,
                           Activa = x.Activa,
+                          Estatus = x.Estatus,
                           Precio = x.Precio,
                           Volumen = x.Volumen,
                           Observaciones = x.Observaciones,
@@ -2234,9 +2235,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             destino = x.Destino,
                             Producto = x.Producto,
                             FchCierre = x.FchCierre,
+                            FchCierre_Vencimiento = x.FchVencimiento,
                             Grupo = x.Grupo,
                             Estado = x.OrdenEmbarque.Estado.den,
                             Activa = x.Activa,
+                            Estatus = x.Estatus,
                             Precio = x.Precio,
                             Volumen = x.Volumen,
                             Observaciones = x.Observaciones
@@ -2262,6 +2265,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                            destino = x.Destino,
                            Producto = x.Producto,
                            FchCierre = x.FchCierre,
+                           FchCierre_Vencimiento = x.FchVencimiento,
                            Grupo = x.Grupo,
                            Estado = x.OrdenEmbarque.Estado.den,
                            Activa = x.Activa,
@@ -2354,7 +2358,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpPost("folios/{cliente}")]
-        public ActionResult GetFoliosValidosFiltro([FromBody] CierreFiltroDTO filtroDTO, [FromRoute] int cliente)
+        public async Task<ActionResult> GetFoliosValidosFiltro([FromBody] CierreFiltroDTO filtroDTO, [FromRoute] int cliente)
         {
             try
             {

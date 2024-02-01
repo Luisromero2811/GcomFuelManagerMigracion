@@ -83,7 +83,7 @@ namespace GComFuelManager.Server.Controllers
 
                 Folio_Activo_Vigente folio = new Folio_Activo_Vigente();
                 //&& x.Activa == true
-                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0)
+                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Estatus == true)
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
@@ -94,16 +94,12 @@ namespace GComFuelManager.Server.Controllers
 
                 if (parametros.ID_Grupo is not null && parametros.ID_Grupo != 0)
                     cierres = cierres.Where(x => x.CodGru == parametros.ID_Grupo);
-
                 if (parametros.ID_Cliente is not null && parametros.ID_Cliente != 0)
                     cierres = cierres.Where(x => !string.IsNullOrEmpty(x.Folio) && (x.CodCte == parametros.ID_Cliente || x.Folio.StartsWith("G")));
-
                 if (parametros.ID_Destino is not null && parametros.ID_Destino != 0)
                     cierres = cierres.Where(x => !string.IsNullOrEmpty(x.Folio) && (x.CodDes == parametros.ID_Destino || x.Folio.StartsWith("G")));
-
                 if (parametros.ID_Producto is not null && parametros.ID_Producto != 0)
                     cierres = cierres.Where(x => x.CodPrd == parametros.ID_Producto);
-
                 //if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
                 //    cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin);
 
@@ -119,22 +115,24 @@ namespace GComFuelManager.Server.Controllers
                         if (volumen is not null)
                         {
                             ordenCierres.First(x => x.Cod == item.Cod).Volumen_Disponible = volumen.Disponible;
-
-                            if (volumen.Disponible >= volumen.PromedioCarga)
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Programado = volumen.Programado;
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Espera_Carga = volumen.Congelado;
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Cosumido = volumen.Consumido;
+                            // if (volumen.Disponible >= volumen.PromedioCarga)
+                            //{
+                            if (Producto_Volumen.Any(x => x.ID_Producto == item.CodPrd))
                             {
-                                if (Producto_Volumen.Any(x => x.ID_Producto == item.CodPrd))
-                                {
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Total += volumen.Total;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Consumido += volumen.Consumido;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Reservado += volumen.Reservado;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Solicitud += volumen.Solicitud;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Congelado += volumen.Congelado;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Programado += volumen.Programado;
-                                    Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Disponible += volumen.Disponible;
-                                }
-                                else
-                                    Producto_Volumen.Add(volumen);
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Total += volumen.Total;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Consumido += volumen.Consumido;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Reservado += volumen.Reservado;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Solicitud += volumen.Solicitud;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Congelado += volumen.Congelado;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Programado += volumen.Programado;
+                                Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Disponible += volumen.Disponible;
                             }
+                            else
+                                Producto_Volumen.Add(volumen);
+                            //}
 
                             folio.ProductoVolumenes = Producto_Volumen;
                         }
@@ -163,7 +161,7 @@ namespace GComFuelManager.Server.Controllers
 
                 Folio_Activo_Vigente folio = new Folio_Activo_Vigente();
                 //&& x.Activa == true
-                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Estatus == true)
+                var cierres = context.OrdenCierre.Where(x => x.CodPed == 0)
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
@@ -171,21 +169,17 @@ namespace GComFuelManager.Server.Controllers
                     .IgnoreAutoIncludes()
                     .OrderByDescending(x => x.FchCierre)
                     .AsQueryable();
+                //&& x.Activa == true
+                var cierres_volumen = context.OrdenCierre.Where(x => x.CodPed == 0 && x.Estatus == true && x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin)
+               .Include(x => x.Producto)
+               .IgnoreAutoIncludes()
+               .OrderByDescending(x => x.FchCierre)
+               .ToList();
 
                 if (parametros.ID_FchIni != null && parametros.ID_FchFin != null)
+                {
                     cierres = cierres.Where(x => x.FchCierre >= parametros.ID_FchIni && x.FchCierre <= parametros.ID_FchFin).OrderByDescending(x => x.FchCierre);
-
-                if (parametros.ID_Grupo is not null && parametros.ID_Grupo != 0)
-                    cierres = cierres.Where(x => x.CodGru == parametros.ID_Grupo);
-
-                if (parametros.ID_Cliente is not null && parametros.ID_Cliente != 0)
-                    cierres = cierres.Where(x => !string.IsNullOrEmpty(x.Folio) && (x.CodCte == parametros.ID_Cliente || x.Folio.StartsWith("G")));
-
-                if (parametros.ID_Destino is not null && parametros.ID_Destino != 0)
-                    cierres = cierres.Where(x => !string.IsNullOrEmpty(x.Folio) && (x.CodDes == parametros.ID_Destino || x.Folio.StartsWith("G")));
-
-                if (parametros.ID_Producto is not null && parametros.ID_Producto != 0)
-                    cierres = cierres.Where(x => x.CodPrd == parametros.ID_Producto);
+                }
 
                 if (cierres is not null)
                 {
@@ -193,13 +187,20 @@ namespace GComFuelManager.Server.Controllers
 
                     folio.OrdenCierres = ordenCierres;
 
-                    foreach (var item in ordenCierres)
+                    //foreach (var item in ordenCierres)
+                    foreach (var item in cierres_volumen)
                     {
                         var volumen = ObtenerVolumenDisponibleDeProducto(item);
                         if (volumen is not null)
                         {
                             ordenCierres.First(x => x.Cod == item.Cod).Volumen_Disponible = volumen.Disponible;
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Programado = volumen.Programado;
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Espera_Carga = volumen.Congelado;
+                            ordenCierres.First(x => x.Cod == item.Cod).Volumen_Cosumido = volumen.Consumido;
+                            //ordenCierres.First(x => x.Cod == item.Cod).Volumen_Cosumido = volumen.Consumido;
 
+                            //if (volumen.Disponible >= volumen.PromedioCarga)
+                            //{
                             if (Producto_Volumen.Any(x => x.ID_Producto == item.CodPrd))
                             {
                                 Producto_Volumen.First(x => x.ID_Producto == item.CodPrd).Total += volumen.Total;
@@ -212,7 +213,7 @@ namespace GComFuelManager.Server.Controllers
                             }
                             else
                                 Producto_Volumen.Add(volumen);
-
+                            //}
 
                             folio.ProductoVolumenes = Producto_Volumen;
                         }
@@ -259,7 +260,7 @@ namespace GComFuelManager.Server.Controllers
             var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                 && x.OrdenEmbarque.Orden.Codest != 14
                 && x.OrdenEmbarque.Codest != 14
-            && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
+            && x.OrdenEmbarque.Orden.Codprd == ordenCierre.CodPrd
             && x.OrdenEmbarque.Orden.BatchId != null)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Orden)
@@ -268,7 +269,7 @@ namespace GComFuelManager.Server.Controllers
             var countConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                 && x.OrdenEmbarque.Orden.Codest != 14
                 && x.OrdenEmbarque.Codest != 14
-                && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
+                && x.OrdenEmbarque.Orden.Codprd == ordenCierre.CodPrd
                 && x.OrdenEmbarque.Orden.BatchId != null)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Orden)

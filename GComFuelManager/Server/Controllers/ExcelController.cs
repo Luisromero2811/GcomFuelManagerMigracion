@@ -45,11 +45,17 @@ namespace GComFuelManager.Server.Controllers
                             Producto = item.Producto,
                             FchCierre = item.FchCierre,
                             FchCierre_Vencimiento = item.FchVencimiento,
+                            Volumen_Cosumido = item.Volumen_Cosumido,
                             Volumen = item.Volumen,
                             Volumen_Disponible = item.Volumen_Disponible,
+                            Volumen_Programado = item.Volumen_Programado,
+                            Volumen_Espera_Carga = item.Volumen_Espera_Carga,
                             Folio = item.Folio,
                             Observaciones = item.Observaciones,
-                            Precio = item.Precio
+                            Precio = item.Precio,
+                            Tipo_Venta = item.TipoPago,
+                            Activa = item.Activa,
+                            Estatus = item.Estatus
                         });
                     }
                 }
