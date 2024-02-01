@@ -1,0 +1,110 @@
+﻿@page "/configuracion/originador"
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+
+<div class="card">
+    <div class="card-header">
+        <b>Configurar originador</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="Originador" OnValidSubmit="Crear_Originador" class="form row">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-4">
+                    <InputText @bind-Value="@Originador.Nombre" class="form-control form-control-sm" />
+                    <ValidationMessage For="@(()=> Originador.Nombre)" />
+                </div>
+                <div class="col-4">
+                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
+                        Guardar
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="col-12">
+    <table class="table table-sm table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@Originadores" TItem="Originador" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Originador(item))" />
+                        </div>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+@code {
+    Originador Originador { get; set; } = new();
+    List<Originador> Originadores { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Originadores();
+    }
+
+    private async Task Obtener_Originadores()
+    {
+        var response = await http.Get<List<Originador>>($"api/originador");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Originadores = response.Response;
+        }
+    }
+
+    private async Task Crear_Originador()
+    {
+        try
+        {
+            var response = await http.Post<Originador>($"api/originador", Originador);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Originadores();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Desactivar_Activar_Originador(Originador originador)
+    {
+        originador.Activo = !originador.Activo;
+
+        var response = await http.Post<Originador>($"api/originador", originador);
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await Obtener_Originadores();
+        }
+    }
+}

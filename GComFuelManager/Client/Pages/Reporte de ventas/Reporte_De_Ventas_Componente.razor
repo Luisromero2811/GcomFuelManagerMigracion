@@ -53,11 +53,11 @@
                     <td>
                         @if (Show_Venta)
                         {
-                            <p>@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture) Lts</p>
+                            <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
                         }
                         else
                         {
-                            <p>$ @venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                            <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture) Lts</p>
                         }
                     </td>
                 }

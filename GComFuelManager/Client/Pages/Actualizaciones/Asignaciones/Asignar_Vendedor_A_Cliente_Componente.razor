@@ -2,7 +2,7 @@
 @inject SweetAlertService Swal
 @inject NotificationService ms
 
-<div class="card">
+<div class="card" style="height:100%">
     <div class="card-header">
         <b>Asignar vendedor a cliente</b>
     </div>
@@ -47,33 +47,35 @@
                 </button>
             </div>
         </div>
-    </div>
-    <table class="table table-sm table-striped table-bordered">
-        <thead>
-            <tr>
-                <th>
-                    <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
-                    @onchange="args => CheckItemAll(args?.Value)" />
-                </th>
-                <th>Cliente</th>
-                <th>Vendedor</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Clientes.Count > 0)
-            {
-                <Virtualize Items="Clientes" TItem="Cliente" Context="item">
+        <div class="col-12">
+            <table class="table table-sm table-striped table-bordered">
+                <thead>
                     <tr>
                         <th>
-                            <input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />
+                            <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
+                            @onchange="args => CheckItemAll(args?.Value)" />
                         </th>
-                        <td>@item.Den</td>
-                        <td>@item.Vendedor?.Nombre</td>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
                     </tr>
-                </Virtualize>
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @if (Clientes.Count > 0)
+                    {
+                        <Virtualize Items="Clientes" TItem="Cliente" Context="item">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />
+                                </th>
+                                <td>@item.Den</td>
+                                <td>@item.Vendedor?.Nombre</td>
+                            </tr>
+                        </Virtualize>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 @code {

@@ -45,13 +45,12 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.Include(x=>x.Originadores).IgnoreAutoIncludes().OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
 
                 return Ok(vendedores);
-                return Ok();
             }
             catch (Exception e)
             {
@@ -64,7 +63,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.Where(x => x.Activo).OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.Where(x => x.Activo).OrderBy(x => x.Nombre).IgnoreAutoIncludes().AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
@@ -91,6 +90,8 @@ namespace GComFuelManager.Server.Controllers
 
                 if (vendedor.Id != 0)
                 {
+                    //vendedor.Vendedor_Originador = null!;
+
                     context.Update(vendedor);
                     await context.SaveChangesAsync(id, 38);
                 }
@@ -98,7 +99,20 @@ namespace GComFuelManager.Server.Controllers
                 {
                     context.Add(vendedor);
                     await context.SaveChangesAsync(id, 37);
+
+                    if (vendedor.Id_Originador != 0)
+                    {
+                        Vendedor_Originador vendedor_Originador = new()
+                        {
+                            VendedorId = vendedor.Id,
+                            OriginadorId = vendedor.Id_Originador
+                        };
+
+                        context.Add(vendedor_Originador);
+                        await context.SaveChangesAsync(id, 41);
+                    }
                 }
+
                 return Ok();
             }
             catch (Exception e)
@@ -136,6 +150,35 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("relacionar/originador")]
+        public async Task<ActionResult> Guardar_Relacion_Vendeor_Originador([FromQuery] Vendedor_Originador vendedor_Originador)
+        {
+            try
+            {
+                if (vendedor_Originador is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                if (vendedor_Originador.Borrar)
+                    context.Remove(vendedor_Originador);
+                else
+                    context.Add(vendedor_Originador);
+
+
+                await context.SaveChangesAsync(id, 41);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("reporte")]
         public ActionResult Obtener_Venta_De_Meses_Por_Vendedor([FromQuery] Vendedor vendedor)
         {
