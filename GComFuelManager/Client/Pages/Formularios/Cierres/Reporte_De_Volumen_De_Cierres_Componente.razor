@@ -239,7 +239,7 @@
                     </RadzenDataGridColumn>
 
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="100px" FormatString="{0:N2}" Filterable="false" Property="Volumenes" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="PrecioFormateado" Filterable="false" Width="90px" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" Width="90px" FormatString="{0:C4}"/>
                     <!--Aplicar Fecha de Vencimiento-->
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Vencimiento" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="100px">
                         <Template Context="item">
