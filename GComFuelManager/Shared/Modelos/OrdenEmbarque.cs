@@ -128,7 +128,7 @@ namespace GComFuelManager.Shared.Modelos
                     if (Orden.Vol is not null)
                         return (double)Orden.Vol;
 
-                if (Tonel is not null)
+                if (Tonel is not null && Codest != 41)
                 {
                     if (Compartment == 1) return double.Parse(Tonel.Capcom.ToString() ?? "0");
                     if (Compartment == 2) return double.Parse(Tonel.Capcom2.ToString() ?? "0");

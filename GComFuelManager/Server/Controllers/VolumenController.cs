@@ -234,8 +234,12 @@ namespace GComFuelManager.Server.Controllers
             var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
                 && x.OrdenEmbarque.Codest == 22
                 && x.OrdenEmbarque.Folio != null
-                && x.OrdenEmbarque.Bolguidid != null)
+                && x.OrdenEmbarque.Bolguidid != null
+                && x.OrdenEmbarque.Orden == null)
                 .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Tonel)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
                 .ThenInclude(x => x.Tonel).ToList();
 
             var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
@@ -246,8 +250,10 @@ namespace GComFuelManager.Server.Controllers
 
             var countCongelado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Codprd == ordenCierre.CodPrd
             && x.OrdenEmbarque.Codest == 22
-            && x.OrdenEmbarque.Folio != null)
+            && x.OrdenEmbarque.Folio != null
+            && x.OrdenEmbarque.Orden == null)
                 .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
                 .Count();
 
             var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(ordenCierre.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null

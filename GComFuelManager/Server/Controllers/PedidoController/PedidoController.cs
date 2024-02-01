@@ -1888,9 +1888,13 @@ namespace GComFuelManager.Server.Controllers
                 var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
                     && x.OrdenEmbarque.Codest == 22
                     && x.OrdenEmbarque.Folio != null
-                    && x.OrdenEmbarque.Bolguidid != null)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel).ToList();
+                    && x.OrdenEmbarque.Bolguidid != null
+                && x.OrdenEmbarque.Orden == null)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Tonel)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
+                .ThenInclude(x => x.Tonel).ToList();
 
                 var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
                                 : item.OrdenEmbarque!.Compartment == 2 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom2!.ToString())
@@ -1900,9 +1904,11 @@ namespace GComFuelManager.Server.Controllers
 
                 var countCongelado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Codprd == item.CodPrd
                 && x.OrdenEmbarque.Codest == 22
-                && x.OrdenEmbarque.Folio != null)
-                    .Include(x => x.OrdenEmbarque)
-                    .Count();
+                && x.OrdenEmbarque.Folio != null
+            && x.OrdenEmbarque.Orden == null)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
+                .Count();
 
                 var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                     && x.OrdenEmbarque.Orden.Codest != 14
