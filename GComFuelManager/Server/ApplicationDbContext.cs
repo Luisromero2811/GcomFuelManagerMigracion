@@ -404,7 +404,8 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Redireccionamiento>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.Redireccionamiento)
-                .HasForeignKey<Redireccionamiento>(x => x.Id_Orden);
+                .HasForeignKey<Redireccionamiento>(x => x.Id_Orden)
+                .HasPrincipalKey<Orden>(x => x.Cod);
             //.HasPrincipalKey<Orden>(x => x.Cod);
 
             modelBuilder.Entity<Redireccionamiento>()

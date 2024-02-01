@@ -21,6 +21,7 @@
 
             <main>
                 <div>
+                    @* <Menu_Superior /> *@
                     <MenuNav close=@isClosed closeMenu="CloseMenu" />
                 </div>
 
@@ -41,10 +42,10 @@
         await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
     }
 
-  
+
     protected async override Task OnInitializedAsync()
     {
-      
+
 
         var cm = await js.GetItemLocalStorage("CloseMenu");
         if (cm is not null)
