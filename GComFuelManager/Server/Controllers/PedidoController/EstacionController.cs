@@ -30,8 +30,8 @@ namespace GComFuelManager.Server.Controllers
                 if (filtro_.ID_Cliente != 0)
                     estaciones_filtradas = estaciones_filtradas.Where(x => x.Codcte == filtro_.ID_Cliente);
 
-                if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
-                    estaciones_filtradas = estaciones_filtradas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Cliente_Filtrado.ToLower()));
+                if (!string.IsNullOrEmpty(filtro_.Destino_Filtrado))
+                    estaciones_filtradas = estaciones_filtradas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Destino_Filtrado.ToLower()));
 
                 var estaciones = estaciones_filtradas.OrderBy(x => x.Den);
 

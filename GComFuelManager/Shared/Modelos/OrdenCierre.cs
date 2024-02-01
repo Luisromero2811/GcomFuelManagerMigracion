@@ -195,6 +195,39 @@ namespace GComFuelManager.Shared.Modelos
         {
             return (OrdenCierre)this.MemberwiseClone();
         }
+        public OrdenCierre HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                CodCte = CodCte,
+                CodCon = CodCon,
+                CodDes = CodDes,
+                CodGru = CodGru,
+                CodPed = CodPed,
+                CodPrd = CodPrd,
+                CodTad = CodTad,
+                fchPrecio = fchPrecio,
+                FchCar = FchCar,
+                FchCierre = FchCierre,
+                FchLlegada = FchLlegada,
+                FchVencimiento = FchVencimiento,
+                Volumen = Volumen,
+                Precio = Precio,
+                Folio = Folio,
+                Turno = Turno,
+                ModeloVenta = ModeloVenta,
+                TipoPago = TipoPago,
+                TipoVenta = TipoVenta,
+                Estatus = Estatus,
+                Activa = Activa,
+                Confirmada = Confirmada,
+                Observaciones = Observaciones,
+                ID_Moneda = ID_Moneda,
+                Equibalencia = Equibalencia,
+                Vendedor = Vendedor
+            };
+        }
         [NotMapped, EpplusIgnore] public int? Cantidad_Sugerida { get; set; } = 0;
         public int? GetCantidadSugerida()
         {

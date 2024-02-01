@@ -526,5 +526,45 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("ajustar")]
+        public async Task<ActionResult> Ajustar_Clientes_Destinos_Duplicados()
+        {
+            try
+            {
+                var destinos_en_precios = context.Precio.Select(x => x.codDes).Distinct().ToList();
+                var destinos_en_precios_programados = context.PrecioProgramado.Select(x => x.codDes).Distinct().ToList();
+                var destinos_en_precios_historial = context.PreciosHistorico.Select(x => x.codDes).Distinct().ToList();
+
+                List<int?> destinos_encontrados = new();
+
+                destinos_encontrados.AddRange(destinos_en_precios);
+                destinos_encontrados.AddRange(destinos_en_precios_programados);
+                destinos_encontrados.AddRange(destinos_en_precios_historial);
+
+                var destinos_unicos = destinos_encontrados.Distinct();
+
+                var destinos_generales_activos = context.Destino.Where(x => x.Activo == true).ToList();
+
+                foreach (var item in destinos_generales_activos)
+                {
+                    if (!destinos_unicos.Any(x => item.Cod == x))
+                    {
+                        item.Activo = false;
+                        context.Update(item);
+                    }
+                }
+
+                await context.SaveChangesAsync();
+
+                await GetClienteService();
+
+                return Ok(destinos_unicos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -1,0 +1,243 @@
+﻿@page "/listado/redireccion"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject DialogService ds
+@inject IJSRuntime js
+@inject NotificationService ms
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema" Context="Redireccion_page">
+    <div class="col-12 card">
+        <div class="card-header">
+            <b>Listado de redirecciones</b>
+        </div>
+        <div class="card-body">
+            <div class="col-12 mt-1">
+                <div class="<ol-12">
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <input type="date" @bind="@filtroDTO.Fecha_Inicio" class="form-control form-control-sm col-12" />
+                        </div>
+                        <div class="col-4">
+                            <input type="date" @bind="@filtroDTO.Fecha_Fin" class="form-control form-control-sm col-12" />
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Buscar_Redireccion">
+                                Buscar
+                                @if (Loading_Buscar)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Exportar_Excel">
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ancho-tabla" style="font-size:12px;">
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Bol</th>
+                    <th>Producto</th>
+                    <th>Cliente original</th>
+                    <th>Cliente redireccionado</th>
+                    <th>Destino original</th>
+                    <th>Destino redireccionado</th>
+                    <th>Precio original</th>
+                    <th>Precio redireccion</th>
+                    <th>Motivo</th>
+                    <th>Fecha de redireccion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Bol" /></td>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Producto" /></td>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Cliente_Original" /></td>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Cliente" /></td>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Destino_Original" /></td>
+                    <td><input class="form-control form-control-sm" @oninput="@Filtrar_Destino" /></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <Virtualize Items="@Redirecciones" Context="redireccion" TItem="Redireccionamiento">
+                    <tr>
+                        <td>@redireccion.Bol_Orden</td>
+                        <td>@redireccion.Orden?.Producto?.Nombre_Producto</td>
+                        <td>@redireccion.Nombre_Cliente_Origibal</td>
+                        <td>@redireccion.Nombre_Cliente</td>
+                        <td>@redireccion.Nombre_Destino_Original</td>
+                        <td>@redireccion.Nombre_Destino</td>
+                        <td>@redireccion.Orden?.Obtener_Precio.ToString("N4",CultureInfo.InvariantCulture)</td>
+                        <td>@redireccion.Precio_Red.ToString("N4",CultureInfo.InvariantCulture)</td>
+                        <td>
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Mostrar_Motivo(redireccion))">
+                                <i class="fa fa-solid fa-eye"></i>
+                            </button>
+                        </td>
+                        <td>@redireccion.Fecha_Red.ToShortDateString()</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
+</AuthorizeView>
+
+<style>
+    .ancho-tabla{
+        width:calc(95vw - 1vw);
+        overflow:auto;
+    }
+</style>
+
+@code {
+    CierreFiltroDTO filtroDTO = new();
+    Dictionary<string, string> Query = new();
+    List<Redireccionamiento> Redirecciones { get; set; } = new();
+
+    private bool Loading_Buscar = false;
+
+    private async Task Buscar_Redireccion()
+    {
+        try
+        {
+            Loading_Buscar = true;
+
+            Query["Fecha_Inicio"] = filtroDTO.Fecha_Inicio.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy"); ;
+            Query["Fecha_Fin"] = filtroDTO.Fecha_Fin.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy"); ;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(Query);
+
+            var response = await http.Get<List<Redireccionamiento>>($"api/redireccion?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Buscar = false;
+            }
+            else
+            {
+                Redirecciones = response.Response;
+                Loading_Buscar = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Buscar = false;
+        }
+    }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            var response = await http.Post<List<Redireccionamiento>, List<Redireccion_Excel>>($"api/excel/reporte/redireccion", Redirecciones);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("redirecciones");
+                ws.Columns.Width = 50;
+
+                var header = ws.Cells["A1:J1"];
+
+                // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+                // ws.Cells["I1:J1"].Style.Numberformat.Format = "#,##0.00";
+
+                // ws.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                // ws.Cells["K1:M1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                // ws.Cells["F1:J1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response, true);
+                tablebody.Style.Font.Size = 12;
+                // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Redirecciones_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Mostrar_Motivo(Redireccionamiento red)
+    {
+        try
+        {
+            await ds.OpenAsync<ViewComentariosComponent>("Motivo", new Dictionary<string, object> { { "comentarios", red.Motivo_Red } },
+            new DialogOptions() { Height = "auto", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs e)
+    {
+        Query["Cliente_Filtrado"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+    private async Task Filtrar_Cliente_Original(ChangeEventArgs e)
+    {
+        Query["Cliente_Original"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+    private async Task Filtrar_Destino(ChangeEventArgs e)
+    {
+        Query["Destino_Filtrado"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+    private async Task Filtrar_Destino_Original(ChangeEventArgs e)
+    {
+        Query["Destino_Original"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+    private async Task Filtrar_Bol(ChangeEventArgs e)
+    {
+        Query["BOL"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+    private async Task Filtrar_Producto(ChangeEventArgs e)
+    {
+        Query["Producto_Filtrado"] = e.Value?.ToString() ?? string.Empty;
+
+        await Buscar_Redireccion();
+    }
+
+}

@@ -30,13 +30,21 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public double Tipo_De_Cambio { get; set; } = 1;
         [EpplusIgnore]
-        public string Moneda { get; set; } = "MXN";
+        public string? Moneda { get; set; } = "MXN";
 
 
         [EpplusIgnore]
         public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
         [DisplayName("Fecha de Carga")]
-        public string Fechas { get { return Fecha_De_Carga.ToString(); } }
+        public string Fechas
+        {
+            get
+            {
+                if (Fecha_De_Carga is not null)
+                    return Fecha_De_Carga.Value.ToString();
+                return DateTime.MinValue.ToString();
+            }
+        }
         [DisplayName("BOL")]
         public int? BOL { get; set; } = 0;
         [DisplayName("Cliente")]

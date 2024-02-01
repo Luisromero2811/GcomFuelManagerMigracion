@@ -393,16 +393,6 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo">
-                        <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
-                            <Template>
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Redireccionar ordenes
-                                </div>
-                            </Template>
-                        </RadzenPanelMenuItem>
-                    </AuthorizeView>
-
                 </ChildContent>
             </RadzenPanelMenuItem>
         </AuthorizeView>
@@ -435,6 +425,36 @@
                     </AuthorizeView>
                 </ChildContent>
             </RadzenPanelMenuItem>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, Administrador Sistema">
+            <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
+                <Template>
+                    <div class="text-white">
+                        <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Redireccion
+                    </div>
+                </Template>
+                <ChildContent>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_Page">
+                        <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Redireccionar ordenes
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_List_Page">
+                        <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Listado redireccion
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+                </ChildContent>
+            </RadzenMenuItem>
         </AuthorizeView>
 
     </RadzenPanelMenu>

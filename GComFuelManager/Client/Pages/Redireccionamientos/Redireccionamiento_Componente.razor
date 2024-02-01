@@ -82,7 +82,7 @@
 
                     <div class="col-4">
                         <label>Motivo</label>
-                        <textarea class="form-control form-control-sm" @bind="Redireccion.Motivo_Red"/>
+                        <textarea class="form-control form-control-sm" @bind="Redireccion.Motivo_Red" maxlength="250" />
                         <ValidationMessage For="@(()=>Redireccion.Motivo_Red)" />
                     </div>
 
@@ -111,20 +111,23 @@
         <table class="table table-sm table-bordered table-hover" id="miTabla">
             <thead class="fila">
                 <tr style="max-height:50px;white-space:nowrap;">
+                    <th style="min-width:80px;width:80px">
+                        Redireccionar
+                    </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
                         Fecha de carga
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Cliente
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Producto
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:300px;">
                         Destino
                     </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Precio de venta
+                        Precio
                     </th>
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:150px;">
                         Volumen cargado
@@ -144,7 +147,7 @@
                 @if (Loading_Buscar || Loading_Guardar)
                 {
                     <tr>
-                        <td colspan="9">
+                        <td colspan="10">
                             <SpinnerLoading />
                         </td>
                     </tr>
@@ -152,7 +155,7 @@
                 else if (Ordenes_Synthesis.Count == 0 || Ordenes_Synthesis is null)
                 {
                     <tr>
-                        <td colspan="9">
+                        <td colspan="10">
                             No hay registros
                         </td>
                     </tr>
@@ -160,50 +163,60 @@
                 else
                 {
                     <Virtualize Items="@Ordenes_Synthesis" Context="item" TItem="Orden">
-                        <tr style="white-space:nowrap;">
-                            <td class="overflow-hidden">
-                                <div class="text-hidden-overflow">
-                                    @item?.Fchcar?.ToString("dd/MM/yyyy")
+                        <tr style="white-space:nowrap;" class="@(Ordenes_Synthesis.Any(x=>x.Cod == Redireccion.Id_Orden) ? "table-active" : string.Empty )">
+                            <td>
+                                <div>
+                                    @if (item.Redireccionamiento is null)
+                                    {
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Establecer_Redireccion(item))">
+                                            <i class="fa fa-solid fa-diamond-turn-right"></i>
+                                        </button>
+                                    }
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Destino?.Cliente?.Den
+                                    @item.Fchcar?.ToString("dd/MM/yyyy")
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Producto?.Den
+                                    @item.Obtener_Cliente
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Destino?.Den
+                                    @item.Producto?.Den
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.OrdenEmbarque?.Pre?.ToString("N4", CultureInfo.InvariantCulture)
+                                    @item.Obtener_Destino
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Vol?.ToString("N",CultureInfo.InvariantCulture)
+                                    @item.Obtener_Precio.ToString("N4", CultureInfo.InvariantCulture)
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Ref
+                                    @item.Vol?.ToString("N",CultureInfo.InvariantCulture)
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.BatchId
+                                    @item.Ref
                                 </div>
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item?.Estado?.den
+                                    @item.BatchId
+                                </div>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="text-hidden-overflow">
+                                    @item.Estado?.den
                                 </div>
                             </td>
                         </tr>
@@ -243,7 +256,7 @@
     }
 
     .ancho {
-        width: @TotalWidth;
+        width: calc(100vw - 100px);
     }
 
     tr:hover {
@@ -398,6 +411,20 @@
             {
                 Ordenes_Synthesis = response.Response;
                 Loading_Buscar = false;
+                var response_Precio = await http.Get<PrecioBolDTO>($"api/precio/bol/{filtroDTO.Bol}");
+                if (response_Precio.Error)
+                {
+                    var message = await response_Precio.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Buscar = false;
+                }
+                else
+                {
+                    if (response_Precio.Response is not null && response_Precio.Response.Precio is not null)
+                        Redireccion.Precio_Red = (double)response_Precio.Response.Precio;
+
+                    Loading_Buscar = false;
+                }
             }
         }
         catch (Exception e)
@@ -411,8 +438,16 @@
     {
         try
         {
-            Loading_Guardar = true;
-            var response = await http.Post<Redireccionamiento>("api/redireccion",Redireccion);
+            if (Redireccion.Id_Orden == 0)
+            {
+                await swal.FireAsync("Aviso", "Seleccione una orden para redireccionar.", SweetAlertIcon.Warning);
+                return;
+            }
+
+            Dictionary<string, string> keyValues = new();
+            keyValues["ID_Orden"] = Redireccion.Id_Orden.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(keyValues);
+            var response = await http.Get<bool>($"api/redireccion/checar?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -421,8 +456,67 @@
             }
             else
             {
-                Buscar_Ordenes();
-                Loading_Guardar = false;
+
+                if (!response.Response)
+                {
+                    Loading_Guardar = true;
+                    var responseSave = await http.Post<Redireccionamiento>("api/redireccion", Redireccion);
+                    if (responseSave.Error)
+                    {
+                        var message = await responseSave.ObtenerMensajeError();
+                        await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        Loading_Guardar = false;
+                    }
+                    else
+                    {
+                        ms.Notify(new NotificationMessage()
+                            {
+                                Summary = "Redireccion registrada",
+                                Detail = "Se ha registrado la redireccion de la orden.",
+                                Duration = 5000,
+                                Severity = NotificationSeverity.Success
+                            });
+                        await Buscar_Ordenes();
+                        Loading_Guardar = false;
+                    }
+
+                    // var confirm = await swal.FireAsync(new SweetAlertOptions
+                    //     {
+                    //         Icon = SweetAlertIcon.Warning,
+                    //         ShowCancelButton = true,
+                    //         ConfirmButtonText = "Aceptar",
+                    //         CancelButtonText = "Cancelar",
+                    //         Text = "Esta orden ya fue redireccionada,¿Desea editar la anterir redireccion con los datos introducidos?"
+                    //     });
+
+                    // if (!string.IsNullOrEmpty(confirm.Value))
+                    // {
+                    //     Loading_Guardar = true;
+                    //     var responseSave = await http.Post<Redireccionamiento>("api/redireccion", Redireccion);
+                    //     if (responseSave.Error)
+                    //     {
+                    //         var message = await responseSave.ObtenerMensajeError();
+                    //         await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    //         Loading_Guardar = false;
+                    //     }
+                    //     else
+                    //     {
+                    //         ms.Notify(new NotificationMessage()
+                    //             {
+                    //                 Summary = "Redireccion registrada",
+                    //                 Detail = "Se ha registrado la redireccion de la orden.",
+                    //                 Duration = 5000,
+                    //                 Severity = NotificationSeverity.Success
+                    //             });
+                    //         await Buscar_Ordenes();
+                    //         Loading_Guardar = false;
+                    //     }
+                    // }
+                }
+                // else
+                // {
+
+                // }
             }
         }
         catch (Exception e)
@@ -466,7 +560,7 @@
         {
             Dictionary<string, string> query = new();
             query["Destino_Filtrado"] = value;
-            query["ID_Cliente"] = Redireccion.Grupo_Red.ToString();
+            query["ID_Cliente"] = Redireccion.Cliente_Red.ToString();
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
@@ -485,6 +579,12 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private void Establecer_Redireccion(Orden orden)
+    {
+        if (orden.Cod is not null)
+            Redireccion.Id_Orden = (long)orden.Cod;
     }
 
     private async Task Exportar_Excel()

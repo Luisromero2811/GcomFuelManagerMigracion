@@ -48,9 +48,15 @@ namespace GComFuelManager.Shared.Modelos
     {
         protected override ValidationResult IsValid(object? value, ValidationContext validation)
         {
+            var displayName = validation.ObjectType.GetProperty(validation.MemberName).GetCustomAttributes(typeof(DisplayNameAttribute), true).FirstOrDefault() as DisplayNameAttribute;
+
+            var name = displayName?.DisplayName ?? validation.DisplayName;
+
+            if (value is null) return new ValidationResult($"{name} no puede estar vacio");
+
             if (value is not null)
-                if (value.Equals(0))
-                    return new ValidationResult($"{validation.DisplayName} no tiene un valor valido");
+                if (double.TryParse(value.ToString(), out double precio) && precio == 0)
+                    return new ValidationResult($"{name} no tiene un valor valido");
 
             return ValidationResult.Success!;
         }
@@ -60,11 +66,12 @@ namespace GComFuelManager.Shared.Modelos
     {
         protected override ValidationResult IsValid(object? value, ValidationContext validation)
         {
-            if (value != null)
-            {
+            if (value is null) return new ValidationResult($"{validation.MemberName} no puede estar vacio");
+
+            if (value is not null)
                 if (double.TryParse(value.ToString(), out double numero) && numero < 0)
                     return new ValidationResult("No se aceptan valores negativos");
-            }
+
             return ValidationResult.Success!;
         }
     }
