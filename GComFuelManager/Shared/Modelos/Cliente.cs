@@ -56,5 +56,16 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public int? Id_Vendedor { get; set; }
         [EpplusIgnore] DateTime? Fecha_Registro { get; set; } = DateTime.Now;
         [EpplusIgnore] bool? Es_Meta { get; set; } = true;
+        [NotMapped]
+        public string Obtener_Nombre_Vendedor
+        {
+            get
+            {
+                if (Vendedor is not null)
+                    if (!string.IsNullOrEmpty(Vendedor.Nombre))
+                        return Vendedor.Nombre;
+                return string.Empty;
+            }
+        }
     }
 }

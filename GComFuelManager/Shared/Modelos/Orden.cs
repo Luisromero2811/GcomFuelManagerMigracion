@@ -85,5 +85,38 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore]
         public OrdenCierre? Precio { get; set; } = null!;
         public Redireccionamiento? Redireccionamiento { get; set; } = null!;
+        [NotMapped]
+        public double Obtener_Precio_Orden_Embarque
+        {
+            get
+            {
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Pre is not null)
+                        return (double)OrdenEmbarque.Pre;
+                return 0;
+            }
+        }
+        [NotMapped]
+        public string Obtener_Nombre_Producto
+        {
+            get
+            {
+                if (Producto is not null)
+                    if (!string.IsNullOrEmpty(Producto.Den))
+                        return Producto.Den;
+                return string.Empty;
+            }
+        }
+
+        [NotMapped]
+        public double Obtener_Volumen
+        {
+            get
+            {
+                if (Vol is not null)
+                    return (double)Vol;
+                return 0;
+            }
+        }
     }
 }

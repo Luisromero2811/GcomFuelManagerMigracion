@@ -15,56 +15,63 @@
 </div>
 <div class="col-12 row">
     <div class="col-1">
-        Litros
-    </div>
-    <div class="col-1">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" role="switch" checked="@Show_Venta" @bind-value="@Show_Venta">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="litros" id="litros_radio" checked="@(Show_Venta == false)" @onchange="@(()=>Show_Venta = false)">
+            <label class="form-check-label" for="litros_radio">
+                Litros
+            </label>
         </div>
     </div>
     <div class="col-1">
-        Venta
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="venta" id="venta_radio" checked="@(Show_Venta == true)" @onchange="@(()=>Show_Venta = true)">
+            <label class="form-check-label" for="venta_radio">
+                Venta
+            </label>
+        </div>
     </div>
 </div>
-<table class="table table-sm table-striped table-bordered">
-    <thead>
-        <tr>
-            <th>Vendedor</th>
-            @for (int mes = 1; mes <= 12; mes++)
-            {
-                <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMMM").ToUpper())</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @if (Loading_Reporte)
-        {
+<div class="ancho-tabla shadow-sm" style="overflow-x:scroll;font-size:13px;white-space:nowrap;">
+    <table class="table table-sm table-striped table-bordered">
+        <thead>
             <tr>
-                <td colspan="13">
-                    <SpinnerLoading />
-                </td>
-            </tr>
-        }
-        <Virtualize Items="Vendedores" TItem="Vendedor" Context="item">
-            <tr>
-                <td>@item.Nombre</td>
-                @foreach (var venta_mes in item.Venta_Por_Meses)
+                <th>Vendedor</th>
+                @for (int mes = 1; mes <= 12; mes++)
                 {
-                    <td>
-                        @if (Show_Venta)
-                        {
-                            <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
-                        }
-                        else
-                        {
-                            <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture) Lts</p>
-                        }
-                    </td>
+                    <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM").ToUpper())</th>
                 }
             </tr>
-        </Virtualize>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @if (Loading_Reporte)
+            {
+                <tr>
+                    <td colspan="13">
+                        <SpinnerLoading />
+                    </td>
+                </tr>
+            }
+            <Virtualize Items="Vendedores" TItem="Vendedor" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    @foreach (var venta_mes in item.Venta_Por_Meses)
+                    {
+                        <td>
+                            @if (Show_Venta)
+                            {
+                                <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
+                            }
+                            else
+                            {
+                                <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                            }
+                        </td>
+                    }
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
 @code {
     List<Vendedor> Vendedores { get; set; } = new();
     Vendedor Vendedor { get; set; } = new();
@@ -76,7 +83,7 @@
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Reporte();
-        await Obtener_Fechas();
+        // await Obtener_Fechas();
     }
 
     private async Task Obtener_Reporte()

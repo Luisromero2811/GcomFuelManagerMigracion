@@ -45,7 +45,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.Include(x=>x.Originadores).IgnoreAutoIncludes().OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.Include(x => x.Originadores).IgnoreAutoIncludes().OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
@@ -151,6 +151,39 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("borrar/relacion/cliente")]
+        public async Task<ActionResult> Guardar_Relacion_Vendeor_Originador([FromQuery] Cliente cliente)
+        {
+            try
+            {
+                if (cliente is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var cliente_encontrado = context.Cliente.Find(cliente.Cod);
+
+                if (cliente_encontrado is not null)
+                {
+                    if (cliente_encontrado.Id_Vendedor == cliente.Id_Vendedor)
+                    {
+                        cliente_encontrado.Id_Vendedor = null!;
+                        context.Update(cliente_encontrado);
+                        await context.SaveChangesAsync(id, 42);
+                        return Ok();
+                    }
+                }
+
+                return NotFound();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost("relacionar/originador")]
         public async Task<ActionResult> Guardar_Relacion_Vendeor_Originador([FromQuery] Vendedor_Originador vendedor_Originador)
         {
@@ -184,7 +217,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.Where(x => x.Activo).OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.Where(x => x.Activo).Include(x => x.Clientes).OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
@@ -195,40 +228,47 @@ namespace GComFuelManager.Server.Controllers
 
                 foreach (var vendedor_valido in Vendedores_Validos)
                 {
-                    List<Cliente> clientes = context.Cliente.Where(x => x.Id_Vendedor == vendedor_valido.Id && x.Activo).ToList();
                     for (int mes = 1; mes <= meses; mes++)
                     {
                         Mes_Venta mes_Venta = new()
                         {
                             Nro_Mes = mes,
-                            Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMMM")
+                            Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
                         };
 
-                        foreach (var cliente in clientes)
+                        if (vendedor_valido.Clientes is not null)
                         {
-                            List<Orden> Ordenes = context.Orden.Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
-                            && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == 2023 && x.Codest != 14)
-                            .Include(x => x.Producto)
-                            .Include(x => x.Destino)
-                            .IgnoreAutoIncludes()
-                            .ToList();
-
-                            foreach (var orden in Ordenes)
+                            foreach (var cliente in vendedor_valido.Clientes)
                             {
-                                Mes_Venta_Producto mes_Venta_Producto = new()
+                                List<Orden> Ordenes = context.Orden.Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
+                                && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == 2023 && x.Codest != 14)
+                                .Include(x => x.Producto)
+                                .Include(x => x.Destino)
+                                .Include(x => x.OrdenEmbarque)
+                                .IgnoreAutoIncludes()
+                                .ToList();
+
+                                var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+
+                                foreach (var orden in ordenes_dintinguidas)
                                 {
-                                    Producto = orden.Producto?.Den ?? string.Empty,
-                                    Litros_Vendidos = orden.Vol ?? 0,
-                                    Venta = (Obtener_Precio_Por_Bol(orden.BatchId).Precio * orden.Vol) ?? 0
-                                };
+                                    //Mes_Venta_Producto mes_Venta_Producto = new()
+                                    //{
+                                    //    Producto = orden.Obtener_Nombre_Producto,
+                                    //    Litros_Vendidos = orden.Obtener_Volumen,
+                                    //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
+                                    //};
 
-                                mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
-                                mes_Venta.Venta += mes_Venta_Producto.Venta;
+                                    //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
+                                    //mes_Venta.Venta += mes_Venta_Producto.Venta;
 
-                                mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                    mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                    mes_Venta.Venta += orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen;
+
+                                    //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                }
                             }
                         }
-
                         vendedor_valido.Venta_Por_Meses.Add(mes_Venta);
                     }
                 }
@@ -238,137 +278,6 @@ namespace GComFuelManager.Server.Controllers
             catch (Exception e)
             {
                 return BadRequest(e.Message);
-            }
-        }
-
-        public PrecioBolDTO Obtener_Precio_Por_Bol(int? BOL)
-        {
-            try
-            {
-                PrecioBol precios = new();
-
-                var ordenes = context.Orden.Where(x => x.BatchId == BOL)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .FirstOrDefault();
-
-                if (ordenes is null)
-                    return new PrecioBolDTO();
-
-                PrecioBolDTO precio = new();
-
-                OrdenEmbarque? orden = new OrdenEmbarque();
-                orden = context.OrdenEmbarque.Where(x => x.FolioSyn == ordenes.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.OrdenCierre).FirstOrDefault();
-
-                precio.Fecha_De_Carga = ordenes.Fchcar;
-
-                precio.Referencia = ordenes.Ref;
-
-                if (orden is not null)
-                {
-                    if (orden.Producto is not null)
-                        precio.Producto_Original = orden.Producto.Den;
-
-                    if (orden.Destino is not null)
-                    {
-                        precio.Destino_Original = orden.Destino.Den;
-                        if (orden.Destino.Cliente is not null)
-                            if (!string.IsNullOrEmpty(orden.Destino.Cliente.Den))
-                                precio.Cliente_Original = orden.Destino.Cliente.Den;
-
-                    }
-                }
-
-                precio.BOL = ordenes.BatchId;
-                precio.Volumen_Cargado = ordenes.Vol;
-
-                var precioVig = context.Precio.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd
-                    && ordenes.Fchcar != null && x.FchDia <= ordenes.Fchcar.Value.Date)
-                    .OrderByDescending(x => x.FchDia)
-                    .FirstOrDefault();
-
-                if (precioHis is not null)
-                {
-                    precio.Precio = precioHis.pre;
-                    precio.Fecha_De_Precio = precioHis.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Historial";
-                    precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
-                    precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
-                    precio.Tipo_Moneda = precioHis?.ID_Moneda;
-                }
-
-                if (ordenes != null && precioVig is not null && ordenes.Fchcar is not null && ordenes.Fchcar.Value.Date == DateTime.Today)
-                {
-                    precio.Precio = precioVig.Pre;
-                    precio.Fecha_De_Precio = precioVig.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Vigente";
-                    precio.Moneda = precioVig?.Moneda?.Nombre ?? "MXN";
-                    precio.Tipo_De_Cambio = precioVig?.Equibalencia ?? 1;
-                    precio.Tipo_Moneda = precioVig?.ID_Moneda;
-                }
-
-                if (ordenes != null && precioPro is not null && ordenes.Fchcar is not null && ordenes.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
-                {
-                    precio.Precio = precioPro.Pre;
-                    precio.Fecha_De_Precio = precioPro.FchDia;
-                    precio.Precio_Encontrado = true;
-                    precio.Precio_Encontrado_En = "Programado";
-                    precio.Moneda = precioPro?.Moneda?.Nombre ?? "MXN";
-                    precio.Tipo_De_Cambio = precioPro?.Equibalencia ?? 1;
-                    precio.Tipo_Moneda = precioPro?.ID_Moneda;
-                }
-
-                if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
-                {
-                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
-
-                    if (ordenepedido is not null)
-                    {
-                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
-                         && x.CodPrd == orden.Codprd).FirstOrDefault();
-
-                        if (cierre is not null)
-                        {
-                            precio.Precio = cierre.Precio;
-                            precio.Fecha_De_Precio = cierre.fchPrecio;
-                            precio.Es_Cierre = true;
-                            precio.Precio_Encontrado = true;
-                            precio.Precio_Encontrado_En = "Cierre";
-                            precio.Moneda = cierre?.Moneda?.Nombre ?? "MXN";
-                            precio.Tipo_De_Cambio = cierre?.Equibalencia ?? 1;
-                            precio.Tipo_Moneda = cierre?.ID_Moneda;
-                        }
-                    }
-                }
-
-                if (orden is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
-                {
-                    precio.Precio = orden.Pre;
-
-                    if (orden.OrdenCierre is not null)
-                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
-
-                    precio.Es_Precio_De_Creacion = true;
-                    precio.Precio_Encontrado_En = "Creacion";
-                }
-
-                precio.Moneda = !string.IsNullOrEmpty(precio.Moneda) ? precio.Moneda : "MXN";
-
-                return precio;
-            }
-            catch (Exception e)
-            {
-                return new PrecioBolDTO();
             }
         }
     }
