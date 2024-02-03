@@ -474,7 +474,38 @@
                             </RadzenMenuItem>
                         </AuthorizeView>
 
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AsignarCliDest">
+
+                        <AuthorizeView Roles="Admin, Administrador Sistema">
+                            <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
+                                <Template>
+                                    <div class="text-white">
+                                        <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Ventas
+                                    </div>
+                                </Template>
+                                <ChildContent>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="Desempeño_Ventas">
+                                        <RadzenMenuItem Path="reporte/ventas" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-list-check" aria-hidden="true"></i> Desempeño de ventas
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema" Context="Establecimiento_meta">
+                                        <RadzenMenuItem Path="establecer/meta" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                            <Template>
+                                                <div class="text-white">
+                                                    <i class="fa fa-solid fa-list-check" aria-hidden="true"></i> Establecimiento de ventas
+                                                </div>
+                                            </Template>
+                                        </RadzenMenuItem>
+                                    </AuthorizeView>
+                                </ChildContent>
+                            </RadzenMenuItem>
+                        </AuthorizeView>
+
+                        @* <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AsignarCliDest">
                             <RadzenMenuItem Path="reporte/ventas" class="gcom-bg-rojo col-12" Style="border:hidden">
                                 <Template>
                                     <div class="text-white">
@@ -483,7 +514,7 @@
                                 </Template>
                             </RadzenMenuItem>
 
-                        </AuthorizeView>
+                        </AuthorizeView> *@
 
                     </RadzenMenu>
                 </div>

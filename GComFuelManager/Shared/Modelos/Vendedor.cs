@@ -15,7 +15,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, JsonIgnore] public List<Vendedor_Originador> Vendedor_Originador { get; set; } = new();
         [NotMapped] public List<Originador> Originadores { get; set; } = new();
         [NotMapped] public int Id_Originador { get; set; } = 0;
+        [NotMapped] public string Nombre_Originador { get; set; } = string.Empty;
         [NotMapped] public bool Show_Originador { get; set; } = false;
+        [NotMapped] public List<Metas_Vendedor> Metas_Vendedor { get; set; } = new();
     }
 
     public class Mes_Venta

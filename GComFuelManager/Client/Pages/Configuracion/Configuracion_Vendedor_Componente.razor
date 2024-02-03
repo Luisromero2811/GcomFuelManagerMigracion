@@ -30,7 +30,7 @@
                 </div> *@
                 <div class="col-2">
                     <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
-                        Guardar
+                        <b>Guardar vendedor</b>
                     </button>
                 </div>
             </EditForm>
@@ -41,7 +41,7 @@
     <table class="table table-sm table-striped table-bordered">
         <thead>
             <tr>
-                <th>Nombre</th>
+                <th>Vendedor</th>
                 <th>Originadores</th>
                 <th>Activo</th>
             </tr>
@@ -90,17 +90,26 @@
                                 }
                                 else
                                 {
-                                    @foreach (var originador_item in item.Originadores)
-                                    {
-                                        <div class="col-4 row">
-                                            <div class="col-2 p-1">
-                                                <button class="btn btn-sm btn-danger" @onclick="@(()=>Eliminar_Relacion_Vendedor_Originador(new () {VendedorId = item.Id, OriginadorId = originador_item.Id}))">
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var originador_item in item.Originadores)
+                                        {
+                                            <span class="badge rounded-pill gcom-bg-rojo">
+                                                @originador_item.Nombre
+                                                <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Eliminar_Relacion_Vendedor_Originador(new () {VendedorId = item.Id, OriginadorId = originador_item.Id}))">
                                                     <i class="fa fa-solid fa-xmark"></i>
                                                 </button>
-                                            </div>
-                                            <div class="col-10">@originador_item.Nombre</div>
-                                        </div>
-                                    }
+                                            </span>
+
+                                        }
+                                    </div>
+                                    @* <div class="col-4 row">
+                                <div class="col-2 p-1">
+                                <button class="btn btn-sm btn-danger" @onclick="@(()=>Eliminar_Relacion_Vendedor_Originador(new () {VendedorId = item.Id, OriginadorId = originador_item.Id}))">
+                                <i class="fa fa-solid fa-xmark"></i>
+                                </button>
+                                </div>
+                                <div class="col-10">@originador_item.Nombre</div>
+                                </div> *@
                                 }
                             </div>
                         </div>
@@ -115,6 +124,22 @@
         </tbody>
     </table>
 </div>
+
+<style>
+    .button-circle { /* Green */
+        border: none;
+        color: white;
+        padding: .40rem .60rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: .75rem;
+        cursor: pointer;
+        border-radius: 2rem;
+    }
+
+</style>
+
 @code {
     Vendedor Vendedor { get; set; } = new();
     List<Vendedor> Vendedores { get; set; } = new();

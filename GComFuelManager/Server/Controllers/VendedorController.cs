@@ -50,6 +50,9 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
 
+                if (!string.IsNullOrEmpty(vendedor.Nombre_Originador) && vendedor.Originadores is not null)
+                    vendedores = vendedores.Where(x => x.Originadores.Any(x => x.Nombre.ToLower().Contains(vendedor.Nombre_Originador.ToLower())));
+
                 return Ok(vendedores);
             }
             catch (Exception e)
@@ -91,6 +94,7 @@ namespace GComFuelManager.Server.Controllers
                 if (vendedor.Id != 0)
                 {
                     //vendedor.Vendedor_Originador = null!;
+                    vendedor.Originadores = null!;
 
                     context.Update(vendedor);
                     await context.SaveChangesAsync(id, 38);
@@ -110,6 +114,24 @@ namespace GComFuelManager.Server.Controllers
 
                         context.Add(vendedor_Originador);
                         await context.SaveChangesAsync(id, 41);
+                    }
+
+                    if (!context.Metas_Vendedor.Any(x => x.VendedorId == vendedor.Id && x.Mes.Year == DateTime.Today.Year))
+                    {
+                        for (int i = 1; i <= 12; i++)
+                        {
+                            Metas_Vendedor metas_Vendedor = new()
+                            {
+                                VendedorId = vendedor.Id,
+                                Mes = new DateTime(DateTime.Today.Year, i, 1)
+                            };
+
+                            if (!context.Metas_Vendedor.Any(x => x.Mes.Month == metas_Vendedor.Mes.Month && x.VendedorId == vendedor.Id && x.Mes.Year == metas_Vendedor.Mes.Year))
+                            {
+                                context.Add(metas_Vendedor);
+                                await context.SaveChangesAsync();
+                            }
+                        }
                     }
                 }
 

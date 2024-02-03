@@ -19,7 +19,7 @@
                 </div>
                 <div class="col-4">
                     <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
-                        Guardar
+                        <b>Guardar originador</b>
                     </button>
                 </div>
             </EditForm>
@@ -35,22 +35,32 @@
             </tr>
         </thead>
         <tbody>
-            <Virtualize Items="@Originadores" TItem="Originador" Context="item">
-                <tr>
-                    <td>@item.Nombre</td>
-                    <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Originador(item))" />
-                        </div>
-                    </td>
-                </tr>
-            </Virtualize>
+            @if(Loading_Buscar)
+            {
+                <SpinnerLoading/>
+            }
+            else
+            {
+                <Virtualize Items="@Originadores" TItem="Originador" Context="item">
+                    <tr>
+                        <td>@item.Nombre</td>
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Originador(item))" />
+                            </div>
+                        </td>
+                    </tr>
+                </Virtualize>
+            }
         </tbody>
     </table>
 </div>
 @code {
     Originador Originador { get; set; } = new();
     List<Originador> Originadores { get; set; } = new();
+
+    bool Loading_Guardar = false;
+    bool Loading_Buscar = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -59,15 +69,18 @@
 
     private async Task Obtener_Originadores()
     {
+        Loading_Buscar = true;
         var response = await http.Get<List<Originador>>($"api/originador");
         if (response.Error)
         {
             var message = await response.ObtenerMensajeError();
             await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            Loading_Buscar = false;
         }
         else
         {
             Originadores = response.Response;
+            Loading_Buscar = false;
         }
     }
 
@@ -75,20 +88,25 @@
     {
         try
         {
+            Loading_Guardar = true;
+
             var response = await http.Post<Originador>($"api/originador", Originador);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Guardar = false;
             }
             else
             {
                 await Obtener_Originadores();
+                Loading_Guardar = false;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Guardar = false;
         }
     }
 
