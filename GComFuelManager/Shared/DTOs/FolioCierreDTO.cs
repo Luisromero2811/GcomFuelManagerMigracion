@@ -52,10 +52,11 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Volumen Total"), NotMapped]
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         //Precio
-        [NotMapped, EpplusIgnore]
+        [NotMapped]
         public double Precio { get; set; } = 0;
-        [DisplayName("Precio")]
-        public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N4}", Precio); } }
+        //[DisplayName("Precio")]
+        ////public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:C}", Precio); } }
+        //public string PrecioFormateado => Precio.ToString("C");
 
         [DisplayName("Fecha de vencimiento")]
         public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre_Vencimiento); } }

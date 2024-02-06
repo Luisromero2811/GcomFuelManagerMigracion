@@ -64,10 +64,11 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
         public string? TipoPago { get; set; } = "Credito";
 
-        [JsonPropertyName("precio"), DisplayName("Precio"), EpplusIgnore]
+        [JsonPropertyName("precio"), DisplayName("Precio")]
         public double Precio { get; set; } = 0;
-        [DisplayName("Precio"), NotMapped]
-        public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:N4}", Precio); } }
+        //[DisplayName("Precio"), NotMapped]
+        ////public string PrecioFormateado { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:C}", Precio); } }
+        //public string PrecioFormateado => Precio.ToString("C");
 
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
         //[NotMapped] public double? Temperatura { get; set; } = null!;

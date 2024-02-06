@@ -568,6 +568,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             p.FchActualizacion = DateTime.Now;
                             p.ID_Moneda = precio.ID_Moneda;
                             p.Equibalencia = precio.Equibalencia;
+                            p.FchDia = precio.FchDia;
                             p.ID_Usuario = precio.ID_Usuario;
                             context.Update(p);
                         }
