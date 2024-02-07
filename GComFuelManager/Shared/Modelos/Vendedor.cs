@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool Activo { get; set; } = true;
         [NotMapped] public List<Cliente>? Clientes { get; set; } = null!;
         [NotMapped] public List<Mes_Venta> Venta_Por_Meses { get; set; } = new();
-        [NotMapped, EpplusIgnore] public DateTime Fecha_Registro { get; set; } = DateTime.Now;
+        [NotMapped, EpplusIgnore] public int Fecha_Registro { get; set; } = DateTime.Today.Year;
         [NotMapped, JsonIgnore] public List<Vendedor_Originador> Vendedor_Originador { get; set; } = new();
         [NotMapped] public List<Originador> Originadores { get; set; } = new();
         [NotMapped] public int Id_Originador { get; set; } = 0;

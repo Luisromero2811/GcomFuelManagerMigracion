@@ -9,7 +9,55 @@
         <b>Reporte de ventas</b>
     </div>
     <div class="card-body">
-        <div class="col-12">
+        <div class="col-12 row">
+
+            <div class="col-3">
+                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Vendedores"
+                                Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
+                    <RenderValue Context="item_table">
+                        @item_table.Nombre
+                    </RenderValue>
+                    <Render Context="item_table">
+                        @item_table.Nombre
+                    </Render>
+                </DropDownFilter>
+            </div>
+
+            <div class="col-3">
+                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
+                @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
+                    <RenderValue>
+                        @context.Nombre
+                    </RenderValue>
+                    <Render>
+                        @context.Nombre
+                    </Render>
+                </DropDownFilter>
+            </div>
+
+            <div class="col-2">
+                <select class="form-select form-select-sm" @bind="@Vendedor.Fecha_Registro">
+                    <option>-- Seleccione un año --</option>
+                    @foreach (var ano in Años)
+                    {
+                        <option value="@ano">@ano</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Obtener_Reporte">
+                    <b>Buscar reporte</b>
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Limpiar_Filtro">
+                    <b>Limpiar filtro</b>
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -51,7 +99,7 @@
                     </td>
                 </tr>
             }
-            <Virtualize Items="Vendedores" TItem="Vendedor" Context="item">
+            <Virtualize Items="Vendedores_Tabla" TItem="Vendedor" Context="item">
                 <tr>
                     <td>@item.Nombre</td>
                     @foreach (var venta_mes in item.Venta_Por_Meses)
@@ -73,17 +121,30 @@
     </table>
 </div>
 @code {
+    List<Vendedor> Vendedores_Tabla { get; set; } = new();
+
     List<Vendedor> Vendedores { get; set; } = new();
     Vendedor Vendedor { get; set; } = new();
-    List<DateTime> Fechas { get; set; } = new();
+
+    Originador Originador { get; set; } = new();
+    List<Originador> Originadores { get; set; } = new();
+
+    List<int> Años { get; set; } = new();
 
     bool Show_Venta = false;
     bool Loading_Reporte = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await Obtener_Reporte();
-        // await Obtener_Fechas();
+        await Obtener_Fechas();
+        await Obtener_Vendedores(string.Empty);
+        await Obtener_Originadores(string.Empty);
+    }
+
+    private void Limpiar_Filtro()
+    {
+        Vendedor = new();
+        StateHasChanged();
     }
 
     private async Task Obtener_Reporte()
@@ -91,6 +152,10 @@
         try
         {
             Dictionary<string, string> query = new();
+
+            query["Id"] = Vendedor.Id.ToString();
+            query["Id_Originador"] = Vendedor.Id_Originador.ToString();
+            query["Fecha_Registro"] = Vendedor.Fecha_Registro.ToString();
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             Loading_Reporte = true;
@@ -103,7 +168,7 @@
             }
             else
             {
-                Vendedores = response.Response;
+                Vendedores_Tabla = response.Response;
                 Loading_Reporte = false;
             }
         }
@@ -118,7 +183,8 @@
     {
         try
         {
-            var response = await http.Get<List<DateTime>>($"api/vendedor/años/reporte");
+
+            var response = await http.Get<List<int>>($"api/vendedor/anos/reporte");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -126,7 +192,7 @@
             }
             else
             {
-                Fechas = response.Response;
+                Años = response.Response;
             }
         }
         catch (Exception e)
@@ -134,4 +200,58 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task Obtener_Vendedores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Obtener_Originadores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Originador>>($"api/originador/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }

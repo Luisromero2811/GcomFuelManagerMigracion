@@ -31,8 +31,10 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var Fechas_Diponibles = context.OrdenCierre.Where(x => x.FchCierre != null).Select(x => new DateTime(x.FchCierre.Value.Year, 1, 1)).DistinctBy(x => x.Year).ToList();
-                return Ok(Fechas_Diponibles);
+                var Fechas_Diponibles = context.Orden.Where(x => x.Fch != null).Select(x => x.Fch.Value.Year);
+                var años_ordenados = Fechas_Diponibles.Order();
+                var años = Fechas_Diponibles.Distinct();
+                return Ok(años);
             }
             catch (Exception e)
             {
@@ -239,14 +241,20 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.Where(x => x.Activo).Include(x => x.Clientes).OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.Where(x => x.Activo).Include(x => x.Vendedor_Originador).Include(x => x.Clientes).IgnoreAutoIncludes().OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
 
+                if (vendedor.Id != 0)
+                    vendedores = vendedores.Where(x => x.Id == vendedor.Id).OrderBy(x => x.Nombre);
+
+                if (vendedor.Id_Originador != 0)
+                    vendedores = vendedores.Where(x => x.Vendedor_Originador != null && x.Vendedor_Originador.Any(x => x.OriginadorId == vendedor.Id_Originador)).OrderBy(x => x.Nombre);
+
                 List<Vendedor> Vendedores_Validos = vendedores.ToList();
 
-                var meses = CultureInfo.CurrentCulture.Calendar.GetMonthsInYear(DateTime.Today.Year);
+                var meses = CultureInfo.CurrentCulture.Calendar.GetMonthsInYear(vendedor.Fecha_Registro);
 
                 foreach (var vendedor_valido in Vendedores_Validos)
                 {
@@ -263,7 +271,7 @@ namespace GComFuelManager.Server.Controllers
                             foreach (var cliente in vendedor_valido.Clientes)
                             {
                                 List<Orden> Ordenes = context.Orden.Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
-                                && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == 2023 && x.Codest != 14)
+                                && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == vendedor.Fecha_Registro && x.Codest != 14)
                                 .Include(x => x.Producto)
                                 .Include(x => x.Destino)
                                 .Include(x => x.OrdenEmbarque)

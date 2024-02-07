@@ -46,5 +46,7 @@ namespace GComFuelManager.Shared.Modelos
 
 
         [NotMapped] public Vendedor? Vendedor { get; set; } = null!;
+
+        [NotMapped] public int Ano_reporte { get; set; } = DateTime.Today.Year;
     }
 }

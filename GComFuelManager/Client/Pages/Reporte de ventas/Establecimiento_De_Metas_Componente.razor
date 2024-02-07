@@ -21,6 +21,15 @@
                     </Render>
                 </DropDownFilter>
             </div>
+            <div class="col-2">
+                <select class="form-select form-select-sm" @bind="@Meta_Vendedor.Ano_reporte">
+                    <option>-- Seleccione un año --</option>
+                    @foreach (var ano in Años)
+                    {
+                        <option value="@ano">@ano</option>
+                    }
+                </select>
+            </div>
             <div class="col-3">
                 <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Obtener_Metas">
                     <b>Buscar metas</b>
@@ -48,41 +57,42 @@
         <tbody>
             @if (Loading_Buscar)
             {
-                <SpinnerLoading />
+                <tr>
+                    <td colspan="9">
+                        <SpinnerLoading />
+                    </td>
+                </tr>
             }
             else
             {
                 <Virtualize Items="Metas_Vendedor" TItem="Metas_Vendedor" Context="item">
                     <tr>
-                        <td style="width:50px"><b>@item.Nombre_Mes</b></td>
+                        <td style="min-width:50px"><b>@item.Nombre_Mes</b></td>
                         <td>@item.Referencia?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td>
+                        <td style="min-width:250px;">
                             @if (item.Editar_Meta)
                             {
-                                <div class="col-12 row">
-                                    <div class="col-8">
-                                        <input @bind-value="@item.Meta" class="form-control form-control-sm" min="0" placeholder="Meta del mes" />
-                                    </div>
-                                    <div class="col-4 d-flex flex-wrap">
-                                        <div class="col-6">
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="fa fa-solid fa-check"></i>
-                                            </button>
-                                        </div>
-                                        <div class="col-6">
-                                            <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
-                                                <i class="fa fa-solid fa-cancel"></i>
-                                            </button>
-                                        </div>
-                                    </div>
+                                <div class="d-flex flex-wrap">
+                                    <input @bind-value="@item.Meta" class="form-control form-control-sm" min="0" placeholder="Meta del mes" />
+                                    <button class="btn btn-sm btn-success" @onclick="@(()=>Guardar_Meta(item))">
+                                        <i class="fa fa-solid fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
+                                        <i class="fa fa-solid fa-cancel"></i>
+                                    </button>
                                 </div>
+                                @if (Loading_Guardar)
+                                {
+                                    <SpinnerLoading />
+                                }
                             }
                             else
                             {
                                 <div class="">
                                     <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
-                                        <i class="fa fa-solid fa-check"></i>
+                                        <i class="fa fa-solid fa-edit"></i>
                                     </button>
+                                    @item.Meta?.ToString("N2",CultureInfo.InvariantCulture)
                                 </div>
                             }
                         </td>
@@ -103,49 +113,127 @@
     Vendedor Vendedor { get; set; } = new();
 
     List<Metas_Vendedor> Metas_Vendedor { get; set; } = new();
+    Metas_Vendedor Meta_Vendedor { get; set; } = new();
+
+    List<int> Años { get; set; } = new();
 
     bool Loading_Buscar = false;
+    bool Loading_Guardar = false;
 
     protected override async Task OnInitializedAsync()
     {
+        await Obtener_Años();
         await Obtener_Vendedores(string.Empty);
+    }
+
+    private async Task Obtener_Años()
+    {
+        try
+        {
+            var response = await http.Get<List<int>>($"api/metas/anos/reporte");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Años = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 
     private async Task Obtener_Vendedores(string value)
     {
-        Dictionary<string, string> query = new();
-        query["Nombre"] = value;
-
-        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-
-        var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Vendedores = response.Response;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+
     }
 
     private async Task Obtener_Metas()
     {
-        Dictionary<string, string> query = new();
-        query["VendedorId"] = Vendedor.Id.ToString();
 
-        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-
-        var response = await http.Get<List<Metas_Vendedor>>($"api/metas?{uri}");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            Dictionary<string, string> query = new();
+            query["VendedorId"] = Vendedor.Id.ToString();
+            query["Ano_reporte"] = Meta_Vendedor.Ano_reporte.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            Loading_Buscar = true;
+
+            var response = await http.Get<List<Metas_Vendedor>>($"api/metas?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+
+                Loading_Buscar = false;
+            }
+            else
+            {
+                Metas_Vendedor = response.Response;
+                Loading_Buscar = false;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Metas_Vendedor = response.Response;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+
+    }
+
+    private async Task Guardar_Meta(Metas_Vendedor metas_)
+    {
+
+        try
+        {
+            Loading_Guardar = true;
+            var response = await http.Post<Metas_Vendedor>($"api/metas", metas_);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Guardar = false;
+            }
+            else
+            {
+                Loading_Guardar = false;
+
+                await Obtener_Metas();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Guardar = false;
         }
     }
 

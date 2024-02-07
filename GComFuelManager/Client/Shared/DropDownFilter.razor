@@ -1,8 +1,8 @@
 ﻿@typeparam TListado
 @typeparam TValue
 
-<div class="col-12">
-    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button">
+<div style="display:inline-flex;width:100%">
+    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button" style="@(ShowDropDown ? "width:95%;" : "width:100%;")">
         @if (RenderValue is null || Valor_Seleleccionado is null)
         {
             @if (!string.IsNullOrEmpty(Default_Placeholder))
@@ -23,11 +23,20 @@
             }
         }
     </button>
+
+    @if (Valor_Seleleccionado is not null)
+    {
+
+        <div style="cursor:pointer;padding: .14rem;border: 1px solid #ced4da;" @onclick="ClearValue">
+            <i class="fa fa-solid fa-xmark"></i>
+        </div>
+    }
+
     @if (ShowDropDown)
     {
         <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
             <li class="list-group-item">
-                <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value"/>
+                <input type="search" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
             </li>
             <Virtualize Items="Listado" Context="Item" TItem="TListado">
                 @if (Render is not null)
@@ -78,6 +87,13 @@
         }
 
         await On_Change_Method.InvokeAsync();
+    }
+
+    private async Task ClearValue()
+    {
+        Valor = default(TValue);
+        Valor_Seleleccionado = default(TListado);
+        await ValorChanged.InvokeAsync(Valor);
     }
 
     private async Task On_Change_Filter_Value(ChangeEventArgs e)
