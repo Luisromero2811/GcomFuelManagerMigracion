@@ -235,7 +235,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
                     }
 
-                    if (item != null && precioVig is not null && orden is null || orden is not null && precioVig is not null)
+                    if (item != null && precioVig is not null && orden is null || orden is not null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
                     {
                         if (precioVig.FchDia == DateTime.Today)
                         {
@@ -248,7 +248,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
                     }
 
-                    if (item != null && precioPro is not null && context.PrecioProgramado.Any() || orden is not null && precioPro is not null && context.PrecioProgramado.Any())
+                    if (item != null && precioPro is not null && context.PrecioProgramado.Any() && orden is null
+                        || orden is not null && precioPro is not null && context.PrecioProgramado.Any() && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
                     {
                         if (precioPro.FchDia == DateTime.Today)
                         {
