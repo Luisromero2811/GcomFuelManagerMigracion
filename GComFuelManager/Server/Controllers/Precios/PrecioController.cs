@@ -1,17 +1,12 @@
 ﻿
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
-using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using OfficeOpenXml;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Precios
@@ -57,8 +52,8 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<Precio> precios = new List<Precio>();
-                List<PrecioProgramado> preciosPro = new List<PrecioProgramado>();
+                List<Precio> precios = new();
+                List<PrecioProgramado> preciosPro = new();
                 var LimiteDate = DateTime.Today.AddHours(16);
 
                 var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
@@ -79,7 +74,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     foreach (var item in ordenesUnic)
                     {
                         var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                        Precio precio = new Precio()
+                        Precio precio = new()
                         {
                             Pre = item.Precio,
                             codCte = item.CodCte,
@@ -155,7 +150,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<PrecioBol> precios = new List<PrecioBol>();
+                List<PrecioBol> precios = new();
 
                 var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
                     .Include(x => x.Producto)
@@ -168,9 +163,9 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 foreach (var item in ordenes)
                 {
-                    PrecioBol precio = new PrecioBol();
+                    PrecioBol precio = new();
 
-                    Orden? orden = new Orden();
+                    Orden? orden = new();
                     orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
 
                     precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
