@@ -3,6 +3,7 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject NotificationService ms
+@inject IJSRuntime js
 
 <div class="card">
     <div class="card-header">
@@ -30,10 +31,17 @@
                     }
                 </select>
             </div>
-            <div class="col-3">
+            <div class="col-2">
                 <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Obtener_Metas">
                     <b>Buscar metas</b>
                     <i class="fa fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Exportar_Excel">
+                    <b>Exportar excel</b>
+                    <i class="fa fa-solid fa-file-excel"></i>
                 </button>
             </div>
         </div>
@@ -80,11 +88,12 @@
                                     <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
                                         <i class="fa fa-solid fa-cancel"></i>
                                     </button>
+                                    @if (Loading_Guardar)
+                                    {
+                                        <SpinnerLoading />
+                                    }
                                 </div>
-                                @if (Loading_Guardar)
-                                {
-                                    <SpinnerLoading />
-                                }
+
                             }
                             else
                             {
@@ -237,4 +246,36 @@
         }
     }
 
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+            var excel = new ExcelPackage();
+            var ws = excel.Workbook.Worksheets.Add("metas");
+            ws.Columns.Width = 50;
+
+            var header = ws.Cells["A1:I1"];
+            var num = ws.Rows.Current;
+            // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+            ws.Cells["B1:F13,H1:H13"].Style.Numberformat.Format = "#,##0.00";
+
+            ws.Cells["G1:G13,I1:I13"].Style.Numberformat.Format = "#0.00%";
+
+            var tablebody = ws.Cells["A1:A1"].LoadFromCollection(Metas_Vendedor, true);
+            tablebody.Style.Font.Size = 12;
+            tablebody.Style.Font.Bold = true;
+            header.Style.Font.Size = 14;
+
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+            header.Style.Font.Bold = true;
+
+            await js.GuardarComo($"Meta_{Vendedores.FirstOrDefault(x => x.Id == Vendedor.Id)?.Nombre ?? string.Empty}_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

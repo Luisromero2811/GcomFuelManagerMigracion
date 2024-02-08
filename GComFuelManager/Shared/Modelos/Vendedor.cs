@@ -45,4 +45,28 @@ namespace GComFuelManager.Shared.Modelos
         Amarillo,
         Rojo
     }
+
+    public class Vendedor_Reporte_Desemeño
+    {
+        public string Vendedor { get; set; } = string.Empty;
+        public double Enero { get; set; } = 0;
+        public double Febrero { get; set; } = 0;
+        public double Marzo { get; set; } = 0;
+        public double Abril { get; set; } = 0;
+        public double Mayo { get; set; } = 0;
+        public double Junio { get; set; } = 0;
+        public double Julio { get; set; } = 0;
+        public double Agosto { get; set; } = 0;
+        public double Septiembre { get; set; } = 0;
+        public double Octubre { get; set; } = 0;
+        public double Noviembre { get; set; } = 0;
+        public double Diciembre { get; set; } = 0;
+
+    }
+
+    public class Reporte_Completo_Vendedor_Desempeño
+    {
+        public List<Vendedor_Reporte_Desemeño> Litros { get; set; } = new();
+        public List<Vendedor_Reporte_Desemeño> Venta { get; set; } = new();
+    }
 }

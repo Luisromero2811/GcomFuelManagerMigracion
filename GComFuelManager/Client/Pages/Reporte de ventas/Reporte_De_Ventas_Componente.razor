@@ -3,10 +3,11 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject NotificationService ms
+@inject IJSRuntime js
 
 <div class="card">
     <div class="card-header">
-        <b>Reporte de ventas</b>
+        <b>Desempeño de ventas</b>
     </div>
     <div class="card-body">
         <div class="col-12 row">
@@ -53,8 +54,9 @@
             </div>
 
             <div class="col-2">
-                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Limpiar_Filtro">
-                    <b>Limpiar filtro</b>
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Exportar_Excel">
+                    <b>Exportar excel</b>
+                    <i class="fa fa-solid fa-file-excel"></i>
                 </button>
             </div>
 
@@ -246,6 +248,63 @@
             else
             {
                 Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            var response = await http.Post<List<Vendedor>, Reporte_Completo_Vendedor_Desempeño>($"api/excel/reporte/ventas/desempeno", Vendedores_Tabla);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Litros");
+                ws.Columns.Width = 50;
+
+                var header = ws.Cells["A1:M1"];
+
+                // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+                ws.Cells[$"B1:M{response.Response.Litros.Count + 1}"].Style.Numberformat.Format = "#,##0.00";
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response.Litros, true);
+                tablebody.Style.Font.Size = 12;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header.Style.Font.Bold = true;
+
+                var ws_v = excel.Workbook.Worksheets.Add("Ventas");
+                ws_v.Columns.Width = 50;
+
+                var header_v = ws_v.Cells["A1:M1"];
+
+                ws_v.Cells[$"B1:M{response.Response.Venta.Count+1}"].Style.Numberformat.Format = "$#,####0.0000";
+                // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
+
+                var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
+                tablebody_v.Style.Font.Size = 12;
+                tablebody_v.Style.Font.Bold = true;
+                header_v.Style.Font.Size = 14;
+
+                header_v.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header_v.Style.Font.Bold = true;
+
+                await js.GuardarComo($"Reporte_Ventas_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
             }
         }
         catch (Exception e)

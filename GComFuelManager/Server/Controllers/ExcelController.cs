@@ -144,5 +144,70 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("reporte/ventas/desempeno")]
+        public ActionResult Obtener_Reporte_Desempeño_De_Ventas([FromBody] List<Vendedor> vendedores)
+        {
+            try
+            {
+                List<Vendedor_Reporte_Desemeño> vendedor_Reporte_Desemeño = new();
+                Reporte_Completo_Vendedor_Desempeño reporte_completo = new();
+
+                foreach (var vendedor in vendedores)
+                {
+                    Vendedor_Reporte_Desemeño vendedor_litros = new() { Vendedor = vendedor.Nombre };
+                    Vendedor_Reporte_Desemeño vendedor_venta = new() { Vendedor = vendedor.Nombre };
+
+                    foreach (var mes in vendedor.Venta_Por_Meses)
+                    {
+                        switch (mes.Nro_Mes)
+                        {
+                            case 1: vendedor_litros.Enero = mes.Litros_Vendidos; break;
+                            case 2: vendedor_litros.Febrero = mes.Litros_Vendidos; break;
+                            case 3: vendedor_litros.Marzo = mes.Litros_Vendidos; break;
+                            case 4: vendedor_litros.Abril = mes.Litros_Vendidos; break;
+                            case 5: vendedor_litros.Mayo = mes.Litros_Vendidos; break;
+                            case 6: vendedor_litros.Junio = mes.Litros_Vendidos; break;
+                            case 7: vendedor_litros.Julio = mes.Litros_Vendidos; break;
+                            case 8: vendedor_litros.Agosto = mes.Litros_Vendidos; break;
+                            case 9: vendedor_litros.Septiembre = mes.Litros_Vendidos; break;
+                            case 10: vendedor_litros.Octubre = mes.Litros_Vendidos; break;
+                            case 11: vendedor_litros.Noviembre = mes.Litros_Vendidos; break;
+                            case 12: vendedor_litros.Diciembre = mes.Litros_Vendidos; break;
+                            default: break;
+                        }
+
+                        switch (mes.Nro_Mes)
+                        {
+                            case 1: vendedor_venta.Enero = mes.Venta; break;
+                            case 2: vendedor_venta.Febrero = mes.Venta; break;
+                            case 3: vendedor_venta.Marzo = mes.Venta; break;
+                            case 4: vendedor_venta.Abril = mes.Venta; break;
+                            case 5: vendedor_venta.Mayo = mes.Venta; break;
+                            case 6: vendedor_venta.Junio = mes.Venta; break;
+                            case 7: vendedor_venta.Julio = mes.Venta; break;
+                            case 8: vendedor_venta.Agosto = mes.Venta; break;
+                            case 9: vendedor_venta.Septiembre = mes.Venta; break;
+                            case 10: vendedor_venta.Octubre = mes.Venta; break;
+                            case 11: vendedor_venta.Noviembre = mes.Venta; break;
+                            case 12: vendedor_venta.Diciembre = mes.Venta; break;
+                            default: break;
+                        }
+                    }
+
+                    reporte_completo.Litros.Add(vendedor_litros);
+                    reporte_completo.Venta.Add(vendedor_venta);
+
+                    vendedor_litros = new();
+                    vendedor_venta = new();
+                }
+
+                return Ok(reporte_completo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
