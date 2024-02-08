@@ -78,9 +78,17 @@ namespace GComFuelManager.Server.Controllers
                             var ordenes_mes_actual = context.Orden.Where(x => x.Codest != 14 && x.Destino != null && x.Destino.Codcte == cliente.Cod
                                             && x.Fchcar != null && x.Fchcar.Value.Month == meta.Mes.Month && x.Fchcar.Value.Year == año_actual).ToList();
 
-                            var ordenes_mes_actual_distinguidas = ordenes_mes_actual.DistinctBy(x => x.Liniteid);
+                            List<Orden> ordenes_a_sumar = new();
 
-                            meta.Venta_Real += ordenes_mes_actual_distinguidas.Sum(x => x.Vol);
+                            foreach (var orden in ordenes_mes_actual)
+                                if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                    ordenes_a_sumar.Add(orden);
+
+
+                            //var ordenes_mes_actual_distinguidas = ordenes_mes_actual.DistinctBy(x => x.Liniteid);
+
+                            //meta.Venta_Real += ordenes_mes_actual_distinguidas.Sum(x => x.Vol);
+                            meta.Venta_Real += ordenes_a_sumar.Sum(x => x.Vol);
 
                             if (meta.Mes.Month == 1)
                             {
@@ -88,9 +96,16 @@ namespace GComFuelManager.Server.Controllers
                                 && x.Fchcar != null && x.Fchcar.Value.Month == new DateTime(año_actual, meta.Mes.Month, 1).AddMonths(-1).Month
                                 && x.Fchcar.Value.Year == new DateTime(año_actual, meta.Mes.Month, 1).AddMonths(-1).Year).ToList();
 
-                                var ordenes_mes_pasado_distinguidas = ordenes_mes_pasado.DistinctBy(x => x.Liniteid);
+                                List<Orden> ordenes_a_sumar_mes_pasado = new();
 
-                                meta.Referencia += ordenes_mes_pasado_distinguidas.Sum(x => x.Vol);
+                                foreach (var orden in ordenes_mes_pasado)
+                                    if (!ordenes_a_sumar_mes_pasado.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                        ordenes_a_sumar_mes_pasado.Add(orden);
+
+                                //var ordenes_mes_pasado_distinguidas = ordenes_mes_pasado.DistinctBy(x => x.Liniteid);
+
+                                //meta.Referencia += ordenes_mes_pasado_distinguidas.Sum(x => x.Vol);
+                                meta.Referencia += ordenes_a_sumar_mes_pasado.Sum(x => x.Vol);
                             }
 
                         }

@@ -278,7 +278,14 @@ namespace GComFuelManager.Server.Controllers
                                 .IgnoreAutoIncludes()
                                 .ToList();
 
-                                var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+                                List<Orden> ordenes_a_sumar = new();
+
+                                foreach (var orden in Ordenes)
+                                    if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                        ordenes_a_sumar.Add(orden);
+
+                                //var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+                                var ordenes_dintinguidas = ordenes_a_sumar;
 
                                 foreach (var orden in ordenes_dintinguidas)
                                 {
