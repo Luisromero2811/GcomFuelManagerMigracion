@@ -55,7 +55,19 @@ namespace GComFuelManager.Server.Controllers
 
                 if (vendedor.Clientes is not null)
                 {
-                    var metas = context.Metas_Vendedor.Where(x => x.VendedorId == metas_.VendedorId && x.Mes.Year == año_actual).ToList();
+
+                    List<Metas_Vendedor> metas = new();
+
+                    if (año_actual < DateTime.Today.Year)
+                    {
+                        metas = context.Metas_Vendedor.Where(x => x.VendedorId == metas_.VendedorId && x.Mes.Year == año_actual).ToList();
+                    }
+                    else
+                    {
+                        var fecha = new DateTime(año_actual, DateTime.Today.Month, 1);
+                        metas = context.Metas_Vendedor.Where(x => x.VendedorId == metas_.VendedorId && x.Mes.Month <= DateTime.Today.Month && x.Mes.Year == año_actual).ToList();
+                    }
+
                     foreach (var meta in metas)
                     {
                         meta.Referencia = 0;
