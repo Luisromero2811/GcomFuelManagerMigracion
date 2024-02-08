@@ -139,6 +139,41 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("{id:int}/{año:int}")]
+        public async Task<ActionResult> Guardar_Meta_Vendedor([FromRoute] int año, [FromRoute] int id)
+        {
+            try
+            {
+                var vendedor = context.Vendedores.Find(id);
+                if (vendedor is not null)
+                {
+                    if (!context.Metas_Vendedor.Any(x => x.VendedorId == vendedor.Id && x.Mes.Year == año))
+                    {
+                        for (int i = 1; i <= 12; i++)
+                        {
+                            Metas_Vendedor metas_Vendedor = new()
+                            {
+                                VendedorId = vendedor.Id,
+                                Mes = new DateTime(año, i, 1)
+                            };
+
+                            if (!context.Metas_Vendedor.Any(x => x.Mes.Month == metas_Vendedor.Mes.Month && x.VendedorId == vendedor.Id && x.Mes.Year == metas_Vendedor.Mes.Year))
+                            {
+                                context.Add(metas_Vendedor);
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Guardar_Meta_Vendedor([FromBody] Metas_Vendedor metas_)
         {

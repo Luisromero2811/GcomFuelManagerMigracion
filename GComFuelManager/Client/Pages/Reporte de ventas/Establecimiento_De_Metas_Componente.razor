@@ -73,46 +73,67 @@
             }
             else
             {
-                <Virtualize Items="Metas_Vendedor" TItem="Metas_Vendedor" Context="item">
+                @if (Metas_Vendedor.Count > 0)
+                {
+                    <Virtualize Items="Metas_Vendedor" TItem="Metas_Vendedor" Context="item">
+                        <tr>
+                            <td style="min-width:50px"><b>@item.Nombre_Mes</b></td>
+                            <td>@item.Referencia?.ToString("N2",CultureInfo.InvariantCulture)</td>
+                            <td style="min-width:250px;">
+                                @if (item.Editar_Meta)
+                                {
+                                    <div class="d-flex flex-wrap">
+                                        <input @bind-value="@item.Meta" class="form-control form-control-sm" min="0" placeholder="Meta del mes" />
+                                        <button class="btn btn-sm btn-success" @onclick="@(()=>Guardar_Meta(item))">
+                                            <i class="fa fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                        @if (Loading_Guardar)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </div>
+
+                                }
+                                else
+                                {
+                                    <div class="">
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                        @item.Meta?.ToString("N2",CultureInfo.InvariantCulture)
+                                    </div>
+                                }
+                            </td>
+                            <td>@item.Meta_Acumulada?.ToString("N2",CultureInfo.InvariantCulture)</td>
+                            <td>@item.Venta_Real?.ToString("N2",CultureInfo.InvariantCulture)</td>
+                            <td>@item.Resultado_Mes?.ToString("N2",CultureInfo.InvariantCulture)</td>
+                            <td>@item.Cumplimiento_Mes?.ToString("p",CultureInfo.InvariantCulture)</td>
+                            <td>@item.Resultado_Acumulado?.ToString("N2",CultureInfo.InvariantCulture)</td>
+                            <td>@item.Porciento_Cumplimiento?.ToString("p",CultureInfo.InvariantCulture)</td>
+                        </tr>
+                    </Virtualize>
+                }
+                else
+                {
                     <tr>
-                        <td style="min-width:50px"><b>@item.Nombre_Mes</b></td>
-                        <td>@item.Referencia?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td style="min-width:250px;">
-                            @if (item.Editar_Meta)
-                            {
-                                <div class="d-flex flex-wrap">
-                                    <input @bind-value="@item.Meta" class="form-control form-control-sm" min="0" placeholder="Meta del mes" />
-                                    <button class="btn btn-sm btn-success" @onclick="@(()=>Guardar_Meta(item))">
-                                        <i class="fa fa-solid fa-check"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
-                                        <i class="fa fa-solid fa-cancel"></i>
-                                    </button>
+                        <td colspan="9">
+                            <div class="col-12">
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="Generar_Meta">
+                                    <i class="fa fa-solid fa-plus"></i>
+                                    Agregar metas al año @Meta_Vendedor.Ano_reporte
                                     @if (Loading_Guardar)
                                     {
                                         <SpinnerLoading />
                                     }
-                                </div>
-
-                            }
-                            else
-                            {
-                                <div class="">
-                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.Editar_Meta = !item.Editar_Meta)">
-                                        <i class="fa fa-solid fa-edit"></i>
-                                    </button>
-                                    @item.Meta?.ToString("N2",CultureInfo.InvariantCulture)
-                                </div>
-                            }
+                                </button>
+                            </div>
                         </td>
-                        <td>@item.Meta_Acumulada?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td>@item.Venta_Real?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td>@item.Resultado_Mes?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td>@item.Cumplimiento_Mes?.ToString("p",CultureInfo.InvariantCulture)</td>
-                        <td>@item.Resultado_Acumulado?.ToString("N2",CultureInfo.InvariantCulture)</td>
-                        <td>@item.Porciento_Cumplimiento?.ToString("p",CultureInfo.InvariantCulture)</td>
                     </tr>
-                </Virtualize>
+                }
+
             }
         </tbody>
     </table>
@@ -226,6 +247,33 @@
         {
             Loading_Guardar = true;
             var response = await http.Post<Metas_Vendedor>($"api/metas", metas_);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Guardar = false;
+            }
+            else
+            {
+                Loading_Guardar = false;
+
+                await Obtener_Metas();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Guardar = false;
+        }
+    }
+
+    private async Task Generar_Meta()
+    {
+
+        try
+        {
+            Loading_Guardar = true;
+            var response = await http.Post<Metas_Vendedor>($"api/metas/{Vendedor.Id}/{Meta_Vendedor.Ano_reporte}", new());
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
