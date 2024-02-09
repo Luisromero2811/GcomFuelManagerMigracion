@@ -253,6 +253,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
+        public bool Confirmar_Precio { get; set; } = false;
         #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
         public double? GetVolumenSolicitado()

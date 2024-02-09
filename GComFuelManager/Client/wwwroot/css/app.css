@@ -173,3 +173,6 @@ a, .btn-link {
     box-sizing: border-box;
 }
 
+.ancho-tabla-completa {
+    width: calc(100vw - 50px);
+}
