@@ -26,9 +26,12 @@
     @if (ShowDropDown)
     {
         <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
-            <li class="list-group-item">
-                <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value"/>
-            </li>
+            @if (Permitir_Filtrar)
+            {
+                <li class="list-group-item">
+                    <input type="text" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
+                </li>
+            }
             <Virtualize Items="Listado" Context="Item" TItem="TListado">
                 @if (Render is not null)
                 {
@@ -50,6 +53,7 @@
     [Parameter] public RenderFragment<TListado>? RenderValue { get; set; } = null!;
     private string Valor_Filtrado = string.Empty;
 
+    [Parameter] public bool Permitir_Filtrar { get; set; } = true;
     [Parameter] public EventCallback<string> FiltrarValor { get; set; }
     [Parameter] public EventCallback On_Change_Method { get; set; }
 
@@ -68,13 +72,22 @@
 
         Valor_Seleleccionado = item;
 
-        var prop_name = item.GetType().GetProperty(Propiedad_Valor);
-        if (prop_name is not null)
+        if (!string.IsNullOrEmpty(Propiedad_Valor))
         {
+            var prop_name = item.GetType().GetProperty(Propiedad_Valor);
+            if (prop_name is not null)
+            {
 
-            Valor = (TValue)prop_name.GetValue(item);
+                Valor = (TValue)prop_name.GetValue(item);
+                await ValorChanged.InvokeAsync(Valor);
+                // ValorChangedCustom.InvokeAsync(Valor);
+            }
+        }
+        else
+        {
+            TValue nuevo_valor = (TValue)Convert.ChangeType(Valor_Seleleccionado, typeof(TValue));
+            Valor = nuevo_valor;
             await ValorChanged.InvokeAsync(Valor);
-            // ValorChangedCustom.InvokeAsync(Valor);
         }
 
         await On_Change_Method.InvokeAsync();

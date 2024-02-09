@@ -10,7 +10,7 @@ namespace GComFuelManager.Shared.Modelos
     public class CierrePrecioDespuesFecha
     {
         [Key]
-        public int? Cod { get; set; }
+        public int Cod { get; set; }
         public int? CodCie { get; set; }
         public double? Precio { get; set; }
         public int? CodCte { get; set; }

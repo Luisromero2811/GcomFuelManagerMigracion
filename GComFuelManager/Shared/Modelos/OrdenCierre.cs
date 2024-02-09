@@ -167,8 +167,11 @@ namespace GComFuelManager.Shared.Modelos
         {
             get
             {
-                if (Estatus == false)
+                if (Estatus == false && Confirmada == true)
                     return "Cancelada";
+
+                if (Confirmada == false && Estatus == false)
+                    return "Precio por confirmar";
 
                 if (Activa == false)
                     return "Cerrada";
@@ -253,7 +256,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
-        public bool Confirmar_Precio { get; set; } = false;
+        [NotMapped, EpplusIgnore] public bool Confirmar_Precio { get; set; } = false;
         #region Calculo de volumenes
         [NotMapped, EpplusIgnore] public double? Volumen_Solicitado { get; set; } = 0;
         public double? GetVolumenSolicitado()
@@ -468,7 +471,7 @@ namespace GComFuelManager.Shared.Modelos
             try
             {
                 SetVolumen();
-                Tiene_Volumen_Disponible = !(GetPromedioCarga() >= (Volumen_Disponible * (porcentaje.Porcen != 0 ? porcentaje.Porcen : 100) / 100));
+                Tiene_Volumen_Disponible = !(GetPromedioCarga() >= (Volumen_Disponible * (porcentaje.Porcen != 0 ? porcentaje.Porcen : 100) / 100) && Estatus == true);
                 return Tiene_Volumen_Disponible;
             }
             catch (Exception e)

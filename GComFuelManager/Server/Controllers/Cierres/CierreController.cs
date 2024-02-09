@@ -267,6 +267,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (orden is null)
                     return BadRequest("No se aceptan ordenes vacios");
 
+                #region Verificacion de precio
+                if (!orden.Precio_Manual)
+                {
+                    orden.Confirmada = false;
+                    orden.Estatus = false;
+                    orden.Confirmar_Precio = true;
+                }
+                #endregion
+
                 Cliente? Cliente = new();
                 Grupo? Grupo = new();
 

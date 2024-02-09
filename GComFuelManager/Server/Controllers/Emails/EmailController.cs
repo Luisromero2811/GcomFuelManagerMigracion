@@ -1,18 +1,12 @@
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MimeKit;
-using MimeKit.Text;
 using RazorHtmlEmails.Common;
 using RazorHtmlEmails.GComFuelManagerMigracion.Services;
-using System.Net.Mail;
-using System.Security.Cryptography.Xml;
 
 namespace GComFuelManager.Server.Controllers.Emails
 {
@@ -29,6 +23,7 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly IConfirmOrden confirmOrden;
         private readonly IConfirmarCreacionOrdenes confirmarCreacion;
         private readonly IDenegarCreacionOrdenes denegarCreacion;
+        private readonly IConfirmarPrecio confirmarPrecio;
 
         public EmailController(ApplicationDbContext context,
             IRazorViewToStringRenderer razorView,
@@ -37,7 +32,8 @@ namespace GComFuelManager.Server.Controllers.Emails
             IPreciosService preciosService,
             IConfirmOrden confirmOrden,
             IConfirmarCreacionOrdenes confirmarCreacion,
-            IDenegarCreacionOrdenes denegarCreacion)
+            IDenegarCreacionOrdenes denegarCreacion,
+            IConfirmarPrecio confirmarPrecio)
         {
             this.context = context;
             this.razorView = razorView;
@@ -47,6 +43,7 @@ namespace GComFuelManager.Server.Controllers.Emails
             this.confirmOrden = confirmOrden;
             this.confirmarCreacion = confirmarCreacion;
             this.denegarCreacion = denegarCreacion;
+            this.confirmarPrecio = confirmarPrecio;
         }
 
         [HttpPost("confirmacion")]
@@ -54,47 +51,80 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                EmailContent<OrdenCierre> emailContent = new();
                 int? VolumenTotal = 0;
-                List<MailboxAddress> ToList = new List<MailboxAddress>();
-                if (ordenCierres.FirstOrDefault()!.isGroup)
+                List<MailboxAddress> ToList = new();
+                foreach (var cliente in ordenCierres.DistinctBy(x => x.CodCte))
                 {
-                    foreach (var i in ordenCierres)
-                    {
-                        var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
-                        foreach (var item in ctes)
-                        {
-                            var emails = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
-                        && x.Accion.Nombre.Equals("Compra"))
-                            .Include(x => x.Accion)
-                            .Include(x => x.Contacto)
-                            .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
-                            .ToList();
-                            ToList.AddRange(emails);
-                        }
-                    }
-
-                    if (ToList is null || ToList.Count == 0)
-                        return BadRequest($"{ordenCierres.FirstOrDefault().Grupo.Den}, No cuenta con un correo activo o registrado");
-                }
-                else
-                {
-                    ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
-                    && x.Accion.Nombre.Equals("Compra"))
-                        .Include(x => x.Accion)
-                        .Include(x => x.Contacto)
-                        .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
-                        .ToList();
+                    ToList = context.AccionCorreo.Where(x => x.Contacto != null && x.Contacto.CodCte == cliente.CodCte && x.Contacto.Estado == true
+                                        && x.Accion != null && x.Accion.Nombre.Equals("Compra"))
+                                            .Include(x => x.Accion)
+                                            .Include(x => x.Contacto)
+                                            .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
+                                            .ToList();
 
                     if (ToList is null || ToList.Count() == 0)
-                        return BadRequest($"{ordenCierres.FirstOrDefault().Cliente.Den}, No cuenta con un correo activo o registrado");
+                        return BadRequest($"{cliente.Cliente?.Den}, No cuenta con un correo activo o registrado");
                 }
 
                 var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
-                //var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
-                //    .Include(x=>x.AccionCorreos)
-                //    .ThenInclude(x=>x.Accion)
-                //    .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
+
+                emailContent.CC = cc;
+
+                //Funcion para el volumen
+                IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in ordenCierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal += cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+
+                emailContent.ToList = ToList;
+                emailContent.Subject = "Confirmacion de compra";
+                emailContent.Lista = cierresDistinc;
+
+                await registerAccount.Register(emailContent);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("confirmacion/grupo")]
+        public async Task<ActionResult> SendEmailConfirmacionGrupo([FromBody] List<OrdenCierre> ordenCierres)
+        {
+            try
+            {
+                EmailContent<OrdenCierre> emailContent = new();
+                int? VolumenTotal = 0;
+                List<MailboxAddress> ToList = new();
+
+                foreach (var i in ordenCierres)
+                {
+                    var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
+                    foreach (var item in ctes)
+                    {
+                        var emails = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
+                    && x.Accion.Nombre.Equals("Compra"))
+                        .Include(x => x.Accion)
+                        .Include(x => x.Contacto)
+                        .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
+                        .ToList();
+                        ToList.AddRange(emails);
+                    }
+
+                    if (ToList is null || ToList.Count == 0)
+                        return BadRequest($"{i.Grupo?.Den}, No cuenta con un correo activo o registrado");
+                }
+
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
 
                 emailContent.CC = cc;
 
@@ -111,8 +141,6 @@ namespace GComFuelManager.Server.Controllers.Emails
                 }
 
                 emailContent.ToList = ToList;
-                //emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
-                //emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
                 emailContent.Subject = "Confirmacion de compra";
                 emailContent.Lista = cierresDistinc;
 
@@ -131,10 +159,10 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                EmailContent<Precio> emailContent = new EmailContent<Precio>();
-                List<MailboxAddress> ToList = new List<MailboxAddress>();
-                List<Precio> list = new List<Precio>();
-                var gpo = context.Grupo.Where(x => x.Den.ToLower().Equals(grupo.Den)).FirstOrDefault();
+                EmailContent<Precio> emailContent = new();
+                List<MailboxAddress> ToList = new();
+                List<Precio> list = new();
+                var gpo = context.Grupo.FirstOrDefault(x =>(!string.IsNullOrEmpty(x.Den) && !string.IsNullOrWhiteSpace(x.Den)) && x.Den.ToLower().Equals(grupo.Den));
                 if (gpo is not null)
                 {
                     var ctes = context.Cliente.Where(x => x.codgru == gpo.Cod).ToList();
@@ -144,7 +172,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                         && x.Accion.Nombre.Equals("Precios"))
                             .Include(x => x.Accion)
                             .Include(x => x.Contacto)
-                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                            .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
                             .ToListAsync();
                         if (ToList is null || ToList.Count == 0)
                         {
@@ -169,7 +197,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 }
                 else
                 {
-                    return BadRequest($"No se encontraron clientes del grupo {gpo.Den}");
+                    return BadRequest($"No se encontraron clientes del grupo {gpo?.Den}");
                 }
                 return Ok(list);
             }
@@ -184,8 +212,8 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                List<Precio> list = new List<Precio>();
-                var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
+                List<Precio> list = new();
+                var cte = context.Cliente.Where(x =>(!string.IsNullOrEmpty(x.Den) && !string.IsNullOrWhiteSpace(x.Den)) && x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
 
                 if (cte is not null)
                     list = context.Precio.Where(x => x.codCte == cte.Cod && x.Activo == true)
@@ -200,13 +228,13 @@ namespace GComFuelManager.Server.Controllers.Emails
                 if (list.Count == 0)
                     return BadRequest($"No se encontraron precios para {cte.Den}");
 
-                EmailContent<Precio> emailContent = new EmailContent<Precio>();
+                EmailContent<Precio> emailContent = new();
 
-                var ToList = await context.AccionCorreo.Where(x => x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
-                   && x.Accion.Nombre.Equals("Precios"))
+                var ToList = await context.AccionCorreo.Where(x =>x.Contacto != null && x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
+                   && x.Accion != null && x.Accion.Nombre.Equals("Precios"))
                        .Include(x => x.Accion)
                        .Include(x => x.Contacto)
-                       .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                       .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
                        .ToListAsync();
 
                 if (ToList is null || ToList.Count == 0)
@@ -235,9 +263,9 @@ namespace GComFuelManager.Server.Controllers.Emails
 
             try
             {
-                EmailContent<Precio> emailContent = new EmailContent<Precio>();
-                List<MailboxAddress> ToList = new List<MailboxAddress>();
-                List<Precio> list = new List<Precio>();
+                EmailContent<Precio> emailContent = new();
+                List<MailboxAddress> ToList = new();
+                List<Precio> list = new();
                 var gpo = context.Grupo.Where(x => x.Den.ToLower().Equals(grupo.Den)).FirstOrDefault();
                 if (gpo is not null)
                 {
@@ -303,8 +331,8 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                List<Precio> list = new List<Precio>();
-                var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
+                List<Precio> list = new();
+                var cte = context.Cliente.Where(x => (!string.IsNullOrEmpty(x.Den) && !string.IsNullOrWhiteSpace(x.Den)) && x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
 
                 if (cte is not null)
                     list = context.PrecioProgramado.Where(x => x.codCte == cte.Cod && x.Activo == true)
@@ -334,13 +362,13 @@ namespace GComFuelManager.Server.Controllers.Emails
                 if (list.Count == 0)
                     return BadRequest($"No se encontraron precios para {cte.Den}");
 
-                EmailContent<Precio> emailContent = new EmailContent<Precio>();
+                EmailContent<Precio> emailContent = new();
 
-                var ToList = await context.AccionCorreo.Where(x => x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
-                   && x.Accion.Nombre.Equals("Precios"))
+                var ToList = await context.AccionCorreo.Where(x => x.Contacto != null && x.Contacto.CodCte == cte.Cod && x.Contacto.Estado == true
+                   && x.Accion != null && x.Accion.Nombre.Equals("Precios"))
                        .Include(x => x.Accion)
                        .Include(x => x.Contacto)
-                       .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                       .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo))
                        .ToListAsync();
 
                 if (ToList is null || ToList.Count == 0)
@@ -373,7 +401,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 {
                     var list = ordenEmbarques.Where(x => x.OrdenCierre.CodCte == item);
 
-                    EmailContent<OrdenEmbarque> emailContent = new EmailContent<OrdenEmbarque>();
+                    EmailContent<OrdenEmbarque> emailContent = new();
 
                     var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
                     emailContent.CC = cc;
@@ -412,13 +440,13 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                EmailContent<OrdenCierre> emailContent = new();
 
-                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true 
+                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true
                 && x.Accion.Nombre.Equals("Confirmar Creacion Ordenes"))
-                    .Include(x=>x.Contacto)
-                    .Include(x=>x.Accion)
-                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo)).AsEnumerable();
+                    .Include(x => x.Contacto)
+                    .Include(x => x.Accion)
+                    .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo)).AsEnumerable();
 
                 emailContent.CC = new List<MailboxAddress>();
                 emailContent.ToList = cc;
@@ -440,13 +468,13 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                EmailContent<OrdenCierre> emailContent = new();
 
                 var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true
                 && x.Accion.Nombre.Equals("Denegar Creacion Ordenes"))
                     .Include(x => x.Contacto)
                     .Include(x => x.Accion)
-                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo)).AsEnumerable();
+                    .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo)).AsEnumerable();
 
                 emailContent.CC = new List<MailboxAddress>();
                 emailContent.ToList = cc;
@@ -454,6 +482,34 @@ namespace GComFuelManager.Server.Controllers.Emails
                 emailContent.Item = cierre;
 
                 await denegarCreacion.Denegar(emailContent);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("confirmar/precio")]
+        public async Task<ActionResult> SendEmailConfirmarPrecioOrdenCierre(OrdenCierre cierre)
+        {
+            try
+            {
+                EmailContent<OrdenCierre> emailContent = new();
+
+                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true
+                && x.Accion.Nombre.Equals("Confirmar Precio"))
+                    .Include(x => x.Contacto)
+                    .Include(x => x.Accion)
+                    .Select(x => new MailboxAddress(x.Contacto!.Nombre, x.Contacto.Correo)).ToList();
+
+                emailContent.CC = new List<MailboxAddress>();
+                emailContent.ToList = cc;
+                emailContent.Subject = "Precio por confirmar";
+                emailContent.Item = cierre;
+
+                await confirmarPrecio.ConfirmarPrecio(emailContent);
 
                 return Ok(true);
             }

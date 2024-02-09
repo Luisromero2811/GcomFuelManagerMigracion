@@ -812,15 +812,6 @@
                     ordenCierre.ID_Moneda = item.ID_Moneda;
             }
 
-            if (!Precios.Any(x => x.Pre == ordenCierre.Precio))
-            {
-                await Swal.FireAsync("Precio por confirmar",
-                "Se ha enviado un correo al encargado para confirmar el precio del cierre. En cuanto se confirme se enviara el cierre automaticamente al cliente.",
-                SweetAlertIcon.Info);
-
-                return;
-            }
-
             var responseOC = await http.Post<OrdenCierre, OrdenCierre>("api/cierre", ordenCierre);
             if (responseOC.Error)
             {
@@ -833,6 +824,28 @@
                 loadingCreate = false;
                 ordenCierres.Add(responseOC.Response);
                 await grid.Reload();
+
+                if (responseOC.Response.Confirmar_Precio)
+                {
+                    await Swal.FireAsync("Precio por confirmar",
+                "Se ha enviado un correo al encargado para confirmar el precio del cierre. En cuanto se confirme se enviara el cierre automaticamente al cliente.",
+                SweetAlertIcon.Info);
+
+                    var response = await http.Post<OrdenCierre, bool>($"api/email/confirmar/precio", responseOC.Response);
+                    if (response.Error)
+                    {
+                        loading = false;
+                        var responseHttp = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loading = false;
+                        await Swal.FireAsync("Exito", "Se ha enviado el correo para la cofirmacion del precio", SweetAlertIcon.Success);
+                    }
+
+                    return;
+                }
 
                 if (ordenCierres is not null && ordenCierres.Count > 0)
                     foreach (var item in ordenCierres)
