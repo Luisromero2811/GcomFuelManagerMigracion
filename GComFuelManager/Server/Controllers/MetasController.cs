@@ -47,6 +47,12 @@ namespace GComFuelManager.Server.Controllers
                 if (metas_ is null)
                     return NotFound();
 
+                if (metas_.Ano_reporte == 0)
+                    return BadRequest("Año no valido");
+
+                if (metas_.VendedorId == 0)
+                    return BadRequest("Vendedor no valido");
+
                 var año_actual = metas_.Ano_reporte;
 
                 var vendedor = context.Vendedores.Include(x => x.Clientes).FirstOrDefault(x => x.Id == metas_.VendedorId);

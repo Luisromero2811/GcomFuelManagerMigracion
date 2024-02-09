@@ -89,6 +89,9 @@ namespace GComFuelManager.Server.Controllers
                 if (vendedor is null)
                     return NotFound();
 
+                if (string.IsNullOrEmpty(vendedor.Nombre) || string.IsNullOrWhiteSpace(vendedor.Nombre))
+                    return BadRequest("Nombre de vendedor no valido");
+
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
@@ -215,6 +218,12 @@ namespace GComFuelManager.Server.Controllers
             {
                 if (vendedor_Originador is null)
                     return NotFound();
+
+                if (vendedor_Originador.OriginadorId == 0)
+                    return BadRequest("Originador no valido");
+
+                if (vendedor_Originador.VendedorId == 0)
+                    return BadRequest("Vendedor no valido");
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))

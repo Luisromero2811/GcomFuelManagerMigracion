@@ -65,7 +65,10 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 if (originador is null)
-                    return BadRequest(originador);
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(originador.Nombre) || string.IsNullOrWhiteSpace(originador.Nombre))
+                    return BadRequest("Nombre de originador no valido");
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))

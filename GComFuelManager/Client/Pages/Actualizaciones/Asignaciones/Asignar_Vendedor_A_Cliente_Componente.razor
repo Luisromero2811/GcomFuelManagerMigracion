@@ -19,17 +19,6 @@
                     </RenderValue>
                 </DropDownFilter>
             </div>
-            @* <div class="col-4">
-            <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Default_Placeholder="Seleccione un cliente" FiltrarValor="GetClientes"
-            @bind-Valor="@Cliente.Cod" Propiedad_Valor="Cod">
-            <RenderValue>
-            @context.Den
-            </RenderValue>
-            <Render>
-            @context.Den
-            </Render>
-            </DropDownFilter>
-            </div> *@
             <div class="col-4">
                 <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
                 @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
@@ -203,6 +192,9 @@
 
     private async Task Guardar_Relacion()
     {
+        if (Clientes_Seleccionados.Count == 0 || Clientes_Seleccionados is null || Vendedor.Id == 0)
+            return;
+
         Dictionary<string, string> query = new();
         query["Id"] = Vendedor.Id.ToString();
         var uri = Constructor_De_URL_Parametros.Generar_URL(query);
