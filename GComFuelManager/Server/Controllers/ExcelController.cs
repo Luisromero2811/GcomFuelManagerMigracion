@@ -49,6 +49,7 @@ namespace GComFuelManager.Server.Controllers
                             Volumen = item.Volumen,
                             Volumen_Disponible = item.Volumen_Disponible,
                             Volumen_Programado = item.Volumen_Programado,
+                            Volumen_Restante = item.Volumen - item.Volumen_Cosumido,
                             Volumen_Espera_Carga = item.Volumen_Espera_Carga,
                             Folio = item.Folio,
                             Observaciones = item.Observaciones,
