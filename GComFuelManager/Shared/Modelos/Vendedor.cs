@@ -50,18 +50,18 @@ namespace GComFuelManager.Shared.Modelos
     public class Vendedor_Reporte_Desemeño
     {
         public string Vendedor { get; set; } = string.Empty;
-        public double Enero { get; set; } = 0;
-        public double Febrero { get; set; } = 0;
-        public double Marzo { get; set; } = 0;
-        public double Abril { get; set; } = 0;
-        public double Mayo { get; set; } = 0;
-        public double Junio { get; set; } = 0;
-        public double Julio { get; set; } = 0;
-        public double Agosto { get; set; } = 0;
-        public double Septiembre { get; set; } = 0;
-        public double Octubre { get; set; } = 0;
-        public double Noviembre { get; set; } = 0;
-        public double Diciembre { get; set; } = 0;
+        public double Ene { get; set; } = 0;
+        public double Feb { get; set; } = 0;
+        public double Mar { get; set; } = 0;
+        public double Abr { get; set; } = 0;
+        public double May { get; set; } = 0;
+        public double Jun { get; set; } = 0;
+        public double Jul { get; set; } = 0;
+        public double Ago { get; set; } = 0;
+        public double Sep { get; set; } = 0;
+        public double Oct { get; set; } = 0;
+        public double Nov { get; set; } = 0;
+        public double Dic { get; set; } = 0;
 
     }
 

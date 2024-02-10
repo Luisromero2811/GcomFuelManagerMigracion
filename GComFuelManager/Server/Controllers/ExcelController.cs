@@ -162,35 +162,35 @@ namespace GComFuelManager.Server.Controllers
                     {
                         switch (mes.Nro_Mes)
                         {
-                            case 1: vendedor_litros.Enero = mes.Litros_Vendidos; break;
-                            case 2: vendedor_litros.Febrero = mes.Litros_Vendidos; break;
-                            case 3: vendedor_litros.Marzo = mes.Litros_Vendidos; break;
-                            case 4: vendedor_litros.Abril = mes.Litros_Vendidos; break;
-                            case 5: vendedor_litros.Mayo = mes.Litros_Vendidos; break;
-                            case 6: vendedor_litros.Junio = mes.Litros_Vendidos; break;
-                            case 7: vendedor_litros.Julio = mes.Litros_Vendidos; break;
-                            case 8: vendedor_litros.Agosto = mes.Litros_Vendidos; break;
-                            case 9: vendedor_litros.Septiembre = mes.Litros_Vendidos; break;
-                            case 10: vendedor_litros.Octubre = mes.Litros_Vendidos; break;
-                            case 11: vendedor_litros.Noviembre = mes.Litros_Vendidos; break;
-                            case 12: vendedor_litros.Diciembre = mes.Litros_Vendidos; break;
+                            case 1: vendedor_litros.Ene = mes.Litros_Vendidos; break;
+                            case 2: vendedor_litros.Feb = mes.Litros_Vendidos; break;
+                            case 3: vendedor_litros.Mar = mes.Litros_Vendidos; break;
+                            case 4: vendedor_litros.Abr = mes.Litros_Vendidos; break;
+                            case 5: vendedor_litros.May = mes.Litros_Vendidos; break;
+                            case 6: vendedor_litros.Jun = mes.Litros_Vendidos; break;
+                            case 7: vendedor_litros.Jul = mes.Litros_Vendidos; break;
+                            case 8: vendedor_litros.Ago = mes.Litros_Vendidos; break;
+                            case 9: vendedor_litros.Sep = mes.Litros_Vendidos; break;
+                            case 10: vendedor_litros.Oct = mes.Litros_Vendidos; break;
+                            case 11: vendedor_litros.Nov = mes.Litros_Vendidos; break;
+                            case 12: vendedor_litros.Dic = mes.Litros_Vendidos; break;
                             default: break;
                         }
 
                         switch (mes.Nro_Mes)
                         {
-                            case 1: vendedor_venta.Enero = mes.Venta; break;
-                            case 2: vendedor_venta.Febrero = mes.Venta; break;
-                            case 3: vendedor_venta.Marzo = mes.Venta; break;
-                            case 4: vendedor_venta.Abril = mes.Venta; break;
-                            case 5: vendedor_venta.Mayo = mes.Venta; break;
-                            case 6: vendedor_venta.Junio = mes.Venta; break;
-                            case 7: vendedor_venta.Julio = mes.Venta; break;
-                            case 8: vendedor_venta.Agosto = mes.Venta; break;
-                            case 9: vendedor_venta.Septiembre = mes.Venta; break;
-                            case 10: vendedor_venta.Octubre = mes.Venta; break;
-                            case 11: vendedor_venta.Noviembre = mes.Venta; break;
-                            case 12: vendedor_venta.Diciembre = mes.Venta; break;
+                            case 1: vendedor_venta.Ene = mes.Venta; break;
+                            case 2: vendedor_venta.Feb = mes.Venta; break;
+                            case 3: vendedor_venta.Mar = mes.Venta; break;
+                            case 4: vendedor_venta.Abr = mes.Venta; break;
+                            case 5: vendedor_venta.May = mes.Venta; break;
+                            case 6: vendedor_venta.Jun = mes.Venta; break;
+                            case 7: vendedor_venta.Jul = mes.Venta; break;
+                            case 8: vendedor_venta.Ago = mes.Venta; break;
+                            case 9: vendedor_venta.Sep = mes.Venta; break;
+                            case 10: vendedor_venta.Oct = mes.Venta; break;
+                            case 11: vendedor_venta.Nov = mes.Venta; break;
+                            case 12: vendedor_venta.Dic = mes.Venta; break;
                             default: break;
                         }
                     }

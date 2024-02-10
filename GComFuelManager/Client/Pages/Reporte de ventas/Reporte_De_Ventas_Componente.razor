@@ -12,8 +12,28 @@
     <div class="card-body">
         <div class="col-12 row">
 
-            <div class="col-3">
-                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Vendedores"
+            <div class="col-12 row">
+                <div class="col-2">
+                    <b>Tipo de entidad: </b>
+                </div>
+                <div class="form-check col-1">
+                    <input class="form-check-input" type="radio" name="vendedor" id="vendedor" checked="@(Vendedor_Originador == false)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
+                    <label class="form-check-label" for="vendedor">
+                        Vendedor
+                    </label>
+                </div>
+                <div class="form-check col-1">
+                    <input class="form-check-input" type="radio" name="originador" id="originador" checked="@(Vendedor_Originador == true)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
+                    <label class="form-check-label" for="originador">
+                        Originador
+                    </label>
+                </div>
+            </div>
+            <div class="col-1">
+                <b>Filtro: </b>
+            </div>
+            <div class="col-2">
+                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Originadores"
                                 Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
                     <RenderValue Context="item_table">
                         @item_table.Nombre
@@ -24,17 +44,20 @@
                 </DropDownFilter>
             </div>
 
-            <div class="col-3">
-                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
-                @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
-                    <RenderValue>
-                        @context.Nombre
-                    </RenderValue>
-                    <Render>
-                        @context.Nombre
-                    </Render>
-                </DropDownFilter>
-            </div>
+            @if (!Vendedor_Originador)
+            {
+                <div class="col-2">
+                    <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
+                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
+                        <RenderValue>
+                            @context.Nombre
+                        </RenderValue>
+                        <Render>
+                            @context.Nombre
+                        </Render>
+                    </DropDownFilter>
+                </div>
+            }
 
             <div class="col-2">
                 <select class="form-select form-select-sm" @bind="@Vendedor.Fecha_Registro">
@@ -85,7 +108,14 @@
     <table class="table table-sm table-striped table-bordered">
         <thead>
             <tr>
-                <th>Vendedor</th>
+                @if (!Vendedor_Originador)
+                {
+                    <th>Vendedor</th>
+                }
+                else
+                {
+                    <th>Originador</th>
+                }
                 @for (int mes = 1; mes <= 12; mes++)
                 {
                     <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM").ToUpper())</th>
@@ -133,6 +163,7 @@
 
     List<int> Años { get; set; } = new();
 
+    bool Vendedor_Originador = false;
     bool Show_Venta = false;
     bool Loading_Reporte = false;
 
@@ -155,24 +186,45 @@
         {
             Dictionary<string, string> query = new();
 
-            query["Id"] = Vendedor.Id.ToString();
+            if (!Vendedor_Originador)
+                query["Id"] = Vendedor.Id.ToString();
+
             query["Id_Originador"] = Vendedor.Id_Originador.ToString();
             query["Fecha_Registro"] = Vendedor.Fecha_Registro.ToString();
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             Loading_Reporte = true;
-            var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte?{uri}");
-            if (response.Error)
+            if (!Vendedor_Originador)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                Loading_Reporte = false;
+                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte?{uri}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Reporte = false;
+                }
+                else
+                {
+                    Vendedores_Tabla = response.Response;
+                    Loading_Reporte = false;
+                }
             }
             else
             {
-                Vendedores_Tabla = response.Response;
-                Loading_Reporte = false;
+                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte/originador?{uri}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Reporte = false;
+                }
+                else
+                {
+                    Vendedores_Tabla = response.Response;
+                    Loading_Reporte = false;
+                }
             }
+
         }
         catch (Exception e)
         {
@@ -292,7 +344,7 @@
 
                 var header_v = ws_v.Cells["A1:M1"];
 
-                ws_v.Cells[$"B1:M{response.Response.Venta.Count+1}"].Style.Numberformat.Format = "$#,####0.0000";
+                ws_v.Cells[$"B1:M{response.Response.Venta.Count + 1}"].Style.Numberformat.Format = "$#,####0.0000";
                 // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
 
                 var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
@@ -304,7 +356,10 @@
                 header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 header_v.Style.Font.Bold = true;
 
-                await js.GuardarComo($"Reporte_Ventas_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+                if (!Vendedor_Originador)
+                    await js.GuardarComo($"Reporte_Ventas_Vendedores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+                else
+                    await js.GuardarComo($"Reporte_Ventas_Originadores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
             }
         }
         catch (Exception e)

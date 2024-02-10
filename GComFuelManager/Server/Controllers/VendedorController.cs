@@ -326,5 +326,89 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("reporte/originador")]
+        public ActionResult Obtener_Venta_De_Meses_Por_Originador([FromQuery] Vendedor originador)
+        {
+            try
+            {
+                var originadores = context.Originadores.IgnoreAutoIncludes().Where(x => x.Activo).Include(x => x.Vendedores).ThenInclude(x => x.Clientes).OrderBy(x => x.Nombre).AsQueryable();
+
+                if (!string.IsNullOrEmpty(originador.Nombre))
+                    originadores = originadores.Where(x => x.Nombre.ToLower().Contains(originador.Nombre.ToLower())).OrderBy(x => x.Nombre);
+
+                if (originador.Id_Originador != 0)
+                    originadores = originadores.Where(x => x.Id == originador.Id_Originador).OrderBy(x => x.Nombre);
+
+                var meses = CultureInfo.CurrentCulture.Calendar.GetMonthsInYear(originador.Fecha_Registro);
+
+                var originadores_validos = originadores.ToList();
+
+                foreach (var item in originadores_validos)
+                {
+                    for (int mes = 1; mes <= meses; mes++)
+                    {
+                        Mes_Venta mes_Venta = new()
+                        {
+                            Nro_Mes = mes,
+                            Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
+                        };
+
+                        foreach (var vendedor_valido in item.Vendedores)
+                        {
+
+                            if (vendedor_valido.Clientes is not null)
+                            {
+                                foreach (var cliente in vendedor_valido.Clientes)
+                                {
+                                    List<Orden> Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
+                                    && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == originador.Fecha_Registro && x.Codest != 14)
+                                    .Include(x => x.Producto)
+                                    .Include(x => x.Destino)
+                                    .Include(x => x.OrdenEmbarque)
+                                    .ToList();
+
+                                    List<Orden> ordenes_a_sumar = new();
+
+                                    foreach (var orden in Ordenes)
+                                        if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                            ordenes_a_sumar.Add(orden);
+
+                                    //var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+                                    var ordenes_dintinguidas = ordenes_a_sumar;
+
+                                    foreach (var orden in ordenes_dintinguidas)
+                                    {
+                                        //Mes_Venta_Producto mes_Venta_Producto = new()
+                                        //{
+                                        //    Producto = orden.Obtener_Nombre_Producto,
+                                        //    Litros_Vendidos = orden.Obtener_Volumen,
+                                        //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
+                                        //};
+
+                                        //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
+                                        //mes_Venta.Venta += mes_Venta_Producto.Venta;
+
+                                        mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                        mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+
+                                        //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                    }
+                                }
+                            }
+
+                        }
+                        item.Venta_Por_Meses.Add(mes_Venta);
+                    }
+                }
+
+
+                return Ok(originadores_validos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
