@@ -41,6 +41,24 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("relacion/{id:int}")]
+        public ActionResult Obtener_Originadores([FromRoute] int id, [FromQuery] Originador originador)
+        {
+            try
+            {
+                var originadores = context.Originadores.IgnoreAutoIncludes().Where(x => x.Vendedor_Originador.Any(x => x.VendedorId == id)).Include(x => x.Vendedor_Originador).AsQueryable();
+
+                if (!string.IsNullOrEmpty(originador.Nombre) || !string.IsNullOrWhiteSpace(originador.Nombre))
+                    originadores = originadores.Where(x => x.Nombre.ToLower().Contains(originador.Nombre));
+
+                return Ok(originadores);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("filtrar")]
         public ActionResult Obtener_Originadores_Activos([FromQuery] Originador originador)
         {

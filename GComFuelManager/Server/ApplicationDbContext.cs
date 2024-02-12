@@ -427,10 +427,21 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.Id_Vendedor);
 
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Originador)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Originador);
+
             modelBuilder.Entity<Vendedor>()
                 .HasMany(x => x.Clientes)
                 .WithOne(x => x.Vendedor)
                 .HasForeignKey(x => x.Id_Vendedor)
+                .HasPrincipalKey(x => x.Id);
+
+            modelBuilder.Entity<Originador>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Originador)
+                .HasForeignKey(x => x.Id_Originador)
                 .HasPrincipalKey(x => x.Id);
 
             modelBuilder.Entity<Vendedor_Originador>().HasKey(vo => new { vo.VendedorId, vo.OriginadorId });

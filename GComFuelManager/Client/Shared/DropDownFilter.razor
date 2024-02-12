@@ -1,47 +1,49 @@
 ﻿@typeparam TListado
 @typeparam TValue
 
-<div style="display:inline-flex;width:100%">
-    <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button" style="@(ShowDropDown ? "width:95%;" : "width:100%;")">
-        @if (RenderValue is null || Valor_Seleleccionado is null)
-        {
-            @if (!string.IsNullOrEmpty(Default_Placeholder))
+<div style="width:100%">
+    <div class="dropdown-com">
+        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button">
+            @if (RenderValue is null || Valor_Seleleccionado is null)
             {
-                @Default_Placeholder
+                @if (!string.IsNullOrEmpty(Default_Placeholder))
+                {
+                    @Default_Placeholder
+                }
+                else
+                {
+                    <p>Seleccione un valor</p>
+                }
+
             }
             else
             {
-                <p>Seleccione un valor</p>
+                @if (Valor_Seleleccionado is not null)
+                {
+                    @RenderValue(Valor_Seleleccionado)
+                }
             }
+        </button>
 
-        }
-        else
+        @if (Valor_Seleleccionado is not null)
         {
-            @if (Valor_Seleleccionado is not null)
-            {
-                @RenderValue(Valor_Seleleccionado)
-            }
+
+            <div style="cursor:pointer;padding: .14rem;border: 1px solid #ced4da;" @onclick="ClearValue">
+                <i class="fa fa-solid fa-xmark"></i>
+            </div>
         }
-    </button>
-
-    @if (Valor_Seleleccionado is not null)
-    {
-
-        <div style="cursor:pointer;padding: .14rem;border: 1px solid #ced4da;" @onclick="ClearValue">
-            <i class="fa fa-solid fa-xmark"></i>
-        </div>
-    }
+    </div>
 
     @if (ShowDropDown)
     {
-        <ul class="dropdown-menu list-group" style="height:400px;overflow-y:scroll;">
-            <li class="list-group-item">
-                <input type="search" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
+        <ul class="dropdown-com-content" id="dropdown-list">
+            <li class="">
+                <input type="search" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" autofocus="autofocus" />
             </li>
             <Virtualize Items="Listado" Context="Item" TItem="TListado">
                 @if (Render is not null)
                 {
-                    <li class="list-group-item" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
+                    <li class="" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
                         @Render(Item)
                     </li>
                 }
@@ -50,6 +52,46 @@
         </ul>
     }
 </div>
+
+<script>
+    var modal = document.getElementById("dropdown-list");
+
+    window.onclick = function (event) {
+        if (!event.target != modal) {
+            modal.style.display = none;
+        }
+    }
+</script>
+
+<style>
+    .dropdown-com {
+        position: relative;
+        display: inline-flex;
+        width: 100%;
+    }
+
+    .dropdown-com-content {
+        position: absolute;
+        background-color: white;
+        min-width: .5rem;
+        box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+        z-index: 2;
+        padding: .5rem;
+        list-style: none;
+        max-height: 400px;
+        overflow-y: scroll;
+    }
+
+        .dropdown-com-content li {
+            color: black;
+            display: block;
+            padding: .3rem .4rem;
+        }
+
+            .dropdown-com-content li:hover {
+                background-color: #e6e6e6;
+            }
+</style>
 
 @code {
     [Parameter] public string Default_Placeholder { get; set; } = string.Empty;
@@ -61,6 +103,7 @@
 
     [Parameter] public EventCallback<string> FiltrarValor { get; set; }
     [Parameter] public EventCallback On_Change_Method { get; set; }
+    [Parameter] public EventCallback On_Cancel_Method { get; set; }
 
     private TListado? Valor_Seleleccionado { get; set; } = default(TListado);
 
@@ -77,13 +120,21 @@
 
         Valor_Seleleccionado = item;
 
-        var prop_name = item.GetType().GetProperty(Propiedad_Valor);
-        if (prop_name is not null)
+        if (!string.IsNullOrEmpty(Propiedad_Valor) || !string.IsNullOrWhiteSpace(Propiedad_Valor))
         {
+            var prop_name = item.GetType().GetProperty(Propiedad_Valor);
+            if (prop_name is not null)
+            {
 
-            Valor = (TValue)prop_name.GetValue(item);
-            await ValorChanged.InvokeAsync(Valor);
-            // ValorChangedCustom.InvokeAsync(Valor);
+                Valor = (TValue)prop_name.GetValue(item);
+                await ValorChanged.InvokeAsync(Valor);
+                // ValorChangedCustom.InvokeAsync(Valor);
+            }
+        }
+        else
+        {
+            var nuevo_valor = Convert.ChangeType(Valor_Seleleccionado, typeof(TValue));
+            Valor = (TValue)nuevo_valor;
         }
 
         await On_Change_Method.InvokeAsync();
@@ -94,6 +145,7 @@
         Valor = default(TValue);
         Valor_Seleleccionado = default(TListado);
         await ValorChanged.InvokeAsync(Valor);
+        await On_Cancel_Method.InvokeAsync();
     }
 
     private async Task On_Change_Filter_Value(ChangeEventArgs e)

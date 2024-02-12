@@ -49,7 +49,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes_filtrados = context.Cliente.Include(x => x.Vendedor).AsQueryable();
+                var clientes_filtrados = context.Cliente.Include(x => x.Vendedor).Include(x => x.Originador).AsQueryable();
 
                 if (filtro_.ID_Grupo != 0)
                     clientes_filtrados = clientes_filtrados.Where(x => x.codgru == filtro_.ID_Grupo);
