@@ -1,0 +1,26 @@
+﻿<div class="dropdown-menu-side" @onclick="@ShowDropDownChange">
+
+    @if (!string.IsNullOrEmpty(Text) || !string.IsNullOrWhiteSpace(Text))
+    {
+        @Text
+    }
+
+    @if (ButtonTemplate is not null)
+    {
+        @ButtonTemplate
+    }
+    <i class="fa fa-solid fa-caret-down" style="margin-left:.1rem"></i>
+</div>
+@code {
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public RenderFragment ButtonTemplate { get; set; } = null!;
+
+    [Parameter] public bool ShowDropDown { get; set; } = false;
+    [Parameter] public EventCallback<bool> ShowDropDownChanged { get; set; }
+
+    private async Task ShowDropDownChange()
+    {
+        ShowDropDown = !ShowDropDown;
+        await ShowDropDownChanged.InvokeAsync(ShowDropDown);
+    }
+}

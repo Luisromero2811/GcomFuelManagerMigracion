@@ -1,0 +1,33 @@
+﻿@if (!Use_Roles)
+{
+    <NavLink href="@Path" Match="NavLinkMatch.All">
+        <div class="dropdown-menu-side-item">
+            @if (ItemTemplate is not null)
+            {
+                @ItemTemplate
+            }
+        </div>
+    </NavLink>
+}
+else
+{
+    <AuthorizeView Roles="@Roles">
+        <Authorized>
+            <NavLink href="@Path" Match="NavLinkMatch.All">
+                <div class="dropdown-menu-side-item">
+                    @if (ItemTemplate is not null)
+                    {
+                        @ItemTemplate
+                    }
+                </div>
+            </NavLink>
+        </Authorized>
+    </AuthorizeView>
+}
+
+@code {
+    [Parameter] public RenderFragment ItemTemplate { get; set; } = null!;
+    [Parameter] public string Path { get; set; } = string.Empty;
+    [Parameter] public bool Use_Roles { get; set; } = false;
+    [Parameter] public string Roles { get; set; } = string.Empty;
+}

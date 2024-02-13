@@ -1,0 +1,10 @@
+﻿.dropdown-menu-side {
+    color: white;
+    width: 100%;
+    display: block;
+    cursor: pointer;
+}
+
+    .dropdown-menu-side:hover, .dropdown-menu-side-item:hover {
+        color: #EBBF1A;
+    }

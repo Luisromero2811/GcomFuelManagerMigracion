@@ -1,0 +1,371 @@
+﻿@page "/reporte/ventas"
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+@inject IJSRuntime js
+
+<div class="card">
+    <div class="card-header">
+        <b>Desempeño de ventas</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+
+            <div class="col-12 row">
+                <div class="col-2">
+                    <b>Tipo de entidad: </b>
+                </div>
+                <div class="form-check col-1">
+                    <input class="form-check-input" type="radio" name="vendedor" id="vendedor" checked="@(Vendedor_Originador == false)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
+                    <label class="form-check-label" for="vendedor">
+                        Vendedor
+                    </label>
+                </div>
+                <div class="form-check col-1">
+                    <input class="form-check-input" type="radio" name="originador" id="originador" checked="@(Vendedor_Originador == true)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
+                    <label class="form-check-label" for="originador">
+                        Originador
+                    </label>
+                </div>
+            </div>
+            <div class="col-1">
+                <b>Filtro: </b>
+            </div>
+            <div class="col-2">
+                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Originadores"
+                                Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
+                    <RenderValue Context="item_table">
+                        @item_table.Nombre
+                    </RenderValue>
+                    <Render Context="item_table">
+                        @item_table.Nombre
+                    </Render>
+                </DropDownFilter>
+            </div>
+
+            @if (!Vendedor_Originador)
+            {
+                <div class="col-2">
+                    <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
+                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
+                        <RenderValue>
+                            @context.Nombre
+                        </RenderValue>
+                        <Render>
+                            @context.Nombre
+                        </Render>
+                    </DropDownFilter>
+                </div>
+            }
+
+            <div class="col-2">
+                <select class="form-select form-select-sm" @bind="@Vendedor.Fecha_Registro">
+                    <option>-- Seleccione un año --</option>
+                    @foreach (var ano in Años)
+                    {
+                        <option value="@ano">@ano</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Obtener_Reporte">
+                    <b>Buscar reporte</b>
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Exportar_Excel">
+                    <b>Exportar excel</b>
+                    <i class="fa fa-solid fa-file-excel"></i>
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-12 row">
+    <div class="col-1">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="litros" id="litros_radio" checked="@(Show_Venta == false)" @onchange="@(()=>Show_Venta = false)">
+            <label class="form-check-label" for="litros_radio">
+                Litros
+            </label>
+        </div>
+    </div>
+    <div class="col-1">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="venta" id="venta_radio" checked="@(Show_Venta == true)" @onchange="@(()=>Show_Venta = true)">
+            <label class="form-check-label" for="venta_radio">
+                Venta
+            </label>
+        </div>
+    </div>
+</div>
+<div class="ancho-tabla shadow-sm" style="overflow-x:scroll;font-size:13px;white-space:nowrap;">
+    <table class="table table-sm table-striped table-bordered">
+        <thead>
+            <tr>
+                @if (!Vendedor_Originador)
+                {
+                    <th>Vendedor</th>
+                }
+                else
+                {
+                    <th>Originador</th>
+                }
+                @for (int mes = 1; mes <= 12; mes++)
+                {
+                    <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM").ToUpper())</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @if (Loading_Reporte)
+            {
+                <tr>
+                    <td colspan="13">
+                        <SpinnerLoading />
+                    </td>
+                </tr>
+            }
+            <Virtualize Items="Vendedores_Tabla" TItem="Vendedor" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    @foreach (var venta_mes in item.Venta_Por_Meses)
+                    {
+                        <td>
+                            @if (Show_Venta)
+                            {
+                                <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
+                            }
+                            else
+                            {
+                                <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                            }
+                        </td>
+                    }
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+@code {
+    List<Vendedor> Vendedores_Tabla { get; set; } = new();
+
+    List<Vendedor> Vendedores { get; set; } = new();
+    Vendedor Vendedor { get; set; } = new();
+
+    Originador Originador { get; set; } = new();
+    List<Originador> Originadores { get; set; } = new();
+
+    List<int> Años { get; set; } = new();
+
+    bool Vendedor_Originador = false;
+    bool Show_Venta = false;
+    bool Loading_Reporte = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Fechas();
+        await Obtener_Vendedores(string.Empty);
+        await Obtener_Originadores(string.Empty);
+    }
+
+    private void Limpiar_Filtro()
+    {
+        Vendedor = new();
+        StateHasChanged();
+    }
+
+    private async Task Obtener_Reporte()
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            if (!Vendedor_Originador)
+                query["Id"] = Vendedor.Id.ToString();
+
+            query["Id_Originador"] = Vendedor.Id_Originador.ToString();
+            query["Fecha_Registro"] = Vendedor.Fecha_Registro.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            Loading_Reporte = true;
+            if (!Vendedor_Originador)
+            {
+                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte?{uri}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Reporte = false;
+                }
+                else
+                {
+                    Vendedores_Tabla = response.Response;
+                    Loading_Reporte = false;
+                }
+            }
+            else
+            {
+                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte/originador?{uri}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Loading_Reporte = false;
+                }
+                else
+                {
+                    Vendedores_Tabla = response.Response;
+                    Loading_Reporte = false;
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Reporte = false;
+        }
+    }
+
+    private async Task Obtener_Fechas()
+    {
+        try
+        {
+
+            var response = await http.Get<List<int>>($"api/vendedor/anos/reporte");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Años = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Vendedores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Obtener_Originadores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Originador>>($"api/originador/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            var response = await http.Post<List<Vendedor>, Reporte_Completo_Vendedor_Desempeño>($"api/excel/reporte/ventas/desempeno", Vendedores_Tabla);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws = excel.Workbook.Worksheets.Add("Litros");
+                ws.Columns.Width = 50;
+
+                var header = ws.Cells["A1:M1"];
+
+                // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+                ws.Cells[$"B1:M{response.Response.Litros.Count + 1}"].Style.Numberformat.Format = "#,##0.00";
+
+                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response.Litros, true);
+                tablebody.Style.Font.Size = 12;
+                tablebody.Style.Font.Bold = true;
+                header.Style.Font.Size = 14;
+
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header.Style.Font.Bold = true;
+
+                var ws_v = excel.Workbook.Worksheets.Add("Ventas");
+                ws_v.Columns.Width = 50;
+
+                var header_v = ws_v.Cells["A1:M1"];
+
+                ws_v.Cells[$"B1:M{response.Response.Venta.Count + 1}"].Style.Numberformat.Format = "$#,####0.0000";
+                // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
+
+                var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
+                tablebody_v.Style.Font.Size = 12;
+                tablebody_v.Style.Font.Bold = true;
+                header_v.Style.Font.Size = 14;
+
+                header_v.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                header_v.Style.Font.Bold = true;
+
+                if (!Vendedor_Originador)
+                    await js.GuardarComo($"Reporte_Ventas_Vendedores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+                else
+                    await js.GuardarComo($"Reporte_Ventas_Originadores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}

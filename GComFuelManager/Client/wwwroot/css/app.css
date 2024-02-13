@@ -10,6 +10,7 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
+    text-decoration:none;
 }
 
 .btn-primary {
@@ -19,7 +20,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -127,6 +128,7 @@ a, .btn-link {
 
 .gcom-bg-amarillo {
     background-color: #EBBF1A;
+    color:black;
 }
 
 .gcom-bg-amarillo-dark {
@@ -143,6 +145,7 @@ a, .btn-link {
 
 .gcom-bg-rojo {
     background-color: #BA1C15;
+    color:white;
 }
 
 .gcom-bg-rojo-dark {
@@ -153,23 +156,27 @@ a, .btn-link {
     background-color: #F0F0F0;
 }
 
-.diesel{
+.diesel {
     background-color: #AEAAA9;
 }
 
-.regular{
+.regular {
     background-color: #528234;
 }
 
-.regular-vdm{
+.regular-vdm {
     background-color: #8FD154;
 }
 
-.premium{
+.premium {
     background-color: #AC0608;
 }
+
 * {
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
 
+.ancho-tabla {
+    width: calc(100vw - 100px);
+}

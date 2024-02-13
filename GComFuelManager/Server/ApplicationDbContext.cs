@@ -422,6 +422,58 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.Destino_Red);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Vendedor);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Originador)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Originador);
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.Id_Vendedor)
+                .HasPrincipalKey(x => x.Id);
+
+            modelBuilder.Entity<Originador>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Originador)
+                .HasForeignKey(x => x.Id_Originador)
+                .HasPrincipalKey(x => x.Id);
+
+            modelBuilder.Entity<Vendedor_Originador>().HasKey(vo => new { vo.VendedorId, vo.OriginadorId });
+
+            //modelBuilder.Entity<Vendedor_Originador>()
+            //    .HasOne<Vendedor>()
+            //    .WithMany(x => x.Vendedor_Originador)
+            //    .HasForeignKey(x => x.VendedorId);
+
+            //modelBuilder.Entity<Vendedor_Originador>()
+            //    .HasOne<Originador>()
+            //    .WithMany(x => x.Vendedor_Originador)
+            //    .HasForeignKey(x => x.OriginadorId);
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Originadores)
+                .WithMany(x => x.Vendedores)
+                .UsingEntity<Vendedor_Originador>(
+                    l => l.HasOne(x => x.Originador).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict),
+                    r => r.HasOne(x => x.Vendedor).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            //modelBuilder.Entity<Originador>()
+            //    .HasMany(x => x.Vendedor_Originador)
+            //    .WithOne(x => x.Originador)
+            //    .HasForeignKey(x => x.Id_Originador);
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Metas_Vendedor)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.VendedorId);
         }
 
 
@@ -471,5 +523,10 @@ namespace GComFuelManager.Server
         public DbSet<Consecutivo> Consecutivo { get; set; }
         public DbSet<Pedimento> Pedimentos { get; set; }
         public DbSet<Redireccionamiento> Redireccionamientos { get; set; }
+        public DbSet<Vendedor> Vendedores { get; set; }
+        public DbSet<Originador> Originadores { get; set; }
+        public DbSet<Vendedor_Originador> Vendedor_Originador { get; set; }
+        public DbSet<Metas_Vendedor> Metas_Vendedor { get; set; }
+
     }
 }
