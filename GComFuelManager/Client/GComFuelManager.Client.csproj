@@ -49,6 +49,7 @@
     <None Remove="Pages\Actualizaciones\" />
     <None Remove="Pages\Formularios\" />
     <None Remove="Repositorios\" />
+    <None Remove="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\Formularios\ETA\" />
   </ItemGroup>
@@ -73,5 +74,8 @@
   </ItemGroup>
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />
   </ItemGroup>
 </Project>

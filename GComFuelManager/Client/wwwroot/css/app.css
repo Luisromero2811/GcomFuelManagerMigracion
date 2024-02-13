@@ -10,6 +10,7 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
+    text-decoration:none;
 }
 
 .btn-primary {
@@ -127,6 +128,7 @@ a, .btn-link {
 
 .gcom-bg-amarillo {
     background-color: #EBBF1A;
+    color:black;
 }
 
 .gcom-bg-amarillo-dark {
@@ -143,6 +145,7 @@ a, .btn-link {
 
 .gcom-bg-rojo {
     background-color: #BA1C15;
+    color:white;
 }
 
 .gcom-bg-rojo-dark {
