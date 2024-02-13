@@ -1,0 +1,212 @@
+﻿@page "/tarifario"
+@inject IJSRuntime js
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+@inject TooltipService tooltip
+@inject NotificationService ns
+@inject DialogService ds
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Tarifas")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Tarifas">
+    <Authorized>
+        <h3>Tarifario</h3>
+        <!--Contenedor donde estará la importación del archivo en excel y el formulario de las tarifas-->
+        <div class="d-flex justify-content-center col-12 shadow-sm mt-3">
+            <div class="col-12 card">
+                <div class="col-12 row card-body">
+
+                    <div class="col-12 row mb-3">
+                        <div class="col-6">
+                            <div class="form-label">
+                                <label class="form-label">Importar:</label>
+                            </div>
+                            @if (radzenUpload.HasValue)
+                            {
+                                <p>Progreso: @Progress %</p>
+                            }
+                            <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/tarifas/upload" Complete="@CompleteUpload"
+                                          Accept=".xlsx, .xls" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
+                                <RadzenUploadHeader Name="Authorization" Value="@Token" />
+
+                            </RadzenUpload>
+                        </div>
+                        <div class="col-4 d-flex">
+                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile">
+                                <i class="fa-solid fa-upload"></i>
+                                Subir
+                            </button>
+                        </div>
+                        <!--Definimos la vista previa de las tarifas-->
+                        <div class="col-12 mt-3">
+                            <RadzenPanel AllowCollapse="true" Collapsed="true">
+                                <HeaderTemplate>
+                                    Vista previa de tarifas
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <!--Definimos la tabla de muestreo de datos de las tarifas para la vista previa-->
+                                </ChildContent>
+                            </RadzenPanel>
+                            <div class="col-12 d-flex justify-content-center mt-3">
+                                <div class="col-4">
+                                    <button class="btn gcom-bg-amarillo col-12" disabled="@loadingSend" @onclick="@SendTarifas">
+                                        <i class="fa fa-solid fa-floppy-disk"></i>
+                                        Guardar
+                                        @if (loadingSend)
+                                        {
+                                            <SpinnerLoading />
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr />
+                    <!--Definimos el formulario de gestion de las tarifas--->
+                    <div class="col-12">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Tabla de muestreo de datos y ediciones-->
+    </Authorized>
+</AuthorizeView>
+
+
+
+@code {
+    RadzenUpload radzenUpload { get; set; } = new RadzenUpload();
+
+    //Variables de uso
+    private int Progress = 0;
+
+    private string Token { get; set; } = string.Empty;
+
+    bool loadingSend = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Token = "Bearer " + await js.GetItemLocalStorage("TOKENKEY");
+    }
+
+    //Accion para revisar el progreso de carga del archivo
+    private void OnProgress(UploadProgressArgs e)
+    {
+        try
+        {
+            Progress = e.Progress;
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    //Acción para gestion de archivo, seleccionarlo, procesarlo o mostrar información, en este caso lo vamos a cargar
+    private void OnChangeFile(UploadChangeEventArgs e)
+    {
+        try
+        {
+            foreach (var item in e.Files)
+            {
+                Console.WriteLine(JsonConvert.SerializeObject(item));
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private void OnChangeFileUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            foreach (var item in e.GetMultipleFiles(1))
+            {
+
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    //Acción para cargar el archivo de excell
+    private async Task UploadFile()
+    {
+        try
+        {
+            if (radzenUpload.HasValue)
+            {
+                await radzenUpload.Upload();
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "Seleccione un archivo con formato Excel para poder subirlo", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    //Acción para que avise si el archivo fue cargado con éxito al importar no al guardar
+    private async Task CompleteUpload(UploadCompleteEventArgs args)
+    {
+        try
+        {
+            await Swal.FireAsync("Exito", "Se ha completado la acción.", SweetAlertIcon.Info);
+            //Aquí deserealizamos el objeto
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    //Acción para obtener los errores al momento de cargar el archivo
+    private async Task HandlerErrorUpload(Radzen.UploadErrorEventArgs ex)
+    {
+        try
+        {
+            await Swal.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
+            Progress = 0;
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    //Acción para guardar las tarifas cuando el usuario haya importado el archivo de manera correcta
+    private async Task SendTarifas()
+    {
+        try
+        {
+            //Condición por si la lista del excel viene vacia, retornar una alerta que el listado no puede ser vacio
+
+            //Condición por si el conteo esta en ceros, retornar una alerta que la lista no debe de estar vacia
+
+            //Alerta emergente indicando que las tarifas se estan subiendo
+            ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Subiendo tarifas", Detail = "$Las tarifas se estan subiendo, esto podria tardar unos minutos. Permanezca en esta pantalla hasta terminar el proceso", Duration = 10000 });
+            loadingSend = true;
+            //Comenzamos a hacer la consulta a la API
+
+            //Condicion por si el response manda error mandar alerta sino ejecutar el guardado de tarifas
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+}
+
