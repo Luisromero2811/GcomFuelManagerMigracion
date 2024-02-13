@@ -1,6 +1,5 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
-using GComFuelManager.Server.Migrations;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,11 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using OfficeOpenXml;
-using System.Diagnostics;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers.Precios
 {
@@ -46,12 +41,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                 //file.OpenReadStream();
                 file.CopyTo(stream);
 
-                List<PreciosDTO> precios = new List<PreciosDTO>();
+                List<PreciosDTO> precios = new();
 
                 //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
-                ExcelPackage package = new ExcelPackage();
+                ExcelPackage package = new();
 
                 package.Load(stream);
                 //package = new ExcelPackage(stream);
@@ -62,7 +57,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                         {
-                            PreciosDTO precio = new PreciosDTO();
+                            PreciosDTO precio = new();
 
                             //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
                             var row = worksheet.Cells[r, 1, r, 10].ToList();
@@ -117,12 +112,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     using (var packages = new OfficeOpenXml.ExcelPackage(stream))
                     {
-                        List<PreciosDTO> precios = new List<PreciosDTO>();
+                        List<PreciosDTO> precios = new();
 
                         //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                         ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
-                        ExcelPackage package = new ExcelPackage();
+                        ExcelPackage package = new();
                         var worksheet = package.Workbook.Worksheets.FirstOrDefault();
                         if (worksheet != null)
                         {
@@ -130,7 +125,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             {
                                 for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
                                 {
-                                    PreciosDTO precio = new PreciosDTO();
+                                    PreciosDTO precio = new();
 
                                     //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
                                     var row = worksheet.Cells[r, 1, r, 10].ToList();
@@ -205,6 +200,53 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Zona)
                     .Include(x => x.Moneda)
                     .Include(x => x.Usuario)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.cliente))
+                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
+
+                if (!string.IsNullOrEmpty(parametros.producto))
+                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.destino))
+                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.zona))
+                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                precios = precios.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtrohist")]
+        public async Task<ActionResult> GetPreciosHistoricosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
+        {
+            try
+            {
+                var precios = context.PreciosHistorico
+                 .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Zona)
+                    .Include(x => x.Moneda)
+                    .Include(x => x.Usuario)
+                    .OrderBy(x => x.FchDia)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(parametros.cliente))
@@ -342,8 +384,8 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<Precio> precios = new List<Precio>();
-                List<PrecioProgramado> preciosPro = new List<PrecioProgramado>();
+                List<Precio> precios = new();
+                List<PrecioProgramado> preciosPro = new();
                 var LimiteDate = DateTime.Today.AddHours(16);
 
                 if (!string.IsNullOrEmpty(folio))
@@ -358,7 +400,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         if (item is not null)
                         {
                             var zona = context.ZonaCliente.FirstOrDefault(x => x.CteCod == item.CodCte);
-                            Precio precio = new Precio()
+                            Precio precio = new()
                             {
                                 Pre = item.Precio,
                                 codCte = item.CodCte,
@@ -455,7 +497,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (user_system is null)
                     return NotFound();
 
-                List<PrecioProgramado> prec = new List<PrecioProgramado>();
+                List<PrecioProgramado> prec = new();
                 foreach (var item in precios)
                 {
                     //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
@@ -573,6 +615,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                             p.FchActualizacion = DateTime.Now;
                             p.ID_Moneda = precio.ID_Moneda;
                             p.Equibalencia = precio.Equibalencia;
+                            p.FchDia = precio.FchDia;
                             p.ID_Usuario = precio.ID_Usuario;
                             context.Update(p);
                         }
@@ -607,13 +650,13 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 await context.SaveChangesAsync(id, 8);
 
-                List<Destino> destinos = new List<Destino>();
-                List<PreciosDTO> destinosSinPre = new List<PreciosDTO>();
+                List<Destino> destinos = new();
+                List<PreciosDTO> destinosSinPre = new();
                 destinos = context.Destino.ToList();
                 foreach (var item in destinos)
                     if (!context.PrecioProgramado.Any(x => x.codDes == item.Cod))
                     {
-                        PreciosDTO dTO = new PreciosDTO()
+                        PreciosDTO dTO = new()
                         {
                             Destino = item.Den,
                             Cliente = item.Cliente?.Den,
@@ -633,21 +676,32 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
         [HttpPost("historial")]
-        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] FechasF fechas)
+        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] ParametrosBusquedaPrecios fechas)
         {
             try
             {
-                List<PrecioHistorico> precios = new List<PrecioHistorico>();
-
-                precios = await context.PreciosHistorico
-                    .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
-                    .Include(x => x.Destino)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Zona)
-                    .Include(x => x.Usuario)
-                    .OrderBy(x => x.FchDia)
-                    .ToListAsync();
+                var precios = await context.PreciosHistorico
+                .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
+                   .Include(x => x.Destino)
+                   .Include(x => x.Cliente)
+                   .Include(x => x.Producto)
+                   .Include(x => x.Zona)
+                   .Include(x => x.Moneda)
+                   .Include(x => x.Usuario)
+                   .OrderBy(x => x.FchDia)
+                   .Select(item => new HistorialPrecioDTO()
+                   {
+                       Fecha = item.FchDia.ToString("dd/MM/yyyy"),
+                       Pre = item.pre,
+                       Producto = item.Producto!.Den,
+                       Destino = item.Destino!.Den,
+                       Zona = item.Zona!.Nombre,
+                       Moneda = item.Moneda!.Nombre,
+                       Cliente = item.Cliente!.Den,
+                       Usuario = item.Usuario!.Den,
+                       Fecha_De_Subida = item.FchActualizacion.ToString()
+                   })
+                   .ToListAsync();
                 return Ok(precios);
             }
             catch (Exception e)
@@ -661,10 +715,10 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<Precio> preciosDia = new List<Precio>();
-                List<PrecioHistorico> precioHistoricos = new List<PrecioHistorico>();
+                List<Precio> preciosDia = new();
+                List<PrecioHistorico> precioHistoricos = new();
 
-                List<PrecioProgramado> precios = new List<PrecioProgramado>();
+                List<PrecioProgramado> precios = new();
                 precios = context.PrecioProgramado.Where(x => x.FchDia == DateTime.Today).ToList();
 
                 if (precios.Count > 0)
@@ -807,12 +861,12 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        //[HttpGet("{BOL}")]
+        [HttpGet("bol/{BOL}")]
         public ActionResult GetPrecioByBol([FromRoute] int BOL)
         {
             try
             {
-                PrecioBol precios = new PrecioBol();
+                PrecioBolDTO precios = new();
 
                 var ordenes = context.Orden.Where(x => x.BatchId == BOL)
                     .Include(x => x.Producto)
@@ -820,11 +874,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .FirstOrDefault();
 
                 if (ordenes is null)
-                    return Ok(new PrecioBol());
+                    return Ok(new PrecioBolDTO());
 
-                PrecioBol precio = new PrecioBol();
+                PrecioBolDTO precio = new();
 
-                OrdenEmbarque? orden = new OrdenEmbarque();
+                OrdenEmbarque? orden = new();
                 orden = context.OrdenEmbarque.Where(x => x.FolioSyn == ordenes.Ref).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.OrdenCierre).FirstOrDefault();
 
                 precio.Fecha_De_Carga = ordenes.Fchcar;
@@ -940,7 +994,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                List<PrecioBol> precios = new List<PrecioBol>();
+                List<PrecioBol> precios = new();
 
                 var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
                     .Include(x => x.Producto)
@@ -953,9 +1007,9 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 foreach (var item in ordenes)
                 {
-                    PrecioBol precio = new PrecioBol();
+                    PrecioBol precio = new();
 
-                    Orden? orden = new Orden();
+                    Orden? orden = new();
                     orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
 
                     precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
@@ -1035,7 +1089,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     if (item != null && precioPro is not null && context.PrecioProgramado.Any() || orden is not null && precioPro is not null && context.PrecioProgramado.Any())
                     {
-                        if (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
+                        if (precioPro.FchDia == DateTime.Today)
                         {
                             precio.Precio = precioPro.Pre;
                             precio.Fecha_De_Precio = precioPro.FchDia;
@@ -1046,9 +1100,9 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
                     }
 
-                    if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod))
+                    if (item != null && context.OrdenPedido.Any(x => x.CodPed == item.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))
                     {
-                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio)).FirstOrDefault();
+                        var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == item.Cod && !string.IsNullOrEmpty(x.Folio) && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)).FirstOrDefault();
 
                         if (ordenepedido is not null)
                         {
@@ -1157,7 +1211,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 if (orden.Orden is not null)
                     context.PreciosHistorico.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd
-                    && x.FchDia <= DateTime.Today)
+                    && x.FchDia <= orden.Orden.Fchcar)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
@@ -1167,7 +1221,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 if (orden != null && precioVig is not null && precioVig.FchDia == DateTime.Today)
                     precio.Precio = precioVig.Pre;
 
-                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0)) && context.PrecioProgramado.Any())
+                if (orden != null && precioPro is not null && (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(23, 0, 0)) && context.PrecioProgramado.Any())
                     precio.Precio = precioPro.Pre;
 
                 if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
@@ -1194,7 +1248,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 return precio;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new PrecioBolDTO();
             }

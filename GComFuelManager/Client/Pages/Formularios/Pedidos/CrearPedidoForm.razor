@@ -416,20 +416,13 @@
                             <td class="overflow-hidden">
                                 <div class="col-12">
                                     <div class="col-12">
-                                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                                        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                                        : item?.Volumen
-                                        )
+                                        @item?.OrdenEmbarque?.Obtener_Volumen_De_Orden_En_Formato()
                                     </div>
                                 </div>
                             </td>
                             <td class="overflow-hidden">@item?.OrdenEmbarque?.Pre</td>
                             <td class="overflow-hidden">@item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy")</td>
-                            <td class="overflow-hidden">@item?.OrdenEmbarque?.Estado?.den</td>
+                            <td class="overflow-hidden">@item?.Estado_Pedido</td>
                         </tr>
                     </Virtualize>
                 </tbody>

@@ -1855,8 +1855,18 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tonel)
                     .Include(x => x.Estado)
+                    .Include(x => x.Redireccionamiento)
+                    .ThenInclude(x=>x.Destino)
+                    .Include(x => x.Redireccionamiento)
+                    .ThenInclude(x => x.Cliente)
                     .IgnoreAutoIncludes()
                     .ToList();
+
+                ordenes.ForEach(x =>
+                {
+                    if (x.OrdenEmbarque is not null)
+                        x.OrdenEmbarque.Pre = Obtener_Precio_Del_Dia_De_Orden_Synthesis(x.Cod).Precio;
+                });
 
                 return Ok(ordenes);
             }
@@ -1878,9 +1888,13 @@ namespace GComFuelManager.Server.Controllers
                 var listConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Tonel != null && x.OrdenEmbarque.Codprd == item.CodPrd
                     && x.OrdenEmbarque.Codest == 22
                     && x.OrdenEmbarque.Folio != null
-                    && x.OrdenEmbarque.Bolguidid != null)
-                    .Include(x => x.OrdenEmbarque)
-                    .ThenInclude(x => x.Tonel).ToList();
+                    && x.OrdenEmbarque.Bolguidid != null
+                && x.OrdenEmbarque.Orden == null)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Tonel)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
+                .ThenInclude(x => x.Tonel).ToList();
 
                 var VolumenCongelado = listConsumido.Sum(item => item.OrdenEmbarque!.Compartment == 1 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom!.ToString())
                                 : item.OrdenEmbarque!.Compartment == 2 && item.OrdenEmbarque.Tonel != null ? double.Parse(item!.OrdenEmbarque!.Tonel!.Capcom2!.ToString())
@@ -1890,9 +1904,11 @@ namespace GComFuelManager.Server.Controllers
 
                 var countCongelado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Codprd == item.CodPrd
                 && x.OrdenEmbarque.Codest == 22
-                && x.OrdenEmbarque.Folio != null)
-                    .Include(x => x.OrdenEmbarque)
-                    .Count();
+                && x.OrdenEmbarque.Folio != null
+            && x.OrdenEmbarque.Orden == null)
+                .Include(x => x.OrdenEmbarque)
+                .ThenInclude(x => x.Orden)
+                .Count();
 
                 var VolumenConsumido = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Orden != null && x.OrdenEmbarque.Folio != null
                     && x.OrdenEmbarque.Orden.Codest != 14
@@ -1957,6 +1973,73 @@ namespace GComFuelManager.Server.Controllers
             }
 
             return volumen;
+        }
+
+
+        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden_Synthesis(long? Id)
+        {
+            try
+            {
+                var orden = context.Orden.Where(x => x.Cod == Id)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.OrdenCierre)
+                    .IgnoreAutoIncludes()
+                    .FirstOrDefault();
+
+                if (orden is null)
+                    return new PrecioBolDTO();
+
+                PrecioBolDTO precio = new();
+
+                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.FchDia <= orden.Fchcar)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                if (precioHis is not null)
+                    precio.Precio = precioHis.pre;
+
+                if (orden != null && precioVig is not null && precioVig.FchDia == DateTime.Today)
+                    precio.Precio = precioVig.Pre;
+
+                if (orden != null && precioPro is not null && precioPro.FchDia == DateTime.Today && context.PrecioProgramado.Any())
+                    precio.Precio = precioPro.Pre;
+
+                if (orden != null && orden.OrdenEmbarque is not null && context.OrdenPedido.Any(x => x.CodPed == orden.OrdenEmbarque.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))
+                {
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.OrdenEmbarque.Cod && !string.IsNullOrEmpty(x.Folio) && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)).FirstOrDefault();
+
+                    if (ordenepedido is not null)
+                    {
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                         && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                        if (cierre is not null)
+                            precio.Precio = cierre.Precio;
+                    }
+                }
+
+                if (orden is not null && orden.OrdenEmbarque is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                {
+                    precio.Precio = orden.OrdenEmbarque.Pre;
+
+                    if (orden.OrdenCierre is not null)
+                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
+                }
+
+                return precio;
+            }
+            catch (Exception e)
+            {
+                return new PrecioBolDTO();
+            }
         }
     }
 }

@@ -14,7 +14,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, Revision Precios ,Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Programador, Ejecutivo de Cuenta Operativo, Lectura de Cierre de Orden, Cierre Pedidos, Consulta Precios, Cliente Lectura")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Consulta Precio Orden, Administrador Sistema, Revision Precios ,Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Programador, Ejecutivo de Cuenta Operativo, Lectura de Cierre de Orden, Cierre Pedidos, Consulta Precios, Cliente Lectura")]
     public class CierreController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -686,7 +686,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 //var ordenes = context.OrdenCierre.Where(x => x.CodGru == fechas.codGru && x.CodCte == fechas.codCte && x.FchCierre >= fechas.FchInicio && x.FchCierre <= fechas.FchFin && x.Folio.StartsWith("OP"));
 
-                var ordenes = context.Orden.Where(x => x.Fchcar.Value.Date >= fechas.FchInicio.Date && x.Fchcar.Value.Date <= fechas.FchFin.Date)
+                var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar.Value.Date >= fechas.FchInicio.Date && x.Fchcar.Value.Date <= fechas.FchFin.Date)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .IgnoreAutoIncludes()
@@ -766,7 +766,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => x.codDes == item.Coddes && x.codPrd == item.Codprd
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
                         && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
@@ -796,7 +796,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     if (item != null && precioPro is not null && context.PrecioProgramado.Any())
                     {
-                        if (precioPro.FchDia == DateTime.Today || DateTime.Now.TimeOfDay >= new TimeSpan(16, 0, 0))
+                        if (precioPro.FchDia == DateTime.Today)
                         {
                             precio.Precio = precioPro.Pre;
                             precio.Fecha_De_Precio = precioPro.FchDia;

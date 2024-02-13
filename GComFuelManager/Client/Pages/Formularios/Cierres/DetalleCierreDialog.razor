@@ -73,7 +73,7 @@
                     </Template>
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Precio" Property="Precio" Filterable="false" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen" Width="200px" FormatString="{0:N2}" Filterable="false">
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="Volumen cargado" Width="200px" FormatString="{0:N2}" Filterable="false">
                     <Template Context="item">
                         <div class="col-12">
                             @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",

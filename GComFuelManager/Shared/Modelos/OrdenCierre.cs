@@ -64,7 +64,7 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("tipoPago"), DisplayName("Tipo de Pago")]
         public string? TipoPago { get; set; } = "Credito";
 
-        [JsonPropertyName("precio"), DisplayName("Precio")]
+        [JsonPropertyName("precio"), DisplayName("Precio"), DisplayFormat(DataFormatString = "{0:C}")]
         public double Precio { get; set; } = 0;
 
         //[JsonPropertyName("temperatura"), DisplayName("Temperatura")]
@@ -87,7 +87,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonPropertyName("volumen"), DisplayName("Volumen"), EpplusIgnore]
         public int? Volumen { get; set; }
-        [DisplayName("Volumen")]
+        [DisplayName("Volumen"), NotMapped]
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
 
         [JsonPropertyName("observaciones"), DisplayName("Observaciones")]
@@ -193,6 +193,39 @@ namespace GComFuelManager.Shared.Modelos
         {
             return (OrdenCierre)this.MemberwiseClone();
         }
+        public OrdenCierre HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                CodCte = CodCte,
+                CodCon = CodCon,
+                CodDes = CodDes,
+                CodGru = CodGru,
+                CodPed = CodPed,
+                CodPrd = CodPrd,
+                CodTad = CodTad,
+                fchPrecio = fchPrecio,
+                FchCar = FchCar,
+                FchCierre = FchCierre,
+                FchLlegada = FchLlegada,
+                FchVencimiento = FchVencimiento,
+                Volumen = Volumen,
+                Precio = Precio,
+                Folio = Folio,
+                Turno = Turno,
+                ModeloVenta = ModeloVenta,
+                TipoPago = TipoPago,
+                TipoVenta = TipoVenta,
+                Estatus = Estatus,
+                Activa = Activa,
+                Confirmada = Confirmada,
+                Observaciones = Observaciones,
+                ID_Moneda = ID_Moneda,
+                Equibalencia = Equibalencia,
+                Vendedor = Vendedor
+            };
+        }
         [NotMapped, EpplusIgnore] public int? Cantidad_Sugerida { get; set; } = 0;
         public int? GetCantidadSugerida()
         {
@@ -259,8 +292,10 @@ namespace GComFuelManager.Shared.Modelos
                 return 0;
             }
         }
-
+        //public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
         [NotMapped, EpplusIgnore] public double? Volumen_Programado { get; set; } = 0;
+        [NotMapped, EpplusIgnore]
+        public string VolumenProgramadoFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Programado); } }
         public double? GetVolumenProgramado()
         {
             try
@@ -306,6 +341,8 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Cosumido { get; set; } = 0;
+        [NotMapped, EpplusIgnore]
+        public string ConsumidoFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Cosumido); } }
         public double? GetVolumenConsumido()
         {
             try
@@ -347,6 +384,7 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Espera_Carga { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public string VolumenEsperaFormateada { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Espera_Carga); } }
         public double? GetVolumenEsperaCarga()
         {
             try
@@ -390,6 +428,7 @@ namespace GComFuelManager.Shared.Modelos
         }
 
         [NotMapped, EpplusIgnore] public double? Volumen_Disponible { get; set; } = 0;
+        [NotMapped, EpplusIgnore] public string DisponibleFormateado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Disponible); } }
         public double? GetVolumenDisponible()
         {
             try

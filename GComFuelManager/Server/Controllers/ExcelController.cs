@@ -45,8 +45,12 @@ namespace GComFuelManager.Server.Controllers
                             Producto = item.Producto,
                             FchCierre = item.FchCierre,
                             FchCierre_Vencimiento = item.FchVencimiento,
+                            Volumen_Cosumido = item.Volumen_Cosumido,
                             Volumen = item.Volumen,
                             Volumen_Disponible = item.Volumen_Disponible,
+                            Volumen_Programado = item.Volumen_Programado,
+                            Volumen_Restante = item.Volumen - item.Volumen_Cosumido,
+                            Volumen_Espera_Carga = item.Volumen_Espera_Carga,
                             Folio = item.Folio,
                             Observaciones = item.Observaciones,
                             Precio = item.Precio,
@@ -138,6 +142,40 @@ namespace GComFuelManager.Server.Controllers
                 }
 
                 return Ok(Datos_Excel);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [HttpPost("reporte/redireccion")]
+        public ActionResult Obtener_Reporte_Redireccion([FromBody] List<Redireccionamiento> redirecciones)
+        {
+            try
+            {
+                if (redirecciones is null)
+                    return BadRequest();
+
+                List<Redireccion_Excel> datos = new();
+
+                foreach (var item in redirecciones)
+                {
+                    datos.Add(new()
+                    {
+                        BOL = item.Bol_Orden,
+                        Cliente_Original = item.Nombre_Cliente_Origibal,
+                        Cliente_Red = item.Nombre_Cliente,
+                        Destino_Original = item.Nombre_Destino_Original,
+                        Destino_Red = item.Nombre_Destino,
+                        Fecha_Redireccion = item.Fecha_Red.ToShortDateString(),
+                        Motivo = item.Motivo_Red,
+                        Producto = item?.Orden?.Producto?.Nombre_Producto ?? string.Empty,
+                        Precio_redireccion = item?.Precio_Red,
+                        Precio = item?.Orden?.Obtener_Precio_Original
+                    });
+                }
+
+                return Ok(datos);
             }
             catch (Exception e)
             {

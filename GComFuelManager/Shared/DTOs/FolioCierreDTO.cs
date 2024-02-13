@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Net.NetworkInformation;
+using System.ComponentModel.DataAnnotations;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -36,7 +37,7 @@ namespace GComFuelManager.Shared.DTOs
         public OrdenCierre? ordenCierre { get; set; } = null!;
 
         [DisplayName("Fecha")]
-        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:d}", FchCierre); } }
+        public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre); } }
         [DisplayName("Folio de Cierre / OC")]
         public string? Folio { get; set; } = null!;
         [DisplayName("Grupo")]
@@ -47,18 +48,36 @@ namespace GComFuelManager.Shared.DTOs
         public string NDestino { get { return destino != null ? destino.Den! : string.Empty; } }
         [DisplayName("Producto")]
         public string NProducto { get { return Producto != null ? Producto.Den! : string.Empty; } }
-        //[EpplusIgnore]
+        [DisplayName("Volumen Total")]
         public int? Volumen { get; set; }
-        //[DisplayName("Volumen Total"), NotMapped]
-        //public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
-        //Precio
-        [NotMapped]
-        public double Precio { get; set; } = 0;
-        [DisplayName("Fecha de vencimiento")]
-        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:d}", FchCierre_Vencimiento); } }
         [EpplusIgnore]
+        public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen); } }
+        //Precio
+        [DisplayName("Precio")]
+        public double Precio { get; set; } = 0;
+
+        [DisplayName("Fecha de vencimiento")]
+        public string FchCie_Ven { get { return string.Format(new System.Globalization.CultureInfo("es-MX"), "{0:dd/MM/yyyy}", FchCierre_Vencimiento); } }
+        //public string FchCie_Ven => FchCierre_Vencimiento.ToString("dd/MM/yyyy");
+        [DisplayName("Volumen Cargado")]
+        public double? Volumen_Cosumido { get; set; } = 0;
+        [EpplusIgnore]
+        public string VolumenCargado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Cosumido); } }
+        [DisplayName("Volumen Programado")]
+        public double? Volumen_Programado { get; set; } = 0;
+        [EpplusIgnore]
+        public string VolumenProgramado { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Programado); } }
+        [DisplayName("Volumen en espera de carga")]
+        public double? Volumen_Espera_Carga { get; set; } = 0;
+        [EpplusIgnore]
+        public string VolumenEsperaCarga { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Espera_Carga); } }
+        [DisplayName("Volumen restante")]
+        public double? Volumen_Restante { get; set; } = 0;
+        [EpplusIgnore]
+        public string VolumenRestante { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Restante); } }
+        [DisplayName("Volumen Disponible")]
         public double? Volumen_Disponible { get; set; }
-        [DisplayName("Volumen Disponible"), NotMapped]
+        [EpplusIgnore]
         public string VolumenDisponible { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Volumen_Disponible); } }
         //Observaciones
         public string? Observaciones { get; set; } = string.Empty;
