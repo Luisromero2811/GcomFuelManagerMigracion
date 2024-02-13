@@ -233,6 +233,53 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
+        [HttpGet("filtrohist")]
+        public async Task<ActionResult> GetPreciosHistoricosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
+        {
+            try
+            {
+                var precios = context.PreciosHistorico
+                 .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Zona)
+                    .Include(x => x.Moneda)
+                    .Include(x => x.Usuario)
+                    .OrderBy(x => x.FchDia)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.cliente))
+                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
+
+                if (!string.IsNullOrEmpty(parametros.producto))
+                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.destino))
+                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                if (!string.IsNullOrEmpty(parametros.zona))
+                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                precios = precios.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(precios);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("programado/filtro")]
         public async Task<ActionResult> GetPreciosProgramadosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
         {
@@ -629,21 +676,32 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
         [HttpPost("historial")]
-        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] FechasF fechas)
+        public async Task<ActionResult> GetDateHistorialPrecio([FromBody] ParametrosBusquedaPrecios fechas)
         {
             try
             {
-                List<PrecioHistorico> precios = new();
-
-                precios = await context.PreciosHistorico
-                    .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
-                    .Include(x => x.Destino)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Zona)
-                    .Include(x => x.Usuario)
-                    .OrderBy(x => x.FchDia)
-                    .ToListAsync();
+                var precios = await context.PreciosHistorico
+                .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
+                   .Include(x => x.Destino)
+                   .Include(x => x.Cliente)
+                   .Include(x => x.Producto)
+                   .Include(x => x.Zona)
+                   .Include(x => x.Moneda)
+                   .Include(x => x.Usuario)
+                   .OrderBy(x => x.FchDia)
+                   .Select(item => new HistorialPrecioDTO()
+                   {
+                       Fecha = item.FchDia.ToString("dd/MM/yyyy"),
+                       Pre = item.pre,
+                       Producto = item.Producto!.Den,
+                       Destino = item.Destino!.Den,
+                       Zona = item.Zona!.Nombre,
+                       Moneda = item.Moneda!.Nombre,
+                       Cliente = item.Cliente!.Den,
+                       Usuario = item.Usuario!.Den,
+                       Fecha_De_Subida = item.FchActualizacion.ToString()
+                   })
+                   .ToListAsync();
                 return Ok(precios);
             }
             catch (Exception e)
