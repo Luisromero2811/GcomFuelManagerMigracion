@@ -13,17 +13,17 @@
         <div class="page">
             <Menu_Lateral_Emergente />
 
-            @if (!isClosed)
+            @* @if (!isClosed)
             {
                 <div class="sidebar">
-                    @*<MenuLateral />*@
+                    <MenuLateral />
                     <NavMenu></NavMenu>
                 </div>
-            }
+            } *@
 
             <main>
                 <div>
-                    <MenuNav close=@isClosed closeMenu="CloseMenu" />
+                    <MenuNav close=@isClosed />
                 </div>
 
                 <article class="content px-2">
@@ -37,20 +37,20 @@
 @code {
     public bool isClosed = false;
 
-    public async void CloseMenu()
-    {
-        isClosed = !isClosed;
-        await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
-    }
+    // public async void CloseMenu()
+    // {
+    //     isClosed = !isClosed;
+    //     await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
+    // }
 
 
     protected async override Task OnInitializedAsync()
     {
 
 
-        var cm = await js.GetItemLocalStorage("CloseMenu");
-        if (cm is not null)
-            isClosed = bool.Parse(cm);
+        // var cm = await js.GetItemLocalStorage("CloseMenu");
+        // if (cm is not null)
+        //     isClosed = bool.Parse(cm);
 
         renovadorToken.Iniciar();
     }
