@@ -1,0 +1,101 @@
+﻿@page "/tarifa/historial"
+@inject IJSRuntime js
+@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject NotificationService ns
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Tarifas")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Tarifas">
+    <Authorized>
+        <h4><b>Historial de Tarifas</b></h4>
+        <div class="col-12 mt-1">
+            <div class="d-flex justify-content-center">
+                <div class="col-12 mt-1">
+                    <div class="col-12 card shadow-sm">
+                        <div class="col-12 card-body">
+                            <label><b>Mostrar Tarifas:</b></label>
+                            <div class="col-12 row">
+                                <div class="col-4 mb-1">
+                                    <label>Del:</label>
+                                    <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@tarifas.FchIni">
+                                    </RadzenDatePicker>
+                                </div>
+                                <div class="col-4 mb-1">
+                                    <label>A:</label>
+                                    <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@tarifas.FchFin">
+                                    </RadzenDatePicker>
+                                </div>
+                                <div class="col-4 d-flex mt-2">
+                                    <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@GetTarifasFiltro">
+                                        <i class="fa fa-solid fa-eye"></i><b>Mostrar Tarifas</b>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mt-4 overflow-scroll ancho" style="height:449px; resize:both;">
+            <table class="table table-hover table-bordered table-sm" style="max-height: 100px; overflow: auto; width: 100%">
+                <thead>
+                    <tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+<style type="text/css">
+    .ancho{
+        width: @TotalWidth;
+    }
+</style>
+
+@code {
+    //Instancias
+    TarifasDTO tarifas = new TarifasDTO();
+    private IList<TarifasDTO> tarifasDTOs { get; set; } = new List<TarifasDTO>();
+
+    //CSS
+    string TotalWidth = string.Empty;
+    bool loadingFiltro = false;
+
+    private async Task GetTarifasFiltro()
+    {
+        try
+        {
+            loadingFiltro = true;
+            StateHasChanged();
+
+            var responseHttp = await repositorio.Post<TarifasDTO, List<TarifasDTO>>($"api/tarifas/historial", tarifas);
+
+            if (responseHttp.Error)
+            {
+                loadingFiltro = false;
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingFiltro = false;
+                tarifasDTOs = responseHttp.Response;
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
+
+}
+

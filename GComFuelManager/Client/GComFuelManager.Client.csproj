@@ -52,6 +52,7 @@
     <None Remove="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\Formularios\ETA\" />
+    <None Remove="Pages\Tarifario\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -59,6 +60,7 @@
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\Formularios\ETA\" />
+    <Folder Include="Pages\Tarifario\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
