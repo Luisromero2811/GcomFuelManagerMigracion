@@ -1,0 +1,128 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+
+<div class="card">
+    <div class="card-header">
+        <b>Clientes</b>
+    </div>
+    <div class="card-body">
+        <div>
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>Cliente</td>
+                        <td>Originador</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <input type="search" maxlength="250" class="form-control form-control-sm" @oninput="Filtrar_Cliente" />
+                        </td>
+                        <td></td>
+                    </tr>
+                    @if (Loading_Buscar)
+                    {
+                        <tr>
+                            <td colspan="3">
+                                <SpinnerLoading />
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <Virtualize Items="Clientes" Context="cliente">
+                            <tr>
+                                <td>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(cliente))">
+                                        <i class="fa fa-solid fa-xmark"></i>
+                                    </button>
+                                </td>
+                                <td>@cliente.Den</td>
+                                <td>@cliente.Obtener_Nombre_Originador</td>
+                            </tr>
+                        </Virtualize>
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter] public int vendedor_id { get; set; } = 0;
+
+    Dictionary<string, string> query = new();
+    List<Cliente> Clientes { get; set; } = new();
+
+    bool Loading_Buscar = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Obtener_Clientes();
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs args)
+    {
+        query["Den"] = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Clientes();
+    }
+
+    private async Task Obtener_Clientes()
+    {
+        try
+        {
+            Loading_Buscar = true;
+            query["Id_Vendedor"] = vendedor_id.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<Cliente>>($"api/vendedor/clientes?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Buscar = false;
+            }
+            else
+            {
+                Clientes = response.Response;
+                Loading_Buscar = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Borrar_Relacion(Cliente cliente)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            query["Id_Vendedor"] = cliente.Id_Vendedor.ToString() ?? string.Empty;
+            query["Cod"] = cliente.Cod.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Post<Cliente>($"api/vendedor/borrar/relacion/cliente?{uri}", new());
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Clientes();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

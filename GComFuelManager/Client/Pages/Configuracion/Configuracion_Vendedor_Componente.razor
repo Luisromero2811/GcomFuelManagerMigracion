@@ -3,6 +3,7 @@
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject NotificationService ms
+@inject DialogService ds
 
 <div class="card">
     <div class="card-header">
@@ -17,17 +18,6 @@
                     <InputText @bind-Value="@Vendedor.Nombre" class="form-control form-control-sm" />
                     <ValidationMessage For="@(()=> Vendedor.Nombre)" />
                 </div>
-                @* <div class="col-4">
-                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Vendedores"
-                Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
-                <RenderValue Context="item">
-                @item.Nombre
-                </RenderValue>
-                <Render Context="item">
-                @item.Nombre
-                </Render>
-                </DropDownFilter>
-                </div> *@
                 <div class="col-2">
                     <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
                         <b>Guardar vendedor</b>
@@ -42,6 +32,7 @@
         <thead>
             <tr>
                 <th>Vendedor</th>
+                <th>Ver clientes</th>
                 <th>Originadores</th>
                 <th>Activo</th>
             </tr>
@@ -51,6 +42,11 @@
                 <tr>
                     <td>@item.Nombre</td>
                     <td>
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Vista(item))">
+                            Ver clientes
+                        </button>
+                    </td>
+                    <td style="max-width:70vw;">
                         <div class="col-12 row">
                             <div class="col-1 d-flex justify-content-center">
                                 @if (item.Activo)
@@ -102,14 +98,6 @@
 
                                         }
                                     </div>
-                                    @* <div class="col-4 row">
-                                <div class="col-2 p-1">
-                                <button class="btn btn-sm btn-danger" @onclick="@(()=>Eliminar_Relacion_Vendedor_Originador(new () {VendedorId = item.Id, OriginadorId = originador_item.Id}))">
-                                <i class="fa fa-solid fa-xmark"></i>
-                                </button>
-                                </div>
-                                <div class="col-10">@originador_item.Nombre</div>
-                                </div> *@
                                 }
                             </div>
                         </div>
@@ -156,35 +144,53 @@
 
     private async Task Obtener_Vendedores()
     {
-        var response = await http.Get<List<Vendedor>>($"api/vendedor");
-        if (response.Error)
+        try
         {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            var response = await http.Get<List<Vendedor>>($"api/vendedor");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+                Console.WriteLine(JsonConvert.SerializeObject(Vendedores));
+            }
         }
-        else
+        catch (Exception e)
         {
-            Vendedores = response.Response;
-            Console.WriteLine(JsonConvert.SerializeObject(Vendedores));
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
         }
+
     }
 
     private async Task Obtener_Originadores(string value)
     {
-        Dictionary<string, string> query = new();
+        try
+        {
+            Dictionary<string, string> query = new();
 
-        query["Nombre"] = value;
-        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-        var response = await http.Get<List<Originador>>($"api/originador/filtrar?{uri}");
-        if (response.Error)
-        {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            query["Nombre"] = value;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<Originador>>($"api/originador/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
         }
-        else
+        catch (Exception e)
         {
-            Originadores = response.Response;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
         }
+
     }
 
     private async Task Crear_Relacion_Vendedor_Originador(Vendedor vendedor)
@@ -265,17 +271,42 @@
 
     private async Task Desactivar_Activar_Vendedor(Vendedor vendedor)
     {
-        vendedor.Activo = !vendedor.Activo;
+        try
+        {
+            vendedor.Activo = !vendedor.Activo;
 
-        var response = await http.Post<Vendedor>($"api/vendedor", vendedor);
-        if (response.Error)
-        {
-            var message = await response.ObtenerMensajeError();
-            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            var response = await http.Post<Vendedor>($"api/vendedor", vendedor);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Vendedores();
+            }
         }
-        else
+        catch (Exception e)
         {
-            await Obtener_Vendedores();
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+
+    private async Task Abrir_Vista(Vendedor vendedor)
+    {
+        try
+        {
+            await ds.OpenAsync<Vista_Ver_Clientes_Componente>("",
+                new() { { "vendedor_id", vendedor.Id } },
+                new() { Height = "600px", Width = "80%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true }
+            );
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
         }
     }
 }
