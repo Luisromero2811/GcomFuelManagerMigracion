@@ -450,11 +450,37 @@
                 }
             });
 
+        //ventas
+        Menus.Add(new Menu()
+            {
+                name = "Ventas",
+                icon = "file-circle-check",
+                roles = "Admin, Administrador Sistema",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Desempeño de ventas",
+                        icon = "list-check",
+                        roles = "Admin, Administrador Sistema",
+                        path = "reporte/ventas"
+                    },
+                    new()
+                    {
+                        name = "Establecimiento de ventas",
+                        icon = "list-check",
+                        roles = "Admin, Administrador Sistema",
+                        path = "establecer/meta"
+                    },
+                }
+            });
+
         //tarifario
         Menus.Add(new Menu()
             {
                 name = "Tarifario",
-                icon = "fa-file-invoice-dollar",
+                icon = "file-invoice-dollar",
                 roles = "Admin, Administrador Sistema, Tarifas",
                 isMenu = true,
                 Menus = new()
@@ -462,14 +488,14 @@
                     new()
                     {
                         name = "Tarifas",
-                        icon = "fa-file-invoice",
+                        icon = "file-invoice",
                         roles = "Admin, Administrador Sistema",
                         path = "tarifario"
                     },
                     new()
                     {
                         name = "Historial de Tarifas",
-                        icon = "fa-file-invoice-dollar",
+                        icon = "file-invoice-dollar",
                         roles = "Admin, Administrador Sistema",
                         path = "tarifa/historial"
                     },
