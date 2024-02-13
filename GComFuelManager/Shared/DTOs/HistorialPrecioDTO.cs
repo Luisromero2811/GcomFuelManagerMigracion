@@ -29,6 +29,9 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Cliente")]
         public string? Cliente { get; set; } = string.Empty;
 
+        [DisplayName("Moneda")]
+        public string? Moneda { get; set; } = string.Empty;
+
         [DisplayName("Usuario")]
         public string? Usuario { get; set; } = string.Empty;
         

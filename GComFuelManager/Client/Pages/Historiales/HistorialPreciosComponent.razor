@@ -17,14 +17,16 @@
                     <div class="col-12 row">
                         <div class="col-4 mb-1">
                             <label>Del:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@busquedaPrecios.DateInicio" Min="@busquedaPrecios.DateInicio.AddDays(-3)" Max="@busquedaPrecios.DateInicio">
+                            </RadzenDatePicker>
                         </div>
                         <div class="col-4 mb-1">
                             <label>A:</label>
-                            <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
+                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@busquedaPrecios.DateFin" Min="@busquedaPrecios.DateFin.AddDays(-3)" Max="@busquedaPrecios.DateFin">
+                            </RadzenDatePicker>
                         </div>
                         <div class="col-4 d-flex mt-2">
-                            <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@MostrarOrdenFecha">
+                            <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@GetPreciosFiltro">
                                 <i class="fa fa-solid fa-eye"></i><b>Mostrar Precios</b>
                             </button>
                         </div>
@@ -37,7 +39,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios" Context="GridOptim">
     <Authorized>
         <div class="col-12 mt-4 overflow-scroll ancho" style="height:449px; resize:both;">
-            <table class="table table-hover table-bordered table-sm table-responsive" style="max-height: 600px; overflow: auto; width: 100%">
+            <table class="table table-hover table-bordered table-sm" style="max-height: 100px; overflow: auto; width: 100%">
                 <thead>
                     <tr>
                         <th scope="col">Fecha</th>
@@ -46,30 +48,35 @@
                         <th scope="col">Destino</th>
                         <th scope="col">Zona</th>
                         <th scope="col">Cliente</th>
+                        <th scope="col">Moneda</th>
+                        <th scope="col">Usuario</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="height:49px;">
+                    <tr>
                         <td></td>
                         <td></td>
                         <td>
                             <!--Filtro producto-->
-                            <RadzenTextBox @bind-Value="Productoseleccionado"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.producto" />
                         </td>
                         <td>
                             <!--Filtro destino-->
-                            <RadzenTextBox @bind-Value="Destinoseleccionado"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.destino" />
                         </td>
                         <td>
-                            <RadzenTextBox @bind-Value="Zonaseleccionada"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.zona" />
                         </td>
                         <td>
                             <!--Filtro cliente-->
-                            <RadzenTextBox @bind-Value="Clienteseleccionado"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
                         </td>
+                        <td></td>
+                        <td></td>
                     </tr>
-                    <Virtualize Items="PreciosFiltrados" TItem="PrecioHistorico" Context="data">
-                        <tr style="height:49px;">
+                    @foreach (var data in preciosL)
+                    {
+                        <tr>
                             <td>
                                 <p>@data.FchDia.ToString("dd-MM-yyyy")</p>
                             </td>
@@ -88,93 +95,30 @@
                             <td>
                                 <p>@data?.Cliente?.Den</p>
                             </td>
+                            <td>
+                                <p>@data?.Moneda?.Nombre</p>
+                            </td>
+                            <td>
+                                <p>@data?.Usuario?.Den</p>
+                            </td>
                         </tr>
-                    </Virtualize>
-
+                    }
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="12">
+                            <div class="col-12 row">
+                                <div class="text-muted col-2">
+                                    <p>Total de registros: @ConteoTotal Total de datos filtrados: @PreciosFiltrados.Count()</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
-        <p>Total de registros: @preciosL?.Count() Total de datos filtrados: @PreciosFiltrados.Count()</p>
     </Authorized>
 </AuthorizeView>
-
-@*<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios" Context="Grid">
-        <Authorized>
-            <div class="col-12 d-flex justify-content-center">
-                <RadzenDataGrid TItem="PrecioHistorico" Data="@preciosL" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                IsLoading="loading" @ref="grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture">
-                    <Columns>
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="1" Frozen="true" />
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Precio" Property="pre" Filterable="false" OrderIndex="2" Frozen="true" />
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="3" Frozen="true">
-                            <FilterTemplate Context="filter">
-                                <RadzenDropDown Data="ProductList" AllowFiltering="true" @bind-Value="ProductoSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                                    <ValueTemplate Context="data">
-                                        <InputText class="form-control col-12" @bind-Value="ProductoSeleccionado" MaxLength="100" />
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            </FilterTemplate>
-                            <Template Context="data">
-                                <div class="col-12 d-flex">
-                                    <div class="col-1">
-                                        @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
-                                        {
-                                            <div class="badge rounded-pill regular me-1">&nbsp;</div>
-                                        }
-                                        else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
-                                        {
-                                            <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
-                                        }
-                                        else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
-                                        {
-                                            <div class="badge rounded-pill premium me-1">&nbsp;</div>
-                                        }
-                                        else
-                                        {
-                                            <div class="badge rounded-pill diesel me-1">&nbsp;</div>
-                                        }
-                                    </div>
-                                    <div class="col-11">
-                                        @data.Producto?.Den
-                                    </div>
-                                </div>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Destino" Property="NombreDestino" FilterValue="DestinoSeleccionado" OrderIndex="4">
-                            <FilterTemplate Context="filterdest">
-                                <RadzenDropDown Data="DestinoList" AllowFiltering="true" @bind-Value="DestinoSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                                    <ValueTemplate Context="data">
-                                        <InputText class="form-control col-12" @bind-Value="DestinoSeleccionado" MaxLength="180" />
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            </FilterTemplate>
-                            <Template Context="data">
-                                <div>
-                                    @data.Destino?.Den
-                                </div>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="5" />
-                        <RadzenDataGridColumn TItem="PrecioHistorico" Title="Cliente" Property="NombreCliente" FilterValue="ClienteSeleccionado" OrderIndex="6">
-                            <FilterTemplate Context="filterclio">
-                                <RadzenDropDown Data="ClienteList" AllowFiltering="true" @bind-Value="ClienteSeleccionado" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                                    <ValueTemplate Context="data">
-                                        <InputText class="form-control col-12" @bind-Value="ClienteSeleccionado" MaxLength="180"></InputText>
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            </FilterTemplate>
-                            <Template Context="data">
-                                <div>
-                                    @data.Cliente?.Den
-                                </div>
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </Columns>
-                </RadzenDataGrid>
-            </div>
-        </Authorized>
-    </AuthorizeView>*@
 
 <div class="col-12 my-3">
     <div class="d-flex justify-content-center">
@@ -197,78 +141,9 @@
 
 
 <style type="text/css">
-    table {
-        border-collapse: collapse;
-        width: 100%;
-        font-size: 12px;
-        text-align: left;
-        table-layout: fixed;
-    }
-
-    table, th, td {
-        background-color: white;
-    }
-    .fila th {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 0;
-        background-color: #f2f2f2;
-    }
-    .ancho {
+     .ancho {
         width: @TotalWidth;
     }
-
-    tr:hover {
-        background-color: #FFF633;
-    }
-
-    tr:active {
-        background-color: #FFF633;
-    }
-
-    .asignar {
-        table-layout: auto;
-        width: auto;
-    }
-
-    .sticky-column {
-        position: sticky;
-        left: 0;
-        z-index: 1;
-        background-color: white;
-    }
-
-        .sticky-column, .sticky-column + th, .sticky-column + td {
-            min-width: 180px;
-        }
-
-    .table-container {
-        overflow: auto;
-        width: 100%;
-        border: 1px solid #ccc;
-        max-height: 400px; /* Establece una altura máxima si es necesario */
-    }
-
-    th, td {
-        padding: 8px;
-        border: 1px solid #ccc;
-    }
-
-    .th-resizable {
-        position: relative;
-        cursor: col-resize;
-    }
-
-        .th-resizable::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 8px; /* Ancho del área de redimensionamiento */
-            background: transparent;
-        }
 </style>
 
 @code {
@@ -288,12 +163,23 @@
     //List
     List<PrecioHistorico> precios { get; set; } = new List<PrecioHistorico>();
     private IList<PrecioHistorico> preciosL { get; set; } = new List<PrecioHistorico>();
+    private List<HistorialPrecioDTO> precioE { get; set; } = new List<HistorialPrecioDTO>();
+
+    //Paginacion
+    ParametrosBusquedaPrecios busquedaPrecios = new ParametrosBusquedaPrecios();
+    int PaginasTotales;
+    int PaginaActual = 1;
+    int ConteoTotal;
+
+    Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
 
     //loadings
     bool loadingFiltro = false;
     bool loading = false;
 
     string TotalWidth = string.Empty;
+    int width = 0;
+    bool isClose = false;
     //grids
     RadzenDataGrid<PrecioHistorico> grid { get; set; } = new RadzenDataGrid<PrecioHistorico>();
 
@@ -304,90 +190,165 @@
     private string Clienteseleccionado = string.Empty;
     private string Zonaseleccionada = string.Empty;
 
+    Dictionary<string, string> query = new Dictionary<string, string>();
+
     private IList<PrecioHistorico> PreciosFiltrados => preciosL.Where(x =>
-   (string.IsNullOrEmpty(Productoseleccionado) || x.Producto!.Den != null && x.Producto.Den != null && x.Producto.Den.Contains(Productoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
-   (string.IsNullOrEmpty(Destinoseleccionado) || x.Destino!.Den != null && x.Destino.Den!.Contains(Destinoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
-     (string.IsNullOrEmpty(Clienteseleccionado) || x.Cliente!.Den != null && x.Cliente.Den!.Contains(Clienteseleccionado, StringComparison.OrdinalIgnoreCase)) &&
-     (string.IsNullOrEmpty(Zonaseleccionada) || x.Zona!.Nombre != null && x.Zona.Nombre!.Contains(Zonaseleccionada, StringComparison.OrdinalIgnoreCase))
+(string.IsNullOrEmpty(Productoseleccionado) || x.Producto!.Den != null && x.Producto.Den != null && x.Producto.Den.Contains(Productoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
+(string.IsNullOrEmpty(Destinoseleccionado) || x.Destino!.Den != null && x.Destino.Den!.Contains(Destinoseleccionado, StringComparison.OrdinalIgnoreCase)) &&
+ (string.IsNullOrEmpty(Clienteseleccionado) || x.Cliente!.Den != null && x.Cliente.Den!.Contains(Clienteseleccionado, StringComparison.OrdinalIgnoreCase)) &&
+ (string.IsNullOrEmpty(Zonaseleccionada) || x.Zona!.Nombre != null && x.Zona.Nombre!.Contains(Zonaseleccionada, StringComparison.OrdinalIgnoreCase))
 ).ToList();
 
-    public async Task MostrarOrdenFecha()
+    private async Task PaginasSeleccionadas(int pagina)
+    {
+        PaginaActual = pagina;
+        busquedaPrecios.pagina = PaginaActual;
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["producto"] = busquedaPrecios.producto;
+        queryStringObject["destino"] = busquedaPrecios.destino;
+        queryStringObject["cliente"] = busquedaPrecios.cliente;
+        queryStringObject["zona"] = busquedaPrecios.zona;
+        queryStringObject["pagina"] = busquedaPrecios.pagina.ToString();
+        queryStringObject["tamanopagina"] = busquedaPrecios.tamanopagina.ToString();
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+            .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlDecode(x.Value)}").ToArray());
+
+
+        await GetPreciosFiltro();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
+
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
+        }
+    }
+
+    public async Task GetPreciosFiltro()
     {
         try
         {
-            loadingFiltro = true;
-            StateHasChanged();
+            loading = true;
 
-            var responseHttp = await repositorio.Post<FechasF, IList<PrecioHistorico>>($"api/precio/historial", fechas);
+            query = new Dictionary<string, string>();
+            query["DateInicio"] = busquedaPrecios.DateInicio.ToString("MM/dd/yyyy") ?? string.Empty;
+            query["DateFin"] = busquedaPrecios.DateFin.ToString("MM/dd/yyyy") ?? string.Empty;
+            query["zona"] = busquedaPrecios.zona ?? string.Empty;
+            query["producto"] = busquedaPrecios.producto ?? string.Empty;
+            query["cliente"] = busquedaPrecios.cliente ?? string.Empty;
+            query["destino"] = busquedaPrecios.destino ?? string.Empty;
 
-            if (responseHttp.Error)
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await repositorio.Get<List<PrecioHistorico>>($"api/precio/filtrohist?{uri}");
+            if (response.Error)
             {
-                loadingFiltro = false;
-                var respuestaHttp = await responseHttp.ObtenerMensajeError();
-                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+                loading = false;
+                var message = await response.ObtenerMensajeError();
             }
             else
             {
-                loadingFiltro = false;
-                preciosL = responseHttp.Response;
+                loading = false;
+                PaginasTotales = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
+                ConteoTotal = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                PaginaActual = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
                 ProductList = preciosL?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
                 DestinoList = preciosL?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
                 ClienteList = preciosL?.DistinctBy(x => x.Cliente?.Den).Select(x => x.Cliente?.Den)!;
+                preciosL = response.Response;
+
             }
         }
         catch (Exception e)
         {
-            loadingFiltro = false;
+            loading = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
+
+    //public async Task MostrarOrdenFecha()
+    //{
+    //    try
+    //    {
+    //        loadingFiltro = true;
+    //        StateHasChanged();
+
+    //        var responseHttp = await repositorio.Post<FechasF, IList<PrecioHistorico>>($"api/precio/historial", fechas);
+
+    //        if (responseHttp.Error)
+    //        {
+    //            loadingFiltro = false;
+    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            loadingFiltro = false;
+    //            preciosL = responseHttp.Response;
+    //            ProductList = preciosL?.DistinctBy(x => x.Producto?.Den).Select(x => x.Producto?.Den)!;
+    //            DestinoList = preciosL?.DistinctBy(x => x.Destino?.Den).Select(x => x.Destino?.Den)!;
+    //            ClienteList = preciosL?.DistinctBy(x => x.Cliente?.Den).Select(x => x.Cliente?.Den)!;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        loadingFiltro = false;
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
 
     public async Task GenerateExcel()
     {
         try
         {
-            if (preciosL.Count != 0)
+            var responseHttp = await repositorio.Post<ParametrosBusquedaPrecios, List<HistorialPrecioDTO>?>($"api/precio/historial", busquedaPrecios);
+            if (responseHttp.Error)
             {
-                foreach (var item in preciosL)
-                {
-                    if ((item.Producto!.Den == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
-                    && (item.Destino!.Den == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado))
-                        && (item.Cliente!.Den == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
-                        historialPrecio.Add(new HistorialPrecioDTO
-                        {
-                            Fecha = item.FchDia.ToString("dd/MM/yyyy"),
-                            Pre = item?.pre,
-                            Producto = item?.Producto?.Den,
-                            Destino = item?.Destino?.Den,
-                            Zona = item?.Zona?.Nombre,
-                            Cliente = item?.Cliente?.Den,
-                            Usuario = item?.Usuario?.Den,
-                            Fecha_De_Subida = item?.FchActualizacion.ToString()
-                        });
-                }
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                var excel = new ExcelPackage();
-                var worksheet = excel.Workbook.Worksheets.Add("Historial de Precios");
-                worksheet.Columns.Width = 60;
-                worksheet.Columns.AutoFit();
-
-                //Formacion del excel
-                var header = worksheet.Cells["A1:H1"];
-                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<HistorialPrecioDTO>(historialPrecio, true);
-                tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-
-                //Guardar en excel
-                await js.GuardarComo($"HistorialPrecios_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
-                historialPrecio.Clear();
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
             }
             else
             {
-                await swal.FireAsync("Alerta", "Debe tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+                precioE = responseHttp.Response!;
+                //Licencia para guardado de Excel
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                //Generacion de Excel
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("HistorialPrecios");
+                worksheet.Columns.Width = 49;
+                worksheet.Columns.AutoFit();
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                    precioE
+                  , true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                var header = worksheet.Cells["A1:I1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //Guardar Excell
+                await js.GuardarComo($"HistorialPrecios_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
             }
+
         }
         catch (Exception e)
         {

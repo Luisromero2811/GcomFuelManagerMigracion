@@ -14,5 +14,7 @@ namespace GComFuelManager.Shared.DTOs
         public string zona { get; set; } = string.Empty;
         public int pagina { get; set; } = 1;
         public int tamanopagina { get; set; } = 10;
+        public DateTime DateInicio { get; set; } = DateTime.Today.Date;
+        public DateTime DateFin { get; set; } = DateTime.Now;
     }
 }
