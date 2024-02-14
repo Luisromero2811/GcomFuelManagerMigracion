@@ -1,0 +1,21 @@
+﻿<div class="dropdown-menu-side">
+    @if (Button is not null)
+    {
+        @Button
+    }
+    @if (Show)
+    {
+        <div class="dropdown-menu-content">
+            @if (Items is not null)
+            {
+                @Items
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public RenderFragment Items { get; set; } = null!;
+    [Parameter] public RenderFragment Button { get; set; } = null!;
+    [Parameter] public bool Show { get; set; } = false;
+}

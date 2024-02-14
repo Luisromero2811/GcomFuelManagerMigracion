@@ -1,0 +1,312 @@
+﻿@page "/configuracion/vendedores"
+
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+@inject DialogService ds
+
+<div class="card">
+    <div class="card-header">
+        <b>Configurar vendedor</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="Vendedor" OnValidSubmit="Crear_Vendedor" class="form row">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-4">
+                    <InputText @bind-Value="@Vendedor.Nombre" class="form-control form-control-sm" />
+                    <ValidationMessage For="@(()=> Vendedor.Nombre)" />
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
+                        <b>Guardar vendedor</b>
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="col-12" style="height:450px;">
+    <table class="table table-sm table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Vendedor</th>
+                <th>Ver clientes</th>
+                <th>Originadores</th>
+                <th>Activo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="@Vendedores" TItem="Vendedor" Context="item">
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Vista(item))">
+                            Ver clientes
+                        </button>
+                    </td>
+                    <td style="max-width:70vw;">
+                        <div class="col-12 row">
+                            <div class="col-1 d-flex justify-content-center">
+                                @if (item.Activo)
+                                {
+                                    <button class="btn btn-sm gcom-bg-amarillo my-auto" @onclick="@(()=>item.Show_Originador = !item.Show_Originador)">
+                                        <i class="fa fa-solid fa-edit"></i>
+                                    </button>
+                                }
+                            </div>
+
+                            <div class="col-11 row">
+                                @if (item.Show_Originador)
+                                {
+                                    <div class="col-12 row">
+                                        <div class="col-1">
+                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Crear_Relacion_Vendedor_Originador(item))">
+                                                <i class="fa fa-solid fa-floppy-disk"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-10">
+                                            <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Vendedores"
+                                                            Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@item.Id_Originador">
+                                                <RenderValue Context="item_table">
+                                                    @item_table.Nombre
+                                                </RenderValue>
+                                                <Render Context="item_table">
+                                                    @item_table.Nombre
+                                                </Render>
+                                            </DropDownFilter>
+                                        </div>
+                                        <div class="col-1">
+                                            <button class="btn btn-sm btn-danger" @onclick="@(()=>item.Show_Originador = !item.Show_Originador)">
+                                                <i class="fa fa-solid fa-cancel"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var originador_item in item.Originadores)
+                                        {
+                                            <span class="badge rounded-pill gcom-bg-rojo">
+                                                @originador_item.Nombre
+                                                <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Eliminar_Relacion_Vendedor_Originador(new () {VendedorId = item.Id, OriginadorId = originador_item.Id}))">
+                                                    <i class="fa fa-solid fa-xmark"></i>
+                                                </button>
+                                            </span>
+
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Vendedor(item))" />
+                        </div>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .button-circle { /* Green */
+        border: none;
+        color: white;
+        padding: .40rem .60rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: .75rem;
+        cursor: pointer;
+        border-radius: 2rem;
+    }
+
+</style>
+
+@code {
+    Vendedor Vendedor { get; set; } = new();
+    List<Vendedor> Vendedores { get; set; } = new();
+
+    Originador Originador { get; set; } = new();
+    List<Originador> Originadores { get; set; } = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Vendedores();
+        await Obtener_Originadores(string.Empty);
+    }
+
+    private async Task Obtener_Vendedores()
+    {
+        try
+        {
+            var response = await http.Get<List<Vendedor>>($"api/vendedor");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+                Console.WriteLine(JsonConvert.SerializeObject(Vendedores));
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+
+    private async Task Obtener_Originadores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            query["Nombre"] = value;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<Originador>>($"api/originador/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+
+    private async Task Crear_Relacion_Vendedor_Originador(Vendedor vendedor)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["VendedorId"] = vendedor.Id.ToString();
+            query["OriginadorId"] = vendedor.Id_Originador.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Post<Vendedor_Originador>($"api/vendedor/relacionar/originador?{uri}", new Vendedor_Originador());
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Vendedores();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Eliminar_Relacion_Vendedor_Originador(Vendedor_Originador vendedor_Originador)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Borrar"] = true.ToString();
+            query["VendedorId"] = vendedor_Originador.VendedorId.ToString();
+            query["OriginadorId"] = vendedor_Originador.OriginadorId.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Post<Vendedor_Originador>($"api/vendedor/relacionar/originador?{uri}", new Vendedor_Originador());
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Vendedores();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Crear_Vendedor()
+    {
+        try
+        {
+            var response = await http.Post<Vendedor>($"api/vendedor", Vendedor);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Vendedores();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Desactivar_Activar_Vendedor(Vendedor vendedor)
+    {
+        try
+        {
+            vendedor.Activo = !vendedor.Activo;
+
+            var response = await http.Post<Vendedor>($"api/vendedor", vendedor);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Obtener_Vendedores();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+
+    private async Task Abrir_Vista(Vendedor vendedor)
+    {
+        try
+        {
+            await ds.OpenAsync<Vista_Ver_Clientes_Componente>("",
+                new() { { "vendedor_id", vendedor.Id } },
+                new() { Height = "600px", Width = "80%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true }
+            );
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+}

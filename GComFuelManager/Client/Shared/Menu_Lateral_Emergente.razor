@@ -1,0 +1,530 @@
+﻿@inject IJSRuntime js
+
+<div id="mySidepanel" class="sidepanel">
+    <a href="javascript:void(0)" class="closebtn" @onclick="CloseMenuLateral">×</a>
+    @foreach (var level_0 in Menus)
+    {
+        <AuthorizeView Roles="@level_0.roles" Context="level_0_context">
+            <Authorized>
+                @if (!level_0.isMenu)
+                {
+                    <NavLink href="@level_0.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+                        <div class="sidepanel-item">
+                            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                            @level_0.name
+                        </div>
+                    </NavLink>
+                }
+                else
+                {
+                    <DropDownMenu Show="@level_0.showDropDown">
+                        <Button>
+                            <DropDownMenuButton @bind-ShowDropDown="@level_0.showDropDown">
+                                <ButtonTemplate>
+                                    <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                                    @level_0.name
+                                </ButtonTemplate>
+                            </DropDownMenuButton>
+                        </Button>
+                        <Items>
+                            @foreach (var level_1 in level_0.Menus)
+                            {
+
+                                @if (!level_1.isMenu)
+                                {
+                                    <DropDownMenuItem Path="@level_1.path" Use_Roles="@true" Roles="@level_1.roles">
+                                        <ItemTemplate>
+                                            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                            @level_1.name
+                                        </ItemTemplate>
+                                    </DropDownMenuItem>
+                                }
+                                else
+                                {
+                                    <DropDownMenu Show="@level_1.showDropDown">
+                                        <Button>
+                                            <DropDownMenuButton @bind-ShowDropDown="level_1.showDropDown">
+                                                <ButtonTemplate>
+                                                    <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                                    @level_1.name
+                                                </ButtonTemplate>
+                                            </DropDownMenuButton>
+                                        </Button>
+                                        <Items>
+                                            @foreach (var level_2 in level_1.Menus)
+                                            {
+                                                <DropDownMenuItem Path="@level_2.path" Use_Roles="@true" Roles="@level_2.roles">
+                                                    <ItemTemplate>
+                                                        <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
+                                                        @level_2.name
+                                                    </ItemTemplate>
+                                                </DropDownMenuItem>
+
+                                            }
+                                        </Items>
+                                    </DropDownMenu>
+                                }
+
+                            }
+                        </Items>
+                    </DropDownMenu>
+
+                    @* <div class="dropdown-menu-side" @onclick="@level_0.ToggleShow">
+            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+            @level_0.name
+            </div>
+            @if (level_0.showDropDown)
+            {
+            <div class="dropdown-menu-content">
+            @foreach (var level_1 in level_0.Menus)
+            {
+            <AuthorizeView Roles="@level_1.roles" Context="level_1_context">
+            <Authorized>
+            @if (!level_1.isMenu)
+            {
+            <NavLink href="@level_1.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+            <div class="dropdown-menu-side-item">
+            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+            @level_1.name
+            </div>
+            </NavLink>
+            }
+            else
+            {
+            <div class="dropdown-menu-side" @onclick="@level_1.ToggleShow">
+            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+            @level_1.name
+            </div>
+            @if (level_1.showDropDown)
+            {
+            @foreach (var level_2 in level_1.Menus)
+            {
+            <NavLink href="@level_2.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+            <div class="dropdown-menu-side-item">
+            <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
+            @level_2.name
+            </div>
+            </NavLink>
+            }
+            }
+            }
+            </Authorized>
+            </AuthorizeView>
+            }
+            </div>
+            } *@
+                }
+            </Authorized>
+        </AuthorizeView>
+    }
+</div>
+
+
+@code {
+    List<Menu> Menus { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        //usuarios
+        Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
+        //configuracion
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Configuracion",
+                icon = "gear",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                Menus = new()
+                {
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Datos",
+                        icon = "server",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                        Menus = new()
+                        {
+                            new()
+                            {
+                                name = "Tonel",
+                                icon = "truck-moving",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                                path = "datos/tonel"
+                            },
+                            new()
+                            {
+                                name = "Chofer",
+                                icon = "id-card",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                                path = "datos/Catalogo/Chofer"
+                            },
+                            new()
+                            {
+                                name = "Destino",
+                                icon = "location-dot",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                                path = "datos/codigos/destino"
+                            }
+                        }
+                    },
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Porcentajes",
+                        icon = "percent",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                        Menus = new()
+                        {
+                            new()
+                            {
+                                name = "Calculo de cierre",
+                                icon = "store-slash",
+                                roles = "Admin, Administrador Sistema",
+                                path = "porcentaje/cierre"
+                            },
+                            new()
+                            {
+                                name = "Clientes por formulacion",
+                                icon = "business-time",
+                                roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia",
+                                path = "porcentaje/clientes"
+                            },
+                        }
+                    },
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Actualizacion de registros",
+                        icon = "rotate",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                        Menus = new()
+                        {
+                            new()
+                            {
+                                name = "Actualizar datos",
+                                icon = "store-slash",
+                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Programador",
+                                path = "actualizacion"
+                            },
+                            new()
+                            {
+                                name = "Relacionar datos",
+                                icon = "user-tie",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                                path = "asignar-cliente-destino"
+                            },
+                        }
+                    },
+                    new()
+                    {
+                        path = "configuracion-email",
+                        name = "Correo Interno",
+                        icon = "envelope",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/moneda",
+                        name = "Moneda",
+                        icon = "coins",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/generacion/folios",
+                        name = "Generacion de folios",
+                        icon = "marker",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                    },
+                }
+            });
+        //precios
+        Menus.Add(new Menu()
+            {
+                name = "Precios",
+                icon = "money-bill-1-wave",
+                roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Precios", icon = "money-bill-1-wave", path = "precios",
+                        roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios"
+                    },
+                    new()
+                    {
+                        name = "Historial de Precios", icon = "file-invoice-dollar", path = "historial/precios",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito, Contador, Revision Precios"
+                    }
+                }
+            });
+        //cierres
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Cierres",
+                icon = "store-slash",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Cierre de pedidos",
+                        icon = "store-slash",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Revision Precios",
+                        path = "cierre/pedido"
+                    },
+                    new()
+                    {
+                        name = "Cierre por grupo",
+                        icon = "store-slash",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Revision Precios",
+                        path = "cierre-grupo"
+                    },
+                    new()
+                    {
+                        name = "Cerrar pedidos",
+                        icon = "folder-closed",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Cierre Pedidos",
+                        path = "cerrar"
+                    },
+                    new()
+                    {
+                        name = "Estado de pedido",
+                        icon = "truck-ramp-box",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial, Revision Precios",
+                        path = "orden"
+                    },
+                    new()
+                    {
+                        name = "Reporte Cierres",
+                        icon = "file-excel",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Revision Precios",
+                        path = "reporte/cierres"
+                    },
+                    new()
+                    {
+                        name = "Reporte de Volumen de Cierres",
+                        icon = "file-excel",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                        path = "reporte/cierres/volumen"
+                    }
+                }
+
+            });
+        //ordenes
+        Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Ordenes",
+                icon = "rectangle-list",
+                roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Órdenes sin pedido",
+                        icon = "rectangle-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
+                        path = "ordenes"
+                    },
+                    new()
+                    {
+                        name = "Órdenes de pedido",
+                        icon = "rectangle-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
+                        path = "ordenes/pedido"
+                    },
+                    new()
+                    {
+                        name = "Confirmar ordenes copiadas",
+                        icon = "rectangle-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
+                        path = "ordenes/copiadas"
+                    },
+                    new()
+                    {
+                        name = "Confirmar ordenes de clientes",
+                        icon = "rectangle-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                        path = "confirm-ordenes"
+                    },
+                    new()
+                    {
+                        name = "Programación Equipos",
+                        icon = "truck-droplet",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Lectura Asignacion",
+                        path = "asignacion/unidades"
+                    },
+                    new()
+                    {
+                        name = "Seguimiento de órdenes",
+                        icon = "clipboard-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo",
+                        path = "seguimiento/ordenes"
+                    },
+                    new()
+                    {
+                        name = "Consulta de Orden",
+                        icon = "magnifying-glass",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Operativo",
+                        path = "consulta/Orden"
+                    },
+                    new()
+                    {
+                        name = "Reporte de órdenes / precios de venta",
+                        icon = "list-check",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios",
+                        path = "consulta/ordencliente"
+                    },
+                    new()
+                    {
+                        name = "ETA",
+                        icon = "hourglass-half",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
+                        path = "eta"
+                    },
+                    new()
+                    {
+                        name = "Historial de envios a synthesis",
+                        icon = "file-invoice-dollar",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                        path = "historial/asignacion"
+                    },
+                    new()
+                    {
+                        name = "Actualizar ordenes",
+                        icon = "repeat",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo",
+                        path = "actualizar/pedidos"
+                    },
+                }
+            });
+        //pedimentos
+        Menus.Add(new Menu()
+            {
+                name = "Pedimentos",
+                icon = "file-circle-check",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Costos",
+                        icon = "file-circle-check",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
+                        path = "pedimento"
+                    },
+                    new()
+                    {
+                        name = "Listado de pedimentos",
+                        icon = "file-circle-check",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
+                        path = "listado/pedimentos"
+                    },
+                }
+            });
+        //redirecciones
+        Menus.Add(new Menu()
+            {
+                name = "Redireccionamientos",
+                icon = "diamond-turn-right",
+                roles = "Admin, Administrador Sistema",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Redireccionar ordenes",
+                        icon = "diamond-turn-right",
+                        roles = "Admin, Administrador Sistema",
+                        path = "redireccionamiento"
+                    },
+                    new()
+                    {
+                        name = "Listado redireccion",
+                        icon = "diamond-turn-right",
+                        roles = "Admin, Administrador Sistema",
+                        path = "listado/redireccion"
+                    },
+                }
+            });
+
+        //ventas
+        Menus.Add(new Menu()
+            {
+                name = "Ventas",
+                icon = "file-circle-check",
+                roles = "Admin, Administrador Sistema",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Desempeño de ventas",
+                        icon = "list-check",
+                        roles = "Admin, Administrador Sistema",
+                        path = "reporte/ventas"
+                    },
+                    new()
+                    {
+                        name = "Establecimiento de ventas",
+                        icon = "list-check",
+                        roles = "Admin, Administrador Sistema",
+                        path = "establecer/meta"
+                    },
+                }
+            });
+
+        //tarifario
+        Menus.Add(new Menu()
+            {
+                name = "Tarifario",
+                icon = "file-invoice-dollar",
+                roles = "Admin, Administrador Sistema, Tarifas",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Tarifas",
+                        icon = "file-invoice",
+                        roles = "Admin, Administrador Sistema",
+                        path = "tarifario"
+                    },
+                    new()
+                    {
+                        name = "Historial de Tarifas",
+                        icon = "file-invoice-dollar",
+                        roles = "Admin, Administrador Sistema",
+                        path = "tarifa/historial"
+                    },
+                }
+            });
+
+    }
+
+    private async void CloseMenuLateral()
+    {
+        await js.InvokeVoidAsync("CloseMenu");
+    }
+
+    public class Menu
+    {
+        public string name { get; set; } = string.Empty;
+        public string path { get; set; } = string.Empty;
+        public string icon { get; set; } = string.Empty;
+        public string roles { get; set; } = string.Empty;
+        public string context_item { get; set; } = string.Empty;
+        public bool isMenu { get; set; } = false;
+        public bool showDropDown { get; set; } = false;
+        public List<Menu> Menus { get; set; } = new();
+
+        public void ToggleShow()
+        {
+            showDropDown = !showDropDown;
+        }
+    }
+}

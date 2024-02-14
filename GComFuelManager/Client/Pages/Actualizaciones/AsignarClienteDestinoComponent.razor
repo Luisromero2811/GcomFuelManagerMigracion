@@ -26,6 +26,11 @@
                 <AsignarContactoComponent />
             </RadzenTabsItem>
         </AuthorizeView>
+        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="Vendedor">
+            <RadzenTabsItem Text="Asignar Vendedor A Cliente">
+                <Asignar_Vendedor_A_Cliente_Componente />
+            </RadzenTabsItem>
+        </AuthorizeView>
     </Tabs>
 </RadzenTabs>
 

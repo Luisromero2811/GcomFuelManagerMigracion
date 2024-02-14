@@ -1,0 +1,341 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ms
+
+<div class="card" style="height:500px;">
+    <div class="card-header">
+        <b>Asignar vendedor a cliente</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3">
+                <label>Grupo</label>
+                <DropDownFilter Listado="Grupos" TListado="Grupo" TValue="Int16" Default_Placeholder="Seleccione un grupo" FiltrarValor="GetGrupos"
+                                On_Change_Method="@(()=>GetClientes(string.Empty))" @bind-Valor="@Grupo.Cod" Propiedad_Valor="Cod">
+                    <Render>
+                        @context.Den
+                    </Render>
+                    <RenderValue>
+                        @context.Den
+                    </RenderValue>
+                </DropDownFilter>
+            </div>
+            <div class="col-3">
+                <label>Vendedor</label>
+                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
+                @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id" On_Change_Method="@(()=>Obtener_Originadores(string.Empty))">
+                    <RenderValue>
+                        @context.Nombre
+                    </RenderValue>
+                    <Render>
+                        @context.Nombre
+                    </Render>
+                </DropDownFilter>
+            </div>
+            <div class="col-3">
+                <label>Originador</label>
+                <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" Default_Placeholder="Seleccione un originador" FiltrarValor="Obtener_Vendedores"
+                @bind-Valor="@Originador.Id" Propiedad_Valor="Id">
+                    <RenderValue>
+                        @context.Nombre
+                    </RenderValue>
+                    <Render>
+                        @context.Nombre
+                    </Render>
+                </DropDownFilter>
+            </div>
+            <div class="col-3">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Guardar_Relacion">
+                    Guardar
+                </button>
+            </div>
+        </div>
+        <div class="col-12">
+            <table class="table table-sm table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
+                            @onchange="args => CheckItemAll(args?.Value)" />
+                        </th>
+                        <th>Cliente</th>
+                        <th>Vendedor</th>
+                        <th>Originador</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Clientes.Count > 0)
+                    {
+                        <Virtualize Items="Clientes" TItem="Cliente" Context="item">
+                            <tr>
+                                <th>
+                                    <input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />
+                                </th>
+                                <td>@item.Den</td>
+                                <td>
+                                    @if (item.Vendedor is not null)
+                                    {
+                                        <span class="badge rounded-pill gcom-bg-rojo">
+                                            @item.Obtener_Nombre_Vendedor
+                                            <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item))">
+                                                <i class="fa fa-solid fa-xmark"></i>
+                                            </button>
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill gcom-bg-rojo">
+                                        @item.Obtener_Nombre_Originador
+                                    </span>
+                                </td>
+                            </tr>
+                        </Virtualize>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<style>
+    .button-circle { /* Green */
+        border: none;
+        color: white;
+        padding: .40rem .60rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: .75rem;
+        cursor: pointer;
+        border-radius: 2rem;
+    }
+
+</style>
+@code {
+    List<Grupo> Grupos { get; set; } = new();
+    Grupo Grupo { get; set; } = new();
+
+    List<Cliente> Clientes_Seleccionados { get; set; } = new();
+
+    List<Cliente> Clientes { get; set; } = new();
+    Cliente Cliente { get; set; } = new();
+
+    List<Vendedor> Vendedores { get; set; } = new();
+    Vendedor Vendedor { get; set; } = new();
+
+    List<Originador> Originadores { get; set; } = new();
+    Originador Originador { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetGrupos(string.Empty);
+        await Obtener_Vendedores(string.Empty);
+    }
+
+    public async Task GetGrupos(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Grupo_Filtrado"] = value;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Grupo>>($"api/grupo?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetClientes(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Cliente_Filtrado"] = value;
+            query["ID_Grupo"] = Grupo.Cod.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Cliente>>($"api/clientes?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+                StateHasChanged();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Vendedores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Obtener_Originadores(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Originador>>($"api/originador/relacion/{Vendedor.Id}?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Guardar_Relacion()
+    {
+        try
+        {
+            if (Clientes_Seleccionados.Count == 0 || Clientes_Seleccionados is null || Vendedor.Id == 0 || Originador.Id == 0)
+                return;
+
+            Dictionary<string, string> query = new();
+            query["Id"] = Vendedor.Id.ToString();
+            query["Id_Originador"] = Originador.Id.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Put<List<Cliente>>($"api/vendedor/relacionar/cliente?{uri}", Clientes_Seleccionados);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes_Seleccionados = new();
+                await GetClientes(string.Empty);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Borrar_Relacion(Cliente cliente)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            query["Id_Vendedor"] = cliente.Id_Vendedor.ToString() ?? string.Empty;
+            query["Cod"] = cliente.Cod.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Post<Cliente>($"api/vendedor/borrar/relacion/cliente?{uri}", new());
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes_Seleccionados = new();
+                await GetClientes(string.Empty);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckItem(Cliente cliente, object check)
+    {
+        try
+        {
+            if ((bool)check)
+            {
+                if (!Clientes_Seleccionados.Contains(cliente))
+                    Clientes_Seleccionados.Add(cliente);
+            }
+            else
+            {
+                if (Clientes_Seleccionados.Contains(cliente))
+                    Clientes_Seleccionados.Remove(cliente);
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckItemAll(object check)
+    {
+        try
+        {
+            if ((bool)check)
+                Clientes_Seleccionados = Clientes;
+            else
+                Clientes_Seleccionados = new();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}
