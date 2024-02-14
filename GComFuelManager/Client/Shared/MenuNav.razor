@@ -9,19 +9,19 @@
         <div class="col-12 gcom-bg-rojo text-white row d-flex m-0">
 
             @* <div class="col-1 d-flex justify-content-center">
-            @if (close)
-            {
-            <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
-            <i class="fa fa-solid fa-bars my-auto"></i>
-            </div>
-            }
-            else
-            {
-            <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
-            <i class="fa fa-solid fa-bars my-auto"></i>
-            </div>
-            }
-            </div> *@
+                @if (close)
+                {
+                <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
+                <i class="fa fa-solid fa-bars my-auto"></i>
+                </div>
+                }
+                else
+                {
+                <div class="col-4 d-flex justify-content-center align-middle" style="cursor:pointer" @onclick="CloseMenuLateral">
+                <i class="fa fa-solid fa-bars my-auto"></i>
+                </div>
+                }
+                </div> *@
 
             <div class="col d-flex">
                 <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral">
@@ -31,7 +31,7 @@
             <div class="col-8 d-flex">
                 <RadzenMenu class="gcom-bg-rojo col-12 my-auto" Style="background-color:#BA1C15;--rz-menu-background-color:#BA1C15;--rz-menu-item-background-color:#BA1C15;--rz-menu-item-2nd-level-background-color: #BA1C15;--rz-menu-item-3nd-level-background-color: #BA1C15;width:150px;">
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" Context="MenuUsuarios">
+                    <AuthorizeView Roles="Administrador de Usuarios" Context="MenuUsuarios">
                         <RadzenMenuItem Path="usuarios" class="gcom-bg-rojo col-12">
                             <Template>
                                 <div class="text-white">
@@ -42,7 +42,7 @@
 
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial" Context="Configs">
+                    <AuthorizeView Roles="Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial" Context="Configs">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
@@ -191,7 +191,7 @@
 
                     </AuthorizeView>
                     <!--Menu de precios-->
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios">
+                    <AuthorizeView Roles="Analista Credito, Contador, Revision Precios">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
@@ -221,7 +221,7 @@
                         </RadzenMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios">
+                    <AuthorizeView Roles="Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
@@ -293,7 +293,7 @@
                     </AuthorizeView>
 
                     <!--Menú de órdenes-->
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Consulta Precio Orden, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
+                    <AuthorizeView Roles="Consulta Precio Orden, Lectura Asignacion, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
@@ -418,66 +418,90 @@
                         </RadzenMenuItem>
                     </AuthorizeView>
 
-                    @* <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria">
-                    <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Pedimento
-                    </div>
-                    </Template>
-                    <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Pedimento">
-                    <RadzenMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Costos
-                    </div>
-                    </Template>
-                    </RadzenMenuItem>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Listado_Pedimentos">
-                    <RadzenMenuItem Path="listado/pedimentos" class="gcom-bg-rojo col-12" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Listado de pedimentos
-                    </div>
-                    </Template>
-                    </RadzenMenuItem>
-                    </AuthorizeView>
-                    </ChildContent>
-                    </RadzenMenuItem>
+                    <AuthorizeView Roles="Contraloria">
+                        <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Pedimento
+                                </div>
+                            </Template>
+                            <ChildContent>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Pedimento">
+                                    <RadzenMenuItem Path="pedimento" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Costos
+                                            </div>
+                                        </Template>
+                                    </RadzenMenuItem>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contraloria" Context="Listado_Pedimentos">
+                                    <RadzenMenuItem Path="listado/pedimentos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Listado de pedimentos
+                                            </div>
+                                        </Template>
+                                    </RadzenMenuItem>
+                                </AuthorizeView>
+                            </ChildContent>
+                        </RadzenMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Admin, Administrador Sistema">
-                    <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Redireccion
-                    </div>
-                    </Template>
-                    <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_page">
-                    <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Redireccionar ordenes
-                    </div>
-                    </Template>
-                    </RadzenPanelMenuItem>
+                    <AuthorizeView Roles="Analista Credito">
+                        <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa fa-solid fa-file-circle-check" aria-hidden="true"></i> Redireccion
+                                </div>
+                            </Template>
+                            <ChildContent>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_page">
+                                    <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Redireccionar ordenes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_List_Page">
+                                    <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Listado redireccion
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
+                            </ChildContent>
+                        </RadzenMenuItem>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_List_Page">
-                    <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
-                    <Template>
-                    <div class="text-white">
-                    <i class="fa fa-solid fa-diamond-turn-right" aria-hidden="true"></i> Listado redireccion
-                    </div>
-                    </Template>
-                    </RadzenPanelMenuItem>
+                    <AuthorizeView Roles="Tarifas">
+                        <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden;">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Tarifario
+                                </div>
+                            </Template>
+                            <ChildContent>
+                                <RadzenPanelMenuItem Path="tarifario" class="gcom-bg-rojo col-12" Style="border:hidden;">
+                                    <Template>
+                                        <div class="text-white">
+                                            <i class="fa-solid fa-file-invoice"></i> Tarifas
+                                        </div>
+                                    </Template>
+                                </RadzenPanelMenuItem>
+                                <RadzenPanelMenuItem>
+                                    <Template>
+                                        <div class="text-white">
+                                            <i class="fa-solid fa-file-invoice-dollar"></i> Historial de Tarifas
+                                        </div>
+                                    </Template>
+                                </RadzenPanelMenuItem>
+                            </ChildContent>
+                        </RadzenMenuItem>
                     </AuthorizeView>
-                    </ChildContent>
-                    </RadzenMenuItem>
-                    </AuthorizeView> *@
-
                 </RadzenMenu>
             </div>
             <div class="col-3 d-flex gcom-bg-rojo-dark">
@@ -497,14 +521,14 @@
 </AuthorizeView>
 
 @* <script>
-    function openNav() {
-        document.getElementById("mySidepanel").style.width = "250px";
-    }
+        function openNav() {
+            document.getElementById("mySidepanel").style.width = "250px";
+        }
 
-    function closeNav() {
-        document.getElementById("mySidepanel").style.width = "0";
-    }
-</script> *@
+        function closeNav() {
+            document.getElementById("mySidepanel").style.width = "0";
+        }
+    </script> *@
 
 
 @code {
