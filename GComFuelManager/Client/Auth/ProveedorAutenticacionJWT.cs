@@ -153,6 +153,15 @@ namespace GComFuelManager.Client.Auth
             await js.RemoveItemLocalStorage(EXPIRATIONTOKENKEY);
             client.DefaultRequestHeaders.Authorization = null!;
         }
+
+        public async Task CheckLoginApp()
+        {
+            var token = await js.GetItemLocalStorage(TOKENKEY);
+            var tiempoExpiracionObject = await js.GetItemLocalStorage(EXPIRATIONTOKENKEY);
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(tiempoExpiracionObject))
+                await Logoute();
+        }
     }
 }
 

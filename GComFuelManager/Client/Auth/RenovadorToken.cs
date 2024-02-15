@@ -33,6 +33,11 @@ namespace GComFuelManager.Client.Auth
         {
             timer?.Dispose();
         }
+
+        public void CheckLogin()
+        {
+            loginService.CheckLoginApp();
+        }
     }
 }
 
