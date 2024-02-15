@@ -275,6 +275,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Precio_Encontrado_En = "Cierre";
                                 precio.Moneda = precioHis?.Moneda?.Nombre ?? "MXN";
                                 precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
+                                precio.Folio_Cierre = cierre.Folio ?? string.Empty;
                             }
                         }
                     }
@@ -454,6 +455,7 @@ namespace GComFuelManager.Server.Controllers.Precios
             public string? Moneda { get; set; } = "MXN";
             public string? Cliente_Original { get; set; } = string.Empty;
             public double? Volumen_Cargado { get; set; } = 0;
+            public string Folio_Cierre { get; set; } = string.Empty;
         }
     }
 }
