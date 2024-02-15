@@ -3245,7 +3245,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 context.Update(orden);
                 context.Update(ordenembarque);
 
-                await context.SaveChangesAsync();
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 33);
 
                 var newOrden = context.OrdenCierre
                     .Include(x => x.OrdenEmbarque)

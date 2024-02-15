@@ -272,7 +272,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.Vendedores.Where(x => x.Activo).Include(x => x.Vendedor_Originador).Include(x => x.Clientes).IgnoreAutoIncludes().OrderBy(x => x.Nombre).AsQueryable();
+                var vendedores = context.Vendedores.IgnoreAutoIncludes().Where(x => x.Activo).Include(x => x.Vendedor_Originador).IgnoreAutoIncludes().Include(x => x.Clientes).IgnoreAutoIncludes()
+                    .OrderBy(x => x.Nombre).AsQueryable();
 
                 if (!string.IsNullOrEmpty(vendedor.Nombre))
                     vendedores = vendedores.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower())).OrderBy(x => x.Nombre);
@@ -309,12 +310,11 @@ namespace GComFuelManager.Server.Controllers
 
                             foreach (var cliente in clientes_validos)
                             {
-                                List<Orden> Ordenes = context.Orden.Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
+                                List<Orden> Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente.Cod
                                 && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == vendedor.Fecha_Registro && x.Codest != 14)
                                 .Include(x => x.Producto)
                                 .Include(x => x.Destino)
                                 .Include(x => x.OrdenEmbarque)
-                                .IgnoreAutoIncludes()
                                 .ToList();
 
                                 List<Orden> ordenes_a_sumar = new();

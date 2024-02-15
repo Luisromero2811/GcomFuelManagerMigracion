@@ -1,22 +1,36 @@
 ﻿@typeparam T
-<table>
+<table class="tabla-custom">
     <thead>
         @if (Cabeceras is not null)
         {
-            <tr>@Cabeceras</tr>
+            @* <tr>
+        @Cabeceras
+        </tr> *@
+            @Cabeceras
         }
     </thead>
     <tbody>
+        @if (Cargando is not null)
+        {
+            @if (Cargando == true)
+            {
+                <tr>
+                    <SpinnerLoading />
+                </tr>
+            }
+        }
         @if (Listado is not null)
         {
-            <Virtualize TItem="T" Items="Listado" Context="item">
-                <tr>
-                    @if (Columna is not null)
-                    {
-                        @Columna(item)
-                    }
-                </tr>
-            </Virtualize>
+            <CascadingValue Value="this">
+                <Virtualize TItem="T" Items="Listado" Context="item">
+                    <tr>
+                        @if (Columna is not null)
+                        {
+                            @Columna(item)
+                        }
+                    </tr>
+                </Virtualize>
+            </CascadingValue>
         }
         else
         {
@@ -38,6 +52,7 @@
 @code {
     [Parameter] public List<T> Listado { get; set; } = new List<T>();
     [Parameter] public RenderFragment<T> Columna { get; set; } = null!;
-    [Parameter] public RenderFragment<T> Cabeceras { get; set; } = null!;
-    [Parameter] public RenderFragment<T> Inferior { get; set; } = null!;
+    [Parameter] public RenderFragment Cabeceras { get; set; } = null!;
+    [Parameter] public RenderFragment Inferior { get; set; } = null!;
+    [Parameter] public bool? Cargando { get; set; }
 }
