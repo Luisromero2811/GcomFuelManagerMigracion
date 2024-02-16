@@ -328,6 +328,21 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.codDes);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
         }
 
         public DbSet<Chofer> Chofer { get; set; }

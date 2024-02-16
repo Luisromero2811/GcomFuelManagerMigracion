@@ -199,24 +199,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                             precio.Producto_Original = item.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
                         && x.FchDia <= DateTime.Today)
+                        .Include(x => x.Moneda)
                         .OrderByDescending(x => x.FchActualizacion)
                         .FirstOrDefault();
 
                     if (orden is not null)
                         precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
                         && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+                            .Include(x => x.Moneda)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
