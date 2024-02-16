@@ -648,6 +648,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                 precio.Es_Cierre = true;
                                 precio.Precio_Encontrado = true;
                                 precio.Precio_Encontrado_En = "Cierre";
+                                precio.Folio_Cierre = cierre.Folio ?? "Orden Individual";
                                 //precio.Moneda = Enum.GetName(typeof(Moneda), cierre.Moneda ?? Moneda.NONE) ?? string.Empty;
                                 //precio.Tipo_De_Cambio = cierre.Equibalencia ?? 1;
                             }
