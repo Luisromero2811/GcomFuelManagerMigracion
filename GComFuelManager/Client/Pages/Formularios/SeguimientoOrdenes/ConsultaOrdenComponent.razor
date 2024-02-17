@@ -3,7 +3,7 @@
 @inject IRepositorio repositorio
 @inject SweetAlertService Swal
 @inject IJSRuntime Js
-
+@inject TooltipService ts
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Consulta Precio Orden")]
 
@@ -45,32 +45,36 @@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Producto</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Precio</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Volumen Cargado</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">Folio de Pedido <i class="fa-solid fa-circle-info fa-xs"></i></th> 
             </tr>
         </thead>
         <tbody>
-          <Virtualize TItem="PrecioBolDTO" Items="PrecioBols" Context="data">
-              <tr style="height:49px;">
-                  <td>
-                      @data.BOL
-                  </td>
-                  <td>
-                      @data.Cliente_Original
-                  </td>
-                  <td>
-                      @data.Destino_Original
-                  </td>
-                  <td>
-                      @data.Producto_Original
-                  </td>
-                  <td>
-                      @data.Precio
-                  </td>
-                  <td>
-                      @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)
-                    
-                  </td>
-              </tr>
-          </Virtualize>
+            <Virtualize TItem="PrecioBolDTO" Items="PrecioBols" Context="data">
+                <tr style="height:49px;">
+                    <td>
+                        @data.BOL
+                    </td>
+                    <td>
+                        @data.Cliente_Original
+                    </td>
+                    <td>
+                        @data.Destino_Original
+                    </td>
+                    <td>
+                        @data.Producto_Original
+                    </td>
+                    <td>
+                        @data.Precio
+                    </td>
+                    <td>
+                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)
+
+                    </td>
+                    <td>
+                        @data.Folio_Cierre
+                    </td>
+                </tr>
+            </Virtualize>
         </tbody>
 
     </table>
@@ -78,6 +82,10 @@
 
 
 @code {
+
+    ElementReference infoIcon;
+    void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Si la columna aparece en blanco indica que la orden es individual y no pertenece a un pedido", options);
+
 
     List<Orden>? orden { get; set; } = new List<Orden>();
     Orden? Ordenes { get; set; } = new Orden();
