@@ -83,7 +83,7 @@
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
                         @bind-Settings="@Settings">
             <Columns>

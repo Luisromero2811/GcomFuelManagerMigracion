@@ -140,7 +140,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="ZonaCliente" Data="@ZonaCliente" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowColumnPicking="true" AllowFiltering="true" FilterMode="FilterMode.Simple" Culture="CultureInfo.CurrentCulture" SelectionMode="DataGridSelectionMode.Single">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="EditarZonas">
