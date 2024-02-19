@@ -43,7 +43,7 @@
 </div>
 <div class="mt-4">
     <RadzenDataGrid TItem="FolioCierreDTO" Data="@Folios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" 
-                    GridLines="DataGridGridLines.Both"  class="rz-my-12 ancho" Style="height:600px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    GridLines="DataGridGridLines.Both"  class="rz-my-12 ancho-tabla" Style="height:600px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                     IsLoading="loading" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture">
         <Columns>
             <RadzenDataGridColumn TItem="FolioCierreDTO" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:dd/MM/yyyy}" Filterable="false" Width="130px" />

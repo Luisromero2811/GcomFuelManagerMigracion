@@ -79,7 +79,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;"
                         IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
