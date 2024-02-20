@@ -6,9 +6,7 @@
 @inject IRepositorio http
 @inject ILoginService login
 
-<div class="col-12 card shadow">
-
-
+<div class="col-12">
     <section class="vh-100" style="background-color: #ffffff;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -67,6 +65,7 @@
     private UserLogin usuario { get; set; } = new UserLogin();
     private bool loading = false;
 
+    [CascadingParameter] public ErrorHandleComponent? Error { get; set; }
 
     private async Task LoguearUsuario()
     {
@@ -78,7 +77,7 @@
             {
                 loading = false;
                 string? message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos.", SweetAlertIcon.Error);
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -90,7 +89,7 @@
         catch (Exception e)
         {
             loading = false;
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Error?.ProcessError(e);
         }
     }
 }

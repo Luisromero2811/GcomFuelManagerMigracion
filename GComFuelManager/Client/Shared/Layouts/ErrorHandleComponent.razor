@@ -1,0 +1,31 @@
+﻿@inject ILogger<Error> Logger
+<CascadingValue Value="this">
+    @ChildContent
+    @if (IsError)
+    {
+        <div class="errorUI">
+            <p>Se ha detectado una excepción</p>
+            <div style="margin: .2rem .5rem;cursor:pointer;" @onclick="CloseError">
+                <i class="fa fa-solid fa-xmark"></i>
+            </div>
+        </div>
+        
+    }
+</CascadingValue>
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private bool IsError = false;
+    private Exception? e;
+    public void ProcessError(Exception ex)
+    {
+        e = ex;
+        IsError = true;
+        Logger.LogError("Error: Type {Type} Menssage {Message}", ex.GetType(), ex.Message);
+        StateHasChanged();
+    }
+
+    private void CloseError()
+    {
+        IsError = !IsError;
+    }
+}
