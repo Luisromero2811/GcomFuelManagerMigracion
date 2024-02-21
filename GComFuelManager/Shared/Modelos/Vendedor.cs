@@ -1,6 +1,7 @@
 ﻿using OfficeOpenXml.Attributes;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Dynamic;
 using System.Text.Json.Serialization;
 
 namespace GComFuelManager.Shared.Modelos
@@ -19,6 +20,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public string Nombre_Originador { get; set; } = string.Empty;
         [NotMapped] public bool Show_Originador { get; set; } = false;
         [NotMapped] public List<Metas_Vendedor> Metas_Vendedor { get; set; } = new();
+        [NotMapped] public List<int> Meses_Venta { get; set; } = new();
+
     }
 
     public class Mes_Venta
@@ -65,9 +68,28 @@ namespace GComFuelManager.Shared.Modelos
 
     }
 
+    public class Reporte_Venta
+    {
+        public List<Vendedor> Vendedores { get; set; } = new();
+        public List<int> Meses_Venta { get; set; } = new();
+    }
+
     public class Reporte_Completo_Vendedor_Desempeño
     {
-        public List<Vendedor_Reporte_Desemeño> Litros { get; set; } = new();
-        public List<Vendedor_Reporte_Desemeño> Venta { get; set; } = new();
+        //public string Letra_Inicio { get; set; } = string.Empty;
+        [EpplusIgnore] public string Letra_Fin { get; set; } = string.Empty;
+        [EpplusIgnore] public List<string> Meses { get; set; } = new();
+        //public List<Vendedor_Reporte_Desemeño> Litros { get; set; } = new();
+        //public List<Vendedor_Reporte_Desemeño> Venta { get; set; } = new();
+        public List<ExpandoObject> Litros { get; set; } = new();
+        public List<ExpandoObject> Venta { get; set; } = new();
+        public List<Dictionary<string,object>> Diccionario_Litros { get; set; } = new();
+        public List<Dictionary<string, object>> Diccionario_Ventas { get; set; } = new();
+    }
+
+    public class Mes_Letra_Excel
+    {
+        public string Mes { get; set; } = string.Empty;
+        public string Letra { get; set; } = string.Empty;
     }
 }
