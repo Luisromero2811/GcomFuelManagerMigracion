@@ -7,6 +7,7 @@ namespace GComFuelManager.Client.Auth
 		Task Login(UserTokenDTO token);
 		Task Logoute();
 		Task ManejarRenovacionToken();
+		Task CheckLoginApp();
 	}
 }
 

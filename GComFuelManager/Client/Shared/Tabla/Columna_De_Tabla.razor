@@ -13,6 +13,6 @@
 }
 @code {
     [Parameter] public RenderFragment Template_Contenido { get; set; } = null!;
-    [Parameter] public string Contenido { get; set; } = string.Empty;
+    [Parameter] public object? Contenido { get; set; } = default;
     [Parameter] public bool Visible { get; set; } = true;
 }

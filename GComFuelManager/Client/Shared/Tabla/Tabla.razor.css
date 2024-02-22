@@ -1,0 +1,42 @@
+﻿table {
+    width:100%;
+    background-color: white;
+    font-size: .75rem;
+    white-space: nowrap;
+    border: 1px solid #d4d4d4;
+    border-collapse: collapse;
+    text-align: left;
+    table-layout:fixed;
+}
+
+::deep tr:hover {
+    background-color: #FFF633;
+}
+
+::deep th {
+    background-color: #f2f2f2;
+}
+
+::deep th, ::deep td {
+    margin: 0;
+    padding: .3rem .5rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border: 1px solid #d4d4d4;
+}
+
+::deep .resizable-column {
+    min-width: 20px;
+    position: relative;
+    cursor: col-resize;
+}
+
+    ::deep .resizable-column::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 8px;
+        background: transparent;
+    }

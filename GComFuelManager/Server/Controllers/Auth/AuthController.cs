@@ -40,9 +40,11 @@ namespace GComFuelManager.Server.Controllers.Auth
         {
             try
             {
+                ModelState.AddModelError("Credenciales no validas", "Nombre de usuario y/o contraseña no validos");
+
                 var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
                 if (usuario == null)
-                    return BadRequest();
+                    return BadRequest(ModelState);
 
                 if(usuario!.Activo == true)
                 {
@@ -54,17 +56,17 @@ namespace GComFuelManager.Server.Controllers.Auth
                     }
                     else
                     {
-                        return BadRequest();
+                        return BadRequest(ModelState);
                     }
                 }
                 else
                 {
-                    return BadRequest();
+                    return BadRequest(ModelState);
                 }
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error interno del servidor al iniciar sesion.");
             }
         }
 

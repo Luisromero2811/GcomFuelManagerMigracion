@@ -13,21 +13,20 @@
         <div class="page">
             <Menu_Lateral_Emergente />
 
-            @* @if (!isClosed)
-            {
-                <div class="sidebar">
-                    <MenuLateral />
-                    <NavMenu></NavMenu>
-                </div>
-            } *@
-
             <main>
                 <div>
                     <MenuNav />
                 </div>
 
                 <article class="content px-2">
-                    @Body
+                    <ErrorBoundary @ref="errorBoundary">
+                        <ChildContent>
+                            @Body
+                        </ChildContent>
+                        <ErrorContent Context="errorui">
+                            <p class="errorUI">😈 A rotten gremlin got us. Sorry!</p>
+                        </ErrorContent>
+                    </ErrorBoundary>
                 </article>
             </main>
         </div>
@@ -35,25 +34,15 @@
 </AuthorizeView>
 
 @code {
-    public bool isClosed = false;
+    private ErrorBoundary? errorBoundary;
 
-    // public async void CloseMenu()
-    // {
-    //     isClosed = !isClosed;
-    //     await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
-    // }
-
-
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-
-
-        // var cm = await js.GetItemLocalStorage("CloseMenu");
-        // if (cm is not null)
-        //     isClosed = bool.Parse(cm);
-
         renovadorToken.Iniciar();
     }
 
-
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
+    }
 }
