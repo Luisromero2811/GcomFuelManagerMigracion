@@ -38,7 +38,7 @@
 </div>
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios" Context="GridOptim">
     <Authorized>
-        <div class="col-12 mt-4 overflow-scroll ancho" style="height:449px; resize:both;">
+        <div class="col-12 mt-4 overflow-scroll ancho-tabla" style="height:449px; resize:both;">
             <table class="table table-hover table-bordered table-sm" style="max-height: 100px; overflow: auto; width: 100%">
                 <thead>
                     <tr>
@@ -49,6 +49,7 @@
                         <th scope="col">Zona</th>
                         <th scope="col">Cliente</th>
                         <th scope="col">Moneda</th>
+                        <th scope="col">Cambio</th>
                         <th scope="col">Usuario</th>
                     </tr>
                 </thead>
@@ -71,6 +72,7 @@
                             <!--Filtro cliente-->
                             <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
                         </td>
+                        <td></td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -97,6 +99,9 @@
                             </td>
                             <td>
                                 <p>@data?.Moneda?.Nombre</p>
+                            </td>
+                            <td>
+                                <p>@data?.Equibalencia</p>
                             </td>
                             <td>
                                 <p>@data?.Usuario?.Den</p>

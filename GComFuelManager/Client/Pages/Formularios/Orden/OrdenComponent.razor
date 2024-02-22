@@ -77,7 +77,7 @@
                             </button>
                         </div>
                         <RadzenDataGrid TItem="OrdenCierre" Data="@cierres" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                         IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />

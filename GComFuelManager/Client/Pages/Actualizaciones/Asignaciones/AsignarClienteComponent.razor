@@ -178,7 +178,7 @@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;"
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Action">

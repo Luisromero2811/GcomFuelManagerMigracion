@@ -36,7 +36,7 @@
 
 <div class="col-12 d-flex justify-content-center">
     <RadzenDataGrid TItem="OrdenEmbarque" Data="@orden" AllowColumnResize="true" AllowVirtualization="true" SelectionMode="DataGridSelectionMode.Multiple" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                    GridLines="DataGridGridLines.Both" class="rz-my-2 ancho shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" AllowPickAllColumns="true"
+                    GridLines="DataGridGridLines.Both" class="rz-my-2 ancho-tabla shadow-sm" Style="height:600px;" @bind-Value="ordenesSeleccionada" AllowRowSelectOnRowClick="false" AllowPickAllColumns="true"
                     IsLoading="loadingFiltro" Density="Density.Default" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true" Culture="CultureInfo.CurrentCulture"> 
         <Columns>
             <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
