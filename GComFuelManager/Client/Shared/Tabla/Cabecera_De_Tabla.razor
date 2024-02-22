@@ -1,18 +1,20 @@
 ﻿@if (Visible)
 {
-    <th>
+    <th style="@((!string.IsNullOrEmpty(Style) && !string.IsNullOrWhiteSpace(Style)) ? Style : null)" class="resizable-column">
         @if (Template_Cabecera is not null)
         {
             @Template_Cabecera
         }
         else
         {
-            @Nombre_Cabecera
+            @Texto
         }
     </th>
 }
 @code {
     [Parameter] public RenderFragment Template_Cabecera { get; set; } = null!;
-    [Parameter] public string Nombre_Cabecera { get; set; } = string.Empty;
+    [Parameter] public string Texto { get; set; } = string.Empty;
     [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public string Style { get; set; } = string.Empty;
+    [Parameter] public bool Resize { get; set; } = false;
 }

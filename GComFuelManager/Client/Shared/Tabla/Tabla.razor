@@ -1,5 +1,7 @@
-﻿@typeparam T
-<table class="tabla-custom">
+﻿@typeparam Type
+@inject IJSRuntime js
+
+<table id="Custom_Table">
     <thead>
         @if (Cabeceras is not null)
         {
@@ -19,16 +21,18 @@
                 </tr>
             }
         }
-        @if (Listado is not null)
+        @if(Filtros is not null)
+        {
+            @Filtros
+        }
+        @if (Datos is not null)
         {
             <CascadingValue Value="this">
-                <Virtualize TItem="T" Items="Listado" Context="item">
-                    <tr>
-                        @if (Columna is not null)
-                        {
-                            @Columna(item)
-                        }
-                    </tr>
+                <Virtualize TItem="Type" Items="Datos" Context="item">
+                    @if (Columnas is not null)
+                    {
+                        @Columnas(item)
+                    }
                 </Virtualize>
             </CascadingValue>
         }
@@ -50,9 +54,17 @@
 </table>
 
 @code {
-    [Parameter] public List<T> Listado { get; set; } = new List<T>();
-    [Parameter] public RenderFragment<T> Columna { get; set; } = null!;
+    [Parameter] public List<Type> Datos { get; set; } = new List<Type>();
+    [Parameter] public RenderFragment<Type> Columnas { get; set; } = null!;
     [Parameter] public RenderFragment Cabeceras { get; set; } = null!;
     [Parameter] public RenderFragment Inferior { get; set; } = null!;
+    [Parameter] public RenderFragment Filtros { get; set; } = null!;
     [Parameter] public bool? Cargando { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await js.InvokeVoidAsync("SetResizeTable");
+
+    }
 }

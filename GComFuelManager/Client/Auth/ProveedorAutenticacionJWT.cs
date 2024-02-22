@@ -36,7 +36,7 @@ namespace GComFuelManager.Client.Auth
         {
             var token = await js.GetItemLocalStorage(TOKENKEY);
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))
             {
                 navigation.NavigateTo("/login");
                 return anonimo;
@@ -48,6 +48,7 @@ namespace GComFuelManager.Client.Auth
             if (tiempoExpiracionObject is null)
             {
                 await Limpiar();
+                navigation.NavigateTo("/login");
                 return anonimo;
             }
             if (DateTime.TryParse(tiempoExpiracionObject.ToString(), out tiempoExpiracion))
@@ -55,6 +56,7 @@ namespace GComFuelManager.Client.Auth
                 if (TokenExpirado(tiempoExpiracion))
                 {
                     await Limpiar();
+                    navigation.NavigateTo("/login");
                     return anonimo;
                 }
                 if (DebeRenovarToken(tiempoExpiracion))
@@ -81,7 +83,9 @@ namespace GComFuelManager.Client.Auth
             var tiempoExpiracionObject = await js.GetItemLocalStorage(EXPIRATIONTOKENKEY);
             DateTime tiempoExpiracion;
 
-            if (DateTime.TryParse(tiempoExpiracionObject.ToString(), out tiempoExpiracion))
+            await CheckLoginApp();
+
+            if (DateTime.TryParse(tiempoExpiracionObject, out tiempoExpiracion))
             {
                 if (TokenExpirado(tiempoExpiracion))
                 {
@@ -106,7 +110,7 @@ namespace GComFuelManager.Client.Auth
             var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>("api/cuentas/renovarToken");
             var nuevoToken = nuevoTokenResponse.Response!;
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))
             {
                 await Logoute();
                 return "";
@@ -164,4 +168,3 @@ namespace GComFuelManager.Client.Auth
         }
     }
 }
-

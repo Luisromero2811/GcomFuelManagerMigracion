@@ -7,19 +7,20 @@ namespace GComFuelManager.Client.Auth
 	public class RenovadorToken : IDisposable
 	{
         private readonly ILoginService loginService;
+        private Timer timer = new();
 
         public RenovadorToken(ILoginService loginService)
 		{
             this.loginService = loginService;
         }
 
-        Timer? timer;
-
         public void Iniciar()
         {
-            timer = new Timer();
-            //timer.Interval = 1000 * 60 * 50;
-            timer.Interval = 1000 * 60 * 25;
+            timer = new Timer
+            {
+                //timer.Interval = 1000 * 60 * 50;
+                Interval = 1000 * 60 * 25
+            };
             timer.Elapsed += Timer_Elapsed;
             timer.Start();
         }

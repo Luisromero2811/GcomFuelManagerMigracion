@@ -60,6 +60,39 @@
             }
 
             <div class="col-2">
+                <DropDownFilter Listado="Meses" TListado="int" TValue="int" Puede_Filtrar="false" Seleccion_Multiple="true" On_Cancel_Method="CancelSelectMounth">
+                    <RenderValue>
+                        @if (Meses_Seleccionados.Count > 0)
+                        {
+                            <div>
+                                @(Meses_Seleccionados.Count(x => x != 0)) seleccionados
+                            </div>
+                        }
+                        else
+                        {
+                            <div>Meses</div>
+                        }
+                    </RenderValue>
+                    <Render>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Meses_Seleccionados.Contains(context))" @onchange="@((e)=>SelectMounth(e,context))" />
+                            <label class="form-check-label" for="@context">
+                                @if (context != 0)
+                                {
+                                    @(new DateTime(DateTime.Today.Year, context, 1).ToString("MMMM").ToUpper())
+                                }
+                                else
+                                {
+                                    <p>Todos</p>
+                                }
+                            </label>
+                        </div>
+
+                    </Render>
+                </DropDownFilter>
+            </div>
+
+            <div class="col-2">
                 <select class="form-select form-select-sm" @bind="@Vendedor.Fecha_Registro">
                     <option>-- Seleccione un año --</option>
                     @foreach (var ano in Años)
@@ -104,7 +137,7 @@
         </div>
     </div>
 </div>
-<div class="ancho-tabla shadow-sm" style="overflow-x:scroll;font-size:13px;white-space:nowrap;">
+<div class="ancho-tabla shadow-sm" style="overflow:scroll;height:400px;resize:both;">
     <table class="table table-sm table-striped table-bordered">
         <thead>
             <tr>
@@ -116,7 +149,7 @@
                 {
                     <th>Originador</th>
                 }
-                @for (int mes = 1; mes <= 12; mes++)
+                @foreach (var mes in Meses_Tabla)
                 {
                     <th>@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM").ToUpper())</th>
                 }
@@ -162,6 +195,9 @@
     List<Originador> Originadores { get; set; } = new();
 
     List<int> Años { get; set; } = new();
+    List<int> Meses = new() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    List<int> Meses_Tabla = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    List<int> Meses_Seleccionados { get; set; } = new();
 
     bool Vendedor_Originador = false;
     bool Show_Venta = false;
@@ -196,7 +232,7 @@
             Loading_Reporte = true;
             if (!Vendedor_Originador)
             {
-                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte?{uri}");
+                var response = await http.Post<List<int>, Reporte_Venta>($"api/vendedor/reporte?{uri}", Meses_Seleccionados);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -205,13 +241,14 @@
                 }
                 else
                 {
-                    Vendedores_Tabla = response.Response;
+                    Vendedores_Tabla = response.Response.Vendedores;
+                    Meses_Tabla = response.Response.Meses_Venta;
                     Loading_Reporte = false;
                 }
             }
             else
             {
-                var response = await http.Get<List<Vendedor>>($"api/vendedor/reporte/originador?{uri}");
+                var response = await http.Post<List<int>, Reporte_Venta>($"api/vendedor/reporte/originador?{uri}", Meses_Seleccionados);
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -220,7 +257,8 @@
                 }
                 else
                 {
-                    Vendedores_Tabla = response.Response;
+                    Vendedores_Tabla = response.Response.Vendedores;
+                    Meses_Tabla = response.Response.Meses_Venta;
                     Loading_Reporte = false;
                 }
             }
@@ -308,11 +346,35 @@
         }
     }
 
+    private void SelectMounth(ChangeEventArgs args, int mes)
+    {
+        if (mes != 0)
+        {
+            if ((bool?)args.Value == true)
+                Meses_Seleccionados.Add(mes);
+            else
+                Meses_Seleccionados.Remove(mes);
+        }
+        else
+        {
+            if ((bool?)args.Value == true)
+                Meses_Seleccionados = Meses;
+            else
+                Meses_Seleccionados = new();
+
+        }
+    }
+
+    private void CancelSelectMounth()
+    {
+        Meses_Seleccionados = new();
+    }
+
     private async Task Exportar_Excel()
     {
         try
         {
-            var response = await http.Post<List<Vendedor>, Reporte_Completo_Vendedor_Desempeño>($"api/excel/reporte/ventas/desempeno", Vendedores_Tabla);
+            var response = await http.Post<List<Vendedor>, byte[]>($"api/excel/reporte/ventas/desempeno", Vendedores_Tabla);
             if (response.Error)
             {
                 var responseHttp = await response.ObtenerMensajeError();
@@ -320,46 +382,71 @@
             }
             else
             {
-                ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                var excel = new ExcelPackage();
-                var ws = excel.Workbook.Worksheets.Add("Litros");
-                ws.Columns.Width = 50;
 
-                var header = ws.Cells["A1:M1"];
+                // ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                // var excel = new ExcelPackage();
+                // var ws_l = excel.Workbook.Worksheets.Add("Litros");
+                // var ws_v = excel.Workbook.Worksheets.Add("Ventas");
 
-                // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
-                ws.Cells[$"B1:M{response.Response.Litros.Count + 1}"].Style.Numberformat.Format = "#,##0.00";
+                // var table_l = ws_l.Cells["A1"].LoadFromDictionaries(response.Response.Diccionario_Litros, c =>
+                // {
+                //     c.PrintHeaders = true;
+                //     c.TableStyle = TableStyles.Medium2;
+                // });
 
-                var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response.Litros, true);
-                tablebody.Style.Font.Size = 12;
-                tablebody.Style.Font.Bold = true;
-                header.Style.Font.Size = 14;
+                // var table_v = ws_v.Cells["A1"].LoadFromDictionaries(response.Response.Diccionario_Ventas, c =>
+                // {
+                //     c.PrintHeaders = true;
+                //     c.TableStyle = TableStyles.Medium2;
+                // });
 
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                header.Style.Font.Bold = true;
+                // ws_l.Cells[1, 1, ws_l.Dimension.End.Row, ws_l.Dimension.End.Column].AutoFitColumns();
+                // ws_v.Cells[1, 1, ws_v.Dimension.End.Row, ws_v.Dimension.End.Column].AutoFitColumns();
 
-                var ws_v = excel.Workbook.Worksheets.Add("Ventas");
-                ws_v.Columns.Width = 50;
+                // ws_l.Cells[$"B1:{response.Response.Letra_Fin}{ws_l.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
+                // ws_v.Cells[$"B1:{response.Response.Letra_Fin}{ws_v.Dimension.End.Row}"].Style.Numberformat.Format = "$#,####0.0000";
 
-                var header_v = ws_v.Cells["A1:M1"];
 
-                ws_v.Cells[$"B1:M{response.Response.Venta.Count + 1}"].Style.Numberformat.Format = "$#,####0.0000";
-                // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
+                // ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                // var excel = new ExcelPackage();
+                // var ws = excel.Workbook.Worksheets.Add("Litros");
+                // ws.Columns.Width = 50;
 
-                var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
-                tablebody_v.Style.Font.Size = 12;
-                tablebody_v.Style.Font.Bold = true;
-                header_v.Style.Font.Size = 14;
+                // var header = ws.Cells[$"A1:{response.Response.Letra_Fin}1"];
 
-                header_v.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                header_v.Style.Font.Bold = true;
+                // // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
+                // ws.Cells[$"B1:{response.Response.Letra_Fin}{response.Response.Litros.Count + 1}"].Style.Numberformat.Format = "#,##0.00";
+
+                // var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response.Litros, true);
+                // tablebody.Style.Font.Size = 12;
+                // tablebody.Style.Font.Bold = true;
+                // header.Style.Font.Size = 14;
+
+                // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                // header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                // header.Style.Font.Bold = true;
+
+                // var ws_v = excel.Workbook.Worksheets.Add("Ventas");
+                // ws_v.Columns.Width = 50;
+
+                // var header_v = ws_v.Cells[$"A1:{response.Response.Letra_Fin}1"];
+
+                // ws_v.Cells[$"B1:{response.Response.Letra_Fin}{response.Response.Venta.Count + 1}"].Style.Numberformat.Format = "$#,####0.0000";
+                // // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
+
+                // var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
+                // tablebody_v.Style.Font.Size = 12;
+                // tablebody_v.Style.Font.Bold = true;
+                // header_v.Style.Font.Size = 14;
+
+                // header_v.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                // header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                // header_v.Style.Font.Bold = true;
 
                 if (!Vendedor_Originador)
-                    await js.GuardarComo($"Reporte_Ventas_Vendedores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+                    await js.GuardarComo($"Reporte_Ventas_Vendedores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", response.Response);
                 else
-                    await js.GuardarComo($"Reporte_Ventas_Originadores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+                    await js.GuardarComo($"Reporte_Ventas_Originadores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", response.Response);
             }
         }
         catch (Exception e)

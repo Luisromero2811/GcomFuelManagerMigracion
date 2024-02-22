@@ -57,6 +57,7 @@ namespace GComFuelManager.Shared.DTOs
         public double? Volumen_Cargado { get; set; } = 0;
         [DisplayName("Precio")]
         public double? Precio { get; set; } = 0;
+
         [EpplusIgnore]
         public string Folio_Cierre { get; set; } = string.Empty;
         //[DisplayName("Tipo de venta")]

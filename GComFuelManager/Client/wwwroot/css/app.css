@@ -10,7 +10,7 @@ h1:focus {
 
 a, .btn-link {
     color: #0071c1;
-    text-decoration:none;
+    text-decoration: none;
 }
 
 .btn-primary {
@@ -101,6 +101,48 @@ a, .btn-link {
         content: var(--blazor-load-percentage-text, "Loading");
     }
 
+
+.linear-progress {
+    background: #d1d1d1;
+    width: 100%;
+    /*margin: 20% auto;*/
+    height: 1.5rem;
+    border-radius: 10rem;
+    overflow: hidden;
+    position: relative;
+}
+
+    .linear-progress:after {
+        content: var(--blazor-load-percentage-text, "Cargando...");
+        position: absolute;
+        inset: 0;
+        background: #EBBF1A;
+        scale: var(--blazor-load-percentage, 0%) 100%;
+        transform-origin: left top;
+        transition: scale ease-out 0.5s;
+    }
+
+.fullpage {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #eb8f8f;
+}
+
+.errorUI {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    background-color: #A90B04;
+    color: white;
+    display: inline-flex;
+}
+
+.errorUI p{
+    margin:.2rem;
+    margin-right:auto;
+}
+
 /* Color Theme Swatches in Hex */
 .gcom-1-amarillo {
     color: #EBBF1A;
@@ -128,7 +170,7 @@ a, .btn-link {
 
 .gcom-bg-amarillo {
     background-color: #EBBF1A;
-    color:black;
+    color: black;
 }
 
 .gcom-bg-amarillo-dark {
@@ -145,7 +187,7 @@ a, .btn-link {
 
 .gcom-bg-rojo {
     background-color: #BA1C15;
-    color:white;
+    color: white;
 }
 
 .gcom-bg-rojo-dark {
