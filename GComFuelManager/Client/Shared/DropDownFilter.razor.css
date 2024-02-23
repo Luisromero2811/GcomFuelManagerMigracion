@@ -1,0 +1,27 @@
+﻿.dropdown-com {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+}
+
+.dropdown-com-content {
+    position: absolute;
+    background-color: white;
+    min-width: .5rem;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 2;
+    padding: .5rem;
+    list-style: none;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+    .dropdown-com-content li {
+        color: black;
+        display: block;
+        padding: .3rem .4rem;
+    }
+
+        .dropdown-com-content li:hover {
+            background-color: #e6e6e6;
+        }

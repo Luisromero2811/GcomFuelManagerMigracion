@@ -4,9 +4,6 @@ let isResizing = false;
 let initialX = 0;
 let column = null;
 
-console.log("script");
-console.log(table);
-
 table.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('th-resizable')) {
         isResizing = true;

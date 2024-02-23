@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Helpers;
+﻿using Azure;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -7,6 +8,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
+using OfficeOpenXml.Table;
+using System.Dynamic;
+using System.Globalization;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -190,57 +195,159 @@ namespace GComFuelManager.Server.Controllers
             {
                 List<Vendedor_Reporte_Desemeño> vendedor_Reporte_Desemeño = new();
                 Reporte_Completo_Vendedor_Desempeño reporte_completo = new();
+                List<int> numero_meses = new();
+
+                List<ExpandoObject> Meses_Dinamicos = new();
 
                 foreach (var vendedor in vendedores)
                 {
-                    Vendedor_Reporte_Desemeño vendedor_litros = new() { Vendedor = vendedor.Nombre };
-                    Vendedor_Reporte_Desemeño vendedor_venta = new() { Vendedor = vendedor.Nombre };
+                    dynamic litros = new ExpandoObject();
+                    dynamic venta = new ExpandoObject();
 
                     foreach (var mes in vendedor.Venta_Por_Meses)
                     {
-                        switch (mes.Nro_Mes)
-                        {
-                            case 1: vendedor_litros.Ene = mes.Litros_Vendidos; break;
-                            case 2: vendedor_litros.Feb = mes.Litros_Vendidos; break;
-                            case 3: vendedor_litros.Mar = mes.Litros_Vendidos; break;
-                            case 4: vendedor_litros.Abr = mes.Litros_Vendidos; break;
-                            case 5: vendedor_litros.May = mes.Litros_Vendidos; break;
-                            case 6: vendedor_litros.Jun = mes.Litros_Vendidos; break;
-                            case 7: vendedor_litros.Jul = mes.Litros_Vendidos; break;
-                            case 8: vendedor_litros.Ago = mes.Litros_Vendidos; break;
-                            case 9: vendedor_litros.Sep = mes.Litros_Vendidos; break;
-                            case 10: vendedor_litros.Oct = mes.Litros_Vendidos; break;
-                            case 11: vendedor_litros.Nov = mes.Litros_Vendidos; break;
-                            case 12: vendedor_litros.Dic = mes.Litros_Vendidos; break;
-                            default: break;
-                        }
+
+                        litros.Vendedor = vendedor.Nombre;
+                        venta.Vendedor = vendedor.Nombre;
 
                         switch (mes.Nro_Mes)
                         {
-                            case 1: vendedor_venta.Ene = mes.Venta; break;
-                            case 2: vendedor_venta.Feb = mes.Venta; break;
-                            case 3: vendedor_venta.Mar = mes.Venta; break;
-                            case 4: vendedor_venta.Abr = mes.Venta; break;
-                            case 5: vendedor_venta.May = mes.Venta; break;
-                            case 6: vendedor_venta.Jun = mes.Venta; break;
-                            case 7: vendedor_venta.Jul = mes.Venta; break;
-                            case 8: vendedor_venta.Ago = mes.Venta; break;
-                            case 9: vendedor_venta.Sep = mes.Venta; break;
-                            case 10: vendedor_venta.Oct = mes.Venta; break;
-                            case 11: vendedor_venta.Nov = mes.Venta; break;
-                            case 12: vendedor_venta.Dic = mes.Venta; break;
+                            case 1:
+                                litros.Ene = mes.Litros_Vendidos;
+                                venta.Ene = mes.Venta;
+                                reporte_completo.Letra_Fin = "B";
+                                break;
+                            case 2:
+                                litros.Feb = mes.Litros_Vendidos;
+                                venta.Feb = mes.Venta;
+                                reporte_completo.Letra_Fin = "C";
+                                break;
+                            case 3:
+                                litros.Mar = mes.Litros_Vendidos;
+                                venta.Mar = mes.Venta;
+                                reporte_completo.Letra_Fin = "D";
+                                break;
+                            case 4:
+                                litros.Abr = mes.Litros_Vendidos;
+                                venta.Abr = mes.Venta;
+                                reporte_completo.Letra_Fin = "E";
+                                break;
+                            case 5:
+                                litros.May = mes.Litros_Vendidos;
+                                venta.May = mes.Venta;
+                                reporte_completo.Letra_Fin = "F";
+                                break;
+                            case 6:
+                                litros.Jun = mes.Litros_Vendidos;
+                                venta.Jun = mes.Venta;
+                                reporte_completo.Letra_Fin = "G";
+                                break;
+                            case 7:
+                                litros.Jul = mes.Litros_Vendidos;
+                                venta.Jul = mes.Venta;
+                                reporte_completo.Letra_Fin = "H";
+                                break;
+                            case 8:
+                                litros.Ago = mes.Litros_Vendidos;
+                                venta.Ago = mes.Venta;
+                                reporte_completo.Letra_Fin = "I";
+                                break;
+                            case 9:
+                                litros.Sep = mes.Litros_Vendidos;
+                                venta.Sep = mes.Venta;
+                                reporte_completo.Letra_Fin = "J";
+                                break;
+                            case 10:
+                                litros.Oct = mes.Litros_Vendidos;
+                                venta.Oct = mes.Venta;
+                                reporte_completo.Letra_Fin = "K";
+                                break;
+                            case 11:
+                                litros.Nov = mes.Litros_Vendidos;
+                                venta.Nov = mes.Venta;
+                                reporte_completo.Letra_Fin = "L";
+                                break;
+                            case 12:
+                                litros.Dic = mes.Litros_Vendidos;
+                                venta.Dic = mes.Venta;
+                                reporte_completo.Letra_Fin = "M";
+                                break;
+
                             default: break;
                         }
                     }
 
-                    reporte_completo.Litros.Add(vendedor_litros);
-                    reporte_completo.Venta.Add(vendedor_venta);
-
-                    vendedor_litros = new();
-                    vendedor_venta = new();
+                    reporte_completo.Litros.Add(litros);
+                    reporte_completo.Venta.Add(venta);
                 }
 
-                return Ok(reporte_completo);
+                foreach (var item in reporte_completo.Litros)
+                {
+                    var Litros_Convertidos = new Dictionary<string, object>();
+                    foreach (var entry in item)
+                    {
+
+                        if (entry.Value is not null)
+                        {
+                            if (double.TryParse(entry.Value.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double convertRow))
+                            {
+                                Litros_Convertidos[entry.Key] = Math.Round(convertRow, 2);
+                            }
+                            else
+                            {
+                                Litros_Convertidos[entry.Key] = entry.Value;
+                            }
+                        }
+                    }
+                    reporte_completo.Diccionario_Litros.Add(Litros_Convertidos);
+                }
+
+                foreach (var item in reporte_completo.Venta)
+                {
+                    var Ventas_Convertidas = new Dictionary<string, object>();
+                    foreach (var entry in item)
+                    {
+                        if (entry.Value is not null)
+                        {
+                            if (double.TryParse(entry.Value.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double convertRow))
+                            {
+                                Ventas_Convertidas[entry.Key] = Math.Round(convertRow, 4);
+                            }
+                            else
+                            {
+                                Ventas_Convertidas[entry.Key] = entry.Value;
+                            }
+                        }
+                    }
+                    reporte_completo.Diccionario_Ventas.Add(Ventas_Convertidas);
+                }
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var ws_l = excel.Workbook.Worksheets.Add("Litros");
+                var ws_v = excel.Workbook.Worksheets.Add("Ventas");
+
+                var table_l = ws_l.Cells["A1"].LoadFromDictionaries(reporte_completo.Diccionario_Litros, c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = TableStyles.Medium2;
+                });
+
+                var table_v = ws_v.Cells["A1"].LoadFromDictionaries(reporte_completo.Diccionario_Ventas, c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = TableStyles.Medium2;
+                });
+
+                ws_l.Cells[$"B1:{reporte_completo.Letra_Fin}{ws_l.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
+                ws_v.Cells[$"B1:{reporte_completo.Letra_Fin}{ws_v.Dimension.End.Row}"].Style.Numberformat.Format = "$#,####0.0000";
+
+                ws_l.Cells[1, 1, ws_l.Dimension.End.Row, ws_l.Dimension.End.Column].AutoFitColumns();
+                ws_v.Cells[1, 1, ws_v.Dimension.End.Row, ws_v.Dimension.End.Column].AutoFitColumns();
+
+
+
+                return Ok(excel.GetAsByteArray());
             }
             catch (Exception e)
             {
