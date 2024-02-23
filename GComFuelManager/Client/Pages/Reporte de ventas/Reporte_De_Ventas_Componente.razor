@@ -4,6 +4,7 @@
 @inject SweetAlertService Swal
 @inject NotificationService ms
 @inject IJSRuntime js
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Reportes De Venta")]
 
 <div class="card">
     <div class="card-header">
