@@ -27,7 +27,15 @@ namespace GComFuelManager.Shared.Modelos
     public class Mes_Venta
     {
         public int Nro_Mes { get; set; } = 0;
-        public string Nombre_Mes { get; set; } = string.Empty;
+        public string Nombre_Mes
+        {
+            get
+            {
+                if (Nro_Mes != 0)
+                    return new DateTime(1, Nro_Mes, 1).ToString("MMM");
+                return string.Empty;
+            }
+        }
         public double Venta { get; set; } = 0;
         public double Litros_Vendidos { get; set; } = 0;
         public Meta_Venta Meta_Venta { get; set; } = Meta_Venta.None;
@@ -50,46 +58,18 @@ namespace GComFuelManager.Shared.Modelos
         Rojo
     }
 
-    public class Vendedor_Reporte_Desemeño
-    {
-        public string Vendedor { get; set; } = string.Empty;
-        public double Ene { get; set; } = 0;
-        public double Feb { get; set; } = 0;
-        public double Mar { get; set; } = 0;
-        public double Abr { get; set; } = 0;
-        public double May { get; set; } = 0;
-        public double Jun { get; set; } = 0;
-        public double Jul { get; set; } = 0;
-        public double Ago { get; set; } = 0;
-        public double Sep { get; set; } = 0;
-        public double Oct { get; set; } = 0;
-        public double Nov { get; set; } = 0;
-        public double Dic { get; set; } = 0;
-
-    }
-
     public class Reporte_Venta
     {
         public List<Vendedor> Vendedores { get; set; } = new();
         public List<int> Meses_Venta { get; set; } = new();
+        public List<Mes_Venta> Totales { get; set; } = new();
     }
 
     public class Reporte_Completo_Vendedor_Desempeño
     {
-        //public string Letra_Inicio { get; set; } = string.Empty;
-        [EpplusIgnore] public string Letra_Fin { get; set; } = string.Empty;
-        [EpplusIgnore] public List<string> Meses { get; set; } = new();
-        //public List<Vendedor_Reporte_Desemeño> Litros { get; set; } = new();
-        //public List<Vendedor_Reporte_Desemeño> Venta { get; set; } = new();
         public List<ExpandoObject> Litros { get; set; } = new();
         public List<ExpandoObject> Venta { get; set; } = new();
-        public List<Dictionary<string,object>> Diccionario_Litros { get; set; } = new();
+        public List<Dictionary<string, object>> Diccionario_Litros { get; set; } = new();
         public List<Dictionary<string, object>> Diccionario_Ventas { get; set; } = new();
-    }
-
-    public class Mes_Letra_Excel
-    {
-        public string Mes { get; set; } = string.Empty;
-        public string Letra { get; set; } = string.Empty;
     }
 }

@@ -14,7 +14,7 @@
 
             <div class="col-12 row">
                 <div class="col-2">
-                    <b>Tipo de entidad: </b>
+                    <b>Ejecutivo: </b>
                 </div>
                 <div class="form-check col-1">
                     <input class="form-check-input" type="radio" name="vendedor" id="vendedor" checked="@(Vendedor_Originador == false)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
@@ -22,10 +22,10 @@
                         Vendedor
                     </label>
                 </div>
-                <div class="form-check col-1">
+                <div class="form-check col-2">
                     <input class="form-check-input" type="radio" name="originador" id="originador" checked="@(Vendedor_Originador == true)" @onchange="@(()=>Vendedor_Originador = !Vendedor_Originador)">
                     <label class="form-check-label" for="originador">
-                        Originador
+                        Originador (BDM)
                     </label>
                 </div>
             </div>
@@ -34,7 +34,7 @@
             </div>
             <div class="col-2">
                 <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Originadores"
-                                Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
+                                Default_Placeholder="Seleccione un originador (BDM)" Propiedad_Valor="Id" @bind-Valor="@Vendedor.Id_Originador">
                     <RenderValue Context="item_table">
                         @item_table.Nombre
                     </RenderValue>
@@ -182,6 +182,22 @@
                     }
                 </tr>
             </Virtualize>
+            <tr style="background-color:white; position: sticky; bottom: 0;">
+                <td>Total</td>
+                @foreach (var total in Totales)
+                {
+                    <td>
+                        @if (Show_Venta)
+                        {
+                            <p>$@total.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
+                        }
+                        else
+                        {
+                            <p>@total.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                        }
+                    </td>
+                }
+            </tr>
         </tbody>
     </table>
 </div>
@@ -193,6 +209,8 @@
 
     Originador Originador { get; set; } = new();
     List<Originador> Originadores { get; set; } = new();
+
+    List<Mes_Venta> Totales { get; set; } = new();
 
     List<int> Años { get; set; } = new();
     List<int> Meses = new() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -243,6 +261,7 @@
                 {
                     Vendedores_Tabla = response.Response.Vendedores;
                     Meses_Tabla = response.Response.Meses_Venta;
+                    Totales = response.Response.Totales;
                     Loading_Reporte = false;
                 }
             }
@@ -382,66 +401,6 @@
             }
             else
             {
-
-                // ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                // var excel = new ExcelPackage();
-                // var ws_l = excel.Workbook.Worksheets.Add("Litros");
-                // var ws_v = excel.Workbook.Worksheets.Add("Ventas");
-
-                // var table_l = ws_l.Cells["A1"].LoadFromDictionaries(response.Response.Diccionario_Litros, c =>
-                // {
-                //     c.PrintHeaders = true;
-                //     c.TableStyle = TableStyles.Medium2;
-                // });
-
-                // var table_v = ws_v.Cells["A1"].LoadFromDictionaries(response.Response.Diccionario_Ventas, c =>
-                // {
-                //     c.PrintHeaders = true;
-                //     c.TableStyle = TableStyles.Medium2;
-                // });
-
-                // ws_l.Cells[1, 1, ws_l.Dimension.End.Row, ws_l.Dimension.End.Column].AutoFitColumns();
-                // ws_v.Cells[1, 1, ws_v.Dimension.End.Row, ws_v.Dimension.End.Column].AutoFitColumns();
-
-                // ws_l.Cells[$"B1:{response.Response.Letra_Fin}{ws_l.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
-                // ws_v.Cells[$"B1:{response.Response.Letra_Fin}{ws_v.Dimension.End.Row}"].Style.Numberformat.Format = "$#,####0.0000";
-
-
-                // ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                // var excel = new ExcelPackage();
-                // var ws = excel.Workbook.Worksheets.Add("Litros");
-                // ws.Columns.Width = 50;
-
-                // var header = ws.Cells[$"A1:{response.Response.Letra_Fin}1"];
-
-                // // ws.Cells["F1:H1"].Style.Numberformat.Format = "#,####0.0000";
-                // ws.Cells[$"B1:{response.Response.Letra_Fin}{response.Response.Litros.Count + 1}"].Style.Numberformat.Format = "#,##0.00";
-
-                // var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response.Litros, true);
-                // tablebody.Style.Font.Size = 12;
-                // tablebody.Style.Font.Bold = true;
-                // header.Style.Font.Size = 14;
-
-                // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                // header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                // header.Style.Font.Bold = true;
-
-                // var ws_v = excel.Workbook.Worksheets.Add("Ventas");
-                // ws_v.Columns.Width = 50;
-
-                // var header_v = ws_v.Cells[$"A1:{response.Response.Letra_Fin}1"];
-
-                // ws_v.Cells[$"B1:{response.Response.Letra_Fin}{response.Response.Venta.Count + 1}"].Style.Numberformat.Format = "$#,####0.0000";
-                // // ws_v.Cells["B1:L1"].Style.Numberformat.Format = "#,##0.00";
-
-                // var tablebody_v = ws_v.Cells["A1:A1"].LoadFromCollection(response.Response.Venta, true);
-                // tablebody_v.Style.Font.Size = 12;
-                // tablebody_v.Style.Font.Bold = true;
-                // header_v.Style.Font.Size = 14;
-
-                // header_v.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                // header_v.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                // header_v.Style.Font.Bold = true;
 
                 if (!Vendedor_Originador)
                     await js.GuardarComo($"Reporte_Ventas_Vendedores_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", response.Response);

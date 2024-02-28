@@ -273,6 +273,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 Reporte_Venta reporte_Venta = new();
+
                 var vendedores = context.Vendedores.IgnoreAutoIncludes().Where(x => x.Activo)
                     .Include(x => x.Vendedor_Originador).IgnoreAutoIncludes()
                     .OrderBy(x => x.Nombre).AsQueryable();
@@ -289,80 +290,126 @@ namespace GComFuelManager.Server.Controllers
                 List<Vendedor> Vendedores_Validos = vendedores.ToList();
 
                 var meses_seleccionados_ordenados = Meses_Venta.Where(x => x != 0).Order().ToList();
-
-                foreach (var vendedor_valido in Vendedores_Validos)
+                foreach (var mes in meses_seleccionados_ordenados)
                 {
-                    List<int> clientes_validos = new();
-
-                    if (context.Cliente.Any(x => x.Id_Vendedor == vendedor_valido.Id))
+                    if (mes > 0 && mes <= 12)
                     {
-                        if (vendedor.Id_Originador != 0)
-                            clientes_validos = context.Cliente.Where(x => x.Id_Vendedor == vendedor_valido.Id && x.Id_Originador == vendedor.Id_Originador).Select(x => x.Cod).ToList();
-                        else
-                            clientes_validos = context.Cliente.Where(x => x.Id_Vendedor == vendedor_valido.Id).Select(x => x.Cod).ToList();
 
-                        foreach (var mes in meses_seleccionados_ordenados)
+                        Mes_Venta total_mes = new()
                         {
-                            if (mes > 0 && mes <= 12)
+                            Nro_Mes = mes
+                        };
+
+                        List<int?> clientes_validos = new();
+
+                        foreach (var vendedor_valido in Vendedores_Validos)
+                        {
+                            if (context.Cliente.Any(x => x.Id_Vendedor == vendedor_valido.Id))
                             {
+                                if (vendedor.Id_Originador != 0)
+                                    clientes_validos = context.Cliente.Where(x => x.Id_Vendedor == vendedor_valido.Id && x.Id_Originador == vendedor.Id_Originador).Select(x => (int?)x.Cod).ToList();
+                                else
+                                    clientes_validos = context.Cliente.Where(x => x.Id_Vendedor == vendedor_valido.Id).Select(x => (int?)x.Cod).ToList();
+
                                 Mes_Venta mes_Venta = new()
                                 {
                                     Nro_Mes = mes,
-                                    Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
+                                    //Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
                                 };
 
-                                foreach (var cliente in clientes_validos)
-                                {
-                                    var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente
-                                    && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == vendedor.Fecha_Registro && x.Codest != 14)
-                                    .Include(x => x.Producto).IgnoreAutoIncludes()
-                                    .Include(x => x.Destino).IgnoreAutoIncludes()
-                                    .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes()
-                                    .Select(x => new { x.Ref, x.BatchId, x.Bolguiid, x.Obtener_Volumen, x.Obtener_Precio_Orden_Embarque })
-                                    .ToList();
+                                var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte != null && clientes_validos.Any(y => x.Destino.Codcte == y)
+                                && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == vendedor.Fecha_Registro && x.Codest != 14)
+                                .Include(x => x.Producto).IgnoreAutoIncludes()
+                                .Include(x => x.Destino).IgnoreAutoIncludes()
+                                .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes()
+                                .Select(x => new { x.Ref, x.BatchId, x.Bolguiid, x.Obtener_Volumen, x.Obtener_Precio_Orden_Embarque, x.Obtener_Nombre_Producto })
+                                .ToList();
 
-                                    //List<Orden> ordenes_a_sumar = new();
-                                    List<dynamic> ordenes_seleccionadas_a_sumar = new();
+                                List<dynamic> ordenes_seleccionadas_a_sumar = new();
 
-                                    //var ordenes_seleccionadas = Ordenes;
+                                foreach (var orden in Ordenes)
+                                    if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                    {
+                                        ordenes_seleccionadas_a_sumar.Add(orden);
 
-                                    foreach (var orden in Ordenes)
-                                        if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                        mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                        mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+
+                                        if (total_mes.Mes_Venta_Productos.Any(x => x.Producto == orden.Obtener_Nombre_Producto))
                                         {
-                                            ordenes_seleccionadas_a_sumar.Add(orden);
-                                            mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
-                                            mes_Venta.Venta += orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen;
+                                            total_mes.Mes_Venta_Productos.First(x => x.Producto == orden.Obtener_Nombre_Producto).Venta +=
+                                                (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+                                            total_mes.Mes_Venta_Productos.First(x => x.Producto == orden.Obtener_Nombre_Producto).Litros_Vendidos += orden.Obtener_Volumen;
                                         }
+                                        else
+                                        {
+                                            Mes_Venta_Producto mes_Venta_Producto = new()
+                                            {
+                                                Litros_Vendidos = orden.Obtener_Volumen,
+                                                Venta = (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen),
+                                                Producto = orden.Obtener_Nombre_Producto
+                                            };
+                                            total_mes.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                        }
+                                    }
 
-                                    //foreach (var orden in Ordenes)
-                                    //    if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
-                                    //        ordenes_a_sumar.Add(orden);
+                                total_mes.Litros_Vendidos += mes_Venta.Litros_Vendidos;
+                                total_mes.Venta += mes_Venta.Venta;
 
-                                    ////var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
-                                    //var ordenes_dintinguidas = ordenes_a_sumar;
+                                //foreach (var cliente in clientes_validos)
+                                //{
+                                //    var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente
+                                //    && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == vendedor.Fecha_Registro && x.Codest != 14)
+                                //    .Include(x => x.Producto).IgnoreAutoIncludes()
+                                //    .Include(x => x.Destino).IgnoreAutoIncludes()
+                                //    .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes()
+                                //    .Select(x => new { x.Ref, x.BatchId, x.Bolguiid, x.Obtener_Volumen, x.Obtener_Precio_Orden_Embarque })
+                                //    .ToList();
 
-                                    //foreach (var orden in ordenes_dintinguidas)
-                                    //{
-                                    //    //Mes_Venta_Producto mes_Venta_Producto = new()
-                                    //    //{
-                                    //    //    Producto = orden.Obtener_Nombre_Producto,
-                                    //    //    Litros_Vendidos = orden.Obtener_Volumen,
-                                    //    //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
-                                    //    //};
+                                //    //List<Orden> ordenes_a_sumar = new();
+                                //    List<dynamic> ordenes_seleccionadas_a_sumar = new();
 
-                                    //    //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
-                                    //    //mes_Venta.Venta += mes_Venta_Producto.Venta;
+                                //    //var ordenes_seleccionadas = Ordenes;
 
-                                    //    mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
-                                    //    mes_Venta.Venta += orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen;
+                                //    foreach (var orden in Ordenes)
+                                //        if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                //        {
+                                //            ordenes_seleccionadas_a_sumar.Add(orden);
+                                //            mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                //            mes_Venta.Venta += orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen;
+                                //        }
 
-                                    //    //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
-                                    //}
-                                }
+                                //    //foreach (var orden in Ordenes)
+                                //    //    if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                //    //        ordenes_a_sumar.Add(orden);
+
+                                //    ////var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+                                //    //var ordenes_dintinguidas = ordenes_a_sumar;
+
+                                //    //foreach (var orden in ordenes_dintinguidas)
+                                //    //{
+                                //    //    //Mes_Venta_Producto mes_Venta_Producto = new()
+                                //    //    //{
+                                //    //    //    Producto = orden.Obtener_Nombre_Producto,
+                                //    //    //    Litros_Vendidos = orden.Obtener_Volumen,
+                                //    //    //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
+                                //    //    //};
+
+                                //    //    //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
+                                //    //    //mes_Venta.Venta += mes_Venta_Producto.Venta;
+
+                                //    //    mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                //    //    mes_Venta.Venta += orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen;
+
+                                //    //    //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                //    //}
+                                //}
                                 vendedor_valido.Venta_Por_Meses.Add(mes_Venta);
                             }
 
                         }
+
+                        reporte_Venta.Totales.Add(total_mes);
                     }
                 }
 
@@ -396,77 +443,125 @@ namespace GComFuelManager.Server.Controllers
 
                 var meses_seleccionados_ordenados = Meses_Venta.Where(x => x != 0).Order().ToList();
 
-                foreach (var item in originadores_validos)
+                foreach (var originador_vededor in originadores_validos)
                 {
                     Vendedor vendedor = new()
                     {
-                        Nombre = item.Nombre
+                        Id = originador_vededor.Id,
+                        Nombre = originador_vededor.Nombre
                     };
 
                     Originadores_Como_Vendedores.Add(vendedor);
+                }
 
-                    foreach (var mes in meses_seleccionados_ordenados)
+                foreach (var mes in meses_seleccionados_ordenados)
+                {
+                    if (mes > 0 && mes <= 12)
                     {
-                        if (mes > 0 && mes <= 12)
+                        Mes_Venta total_mes = new()
                         {
+                            Nro_Mes = mes
+                        };
 
+                        foreach (var item in Originadores_Como_Vendedores)
+                        {
                             if (context.Cliente.Any(x => x.Id_Originador == item.Id))
                             {
                                 Mes_Venta mes_Venta = new()
                                 {
                                     Nro_Mes = mes,
-                                    Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
+                                    //Nombre_Mes = new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM")
                                 };
 
-                                foreach (var cliente in context.Cliente.Where(x => x.Id_Originador == item.Id).Select(x => x.Cod).ToList())
-                                {
+                                List<int?> clientes_validos = context.Cliente.Where(x => x.Id_Originador == item.Id).Select(x => (int?)x.Cod).ToList();
 
-                                    var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente
-                                            && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == originador.Fecha_Registro && x.Codest != 14)
-                                            .Include(x => x.Producto).IgnoreAutoIncludes()
-                                            .Include(x => x.Destino).IgnoreAutoIncludes()
-                                            .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes().Select(x => new { x.Bolguiid, x.Ref, x.Obtener_Precio_Orden_Embarque, x.Obtener_Volumen }).ToList();
+                                var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte != null && clientes_validos.Any(y => y == x.Destino.Codcte)
+                                        && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == originador.Fecha_Registro && x.Codest != 14)
+                                        .Include(x => x.Producto).IgnoreAutoIncludes()
+                                        .Include(x => x.Destino).IgnoreAutoIncludes()
+                                        .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes().Select(x => new { x.Bolguiid, x.Ref, x.Obtener_Precio_Orden_Embarque, x.Obtener_Volumen, x.Obtener_Nombre_Producto }).ToList();
 
-                                    List<Orden> ordenes_a_sumar = new();
-                                    List<dynamic> ordenes_seleccionadas_a_sumar = new();
+                                List<Orden> ordenes_a_sumar = new();
+                                List<dynamic> ordenes_seleccionadas_a_sumar = new();
 
-                                    foreach (var orden in Ordenes)
-                                        if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                foreach (var orden in Ordenes)
+                                    if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                    {
+                                        ordenes_seleccionadas_a_sumar.Add(orden);
+                                        mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                        mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+
+                                        if (total_mes.Mes_Venta_Productos.Any(x => x.Producto == orden.Obtener_Nombre_Producto))
                                         {
-                                            ordenes_seleccionadas_a_sumar.Add(orden);
-                                            mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
-                                            mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+                                            total_mes.Mes_Venta_Productos.First(x => x.Producto == orden.Obtener_Nombre_Producto).Venta +=
+                                                (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+                                            total_mes.Mes_Venta_Productos.First(x => x.Producto == orden.Obtener_Nombre_Producto).Litros_Vendidos += orden.Obtener_Volumen;
                                         }
+                                        else
+                                        {
+                                            Mes_Venta_Producto mes_Venta_Producto = new()
+                                            {
+                                                Litros_Vendidos = orden.Obtener_Volumen,
+                                                Venta = (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen),
+                                                Producto = orden.Obtener_Nombre_Producto
+                                            };
+                                            total_mes.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                        }
+                                    }
 
-                                    //foreach (var orden in Ordenes)
-                                    //    if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
-                                    //        ordenes_a_sumar.Add(orden);
+                                total_mes.Litros_Vendidos += mes_Venta.Litros_Vendidos;
+                                total_mes.Venta += mes_Venta.Venta;
 
-                                    //var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
-                                    //var ordenes_dintinguidas = ordenes_a_sumar;
+                                //foreach (var cliente in context.Cliente.Where(x => x.Id_Originador == item.Id).Select(x => x.Cod).ToList())
+                                //{
 
-                                    //foreach (var orden in ordenes_dintinguidas)
-                                    //{
-                                    //    //Mes_Venta_Producto mes_Venta_Producto = new()
-                                    //    //{
-                                    //    //    Producto = orden.Obtener_Nombre_Producto,
-                                    //    //    Litros_Vendidos = orden.Obtener_Volumen,
-                                    //    //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
-                                    //    //};
+                                //    var Ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Destino != null && x.Destino.Codcte == cliente
+                                //            && x.Fchcar != null && x.Fchcar.Value.Month == mes && x.Fchcar.Value.Year == originador.Fecha_Registro && x.Codest != 14)
+                                //            .Include(x => x.Producto).IgnoreAutoIncludes()
+                                //            .Include(x => x.Destino).IgnoreAutoIncludes()
+                                //            .Include(x => x.OrdenEmbarque).IgnoreAutoIncludes().Select(x => new { x.Bolguiid, x.Ref, x.Obtener_Precio_Orden_Embarque, x.Obtener_Volumen }).ToList();
 
-                                    //    //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
-                                    //    //mes_Venta.Venta += mes_Venta_Producto.Venta;
+                                //    List<Orden> ordenes_a_sumar = new();
+                                //    List<dynamic> ordenes_seleccionadas_a_sumar = new();
 
-                                    //    mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
-                                    //    mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+                                //    foreach (var orden in Ordenes)
+                                //        if (!ordenes_seleccionadas_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                //        {
+                                //            ordenes_seleccionadas_a_sumar.Add(orden);
+                                //            mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                //            mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+                                //        }
 
-                                    //    //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
-                                    //}
+                                //    //foreach (var orden in Ordenes)
+                                //    //    if (!ordenes_a_sumar.Any(x => x.Ref == orden.Ref && x.Bolguiid != orden.Bolguiid))
+                                //    //        ordenes_a_sumar.Add(orden);
 
-                                }
-                                vendedor.Venta_Por_Meses.Add(mes_Venta);
+                                //    //var ordenes_dintinguidas = Ordenes.DistinctBy(x => x.Liniteid);
+                                //    //var ordenes_dintinguidas = ordenes_a_sumar;
+
+                                //    //foreach (var orden in ordenes_dintinguidas)
+                                //    //{
+                                //    //    //Mes_Venta_Producto mes_Venta_Producto = new()
+                                //    //    //{
+                                //    //    //    Producto = orden.Obtener_Nombre_Producto,
+                                //    //    //    Litros_Vendidos = orden.Obtener_Volumen,
+                                //    //    //    Venta = orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen
+                                //    //    //};
+
+                                //    //    //mes_Venta.Litros_Vendidos += mes_Venta_Producto.Litros_Vendidos;
+                                //    //    //mes_Venta.Venta += mes_Venta_Producto.Venta;
+
+                                //    //    mes_Venta.Litros_Vendidos += orden.Obtener_Volumen;
+                                //    //    mes_Venta.Venta += (orden.Obtener_Precio_Orden_Embarque * orden.Obtener_Volumen);
+
+                                //    //    //mes_Venta.Mes_Venta_Productos.Add(mes_Venta_Producto);
+                                //    //}
+
+                                //}
+                                item.Venta_Por_Meses.Add(mes_Venta);
                             }
                         }
+                        reporte_Venta.Totales.Add(total_mes);
                     }
                 }
 

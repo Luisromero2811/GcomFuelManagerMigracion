@@ -1,9 +1,11 @@
 ﻿@typeparam TListado
 @typeparam TValue
 
-<div style="width:100%">
+@* @inject IJSRuntime js *@
+
+<div style="width:100%" id="dropdown-custom">
     <div class="dropdown-com">
-        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="form-control-sm form-control" type="button">
+        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="dropdown-com-btn" type="button">
             @if (RenderValue is null || Valor_Seleleccionado is null)
             {
                 @if (!string.IsNullOrEmpty(Default_Placeholder))
@@ -39,8 +41,8 @@
         <ul class="dropdown-com-content" id="dropdown-list">
             @if (Puede_Filtrar)
             {
-                <li class="">
-                    <input type="search" class="form-control-sm form-control col-12" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" autofocus="autofocus" />
+                <li style="position:sticky; top:0; background-color:white;">
+                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value"/>
                 </li>
             }
             <Virtualize Items="Listado" Context="Item" TItem="TListado">
@@ -55,7 +57,7 @@
                     }
                     else
                     {
-                        <li class="" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
+                        <li class="dropdown-com-content-item" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
                             @Render(Item)
                         </li>
                     }
@@ -90,32 +92,26 @@
     [Parameter] public bool Seleccion_Multiple { get; set; } = false;
     private List<TListado> Listado_Seleccionado { get; set; } = new();
 
-    // private async Task MultipleValorSeleccionado(ChangeEventArgs args, TListado item)
-    // {
-    // if ((bool?)args.Value == true)
-    //     Listado_Seleccionado.Add(item);
-    // else
-    //     Listado_Seleccionado.Remove(item);
+    // private ElementReference elementReference;
 
-    // if (!string.IsNullOrEmpty(Propiedad_Valor) || !string.IsNullOrWhiteSpace(Propiedad_Valor))
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
-    //     var prop_name = item.GetType().GetProperty(Propiedad_Valor);
-    //     if (prop_name is not null)
-    //     {
-
-    //         var valor_seleccionado = (TValue)prop_name.GetValue(item);
-
-    //         await ValorChanged.InvokeAsync(Valor);
-    //         // ValorChangedCustom.InvokeAsync(Valor);
-    //     }
-    // }
-    // else
-    // {
-    //     var nuevo_valor = Convert.ChangeType(Listado_Seleccionado, typeof(TValue));
-    //     Valor = (TValue)nuevo_valor;
+    //     if (firstRender)
+    //         await js.InvokeVoidAsync("closedropdown", DotNetObjectReference.Create(this), elementReference);
     // }
 
-    // await On_Change_Method.InvokeAsync();
+    // private async void OpenDropDown()
+    // {
+    //     ShowDropDown = true;
+    //     await js.InvokeVoidAsync("closedropdown", DotNetObjectReference.Create(this), elementReference);
+    // }
+
+    // [JSInvokable]
+    // public void OutsideClick()
+    // {
+    //     Console.WriteLine("cerrando");
+    //     ShowDropDown = false;
+    //     StateHasChanged();
     // }
 
     private async Task ValorChange(TListado item)
@@ -158,16 +154,4 @@
 
         await FiltrarValor.InvokeAsync(value);
     }
-    // private void GrupoChange(Grupo e)
-    // {
-    //     Grupo_Seleccionado = e;
-    //     ShowDropDown = false;
-    // }
-
-    // private async Task FilterGrupo(ChangeEventArgs e)
-    // {
-    //     Grupo_Filtrado = e.Value.ToString();
-    //     queryParams["Grupo_Filtrado"] = Grupo_Filtrado;
-    //     await GetFolios();
-    // }
 }
