@@ -34,9 +34,9 @@ namespace GComFuelManager.Shared.Modelos
         //    }
         //}
         public double? Meta { get; set; } = 0;
-        public double? Referencia { get; set; } = 0;
+        public double? Referencia { get; set; } = 0.0;
         [DisplayName("Real")]
-        public double? Venta_Real { get; set; } = 0;
+        public double? Venta_Real { get; set; } = 0.0;
         [EpplusIgnore] public DateTime Mes { get; set; } = DateTime.Today;
         [EpplusIgnore] public bool Activa { get; set; } = true;
 
