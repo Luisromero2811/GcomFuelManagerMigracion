@@ -272,6 +272,7 @@
                 {
                     var message = await response.ObtenerMensajeError();
                     await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    Totales = response.Response.Totales;
                     Loading_Reporte = false;
                 }
                 else
