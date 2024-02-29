@@ -547,6 +547,10 @@ namespace GComFuelManager.Server
         public DbSet<Originador> Originadores { get; set; }
         public DbSet<Vendedor_Originador> Vendedor_Originador { get; set; }
         public DbSet<Metas_Vendedor> Metas_Vendedor { get; set; }
+        public DbSet<Cliente_Tad> Cliente_Tad { get; set; }
+        public DbSet<Destino_Tad> Destino_Tad { get; set; }
+        public DbSet<Transportista_Tad> Transportista_Tad { get; set; }
+        public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
 
     }
 }
