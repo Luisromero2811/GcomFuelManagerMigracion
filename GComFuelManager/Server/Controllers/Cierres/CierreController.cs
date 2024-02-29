@@ -589,15 +589,15 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             precio.Producto_Original = orden.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                    var precioVig = context.Precio.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd)
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd
                         && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
@@ -763,11 +763,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             precio.Producto_Original = item.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioVig = context.Precio.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd
                         && item.Fchcar != null && x.FchDia <= item.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
@@ -2889,7 +2889,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     {
                         Codprd = cierre.CodPrd,
                         Coddes = cierre.CodDes,
-                        Codtad = cierre.CodTad,
+                        Codtad = cierre.Id_Tad,
                         Pre = cierre.Precio,
                         Fchpet = DateTime.Now,
                         Codest = 9,

@@ -532,9 +532,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var destinos_en_precios = context.Precio.Select(x => x.codDes).Distinct().ToList();
-                var destinos_en_precios_programados = context.PrecioProgramado.Select(x => x.codDes).Distinct().ToList();
-                var destinos_en_precios_historial = context.PreciosHistorico.Select(x => x.codDes).Distinct().ToList();
+                var destinos_en_precios = context.Precio.Select(x => x.CodDes).Distinct().ToList();
+                var destinos_en_precios_programados = context.PrecioProgramado.Select(x => x.CodDes).Distinct().ToList();
+                var destinos_en_precios_historial = context.PreciosHistorico.Select(x => x.CodDes).Distinct().ToList();
 
                 List<int?> destinos_encontrados = new();
 

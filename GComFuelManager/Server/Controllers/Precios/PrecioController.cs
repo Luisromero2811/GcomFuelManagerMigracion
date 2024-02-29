@@ -344,7 +344,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 }
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.codZona == precio.codZona))
+                    if (context.Precio.Any(x => x.CodDes == precio.CodDes && x.CodCte == precio.CodCte && x.CodPrd == precio.CodPrd && x.CodZona == precio.CodZona))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precio);
@@ -354,11 +354,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     Cod = null!,
                     pre = precio.Pre,
-                    codCte = precio?.codCte,
-                    codDes = precio?.codDes,
-                    codGru = precio?.codGru,
-                    codPrd = precio?.codPrd,
-                    codZona = precio?.codZona,
+                    CodCte = precio?.CodCte,
+                    CodDes = precio?.CodDes,
+                    CodGru = precio?.CodGru,
+                    CodPrd = precio?.CodPrd,
+                    CodZona = precio?.CodZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = precio.FchActualizacion,
                     Moneda = precio.Moneda,
@@ -403,11 +403,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                             Precio precio = new()
                             {
                                 Pre = item.Precio,
-                                codCte = item.CodCte,
-                                codDes = item.CodDes,
-                                codPrd = item.CodPrd,
-                                codGru = item.Cliente?.codgru,
-                                codZona = zona?.CteCod,
+                                CodCte = item.CodCte,
+                                CodDes = item.CodDes,
+                                CodPrd = item.CodPrd,
+                                CodGru = item.Cliente?.codgru,
+                                CodZona = zona?.CteCod,
                                 Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd),
                                 Moneda = item.Moneda,
                                 ID_Moneda = item.ID_Moneda,
@@ -419,8 +419,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return Ok(precios);
                 }
 
-                precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                precios = await context.Precio.Where(x => x.CodCte == zonaCliente.CteCod
+                    && x.CodDes == zonaCliente.DesCod && x.Activo == true)
                     //&& x.codZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
@@ -442,8 +442,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    preciosPro = await context.PrecioProgramado.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
+                    preciosPro = await context.PrecioProgramado.Where(x => x.CodCte == zonaCliente.CteCod
+                    && x.CodDes == zonaCliente.DesCod && x.Activo == true)
                     //&& x.codZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
@@ -452,19 +452,19 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         if (item.FchDia > DateTime.Today)
                         {
-                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
-                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).FchDia = item.FchDia;
-                            var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                            precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd).Pre = item.Pre;
+                            precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd).FchDia = item.FchDia;
+                            var pre = precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd);
                             if (pre is null)
                             {
                                 precios.Add(new Precio()
                                 {
                                     Pre = item.Pre,
-                                    codCte = item.codCte,
-                                    codDes = item.codDes,
-                                    codPrd = item.codPrd,
-                                    codGru = item.Cliente?.codgru,
-                                    Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
+                                    CodCte = item.CodCte,
+                                    CodDes = item.CodDes,
+                                    CodPrd = item.CodPrd,
+                                    CodGru = item.Cliente?.codgru,
+                                    Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
                                 });
                             }
                         }
@@ -553,11 +553,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var precio = new PrecioProgramado
                         {
-                            codCte = cliente.Cod,
-                            codDes = destino.Cod,
-                            codGru = cliente.codgru,
-                            codPrd = producto.Cod,
-                            codZona = zona?.Cod,
+                            CodCte = cliente.Cod,
+                            CodDes = destino.Cod,
+                            CodGru = cliente.codgru,
+                            CodPrd = producto.Cod,
+                            CodZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio,
@@ -566,11 +566,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                             ID_Usuario = user_system.Cod
                         };
 
-                        var p = context.PrecioProgramado.IgnoreAutoIncludes().FirstOrDefault(x => x.codGru == precio.codGru
+                        var p = context.PrecioProgramado.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precio.CodGru
                         //&& x.codZona == precio.codZona
-                        && x.codCte == precio.codCte
-                        && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes);
+                        && x.CodCte == precio.CodCte
+                        && x.CodPrd == precio.CodPrd
+                        && x.CodDes == precio.CodDes);
 
                         if (p is not null)
                         {
@@ -590,11 +590,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var precio = new Precio
                         {
-                            codCte = cliente.Cod,
-                            codDes = destino.Cod,
-                            codGru = cliente.codgru,
-                            codPrd = producto.Cod,
-                            codZona = zona?.Cod,
+                            CodCte = cliente.Cod,
+                            CodDes = destino.Cod,
+                            CodGru = cliente.codgru,
+                            CodPrd = producto.Cod,
+                            CodZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio,
@@ -603,11 +603,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                             ID_Usuario = user_system.Cod
                         };
 
-                        var p = context.Precio.IgnoreAutoIncludes().FirstOrDefault(x => x.codGru == precio.codGru
+                        var p = context.Precio.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precio.CodGru
                         //&& x.codZona == precio.codZona
-                        && x.codCte == precio.codCte
-                        && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes);
+                        && x.CodCte == precio.CodCte
+                        && x.CodPrd == precio.CodPrd
+                        && x.CodDes == precio.CodDes);
 
                         if (p is not null)
                         {
@@ -626,11 +626,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             Cod = null!,
                             pre = precio.Pre,
-                            codCte = precio.codCte == null ? 0 : precio.codCte,
-                            codDes = precio.codDes == null ? 0 : precio.codDes!,
-                            codGru = precio.codGru == null ? (short)0 : (short)precio.codGru!,
-                            codPrd = precio.codPrd == null ? 0 : precio.codPrd,
-                            codZona = precio.codZona == null ? 0 : precio.codZona,
+                            CodCte = precio.CodCte == null ? 0 : precio.CodCte,
+                            CodDes = precio.CodDes == null ? 0 : precio.CodDes!,
+                            CodGru = precio.CodGru == null ? (short)0 : (short)precio.CodGru!,
+                            CodPrd = precio.CodPrd == null ? 0 : precio.CodPrd,
+                            CodZona = precio.CodZona == null ? 0 : precio.CodZona,
                             FchDia = precio.FchDia,
                             FchActualizacion = precio.FchActualizacion,
                             ID_Moneda = precio?.ID_Moneda,
@@ -654,7 +654,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 List<PreciosDTO> destinosSinPre = new();
                 destinos = context.Destino.ToList();
                 foreach (var item in destinos)
-                    if (!context.PrecioProgramado.Any(x => x.codDes == item.Cod))
+                    if (!context.PrecioProgramado.Any(x => x.CodDes == item.Cod))
                     {
                         PreciosDTO dTO = new()
                         {
@@ -727,16 +727,16 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         if (item is not null)
                         {
-                            var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
+                            var precio = context.Precio.FirstOrDefault(x => x.CodCte == item.CodCte && x.CodDes == item.CodDes && x.CodPrd == item.CodPrd && x.Activo == true);
                             if (precio is null)
                             {
                                 var precioN = new Precio
                                 {
-                                    codCte = item.codCte,
-                                    codDes = item.codDes,
-                                    codGru = item?.codGru,
-                                    codPrd = item?.codPrd,
-                                    codZona = item?.codZona,
+                                    CodCte = item.CodCte,
+                                    CodDes = item.CodDes,
+                                    CodGru = item?.CodGru,
+                                    CodPrd = item?.CodPrd,
+                                    CodZona = item?.CodZona,
                                     FchDia = item?.FchDia ?? DateTime.MinValue,
                                     FchActualizacion = DateTime.Now,
                                     Pre = item?.Pre ?? 0,
@@ -762,11 +762,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                             {
                                 Cod = null!,
                                 pre = item.Pre,
-                                codCte = item.codCte,
-                                codDes = item.codDes,
-                                codGru = item?.codGru,
-                                codPrd = item?.codPrd,
-                                codZona = item?.codZona,
+                                CodCte = item.CodCte,
+                                CodDes = item.CodDes,
+                                CodGru = item?.CodGru,
+                                CodPrd = item?.CodPrd,
+                                CodZona = item?.CodZona,
                                 FchDia = item.FchDia,
                                 FchActualizacion = item.FchActualizacion,
                                 Equibalencia = item?.Equibalencia,
@@ -828,11 +828,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                 var precioPro = new PrecioProgramado
                 {
                     Cod = precio.Cod,
-                    codCte = precio.codCte,
-                    codDes = precio.codDes,
-                    codGru = precio.codGru,
-                    codPrd = precio.codPrd,
-                    codZona = precio.codZona,
+                    CodCte = precio.CodCte,
+                    CodDes = precio.CodDes,
+                    CodGru = precio.CodGru,
+                    CodPrd = precio.CodPrd,
+                    CodZona = precio.CodZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = DateTime.Now,
                     Pre = precio.Pre,
@@ -845,7 +845,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     context.Update(precioPro);
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.FchDia == precio.FchDia && x.codZona == precio.codZona))
+                    if (context.Precio.Any(x => x.CodDes == precio.CodDes && x.CodCte == precio.CodCte && x.CodPrd == precio.CodPrd && x.FchDia == precio.FchDia && x.CodZona == precio.CodZona))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precioPro);
@@ -903,15 +903,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                 precio.BOL = ordenes.BatchId;
                 precio.Volumen_Cargado = ordenes.Vol;
 
-                var precioVig = context.Precio.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+                var precioVig = context.Precio.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+                var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd
+                var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd
                     && ordenes.Fchcar != null && x.FchDia <= ordenes.Fchcar.Value.Date)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
@@ -1044,23 +1044,23 @@ namespace GComFuelManager.Server.Controllers.Precios
                             precio.Producto_Original = item.Producto.Den ?? "";
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioVig = context.Precio.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioVig = context.Precio.Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioPro = context.PrecioProgramado.Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
+                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd
                         && x.FchDia <= DateTime.Today)
                         .OrderByDescending(x => x.FchActualizacion)
                         .FirstOrDefault();
 
                     if (orden is not null)
-                        precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
+                        precioHis = context.PreciosHistorico.Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
                         && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
@@ -1188,31 +1188,31 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 PrecioBolDTO precio = new();
 
-                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
                 if (orden.Orden is not null)
-                    precioVig = context.Precio.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd)
+                    precioVig = context.Precio.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
                 if (orden.Orden is not null)
-                    precioPro = context.PrecioProgramado.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd)
+                    precioPro = context.PrecioProgramado.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
-                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
                     && x.FchDia <= DateTime.Today)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
                 if (orden.Orden is not null)
-                    context.PreciosHistorico.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd
+                    context.PreciosHistorico.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd
                     && x.FchDia <= orden.Orden.Fchcar)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
