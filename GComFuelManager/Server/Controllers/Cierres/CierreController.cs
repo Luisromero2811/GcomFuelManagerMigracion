@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using static GComFuelManager.Server.Controllers.Precios.PrecioController;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -46,19 +45,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
             await context.SaveChangesAsync();
         }
 
-        [HttpGet]
-        public async Task<ActionResult> Get()
-        {
-            try
-            {
-                var ordenes = context.OrdenCierre.AsEnumerable();
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //[HttpGet]
+        //public async Task<ActionResult> Get()
+        //{
+        //    try
+        //    {
+        //        var ordenes = context.OrdenCierre.AsEnumerable();
+        //        return Ok();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpGet("{folio}")]
         public async Task<ActionResult> GetByFolio([FromRoute] string folio)
@@ -96,7 +95,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                Porcentaje porcentaje = new Porcentaje();
+                Porcentaje porcentaje = new();
                 var por = context.Porcentaje.FirstOrDefault(x => x.Accion == "cierre");
                 if (por != null)
                     porcentaje = por;
@@ -137,8 +136,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
-                List<OrdenCierre> Ordenes_Adicionales_Modificadas = new List<OrdenCierre>();
+                List<OrdenCierre> cierresVolumen = new();
+                List<OrdenCierre> Ordenes_Adicionales_Modificadas = new();
                 var ordenes = context.OrdenCierre.IgnoreAutoIncludes().Where(x => x.Folio == folio && x.Estatus == true && x.Id_Tad == id_terminal).ToList();
 
                 if (ordenes.Count > 0)
@@ -235,7 +234,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierresVolumen = new List<OrdenCierre>();
+                List<OrdenCierre> cierresVolumen = new();
                 var ordenes = context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true && x.Id_Tad == id_terminal).ToList();
 
                 if (ordenes.Count > 0)
@@ -380,7 +379,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 if (orden.PrecioOverDate)
                 {
-                    CierrePrecioDespuesFecha cierreprecio = new CierrePrecioDespuesFecha()
+                    CierrePrecioDespuesFecha cierreprecio = new()
                     {
                         CodCie = orden.Cod,
                         CodCte = orden.CodCte,
@@ -467,8 +466,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                List<OrdenCierre> ordenes = new List<OrdenCierre>();
-                OrdenCierre? pedido = new OrdenCierre();
+                List<OrdenCierre> ordenes = new();
+                OrdenCierre? pedido = new();
 
                 foreach (var item in list)
                 {
@@ -497,7 +496,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierresGroup = new List<OrdenCierre>();
+                List<OrdenCierre> cierresGroup = new();
                 cierresGroup = await context.OrdenCierre.IgnoreAutoIncludes().Where(x => !string.IsNullOrEmpty(x.Folio) && x.CodGru == filtroDTO.codGru && x.Folio.StartsWith("G") && x.Estatus == true && x.Id_Tad == id_terminal)
                      .Include(x => x.Cliente)
                         .Include(x => x.Producto)
@@ -529,7 +528,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 if (!filtroDTO.forFolio)
                 {
@@ -593,7 +592,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<PrecioBolDTO> precios = new List<PrecioBolDTO>();
+                List<PrecioBolDTO> precios = new();
 
                 var ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Ref == referencia && x.Id_Tad == id_terminal)
                     .Include(x => x.Producto)
@@ -605,9 +604,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 foreach (var item in ordenes)
                 {
-                    PrecioBolDTO precio = new PrecioBolDTO();
+                    PrecioBolDTO precio = new();
 
-                    OrdenEmbarque? orden = new OrdenEmbarque();
+                    OrdenEmbarque? orden = new();
                     orden = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.FolioSyn == item.Ref && x.Codtad == id_terminal).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
 
                     precio.Fecha_De_Carga = item.Fchcar;
@@ -737,7 +736,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<PrecioBolDTO> precios = new List<PrecioBolDTO>();
+                List<PrecioBolDTO> precios = new();
                 List<Orden> ordenes_unificadas = new();
 
                 //var ordenes = context.OrdenCierre.Where(x => x.CodGru == fechas.codGru && x.CodCte == fechas.codCte && x.FchCierre >= fechas.FchInicio && x.FchCierre <= fechas.FchFin && x.Folio.StartsWith("OP"));
@@ -918,7 +917,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 if (!filtroDTO.forFolio)
                 {
@@ -1024,7 +1023,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> ordens = new List<OrdenCierre>();
+                List<OrdenCierre> ordens = new();
 
                 ordens = context.OrdenCierre.Where(x => x.Folio == fechas.Folio && x.Id_Tad == id_terminal).ToList();
 
@@ -1076,7 +1075,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+                VolumenDisponibleDTO volumen = new();
 
                 if (!filtro.forFolio)
                 {
@@ -1138,7 +1137,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
 
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
@@ -1189,7 +1188,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
                             productoVolumen.Nombre = item.Producto!.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
                             productoVolumen.Congelado = VolumenCongelado;
@@ -1266,7 +1265,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
 
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
@@ -1324,7 +1323,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
                             productoVolumen.Congelado = VolumenCongelado;
@@ -1356,7 +1355,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+                VolumenDisponibleDTO volumen = new();
 
                 var cierres = await context.OrdenCierre.IgnoreAutoIncludes().Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                 && x.Estatus == true && x.CodCte == filtro.codCte && x.Id_Tad == id_terminal)
@@ -1394,7 +1393,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                     var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                    ProductoVolumen productoVolumen = new ProductoVolumen();
+                    ProductoVolumen productoVolumen = new();
                     productoVolumen.Nombre = item?.Producto!.Den;
                     productoVolumen.Disponible = VolumenTotalDisponible;
                     productoVolumen.Congelado = VolumenCongelado;
@@ -1433,7 +1432,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                VolumenDisponibleDTO volumen = new VolumenDisponibleDTO();
+                VolumenDisponibleDTO volumen = new();
 
                 if (!filtro.forFolio)
                 {
@@ -1493,7 +1492,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
 
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
@@ -1563,7 +1562,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
                             productoVolumen.Nombre = item.Producto!.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
                             productoVolumen.Congelado = VolumenCongelado;
@@ -1638,7 +1637,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
 
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
@@ -1706,7 +1705,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                             var VolumenTotalDisponible = VolumenDisponible - (VolumenConsumido + VolumenCongelado + VolumenProgramado);
 
-                            ProductoVolumen productoVolumen = new ProductoVolumen();
+                            ProductoVolumen productoVolumen = new();
                             productoVolumen.Nombre = item.Producto?.Den;
                             productoVolumen.Disponible = VolumenTotalDisponible;
                             productoVolumen.Congelado = VolumenCongelado;
@@ -1835,7 +1834,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<string?> folios = new List<string?>();
+                List<string?> folios = new();
 
                 folios = context.OrdenCierre.Where(x => x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
                 && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.Id_Tad == id_terminal)
@@ -1860,7 +1859,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
+                List<FolioDetalleDTO> folios = new();
                 //Filtro de órdenes mediante la obtención del folio
                 if (!filtro.forFolio)
                 {
@@ -2014,7 +2013,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioDetalleDTO> folios = new List<FolioDetalleDTO>();
+                List<FolioDetalleDTO> folios = new();
                 //Cuando se sabe el folio de la orden
                 if (!filtro.forFolio)
                     folios = await context.OrdenCierre.Where(
@@ -2167,7 +2166,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioCierreDTO> folios = new List<FolioCierreDTO>();
+                List<FolioCierreDTO> folios = new();
                 folios = await context.OrdenCierre.OrderBy(x => x.FchCierre)
                       .Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("P") && x.Id_Tad == id_terminal
                    || x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("G") && x.Id_Tad == id_terminal)
@@ -2215,7 +2214,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioCierreDTO> folios = new List<FolioCierreDTO>();
+                List<FolioCierreDTO> folios = new();
                 //Cuando se filtra por grupo empresarial y cliente
                 if (filtro.codCte != null && filtro.codGru != null)
                 {
@@ -2324,7 +2323,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioCierreDTO> folios = new List<FolioCierreDTO>();
+                List<FolioCierreDTO> folios = new();
                 if (filtro.codCte != null && filtro.codGru != null)
                 {
                     folios = await context.OrdenCierre.OrderBy(x => x.FchCierre)
@@ -2404,7 +2403,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<FolioCierreDTO> folios = new List<FolioCierreDTO>();
+                List<FolioCierreDTO> folios = new();
                 if (filtro.codGru != null)
                 {
                     folios = await context.OrdenCierre.OrderBy(x => x.FchCierre)
@@ -2479,7 +2478,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<string?> folios = new List<string?>();
+                List<string?> folios = new();
                 if (cliente != 0)
                     folios = context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
                     && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodCte == cliente && x.Id_Tad == id_terminal)
@@ -2513,7 +2512,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (filtroDTO is null)
                     return BadRequest();
 
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 var cierresDis = await context.OrdenCierre.IgnoreAutoIncludes().Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
                 && x.Activa == true && x.CodPed == 0 && x.Id_Tad == id_terminal)
@@ -2526,7 +2525,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (cierresDis is null)
                     return Ok(cierres);
 
-                Porcentaje porcentaje = new Porcentaje();
+                Porcentaje porcentaje = new();
                 var por = context.Porcentaje.FirstOrDefault(x => x.Accion == "cierre");
                 if (por != null)
                     porcentaje = por;
@@ -2610,7 +2609,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         if (sumVolumen != 0 && sumCount != 0)
                             PromedioCargas = sumVolumen / sumCount;
 
-                        ProductoVolumen productoVolumen = new ProductoVolumen();
+                        ProductoVolumen productoVolumen = new();
 
                         productoVolumen.Nombre = item.Producto?.Den;
                         productoVolumen.Disponible = VolumenTotalDisponible;
@@ -2649,7 +2648,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 var cierresDis = await context.OrdenCierre.Where(x => x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin
                 && x.Activa == true && x.CodPed == 0)
@@ -2659,7 +2658,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (cierresDis is null)
                     return Ok(cierres);
 
-                Porcentaje porcentaje = new Porcentaje();
+                Porcentaje porcentaje = new();
                 var por = context.Porcentaje.FirstOrDefault(x => x.Accion == "cierre");
                 if (por != null)
                     porcentaje = por;
@@ -2737,7 +2736,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         if (sumVolumen != 0 && sumCount != 0)
                             PromedioCargas = sumVolumen / sumCount;
 
-                        ProductoVolumen productoVolumen = new ProductoVolumen();
+                        ProductoVolumen productoVolumen = new();
 
                         productoVolumen.Nombre = item.Producto?.Den;
                         productoVolumen.Disponible = VolumenTotalDisponible;
@@ -2780,7 +2779,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
                 cierres = await context.OrdenCierre.Where(x => x.FchCierre >= fechas.DateInicio && x.FchCierre <= fechas.DateFin && x.Confirmada == false
                 && x.Activa == true && x.Estatus == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Cliente)
@@ -2875,7 +2874,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 cierres = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento < DateTime.Today && x.Activa == true && x.Folio.StartsWith("P")
                 || !string.IsNullOrEmpty(x.Folio) && x.FchVencimiento < DateTime.Today && x.Activa == true && x.Folio.StartsWith("G"))
@@ -2903,7 +2902,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                List<OrdenCierre> cierres = new List<OrdenCierre>();
+                List<OrdenCierre> cierres = new();
 
                 cierres = context.OrdenCierre.Where(x => x.FchVencimiento > DateTime.Today && x.Activa == false).ToList();
 
@@ -3111,7 +3110,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new();
 
                 OrdenCierre? orden = context.OrdenCierre
                     .IgnoreAutoIncludes()
@@ -3151,7 +3150,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (crear_Orden_Template_DTO.ID_Producto is not null)
                     crear_Orden_Template_DTO.Producto = context.Producto.First(x => x.Cod == crear_Orden_Template_DTO.ID_Producto);
 
-                Precio precio = new Precio()
+                Precio precio = new()
                 {
                     Pre = orden.Precio,
                     Producto = crear_Orden_Template_DTO.Producto,
@@ -3209,7 +3208,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (id_terminal == 0)
                     return BadRequest();
 
-                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new();
 
                 List<OrdenCierre> ordenes = context.OrdenCierre.IgnoreAutoIncludes().Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio == ordenCierre.Folio && x.Id_Tad == id_terminal)
                     .Include(x => x.Producto)
@@ -3247,7 +3246,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         if (!crear_Orden_Template_DTO.Productos.Any(x => x.Cod == item.CodPrd))
                             crear_Orden_Template_DTO.Productos.AddRange(context.Producto.Where(x => x.Cod == item.CodPrd).ToList());
 
-                    Precio precio = new Precio()
+                    Precio precio = new()
                     {
                         Pre = item.Precio,
                         Producto = item.Producto,
@@ -3343,7 +3342,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(ordenCierre.Folio) || string.IsNullOrWhiteSpace(ordenCierre.Folio))
                     return BadRequest("No se admiten valores vacios");
 
-                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new Crear_Orden_Template_DTO();
+                Crear_Orden_Template_DTO crear_Orden_Template_DTO = new();
 
                 var pedidos = context.OrdenPedido.Where(x => x.Folio_Cierre_Copia == ordenCierre.Folio && x.CodPed != null && x.OrdenEmbarque != null
                 && x.OrdenCierre != null && x.OrdenCierre.Id_Tad == id_terminal)
