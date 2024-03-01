@@ -227,6 +227,16 @@
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
 
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="ConfirmCierre">
+                        <RadzenPanelMenuItem Path="confirm-cierre" class="gcom-bg-rojo" Style="border:hidden">
+                            <Template>
+                                <div class="text-white">
+                                    <i class="fa-solid fa-clipboard-check"></i> Confirmación de cierres de clientes
+                                </div>
+                            </Template>
+                        </RadzenPanelMenuItem>
+                    </AuthorizeView>
+
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Cierre Pedidos" Context="CierreCerrar">
                         <RadzenPanelMenuItem Path="cerrar" class="gcom-bg-rojo" Style="border:hidden">
                             <Template>
