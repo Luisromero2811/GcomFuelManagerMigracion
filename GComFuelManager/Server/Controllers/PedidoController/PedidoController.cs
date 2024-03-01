@@ -707,7 +707,7 @@ namespace GComFuelManager.Server.Controllers
                     orden.Codprd = cierre.CodPrd;
                     orden.Coddes = cierre.CodDes;
                     orden.Fchcar = cierre.FchCar;
-                    orden.Codtad = cierre.CodTad;
+                    orden.Codtad = cierre.Id_Tad;
                     orden.Vol = cierre.Volumen;
                     orden.Pre = cierre.Precio;
 
@@ -1332,7 +1332,7 @@ namespace GComFuelManager.Server.Controllers
                             CodGru = cliente?.codgru,
                             CodCte = cliente?.Cod,
                             CodPrd = ordercopy.Codprd,
-                            CodTad = ordercopy.Codtad,
+                            Id_Tad = ordercopy.Codtad,
                             Volumen = int.Parse($"{ordercopy.Vol}"),
                             Moneda = ordercopy.Moneda,
                             Equibalencia = ordercopy.Equibalencia
@@ -1504,7 +1504,7 @@ namespace GComFuelManager.Server.Controllers
                 OrdenEmbarque ordenEmbarque = new()
                 {
                     Codest = 9,
-                    Codtad = ordenCierre.CodTad,
+                    Codtad = ordenCierre.Id_Tad,
                     Codprd = ordenCierre.CodPrd,
                     Pre = ordenCierre.Precio,
                     Vol = ordenCierre.Volumen,
@@ -1771,7 +1771,7 @@ namespace GComFuelManager.Server.Controllers
                             CodGru = cliente?.codgru,
                             CodCte = cliente?.Cod,
                             CodPrd = orden.Codprd,
-                            CodTad = orden.Codtad,
+                            Id_Tad = orden.Codtad,
                             Volumen = Convert.ToInt32(orden.Vol),
                             Moneda = orden.Moneda,
                             Equibalencia = orden.Equibalencia
@@ -1991,15 +1991,15 @@ namespace GComFuelManager.Server.Controllers
 
                 PrecioBolDTO precio = new();
 
-                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
-                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd && x.FchDia <= orden.Fchcar)
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.FchDia <= orden.Fchcar)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 

@@ -155,7 +155,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                         }
                         var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
 
-                        list = context.Precio.Where(x => x.codCte == item.Cod).Include(x => x.Cliente).Include(x => x.Producto).Include(x => x.Destino).ToList();
+                        list = context.Precio.Where(x => x.CodCte == item.Cod).Include(x => x.Cliente).Include(x => x.Producto).Include(x => x.Destino).ToList();
                         if (list.Count == 0)
                         {
                             return BadRequest($"No se encontraron precios para los clientes del grupo {gpo.Den}");
@@ -191,7 +191,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
 
                 if (cte is not null)
-                    list = context.Precio.Where(x => x.codCte == cte.Cod && x.Activo == true)
+                    list = context.Precio.Where(x => x.CodCte == cte.Cod && x.Activo == true)
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
@@ -259,13 +259,13 @@ namespace GComFuelManager.Server.Controllers.Emails
                         }
                         var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
 
-                        list = context.PrecioProgramado.Where(x => x.codCte == item.Cod).Include(x => x.Cliente).Include(x => x.Producto).Include(x => x.Destino)
+                        list = context.PrecioProgramado.Where(x => x.CodCte == item.Cod).Include(x => x.Cliente).Include(x => x.Producto).Include(x => x.Destino)
                                .Select(x => new Precio
                                {
-                                   codPrd = x.codPrd,
-                                   codZona = x.codZona,
-                                   codDes = x.codDes,
-                                   codCte = x.codCte,
+                                   CodPrd = x.CodPrd,
+                                   CodZona = x.CodZona,
+                                   CodDes = x.CodDes,
+                                   CodCte = x.CodCte,
                                    Pre = x.Pre,
                                    FchDia = x.FchDia,
                                    FchActualizacion = x.FchActualizacion,
@@ -310,17 +310,17 @@ namespace GComFuelManager.Server.Controllers.Emails
                 var cte = context.Cliente.Where(x => x.Den.ToLower().Equals(cliente.Den)).FirstOrDefault();
 
                 if (cte is not null)
-                    list = context.PrecioProgramado.Where(x => x.codCte == cte.Cod && x.Activo == true)
+                    list = context.PrecioProgramado.Where(x => x.CodCte == cte.Cod && x.Activo == true)
                         .Include(x => x.Cliente)
                         .Include(x => x.Destino)
                         .Include(x => x.Producto)
                         .Include(x => x.Zona)
                         .Select(x => new Precio
                         {
-                            codPrd = x.codPrd,
-                            codZona = x.codZona,
-                            codDes = x.codDes,
-                            codCte = x.codCte,
+                            CodPrd = x.CodPrd,
+                            CodZona = x.CodZona,
+                            CodDes = x.CodDes,
+                            CodCte = x.CodCte,
                             Pre = x.Pre,
                             FchDia = x.FchDia,
                             FchActualizacion = x.FchActualizacion,

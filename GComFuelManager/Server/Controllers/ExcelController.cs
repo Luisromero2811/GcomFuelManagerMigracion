@@ -193,11 +193,16 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                List<Vendedor_Reporte_Desemeño> vendedor_Reporte_Desemeño = new();
                 Reporte_Completo_Vendedor_Desempeño reporte_completo = new();
                 List<int> numero_meses = new();
 
                 List<ExpandoObject> Meses_Dinamicos = new();
+
+                //dynamic totales_litros = new ExpandoObject();
+                //dynamic totales_ventas = new ExpandoObject();
+
+                //totales_litros.Vendedor = "Total";
+                //totales_ventas.Vendedor = "Total";
 
                 foreach (var vendedor in vendedores)
                 {
@@ -215,62 +220,50 @@ namespace GComFuelManager.Server.Controllers
                             case 1:
                                 litros.Ene = mes.Litros_Vendidos;
                                 venta.Ene = mes.Venta;
-                                reporte_completo.Letra_Fin = "B";
                                 break;
                             case 2:
                                 litros.Feb = mes.Litros_Vendidos;
                                 venta.Feb = mes.Venta;
-                                reporte_completo.Letra_Fin = "C";
                                 break;
                             case 3:
                                 litros.Mar = mes.Litros_Vendidos;
                                 venta.Mar = mes.Venta;
-                                reporte_completo.Letra_Fin = "D";
                                 break;
                             case 4:
                                 litros.Abr = mes.Litros_Vendidos;
                                 venta.Abr = mes.Venta;
-                                reporte_completo.Letra_Fin = "E";
                                 break;
                             case 5:
                                 litros.May = mes.Litros_Vendidos;
                                 venta.May = mes.Venta;
-                                reporte_completo.Letra_Fin = "F";
                                 break;
                             case 6:
                                 litros.Jun = mes.Litros_Vendidos;
                                 venta.Jun = mes.Venta;
-                                reporte_completo.Letra_Fin = "G";
                                 break;
                             case 7:
                                 litros.Jul = mes.Litros_Vendidos;
                                 venta.Jul = mes.Venta;
-                                reporte_completo.Letra_Fin = "H";
                                 break;
                             case 8:
                                 litros.Ago = mes.Litros_Vendidos;
                                 venta.Ago = mes.Venta;
-                                reporte_completo.Letra_Fin = "I";
                                 break;
                             case 9:
                                 litros.Sep = mes.Litros_Vendidos;
                                 venta.Sep = mes.Venta;
-                                reporte_completo.Letra_Fin = "J";
                                 break;
                             case 10:
                                 litros.Oct = mes.Litros_Vendidos;
                                 venta.Oct = mes.Venta;
-                                reporte_completo.Letra_Fin = "K";
                                 break;
                             case 11:
                                 litros.Nov = mes.Litros_Vendidos;
                                 venta.Nov = mes.Venta;
-                                reporte_completo.Letra_Fin = "L";
                                 break;
                             case 12:
                                 litros.Dic = mes.Litros_Vendidos;
                                 venta.Dic = mes.Venta;
-                                reporte_completo.Letra_Fin = "M";
                                 break;
 
                             default: break;
@@ -339,8 +332,36 @@ namespace GComFuelManager.Server.Controllers
                     c.TableStyle = TableStyles.Medium2;
                 });
 
-                ws_l.Cells[$"B1:{reporte_completo.Letra_Fin}{ws_l.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
-                ws_v.Cells[$"B1:{reporte_completo.Letra_Fin}{ws_v.Dimension.End.Row}"].Style.Numberformat.Format = "$#,####0.0000";
+
+
+                if (reporte_completo.Diccionario_Litros.Count > 1)
+                {
+                    ws_l.Cells[$"A{ws_l.Dimension.End.Row + 1}"].Value = "Total";
+
+                    if (ws_l.Dimension.End.Column > 1)
+                    {
+                        for (int col = 2; col <= ws_l.Dimension.End.Column; col++)
+                            ws_l.Cells[ws_l.Dimension.End.Row, col].Formula = $"SUM(Table1[{ws_l.Cells[1, col].Value}])";
+
+                        ws_l.Calculate();
+                    }
+                }
+
+                if (reporte_completo.Diccionario_Ventas.Count > 1)
+                {
+                    ws_v.Cells[$"A{ws_v.Dimension.End.Row + 1}"].Value = "Total";
+
+                    if (ws_v.Dimension.End.Column > 1)
+                    {
+                        for (int col = 2; col <= ws_v.Dimension.End.Column; col++)
+                            ws_v.Cells[ws_v.Dimension.End.Row, col].Formula = $"SUM(Table2[{ws_v.Cells[1, col].Value}])";
+
+                        ws_v.Calculate();
+                    }
+                }
+
+                ws_l.Cells[1, 1, ws_l.Dimension.End.Row, ws_l.Dimension.End.Column].Style.Numberformat.Format = "#,##0.00";
+                ws_v.Cells[1, 1, ws_v.Dimension.End.Row, ws_v.Dimension.End.Column].Style.Numberformat.Format = "$#,####0.0000";
 
                 ws_l.Cells[1, 1, ws_l.Dimension.End.Row, ws_l.Dimension.End.Column].AutoFitColumns();
                 ws_v.Cells[1, 1, ws_v.Dimension.End.Row, ws_v.Dimension.End.Column].AutoFitColumns();
