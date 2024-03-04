@@ -3142,7 +3142,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (crear_Orden_Template_DTO.ID_Cliente is not null)
                     crear_Orden_Template_DTO.Clientes = context.Cliente.Where(x => x.Cod == crear_Orden_Template_DTO.ID_Cliente).ToList();
                 else if (crear_Orden_Template_DTO.ID_Cliente is null && crear_Orden_Template_DTO.ID_Grupo is not null)
-                    crear_Orden_Template_DTO.Clientes = context.Cliente.Where(x => x.codgru == crear_Orden_Template_DTO.ID_Grupo).ToList();
+                    crear_Orden_Template_DTO.Clientes = context.Cliente.Where(x => x.Codgru == crear_Orden_Template_DTO.ID_Grupo).ToList();
 
                 if (crear_Orden_Template_DTO.ID_Destino is not null)
                     crear_Orden_Template_DTO.Destinos = context.Destino.Where(x => x.Cod == crear_Orden_Template_DTO.ID_Destino).ToList();

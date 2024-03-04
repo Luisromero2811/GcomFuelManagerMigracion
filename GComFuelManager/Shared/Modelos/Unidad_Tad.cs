@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.Modelos
 {
-    public class Destino_Tad
+    public class Unidad_Tad
     {
-        public int Id_Destino { get; set; }
+        public int Id_Unidad { get; set; }
         public short Id_Terminal { get; set; }
 
-        [NotMapped] public Destino? Destino { get; set; } = null!;
+        [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Tad? Terminal { get; set; } = null!;
     }
 }

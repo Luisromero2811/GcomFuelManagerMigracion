@@ -20,23 +20,29 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly ApplicationDbContext context;
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly User_Terminal _terminal;
 
-        public ChoferController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
+        public ChoferController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
+            this._terminal = _Terminal;
         }
         [HttpGet("{transportista:int}")]
-        public async Task<ActionResult> Get(int transportista)
+        public ActionResult Get(int transportista)
         {
             try
             {
-                var transportistas = await context.Chofer
-                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true)
-                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var transportistas = context.Chofer.IgnoreAutoIncludes()
+                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToListAsync();
+                    .ToList();
                 return Ok(transportistas);
             }
             catch (Exception e)
@@ -44,15 +50,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
-        [HttpGet("lista/{transportista:int}")]
-        public async Task<ActionResult> GetChoferes(int transportista)
+        [HttpGet("lista/{transportista:int}")]//TODO: checar utilidad
+        public ActionResult GetChoferes(int transportista)
         {
             try
             {
-                var transportistas = await context.Chofer
-                    .Where(x => x.Codtransport == transportista)
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var transportistas = context.Chofer.IgnoreAutoIncludes()
+                    .Where(x => x.Codtransport == transportista && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToListAsync();
+                    .ToList();
                 return Ok(transportistas);
             }
             catch (Exception e)
@@ -84,7 +95,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                 return Ok();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -96,9 +107,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                List<Chofer> ChoferesActivos = new List<Chofer>();
+                List<Chofer> ChoferesActivos = new();
 
-                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                BusinessEntityServiceClient client = new(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(10);
@@ -109,7 +120,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+                    WsGetBusinessEntityAssociationsRequest getReq = new();
 
                     getReq.IncludeChildObjects = new NBool();
                     getReq.IncludeChildObjects.Value = false;
@@ -142,7 +153,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             {
 
                                 //Creacion del objeto del chofer
-                                Chofer chofer = new Chofer()
+                                Chofer chofer = new()
                                 {
                                     Den = item.BusinessEntity.BusinessEntityName,
                                     Shortden = item.BusinessEntity.BusinessEntityShortName,
@@ -189,7 +200,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             {
 
                                 //Creacion del objeto del chofer
-                                Chofer chofer = new Chofer()
+                                Chofer chofer = new()
                                 {
                                     Den = item.AssociatedBusinessEntity.BusinessEntityName,
                                     Shortden = item.AssociatedBusinessEntity.BusinessEntityShortName,

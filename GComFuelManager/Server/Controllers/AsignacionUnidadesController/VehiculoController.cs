@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 //using ServiceReference1;//qa
 using ServiceReference9;//prod
-using System.Diagnostics;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -20,23 +19,29 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> UserManager;
         private readonly VerifyUserId verifyUser;
+        private readonly User_Terminal _terminal;
 
-        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser)
+        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.UserManager = UserManager;
             this.verifyUser = verifyUser;
+            this._terminal = _Terminal;
         }
         [HttpGet("{transportista:int}")]
-        public async Task<ActionResult> Get(int transportista)
+        public ActionResult Get(int transportista)
         {
             try
             {
-                var vehiculos = await context.Tonel
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
-                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den =  $"{x.Tracto} {x.Placatracto} {x.Placa} {x.Capcom!} {x.Capcom2!} {x.Capcom3!} {x.Capcom4!} {x.Codsyn!}" })
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
-                    .ToListAsync();
+                    .ToList();
                 return Ok(vehiculos);
             }
             catch (Exception e)
@@ -51,8 +56,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                List<Tonel> TonelesActivos = new List<Tonel>();
-                VehicleServiceClient client = new VehicleServiceClient(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
+                List<Tonel> TonelesActivos = new();
+                VehicleServiceClient client = new(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -62,7 +67,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    WsGetVehiclesRequest getReq = new WsGetVehiclesRequest();
+                    WsGetVehiclesRequest getReq = new();
 
                     getReq.IncludeChildObjects = new NBool();
                     getReq.IncludeChildObjects.Value = true;
@@ -91,7 +96,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             if (carrId == item.CarrierId.Id.Value)
                             {
                                 //Creamos el objeto del Tonel
-                                Tonel tonel = new Tonel()
+                                Tonel tonel = new()
                                 {
                                     Placa = item.RegistrationNumber.Trim(),
                                     Tracto = item.VehicleCode.Trim(),

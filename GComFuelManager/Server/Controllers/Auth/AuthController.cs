@@ -54,9 +54,23 @@ namespace GComFuelManager.Server.Controllers.Auth
 
                     var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
                     if (terminal is null)
-                        return BadRequest("No tiene acceso a esta terminal");
+                    {
+                        var user = await userManager.FindByNameAsync(info.UserName);
+                        if (user is not null)
+                        {
+                            if (await userManager.IsInRoleAsync(user, "Obtencion de Ordenes") || await userManager.IsInRoleAsync(user, "Consulta Precios"))
+                            {
+                                terminal = new() { Cod = 0 };
+                                info.Terminal = "Interno";
+                            }
+                            else
+                                return BadRequest("No tiene acceso a esta terminal");
+                        }
+                        else
+                            return BadRequest("No tiene acceso a esta terminal");
+                    }
 
-                    if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal.Cod))
+                    if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal!.Cod))
                     {
                         var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
                         if (resultado.Succeeded)
