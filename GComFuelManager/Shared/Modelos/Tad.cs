@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using OfficeOpenXml.Attributes;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -20,6 +21,9 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
 		//public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+
+		[NotMapped, EpplusIgnore] public Cliente cliente { get; set; } = null!;
+		[NotMapped, EpplusIgnore] public List<Cliente> clientes { get; set; } = null!;
     }
 }
 

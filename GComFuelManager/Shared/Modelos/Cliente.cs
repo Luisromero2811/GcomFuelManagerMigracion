@@ -49,6 +49,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public bool IsEditing { get; set; } = false;
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;
 
+        [NotMapped, EpplusIgnore] public Tad? Terminal { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public string Terminales { get; set; } = string.Empty;
+
         [JsonProperty("mdVenta"), DisplayName("Modelo de venta")]
         public string? MdVenta { get; set; } = string.Empty;
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;

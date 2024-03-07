@@ -494,6 +494,8 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Terminal)
                 .WithMany()
                 .HasForeignKey(x => x.Id_Tad);
+
+
         }
 
 
@@ -551,6 +553,6 @@ namespace GComFuelManager.Server
         public DbSet<Destino_Tad> Destino_Tad { get; set; }
         public DbSet<Transportista_Tad> Transportista_Tad { get; set; }
         public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
-
+        public DbSet<GrupoTransportista> GrupoTransportista { get; set; }
     }
 }

@@ -1,0 +1,178 @@
+﻿@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService Ns
+
+<h4>Catalogo de Grupo Transportistas</h4>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
+                    <h5>Agregar Grupos</h5>
+                    <!--Aquí se agregará las validaciones para gestionar a los grupos de transportes-->
+                    <div class="col-12 row mb-3">
+                        <div class="col-3">
+                            <label>Nombre del grupo de transportes:</label>
+                            <InputText @bind-Value="grupoTransportista.den" class="form-control" MaxLenght="80" />
+                        </div>
+                        <div class="col-2 d-flex mt-auto">
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit" @onclick="@SaveGrupo">
+                                <i class="fa fa-solid fa-plus"></i> Registrar cliente
+                            </button>
+                        </div>
+                    </div>
+                </AuthorizeView>
+                <hr />
+                <div class="col-12 mb-4 row">
+                    <div class="col-4">
+                        <label>Terminales:</label>
+                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
+                            <RenderValue>
+                                <div>Terminales</div>
+                            </RenderValue>
+                            <Render>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Tads_Seleccionados.Contains(context))" />
+                                    <label class="form-check-label" for="@context">
+                                        @if (context is not null)
+                                        {
+                                            @context.Den
+                                        }
+                                        else
+                                        {
+                                            <p>Todos</p>
+                                        }
+                                    </label>
+                                </div>
+                            </Render>
+                        </DropDownFilter>
+                    </div>
+                    <div class="col-4">
+                        <label>Grupos:</label>
+                        <DropDownFilter Listado="GrupoTransportistas" TListado="GrupoTransportista" TValue="int" Seleccion_Multiple="true"
+                                        Default_Placeholder="Seleccione un grupo transportista">
+                            <RenderValue>
+                                <div>Grupos Transportistas</div>
+                            </RenderValue>
+                            <Render>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(GruposTransportes_Seleccionados.Contains(context))" />
+                                    <label class="form-check-label" for="@context">
+                                        @if (context is not null)
+                                        {
+                                            @context.den
+                                        }
+                                        else
+                                        {
+                                            <p>Todos</p>
+                                        }
+                                    </label>
+                                </div>
+                            </Render>
+                        </DropDownFilter>
+                    </div>
+                    <div class="col-4 d-flex mt-auto">
+                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                            <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+@code {
+    //Instancias
+    GrupoTransportista grupoTransportista { get; set; } = new GrupoTransportista();
+
+    //Listas
+    List<Tad> Tads_Seleccionados { get; set; } = new();
+    List<GrupoTransportista> GruposTransportes_Seleccionados { get; set; } = new();
+    List<Tad> Terminales { get; set; } = new List<Tad>();
+    List<GrupoTransportista> GrupoTransportistas { get; set; } = new List<GrupoTransportista>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Terminales_Validas();
+        await ObtenerGruposTransportes();
+    }
+
+    private async Task SaveGrupo()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<GrupoTransportista>("api/transportista/save", grupoTransportista);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", $"Grupo {grupoTransportista.den} creado con éxito", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Terminales_Validas()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Tad>>("api/terminal/activas");
+            if (response.Error)
+            {
+                string? message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    private async Task ObtenerGruposTransportes()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<GrupoTransportista>>("api/transportista/gruposactivos");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                GrupoTransportistas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task PostRelacion()
+    {
+        try
+        {
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}
+

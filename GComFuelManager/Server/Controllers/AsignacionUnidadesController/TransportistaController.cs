@@ -46,6 +46,49 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             await context.SaveChangesAsync();
         }
 
+        [HttpPost("save")]
+        public async Task<ActionResult> PostGroups([FromBody] GrupoTransportista grupoTransportista)
+        {
+            try
+            {
+                if (grupoTransportista is null)
+                {
+                    return NotFound();
+                }
+                if (grupoTransportista.cod == 0)
+                {
+                    context.Add(grupoTransportista);
+                }
+                else
+                {
+                    context.Update(grupoTransportista);
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("gruposactivos")]
+        public async Task<ActionResult> GetGrupos()
+        {
+            try
+            {
+                var grupostransporte = await context.GrupoTransportista
+                    .OrderBy(x => x.den)
+                    .ToListAsync();
+                return Ok(grupostransporte);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {

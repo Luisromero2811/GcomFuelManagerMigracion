@@ -97,6 +97,20 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("allactives")]
+        public async Task<ActionResult> GetAllActives()
+        {
+            try
+            {
+                var clientes = await context.Cliente.Where(x => x.Activo == true).OrderBy(x => x.Den).ToListAsync();
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("grupo/{cod:int}")]
         public async Task<ActionResult> Get(int cod)
         {

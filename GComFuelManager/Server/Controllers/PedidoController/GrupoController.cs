@@ -65,6 +65,23 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("allactives")]
+        public async Task<ActionResult> GetAllActives()
+        {
+            try
+            {
+                var grupos = await context.Grupo
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+                return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Grupo grupo)
         {
