@@ -3,7 +3,7 @@
 @inject IJSRuntime js
 @inject NotificationService Ns
 @inject GestionDestinoValidation gestionDestino
-
+@inject ClienteDestinoValidation validation
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
 
@@ -32,23 +32,23 @@
                     </EditForm>
                 </AuthorizeView>
                 <hr />
-                <div class="col-12 mb-4 row">
-                    @*<AuthorizeView Roles="Admin, Administrador Sistemas, Direccion, Gerencia" Context="Clients">*@
-                    <div class="col-4">
-                        <label>Cliente:</label>
-                        <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="Clientes" TValue="Cliente" TextProperty="Den"
-                                        AllowVirtualization="true" AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                            <Template>
-                                @((context as Cliente)?.Den)
-                            </Template>
-                            <ValueTemplate>
-                                @((context as Cliente)?.Den)
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </div>
-                    @*</AuthorizeView>*@
-                    <AuthorizeView Roles="Admin, Administrador Sistema">
+                <EditForm Model="@ClienteDestinoDTO" class="form col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
+                    <FluentValidationValidator Validator="validation" />
+                    <ValidationSummary />
+                    <div class="col-12 mb-4 row">
+                        <div class="col-4">
+                            <label>Cliente:</label>
+                            <RadzenDropDown @bind-Value="ClienteDestinoDTO.cliente" Data="Clientes" TValue="Cliente" TextProperty="Den"
+                                            AllowVirtualization="true" AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                                <Template>
+                                    @((context as Cliente)?.Den)
+                                </Template>
+                                <ValueTemplate>
+                                    @((context as Cliente)?.Den)
+                                </ValueTemplate>
+                            </RadzenDropDown>
+                        </div>
                         <div class="col-4">
                             <label>Destino:</label>
                             <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
@@ -56,13 +56,13 @@
                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                             </RadzenDropDown>
                         </div>
-                    </AuthorizeView>
-                    <div class="col-3 d-flex mt-auto">
-                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@AsignarDestinosClientes">
-                            <i class="fa fa-solid fa-plus"></i> Agregar Destino
-                        </button>
+                        <div class="col-3 d-flex mt-auto">
+                            <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                            </button>
+                        </div>
                     </div>
-                </div>
+                </EditForm>
                 <hr />
                 <div class="col-12 mb-4 row">
                     <div class="col-3">
@@ -91,7 +91,7 @@
                     <div class="col-3">
                         <label>Clientes:</label>
                         <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int?" Propiedad_Valor="Cod" On_Change_Method="@ChangeDestinos" @bind-Valor="Destino.Codcte"
-                                        Default_Placeholder="Seleccione un cliente">
+                                        Default_Placeholder="Seleccione un cliente" FiltrarValor="Obtener_Clientes">
                             <RenderValue>
                                 @context.Den
                             </RenderValue>
@@ -157,6 +157,7 @@
         await GetClientes();
         await GetDestinos();
         await Obtener_Terminales_Validas();
+        await Obtener_Clientes(string.Empty);
     }
 
     private async Task CreateDestinos()
@@ -174,6 +175,32 @@
                 await Swal.FireAsync("Exito", $"Destino {Destino.Den} creado exitosamente", SweetAlertIcon.Success);
             }
 
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Clientes(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Den"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await repositorio.Get<List<Cliente>>($"api/clientes/filtraractivos?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
         }
         catch (Exception e)
         {
@@ -291,16 +318,24 @@
     {
         try
         {
-            var response = await repositorio.Post<List<ClienteTadDTO>>($"api/cliente/relacion", clientesTads);
-            if (response.Error)
+            if (Terminales != null && Destinos != null)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await repositorio.Post<List<ClienteTadDTO>>($"api/cliente/relacion", clientesTads);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                }
             }
             else
             {
-                await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                await Swal.FireAsync("Advertencia", "Seleccione una terminal-destino", SweetAlertIcon.Warning);
             }
+
         }
         catch (Exception e)
         {

@@ -73,6 +73,33 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpPost("crearTransportista")]
+        public async Task<ActionResult> PostTransportista([FromBody] Transportista transportista)
+        {
+            try
+            {
+                if (transportista is null)
+                    return BadRequest();
+
+                if (transportista.Cod == 0)
+                {
+                    transportista.Codgru = transportista.GrupoTransportista!.cod!;
+                    context.Add(transportista);
+                }
+                else
+                {
+                    context.Update(transportista);
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("gruposactivos")]
         public async Task<ActionResult> GetGrupos()
         {
@@ -82,6 +109,75 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .OrderBy(x => x.den)
                     .ToListAsync();
                 return Ok(grupostransporte);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Grupos_Activos([FromQuery] GrupoTransportista grupo)
+        {
+            try
+            {
+                var grupos = context.GrupoTransportista.IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(grupo.den))
+                    grupos = grupos.Where(x => x.den!.ToLower().Contains(grupo.den.ToLower()));
+
+                return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtrarempresaactiva")]
+        public ActionResult Obtener_Empresa_Activa([FromQuery] Transportista transportista)
+        {
+            try
+            {
+                var transportistas = context.Transportista.IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(transportista.Den))
+                    transportistas = transportistas.Where(x => x.Den!.ToLower().Contains(transportista.Den.ToLower()) && x.Activo == true);
+
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("Grupo/{grupo:int}")]
+        public async Task<ActionResult> GetTransportistas(int grupo)
+        {
+            try
+            {
+                var transportistas = await context.Transportista
+                    .Where(x => x.Codgru == grupo && x.Activo == true)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("lista")]
+        public async Task<ActionResult> GetList()
+        {
+            try
+            {
+                var transportistas = await context.Transportista.Where(x => x.Activo == true)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+                return Ok(transportistas);
             }
             catch (Exception e)
             {

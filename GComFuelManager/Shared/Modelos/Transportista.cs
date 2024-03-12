@@ -30,10 +30,12 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("gru")]
         public string? Gru { get; set; } = string.Empty;
 
+        //Union con GrupoTransportista
         [NotMapped]
-        public GrupoTransportista GrupoTransportista { get; set; } = null!;
-        [JsonProperty("Codgru"), AllowNull]
-        public int Codgru { get; set; }
+        public GrupoTransportista? GrupoTransportista { get; set; } = null!;
+
+        [JsonProperty("Codgru")]
+        public int? Codgru { get; set; } = null!;
 
     }
 }

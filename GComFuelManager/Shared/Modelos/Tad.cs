@@ -24,6 +24,7 @@ namespace GComFuelManager.Shared.Modelos
 
 		[NotMapped, EpplusIgnore] public Cliente cliente { get; set; } = null!;
 		[NotMapped, EpplusIgnore] public List<Cliente> clientes { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public List<Cliente_Tad> cliente_Tad { get; set; } = new();
     }
 }
 

@@ -44,13 +44,40 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPost("crearChofer")]
+        public async Task<ActionResult> PostChofer([FromBody] Chofer chofer)
+        {
+            try
+            {
+                if (chofer is null)
+                    return BadRequest();
+
+                if (chofer.Cod == 0)
+                {
+                    chofer.Codtransport = chofer.Transportista!.Cod;
+                    context.Add(chofer);
+                }
+                else
+                {
+                    context.Update(chofer);
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("lista/{transportista:int}")]
         public async Task<ActionResult> GetChoferes(int transportista)
         {
             try
             {
                 var transportistas = await context.Chofer
-                    .Where(x => x.Codtransport == transportista)
+                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);

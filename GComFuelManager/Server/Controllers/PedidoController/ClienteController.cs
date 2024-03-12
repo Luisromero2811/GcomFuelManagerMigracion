@@ -48,6 +48,24 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Clientes_Activos([FromQuery] Cliente cliente)
+        {
+            try
+            {
+                var clientes = context.Cliente.Where(x => x.Activo).IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(cliente.Den))
+                    clientes = clientes.Where(x => x.Den!.ToLower().Contains(cliente.Den.ToLower()));
+
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("Grupo/{grupo:int}")]
         public async Task<ActionResult> GetCliente(int grupo)
         {
@@ -57,6 +75,7 @@ namespace GComFuelManager.Server.Controllers
                     .Where(x => x.codgru == grupo && x.Activo == true)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
+
                 return Ok(grupos);
             }
             catch (Exception e)
@@ -102,12 +121,6 @@ namespace GComFuelManager.Server.Controllers
             {
                 //Instancia para la tabla de relación del cliente y terminal 
                 Cliente_Tad clientetad = new Cliente_Tad();
-                //Obtenemos la terminal
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                {
-                    return BadRequest();
-                }
                 //Si el cliente es nulo, retornamos un notfound
                 if (clienteTadDTOs is null)
                     return NotFound();
@@ -117,8 +130,8 @@ namespace GComFuelManager.Server.Controllers
                     //Agregamos las instancias a la colección del contexto de la base y guardamos
                     clientetad = new Cliente_Tad()
                     {
-                        Id_Cliente = item.CodCte,
-                        Id_Terminal = item.Cod
+                        Id_Cliente = item.Cliente!.Cod,
+                        Id_Terminal = item.Terminal!.Cod
                     };
                     context.Add(clientetad);
                     await context.SaveChangesAsync();
@@ -132,6 +145,69 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        //[HttpPost("relacion")]
+        //public async Task<ActionResult> PostClienteTerminal([FromBody] List<Cliente> clientes, [FromQuery] Tad tads)
+        //{
+        //    try
+        //    {
+        //        Cliente_Tad cliente_Tad = new Cliente_Tad();
+        //        //Si el cliente viene nulo, mandamos un notfound
+        //        if (clientes is null)
+        //            return NotFound();
+
+        //        foreach (var item in clientes)
+        //        {
+        //            cliente_Tad = new Cliente_Tad()
+        //            {
+        //                Id_Cliente = item.Cod,
+        //                Id_Terminal = tads.Cod
+        //            };
+        //            context.Add(cliente_Tad);
+        //            await context.SaveChangesAsync();
+        //        }
+        //        return Ok();
+
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //    [HttpPost("relacion")]
+        //    public async Task<ActionResult> PostClienteTerminal([FromBody] List<Cliente> clientes, [FromQuery] Tad tads)
+        //    {
+        //        try
+        //        {
+        //            Cliente_Tad cliente_Tad = new Cliente_Tad();
+        //            //Si el cliente viene nulo, mandamos un notfound
+        //            if (clientes is null)
+        //                return NotFound();
+
+        //            foreach (var item in clientes)
+        //            {
+        //                cliente_Tad = new Cliente_Tad()
+        //                {
+        //                    Id_Cliente = item.Cod,
+        //                    Id_Terminal = tads.Cod
+        //                };
+        //                context.Add(cliente_Tad);
+        //                await context.SaveChangesAsync();
+        //            }
+        //            return Ok();
+
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            return BadRequest(e.Message);
+        //        }
+        //    }
 
     }
 }
+//Obtenemos la terminal
+//var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+//if (id_terminal == 0)
+//{
+//    return BadRequest();
+//}

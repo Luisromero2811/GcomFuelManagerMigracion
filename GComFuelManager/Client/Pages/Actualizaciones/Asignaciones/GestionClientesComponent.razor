@@ -21,7 +21,7 @@
                         <div class="col-12 row mb-3">
                             <div class="col-3">
                                 <label>Grupo:</label>
-                                <RadzenDropDown @bind-Value="Cliente.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den" 
+                                <RadzenDropDown @bind-Value="Cliente.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den"
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                 </RadzenDropDown>
@@ -95,7 +95,7 @@
                             </RenderValue>
                             <Render>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Tads_Seleccionados.Contains(context))" />
+                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
                                     <label class="form-check-label" for="@context">
                                         @if (context is not null)
                                         {
@@ -112,7 +112,7 @@
                     </div>
                     <div class="col-3">
                         <label>Grupo</label>
-                        <DropDownFilter Listado="Grupos" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo"
+                        <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
                                         Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.codgru">
                             <RenderValue>
                                 @context.Den
@@ -124,14 +124,14 @@
                     </div>
                     <div class="col-3">
                         <label>Clientes:</label>
-                        <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Seleccion_Multiple="true" Puede_Filtrar="true"
+                        <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Seleccion_Multiple="true"
                                         Default_Placeholder="Seleccione un cliente">
                             <RenderValue>
                                 <div>Clientes</div>
                             </RenderValue>
                             <Render>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Clientes_Seleccionados.Contains(context))" />
+                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
                                     <label class="form-check-label" for="@context">
                                         @if (context is not null)
                                         {
@@ -147,14 +147,14 @@
                         </DropDownFilter>
                     </div>
                     <div class="col-3 d-flex mt-auto">
-                            <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                                <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
-                            </button>
-                        </div>
+                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                            <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
+                        </button>
+                    </div>
                 </div>
                 @*</EditForm>*@
                 <!--Aquí empieza la tabla de muestreo de datos-->
-                <hr/>
+                <hr />
             </div>
         </div>
     </div>
@@ -169,15 +169,21 @@
     //Listas
     List<Tad> Tads_Seleccionados { get; set; } = new();
     List<Cliente> Clientes_Seleccionados { get; set; } = new();
+
     List<Tad> Terminales { get; set; } = new List<Tad>();
     List<Cliente> Clientes { get; set; } = new List<Cliente>();
+    List<Cliente> ClienteActivo { get; set; } = new List<Cliente>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
+    List<Grupo> GrupoActivo { get; set; } = new();
+
     List<ClienteTadDTO> clientesTads { get; set; } = new List<ClienteTadDTO>();
     List<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
+
     //Instancias
     ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
     public Cliente Cliente { get; set; } = new Cliente();
     public GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO();
+    Tad tads { get; set; } = new();
 
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
@@ -186,6 +192,7 @@
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
+        await Obtener_Grupos(string.Empty);
         await GetGrupos();
     }
 
@@ -284,11 +291,14 @@
         }
     }
 
-
     private async Task PostRelacion()
     {
         try
         {
+            //if (Tads_Seleccionados.Count != 0 && Clientes_Seleccionados.Count != 0)
+            //{
+            clienteTadDTO.Tads = Tads_Seleccionados;
+            clienteTadDTO.Clientes = Clientes_Seleccionados;
             var response = await repositorio.Post<List<ClienteTadDTO>>($"api/cliente/relacion", clientesTads);
             if (response.Error)
             {
@@ -299,6 +309,12 @@
             {
                 await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
             }
+            //}
+            //else
+            //{
+            //    await Swal.FireAsync("Advertencia", "Necesita seleccionar una terminal o cliente", SweetAlertIcon.Warning);
+            //}
+
         }
         catch (Exception e)
         {
@@ -306,6 +322,78 @@
         }
     }
 
-}
+    private async Task Obtener_Grupos(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Den"] = value;
 
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await repositorio.Get<List<Grupo>>($"api/grupo/filtraractivos?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                GrupoActivo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CheckClient(Cliente cliente, object check)
+    {
+        try
+        {
+            if ((bool)check)
+            {
+                if (!Clientes_Seleccionados.Contains(cliente))
+                    Clientes_Seleccionados.Add(cliente);
+            }
+            else
+            {
+                if (Clientes_Seleccionados.Contains(cliente))
+                    Clientes_Seleccionados.Remove(cliente);
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckTads(Tad terminal, object check)
+    {
+        try
+        {
+            if ((bool)check)
+            {
+                if (!Tads_Seleccionados.Contains(terminal))
+                    Tads_Seleccionados.Add(terminal);
+            }
+            else
+            {
+                if (Tads_Seleccionados.Contains(terminal))
+                    Tads_Seleccionados.Remove(terminal);
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+}
+          
 
