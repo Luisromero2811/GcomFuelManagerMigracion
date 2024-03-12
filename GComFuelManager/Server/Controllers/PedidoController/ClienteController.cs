@@ -115,27 +115,31 @@ namespace GComFuelManager.Server.Controllers
 
 
         [HttpPost("relacion")]
-        public async Task<ActionResult> PostClienteTerminal([FromBody] List<ClienteTadDTO> clienteTadDTOs)
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
         {
             try
             {
-                //Instancia para la tabla de relación del cliente y terminal 
-                Cliente_Tad clientetad = new Cliente_Tad();
                 //Si el cliente es nulo, retornamos un notfound
-                if (clienteTadDTOs is null)
+                if (clienteTadDTO is null)
                     return NotFound();
 
-                foreach (var item in clienteTadDTOs)
+                foreach (var terminal in clienteTadDTO.Tads)
                 {
-                    //Agregamos las instancias a la colección del contexto de la base y guardamos
-                    clientetad = new Cliente_Tad()
+                    foreach (var cliente in clienteTadDTO.Clientes)
                     {
-                        Id_Cliente = item.Cliente!.Cod,
-                        Id_Terminal = item.Terminal!.Cod
-                    };
-                    context.Add(clientetad);
-                    await context.SaveChangesAsync();
+                        if (!context.Cliente_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Cliente == cliente.Cod))
+                        {
+                            Cliente_Tad clientetad = new()
+                            {
+                                Id_Cliente = cliente.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(clientetad);
+                        }
+                    }
                 }
+                await context.SaveChangesAsync();
+
                 return Ok();
 
             }

@@ -9,7 +9,7 @@
 
 <h4>Catalogo de clientes</h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
-    <div class="col-12 d-flex justify-content-center">
+    <div class="col-12 d-flex justify-content-center" style="height:60vh;">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
@@ -18,7 +18,7 @@
                     <EditForm Model="@Cliente" class="form col-12" OnValidSubmit="@CreateClientes" Context="Validations">
                         <FluentValidationValidator Validator="gestionCliente" />
                         <ValidationSummary />
-                        <div class="col-12 row mb-3">
+                        <div class="col-12 row">
                             <div class="col-3">
                                 <label>Grupo:</label>
                                 <RadzenDropDown @bind-Value="Cliente.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den"
@@ -82,11 +82,10 @@
                 </AuthorizeView>
                 <hr />
                 <!--Aquí ligamos la terminal a los clientes-->
-                <hr />
                 @*<EditForm>
                     <FluentValidationValidator/>
                     <ValidationSummary/>*@
-                <div class="col-12 mb-4 row">
+                <div class="col-12 row">
                     <div class="col-3">
                         <label>Terminales:</label>
                         <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
@@ -95,8 +94,8 @@
                             </RenderValue>
                             <Render>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context">
+                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                    <label class="form-check-label" for="@context.Cod">
                                         @if (context is not null)
                                         {
                                             @context.Den
@@ -131,8 +130,8 @@
                             </RenderValue>
                             <Render>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context">
+                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
+                                    <label class="form-check-label" for="@context.Cod">
                                         @if (context is not null)
                                         {
                                             @context.Den
@@ -146,8 +145,8 @@
                             </Render>
                         </DropDownFilter>
                     </div>
-                    <div class="col-3 d-flex mt-auto">
-                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                    <div class="col-3 d-flex">
+                        <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
                             <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
                         </button>
                     </div>
@@ -299,7 +298,7 @@
             //{
             clienteTadDTO.Tads = Tads_Seleccionados;
             clienteTadDTO.Clientes = Clientes_Seleccionados;
-            var response = await repositorio.Post<List<ClienteTadDTO>>($"api/cliente/relacion", clientesTads);
+            var response = await repositorio.Post<ClienteTadDTO>($"api/cliente/relacion", clienteTadDTO);
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
