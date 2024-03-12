@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.Modelos
@@ -34,7 +35,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(20), EpplusIgnore]
         public string? Codsyn { get; set; } = string.Empty;
         [EpplusIgnore]
-        public bool? Esenergas { get; set; } = false;
+        public bool? Esenergas { get; set; } = false; 
         [MaxLength(16), DisplayName("Tipo de Venta")]
         public string? Tipven { get; set; } = string.Empty;
         [EpplusIgnore]
@@ -57,8 +58,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;
 
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Vendedor? Vendedor { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Originador? Originador { get; set; } = null!;
+        [NotMapped, EpplusIgnore, System.Text.Json.Serialization.JsonIgnore] public Vendedor? Vendedor { get; set; } = null!;
+        [NotMapped, EpplusIgnore, System.Text.Json.Serialization.JsonIgnore] public Originador? Originador { get; set; } = null!;
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
         

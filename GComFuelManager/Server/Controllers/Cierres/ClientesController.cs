@@ -49,7 +49,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes_filtrados = context.Cliente.Include(x => x.Vendedor).Include(x => x.Originador).AsQueryable();
+                var clientes_filtrados = context.Cliente.IgnoreAutoIncludes().AsQueryable();
 
                 if (filtro_.ID_Grupo != 0)
                     clientes_filtrados = clientes_filtrados.Where(x => x.Codgru == filtro_.ID_Grupo);
@@ -59,7 +59,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 //var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
 
-                var clientes = clientes_filtrados.OrderBy(x => x.Den);
+                var clientes = clientes_filtrados.Include(x=>x.Vendedor).IgnoreAutoIncludes().Include(x=>x.Originador).IgnoreAutoIncludes().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
