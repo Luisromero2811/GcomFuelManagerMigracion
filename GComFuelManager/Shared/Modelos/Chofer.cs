@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json.Serialization;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -19,7 +17,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(128)]
         public string? Shortden { get; set; } = string.Empty;
         public bool? Activo { get; set; } = true;
-        public bool? Activo_Permanente { get; set; } = true; 
+        public bool? Activo_Permanente { get; set; } = true;
 
         [NotMapped]
         public string FullName
@@ -35,8 +33,8 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
-        [NotMapped] public List<Tad> Terminales { get; set; } = new();
-        [NotMapped] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
     }
 }
 

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿
 using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.Modelos
@@ -35,8 +36,8 @@ namespace GComFuelManager.Shared.Modelos
         public int? Idcom4 { get; set; } = 0;
         public int? Capcom4 { get; set; } = 0;
 
-        [NotMapped] public List<Tad> Terminales { get; set; } = new();
-        [NotMapped] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
 
         public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }

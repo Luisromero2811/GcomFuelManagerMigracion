@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Shared.DTOs;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,10 +14,12 @@ namespace GComFuelManager.Server.Controllers
     public class ClienteController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly User_Terminal _terminal;
 
-        public ClienteController(ApplicationDbContext context)
+        public ClienteController(ApplicationDbContext context, User_Terminal _Terminal)
         {
             this.context = context;
+            this._terminal = _Terminal;
         }
 
         [HttpGet("{grupo:int}")]
@@ -24,8 +27,13 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var grupos = await context.Cliente
-                    .Where(x => x.Codgru == grupo && x.Activo == true)
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var grupos = await context.Cliente.IgnoreAutoIncludes()
+                    .Where(x => x.Codgru == grupo && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();

@@ -1,10 +1,9 @@
+using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.ComponentModel;
-using OfficeOpenXml.Attributes;
+using System.Text.Json.Serialization;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -22,8 +21,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Simsa { get; set; } = true;
         public string? Gru { get; set; } = string.Empty;
 
-        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
-        [EpplusIgnore, NotMapped] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
     }
 }
 

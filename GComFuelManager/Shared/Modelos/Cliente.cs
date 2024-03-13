@@ -1,14 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿
 using OfficeOpenXml.Attributes;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -35,7 +30,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(20), EpplusIgnore]
         public string? Codsyn { get; set; } = string.Empty;
         [EpplusIgnore]
-        public bool? Esenergas { get; set; } = false; 
+        public bool? Esenergas { get; set; } = false;
         [MaxLength(16), DisplayName("Tipo de Venta")]
         public string? Tipven { get; set; } = string.Empty;
         [EpplusIgnore]
@@ -52,17 +47,17 @@ namespace GComFuelManager.Shared.Modelos
         public string? MdVenta { get; set; } = string.Empty;
         [EpplusIgnore] DateTime? Fecha_Registro { get; set; } = DateTime.Now;
         [EpplusIgnore] bool? Es_Meta { get; set; } = true;
-        
+
 
         [NotMapped, EpplusIgnore] public bool IsEditing { get; set; } = false;
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;
 
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
-        [NotMapped, EpplusIgnore, System.Text.Json.Serialization.JsonIgnore] public Vendedor? Vendedor { get; set; } = null!;
-        [NotMapped, EpplusIgnore, System.Text.Json.Serialization.JsonIgnore] public Originador? Originador { get; set; } = null!;
-        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
-        [EpplusIgnore, NotMapped] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
-        
+        [NotMapped, EpplusIgnore, JsonIgnore] public Vendedor? Vendedor { get; set; } = null!;
+        [NotMapped, EpplusIgnore, JsonIgnore] public Originador? Originador { get; set; } = null!;
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
+
         [NotMapped]
         public string Obtener_Nombre_Vendedor
         {
