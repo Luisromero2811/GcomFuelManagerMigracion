@@ -461,8 +461,11 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.VendedorId);
 
             modelBuilder.Entity<Cliente_Tad>().HasKey(ct => new { ct.Id_Cliente, ct.Id_Terminal });
-            modelBuilder.Entity<Destino_Tad>().HasKey(dt => new { dt.Id_Destino, dt.Id_Termial });
+            modelBuilder.Entity<Destino_Tad>().HasKey(dt => new { dt.Id_Destino, dt.Id_Terminal });
+            modelBuilder.Entity<GrupoTransportista_Tad>().HasKey(gt => new { gt.Id_GrupoTransportista, gt.Id_Terminal});
             modelBuilder.Entity<Transportista_Tad>().HasKey(tt => new { tt.Id_Transportista, tt.Id_Terminal });
+            modelBuilder.Entity<Chofer_Tad>().HasKey(ct => new { ct.Id_Chofer, ct.Id_Terminal});
+            modelBuilder.Entity<Tonel_Tad>().HasKey(tt => new { tt.Id_Tonel, tt.Id_Terminal});
             modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
 
             modelBuilder.Entity<Orden>()
@@ -554,5 +557,8 @@ namespace GComFuelManager.Server
         public DbSet<Transportista_Tad> Transportista_Tad { get; set; }
         public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
         public DbSet<GrupoTransportista> GrupoTransportista { get; set; }
+        public DbSet<GrupoTransportista_Tad> GrupoTransportista_Tad { get; set; }
+        public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
+        public DbSet<Tonel_Tad> Tonel_Tad { get; set; }
     }
 }

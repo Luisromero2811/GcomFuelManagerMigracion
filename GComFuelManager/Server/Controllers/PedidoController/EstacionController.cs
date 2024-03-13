@@ -183,38 +183,27 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("relacion")]
-        public async Task<ActionResult> PostClienteTerminal([FromBody] Cliente cliente)
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
         {
             try
             {
-                //Instancia para la tabla de relación del cliente y terminal 
-                Cliente_Tad clientetad = new Cliente_Tad();
-                //Obtenemos la terminal
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                {
-                    return BadRequest();
-                }
                 //Si el cliente es nulo, retornamos un badrequest
-                if (cliente is null)
+                if (clienteTadDTO is null)
                     return BadRequest();
-                //Si el cliente viene en ceros del front lo agregamos como nuevo sino actualizamos
-                if (cliente.Cod == 0)
+                foreach (var terminal in clienteTadDTO.Tads)
                 {
-                    //Agregamos cliente
-                    context.Add(cliente);
-                    await context.SaveChangesAsync();
-                    //Agregamos las instancias a la colección del contexto de la base y guardamos
-                    clientetad = new Cliente_Tad()
+                    foreach (var destino in clienteTadDTO.Destinos)
                     {
-                        Id_Cliente = cliente.Cod,
-                        Id_Terminal = id_terminal
-                    };
-                    context.Add(clientetad);
-                }
-                else
-                {
-                    context.Update(cliente);
+                        if (!context.Destino_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Destino == destino.Cod))
+                        {
+                            Destino_Tad destino_Tad = new()
+                            {
+                                Id_Destino = destino.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(destino_Tad);
+                        }
+                    }
                 }
                 await context.SaveChangesAsync();
                 return Ok();

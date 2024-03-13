@@ -1,5 +1,6 @@
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -64,6 +65,41 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 }
                 await context.SaveChangesAsync();
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var chofer in clienteTadDTO.Chofer)
+                    {
+                        if (!context.Chofer_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Chofer == chofer.Cod))
+                        {
+                            Chofer_Tad choferTad = new()
+                            {
+                                Id_Chofer = chofer.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(choferTad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
             }
             catch (Exception e)
             {

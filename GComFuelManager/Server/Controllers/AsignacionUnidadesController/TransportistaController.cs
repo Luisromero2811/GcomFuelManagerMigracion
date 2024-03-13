@@ -1,5 +1,6 @@
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -73,6 +74,41 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var grupotransportes in clienteTadDTO.GrupoTransportistas)
+                    {
+                        if (!context.GrupoTransportista_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_GrupoTransportista == grupotransportes.cod))
+                        {
+                            GrupoTransportista_Tad grupotransportetad = new()
+                            {
+                                Id_GrupoTransportista = grupotransportes.cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(grupotransportetad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
         [HttpPost("crearTransportista")]
         public async Task<ActionResult> PostTransportista([FromBody] Transportista transportista)
         {
@@ -91,6 +127,41 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     context.Update(transportista);
                 }
                 await context.SaveChangesAsync();
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("relacionempresa")]
+        public async Task<ActionResult> PostTransportistaTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var transportista in clienteTadDTO.Transportistas)
+                    {
+                        if (!context.Transportista_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Transportista == transportista.Cod))
+                        {
+                            Transportista_Tad transportista_Tad = new()
+                            {
+                                Id_Transportista = transportista.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(transportista_Tad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
                 return Ok();
 
             }
@@ -134,7 +205,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [HttpGet("filtrarempresaactiva")]
+        [HttpGet("filtrarempresa")]
         public ActionResult Obtener_Empresa_Activa([FromQuery] Transportista transportista)
         {
             try
