@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -467,6 +467,48 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Chofer_Tad>().HasKey(ct => new { ct.Id_Chofer, ct.Id_Terminal});
             modelBuilder.Entity<Tonel_Tad>().HasKey(tt => new { tt.Id_Tonel, tt.Id_Terminal});
             modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
+            modelBuilder.Entity<Chofer_Tad>().HasKey(ut => new { ut.Id_Chofer, ut.Id_Terminal });
+            modelBuilder.Entity<Unidad_Tad>().HasKey(ut => new { ut.Id_Unidad, ut.Id_Terminal });
+
+            modelBuilder.Entity<Cliente>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Clientes)
+                .UsingEntity<Cliente_Tad>(
+                    l => l.HasOne(x => x.Terminal).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                    r => r.HasOne(x => x.Cliente).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Cliente).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Destino>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Destinos)
+                .UsingEntity<Destino_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Destino_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Destino).WithMany(x => x.Destino_Tads).HasForeignKey(x => x.Id_Destino).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Transportista>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Transportistas)
+                .UsingEntity<Transportista_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Transportista_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Transportista).WithMany(x => x.Transportista_Tads).HasForeignKey(x => x.Id_Transportista).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Chofer>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Choferes)
+                .UsingEntity<Chofer_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Chofer_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Chofer).WithMany(x => x.Chofer_Tads).HasForeignKey(x => x.Id_Chofer).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Tonel>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Unidades)
+                .UsingEntity<Unidad_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Unidad_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Tonel).WithMany(x => x.Unidad_Tads).HasForeignKey(x => x.Id_Unidad).OnDelete(DeleteBehavior.Restrict)
+                );
 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Terminal)

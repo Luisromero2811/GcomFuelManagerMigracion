@@ -64,7 +64,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 {
                     foreach (var i in ordenCierres)
                     {
-                        var ctes = context.Cliente.Where(x => x.codgru == i.CodGru).ToList();
+                        var ctes = context.Cliente.Where(x => x.Codgru == i.CodGru).ToList();
                         foreach (var item in ctes)
                         {
                             var emails = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
@@ -140,7 +140,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 var gpo = context.Grupo.Where(x => x.Den.ToLower().Equals(grupo.Den)).FirstOrDefault();
                 if (gpo is not null)
                 {
-                    var ctes = context.Cliente.Where(x => x.codgru == gpo.Cod).ToList();
+                    var ctes = context.Cliente.Where(x => x.Codgru == gpo.Cod).ToList();
                     foreach (var item in ctes)
                     {
                         ToList = await context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true
@@ -244,7 +244,7 @@ namespace GComFuelManager.Server.Controllers.Emails
                 var gpo = context.Grupo.Where(x => x.Den.ToLower().Equals(grupo.Den)).FirstOrDefault();
                 if (gpo is not null)
                 {
-                    var ctes = context.Cliente.Where(x => x.codgru == gpo.Cod).ToList();
+                    var ctes = context.Cliente.Where(x => x.Codgru == gpo.Cod).ToList();
                     foreach (var item in ctes)
                     {
                         ToList = await context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == item.Cod && x.Contacto.Estado == true

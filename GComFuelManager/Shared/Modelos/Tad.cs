@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -21,8 +21,16 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
 		//public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
-		[NotMapped, EpplusIgnore] public List<Cliente> clientes { get; set; } = new();
-        [NotMapped, EpplusIgnore] public List<Cliente_Tad> cliente_Tad { get; set; } = new();
+		[NotMapped] public List<Cliente> Clientes { get; set; } = new();
+		[NotMapped] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
+		[NotMapped] public List<Destino> Destinos { get; set; } = new();
+		[NotMapped] public List<Destino_Tad> Destino_Tads { get; set; } = new();
+		[NotMapped] public List<Transportista> Transportistas { get; set; } = new();
+		[NotMapped] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
+		[NotMapped] public List<Chofer> Choferes { get; set; } = new();
+		[NotMapped] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+		[NotMapped] public List<Tonel> Unidades { get; set; } = new();
+		[NotMapped] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
     }
 }
 

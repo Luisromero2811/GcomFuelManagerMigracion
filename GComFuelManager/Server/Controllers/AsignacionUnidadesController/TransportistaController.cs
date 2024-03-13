@@ -24,13 +24,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly RequestToFile toFile;
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> UserManager;
+        private readonly User_Terminal _terminal;
 
-        public TransportistaController(ApplicationDbContext context, RequestToFile toFile, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager)
+        public TransportistaController(ApplicationDbContext context, RequestToFile toFile, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal)
         {
             this.context = context;
             this.toFile = toFile;
             this.verifyUser = verifyUser;
             this.UserManager = UserManager;
+            this._terminal = _Terminal;
         }
 
         private async Task SaveErrors(Exception e)
@@ -257,13 +259,35 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public ActionResult Get()
         {
             try
             {
-                var transportistas = await context.Transportista.Where(x => x.Activo == true)
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToListAsync();
+                    .ToList();
+
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("all")]
+        public ActionResult GetAll()
+        {
+            try
+            {
+                var transportistas = context.Transportista
+                    .OrderBy(x => x.Den)
+                    .ToList();
                 return Ok(transportistas);
             }
             catch (Exception e)
@@ -278,13 +302,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                ServiceReference8.BusinessEntityServiceClient client = new ServiceReference8.BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                ServiceReference8.BusinessEntityServiceClient client = new(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
 
-                TruckCarrierServiceClient truck = new TruckCarrierServiceClient(TruckCarrierServiceClient.EndpointConfiguration.BasicHttpBinding_TruckCarrierService);
+                TruckCarrierServiceClient truck = new(TruckCarrierServiceClient.EndpointConfiguration.BasicHttpBinding_TruckCarrierService);
                 truck.ClientCredentials.UserName.UserName = "energasws";
                 truck.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
@@ -293,11 +317,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 try
                 {
 
-                    List<Transportista> transportistas = new List<Transportista>();
+                    List<Transportista> transportistas = new();
                     //ServiceReference6.BusinessEntityServiceChannel svc = svcTruck.CreateChannel();
                     var svc = client.ChannelFactory.CreateChannel();
                     //Conexión a WebService para obtener el transportista
-                    WsGetBusinessEntityAssociationsRequest getReq = new WsGetBusinessEntityAssociationsRequest();
+                    WsGetBusinessEntityAssociationsRequest getReq = new();
 
                     getReq.IncludeChildObjects = new ServiceReference8.NBool();
                     getReq.IncludeChildObjects.Value = true;
@@ -319,7 +343,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //toFile.GenerateFile(JsonConvert.SerializeObject(respuesta), $"Response_Transportistas_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
                     //Conexion a WebService para obtener carrId del transportista 
-                    WsGetTruckCarriersRequest truckRequest = new WsGetTruckCarriersRequest();
+                    WsGetTruckCarriersRequest truckRequest = new();
 
                     //toFile.GenerateFile(JsonConvert.SerializeObject(truckRequest), $"Request_Transportistas_ID_{DateTime.Now.ToString("ddMMyyyyHHmmss")}", $"{DateTime.Now.ToString("ddMMyyyy")}");
 
@@ -334,7 +358,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         {
                             var carrid = truckResponse.TruckCarriers.FirstOrDefault(x => x.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
                             //Creacion del objeto del transportista
-                            Transportista transportista = new Transportista()
+                            Transportista transportista = new()
                             {
                                 Den = item.BusinessEntity.BusinessEntityName,
                                 Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),

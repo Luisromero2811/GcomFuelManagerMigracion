@@ -25,26 +25,33 @@ namespace GComFuelManager.Server.Controllers.ETAController
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
+        private readonly User_Terminal _terminal;
 
-        public EtaController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
+        public EtaController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            this._terminal = _Terminal;
         }
         //Filtro para ordenes por Bol 
         [HttpPost("Filtro")]
-        public async Task<ActionResult> EtaGet([FromBody] EtaDTO etaDTO)
+        public ActionResult EtaGet([FromBody] EtaDTO etaDTO)
         {
             try
             {
-                var eta = await context.OrdEmbDet
-                    .Where(x => x.Bol == etaDTO.Bol)
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var eta = context.OrdEmbDet
+                    .Where(x => x.Bol == etaDTO.Bol && x.Orden != null && x.Orden.Id_Tad == id_terminal)
                     .Include(x => x.Orden)
                     .ThenInclude(x => x.Tonel)
                     .Include(x => x.Orden)
                     .ThenInclude(x => x.Estado)
-                    .FirstOrDefaultAsync();
+                    .FirstOrDefault();
+
                 if (eta == null)
                     return NotFound("No se ha encontrado ningun registro.");
                 return Ok(eta);
@@ -130,19 +137,23 @@ namespace GComFuelManager.Server.Controllers.ETAController
         }
 
         [HttpGet("{bol:int}")]
-        public async Task<ActionResult> GetEta(int? bol)
+        public ActionResult GetEta(int? bol)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (bol == null)
                     return BadRequest("El bol no puede ir vacio.");
 
-                var orden = context.Orden.Where(x => x.BatchId == bol).Include(x => x.Tonel).Include(x => x.Estado).FirstOrDefault();
+                var orden = context.Orden.Where(x => x.BatchId == bol && x.Id_Tad == id_terminal).Include(x => x.Tonel).Include(x => x.Estado).FirstOrDefault();
 
                 if (orden == null)
                     return BadRequest($"No se contro el bol {bol} en las ordenes cargadas");
 
-                var ordembdet = context.OrdEmbDet.FirstOrDefault(x => x.Bol == bol) ?? new OrdEmbDet();
+                var ordembdet = context.OrdEmbDet.Include(x => x.Orden).IgnoreAutoIncludes().FirstOrDefault(x => x.Bol == bol && x.Orden != null && x.Orden.Id_Tad == id_terminal) ?? new OrdEmbDet();
 
                 if (ordembdet.Cod == 0)
                     ordembdet.Bol = bol;
@@ -423,6 +434,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 //Si seleccionan los dos tipos de delivery
                 if (fechas.Estado == 1)
                 {
@@ -432,9 +447,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //órdenes sin asignar ordenar por BIN
                     var ordensSinAsignar = await context.OrdenEmbarque
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                         || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno"))
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -478,9 +493,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes programadas
                     var ordens = await context.OrdenEmbarque
                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno"))
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
                      .Include(x => x.Chofer)
                      .Include(x => x.Destino)
                      .ThenInclude(x => x.Cliente)
@@ -526,10 +541,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(ordens);
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno"))
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -571,8 +586,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(pedidosDate);
                     //Órdenes cargadas
                     var pedidosDate2 = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Id_Tad == id_terminal
                     //Internas-Externas
                     )
                         .Include(x => x.Destino)
@@ -615,10 +630,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes ETA-Trayecto
                     List<EtaDTO> newOrden = new List<EtaDTO>();
                     var Eta = await context.Orden
-                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
+                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
                           //Pruebas de Filtro Interno - Externo
                           || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                          && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno"))
+                          && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Id_Tad == id_terminal)
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
@@ -671,9 +686,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //órdenes sin asignar ordenar por BIN
                     var ordensSinAsignar = await context.OrdenEmbarque
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                         || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno")
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno") && x.Codtad == id_terminal
                         )
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
@@ -718,9 +733,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes programadas
                     var ordens = await context.OrdenEmbarque
                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno"))
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno") && x.Codtad == id_terminal)
                      .Include(x => x.Chofer)
                      .Include(x => x.Destino)
                      .ThenInclude(x => x.Cliente)
@@ -768,10 +783,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno")
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno"))
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno") && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno") && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -813,8 +828,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(pedidosDate);
                     //Órdenes cargadas
                     var pedidosDate2 = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno")
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno") && x.Id_Tad == id_terminal
                     //Internas-Externas
                      )
                         .Include(x => x.Destino)
@@ -857,10 +872,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes ETA-Trayecto
                     List<EtaDTO> newOrden = new List<EtaDTO>();
                     var Eta = await context.Orden
-                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
+                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
                           //Pruebas de Filtro Interno - Externo
                           || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                          && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno")
+                          && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno") && x.Id_Tad == id_terminal
                           )
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
@@ -915,9 +930,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //órdenes sin asignar ordenar por BIN
                     var ordensSinAsignar = await context.OrdenEmbarque
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                         || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo")
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo") && x.Codtad == id_terminal
                         )
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
@@ -962,9 +977,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes programadas
                     var ordens = await context.OrdenEmbarque
                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString())
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
                      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo"))
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo") && x.Codtad == id_terminal)
                      .Include(x => x.Chofer)
                      .Include(x => x.Destino)
                      .ThenInclude(x => x.Cliente)
@@ -1012,10 +1027,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo")
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo"))
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -1058,8 +1073,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(pedidosDate);
                     //Órdenes cargadas
                     var pedidosDate2 = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString())
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo")
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo") && x.Id_Tad == id_terminal
                     //Internas-Externas
                      )
                         .Include(x => x.Destino)
@@ -1103,10 +1118,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes ETA-Trayecto
                     List<EtaDTO> newOrden = new List<EtaDTO>();
                     var Eta = await context.Orden
-                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
+                          .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
                           //Pruebas de Filtro Interno - Externo
                           || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                          && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo"))
+                          && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo") && x.Id_Tad == id_terminal)
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
@@ -1158,7 +1173,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //órdenes sin asignar ordenar por BIN
                     var ordensSinAsignar = await context.OrdenEmbarque
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null)
+                        && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && x.Codtad == id_terminal)
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -1202,7 +1217,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes programadas
                     var ordens = await context.OrdenEmbarque
                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null)
+                     && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && x.Codtad == id_terminal)
                      .Include(x => x.Chofer)
                      .Include(x => x.Destino)
                      .ThenInclude(x => x.Cliente)
@@ -1250,8 +1265,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true
-                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Tad)
@@ -1293,7 +1308,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(pedidosDate);
                     //Órdenes cargadas
                     var pedidosDate2 = await context.Orden
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20)
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && x.Id_Tad == id_terminal)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
                         .Include(x => x.Estado)
@@ -1338,7 +1353,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           .Where(x =>
                               //x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
                               //||
-                              x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
+                              x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && x.Id_Tad == id_terminal
                           //&& string.IsNullOrEmpty(fechas.Estado.ToString())
                           //Pruebas de Filtro Interno - Externo
                           //|| x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
