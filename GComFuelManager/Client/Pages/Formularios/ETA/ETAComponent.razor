@@ -12,123 +12,130 @@
 
 <h4><b>ETA</b></h4>
 <!--Primer formulario para tiempo estimado de llegada del pedido-->
-<div class="col-12 card shadow">
-    <div class="card-body">
-        <EditForm Model="Ordenes" class="row">
-            <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Filter">
-                <div class="row d-flex g-3">
-                    <div class="row">
-                        <div class="col-3">
-                            <label>Número de Bol:</label>
-                            <RadzenNumeric Change="@GetEta" class="form-control" @bind-value="@Ordenes.Bol" TValue="int?" />
-                        </div>
-                        @* <div class="col-1 mt-4">
-                            <button class="btn gcom-bg-amarillo col-12">
-                            <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
-                            </div> *@
-                    </div>
-                </div>
-            </AuthorizeView>
-            <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Eta">
-                <div class="row d-flex g-3">
-                    <div class="row">
-                        <div class="col-4">
-                            <label>Fecha documentación:</label>
-                            <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                                              @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
-                        </div>
-                        <div class="col-4">
-                            <label>ETA:</label>
-                            <RadzenNumeric Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta" TValue="int?" />
-                            @*<RadzenText Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta"/>*@
-                        </div>
-                        <div class="col-4">
-                            <label>Fecha de llegada estimada:</label>
-                            <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                                              @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
+@if (Esta_En_Tuxpan)
+{
+    <div class="col-12 card shadow">
+        <div class="card-body">
+            <EditForm Model="Ordenes" class="row">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto, Comprador" Context="Filter">
+                    <div class="row d-flex g-3">
+                        <div class="row">
+                            <div class="col-3">
+                                <label>Número de Bol:</label>
+                                <RadzenNumeric Change="@GetEta" class="form-control" @bind-value="@Ordenes.Bol" TValue="int?" />
+                            </div>
+                            @* <div class="col-1 mt-4">
+                        <button class="btn gcom-bg-amarillo col-12">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        </div> *@
                         </div>
                     </div>
-                </div>
-            </AuthorizeView>
-            <div class="row d-flex g-3">
-                <div class="row">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Trayectos">
-                        <div class="col-4">
-                            <label>En trayecto:</label>
-                            <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
-                                <option value=20>NO</option>
-                                <option value=26>SI</option>
-                            </InputSelect>
-                        </div>
-                    </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Equipo">
-                        <div class="col-4">
-                            <label>Equipo:</label>
-                            <div>
-                                @if (Ordenes.Orden != null)
-                                {
-                                    @if (Ordenes.Orden.Tonel != null)
-                                    {
-                                        <p>
-                                            @Ordenes.Orden.Tonel.Veh
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        <p>No se encontro una unidad</p>
-                                    }
-                                }
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Eta">
+                    <div class="row d-flex g-3">
+                        <div class="row">
+                            <div class="col-4">
+                                <label>Fecha documentación:</label>
+                                <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                                @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
+                            </div>
+                            <div class="col-4">
+                                <label>ETA:</label>
+                                <RadzenNumeric Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta" TValue="int?" />
+                                @*<RadzenText Change="@AddTime" class="form-control" @bind-value="@Ordenes.Eta"/>*@
+                            </div>
+                            <div class="col-4">
+                                <label>Fecha de llegada estimada:</label>
+                                <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                                @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
                             </div>
                         </div>
-                    </AuthorizeView>
-                </div>
-            </div>
-
-
-
-            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador" Context="EtaReal">
-                <!--btn look-->
+                    </div>
+                </AuthorizeView>
                 <div class="row d-flex g-3">
-                    <div class="row justify-content-end">
+                    <div class="row">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador" Context="Trayectos">
+                            <div class="col-4">
+                                <label>En trayecto:</label>
+                                <InputSelect @bind-Value="@Ordenes.Orden!.Codest" class="form-select" TValue="byte?">
+                                    <option value=20>NO</option>
+                                    <option value=26>SI</option>
+                                </InputSelect>
+                            </div>
+                        </AuthorizeView>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Capturista Recepcion Producto" Context="Equipo">
+                            <div class="col-4">
+                                <label>Equipo:</label>
+                                <div>
+                                    @if (Ordenes.Orden != null)
+                                    {
+                                        @if (Ordenes.Orden.Tonel != null)
+                                        {
+                                            <p>
+                                                @Ordenes.Orden.Tonel.Veh
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <p>No se encontro una unidad</p>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </AuthorizeView>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-6">
-                        <label>Fecha real de llegada a destino:</label>
-                        <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                                          @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
-                    </div>
-                    <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
-                        <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                        <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" MaxLenght="30" />
-                        @*<InputNumber @bind-Value="Ordenes.Litent" class="form-control" FormatString="N0"/>*@
-                        <!--Format="#,0.00" Format="n2"-->
-                    </div>
-                </div>
-            </AuthorizeView>
-            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador, Coordinador" Context="Observaciones">
-                <div class="row g-3 mt-1 mb-2">
-                    <div class="col-6" @onmouseenter="@(args => ToolTipObs(infoObsIcon))" @ref="infoObsIcon">
-                        <label>Observaciones</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                        <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLenght="260" Placeholder="Máximo de 260 caracteres"></InputTextArea>
-                    </div>
-                </div>
-            </AuthorizeView>
-            <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador, Comprador" Context="Actions">
-                <div class="row d-flex g-3">
-                    <div class="row justify-content-end">
-                        <div class="col-3 mt-3 mb-3" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="SendOrdenEta" type="button">
-                                <i class="fa-solid fa-floppy-disk"></i> <b>Guardar</b>
-                            </button>
+
+
+
+                <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador" Context="EtaReal">
+                    <!--btn look-->
+                    <div class="row d-flex g-3">
+                        <div class="row justify-content-end">
                         </div>
                     </div>
-                </div>
-            </AuthorizeView>
-        </EditForm>
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Fecha real de llegada a destino:</label>
+                            <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
+                            @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
+                        </div>
+                        <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
+                            <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                            <RadzenNumeric class="form-control" @bind-Value="Ordenes.Litent" TValue="double?" MaxLenght="30" />
+                            @*<InputNumber @bind-Value="Ordenes.Litent" class="form-control" FormatString="N0"/>*@
+                            <!--Format="#,0.00" Format="n2"-->
+                        </div>
+                    </div>
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador, Coordinador" Context="Observaciones">
+                    <div class="row g-3 mt-1 mb-2">
+                        <div class="col-6" @onmouseenter="@(args => ToolTipObs(infoObsIcon))" @ref="infoObsIcon">
+                            <label>Observaciones</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                            <InputTextArea class="form-control" @bind-Value="Ordenes.Obs" MaxLenght="260" Placeholder="Máximo de 260 caracteres"></InputTextArea>
+                        </div>
+                    </div>
+                </AuthorizeView>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Coordinador, Comprador" Context="Actions">
+                    <div class="row d-flex g-3">
+                        <div class="row justify-content-end">
+                            <div class="col-3 mt-3 mb-3" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="SendOrdenEta" type="button">
+                                    <i class="fa-solid fa-floppy-disk"></i> <b>Guardar</b>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </AuthorizeView>
+            </EditForm>
+        </div>
     </div>
-</div>
+}
+else
+{
+    <GComFuelManager.Client.Pages.Formularios.Orden.Asignar_Embarque_Orden_Componente></GComFuelManager.Client.Pages.Formularios.Orden.Asignar_Embarque_Orden_Componente>
+}
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
     <!--Segundo formulario para exportación de ETA-->
     <div class="col-12 card shadow mt-3 mb-5">
@@ -146,33 +153,33 @@
                             <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
                         </div>
                         @*<div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
-                                <label>Modelo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                                <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
-                                    <option value="">--Seleccione una opcion--</option>
-                                    @if (TpVenta is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    @if (TpVenta.Count == 0)
-                                    {
-                                        <option disabled> No hay tipos de venta</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in TpVenta)
-                                        {
-                                            <option value="@item">@item</option>
-                                        }
-                                    }
+                        <label>Modelo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                        <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
+                        <option value="">--Seleccione una opcion--</option>
+                        @if (TpVenta is null)
+                        {
+                        <option disabled> Cargando ...</option>
+                        }
+                        @if (TpVenta.Count == 0)
+                        {
+                        <option disabled> No hay tipos de venta</option>
+                        }
+                        else
+                        {
+                        foreach (var item in TpVenta)
+                        {
+                        <option value="@item">@item</option>
+                        }
+                        }
 
-                                </InputSelect>
-                            </div>*@
+                        </InputSelect>
+                        </div>*@
                         @*<div class="col-md-1">
-                                <label></label>
-                                <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@ClearForm">
-                                    <i class="fa fa-solid fa-broom"></i>
-                                </button>
-                            </div>*@
+                        <label></label>
+                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@ClearForm">
+                        <i class="fa fa-solid fa-broom"></i>
+                        </button>
+                        </div>*@
                         <div class="col-md-4">
                             <label></label>
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
@@ -346,10 +353,10 @@
                                         <td style="text-align: center;">@data?.FechaRealEta</td>
                                         <td>@data?.EntLit</td>
                                         @*@(data?.Compartimento == 1 ? data.Capcom
-                                            : data?.Compartimento == 2 ? data.Capcom2
-                                            : data?.Compartimento == 3 ? data.Capcom3
-                                            : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
-                                            : data?.Volms)*@
+                                        : data?.Compartimento == 2 ? data.Capcom2
+                                        : data?.Compartimento == 3 ? data.Capcom3
+                                        : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
+                                        : data?.Volms)*@
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -367,8 +374,8 @@
 </AuthorizeView>
 
 <style type="text/css">
-    .ancho{
-          width: @TotalWidth;
+    .ancho {
+        width: @TotalWidth;
     }
 
     tr:hover {
@@ -399,9 +406,9 @@
         background-color: #f2f2f2;
     }
 
-        .sticky-column, .sticky-column + th, .sticky-column + td {
-            min-width: 180px;
-        }
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
 </style>
 
 @code {
@@ -432,13 +439,13 @@
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
-    {
-        Orden = new Orden()
         {
-            Estado = new Estado(),
-            Tonel = new Tonel()
-        }
-    };
+            Orden = new Orden()
+            {
+                Estado = new Estado(),
+                Tonel = new Tonel()
+            }
+        };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -455,6 +462,8 @@
     DataGridSettings _settings;
     DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
 
+    bool Esta_En_Tuxpan = true;
+
     private async Task SaveStateAsync()
     {
         try
@@ -470,18 +479,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var cm = await JS.GetItemLocalStorage("CloseMenu");
-        if (!string.IsNullOrEmpty(cm))
-            isClose = bool.Parse(cm);
-
-        if (isClose)
-            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-        else
-            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-        if (width < 0)
-            width = 500;
-        TotalWidth = $"{width}px";
+        await Checar_Terminal();
     }
 
     private void Message(NotificationMessage message)
@@ -533,12 +531,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Success,
-                            Summary = "Eta registrado",
-                            Detail = $"Se ha registrado el eta correctamente",
-                            Duration = 5000
-                        });
+                            {
+                                Severity = NotificationSeverity.Success,
+                                Summary = "Eta registrado",
+                                Detail = $"Se ha registrado el eta correctamente",
+                                Duration = 5000
+                            });
                         Ordenes = responseHttp.Response;
                     }
                 }
@@ -631,12 +629,12 @@
                 else
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Success,
-                        Summary = "Buscando...",
-                        Detail = $"Buscando orden con bol {Ordenes.Bol}",
-                        Duration = 5000
-                    });
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Summary = "Buscando...",
+                            Detail = $"Buscando orden con bol {Ordenes.Bol}",
+                            Duration = 5000
+                        });
                     if (Ordenes.Cod != 0)
                     {
                         if (responseHttp.Response.Cod != 0)
@@ -673,6 +671,28 @@
         selectedOption = "";
     }
 
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
 }
 

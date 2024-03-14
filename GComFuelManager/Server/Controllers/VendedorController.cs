@@ -43,6 +43,10 @@ namespace GComFuelManager.Server.Controllers
                 var Fechas_Diponibles = context.Orden.Where(x => x.Fch != null && x.Id_Tad == id_terminal).Select(x => x.Fch.Value.Year);
                 var años_ordenados = Fechas_Diponibles.Order();
                 var años = Fechas_Diponibles.Distinct();
+
+                if (!años.Any())
+                    años.ToList().Add(DateTime.Today.Year);
+
                 return Ok(años);
             }
             catch (Exception e)

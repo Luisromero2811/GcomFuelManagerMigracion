@@ -484,47 +484,88 @@
         </div>
     </div>
 </div>
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia,  Lectura Asignacion" Context="SendSynthesis">
-    <div class="col-12 card mt-2 mb-3">
-        <div class="col-12 card-body">
-            <div class="col-12 mb-2">
-                <div class="row d-flex justify-content-start">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                        <div class="col-4">
-                            <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
-                            <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
-                        </div>
-                    </AuthorizeView>
-                </div>
-                <div class="row d-flex justify-content-end">
-                    @if (Synthesis)
-                    {
-                        <div class="col-4">
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
-                                <div class="gcom-bg-amarillo">
-
-                                    <RadzenButton class="gcom-bg-amarillo col-12" Variant="Variant.Text" Click="@SendToSynthesis" Disabled="updateData">
-                                        <div class="col-12">
-                                            <i class="fa fa-solid fa-paper-plane"></i><b>Enviar a Synthesis</b>
-                                        </div>
-                                    </RadzenButton>
-
-                                </div>
-                            </AuthorizeView>
-                        </div>
-                    }
-                    <div class="col-4">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador,  Lectura Asignacion">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+@if (Esta_En_Synthesis)
+{
+    <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Direccion, Gerencia,  Lectura Asignacion" Context="SendSynthesis">
+        <div class="col-12 card mt-2 mb-3">
+            <div class="col-12 card-body">
+                <div class="col-12 mb-2">
+                    <div class="row d-flex justify-content-start">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                            <div class="col-4">
+                                <RadzenCheckBox @bind-Value="Synthesis" Name="CheckBox1" class="mx-3" />
+                                <RadzenLabel Text="Envio a Synthesis" Component="CheckBox1" />
+                            </div>
                         </AuthorizeView>
+                    </div>
+                    <div class="row d-flex justify-content-end">
+                        @if (Synthesis)
+                        {
+                            <div class="col-4">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                                    <div class="gcom-bg-amarillo">
 
+                                        <RadzenButton class="gcom-bg-amarillo col-12" Variant="Variant.Text" Click="@SendToSynthesis" Disabled="updateData">
+                                            <div class="col-12">
+                                                <i class="fa fa-solid fa-paper-plane"></i><b>Enviar a Synthesis</b>
+                                            </div>
+                                        </RadzenButton>
+
+                                    </div>
+                                </AuthorizeView>
+                            </div>
+                        }
+                        <div class="col-4">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador,  Lectura Asignacion">
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                            </AuthorizeView>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </AuthorizeView>
+}
+else
+{
+    <div class="col-12 card shadow-sm">
+        <div class="card-body">
+            <div class="col-12 row">
+<div class="col-6">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
+                    @if (updateData)
+                    {
+                        <button class="btn gcom-bg-amarillo me-auto" disabled>
+                            Confirmar asignacion de unidades
+                            @if (updateData)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn gcom-bg-amarillo me-auto" @onclick="Confirmar_Asignacion_Unidades">
+                            Confirmar asignacion de unidades
+                                @if (updateData)
+                                {
+                                    <SpinnerLoading />
+                                }
+                        </button>
+                    }
+                </AuthorizeView>
+            </div>
+            <div class="col-6">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador,  Lectura Asignacion">
+                    <button class="btn gcom-bg-amarillo ms-auto" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                </AuthorizeView>
+            </div>
+            </div>
+            
+        </div>
     </div>
-</AuthorizeView>
-
+}
 <style type="text/css">
     table {
         border-collapse: collapse;
@@ -538,7 +579,7 @@
         background-color: white;
     }
 
-    .fila th{
+    .fila th {
         position: -webkit-sticky;
         position: sticky;
         text-align: center;
@@ -546,7 +587,7 @@
         background-color: #f2f2f2;
     }
 
-    .fila td{
+    .fila td {
         position: -webkit-sticky;
         position: sticky;
         text-align: center;
@@ -581,14 +622,14 @@
     .sticky-column-header {
         position: sticky;
         top: 0;
-        left:0;
+        left: 0;
         z-index: 2;
         background-color: white;
     }
 
-        .sticky-column, .sticky-column + th, .sticky-column + td {
-            min-width: 180px;
-        }
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
 
     .table-container {
         overflow: auto;
@@ -618,7 +659,7 @@
         }
 </style>
 @code {
-
+    bool Esta_En_Synthesis = true;
     public bool Synthesis { get; set; } = false;
     bool isClose = false;
     //grid
@@ -696,6 +737,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await Checar_Terminal();
         //await GetDestinos();
         //await GetProductos();
         await GetTransportista();
@@ -912,10 +954,10 @@
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                                                                                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                                                                                    : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                                                                                    : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                                                                                    : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -1051,10 +1093,10 @@
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                                                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                                                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                                                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                                                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",
@@ -1380,6 +1422,69 @@
         }
         catch (Exception e)
         {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Synthesis = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Confirmar_Asignacion_Unidades()
+    {
+        try
+        {
+            updateData = true;
+            List<OrdenEmbarque> NewOrdens = new List<OrdenEmbarque>();
+            var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null && x.Chofer != null && x.Destino != null && x.Destino?.Cliente != null)
+            .OrderBy(x => x.Fchpet)
+            .ThenBy(x => x!.Tonel!.Tracto)
+            // .ThenBy(x => x.Bin)
+            .ToList();
+            // Console.WriteLine(JsonConvert.SerializeObject(ordens));
+            // return;
+
+            foreach (var item in ordens)
+                if (!NewOrdens.Contains(item))
+                    NewOrdens.Add(item);
+
+            var response = await repositorio.Post<List<OrdenEmbarque>>($"api/pedido/confirmar/asignacion", NewOrdens);
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                updateData = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                updateData = false;
+                await MostrarOrdenFecha();
+            }
+        }
+        catch (Exception e)
+        {
+            updateData = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
