@@ -112,7 +112,7 @@
                     <div class="col-3">
                         <label>Grupo</label>
                         <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                        Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.codgru">
+                                        Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
                             <RenderValue>
                                 @context.Den
                             </RenderValue>
@@ -272,7 +272,7 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Cliente>>($"api/cliente/Grupo/{Cliente.codgru}");
+            var response = await repositorio.Get<List<Cliente>>($"api/cliente/Grupo/{Cliente.Codgru}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

@@ -20,6 +20,7 @@ namespace GComFuelManager.Server.Controllers
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUserId;
         private readonly User_Terminal terminal;
+        private readonly User_Terminal _terminal;
 
         public EstacionController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUserId, User_Terminal _Terminal)
         {

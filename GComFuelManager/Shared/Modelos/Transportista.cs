@@ -25,7 +25,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped]
         public GrupoTransportista? GrupoTransportista { get; set; } = null!;
 
-        [JsonProperty("Codgru")]
         public int? Codgru { get; set; } = null!;
 
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
