@@ -2,10 +2,9 @@
 @typeparam TValue
 
 @* @inject IJSRuntime js *@
-
-<div style="width:100%" id="dropdown-custom">
-    <div class="dropdown-com">
-        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="dropdown-com-btn" type="button">
+<div class="dropdown-com" @onmouseleave="@(()=>ShowDropDown = false)">
+    <div class="dropdown-com-btn-container">
+        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="dropdown-com-btn" type="button" data-toggle="dropdown">
             @if (RenderValue is null || Valor_Seleleccionado is null)
             {
                 @if (!string.IsNullOrEmpty(Default_Placeholder))
@@ -38,11 +37,11 @@
 
     @if (ShowDropDown)
     {
-        <ul class="dropdown-com-content" id="dropdown-list">
+        <ul class="dropdown-com-content" id="dropdown-list" @onmouseleave="@(()=>ShowDropDown = false)">
             @if (Puede_Filtrar)
             {
                 <li style="position:sticky; top:0; background-color:white;">
-                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value"/>
+                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
                 </li>
             }
             <Virtualize Items="Listado" Context="Item" TItem="TListado">

@@ -270,6 +270,7 @@ namespace GComFuelManager.Server.Controllers
                     })
                     //.OrderBy(x => x.Fchcar)
                     //ordens.OrderByDescending(x => x.Bin);
+                    .OrderBy(x => x.Ref)
                     .Take(10000)
                     .ToListAsync();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
@@ -647,6 +648,7 @@ namespace GComFuelManager.Server.Controllers
                     x.OrdenCierre = null!;
                     x.Cliente = null!;
                     x.OrdenPedido = null!;
+                    x.Orden = null!;
                     x.Codest = 3;
                     x.CodordCom = folio;
                     x.FchOrd = DateTime.Today.Date;
@@ -1373,6 +1375,7 @@ namespace GComFuelManager.Server.Controllers
                         ordencierrecopy.Producto = null!;
                         ordencierrecopy.OrdenEmbarque = null!;
                         ordencierrecopy.Grupo = null!;
+                        ordencierrecopy.Terminal = null!;
 
                         context.Add(ordencierrecopy);
                         await context.SaveChangesAsync();
@@ -1960,6 +1963,9 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
+                if (bol == 0)
+                    return NotFound();
+
                 List<Orden> ordenes = context.Orden.Where(x => x.BatchId == bol && x.Id_Tad == id_terminal)
                     .Include(x => x.OrdenEmbarque)
                     .Include(x => x.Producto)
@@ -2008,10 +2014,9 @@ namespace GComFuelManager.Server.Controllers
                 foreach (var orden in ordens)
                 {
                     var guid = Guid.NewGuid().ToString();
-                    var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
+                    var folio = context.OrdenEmbarque.Where(x => x.Codtad == id_terminal).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
+                    folio ??= 0;
 
-                    if (folio == 0)
-                        return BadRequest();
                     folio++;
 
                     List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
@@ -2093,6 +2098,11 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
+                var usuario = await userManager.FindByIdAsync(id);
+                if (usuario is null) { return NotFound(); }
+
+                var user = context.Usuario.Find(usuario.UserCod);
+                if(user is null) { return NotFound(); }
                 var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
                 if (ordenembarque is null) { return NotFound(); }
 
@@ -2119,19 +2129,40 @@ namespace GComFuelManager.Server.Controllers
                 var tonel = context.Tonel.FirstOrDefault(x => x.Cod == ordenembarque.Codton);
                 if (tonel is null) { return NotFound(); }
 
-                if(ordenembarque.Compartment == 1) { orden.CompartmentId = tonel.Idcom; }
-                if(ordenembarque.Compartment == 2) { orden.CompartmentId = tonel.Idcom2; }
-                if(ordenembarque.Compartment == 3) { orden.CompartmentId = tonel.Idcom3; }
-                if(ordenembarque.Compartment == 4) { orden.CompartmentId = tonel.Idcom4; }
+                if (ordenembarque.Compartment == 1) { orden.CompartmentId = tonel.Idcom; }
+                if (ordenembarque.Compartment == 2) { orden.CompartmentId = tonel.Idcom2; }
+                if (ordenembarque.Compartment == 3) { orden.CompartmentId = tonel.Idcom3; }
+                if (ordenembarque.Compartment == 4) { orden.CompartmentId = tonel.Idcom4; }
 
                 context.Update(ordenembarque);
 
                 if (orden.Cod is null)
                     context.Add(orden);
                 else
-                    context.Update(orden);
-
+                {
+                    var orden_existente = context.Orden.FirstOrDefault(x => x.Cod == orden.Cod);
+                    if (orden_existente is not null)
+                    {
+                        orden_existente.Vol = orden.Vol;
+                        orden_existente.BatchId = orden.BatchId;
+                        orden_existente.Fchcar = orden.Fchcar;
+                        context.Update(orden_existente);
+                    }
+                }
                 await context.SaveChangesAsync(id, 46);
+
+                OrdEmbDet ordEmbDet = new()
+                {
+                    Fch = DateTime.Now,
+                    FchDoc = orden.Fchcar,
+                    Codusu = user.Cod,
+                    Codusumod = user.Cod,
+                    Fchmod = DateTime.Now,
+                    Bol = orden.BatchId
+                };
+                
+                context.Add(ordEmbDet);
+                await context.SaveChangesAsync();
 
                 return Ok(true);
             }
@@ -2155,7 +2186,7 @@ namespace GComFuelManager.Server.Controllers
                     && x.OrdenEmbarque.Codest == 22
                     && x.OrdenEmbarque.Folio != null
                     && x.OrdenEmbarque.Bolguidid != null
-                && x.OrdenEmbarque.Orden == null)
+                && x.OrdenEmbarque.Orden == null && x.OrdenEmbarque.Codtad == item.Id_Tad)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Tonel)
                 .Include(x => x.OrdenEmbarque)
@@ -2171,7 +2202,7 @@ namespace GComFuelManager.Server.Controllers
                 var countCongelado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Codprd == item.CodPrd
                 && x.OrdenEmbarque.Codest == 22
                 && x.OrdenEmbarque.Folio != null
-            && x.OrdenEmbarque.Orden == null)
+            && x.OrdenEmbarque.Orden == null && x.OrdenEmbarque.Codtad == item.Id_Tad)
                 .Include(x => x.OrdenEmbarque)
                 .ThenInclude(x => x.Orden)
                 .Count();
@@ -2180,7 +2211,7 @@ namespace GComFuelManager.Server.Controllers
                     && x.OrdenEmbarque.Orden.Codest != 14
                     && x.OrdenEmbarque.Codest != 14
                 && x.OrdenEmbarque.Codprd == item.CodPrd
-                && x.OrdenEmbarque.Orden.BatchId != null)
+                && x.OrdenEmbarque.Orden.BatchId != null && x.OrdenEmbarque.Orden.Id_Tad == item.Id_Tad)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
                     .Sum(x => x.OrdenEmbarque!.Orden!.Vol);
@@ -2189,7 +2220,7 @@ namespace GComFuelManager.Server.Controllers
                     && x.OrdenEmbarque.Orden.Codest != 14
                     && x.OrdenEmbarque.Codest != 14
                     && x.OrdenEmbarque.Codprd == item.CodPrd
-                    && x.OrdenEmbarque.Orden.BatchId != null)
+                    && x.OrdenEmbarque.Orden.BatchId != null && x.OrdenEmbarque.Orden.Id_Tad == item.Id_Tad)
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Orden)
                     .Count();
@@ -2197,20 +2228,20 @@ namespace GComFuelManager.Server.Controllers
                 var VolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
                     && x.OrdenEmbarque.Codprd == item.CodPrd
                     && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
-                    && x.OrdenEmbarque.FchOrd != null)
+                    && x.OrdenEmbarque.FchOrd != null && x.OrdenEmbarque.Codtad == item.Id_Tad)
                     .Include(x => x.OrdenEmbarque)
                         .Sum(x => x.OrdenEmbarque!.Vol);
 
                 var CountVolumenProgramado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
                     && x.OrdenEmbarque.Codprd == item.CodPrd
                     && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 3
-                    && x.OrdenEmbarque.FchOrd != null)
+                    && x.OrdenEmbarque.FchOrd != null && x.OrdenEmbarque.Codtad == item.Id_Tad)
                     .Include(x => x.OrdenEmbarque).Count();
 
                 var VolumenSolicitado = context.OrdenPedido.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(item.Folio) && x.OrdenEmbarque != null && x.OrdenEmbarque.Folio == null
                 && x.OrdenEmbarque.Codprd == item.CodPrd
                 && x.OrdenEmbarque.Bolguidid == null && x.OrdenEmbarque.Codest == 9
-                && x.OrdenEmbarque.FchOrd == null)
+                && x.OrdenEmbarque.FchOrd == null && x.OrdenEmbarque.Codtad == item.Id_Tad)
                     .Include(x => x.OrdenEmbarque)
                     .Sum(x => x.OrdenEmbarque!.Vol);
 

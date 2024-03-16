@@ -38,7 +38,7 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var redireccionamientos = context.Redireccionamientos.Where(x => x.Fecha_Red >= filtro_.Fecha_Inicio && x.Fecha_Red <= filtro_.Fecha_Fin)
+                var redireccionamientos = context.Redireccionamientos.Where(x => x.Fecha_Red >= filtro_.Fecha_Inicio && x.Fecha_Red <= filtro_.Fecha_Fin && x.Orden != null && x.Orden.Id_Tad == id_terminal)
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)

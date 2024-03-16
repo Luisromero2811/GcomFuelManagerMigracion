@@ -53,8 +53,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;
 
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
-        [NotMapped, EpplusIgnore, JsonIgnore] public Vendedor? Vendedor { get; set; } = null!;
-        [NotMapped, EpplusIgnore, JsonIgnore] public Originador? Originador { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Vendedor? Vendedor { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Originador? Originador { get; set; } = null!;
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
 

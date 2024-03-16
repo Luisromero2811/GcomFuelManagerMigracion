@@ -1,11 +1,12 @@
 ﻿@page "/terminales"
 @inject IRepositorio http
 @inject SweetAlertService swal
+@inject NotificationService ns
 @attribute [Authorize]
 
 <div class="card shadow-sm">
     <div class="card-header">
-        Configuracion de terminales
+        Configuracion de unidades de negocio
     </div>
     <div class="card-body">
         <div class="col-12">
@@ -21,7 +22,7 @@
                         <ValidationMessage For="@(()=>Terminal.Den)" />
                     </div>
                     <div class="col-3">
-                        <InputText @bind-Value="Terminal.Codigo" max="128" class="form-control form-control-sm" placeholder="Abreviacion de terminal" />
+                        <InputText @bind-Value="Terminal.Codigo" max="128" class="form-control form-control-sm" placeholder="Abreviacion de la unidad de negocio" />
                         <ValidationMessage For="@(()=>Terminal.Codigo)" />
                     </div>
                     <div class="col-3">
@@ -75,9 +76,18 @@
                     </td>
                     <td>
                         <div>
-                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="Copiar_catalogo">
-                                Copiar catalogo inicial
-                            </button>
+                            @if (loading_catalogo)
+                            {
+                                <button class="btn btn-sm gcom-bg-amarillo" disabled>
+                                    Copiar catalogo inicial
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="Copiar_catalogo">
+                                    Copiar catalogo inicial
+                                </button>
+                            }
                         </div>
                     </td>
                 </tr>
@@ -172,7 +182,7 @@
         try
         {
             loading_catalogo = true;
-
+            ns.Notify(new() { Summary = "Copiando catalogo", Detail = "Copiando catalogo inicial. Permanesca en este modulo hasta terminar el proceso", Duration = 60000, Severity = NotificationSeverity.Info });
             var response = await http.Get<bool>("api/services/default/data");
             if (response.Error)
             {

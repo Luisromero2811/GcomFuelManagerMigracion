@@ -44,10 +44,11 @@ namespace GComFuelManager.Server.Controllers
                 var años_ordenados = Fechas_Diponibles.Order();
                 var años = Fechas_Diponibles.Distinct();
 
-                if (!años.Any())
-                    años.ToList().Add(DateTime.Today.Year);
+                var lista_años = años.ToList();
+                if (!lista_años.Any())
+                    lista_años.Add(DateTime.Today.Year);
 
-                return Ok(años);
+                return Ok(lista_años);
             }
             catch (Exception e)
             {

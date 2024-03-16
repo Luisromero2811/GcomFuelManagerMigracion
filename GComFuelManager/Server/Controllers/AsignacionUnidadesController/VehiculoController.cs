@@ -56,6 +56,14 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                if (id_terminal != 1)
+                    return BadRequest("Esta accion no esta permitida en esta temrinal.");
+
+
                 List<Tonel> TonelesActivos = new();
                 VehicleServiceClient client = new(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
                 client.ClientCredentials.UserName.UserName = "energasws";
