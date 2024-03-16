@@ -31,6 +31,11 @@ namespace GComFuelManager.Shared.Modelos
 		[NotMapped] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
 		[NotMapped] public List<Tonel> Unidades { get; set; } = new();
 		[NotMapped] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
+
+		[NotMapped] public List<GrupoTransportista> GruposTransportes { get; set; } = new();
+		[NotMapped] public List<GrupoTransportista_Tad> GrupoTransportista_Tads { get; set; } = new();
+
+ 		[NotMapped] public List<Tad> Terminales { get; set; } = new List<Tad>();
     }
 }
 

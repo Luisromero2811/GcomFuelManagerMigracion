@@ -18,6 +18,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Shortden { get; set; } = string.Empty;
         public bool? Activo { get; set; } = true;
         public bool? Activo_Permanente { get; set; } = true;
+        public short? Id_Tad { get; set; }
 
         [NotMapped]
         public string FullName
@@ -33,7 +34,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
-        [NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped] public List<Tad> Terminales { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
     }
 }

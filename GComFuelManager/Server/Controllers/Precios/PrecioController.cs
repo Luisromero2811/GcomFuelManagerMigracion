@@ -278,6 +278,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                  .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
+                    .Include(x => x.Terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Zona)
                     .Include(x => x.Moneda)
@@ -748,6 +749,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin && x.Id_Tad == id_terminal)
                    .Include(x => x.Destino)
                    .Include(x => x.Cliente)
+                   .Include(x => x.Terminal)
                    .Include(x => x.Producto)
                    .Include(x => x.Zona)
                    .Include(x => x.Moneda)
@@ -763,7 +765,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                        Moneda = item.Moneda!.Nombre,
                        Cliente = item.Cliente!.Den,
                        Usuario = item.Usuario!.Den,
-                       Fecha_De_Subida = item.FchActualizacion.ToString()
+                       Fecha_De_Subida = item.FchActualizacion.ToString(),
+                       Unidad_Negocio = item.Terminal!.Den
                    })
                    .ToListAsync();
                 return Ok(precios);

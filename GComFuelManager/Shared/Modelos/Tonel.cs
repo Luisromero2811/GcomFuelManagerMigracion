@@ -35,7 +35,9 @@ namespace GComFuelManager.Shared.Modelos
         public int? Nrocom4 { get; set; } = 0;
         public int? Idcom4 { get; set; } = 0;
         public int? Capcom4 { get; set; } = 0;
+        public short? Id_Tad { get; set; }
 
+        [NotMapped, JsonIgnore] public Tad? Tad { get; set; }
         [NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
         [NotMapped] public Transportista? Transportista { get; set; } = null!;

@@ -43,6 +43,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool? precioSemanal { get; set; } = false;
         [EpplusIgnore] public int? Id_Vendedor { get; set; } = 0;
         [EpplusIgnore] public int? Id_Originador { get; set; } = 0;
+        public short? Id_Tad { get; set; } = 0;
         [DisplayName("Modelo de venta")]
         public string? MdVenta { get; set; } = string.Empty;
         [EpplusIgnore] DateTime? Fecha_Registro { get; set; } = DateTime.Now;
@@ -55,8 +56,11 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public Grupo? grupo { get; set; } = null!;
         [NotMapped, EpplusIgnore, JsonIgnore] public Vendedor? Vendedor { get; set; } = null!;
         [NotMapped, EpplusIgnore, JsonIgnore] public Originador? Originador { get; set; } = null!;
-        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
+
+        [EpplusIgnore, NotMapped, JsonIgnore] public Cliente_Tad? cliente_Tad { get; set; }
+        [EpplusIgnore, NotMapped, JsonIgnore] public Tad? Tad { get; set; }
 
         [NotMapped]
         public string Obtener_Nombre_Vendedor

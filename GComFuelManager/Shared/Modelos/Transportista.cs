@@ -21,8 +21,15 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Simsa { get; set; } = true;
         public string? Gru { get; set; } = string.Empty;
 
-        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
+
+        public int? Codgru { get; set; }
+        public short? Id_Tad { get; set; }
+        [NotMapped]
+        public GrupoTransportista? GrupoTransportista { get; set; } = null!;
+        [NotMapped]
+        public Tad? Tad { get; set; } = null!;
     }
 }
 

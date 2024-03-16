@@ -195,6 +195,7 @@
             else
             {
                 await Swal.FireAsync("Exito", $"Transportista {Unidad.Placa} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                await ObtenerChoferes(string.Empty);
             }
 
         }

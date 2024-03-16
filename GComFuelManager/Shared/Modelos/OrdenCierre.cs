@@ -26,6 +26,9 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
 
+        [NotMapped, DisplayName("Unidad de Negocio")]
+        public string? Unidad_Negocio { get { return Terminal != null ? Terminal.Den : string.Empty; } }
+
         [EpplusIgnore]
         public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
 
@@ -111,7 +114,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public DateTime? FchCar { get; set; } = DateTime.Today;
         [EpplusIgnore, NotMapped] public short? Id_Tad { get; set; } = 0;
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
-        public double? Equibalencia { get; set; } = 1;
+        [EpplusIgnore] public double? Equibalencia { get; set; } = 1;
 
         [EpplusIgnore, NotMapped] public bool IsCierreVolumen { get; set; } = true;
         [EpplusIgnore, NotMapped] public bool IsDifferentVol { get; set; } = false;
@@ -155,7 +158,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public int? Cantidad_Confirmada { get; set; } = 0;
         [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;
         [NotMapped, EpplusIgnore] public int? Volumen_Por_Unidad { get { return Volumen_Seleccionado >= 62000 ? Volumen_Seleccionado / 2 : Volumen_Seleccionado; } }
-        public bool Precio_Manual { get; set; } = true;
+        [EpplusIgnore] public bool Precio_Manual { get; set; } = true;
         [NotMapped, EpplusIgnore] public int? Ordenes_Relacionadas { get; set; } = 0;
         [NotMapped, EpplusIgnore] public string? Folio_Perteneciente { get; set; } = string.Empty;
 

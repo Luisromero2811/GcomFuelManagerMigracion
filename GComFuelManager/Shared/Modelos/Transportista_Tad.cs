@@ -13,6 +13,6 @@ namespace GComFuelManager.Shared.Modelos
         public short Id_Terminal { get; set; }
 
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
-        [NotMapped] public Tad Terminal { get; set; } = null!;
+        [NotMapped] public Tad? Terminal { get; set; } = null!;
     }
 }

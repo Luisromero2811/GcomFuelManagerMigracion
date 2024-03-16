@@ -138,6 +138,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
+                    .Include(x => x.Tad)
                     .OrderBy(x => x.Fchpet)
                     .ThenBy(x => x.Tonel!.Tracto)
                     .Include(x => x.OrdenPedido)
@@ -254,6 +255,7 @@ namespace GComFuelManager.Server.Controllers
                     {
                         Cod = o.Cod,
                         Ref = "ENER-" + o.Folio.ToString(),
+                        Terminal = o.Tad,
                         //Ref = o.ref
                         Fchcar = o.Fchcar,
                         Estado = o.Estado,
@@ -296,6 +298,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenEmbarque)
+                    .Include(x => x.Terminal)
                      .OrderBy(x => x.Fchcar)
                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
                     //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
@@ -324,6 +327,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Estado)
                     .Include(x => x.Chofer)
+                    .Include(x => x.Terminal)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .ToListAsync();
@@ -344,6 +348,7 @@ namespace GComFuelManager.Server.Controllers
                         .ThenInclude(x => x.Transportista)
                         .Include(x => x.Estado)
                         .Include(x => x.Chofer)
+                        .Include(x => x.Terminal)
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
                         .ToListAsync();
@@ -366,6 +371,7 @@ namespace GComFuelManager.Server.Controllers
                     {
                         Cod = o.Cod,
                         Ref = "ENER-" + o.Folio.ToString(),
+                        Terminal = o.Tad,
                         //Ref = o.ref
                         Fchcar = o.Fchcar,
                         Estado = o.Estado,

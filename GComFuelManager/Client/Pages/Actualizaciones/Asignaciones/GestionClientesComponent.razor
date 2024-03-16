@@ -9,7 +9,7 @@
 
 <h4>Catalogo de clientes</h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
-    <div class="col-12 d-flex justify-content-center" style="height:60vh;">
+    <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
@@ -80,86 +80,215 @@
                         </div>
                     </EditForm>
                 </AuthorizeView>
-                <hr />
                 <!--Aquí ligamos la terminal a los clientes-->
                 @*<EditForm>
                     <FluentValidationValidator/>
                     <ValidationSummary/>*@
-                <div class="col-12 row">
-                    <div class="col-3">
-                        <label>Terminales:</label>
-                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
-                            <RenderValue>
-                                <div>Terminales</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context.Cod">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3">
-                        <label>Grupo</label>
-                        <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                        Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.codgru">
-                            <RenderValue>
-                                @context.Den
-                            </RenderValue>
-                            <Render>
-                                @context.Den
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3">
-                        <label>Clientes:</label>
-                        <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Seleccion_Multiple="true"
-                                        Default_Placeholder="Seleccione un cliente">
-                            <RenderValue>
-                                <div>Clientes</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context.Cod">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3">
-                        <label></label>
-                        <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                            <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
-                        </button>
-                    </div>
-                </div>
+                @*<div class="col-12 row">
+                        <h5>Relacionar Clientes - Unidades de Negocio</h5>
+                        <div class="col-3">
+                            <label>Unidades de negocio:</label>
+                            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                                <RenderValue>
+                                    <div>@context.Den</div>
+                                </RenderValue>
+                                <Render>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                        <label class="form-check-label" for="@context.Cod">
+                                            @if (context is not null)
+                                            {
+                                                @context.Den
+                                            }
+                                            else
+                                            {
+                                                <p>@context.Den</p>
+                                            }
+                                        </label>
+                                    </div>
+                                </Render>
+                            </DropDownFilter>
+                        </div>
+                        <div class="col-3">
+                            <label>Grupo</label>
+                            <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
+                                            Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
+                                <RenderValue>
+                                    @context.Den
+                                </RenderValue>
+                                <Render>
+                                    @context.Den
+                                </Render>
+                            </DropDownFilter>
+                        </div>
+                        <div class="col-3">
+                            <label>Clientes:</label>
+                            <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Seleccion_Multiple="true"
+                                            Default_Placeholder="Seleccione un cliente">
+                                <RenderValue>
+                                    <div>Clientes</div>
+                                </RenderValue>
+                                <Render>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
+                                        <label class="form-check-label" for="@context.Cod">
+                                            @if (context is not null)
+                                            {
+                                                @context.Den
+                                            }
+                                            else
+                                            {
+                                                <p>Todos</p>
+                                            }
+                                        </label>
+                                    </div>
+                                </Render>
+                            </DropDownFilter>
+                        </div>
+                        <div class="col-3">
+                            <label></label>
+                            <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+                                <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
+                            </button>
+                        </div>
+                    </div>*@
                 @*</EditForm>*@
                 <!--Aquí empieza la tabla de muestreo de datos-->
-                <hr />
+            </div>
+        </div>
+    </div>
+    <div class="card mt-2" style="height:500px;">
+        <div class="card-header">
+            <b>Gestión de Cliente - Unidades de negocio</b>
+        </div>
+        <div class="card-body">
+            <div class="col-12 row">
+                <div class="col-3">
+                    <label>Grupo</label>
+                    @*<DropDownFilter Listado="Grupos" TListado="Grupo" TValue="Int16" Default_Placeholder="Seleccione un grupo" FiltrarValor="GetGrupos"
+                                        On_Change_Method="@(()=>GetClientes(string.Empty))" @bind-Valor="@Grupo.Cod" Propiedad_Valor="Cod">
+                            <Render>
+                                @context.Den
+                            </Render>
+                            <RenderValue>
+                                @context.Den
+                            </RenderValue>
+                        </DropDownFilter>*@
+                    <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
+                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
+                        <RenderValue>
+                            @context.Den
+                        </RenderValue>
+                        <Render>
+                            @context.Den
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                <div class="col-3">
+                    <label>Unidad de Negocio</label>
+                    @*<DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
+                                        @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id" On_Change_Method="@(()=>Obtener_Originadores(string.Empty))">
+                            <RenderValue>
+                                @context.Nombre
+                            </RenderValue>
+                            <Render>
+                                @context.Nombre
+                            </Render>
+                        </DropDownFilter>*@
+                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                        <RenderValue>
+                            <div>@context.Den</div>
+                        </RenderValue>
+                        <Render>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                <label class="form-check-label" for="@context.Cod">
+                                    @if (context is not null)
+                                    {
+                                        @context.Den
+                                    }
+                                    else
+                                    {
+                                        <p>@context.Den</p>
+                                    }
+                                </label>
+                            </div>
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                <div class="col-3">
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
+                    </button>
+                </div>
+                @*<div class="col-3">
+                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Guardar_Relacion">
+                            Guardar
+                        </button>
+                    </div>*@
+
+            </div>
+            <div class="col-12">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
+                                       @onchange="args => CheckItemAll(args?.Value)" />
+                            </th>
+                            <th>Cliente</th>
+                            <th>Unidades de Negocio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Clientes.Count > 0)
+                        {
+                            <Virtualize Items="Clientes" TItem="Cliente" Context="item">
+                                <tr>
+                                    <th>
+                                        @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
+                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
+                                    </th>
+                                    <td>@item.Den</td>
+                                    <td>
+                                        @if (item.Terminales is not null)
+                                        {
+                                            @foreach (var items in item.Terminales)
+                                            {
+                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                    @items.Den
+   
+                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                        </button>
+             
+                                                </span>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            </Virtualize>
+                        }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </AuthorizeView>
-
+<style>
+    .button-circle { /* Green */
+        border: none;
+        color: white;
+        padding: .40rem .60rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: .75rem;
+        cursor: pointer;
+        border-radius: 2rem;
+    }
+</style>
 
 @code {
     //Variables
@@ -183,7 +312,11 @@
     ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
     public Cliente Cliente { get; set; } = new Cliente();
     public GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO();
+    public Cliente_Tad cliente_tad { get; set; } = new Cliente_Tad();
+
+    Cliente clientes { get; set; } = new();
     Tad tads { get; set; } = new();
+    Grupo Grupo { get; set; } = new();
 
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
@@ -215,6 +348,7 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Cliente {Cliente.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                    StateHasChanged();
                 }
             }
 
@@ -273,7 +407,7 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Cliente>>($"api/cliente/Grupo/{Cliente.codgru}");
+            var response = await repositorio.Get<List<Cliente>>($"api/cliente/Grupo/{Cliente.Codgru}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -281,7 +415,7 @@
             }
             else
             {
-
+                StateHasChanged();
                 Clientes = response.Response;
             }
         }
@@ -297,18 +431,18 @@
         {
             if (Tads_Seleccionados.Count != 0 && Clientes_Seleccionados.Count != 0)
             {
-            clienteTadDTO.Tads = Tads_Seleccionados;
-            clienteTadDTO.Clientes = Clientes_Seleccionados;
-            var response = await repositorio.Post<ClienteTadDTO>($"api/cliente/relacion", clienteTadDTO);
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
-            }
+                clienteTadDTO.Tads = Tads_Seleccionados;
+                clienteTadDTO.Clientes = Clientes_Seleccionados;
+                var response = await repositorio.Post<ClienteTadDTO>($"api/cliente/relacion", clienteTadDTO);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                }
             }
             else
             {
@@ -320,6 +454,33 @@
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+
+    private async Task Borrar_Relacion(Cliente clientes, Tad tads)
+    {
+        try
+        {
+            cliente_tad.Id_Terminal = tads.Cod;
+            cliente_tad.Id_Cliente = clientes.Cod;
+            var response = await repositorio.Post<Cliente_Tad>($"api/cliente/borrar/relacion", cliente_tad);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "Relacion borrada con éxito", SweetAlertIcon.Success);
+                await Obtener_Grupos(string.Empty);
+                await GetCliente();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 
     private async Task Obtener_Grupos(string value)
@@ -394,6 +555,23 @@
 
     }
 
+    private async Task CheckItemAll(object check)
+    {
+        try
+        {
+            if ((bool)check)
+                Clientes_Seleccionados = Clientes;
+            else
+                Clientes_Seleccionados = new();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
 }
-          
+
+
 

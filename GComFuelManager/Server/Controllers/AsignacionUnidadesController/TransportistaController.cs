@@ -54,12 +54,17 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (grupoTransportista is null)
                 {
                     return NotFound();
                 }
                 if (grupoTransportista.cod == 0)
                 {
+                    grupoTransportista.Id_Tad = id_terminal;
                     context.Add(grupoTransportista);
                 }
                 else
@@ -116,11 +121,16 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (transportista is null)
                     return BadRequest();
 
                 if (transportista.Cod == 0)
                 {
+                    transportista.Id_Tad = id_terminal;
                     transportista.Codgru = transportista.GrupoTransportista!.cod!;
                     context.Add(transportista);
                 }
@@ -179,6 +189,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var grupostransporte = await context.GrupoTransportista
+                     .Include(x => x.Terminales)
                     .OrderBy(x => x.den)
                     .ToListAsync();
                 return Ok(grupostransporte);
@@ -194,7 +205,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var grupos = context.GrupoTransportista.IgnoreAutoIncludes().AsQueryable();
+                var grupos = context.GrupoTransportista
+                     .Include(x => x.Terminales)
+                    .IgnoreAutoIncludes().AsQueryable();
 
                 if (!string.IsNullOrEmpty(grupo.den))
                     grupos = grupos.Where(x => x.den!.ToLower().Contains(grupo.den.ToLower()));
@@ -231,6 +244,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var transportistas = await context.Transportista
+                    .Include(x => x.Terminales)
                     .Where(x => x.Codgru == grupo && x.Activo == true)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -289,6 +303,52 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .OrderBy(x => x.Den)
                     .ToList();
                 return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Transportista_Tad transportista_Tad)
+        {
+            try
+            {
+                if (transportista_Tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(transportista_Tad);
+                await context.SaveChangesAsync();
+
+                return Ok(transportista_Tad);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relaciones")]
+        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista transportista_Tad)
+        {
+            try
+            {
+                if (transportista_Tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(transportista_Tad);
+                await context.SaveChangesAsync();
+
+                return Ok(transportista_Tad);
             }
             catch (Exception e)
             {

@@ -74,10 +74,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (tonel is null)
                     return BadRequest();
                 if (tonel.Cod == 0)
                 {
+                    tonel.Id_Tad = id_terminal;
                     tonel.Cod = tonel.Transportista!.Cod;
                     context.Add(tonel);
                 }
@@ -107,11 +112,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     foreach (var tonel in clienteTadDTO.Toneles)
                     {
-                        if (!context.Tonel_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Tonel == tonel.Cod))
+                        if (!context.Unidad_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Unidad == tonel.Cod))
                         {
-                            Tonel_Tad tonelTad = new()
+                            Unidad_Tad tonelTad = new()
                             {
-                                Id_Tonel = tonel.Cod,
+                                Id_Unidad = tonel.Cod,
                                 Id_Terminal = terminal.Cod
                             };
                             context.Add(tonelTad);
