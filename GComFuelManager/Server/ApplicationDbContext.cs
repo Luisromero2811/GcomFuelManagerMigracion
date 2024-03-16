@@ -600,5 +600,6 @@ namespace GComFuelManager.Server
         public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
         public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
         public DbSet<Unidad_Tad> Unidad_Tad { get; set; }
+        public DbSet<GrupoTransportista> GrupoTransportista { get; set; }
     }
 }

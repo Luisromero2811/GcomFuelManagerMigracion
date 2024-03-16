@@ -50,6 +50,49 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Grupos_Activos([FromQuery] Tonel tonel)
+        {
+            try
+            {
+                var toneles = context.Tonel.IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(tonel.Placa))
+                    toneles = toneles.Where(x => x.Placa!.ToLower().Contains(tonel.Placa.ToLower()) && x.Activo == true);
+
+                return Ok(toneles);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("crearUnidad")]
+        public async Task<ActionResult> PostVehiculos([FromBody] Tonel tonel)
+        {
+            try
+            {
+                if (tonel is null)
+                    return BadRequest();
+                if (tonel.Cod == 0)
+                {
+                    tonel.Cod = tonel.Transportista!.Cod;
+                    context.Add(tonel);
+                }
+                else
+                {
+                    context.Update(tonel);
+                }
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [Route("service/{carrId:long}")]
         [HttpGet]
         public async Task<ActionResult> GetVehiculo([FromRoute] long carrId)

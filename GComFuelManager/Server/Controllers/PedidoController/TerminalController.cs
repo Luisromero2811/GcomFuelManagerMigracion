@@ -160,5 +160,18 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+
+        [HttpGet("activas")]
+        public async Task <ActionResult<List<Tad>>> Obtener_Terminales_De_Login()
+        {
+            try
+            {
+                return await context.Tad.Where(x => x.Activo == true).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

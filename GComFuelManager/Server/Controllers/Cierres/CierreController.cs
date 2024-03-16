@@ -3385,6 +3385,103 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("cancelarordencliente/{cod}")]
+        public async Task<ActionResult> Cancelar_Ordenembarque([FromRoute] int cod)
+        {
+            try
+            {
+                var ordenembarque = context.OrdenEmbarque.FirstOrDefault(x => x.Cod == cod);
+                if (ordenembarque is null)
+                    return NotFound();
+
+                var orden = context.OrdenCierre.FirstOrDefault(x => x.CodPed == ordenembarque.Cod);
+                if (orden == null)
+                    return NotFound();
+
+                orden.Estatus = false;
+                ordenembarque.Codest = 14;
+
+                context.Update(orden);
+                context.Update(ordenembarque);
+
+                await context.SaveChangesAsync();
+
+
+                return Ok(ordenembarque);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        //Confirmar pedido
+        [HttpPost("confirmarpedido")]
+        public async Task<ActionResult<OrdenCierre>> PostConfirm(List<OrdenCierre> orden)
+        {
+            try
+            {
+                if (orden is null)
+                    return BadRequest("No se encontro el pedido");
+                orden.ForEach(x =>
+                {
+                    x.Cliente = null!;
+                    x.Destino = null!;
+                    x.OrdenEmbarque = null!;
+                    x.Grupo = null!;
+                    x.Producto = null!;
+                    x.VolumenDisponible = null!;
+                    x.Confirmada = true;
+                });
+
+                context.UpdateRange(orden);
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 15);
+                return Ok(orden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e);
+            }
+        }
+
+        [HttpDelete("cancelar/{cod:int}")]
+        public async Task<ActionResult> CancelOrden([FromRoute] int cod)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest("Orden no valida");
+
+                var orden = context.OrdenCierre.Find(cod);
+
+                if (orden is null)
+                    return BadRequest("No se encontro la orden");
+
+                orden.Activa = false;
+                orden.Estatus = false;
+
+                context.Update(orden);
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 16);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         [HttpGet("cancelar/{ID_Orden}")]
         public async Task<ActionResult> Cancelar_Orden([FromRoute] int ID_Orden)
         {

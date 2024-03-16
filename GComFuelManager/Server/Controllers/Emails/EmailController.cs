@@ -24,6 +24,7 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly ApplicationDbContext context;
         private readonly IRazorViewToStringRenderer razorView;
         private readonly IRegisterAccountService registerAccount;
+        private readonly IConfirmPedido confirmPedido;
         private readonly IVencimientoService vencimientoService;
         private readonly IPreciosService preciosService;
         private readonly IConfirmOrden confirmOrden;
@@ -37,7 +38,8 @@ namespace GComFuelManager.Server.Controllers.Emails
             IPreciosService preciosService,
             IConfirmOrden confirmOrden,
             IConfirmarCreacionOrdenes confirmarCreacion,
-            IDenegarCreacionOrdenes denegarCreacion)
+            IDenegarCreacionOrdenes denegarCreacion,
+            IConfirmPedido confirmPedido)
         {
             this.context = context;
             this.razorView = razorView;
@@ -47,6 +49,7 @@ namespace GComFuelManager.Server.Controllers.Emails
             this.confirmOrden = confirmOrden;
             this.confirmarCreacion = confirmarCreacion;
             this.denegarCreacion = denegarCreacion;
+            this.confirmPedido = confirmPedido;
         }
 
         [HttpPost("confirmacion")]
@@ -400,6 +403,94 @@ namespace GComFuelManager.Server.Controllers.Emails
                 }
 
                 return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("confirmpedido")]
+        public async Task<ActionResult> SendEmailConfirmPedido([FromBody] List<OrdenCierre> ordenCierres)
+        {
+            try
+            {
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                int? VolumenTotal = 0;
+                List<MailboxAddress> ToList = new List<MailboxAddress>();
+
+                ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
+                    && x.Accion.Nombre.Equals("Confirmar Creacion Pedido"))
+                        .Include(x => x.Accion)
+                        .Include(x => x.Contacto)
+                        .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                        .ToList();
+
+                if (ToList is null || ToList.Count() == 0)
+                    return BadRequest($"{ordenCierres.FirstOrDefault().Cliente.Den}, No cuenta con un correo activo o registrado");
+
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                //var ToList = context.Contacto.Where(x => x.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Estado == true)
+                //    .Include(x=>x.AccionCorreos)
+                //    .ThenInclude(x=>x.Accion)
+                //    .Select(x => new MailboxAddress(x.Nombre,x.Correo)).AsEnumerable();
+
+                emailContent.CC = cc;
+
+                //Funcion para el volumen
+                IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in ordenCierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+
+                emailContent.ToList = ToList;
+                //emailContent.Nombre = ordenCierres.FirstOrDefault()!.ContactoN!.Nombre;
+                //emailContent.Email = ordenCierres.FirstOrDefault()!.ContactoN!.Correo;
+                emailContent.Subject = "Confirmacion de validación de cierre de pedido";
+                emailContent.Lista = cierresDistinc;
+
+                await confirmPedido.NotifyConfirmPedido(emailContent);
+
+                return Ok(true);
+
+                //var clientes = ordenEmbarques.DistinctBy(x => x.OrdenCierre.CodCte).Select(x => x.OrdenCierre.CodCte);
+                //foreach (var item in clientes)
+                //{
+                //    var list = ordenEmbarques.Where(x => x.OrdenCierre.CodCte == item);
+
+                //    EmailContent<OrdenEmbarque> emailContent = new EmailContent<OrdenEmbarque>();
+
+                //    var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                //    emailContent.CC = cc;
+
+                //    var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenEmbarques.FirstOrDefault().OrdenCierre.CodCte && x.Contacto.Estado == true
+                //        && x.Accion.Nombre.Equals("Confirmacion Orden"))
+                //            .Include(x => x.Accion)
+                //            .Include(x => x.Contacto)
+                //            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                //            .AsEnumerable();
+
+                //    var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == ordenEmbarques.FirstOrDefault()!.OrdenCierre.CodCte && x.Estado == true);
+                //    if (contacto is null)
+                //        return BadRequest($"{ordenEmbarques.FirstOrDefault(x => x.OrdenCierre.CodCte == item).Cliente.Den} No tiene un contacto asignado");
+
+                //    //emailContent.Nombre = contacto.Nombre;
+                //    //emailContent.Email = contacto.Correo;
+                //    emailContent.Subject = "Autorizacion de cierre de pedido";
+                //    emailContent.Lista = list;
+                //    emailContent.ToList = ToList;
+
+                //    await confirmOrden.NotifyConfirmOrden(emailContent);
+
+                //}
+
+                //return Ok(true);
             }
             catch (Exception e)
             {

@@ -53,6 +53,7 @@ builder.Services.AddScoped<IPreciosService, PreciosService>();
 builder.Services.AddScoped<IConfirmOrden, ConfirmOrden>();
 builder.Services.AddScoped<IConfirmarCreacionOrdenes, ConfirmarCreacionOrdenesService>();
 builder.Services.AddScoped<IDenegarCreacionOrdenes, DenegarCreacionOrdenesService>();
+builder.Services.AddScoped<IConfirmPedido, ConfirmPedido>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();

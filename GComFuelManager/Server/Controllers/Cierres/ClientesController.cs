@@ -107,6 +107,38 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("allactives")]
+        public async Task<ActionResult> GetAllActives()
+        {
+            try
+            {
+                var clientes = await context.Cliente.Where(x => x.Activo == true).OrderBy(x => x.Den).ToListAsync();
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Grupos_Activos([FromQuery] Cliente cliente)
+        {
+            try
+            {
+                var clientes = context.Cliente.IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(cliente.Den))
+                    clientes = clientes.Where(x => x.Den!.ToLower().Contains(cliente.Den.ToLower()) && x.Activo == true);
+
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("grupo/{cod:int}")]
         public async Task<ActionResult> Get(int cod)
         {
