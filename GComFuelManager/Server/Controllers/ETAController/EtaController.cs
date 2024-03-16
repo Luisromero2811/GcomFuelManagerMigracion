@@ -466,6 +466,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
                                FechaCarga = null!,
                                Bol = null!,
@@ -513,6 +514,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                        {
                            Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                           Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
                            FechaCarga = null!,
                            Bol = null!,
@@ -558,6 +560,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         {
                             Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                            Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
                             FechaCarga = null!,
                             Bol = null!,
@@ -592,6 +595,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     )
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Terminal)
                         .Include(x => x.Estado)
                         .Include(x => x.Producto)
                         .Include(x => x.Chofer)
@@ -604,6 +608,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           {
                               Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                              Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
                               FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                               Bol = e.BatchId,
@@ -637,6 +642,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
+                          .Include(x => x.Terminal)
                           .Include(x => x.Estado)
                           .Include(x => x.Producto)
                           .Include(x => x.Chofer)
@@ -648,6 +654,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.Ref,
                                FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Terminal.Den,
                                EstatusOrden = e.Estado.den,
                                FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                                Bol = e.BatchId,
@@ -706,6 +713,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
                                FechaCarga = null!,
                                Bol = null!,
@@ -753,6 +761,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                        {
                            Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                           Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
                            FechaCarga = null!,
                            Bol = null!,
@@ -800,6 +809,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         {
                             Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                            Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
                             FechaCarga = null!,
                             Bol = null!,
@@ -834,6 +844,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      )
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Terminal)
                         .Include(x => x.Estado)
                         .Include(x => x.Producto)
                         .Include(x => x.Chofer)
@@ -846,6 +857,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           {
                               Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                              Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
                               FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                               Bol = e.BatchId,
@@ -880,6 +892,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
+                          .Include(x => x.Terminal)
                           .Include(x => x.Estado)
                           .Include(x => x.Producto)
                           .Include(x => x.Chofer)
@@ -891,6 +904,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.Ref,
                                FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Terminal.Den,
                                EstatusOrden = e.Estado.den,
                                FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                                Bol = e.BatchId,
@@ -950,6 +964,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
                                FechaCarga = null!,
                                Bol = null!,
@@ -997,6 +1012,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                        {
                            Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                           Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
                            FechaCarga = null!,
                            Bol = null!,
@@ -1045,6 +1061,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         {
                             Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                            Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
                             FechaCarga = null!,
                             Bol = null!,
@@ -1079,6 +1096,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      )
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Terminal)
                         .Include(x => x.Estado)
                         .Include(x => x.Producto)
                         .Include(x => x.Chofer)
@@ -1091,6 +1109,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           {
                               Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                              Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
                               FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                               Bol = e.BatchId,
@@ -1125,6 +1144,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
+                          .Include(x => x.Terminal)
                           .Include(x => x.Estado)
                           .Include(x => x.Producto)
                           .Include(x => x.Chofer)
@@ -1136,6 +1156,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.Ref,
                                FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Terminal.Den,
                                EstatusOrden = e.Estado.den,
                                FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                                Bol = e.BatchId,
@@ -1190,6 +1211,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
                                FechaCarga = null!,
                                Bol = null!,
@@ -1235,6 +1257,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                        {
                            Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                           Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
                            FechaCarga = null!,
                            Bol = null!,
@@ -1280,6 +1303,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         {
                             Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
+                            Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
                             FechaCarga = null!,
                             Bol = null!,
@@ -1311,6 +1335,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista.Activo == true && x.Codest == 20 && x.Id_Tad == id_terminal)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
+                        .Include(x => x.Terminal)
                         .Include(x => x.Estado)
                         .Include(x => x.Producto)
                         .Include(x => x.Chofer)
@@ -1323,6 +1348,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           {
                               Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                              Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
                               FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                               Bol = e.BatchId,
@@ -1362,6 +1388,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                           .Include(x => x.OrdEmbDet)
                           .Include(x => x.Destino)
                           .ThenInclude(x => x.Cliente)
+                          .Include(x => x.Terminal)
                           .Include(x => x.Estado)
                           .Include(x => x.Producto)
                           .Include(x => x.Chofer)
@@ -1373,6 +1400,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            {
                                Referencia = e.Ref,
                                FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
+                               Unidad_Negocio = e.Terminal.Den,
                                EstatusOrden = e.Estado.den,
                                FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                                Bol = e.BatchId,

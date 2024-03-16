@@ -33,11 +33,13 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(50)]
         public string? Est { get; set; } = string.Empty;
         public long? CodGamo { get; set; } = 0;
+        public short? Id_Tad { get; set; }
 
-        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;
+        [NotMapped] public Tad? Tad { get; set; } = null!;
     }
 }

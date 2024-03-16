@@ -1,5 +1,6 @@
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -51,16 +52,22 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+
         [HttpPost("crearChofer")]
         public async Task<ActionResult> PostChofer([FromBody] Chofer chofer)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (chofer is null)
                     return BadRequest();
 
                 if (chofer.Cod == 0)
                 {
+                    chofer.Id_Tad = id_terminal;
                     chofer.Codtransport = chofer.Transportista!.Cod;
                     context.Add(chofer);
                 }
@@ -77,8 +84,66 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [HttpGet("lista/{transportista:int}")]
-        public async Task<ActionResult> GetChoferes(int transportista)
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var chofer in clienteTadDTO.Chofer)
+                    {
+                        if (!context.Chofer_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Chofer == chofer.Cod))
+                        {
+                            Chofer_Tad choferTad = new()
+                            {
+                                Id_Chofer = chofer.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(choferTad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Chofer_Tad chofer_tad)
+        {
+            try
+            {
+                if (chofer_tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(chofer_tad);
+                await context.SaveChangesAsync();
+
+                return Ok(chofer_tad);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("lista/{transportista:int}")]//TODO: checar utilidad
+        public ActionResult GetChoferes(int transportista)
         {
             try
             {
@@ -87,7 +152,26 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var transportistas = context.Chofer.IgnoreAutoIncludes()
-                    .Where(x => x.Codtransport == transportista && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Where(x => x.Codtransport == transportista && x.Terminales.Any(y => y.Cod == id_terminal) && x.Activo_Permanente == true)
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
+                    .OrderBy(x => x.Den)
+                    .ToList();
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("listado/{transportista:int}")]//TODO: checar utilidad
+        public ActionResult GetChofer(int transportista)
+        {
+            try
+            {
+                var transportistas = context.Chofer.IgnoreAutoIncludes()
+                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
                     .ToList();

@@ -179,6 +179,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Grupo)
                     .Include(x => x.Cliente)
                     .Include(x => x.Destino)
+                    .Include(x => x.Terminal)
                     .Include(x => x.Producto)
                     .IgnoreAutoIncludes()
                     .OrderByDescending(x => x.FchCierre)

@@ -41,81 +41,126 @@
                         </div>
                     </EditForm>
                 </AuthorizeView>
-                <hr />
-                <!--Aquí ligamos la terminal a los clientes-->
-                <hr />
-                <div class="col-12 mb-4 row">
-                    <div class="col-3">
-                        <label>Terminales:</label>
-                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
-                            <RenderValue>
-                                <div>Terminales</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Tads_Seleccionados.Contains(context))" />
-                                    <label class="form-check-label" for="@context">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3">
-                        <label>Transportistas (Empresas)</label>
-                        <DropDownFilter Listado="EmpresaTransporte" TListado="Transportista" TValue="int?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="ObtenerEmpresa"
-                                        Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="chofer.Codtransport">
-                            <RenderValue>
-                                @context.Den
-                            </RenderValue>
-                            <Render>
-                                @context.Den
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3">
-                        <label>Choferes:</label>
-                        <DropDownFilter Listado="Choferes" TListado="Chofer" TValue="int" Seleccion_Multiple="true"
-                                        Default_Placeholder="Seleccione un Transportista">
-                            <RenderValue>
-                                <div>Empresa de Transportes</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context" checked="@(Chofer_Seleccionados.Contains(context))" />
-                                    <label class="form-check-label" for="@context">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-3 d-flex mt-auto">
-                        <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                            <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
-                        </button>
-                    </div>
-                </div>
+
                 <!--Aquí empieza la tabla de muestreo de datos-->
                 <hr />
             </div>
         </div>
     </div>
 </AuthorizeView>
+
+<div class="card mt-2" style="height:500px;">
+    <div class="card-header">
+        <b>Gestión de Cliente - Unidades de negocio</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3">
+                <label>Empresa Transportista</label>
+                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.Codtransport"
+                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowVirtualization="true" Change="@GetCliente" Style="height:20px">
+                    <Template Context="data">
+                        <RadzenText TextStyle="TextStyle.Body2">
+                            @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                        </RadzenText>
+                    </Template>
+                    <ValueTemplate Context="data">
+                        <RadzenText TextStyle="TextStyle.Body2">
+                            @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
+                        </RadzenText>
+                    </ValueTemplate>
+                </RadzenDropDown>
+            </div>
+            <div class="col-3">
+                <label>Unidad de Negocio</label>
+                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                    <RenderValue>
+                        <div>@context.Den</div>
+                    </RenderValue>
+                    <Render>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                            <label class="form-check-label" for="@context.Cod">
+                                @if (context is not null)
+                                {
+                                    @context.Den
+                                }
+                                else
+                                {
+                                    <p>@context.Den</p>
+                                }
+                            </label>
+                        </div>
+                    </Render>
+                </DropDownFilter>
+            </div>
+            <div class="col-3">
+                <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                    <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
+                </button>
+            </div>
+            <div class="col-12">
+                <table class="table table-sm table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" checked="@(Choferes.Any(i => Chofer_Seleccionados != null && Chofer_Seleccionados.Contains(i)))"
+                                       @onchange="args => CheckItemAll(args?.Value)" />
+                            </th>
+                            <th>Choferes</th>
+                            <th>Unidades de Negocio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Choferes.Count > 0)
+                        {
+                            <Virtualize Items="Choferes" TItem="Chofer" Context="item">
+                                <tr>
+                                    <th>
+                                        @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
+                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Chofer_Seleccionados.Contains(item))" @onchange="args => { CheckChofer(item, args?.Value); }" />
+                                    </th>
+                                    <td>@item.Den</td>
+                                    <td>
+                                        @if (item.Terminales is not null)
+                                        {
+                                            @foreach (var items in item.Terminales)
+                                            {
+                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                    @items.Den
+
+                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                    </button>
+
+                                                </span>
+                                            }
+                                        }
+                                    </td>
+                                </tr>
+                            </Virtualize>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .button-circle { /* Green */
+        border: none;
+        color: white;
+        padding: .40rem .60rem;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: .75rem;
+        cursor: pointer;
+        border-radius: 2rem;
+    }
+</style>
 
 @code {
     //Listas
@@ -124,16 +169,19 @@
     List<Tad> Terminales { get; set; } = new List<Tad>();
     List<Chofer> Choferes { get; set; } = new List<Chofer>();
     List<Transportista> Grupos { get; set; } = new List<Transportista>();
-    List<Transportista> EmpresaTransporte { get; set; } = new();
+    List<Transportista> EmpresaTransporte { get; set; } = new List<Transportista>();
     //Instancias
     public Chofer chofer { get; set; } = new Chofer();
     public Tad Tad { get; set; } = new Tad();
+    ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
+
+    Chofer_Tad chofer_Tad { get; set; } = new Chofer_Tad();
 
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
         await GetGrupos();
-        await ObtenerEmpresa(string.Empty);
+        // await ObtenerEmpresa(string.Empty);
     }
 
     private async Task CreateChofer()
@@ -151,6 +199,8 @@
             else
             {
                 await Swal.FireAsync("Exito", $"Transportista {chofer.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                await GetCliente();
+                await GetGrupos();
             }
 
         }
@@ -182,31 +232,30 @@
         }
     }
 
-    private async Task ObtenerEmpresa(string value)
-    {
-        try
-        {
-            Dictionary<string, string> query = new();
-            query["Den"] = value;
+    //private async Task ObtenerEmpresa(string value)
+    //{
+    //    try
+    //    {
+    //        Dictionary<string, string> query = new();
+    //        query["den"] = value;
+    //        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-
-            var response = await repositorio.Get<List<Transportista>>($"api/transportista/filtrarempresaactiva?{uri}");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                EmpresaTransporte = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
+    //        var response = await repositorio.Get<List<Transportista>>($"api/transportista/filtrarempresa?{uri}");
+    //        if (response.Error)
+    //        {
+    //            var message = await response.ObtenerMensajeError();
+    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            EmpresaTransporte = response.Response;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
 
     public async Task GetGrupos()
     {
@@ -234,7 +283,7 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Chofer>>($"api/chofer/lista/{chofer.Codtransport}");
+            var response = await repositorio.Get<List<Chofer>>($"api/chofer/listado/{chofer.Codtransport}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -256,6 +305,25 @@
     {
         try
         {
+            if (Tads_Seleccionados.Count != 0 && Chofer_Seleccionados.Count != 0)
+            {
+                clienteTadDTO.Tads = Tads_Seleccionados;
+                clienteTadDTO.Chofer = Chofer_Seleccionados;
+                var response = await repositorio.Post<ClienteTadDTO>($"api/chofer/relacion", clienteTadDTO);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Chofer relacionado exitosamente", SweetAlertIcon.Success);
+                }
+            }
+            else
+            {
+                await Swal.FireAsync("Advertencia", "Debe tener seleccionado una terminal y un Chofer", SweetAlertIcon.Warning);
+            }
 
         }
         catch (Exception e)
@@ -263,5 +331,94 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task Borrar_Relacion(Chofer chofer, Tad tads)
+    {
+        try
+        {
+            chofer_Tad.Id_Terminal = tads.Cod;
+            chofer_Tad.Id_Chofer = chofer.Cod;
+            var response = await repositorio.Post<Chofer_Tad>($"api/chofer/borrar/relacion", chofer_Tad);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "Relacion borrada con éxito", SweetAlertIcon.Success);
+                await GetCliente();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckTads(Tad terminal, object check)
+    {
+        try
+        {
+            if ((bool)check)
+            {
+                if (!Tads_Seleccionados.Contains(terminal))
+                    Tads_Seleccionados.Add(terminal);
+            }
+            else
+            {
+                if (Tads_Seleccionados.Contains(terminal))
+                    Tads_Seleccionados.Remove(terminal);
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckChofer(Chofer chofer, object check)
+    {
+        try
+        {
+            if ((bool)check)
+            {
+                if (!Chofer_Seleccionados.Contains(chofer))
+                    Chofer_Seleccionados.Add(chofer);
+            }
+            else
+            {
+                if (Chofer_Seleccionados.Contains(chofer))
+                    Chofer_Seleccionados.Remove(chofer);
+            }
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task CheckItemAll(object check)
+    {
+        try
+        {
+            if ((bool)check)
+                Chofer_Seleccionados = Choferes;
+            else
+                Chofer_Seleccionados = new();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
 }
 

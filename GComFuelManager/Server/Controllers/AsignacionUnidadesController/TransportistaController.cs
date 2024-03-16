@@ -1,5 +1,6 @@
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -53,12 +54,17 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (grupoTransportista is null)
                 {
                     return NotFound();
                 }
                 if (grupoTransportista.cod == 0)
                 {
+                    grupoTransportista.Id_Tad = id_terminal;
                     context.Add(grupoTransportista);
                 }
                 else
@@ -75,16 +81,56 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var grupotransportes in clienteTadDTO.GrupoTransportistas)
+                    {
+                        if (!context.GrupoTransportista_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_GrupoTransportista == grupotransportes.cod))
+                        {
+                            GrupoTransportista_Tad grupotransportetad = new()
+                            {
+                                Id_GrupoTransportista = grupotransportes.cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(grupotransportetad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        
         [HttpPost("crearTransportista")]
         public async Task<ActionResult> PostTransportista([FromBody] Transportista transportista)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (transportista is null)
                     return BadRequest();
 
                 if (transportista.Cod == 0)
                 {
+                    transportista.Id_Tad = id_terminal;
                     transportista.Codgru = transportista.GrupoTransportista!.cod!;
                     context.Add(transportista);
                 }
@@ -102,12 +148,48 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpPost("relacionempresa")]
+        public async Task<ActionResult> PostTransportistaTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var transportista in clienteTadDTO.Transportistas)
+                    {
+                        if (!context.Transportista_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Transportista == transportista.Cod))
+                        {
+                            Transportista_Tad transportista_Tad = new()
+                            {
+                                Id_Transportista = transportista.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(transportista_Tad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("gruposactivos")]
         public async Task<ActionResult> GetGrupos()
         {
             try
             {
                 var grupostransporte = await context.GrupoTransportista
+                     .Include(x => x.Terminales)
                     .OrderBy(x => x.den)
                     .ToListAsync();
                 return Ok(grupostransporte);
@@ -123,7 +205,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var grupos = context.GrupoTransportista.IgnoreAutoIncludes().AsQueryable();
+                var grupos = context.GrupoTransportista
+                     .Include(x => x.Terminales)
+                    .IgnoreAutoIncludes().AsQueryable();
 
                 if (!string.IsNullOrEmpty(grupo.den))
                     grupos = grupos.Where(x => x.den!.ToLower().Contains(grupo.den.ToLower()));
@@ -136,7 +220,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [HttpGet("filtrarempresaactiva")]
+        [HttpGet("filtrarempresa")]
         public ActionResult Obtener_Empresa_Activa([FromQuery] Transportista transportista)
         {
             try
@@ -160,6 +244,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var transportistas = await context.Transportista
+                    .Include(x => x.Terminales)
                     .Where(x => x.Codgru == grupo && x.Activo == true)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -218,6 +303,52 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .OrderBy(x => x.Den)
                     .ToList();
                 return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Transportista_Tad transportista_Tad)
+        {
+            try
+            {
+                if (transportista_Tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(transportista_Tad);
+                await context.SaveChangesAsync();
+
+                return Ok(transportista_Tad);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relaciones")]
+        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista transportista_Tad)
+        {
+            try
+            {
+                if (transportista_Tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(transportista_Tad);
+                await context.SaveChangesAsync();
+
+                return Ok(transportista_Tad);
             }
             catch (Exception e)
             {

@@ -19,16 +19,14 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly User_Terminal _terminal;
         private readonly UserManager<IdentityUsuario> userManager;
-        private readonly VerifyUserId verifyUserId;
-        private readonly User_Terminal terminal;
+        private readonly VerifyUserId verifyUser;
 
-        public ClienteController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUserId, User_Terminal _Terminal)
+        public ClienteController(ApplicationDbContext context, User_Terminal _Terminal, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {
             this.context = context;
-            this.userManager = userManager;
-            this.verifyUserId = verifyUserId;
-            terminal = _Terminal;
             this._terminal = _Terminal;
+            this.userManager = userManager;
+            this.verifyUser = verifyUser;
         }
 
         [HttpGet("{grupo:int}")]
@@ -46,6 +44,27 @@ namespace GComFuelManager.Server.Controllers
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
+                return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("Grupo/{grupo:int}")]
+        public async Task<ActionResult> GetCliente(int grupo)
+        {
+            try
+            {
+                var grupos = await context.Cliente
+                    .Include(x => x.Terminales)
+                    .Where(x => x.Codgru == grupo && x.Activo == true)
+                    .OrderBy(x => x.Den)
+                    .ToListAsync();
+
                 return Ok(grupos);
             }
             catch (Exception e)
@@ -73,36 +92,22 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("Grupo/{grupo:int}")]
-        public async Task<ActionResult> GetCliente(int grupo)
-        {
-            try
-            {
-                var grupos = await context.Cliente
-                    .Where(x => x.Codgru == grupo && x.Activo == true)
-                    .OrderBy(x => x.Den)
-                    .ToListAsync();
-
-                return Ok(grupos);
-            }
-            catch (Exception e)
-            {
-
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpPost("crear")]
         public async Task<ActionResult> PostCliente([FromBody] Cliente cliente)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (cliente is null)
                     return BadRequest();
                 //Si el cliente viene en ceros del front lo agregamos como nuevo sino actualizamos
                 if (cliente.Cod == 0)
                 {
-                    cliente.grupo = cliente.grupo;
+                    cliente.Codgru = cliente.grupo!.Cod;
+                    cliente.Id_Tad = id_terminal;
                     //Agregamos cliente
                     context.Add(cliente);
                 }
@@ -120,13 +125,11 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-
         [HttpPost("relacion")]
         public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
         {
             try
             {
-                //Si el cliente es nulo, retornamos un notfound
                 if (clienteTadDTO is null)
                     return NotFound();
 
@@ -148,7 +151,6 @@ namespace GComFuelManager.Server.Controllers
                 await context.SaveChangesAsync();
 
                 return Ok();
-
             }
             catch (Exception e)
             {
@@ -156,69 +158,28 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        //[HttpPost("relacion")]
-        //public async Task<ActionResult> PostClienteTerminal([FromBody] List<Cliente> clientes, [FromQuery] Tad tads)
-        //{
-        //    try
-        //    {
-        //        Cliente_Tad cliente_Tad = new Cliente_Tad();
-        //        //Si el cliente viene nulo, mandamos un notfound
-        //        if (clientes is null)
-        //            return NotFound();
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Cliente_Tad clienteterminal)
+        {
+            try
+            {
+                if (clienteterminal is null)
+                    return NotFound();
 
-        //        foreach (var item in clientes)
-        //        {
-        //            cliente_Tad = new Cliente_Tad()
-        //            {
-        //                Id_Cliente = item.Cod,
-        //                Id_Terminal = tads.Cod
-        //            };
-        //            context.Add(cliente_Tad);
-        //            await context.SaveChangesAsync();
-        //        }
-        //        return Ok();
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
 
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
+                context.Remove(clienteterminal);
+                await context.SaveChangesAsync();
 
-        //    [HttpPost("relacion")]
-        //    public async Task<ActionResult> PostClienteTerminal([FromBody] List<Cliente> clientes, [FromQuery] Tad tads)
-        //    {
-        //        try
-        //        {
-        //            Cliente_Tad cliente_Tad = new Cliente_Tad();
-        //            //Si el cliente viene nulo, mandamos un notfound
-        //            if (clientes is null)
-        //                return NotFound();
-
-        //            foreach (var item in clientes)
-        //            {
-        //                cliente_Tad = new Cliente_Tad()
-        //                {
-        //                    Id_Cliente = item.Cod,
-        //                    Id_Terminal = tads.Cod
-        //                };
-        //                context.Add(cliente_Tad);
-        //                await context.SaveChangesAsync();
-        //            }
-        //            return Ok();
-
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            return BadRequest(e.Message);
-        //        }
-        //    }
+                return Ok(clienteterminal);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
     }
 }
-//Obtenemos la terminal
-//var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
-//if (id_terminal == 0)
-//{
-//    return BadRequest();
-//}

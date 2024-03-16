@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,6 +32,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public long? Codchfsyn { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
         public int? Folio { get; set; } = 0;
+
+        [DisplayName("Unidad de Negocio"), NotMapped]
+        public string? Unidad_Negocio { get; set; } = string.Empty;
 
         //Prop de nav Estado
         [NotMapped] public Tad? Terminal { get; set; } = null!;

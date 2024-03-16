@@ -286,6 +286,7 @@
                                     </AuthorizeView>
 
                                     <th>Fecha</th>
+                                    <th>Unidad de Negocio</th>
                                     <th>Precio</th>
                                     <th>Producto</th>
                                     <th>Destino</th>
@@ -306,6 +307,7 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -353,6 +355,9 @@
 
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
+                                            </td>
+                                            <td>
+                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
                                             </td>
                                             <td>
                                                 <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
@@ -426,6 +431,7 @@
                                         </AuthorizeView>
                                     </th>
                                     <th>Fecha</th>
+                                    <th>Unidad de Negocio</th>
                                     <th>Precio</th>
                                     <th>Producto</th>
                                     <th>Destino</th>
@@ -446,6 +452,7 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -493,6 +500,9 @@
 
                                             <td>
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
+                                            </td>
+                                            <td>
+                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2"/>
                                             </td>
                                             <td>
                                                 <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />

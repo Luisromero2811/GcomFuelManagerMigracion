@@ -56,5 +56,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Destino? Destino { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Usuario? Usuario { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public string? Terminales { get; set; } = null!;
     }
 }

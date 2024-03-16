@@ -1,5 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -73,10 +74,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (tonel is null)
                     return BadRequest();
                 if (tonel.Cod == 0)
                 {
+                    tonel.Id_Tad = id_terminal;
                     tonel.Cod = tonel.Transportista!.Cod;
                     context.Add(tonel);
                 }
@@ -86,6 +92,41 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 }
                 await context.SaveChangesAsync();
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var tonel in clienteTadDTO.Toneles)
+                    {
+                        if (!context.Unidad_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Unidad == tonel.Cod))
+                        {
+                            Unidad_Tad tonelTad = new()
+                            {
+                                Id_Unidad = tonel.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(tonelTad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
             }
             catch (Exception e)
             {
