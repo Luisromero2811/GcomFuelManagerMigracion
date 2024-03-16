@@ -18,7 +18,7 @@ namespace GComFuelManager.Server.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
-        private readonly VerifyUserId verifyUserId;
+        private readonly VerifyUserId verifyUser;
         private readonly User_Terminal terminal;
         private readonly User_Terminal _terminal;
 

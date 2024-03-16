@@ -28,10 +28,9 @@ namespace GComFuelManager.Shared.Modelos
         public int? Codgru { get; set; } = null!;
         public short? Id_Tad { get; set; }
 
-        [EpplusIgnore, NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
 
-        [NotMapped] public GrupoTransportista? GrupoTransportista { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
     }
 }
