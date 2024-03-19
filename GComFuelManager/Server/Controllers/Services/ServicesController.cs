@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using ServiceReference7; //prod 
-//using ServiceReference2; //qa
+//using ServiceReference7; //prod 
+using ServiceReference2; //qa
 using System;
 using System.Diagnostics;
 
@@ -174,10 +174,10 @@ namespace GComFuelManager.Server.Controllers.Services
                                 request.BillOfLading.Customer.BusinessEntityId.Id.Value = long.Parse(item.Destino!.Cliente!.Codsyn!);
                                 request.BillOfLading.StartLoadTime.Value = item.Fchcar!.Value;
                                 request.BillOfLading.EndLoadTime.Value = item.Fchcar.Value.AddDays(2);
-                                var folio = context.OrdenEmbarque.OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
+                                var folio = context.OrdenEmbarque.Where(x => x.Codtad == id_terminal).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
 
-                                if (folio == 0)
-                                    return BadRequest();
+                                folio ??= 0;
+
                                 folio++;
                                 request.BillOfLading.CustomerReference = $"ENER-{folio}";
 
@@ -849,7 +849,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                 await context.SaveChangesAsync();
 
-                return Ok();
+                return Ok(true);
             }
             catch (Exception e)
             {

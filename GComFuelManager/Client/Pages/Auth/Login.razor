@@ -25,7 +25,7 @@
                                     <EditForm Model="usuario" OnValidSubmit="LoguearUsuario">
                                         <DataAnnotationsValidator />
                                         <div class="col-12 mb-2">
-                                            <label>Terminal</label>
+                                            <label>Unidad de negocio</label>
                                             <select @bind="@usuario.Terminal" class="form-select form-select-sm">
                                                 <option>-- seleccione una terminal --</option>
                                                 @foreach (var terminal in Terminales)

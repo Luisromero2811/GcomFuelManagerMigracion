@@ -14,7 +14,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Coddes { get; set; } = 0;
         public byte? Codprd { get; set; } = 0;
         [EpplusIgnore] public double? Vol { get; set; } = null!;
-        public DateTime? Fchcar { get; set; } = DateTime.MinValue;
+        public DateTime? Fchcar { get; set; } = DateTime.Today;
         public byte? Codest { get; set; } = 0;
         public int? Coduni { get; set; } = 0;
         public int? Codchf { get; set; } = 0;

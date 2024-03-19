@@ -1,9 +1,20 @@
-﻿.dropdown-com {
+﻿.outside{
+    width:100vw;
+    height:100vh;
+    position:fixed;
+    top:0px;
+    left:0px;
+}
+.dropdown-com {
+    position: relative;
+    display: inline-block;
+    width:100%;
+}
+.dropdown-com-btn-container {
     position: relative;
     display: inline-flex;
     width: 100%;
 }
-
 .dropdown-com-btn {
     min-height: calc(1.5em + .5rem + 2px);
     padding: .2rem .5rem;

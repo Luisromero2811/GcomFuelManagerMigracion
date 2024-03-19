@@ -68,51 +68,6 @@
                             }
                         </Items>
                     </DropDownMenu>
-
-                    @* <div class="dropdown-menu-side" @onclick="@level_0.ToggleShow">
-            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
-            @level_0.name
-            </div>
-            @if (level_0.showDropDown)
-            {
-            <div class="dropdown-menu-content">
-            @foreach (var level_1 in level_0.Menus)
-            {
-            <AuthorizeView Roles="@level_1.roles" Context="level_1_context">
-            <Authorized>
-            @if (!level_1.isMenu)
-            {
-            <NavLink href="@level_1.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
-            <div class="dropdown-menu-side-item">
-            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
-            @level_1.name
-            </div>
-            </NavLink>
-            }
-            else
-            {
-            <div class="dropdown-menu-side" @onclick="@level_1.ToggleShow">
-            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
-            @level_1.name
-            </div>
-            @if (level_1.showDropDown)
-            {
-            @foreach (var level_2 in level_1.Menus)
-            {
-            <NavLink href="@level_2.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
-            <div class="dropdown-menu-side-item">
-            <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
-            @level_2.name
-            </div>
-            </NavLink>
-            }
-            }
-            }
-            </Authorized>
-            </AuthorizeView>
-            }
-            </div>
-            } *@
                 }
             </Authorized>
         </AuthorizeView>
@@ -242,6 +197,27 @@
                         name = "Generacion de folios",
                         icon = "marker",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/vendedores",
+                        name = "Configurar vendedores",
+                        icon = "id-card",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/originador",
+                        name = "Configurar originadores",
+                        icon = "id-card",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "terminales",
+                        name = "Unidades de negocio",
+                        icon = "gas-pump",
+                        roles = "Admin, Administrador Sistema",
                     },
                 }
         });
@@ -401,7 +377,7 @@
                     },
                     new()
                     {
-                        name = "Historial de envios a synthesis",
+                        name = "Historial de ordenes",
                         icon = "file-invoice-dollar",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "historial/asignacion"

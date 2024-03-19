@@ -400,6 +400,10 @@
         try
         {
             Loading_Buscar = true;
+
+            if (filtroDTO.Bol is null)
+                return;
+
             var response = await http.Get<List<Orden>>($"api/pedido/ordenes/despachadas/{filtroDTO.Bol}");
             if (response.Error)
             {

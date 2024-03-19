@@ -12,7 +12,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool Activo { get; set; } = true;
         [NotMapped, JsonIgnore] public List<Vendedor_Originador> Vendedor_Originador { get; set; } = new();
         [NotMapped] public List<Vendedor> Vendedores { get; set; } = new();
-        [NotMapped] public List<Cliente>? Clientes { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Cliente>? Clientes { get; set; } = new();
         [NotMapped] public List<Mes_Venta> Venta_Por_Meses { get; set; } = new();
     }
 }

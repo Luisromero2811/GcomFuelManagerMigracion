@@ -9,12 +9,11 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class GrupoTransportista
 	{
-        [Key, JsonProperty("cod")] public int cod { get; set; } = 0;
-        //   public int Cod { get; set; } = 0;
+        [Key] 
+        public int cod { get; set; }
 
-        [JsonProperty("den"), MaxLength(255)]
+        [MaxLength(255)]
         public string? den { get; set; } = string.Empty;
-
         public short? Id_Tad { get; set; }
 
         [NotMapped] public Tad? Tad { get; set; }

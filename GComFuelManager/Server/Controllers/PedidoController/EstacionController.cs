@@ -1,4 +1,4 @@
-using GComFuelManager.Server.Helpers;
+﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
@@ -17,9 +17,10 @@ namespace GComFuelManager.Server.Controllers
     public class EstacionController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-        private readonly User_Terminal _terminal;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
+        private readonly User_Terminal terminal;
+        private readonly User_Terminal _terminal;
 
         public EstacionController(ApplicationDbContext context, User_Terminal _Terminal, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser)
         {

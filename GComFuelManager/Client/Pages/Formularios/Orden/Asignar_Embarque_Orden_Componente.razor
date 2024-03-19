@@ -1,0 +1,143 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+@attribute [Authorize]
+
+<div class="col-12 card shadow-sm">
+    <div class="card-header">
+        Asignar bol a orden
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3">
+                <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
+            </div>
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="Obtener_Orden">
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-12 row my-2">
+            <div class="col-4">
+                Terminal de origen: @ordenEmbarque?.Tad?.Den
+            </div>
+            <div class="col-4">
+                Cliente de origen: @ordenEmbarque?.Destino?.Cliente?.Den
+            </div>
+            <div class="col-4">
+                Destino de origen: @ordenEmbarque?.Destino?.Den
+            </div>
+            <div class="col-4">
+                Proucto de origen: @ordenEmbarque?.Producto?.Den
+            </div>
+            <div class="col-4">
+                Unidad de origen: @ordenEmbarque?.Tonel?.Veh
+            </div>
+            <div class="col-4">
+                Chofer de origen: @ordenEmbarque?.Chofer?.FullName
+            </div>
+        </div>
+        <div class="col-12 row my-2">
+            <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
+                <div class="col-12 row">
+                    <div class="col-4 my-1">
+                        <label>BOL / Embarque</label>
+                        <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Fecha de carga</label>
+                        <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                        <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Litros cargados</label>
+                        <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+@code {
+    Folio_Activo_Vigente folio_ { get; set; } = new();
+    OrdenEmbarque ordenEmbarque { get; set; } = new();
+    Orden Datos_BOL = new();
+    bool loading_guardar = false;
+    bool loading_buscar = false;
+    private async Task Obtener_Orden()
+    {
+
+        try
+        {
+            loading_buscar = true;
+            Datos_BOL.Ref = folio_.Folio;
+
+            Dictionary<string, string> query = new();
+            query["Folio"] = folio_.Folio;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<OrdenEmbarque>($"api/pedido/orden?{uri}");
+            if (response.Error)
+            {
+                loading_buscar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_buscar = false;
+                ordenEmbarque = response.Response;
+                if (ordenEmbarque.Orden is not null)
+                {
+                    Datos_BOL.Cod = ordenEmbarque.Orden.Cod;
+                    Datos_BOL.Fchcar = ordenEmbarque.Orden.Fchcar;
+                    Datos_BOL.BatchId = ordenEmbarque.Orden.BatchId;
+                    Datos_BOL.Vol = ordenEmbarque.Orden.Vol;
+                }
+                else
+                {
+                    Datos_BOL.Cod = null!;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading_buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Orden()
+    {
+        try
+        {
+            loading_guardar = true;
+            var response = await http.Post<Orden>("api/pedido/asignar/embarque", Datos_BOL);
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                folio_.Folio = Datos_BOL.Ref ?? string.Empty;
+                ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de al ta correctamente", Severity = NotificationSeverity.Success });
+                await Obtener_Orden();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

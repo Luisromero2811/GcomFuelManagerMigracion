@@ -548,6 +548,10 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.Id_Tad);
 
+            modelBuilder.Entity<Consecutivo>()
+                .HasOne(x => x.Terminal)
+                .WithOne()
+                .HasForeignKey<Consecutivo>(x => x.Id_Tad);
         }
 
 

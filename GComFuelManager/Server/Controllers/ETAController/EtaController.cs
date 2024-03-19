@@ -202,7 +202,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .OrderBy(x => x.Fchpet)
                        .Select(e => new EtaDTO()
                        {
-                           Referencia = "ENER-" + e.Folio.ToString(),
+                           Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                            EstatusOrden = "Pendiente de Asignar",
                            FechaCarga = null!,
@@ -249,7 +249,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                  .Include(x => x.OrdenPedido)
                    .Select(e => new EtaDTO()
                    {
-                       Referencia = "ENER-" + e.Folio.ToString(),
+                       Referencia = e.FolioSyn,
                        FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                        EstatusOrden = e.Estado.den,
                        FechaCarga = null!,
@@ -298,7 +298,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 //    Vol = o.Vol,
                     .Select(e => new EtaDTO()
                     {
-                        Referencia = "ENER-" + e.Folio.ToString(),
+                        Referencia = e.FolioSyn,
                         FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                         EstatusOrden = e.Estado.den,
                         FechaCarga = null!,
@@ -346,7 +346,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .OrderBy(x => x.Fchcar)
                       .Select(e => new EtaDTO()
                       {
-                          Referencia = "ENER-" + e.Folio.ToString(),
+                          Referencia = e.Ref,
                           FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                           EstatusOrden = e.Estado.den,
                           FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
@@ -464,7 +464,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchpet)
                            .Select(e => new EtaDTO()
                            {
-                               Referencia = "ENER-" + e.Folio.ToString(),
+                               Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                                Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
@@ -512,7 +512,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      .Include(x => x.OrdenPedido)
                        .Select(e => new EtaDTO()
                        {
-                           Referencia = "ENER-" + e.Folio.ToString(),
+                           Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                            Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
@@ -558,7 +558,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaDTO()
                         {
-                            Referencia = "ENER-" + e.Folio.ToString(),
+                            Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                             Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
@@ -606,7 +606,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchcar)
                           .Select(e => new EtaDTO()
                           {
-                              Referencia = "ENER-" + e.Folio.ToString(),
+                              Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                               Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
@@ -711,7 +711,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchpet)
                            .Select(e => new EtaDTO()
                            {
-                               Referencia = "ENER-" + e.Folio.ToString(),
+                               Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                                Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
@@ -759,7 +759,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      .Include(x => x.OrdenPedido)
                        .Select(e => new EtaDTO()
                        {
-                           Referencia = "ENER-" + e.Folio.ToString(),
+                           Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                            Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
@@ -807,7 +807,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaDTO()
                         {
-                            Referencia = "ENER-" + e.Folio.ToString(),
+                            Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                             Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
@@ -855,7 +855,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchcar)
                           .Select(e => new EtaDTO()
                           {
-                              Referencia = "ENER-" + e.Folio.ToString(),
+                              Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                               Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
@@ -962,7 +962,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchpet)
                            .Select(e => new EtaDTO()
                            {
-                               Referencia = "ENER-" + e.Folio.ToString(),
+                               Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                                Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
@@ -1010,7 +1010,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      .Include(x => x.OrdenPedido)
                        .Select(e => new EtaDTO()
                        {
-                           Referencia = "ENER-" + e.Folio.ToString(),
+                           Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                            Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
@@ -1059,7 +1059,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                         .Select(e => new EtaDTO()
                         {
-                            Referencia = "ENER-" + e.Folio.ToString(),
+                            Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                             Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
@@ -1107,7 +1107,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchcar)
                           .Select(e => new EtaDTO()
                           {
-                              Referencia = "ENER-" + e.Folio.ToString(),
+                              Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                               Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,
@@ -1209,7 +1209,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchpet)
                            .Select(e => new EtaDTO()
                            {
-                               Referencia = "ENER-" + e.Folio.ToString(),
+                               Referencia = e.FolioSyn,
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                                Unidad_Negocio = e.Tad.Den,
                                EstatusOrden = "Pendiente de Asignar",
@@ -1255,7 +1255,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                      .Include(x => x.OrdenPedido)
                        .Select(e => new EtaDTO()
                        {
-                           Referencia = "ENER-" + e.Folio.ToString(),
+                           Referencia = e.FolioSyn,
                            FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                            Unidad_Negocio = e.Tad.Den,
                            EstatusOrden = e.Estado.den,
@@ -1301,7 +1301,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaDTO()
                         {
-                            Referencia = "ENER-" + e.Folio.ToString(),
+                            Referencia = e.FolioSyn,
                             FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd"),
                             Unidad_Negocio = e.Tad.Den,
                             EstatusOrden = e.Estado.den,
@@ -1346,7 +1346,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .OrderBy(x => x.Fchcar)
                           .Select(e => new EtaDTO()
                           {
-                              Referencia = "ENER-" + e.Folio.ToString(),
+                              Referencia = e.Ref,
                               FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
                               Unidad_Negocio = e.Terminal.Den,
                               EstatusOrden = e.Estado.den,

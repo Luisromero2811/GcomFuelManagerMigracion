@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations.Schema;
+using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -18,6 +19,8 @@ namespace GComFuelManager.Shared.DTOs
         public string UserName { get; set; } = string.Empty;
         //Roles asignados
         public List<string> Roles { get; set; } = new List<string>();
+        public List<Tad> Terminales { get; set; } = new();
+        public List<short> Terminales_Seleccionadas { get; set; } = new();
         //Contraseña
         public string Password { get; set; } = string.Empty;
         //Estado

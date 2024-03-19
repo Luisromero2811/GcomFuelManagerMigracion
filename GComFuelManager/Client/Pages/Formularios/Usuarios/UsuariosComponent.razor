@@ -120,8 +120,16 @@
                     <div class="col-12">
                         <label>Roles:</label>
                         <!--Selector multiple de Radzen-->
-                        <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol" @ref="dropdown"
+                        <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
                                         Multiple=true Placeholder="Seleccione los roles" Chips=true class="col-12" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"/>
+                    </div>
+                </div>
+                <div class="col-12 row p-2">
+                    <div class="col-12">
+                        <label>Unidades de negocio:</label>
+                        <!--Selector multiple de Radzen-->
+                        <RadzenDropDown @bind-Value="info.Terminales_Seleccionadas" Data="Terminales" TextProperty="Den" ValueProperty="Cod" 
+                                        Multiple=true Placeholder="Seleccione las terminales" Chips=true class="col-12" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
                     </div>
                 </div>
                 <div class="col-12 mt-2 mb-3">
@@ -204,6 +212,18 @@
                         }
                     </Template>
                 </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Unidades de negocio" Width="200px" OrderIndex="5">
+                    <Template Context="data">
+
+                        @foreach (var i in data.Terminales)
+                        {
+                            <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light" Width="20px">
+                                @i.Den
+                            </RadzenBadge>
+
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Actions">
                     <RadzenDataGridColumn TItem="UsuarioInfo" Title="Activar/Desactivar" Width="140px" OrderIndex="6" Filterable="false">
                         <Template Context="data">
@@ -234,6 +254,8 @@
     private List<RolDTO> Roles { get; set; } = null!;
     private List<string> RolesSelectDTO = new List<string>();
 
+    private List<Tad> Terminales { get; set; } = null!;
+
     private List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     private Cliente Cliente { get; set; } = new Cliente();
 
@@ -263,6 +285,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetRoles();
+        await GetTerminales();
         await GetUsers();
         await GetGrupos();
     }
@@ -294,6 +317,23 @@
             Roles = respuestaHTTP.Response;
         }
     }
+
+    public async Task GetTerminales()
+    {
+        //Variable donde guardamos la obtención de los roles
+        var respuestaHTTP = await repositorio.Get<List<Tad>>("api/terminal");
+
+        if (respuestaHTTP.Error)
+        {
+            var mensajeError = await respuestaHTTP.ObtenerMensajeError();
+            await swal.FireAsync("Error", mensajeError, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Terminales = respuestaHTTP.Response;
+        }
+    }
+
     //Obtención de usuarios en lista
     public async Task GetUsers()
     {

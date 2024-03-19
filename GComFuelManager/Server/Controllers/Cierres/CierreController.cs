@@ -299,10 +299,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 Cliente? Cliente = new();
                 Grupo? Grupo = new();
 
-                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                var consecutivo = context.Consecutivo.Include(x => x.Terminal).FirstOrDefault(x => x.Nombre == "Folio" && x.Id_Tad == id_terminal);
                 if (consecutivo is null)
                 {
-                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio", Id_Tad = id_terminal };
                     context.Add(Nuevo_Consecutivo);
                     await context.SaveChangesAsync();
                     consecutivo = Nuevo_Consecutivo;
@@ -350,9 +350,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
 
                 if (!orden.isGroup)
-                    orden.Folio = $"P{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}";
+                    orden.Folio = $"P{DateTime.Now:yy}-{consecutivo.Numeracion:0000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}-{consecutivo.Obtener_Codigo_Terminal}";
                 else
-                    orden.Folio = $"G{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}";
+                    orden.Folio = $"G{DateTime.Now:yy}-{consecutivo.Numeracion:0000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}-{consecutivo.Obtener_Codigo_Terminal}";
 
                 orden.OrdenEmbarque = null!;
                 orden.Cliente = null!;
@@ -2970,10 +2970,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 Grupo? Grupo = new();
                 string folio = string.Empty;
 
-                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Orden");
+                var consecutivo = context.Consecutivo.Include(x=>x.Terminal).FirstOrDefault(x => x.Nombre == "Orden" && x.Id_Tad == id_terminal);
                 if (consecutivo is null)
                 {
-                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Orden" };
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Orden" , Id_Tad = id_terminal};
                     context.Add(Nuevo_Consecutivo);
                     await context.SaveChangesAsync();
                     consecutivo = Nuevo_Consecutivo;
@@ -3021,9 +3021,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 }
 
                 if (!cierre.isGroup)
-                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}";
+                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:0000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}-{consecutivo.Obtener_Codigo_Terminal}";
                 else
-                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}";
+                    folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:0000000}{(Grupo is not null && !string.IsNullOrEmpty(Grupo.CodGru) ? $"-{Grupo.CodGru}" : "-DFT")}-{consecutivo.Obtener_Codigo_Terminal}";
 
                 for (int i = 0; i < cierre.Cantidad_Confirmada; i++)
                 {

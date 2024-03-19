@@ -54,8 +54,20 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     if (u != null)
                     {
                         IList<string> roles = await userManager.GetRolesAsync(u);
-                        usuarios.FirstOrDefault(x => x.UserCod == item.UserCod)!.Roles = roles.ToList();
-                        usuarios.FirstOrDefault(x => x.UserCod == item.UserCod)!.Id = u.Id;
+                        var terminales_usuario = context.Usuario_Tad.Where(x => x.Id_Usuario.Equals(u.Id)).ToList();
+
+                        foreach (var terminal in terminales_usuario)
+                        {
+                            var ter = context.Tad.FirstOrDefault(x => x.Cod == terminal.Id_Terminal);
+                            if (ter is not null)
+                            {
+                                usuarios.Single(x => x.UserCod == item.UserCod).Terminales.Add(ter);
+                                usuarios.Single(x => x.UserCod == item.UserCod).Terminales_Seleccionadas.Add(ter.Cod);
+                            }
+                        }
+
+                        usuarios.Single(x => x.UserCod == item.UserCod).Roles = roles.ToList();
+                        usuarios.Single(x => x.UserCod == item.UserCod).Id = u.Id;
                     }
                 }
 
@@ -120,6 +132,16 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                     return BadRequest(result.Errors);
                 }
                 //Si el resultado fue exitoso, retorna el nuevo usuario
+
+                foreach (var terminal in info.Terminales_Seleccionadas)
+                {
+                    if (!context.Usuario_Tad.Any(x => x.Id_Terminal == terminal && x.Id_Usuario == newUserAsp.Id))
+                    {
+                        context.Add(new Usuario_Tad() { Id_Usuario = newUserAsp.Id, Id_Terminal = terminal });
+                        await context.SaveChangesAsync();
+                    }
+                }
+
                 return Ok(newUserSistema);
             }
             catch (Exception e)
@@ -186,6 +208,19 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                         context.Update(oldUser);
                         await context.SaveChangesAsync();
                         return BadRequest();
+                    }
+
+                    var relaciones_anteriores = context.Usuario_Tad.Where(x => x.Id_Usuario == updateUserAsp.Id).ToList();
+                    context.RemoveRange(relaciones_anteriores);
+                    await context.SaveChangesAsync();
+
+                    foreach (var terminal in info.Terminales_Seleccionadas)
+                    {
+                        if (!context.Usuario_Tad.Any(x => x.Id_Terminal == terminal && x.Id_Usuario == updateUserAsp.Id))
+                        {
+                            context.Add(new Usuario_Tad() { Id_Usuario = updateUserAsp.Id, Id_Terminal = terminal });
+                            await context.SaveChangesAsync();
+                        }
                     }
                 }
 

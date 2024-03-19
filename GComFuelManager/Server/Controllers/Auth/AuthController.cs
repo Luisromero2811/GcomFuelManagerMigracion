@@ -113,6 +113,9 @@ namespace GComFuelManager.Server.Controllers.Auth
 
         private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
+            if (!context.Tad.Any(x =>!string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true))
+                return new UserTokenDTO();
+
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, info.UserName),

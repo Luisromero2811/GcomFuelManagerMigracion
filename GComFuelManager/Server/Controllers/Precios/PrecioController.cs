@@ -1105,7 +1105,10 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                         if (orden.Terminal is not null)
                             if (!string.IsNullOrEmpty(orden.Terminal.Den))
+                            {
                                 precio.Terminal_Final = orden.Terminal.Den;
+                                precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
+                            }
 
                         precio.BOL = orden.BatchId ?? 0;
                         precio.Volumen_Cargado = orden.Vol;
@@ -1128,7 +1131,10 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                         if (item.Tad is not null)
                             if (!string.IsNullOrEmpty(item.Tad.Den))
+                            {
                                 precio.Terminal_Original = item.Tad.Den;
+                                precio.Codigo_Terminal_Original = item.Tad.Codigo;
+                            }
                     }
 
                     var precioVig = context.Precio.IgnoreAutoIncludes()
@@ -1372,7 +1378,9 @@ namespace GComFuelManager.Server.Controllers.Precios
             public double? Volumen_Cargado { get; set; } = 0;
             public string Folio_Cierre { get; set; } = string.Empty;
             public string Terminal_Original { get; set; } = string.Empty;
+            public string Codigo_Terminal_Original { get; set; } = string.Empty;
             public string Terminal_Final { get; set; } = string.Empty;
+            public string Codigo_Terminal_Final { get; set; } = string.Empty;
         }
     }
 }
