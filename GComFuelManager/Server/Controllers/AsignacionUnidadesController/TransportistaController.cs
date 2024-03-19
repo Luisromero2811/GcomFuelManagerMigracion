@@ -334,7 +334,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
         [HttpPost("borrar/relaciones")]
-        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista transportista_Tad)
+        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista_Tad transportista_Tad)
         {
             try
             {
