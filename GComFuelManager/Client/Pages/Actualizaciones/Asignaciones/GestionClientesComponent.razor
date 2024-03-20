@@ -219,7 +219,7 @@
                 <div class="col-3">
                     <label></label>
                     <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
                     </button>
                 </div>
                 @*<div class="col-3">
@@ -441,6 +441,8 @@
                 }
                 else
                 {
+                    clienteTadDTO.Clientes = new();
+                    clienteTadDTO.Tads = new();
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
                 }
             }
