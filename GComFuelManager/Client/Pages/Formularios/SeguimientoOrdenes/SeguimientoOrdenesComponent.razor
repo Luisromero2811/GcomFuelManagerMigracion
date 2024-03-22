@@ -434,7 +434,7 @@
                     worksheet.Columns.AutoFit();
 
                     //Formacion del excel
-                    var header = worksheet.Cells["A1:M1"];
+                    var header = worksheet.Cells["A1:N1"];
                     header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
@@ -479,7 +479,7 @@
                     worksheet.Columns.AutoFit();
 
                     //Formacion del excel
-                    var header = worksheet.Cells["A1:M1"];
+                    var header = worksheet.Cells["A1:N1"];
                     header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                     header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
@@ -683,7 +683,7 @@
                 worksheet.Columns.Width = 49;
                 worksheet.Columns.AutoFit();
                 ////Formación de Excel
-                var header = worksheet.Cells["A1:M1"];
+                var header = worksheet.Cells["A1:N1"];
                 //var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
                 //from o in ordensHistorial
                 //select new OrdenesDTO()

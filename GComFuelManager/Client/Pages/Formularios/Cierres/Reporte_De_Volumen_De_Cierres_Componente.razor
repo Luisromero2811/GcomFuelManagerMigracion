@@ -369,7 +369,7 @@
                     ws.Columns.Width = 60;
                     ws.Columns.AutoFit();
 
-                    var header = ws.Cells["A1:P1"];
+                    var header = ws.Cells["A1:R1"];
                     var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response, true);
                     tablebody.Style.Font.Size = 12;
                     tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;

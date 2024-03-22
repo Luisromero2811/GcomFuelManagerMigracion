@@ -51,6 +51,26 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("gestion/{transportista:int}")]
+        public ActionResult GetTonel(int transportista)
+        {
+            try
+            {
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Include(x => x.Terminales)
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
+                    .Include(x => x.Terminales)
+                    .OrderBy(x => x.Tracto)
+                    .ToList();
+                return Ok(vehiculos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         [HttpGet("filtraractivos")]
         public ActionResult Obtener_Grupos_Activos([FromQuery] Tonel tonel)
         {
@@ -83,11 +103,14 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (tonel.Cod == 0)
                 {
                     tonel.Id_Tad = id_terminal;
-                    tonel.Cod = tonel.Transportista!.Cod;
+                    tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
+                    tonel.Transportista = null!;
+                    //tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
                 }
                 else
                 {
+            
                     context.Update(tonel);
                 }
                 await context.SaveChangesAsync();
@@ -127,6 +150,29 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                 return Ok();
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Unidad_Tad tonel_tad)
+        {
+            try
+            {
+                if (tonel_tad is null)
+                    return NotFound();
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(tonel_tad);
+                await context.SaveChangesAsync();
+
+                return Ok(tonel_tad);
             }
             catch (Exception e)
             {

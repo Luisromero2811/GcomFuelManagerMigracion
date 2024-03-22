@@ -38,9 +38,10 @@ namespace GComFuelManager.Shared.Modelos
         public short? Id_Tad { get; set; }
 
         [NotMapped, JsonIgnore] public Tad? Tad { get; set; }
-        [NotMapped, JsonIgnore] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped] public List<Tad> Terminales { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
-        [NotMapped] public Transportista? Transportista { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Transportista? Transportista { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Chofer? Chofer { get; set; } = null!;
 
         public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
         public string Veh { get { return $"{Tracto} {Placa}"; } }
@@ -61,6 +62,9 @@ namespace GComFuelManager.Shared.Modelos
                 return c;
             }
         }
+
+        [NotMapped] public int? CodTra { get; set; }
+
         [NotMapped,EpplusIgnore]
         public List<CapTonel> Capacidades
         {

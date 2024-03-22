@@ -18,7 +18,7 @@
                     <EditForm Model="@Destino" class="form col-12" OnValidSubmit="@CreateDestinos" Context="Validations">
                         <FluentValidationValidator Validator="gestionDestino" />
                         <ValidationSummary />
-                        <div class="col-12 row">
+                        <div class="col-12 row mb-2">
                             <div class="col-4 row">
                                 <label>Nombre del destino:</label>
                                 <InputText @bind-Value="Destino.Den" class="form-control" MaxLenght="80" />
@@ -68,73 +68,6 @@
         </div>
     </div>
 </AuthorizeView>
-@*<div class="col-12 row">
-        <h5>Relacion Destino-Unidad</h5>
-        <div class="col-3">
-            <label>Terminales:</label>
-            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
-                <RenderValue>
-                    <div>Terminales</div>
-                </RenderValue>
-                <Render>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                        <label class="form-check-label" for="@context.Cod">
-                            @if (context is not null)
-                            {
-                                @context.Den
-                            }
-                            else
-                            {
-                                <p>Todos</p>
-                            }
-                        </label>
-                    </div>
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label>Clientes:</label>
-            <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int?" Propiedad_Valor="Cod" On_Change_Method="@ChangeDestinos" @bind-Valor="Destino.Codcte"
-                            Default_Placeholder="Seleccione un cliente" FiltrarValor="Obtener_Clientes">
-                <RenderValue>
-                    @context.Den
-                </RenderValue>
-                <Render>
-                    @context.Den
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label>Destino</label>
-            <DropDownFilter Listado="Destinos" TListado="Destino" TValue="int" Seleccion_Multiple="true" Puede_Filtrar="true" Default_Placeholder="Seleccione una terminal">
-                <RenderValue>
-                    <div>Destinos</div>
-                </RenderValue>
-                <Render>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Destinos_Seleccionados.Contains(context))" @onchange="args => { CheckDestinos(context, args?.Value); }" />
-                        <label class="form-check-label" for="@context.Cod">
-                            @if (context is not null)
-                            {
-                                @context.Den
-                            }
-                            else
-                            {
-                                <p>Todos</p>
-                            }
-                        </label>
-                    </div>
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label></label>
-            <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Unidad
-            </button>
-        </div>
-    </div>*@
 <div class="card mt-2" style="height:500px;">
     <div class="card-header">
         <b>Gestión de Destinos - Unidades de negocio</b>
@@ -152,27 +85,9 @@
                         @context.Den
                     </Render>
                 </DropDownFilter>
-                @*<DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
-                        <RenderValue>
-                            @context.Den
-                        </RenderValue>
-                        <Render>
-                            @context.Den
-                        </Render>
-                    </DropDownFilter>*@
             </div>
             <div class="col-3">
                 <label>Unidad de Negocio</label>
-                @*<DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
-                                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id" On_Change_Method="@(()=>Obtener_Originadores(string.Empty))">
-                        <RenderValue>
-                            @context.Nombre
-                        </RenderValue>
-                        <Render>
-                            @context.Nombre
-                        </Render>
-                    </DropDownFilter>*@
                 <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
                     <RenderValue>
                         <div>@context.Den</div>
@@ -200,12 +115,6 @@
                     <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Unidad de negocio
                 </button>
             </div>
-            @*<div class="col-3">
-                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Guardar_Relacion">
-                        Guardar
-                    </button>
-                </div>*@
-
         </div>
         <div class="col-12">
             <table class="table table-sm table-striped table-bordered">
@@ -225,7 +134,6 @@
                         <Virtualize Items="Destinos" TItem="Destino" Context="item">
                             <tr>
                                 <th>
-                                    @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
                                     <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Destinos_Seleccionados.Contains(item))" @onchange="args => { CheckDestinos(item, args?.Value); }" />
                                 </th>
                                 <td>@item.Den</td>
@@ -274,7 +182,7 @@
     List<Destino> Destinos_Seleccionados { get; set; } = new();
     List<Tad> Terminales { get; set; } = new List<Tad>();
     private List<Cliente> Clientes { get; set; } = new List<Cliente>();
-    List<Destino> Destinos { get; set; } = new List<Destino>();
+    List<Destino> Destinos { get; set; } = new();
     List<ClienteTadDTO> clientesTads { get; set; } = new List<ClienteTadDTO>();
 
     public IEnumerable<CodDenDTO> DestinoClientes { get; set; } = new List<CodDenDTO>();
@@ -471,6 +379,9 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                    Destinos = new();
+                    Destinos_Seleccionados = new();
+                    await ChangeDestinos();
                 }
             }
             else

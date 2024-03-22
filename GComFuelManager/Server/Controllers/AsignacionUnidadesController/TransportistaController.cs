@@ -121,17 +121,39 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                Random random = new Random();
                 var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
 
                 if (transportista is null)
                     return BadRequest();
-
+                //Si el cod del transportista viene en ceros se procede a la creación de una empresa transportista con el Id_Tad con la terminal que estamos logueados, el codgru del transportista al grupo y el carrid y busentid random para nuevos registros 
                 if (transportista.Cod == 0)
                 {
                     transportista.Id_Tad = id_terminal;
                     transportista.Codgru = transportista.GrupoTransportista!.cod!;
+
+                    //Genero el número aleatorio para el Carrid
+                    transportista.CarrId = Convert.ToString(random.Next(1, 50000));
+                    //Con Any compruebo si el número aleatorio existe en la BD
+                    var exist = context.Transportista.Any(x => x.CarrId == transportista.CarrId);
+                    //Si ya existe, genera un nuevo número Random
+                    if (exist)
+                    {
+                        transportista.CarrId =  Convert.ToString(random.Next(1, 50000));
+                    }
+
+                    //Genero el número aleatorio para busentid
+                    transportista.Busentid = Convert.ToString(random.Next(1, 50000));
+                    //Con Any compruebo si el número aleatorio existe en la BD
+                    var existBusentid = context.Transportista.Any(x => x.Busentid == transportista.Busentid);
+                    //Si ya existe, genera un nuevo número random
+                    if (existBusentid)
+                    {
+                        transportista.Busentid = Convert.ToString(random.Next(1, 50000));
+                    }
+
                     context.Add(transportista);
                 }
                 else
@@ -334,7 +356,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
         [HttpPost("borrar/relaciones")]
-        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista transportista_Tad)
+        public async Task<ActionResult> Borrar_Relaciones([FromBody] GrupoTransportista_Tad transportista_Tad)
         {
             try
             {

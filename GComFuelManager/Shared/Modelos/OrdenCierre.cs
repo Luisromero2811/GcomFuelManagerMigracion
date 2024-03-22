@@ -26,9 +26,6 @@ namespace GComFuelManager.Shared.Modelos
         [JsonPropertyName("folio"), DisplayName("Folio")]
         public string? Folio { get; set; } = string.Empty;
 
-        [NotMapped, DisplayName("Unidad de Negocio")]
-        public string? Unidad_Negocio { get { return Terminal != null ? Terminal.Den : string.Empty; } }
-
         [EpplusIgnore]
         public string? Contacto { get { return ContactoN != null ? ContactoN.Nombre : string.Empty; } }
 
@@ -154,6 +151,8 @@ namespace GComFuelManager.Shared.Modelos
 
             }
         }
+        [NotMapped, DisplayName("Unidad de Negocio")]
+        public string? Unidad_Negocio { get { return Terminal != null ? Terminal.Den : string.Empty; } }
         [NotMapped, EpplusIgnore] public int? Cantidad_Sugerida { get; set; } = 0;
         [NotMapped, EpplusIgnore] public int? Cantidad_Confirmada { get; set; } = 0;
         [NotMapped, EpplusIgnore] public int? Volumen_Seleccionado { get; set; } = 62000;

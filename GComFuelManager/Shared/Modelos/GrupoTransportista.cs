@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using GComFuelManager.Shared.DTOs;
@@ -9,8 +9,8 @@ namespace GComFuelManager.Shared.Modelos
 {
 	public class GrupoTransportista
 	{
-        [Key] 
-        public int cod { get; set; }
+        [Key, JsonProperty("cod")] public int cod { get; set; }
+        //   public int Cod { get; set; } = 0;
 
         [MaxLength(255)]
         public string? den { get; set; } = string.Empty;

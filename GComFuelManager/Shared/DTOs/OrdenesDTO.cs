@@ -16,8 +16,6 @@ namespace GComFuelManager.Shared.DTOs
         public string? FechaPrograma { get; set; } = string.Empty;
         [DisplayName("Estado de la Orden")]
         public string EstatusOrden { get; set; } = string.Empty;
-        [DisplayName("Unidad de Negocio")]
-        public string? Unidad_Negocio { get; set; } = string.Empty;
         [DisplayName("Fecha de Carga")]
 		public string? FechaCarga { get; set; } = string.Empty;
         public int? Bol { get; set; } = 0;
@@ -40,7 +38,8 @@ namespace GComFuelManager.Shared.DTOs
         public string Transportista { get; set; } = string.Empty;
         public string Unidad { get; set; } = string.Empty;
         public string Operador { get; set; } = string.Empty;
-       
+        [DisplayName("Unidad de Negocio")]
+        public string? Unidad_Negocio { get; set; } = string.Empty;
     }
 }
 

@@ -68,7 +68,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (chofer.Cod == 0)
                 {
                     chofer.Id_Tad = id_terminal;
-                    chofer.Codtransport = chofer.Transportista!.Cod;
+                    chofer.Codtransport = Convert.ToInt32(chofer.Transportista!.Busentid);
                     context.Add(chofer);
                 }
                 else
@@ -182,6 +182,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpPut("status/{cod:int}")]
         public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
