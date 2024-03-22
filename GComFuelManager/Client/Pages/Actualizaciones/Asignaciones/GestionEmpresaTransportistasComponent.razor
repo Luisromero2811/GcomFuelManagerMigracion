@@ -51,15 +51,6 @@
         <div class="col-12 row">
             <div class="col-3">
                 <label>Grupo de Transportes</label>
-                @*<DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
-                        <RenderValue>
-                            @context.Den
-                        </RenderValue>
-                        <Render>
-                            @context.Den
-                        </Render>
-                    </DropDownFilter>*@
                 <DropDownFilter Listado="Grupos" TListado="GrupoTransportista" TValue="int?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="ObtenerEmpresa"
                                 Propiedad_Valor="cod" On_Change_Method="@GetCliente" @bind-Valor="transportista.Codgru">
                     <RenderValue>
@@ -72,15 +63,6 @@
             </div>
             <div class="col-3">
                 <label>Unidad de Negocio</label>
-                @*<DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
-                                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id" On_Change_Method="@(()=>Obtener_Originadores(string.Empty))">
-                        <RenderValue>
-                            @context.Nombre
-                        </RenderValue>
-                        <Render>
-                            @context.Nombre
-                        </Render>
-                    </DropDownFilter>*@
                 <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
                     <RenderValue>
                         <div>@context.Den</div>
@@ -105,7 +87,7 @@
             <div class="col-3">
                 <label></label>
                 <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                    <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
+                    <i class="fa fa-solid fa-plus"></i> Relacionar Transportista-Unidad
                 </button>
             </div>
         </div>
@@ -117,7 +99,7 @@
                             <input type="checkbox" checked="@(Transportistas.Any(i => Transportista_Seleccionados != null && Transportista_Seleccionados.Contains(i)))"
                                    @onchange="args => CheckItemAll(args?.Value)" />
                         </th>
-                        <th>Cliente</th>
+                        <th>Transportista</th>
                         <th>Unidades de Negocio</th>
                     </tr>
                 </thead>
@@ -155,75 +137,6 @@
         </div>
     </div>
 </div>
-
-@*<div class="col-12 row">
-        <div class="col-3">
-            <label>Terminales:</label>
-            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
-                <RenderValue>
-                    <div>Terminales</div>
-                </RenderValue>
-                <Render>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                        <label class="form-check-label" for="@context.Cod">
-                            @if (context is not null)
-                            {
-                                @context.Den
-                            }
-                            else
-                            {
-                                <p>Todos</p>
-                            }
-                        </label>
-                    </div>
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label>Grupo de Transportes</label>
-            <DropDownFilter Listado="Grupos" TListado="GrupoTransportista" TValue="int?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="ObtenerEmpresa"
-                            Propiedad_Valor="cod" On_Change_Method="@GetCliente" @bind-Valor="transportista.Codgru">
-                <RenderValue>
-                    @context.den
-                </RenderValue>
-                <Render>
-                    @context.den
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label>Transportistas:</label>
-            <DropDownFilter Listado="Transportistas" TListado="Transportista" TValue="int" Seleccion_Multiple="true" Puede_Filtrar="true"
-                            Default_Placeholder="Seleccione un Transportista">
-                <RenderValue>
-                    <div>Empresa de Transportes</div>
-                </RenderValue>
-                <Render>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Transportista_Seleccionados.Contains(context))" @onchange="args => { CheckTransportista(context, args?.Value); }" />
-                        <label class="form-check-label" for="@context.Cod">
-                            @if (context is not null)
-                            {
-                                @context.Den
-                            }
-                            else
-                            {
-                                <p>Todos</p>
-                            }
-                        </label>
-                    </div>
-                </Render>
-            </DropDownFilter>
-        </div>
-        <div class="col-3">
-            <label></label>
-            <button class="col-12 mt-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
-            </button>
-        </div>
-    </div>*@
-
 <style>
     .button-circle { /* Green */
         border: none;
@@ -244,7 +157,7 @@
     List<Tad> Tads_Seleccionados { get; set; } = new();
     List<Transportista> Transportista_Seleccionados { get; set; } = new();
     List<Tad> Terminales { get; set; } = new List<Tad>();
-    List<Transportista> Transportistas { get; set; } = new List<Transportista>();
+    List<Transportista> Transportistas { get; set; } = new();
     List<GrupoTransportista> Grupos { get; set; } = new List<GrupoTransportista>();
     //Instancias
     public Transportista transportista { get; set; } = new Transportista();
@@ -391,6 +304,9 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Transportista relacionado exitosamente", SweetAlertIcon.Success);
+                    Transportistas = new();
+                    Transportista_Seleccionados = new();
+                    await GetCliente();
                 }
             }
             else

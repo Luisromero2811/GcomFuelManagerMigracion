@@ -9,7 +9,7 @@
     <div class="col-12 d-flex justify-content-center" style="height:40vh;">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <h5>Agregar Grupos</h5>
+                <h5>Agregar Grupos transportistas</h5>
                 <!--Aquí se agregará las validaciones para gestionar a los grupos de transportes-->
                 <EditForm Model="@grupoTransportista" class="form col-12" OnValidSubmit="@SaveGrupo" Context="validacion">
                     <FluentValidationValidator Validator="validarGrupoT" />
@@ -28,30 +28,7 @@
                 </EditForm>
                 <hr />
                 <div class="col-12 row">
-                    <h5>Agregar Grupos</h5>
-                    <div class="col-4">
-                        <label>Terminales:</label>
-                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una terminal">
-                            <RenderValue>
-                                <div>Terminales</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context.Cod">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
+                    <h5>Relacionar Grupos transportistas - Unidades de negocio</h5>
                     <div class="col-4">
                         <label>Grupos:</label>
                         <DropDownFilter Listado="GrupoTransportistas" TListado="GrupoTransportista" TValue="int" Seleccion_Multiple="true" FiltrarValor="Obtener_Grupos"
@@ -77,9 +54,32 @@
                         </DropDownFilter>
                     </div>
                     <div class="col-4">
+                        <label>Unidades de negocio:</label>
+                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                            <RenderValue>
+                                <div>Unidades de negocio</div>
+                            </RenderValue>
+                            <Render>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                    <label class="form-check-label" for="@context.Cod">
+                                        @if (context is not null)
+                                        {
+                                            @context.Den
+                                        }
+                                        else
+                                        {
+                                            <p>Todos</p>
+                                        }
+                                    </label>
+                                </div>
+                            </Render>
+                        </DropDownFilter>
+                    </div>
+                    <div class="col-4">
                         <label></label>
                         <button class="col-12 mt-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                            <i class="fa fa-solid fa-plus"></i> Relacionar Terminal-Cliente
+                            <i class="fa fa-solid fa-plus"></i> Relacionar Grupo Transportista-Unidad
                         </button>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
     List<Tad> Tads_Seleccionados { get; set; } = new();
     List<GrupoTransportista> GruposTransportes_Seleccionados { get; set; } = new();
     List<Tad> Terminales { get; set; } = new List<Tad>();
-    List<GrupoTransportista> GrupoTransportistas { get; set; } = new List<GrupoTransportista>();
+    List<GrupoTransportista> GrupoTransportistas { get; set; } = new();
 
     GrupoTransportista_Tad grupoTransportista_Tad { get; set; } = new GrupoTransportista_Tad();
 
@@ -279,6 +279,9 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                    GrupoTransportistas = new();
+                    GruposTransportes_Seleccionados = new();
+                    await ObtenerGruposTransportes();
                 }
             }
             else

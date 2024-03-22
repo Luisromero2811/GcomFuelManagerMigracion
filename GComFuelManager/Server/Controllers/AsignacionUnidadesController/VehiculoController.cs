@@ -56,13 +56,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
-
                 var vehiculos = context.Tonel.IgnoreAutoIncludes()
                     .Include(x => x.Terminales)
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
                     .ToList();
@@ -73,6 +69,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpGet("filtraractivos")]
         public ActionResult Obtener_Grupos_Activos([FromQuery] Tonel tonel)
@@ -106,11 +103,14 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (tonel.Cod == 0)
                 {
                     tonel.Id_Tad = id_terminal;
-                    tonel.Cod = tonel.Transportista!.Cod;
+                    tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
+                    tonel.Transportista = null!;
+                    //tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
                 }
                 else
                 {
+            
                     context.Update(tonel);
                 }
                 await context.SaveChangesAsync();

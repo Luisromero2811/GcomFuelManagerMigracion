@@ -1107,7 +1107,6 @@ else
                         {
                             OrdenCompra = item?.OrdenCompra?.den ?? "",
                             Referencia = item?.OrdenCierre?.Folio ?? "",
-                            Unidad_Negocio = item?.Tad?.Den ?? "",
                             Cliente = item?.Destino?.Cliente?.Den ?? "",
                             Destino = item?.Destino?.Den ?? "",
                             Producto = item?.Producto?.Den ?? "",
@@ -1124,7 +1123,8 @@ else
                             Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
                             Bin = item?.Bin,
                             Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                            Turno = item?.OrdenCierre?.Turno ?? ""
+                            Turno = item?.OrdenCierre?.Turno ?? "",
+                            Unidad_Negocio = item?.Tad?.Den ?? "",
                             //Status = item?.Estado?.den
                         });
                 }
@@ -1136,7 +1136,7 @@ else
 
                 //Formación de Excel
 
-                var header = worksheet.Cells["A1:N1"];
+                var header = worksheet.Cells["A1:O1"];
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<TablaAsignacionUnidadesDTO>(asignacionUnidadesDTO, true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;

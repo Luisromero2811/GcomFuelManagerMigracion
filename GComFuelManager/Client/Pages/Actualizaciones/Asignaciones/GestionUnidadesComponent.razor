@@ -96,7 +96,7 @@
         <div class="col-12 row">
             <div class="col-3">
                 <label>Empresa Transportista</label>
-                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
+                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="Unidad.CodTra"
                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 AllowVirtualization="true" Change="@GetCliente" Style="height:20px">
                     <Template Context="data">
@@ -216,6 +216,8 @@
     Unidad_Tad tonel_tad { get; set; } = new Unidad_Tad();
     AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
 
+    Dictionary<string, string> query = new Dictionary<string, string>();
+
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
@@ -227,7 +229,8 @@
     {
         try
         {
-            Unidad.Cod = Unidad.Transportista!.Cod;
+            Unidad.Carid = Unidad.Transportista!.CarrId;
+            //Unidad.Carid = Unidad.Transportista!.CarrId;
             var response = await repositorio.Post<Tonel>($"api/vehiculo/crearUnidad", Unidad);
             if (response.Error)
             {
@@ -320,8 +323,8 @@
     {
         try
         {
-            string? carid = Grupos.FirstOrDefault(x => x.Cod == asignacion.CodTra)?.CarrId;
-            var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/gestion/{carid}");
+            string? carrid = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId;
+            var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/gestion/{carrid}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -356,6 +359,9 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Unidad relacionada exitosamente", SweetAlertIcon.Success);
+                    Toneles = new();
+                    Unidad_Seleccionados = new();
+                    await GetCliente();
                 }
             }
             else

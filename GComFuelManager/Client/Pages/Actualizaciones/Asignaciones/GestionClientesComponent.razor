@@ -80,79 +80,6 @@
                         </div>
                     </EditForm>
                 </AuthorizeView>
-                <!--Aquí ligamos la terminal a los clientes-->
-                @*<EditForm>
-                    <FluentValidationValidator/>
-                    <ValidationSummary/>*@
-                @*<div class="col-12 row">
-                        <h5>Relacionar Clientes - Unidades de Negocio</h5>
-                        <div class="col-3">
-                            <label>Unidades de negocio:</label>
-                            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                                <RenderValue>
-                                    <div>@context.Den</div>
-                                </RenderValue>
-                                <Render>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                        <label class="form-check-label" for="@context.Cod">
-                                            @if (context is not null)
-                                            {
-                                                @context.Den
-                                            }
-                                            else
-                                            {
-                                                <p>@context.Den</p>
-                                            }
-                                        </label>
-                                    </div>
-                                </Render>
-                            </DropDownFilter>
-                        </div>
-                        <div class="col-3">
-                            <label>Grupo</label>
-                            <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                            Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
-                                <RenderValue>
-                                    @context.Den
-                                </RenderValue>
-                                <Render>
-                                    @context.Den
-                                </Render>
-                            </DropDownFilter>
-                        </div>
-                        <div class="col-3">
-                            <label>Clientes:</label>
-                            <DropDownFilter Listado="Clientes" TListado="Cliente" TValue="int" Seleccion_Multiple="true"
-                                            Default_Placeholder="Seleccione un cliente">
-                                <RenderValue>
-                                    <div>Clientes</div>
-                                </RenderValue>
-                                <Render>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Clientes_Seleccionados.Contains(context))" @onchange="args => { CheckClient(context, args?.Value); }" />
-                                        <label class="form-check-label" for="@context.Cod">
-                                            @if (context is not null)
-                                            {
-                                                @context.Den
-                                            }
-                                            else
-                                            {
-                                                <p>Todos</p>
-                                            }
-                                        </label>
-                                    </div>
-                                </Render>
-                            </DropDownFilter>
-                        </div>
-                        <div class="col-3">
-                            <label></label>
-                            <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                                <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
-                            </button>
-                        </div>
-                    </div>*@
-                @*</EditForm>*@
                 <!--Aquí empieza la tabla de muestreo de datos-->
             </div>
         </div>
@@ -165,15 +92,6 @@
             <div class="col-12 row">
                 <div class="col-3">
                     <label>Grupo</label>
-                    @*<DropDownFilter Listado="Grupos" TListado="Grupo" TValue="Int16" Default_Placeholder="Seleccione un grupo" FiltrarValor="GetGrupos"
-                                        On_Change_Method="@(()=>GetClientes(string.Empty))" @bind-Valor="@Grupo.Cod" Propiedad_Valor="Cod">
-                            <Render>
-                                @context.Den
-                            </Render>
-                            <RenderValue>
-                                @context.Den
-                            </RenderValue>
-                        </DropDownFilter>*@
                     <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
                                     Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
                         <RenderValue>
@@ -186,15 +104,6 @@
                 </div>
                 <div class="col-3">
                     <label>Unidad de Negocio</label>
-                    @*<DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
-                                        @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id" On_Change_Method="@(()=>Obtener_Originadores(string.Empty))">
-                            <RenderValue>
-                                @context.Nombre
-                            </RenderValue>
-                            <Render>
-                                @context.Nombre
-                            </Render>
-                        </DropDownFilter>*@
                     <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
                         <RenderValue>
                             <div>@context.Den</div>
@@ -219,15 +128,9 @@
                 <div class="col-3">
                     <label></label>
                     <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
                     </button>
                 </div>
-                @*<div class="col-3">
-                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Guardar_Relacion">
-                            Guardar
-                        </button>
-                    </div>*@
-
             </div>
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
@@ -237,6 +140,7 @@
                                 <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
                                        @onchange="args => CheckItemAll(args?.Value)" />
                             </th>
+                            @*<th></th>*@
                             <th>Cliente</th>
                             <th>Unidades de Negocio</th>
                         </tr>
@@ -247,9 +151,13 @@
                             <Virtualize Items="Clientes" TItem="Cliente" Context="item">
                                 <tr>
                                     <th>
-                                        @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
-                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
+                                        <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
                                     </th>
+                                    @*<th>
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                    </th>*@
                                     <td>@item.Den</td>
                                     <td>
                                         @if (item.Terminales is not null)
@@ -258,11 +166,11 @@
                                             {
                                                 <span class="badge rounded-pill gcom-bg-rojo me-2">
                                                     @items.Den
-   
-                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                            <i class="fa fa-solid fa-xmark"></i>
-                                                        </button>
-             
+
+                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                    </button>
+
                                                 </span>
                                             }
                                         }
@@ -276,6 +184,7 @@
         </div>
     </div>
 </AuthorizeView>
+@*value="" id="@item.Cod"*@
 <style>
     .button-circle { /* Green */
         border: none;
@@ -300,7 +209,7 @@
     List<Cliente> Clientes_Seleccionados { get; set; } = new();
 
     List<Tad> Terminales { get; set; } = new List<Tad>();
-    List<Cliente> Clientes { get; set; } = new List<Cliente>();
+    List<Cliente> Clientes { get; set; } = new();
     List<Cliente> ClienteActivo { get; set; } = new List<Cliente>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<Grupo> GrupoActivo { get; set; } = new();
@@ -442,6 +351,9 @@
                 else
                 {
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
+                    Clientes = new();
+                    Clientes_Seleccionados = new();
+                    await GetCliente();
                 }
             }
             else
@@ -472,7 +384,6 @@
             else
             {
                 await Swal.FireAsync("Exito", "Relacion borrada con éxito", SweetAlertIcon.Success);
-                await Obtener_Grupos(string.Empty);
                 await GetCliente();
             }
         }
@@ -571,6 +482,19 @@
         }
 
     }
+
+    private void SetCliente(Cliente cliente)
+    {
+        try
+        {
+            Cliente = cliente;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
 }
 
 

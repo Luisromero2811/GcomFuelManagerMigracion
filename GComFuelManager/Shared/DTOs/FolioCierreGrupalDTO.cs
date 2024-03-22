@@ -31,8 +31,6 @@ namespace GComFuelManager.Shared.DTOs
 
         [DisplayName("Fecha de Cierre")]
         public string FchCie { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:d}", FchCierre); } }
-        [DisplayName("Unidad de Negocio")]
-        public string Terminales { get; set; } = null!;
         [DisplayName("Grupo")]
         public string NGrupo { get { return Grupo != null ? Grupo.Den! : string.Empty; } }
         //[DisplayName("Cliente")]
@@ -52,6 +50,8 @@ namespace GComFuelManager.Shared.DTOs
         public double Precio { get; set; } = 0;
         //Observaciones
         public string? Observaciones { get; set; } = string.Empty;
+        [DisplayName("Unidad de Negocio")]
+        public string Terminales { get; set; } = null!;
 
     }
 }
