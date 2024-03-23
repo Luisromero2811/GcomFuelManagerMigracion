@@ -84,7 +84,7 @@
                             }
                             else
                             {
-                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="Copiar_catalogo">
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Copiar_catalogo(terminal.Cod))">
                                     Copiar catalogo inicial
                                 </button>
                             }
@@ -130,7 +130,7 @@
     {
         try
         {
-            var response = await http.Post<Tad>("api/terminal", Terminal);
+            var response = await http.Post<Tad, Tad>("api/terminal", Terminal);
             if (response.Error)
             {
                 await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
@@ -139,6 +139,20 @@
             {
                 Terminal = new();
                 await Obtener_Terminal();
+                if (response.Response is not null)
+                {
+                    var confirm = await swal.FireAsync(new SweetAlertOptions
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "¿Desea copiar el catalogo inicial de synthesis (clientes, destinos, choferes, etc.) a la nueva terminal?"
+                        });
+
+                    if (!string.IsNullOrEmpty(confirm.Value))
+                        await Copiar_catalogo(response.Response.Cod);
+                }
             }
         }
         catch (Exception e)
@@ -177,13 +191,13 @@
         }
     }
 
-    private async Task Copiar_catalogo()
+    private async Task Copiar_catalogo(short id)
     {
         try
         {
             loading_catalogo = true;
             ns.Notify(new() { Summary = "Copiando catalogo", Detail = "Copiando catalogo inicial. Permanesca en este modulo hasta terminar el proceso", Duration = 60000, Severity = NotificationSeverity.Info });
-            var response = await http.Get<bool>("api/services/default/data");
+            var response = await http.Get<bool>($"api/services/default/data/{id}");
             if (response.Error)
             {
                 loading_catalogo = false;

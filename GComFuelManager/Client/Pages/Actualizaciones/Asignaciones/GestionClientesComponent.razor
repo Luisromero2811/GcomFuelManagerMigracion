@@ -350,6 +350,8 @@
                 }
                 else
                 {
+                    clienteTadDTO.Clientes = new();
+                    clienteTadDTO.Tads = new();
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
                     Clientes = new();
                     Clientes_Seleccionados = new();

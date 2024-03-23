@@ -219,12 +219,21 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                if (HttpContext.User.Identity is null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name))
+                    return NotFound();
+
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                    return NotFound();
                 var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
+                if (id_terminal == 0 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
                     return BadRequest();
 
-                if (id_terminal != 1)
-                    return BadRequest("Esta accion no esta permitida en esta terminal.");
+                if (id_terminal != 1 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest("No esta permitida esta accion en esta terminal");
 
                 List<Chofer> ChoferesActivos = new();
 

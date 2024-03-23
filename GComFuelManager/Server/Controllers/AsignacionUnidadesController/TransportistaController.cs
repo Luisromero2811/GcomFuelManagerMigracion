@@ -384,12 +384,21 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                if (HttpContext.User.Identity is null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name))
+                    return NotFound();
+
+                var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                    return NotFound();
                 var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
+                if (id_terminal == 0 && !await UserManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
                     return BadRequest();
 
-                if (id_terminal != 1)
-                    return BadRequest("Esta accion no esta permitida en esta terminal.");
+                if (id_terminal != 1 && !await UserManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest("No esta permitida esta accion en esta terminal");
 
 
                 ServiceReference8.BusinessEntityServiceClient client = new(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
@@ -467,7 +476,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     //Lo actualiza
                                     t.Den = transportista.Den;
                                     t.Activo = transportista.Activo;
-                                    t.CarrId = string.IsNullOrEmpty(t.CarrId) ? string.Empty : t.CarrId;
+                                    t.CarrId = string.IsNullOrEmpty(transportista.CarrId) ? string.Empty : transportista.CarrId;
                                     context.Update(t);
                                 }
                                 else

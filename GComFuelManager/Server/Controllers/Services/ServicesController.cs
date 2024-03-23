@@ -796,14 +796,17 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
-        [HttpGet("default/data")]
-        public async Task<ActionResult> Fijar_Datos_Por_Defecto()
+        [HttpGet("default/data/{id_terminal}")]
+        public async Task<ActionResult> Fijar_Datos_Por_Defecto([FromRoute] short id_terminal)
         {
             try
             {
-                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
+                //var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                //if (id_terminal == 0)
+                //    return BadRequest();
+
+                if (!context.Tad.Any(x => x.Cod == id_terminal))
+                    return NotFound();
 
                 var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Activo).Select(x => x.Cod).ToList();
                 List<Cliente_Tad> cliente_Tads = new();

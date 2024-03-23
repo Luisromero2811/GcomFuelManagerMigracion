@@ -61,8 +61,8 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<string?> tads = new();
-                tads = context.Tad.Where(x => x.Activo == true && !string.IsNullOrEmpty(x.Den)).Select(x => x.Den).ToList();
-                return Ok(tads.Order());
+                tads = context.Tad.Where(x => x.Activo == true && !string.IsNullOrEmpty(x.Den)).Select(x => x.Den).OrderBy(x=>x).ToList();
+                return Ok(tads);
             }
             catch (Exception e)
             {
@@ -112,27 +112,9 @@ namespace GComFuelManager.Server.Controllers
 
                     context.Add(terminal);
                     await context.SaveChangesAsync(id, 43);
-
-                    //Consecutivo consecutivo_folio = new()
-                    //{
-                    //    Id_Tad = terminal.Cod,
-                    //    Nombre = "Folio",
-                    //    Numeracion = 0
-                    //};
-                    //context.Add(consecutivo_folio);
-                    //await context.SaveChangesAsync();
-
-                    //Consecutivo consecutivo_orden = new()
-                    //{
-                    //    Id_Tad = terminal.Cod,
-                    //    Nombre = "Orden",
-                    //    Numeracion = 0
-                    //};
-                    //context.Add(consecutivo_orden);
-                    //await context.SaveChangesAsync();
                 }
 
-                return Ok();
+                return Ok(terminal);
             }
             catch (Exception e)
             {
