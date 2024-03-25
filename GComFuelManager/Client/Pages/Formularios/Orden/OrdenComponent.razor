@@ -83,6 +83,13 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" Frozen="true" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Filterable="false" Width="100px">
+                                    <Template Context="data">
+                                        <div>
+                                            @data?.Terminal?.Den
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado" Width="240px">
                                     <FilterTemplate Context="Destinos">
                                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
@@ -168,6 +175,13 @@
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Filterable="false" Width="100px">
+                                    <Template Context="data">
+                                        <div>
+                                            @data?.Terminal?.Den
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinoSeleccionado" Width="240px">
                                     <FilterTemplate Context="Destinos">
                                         <RadzenDropDown Data="DestinoList" @bind-Value="DestinoSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">

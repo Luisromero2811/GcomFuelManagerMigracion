@@ -52,6 +52,7 @@
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Producto</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Precio</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Volumen Cargado</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Unidad de Negocio</th>
                 @*<th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Tipo de Venta</th>*@
             </tr>
         </thead>
@@ -69,7 +70,7 @@
                     <RadzenTextBox @bind-Value="ProductoSeleccionado" />
                 </td>
                 <td></td>
-                @*<td></td>*@
+                <td></td>
             </tr>
             <Virtualize TItem="PrecioBolDTO" Items="PreciosFiltrados" Context="data">
                 <tr style="height:49px;">
@@ -95,7 +96,7 @@
                         @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)
 
                     </td>
-                    @*<td>@data.TipoVenta</td>*@
+                    <td>@data.Unidad_Negocio</td>
                 </tr>
             </Virtualize>
         </tbody>

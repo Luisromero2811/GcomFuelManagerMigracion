@@ -154,10 +154,10 @@
                                         <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
                                     </th>
                                     @*<th>
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
-                                            <i class="fa-regular fa-pen-to-square"></i>
-                                        </button>
-                                    </th>*@
+                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                        </th>*@
                                     <td>@item.Den</td>
                                     <td>
                                         @if (item.Terminales is not null)
@@ -167,7 +167,7 @@
                                                 <span class="badge rounded-pill gcom-bg-rojo me-2">
                                                     @items.Den
 
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
                                                         <i class="fa fa-solid fa-xmark"></i>
                                                     </button>
 
@@ -350,8 +350,6 @@
                 }
                 else
                 {
-                    clienteTadDTO.Clientes = new();
-                    clienteTadDTO.Tads = new();
                     await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
                     Clientes = new();
                     Clientes_Seleccionados = new();
@@ -484,20 +482,6 @@
         }
 
     }
-
-    private void SetCliente(Cliente cliente)
-    {
-        try
-        {
-            Cliente = cliente;
-        }
-        catch (Exception e)
-        {
-            throw e;
-        }
-    }
-
 }
-
 
 

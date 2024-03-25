@@ -537,6 +537,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     && x.FchCierre >= filtroDTO.FchInicio && x.FchCierre <= filtroDTO.FchFin && x.Estatus == true && x.Id_Tad == id_terminal)
                         .Include(x => x.Cliente)
                         .Include(x => x.Producto)
+                        .Include(x => x.Terminal)
                         .Include(x => x.Destino)
                         .Include(x => x.ContactoN)
                         .Include(x => x.OrdenEmbarque)
@@ -558,6 +559,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         cierres = await context.OrdenCierre.Where(x => x.Folio == filtroDTO.Folio && x.Estatus == true && x.Id_Tad == id_terminal)
                             .Include(x => x.Cliente)
                             .Include(x => x.Producto)
+                            .Include(x => x.Terminal)
                             .Include(x => x.Destino)
                             .Include(x => x.ContactoN)
                             .Include(x => x.OrdenEmbarque)
@@ -747,6 +749,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar.Value.Date >= fechas.FchInicio.Date && x.Fchcar.Value.Date <= fechas.FchFin.Date && x.Id_Tad == id_terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
+                    .Include(x => x.Terminal)
                     .IgnoreAutoIncludes()
                     .ToList();
 
@@ -791,7 +794,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     precio.Referencia = item.Ref;
                     precio.BOL = item.BatchId;
                     precio.Volumen_Cargado = item.Vol;
-
+                    precio.Unidad_Negocio = item.Terminal!.Den;
                     if (orden is not null)
                     {
                         if (orden.Producto is not null)

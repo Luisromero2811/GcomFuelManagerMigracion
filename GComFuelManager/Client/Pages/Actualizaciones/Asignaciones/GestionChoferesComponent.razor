@@ -185,7 +185,7 @@
         // await ObtenerEmpresa(string.Empty);
     }
 
-    private async Task  CreateChofer()
+    private async Task CreateChofer()
     {
         try
         {
@@ -200,7 +200,7 @@
             else
             {
                 await Swal.FireAsync("Exito", $"Transportista {chofer.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
-                await GetCliente();
+                //await GetCliente();
                 await GetGrupos();
             }
 
@@ -426,4 +426,3 @@
     }
 
 }
-
