@@ -115,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 return BadRequest(e.Message);
             }
         }
-        
+
         [HttpPost("crearTransportista")]
         public async Task<ActionResult> PostTransportista([FromBody] Transportista transportista)
         {

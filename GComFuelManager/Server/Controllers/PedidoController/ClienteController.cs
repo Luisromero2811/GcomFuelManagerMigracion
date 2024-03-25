@@ -125,11 +125,13 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+
         [HttpPost("relacion")]
         public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
         {
             try
             {
+                //Si el cliente es nulo, retornamos un notfound
                 if (clienteTadDTO is null)
                     return NotFound();
 
@@ -151,6 +153,7 @@ namespace GComFuelManager.Server.Controllers
                 await context.SaveChangesAsync();
 
                 return Ok();
+
             }
             catch (Exception e)
             {
