@@ -94,24 +94,24 @@ namespace GComFuelManager.Server.Controllers.Emails
         {
             try
             {
-                var clientes = precios.DistinctBy(x => x.NombreCliente).Select(x => x.codCte);
+                var clientes = precios.DistinctBy(x => x.NombreCliente).Select(x => x.CodCte);
                 foreach (var item in clientes)
                 {
-                    var list = precios.Where(x => x.codCte == item);
+                    var list = precios.Where(x => x.CodCte == item);
 
                     EmailContent<Precio> emailContent = new EmailContent<Precio>();
 
                     var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
                     emailContent.CC = cc;
 
-                    var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == precios.FirstOrDefault().codCte && x.Contacto.Estado == true
+                    var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == precios.FirstOrDefault().CodCte && x.Contacto.Estado == true
                         && x.Accion.Nombre.Equals("Precios"))
                             .Include(x => x.Accion)
                             .Include(x => x.Contacto)
                             .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
                             .AsEnumerable();
 
-                    var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == precios.FirstOrDefault()!.codCte && x.Estado == true);
+                    var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == precios.FirstOrDefault()!.CodCte && x.Estado == true);
                     if (contacto is null)
                         return BadRequest("No tiene un contacto asignado");
 

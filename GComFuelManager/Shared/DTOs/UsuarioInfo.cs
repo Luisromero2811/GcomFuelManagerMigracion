@@ -30,5 +30,6 @@ namespace GComFuelManager.Shared.DTOs
         public bool passwordView { get; set; } = true;
         [NotMapped]
         public bool ShowUsersActions { get; set; } = false;
+        public string Terminal { get; set; } = string.Empty;
     }
 }

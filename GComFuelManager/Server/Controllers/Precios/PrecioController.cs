@@ -77,11 +77,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                         Precio precio = new()
                         {
                             Pre = item.Precio,
-                            codCte = item.CodCte,
-                            codDes = item.CodDes,
-                            codPrd = item.CodPrd,
-                            codGru = item.Cliente?.codgru,
-                            codZona = zona?.CteCod,
+                            CodCte = item.CodCte,
+                            CodDes = item.CodDes,
+                            CodPrd = item.CodPrd,
+                            CodGru = item.Cliente?.codgru,
+                            CodZona = zona?.CteCod,
                             Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
                         };
                         precios.Add(precio);
@@ -89,8 +89,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return Ok(precios);
                 }
 
-                precios = await context.Precio.Where(x => x.codCte == userSis.CodCte && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
+                precios = await context.Precio.Where(x => x.CodCte == userSis.CodCte && x.CodDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.CodZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
 
@@ -111,27 +111,27 @@ namespace GComFuelManager.Server.Controllers.Precios
                     DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    preciosPro = await context.PrecioProgramado.Where(x => x.codCte == userSis.CodCte
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
+                    preciosPro = await context.PrecioProgramado.Where(x => x.CodCte == userSis.CodCte
+                    && x.CodDes == zonaCliente.DesCod && x.Activo == true)
+                    //&& x.CodZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
 
                     foreach (var item in preciosPro)
                     {
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).Pre = item.Pre;
-                        precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
-                        var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                        precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd && x.FchDia < item.FchDia).Pre = item.Pre;
+                        precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd && x.FchDia < item.FchDia).FchDia = item.FchDia;
+                        var pre = precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd);
                         if (pre is null)
                         {
                             precios.Add(new Precio()
                             {
                                 Pre = item.Pre,
-                                codCte = item.codCte,
-                                codDes = item.codDes,
-                                codPrd = item.codPrd,
-                                codGru = item.Cliente?.codgru,
-                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
+                                CodCte = item.CodCte,
+                                CodDes = item.CodDes,
+                                CodPrd = item.CodPrd,
+                                CodGru = item.Cliente?.codgru,
+                                Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
                             });
                         }
                     }
@@ -152,10 +152,11 @@ namespace GComFuelManager.Server.Controllers.Precios
             {
                 List<PrecioBol> precios = new();
 
-                var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
+                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
                     .ToList();
 
                 if (ordenes is null)
@@ -166,7 +167,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     PrecioBol precio = new();
 
                     Orden? orden = new();
-                    orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
+                    orden = context.Orden.IgnoreAutoIncludes().Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.Terminal).FirstOrDefault();
 
                     precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
 
@@ -179,6 +180,13 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                         if (orden.Destino is not null)
                             precio.Destino_Synthesis = orden.Destino.Den ?? string.Empty;
+
+                        if (orden.Terminal is not null)
+                            if (!string.IsNullOrEmpty(orden.Terminal.Den))
+                            {
+                                precio.Terminal_Final = orden.Terminal.Den;
+                                precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
+                            }
 
                         precio.BOL = orden.BatchId ?? 0;
                         precio.Volumen_Cargado = orden.Vol;
@@ -196,29 +204,43 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
 
                         if (item.Producto is not null)
-                            precio.Producto_Original = item.Producto.Den ?? "";
+                            if (!string.IsNullOrEmpty(item.Producto.Den))
+                                precio.Producto_Original = item.Producto.Den;
+
+                        if (item.Tad is not null)
+                            if (!string.IsNullOrEmpty(item.Tad.Den))
+                            {
+                                precio.Terminal_Original = item.Tad.Den;
+                                precio.Codigo_Terminal_Original = item.Tad.Codigo;
+                            }
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioVig = context.Precio.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.Id_Tad == item.Codtad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioVig = context.Precio.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.Id_Tad == item.Codtad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).Include(x => x.Moneda).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioPro = context.PrecioProgramado.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
-                        && x.FchDia <= DateTime.Today)
-                        .Include(x => x.Moneda)
+                    var precioHis = context.PreciosHistorico.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.FchDia <= DateTime.Today && x.Id_Tad == item.Codtad)
                         .OrderByDescending(x => x.FchActualizacion)
                         .FirstOrDefault();
 
                     if (orden is not null)
-                        precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                        && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
-                            .Include(x => x.Moneda)
+                        precioHis = context.PreciosHistorico.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date && x.Id_Tad == orden.Id_Tad)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
@@ -232,7 +254,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         precio.Tipo_De_Cambio = precioHis?.Equibalencia ?? 1;
                     }
 
-                    if (item != null && precioVig is not null && orden is null || orden is not null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
+                    if (item != null && precioVig is not null && orden is null || orden is not null && precioVig is not null)
                     {
                         if (precioVig.FchDia == DateTime.Today)
                         {
@@ -245,8 +267,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
                     }
 
-                    if (item != null && precioPro is not null && context.PrecioProgramado.Any() && orden is null
-                        || orden is not null && precioPro is not null && context.PrecioProgramado.Any() && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
+                    if (item != null && precioPro is not null && context.PrecioProgramado.Any() || orden is not null && precioPro is not null && context.PrecioProgramado.Any())
                     {
                         if (precioPro.FchDia == DateTime.Today)
                         {
@@ -354,15 +375,15 @@ namespace GComFuelManager.Server.Controllers.Precios
         //                precio.Producto_Original = orden.Producto.Den ?? "";
         //        }
 
-        //        var precioVig = context.Precio.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+        //        var precioVig = context.Precio.Where(x => ordenes != null && x.CodDes == ordenes.CodDes && x.CodPrd == ordenes.CodPrd)
         //            .OrderByDescending(x => x.FchDia)
         //            .FirstOrDefault();
 
-        //        var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+        //        var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.CodDes == ordenes.CodDes && x.CodPrd == ordenes.CodPrd)
         //            .OrderByDescending(x => x.FchDia)
         //            .FirstOrDefault();
 
-        //        var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd
+        //        var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.CodDes == ordenes.CodDes && x.CodPrd == ordenes.CodPrd
         //            && ordenes.Fchcar != null && x.FchDia <= ordenes.Fchcar.Value.Date)
         //            .OrderByDescending(x => x.FchDia)
         //            .FirstOrDefault();
@@ -404,7 +425,7 @@ namespace GComFuelManager.Server.Controllers.Precios
         //            if (ordenepedido is not null)
         //            {
         //                var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
-        //                 && x.CodPrd == orden.Codprd).FirstOrDefault();
+        //                 && x.CodPrd == orden.CodPrd).FirstOrDefault();
 
         //                if (cierre is not null)
         //                {
@@ -458,6 +479,10 @@ namespace GComFuelManager.Server.Controllers.Precios
             public string? Cliente_Original { get; set; } = string.Empty;
             public double? Volumen_Cargado { get; set; } = 0;
             public string Folio_Cierre { get; set; } = string.Empty;
+            public string Terminal_Original { get; set; } = string.Empty;
+            public string Codigo_Terminal_Original { get; set; } = string.Empty;
+            public string Terminal_Final { get; set; } = string.Empty;
+            public string Codigo_Terminal_Final { get; set; } = string.Empty;
         }
     }
 }

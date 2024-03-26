@@ -40,31 +40,57 @@ namespace GComFuelManager.Server.Controllers.Auth
         {
             try
             {
+
                 var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
                 if (usuario == null)
-                    return BadRequest();
+                    return BadRequest("El usuario no tiene acceso al sistema");
 
-                if(usuario!.Activo == true)
+                if (usuario!.Activo == true)
                 {
-                    var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
-                    if (resultado.Succeeded)
+
+                    var user_asp = await userManager.FindByNameAsync(info.UserName);
+                    if (user_asp == null)
+                        return BadRequest("El usuario no tiene acceso al sistema");
+
+                    var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
+                    if (terminal is null)
                     {
-                        var token = await BuildToken(info);
-                        return Ok(token);
+                        var user = await userManager.FindByNameAsync(info.UserName);
+                        if (user is not null)
+                        {
+                            if (await userManager.IsInRoleAsync(user, "Obtencion de Ordenes") || await userManager.IsInRoleAsync(user, "Consulta Precios"))
+                            {
+                                terminal = new() { Cod = 0 };
+                                info.Terminal = "Interno";
+                            }
+                            else
+                                return BadRequest("No tiene acceso a esta terminal");
+                        }
+                        else
+                            return BadRequest("No tiene acceso a esta terminal");
+                    }
+
+                    if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal!.Cod))
+                    {
+                        var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
+                        if (resultado.Succeeded)
+                        {
+                            var token = await BuildToken(info);
+
+                            return Ok(token);
+                        }
+                        else
+                            return BadRequest("Nombre de usuario y/o contraseña no validos");
                     }
                     else
-                    {
-                        return BadRequest();
-                    }
+                        return BadRequest("No tiene acceso a esta terminal");
                 }
                 else
-                {
-                    return BadRequest();
-                }
+                    return BadRequest("El usuario no tiene acceso al sistema");
             }
             catch (Exception e)
             {
-                return BadRequest(e.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error interno del servidor al iniciar sesion.");
             }
         }
 

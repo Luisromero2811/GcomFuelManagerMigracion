@@ -221,43 +221,43 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //Precio - cliente
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //Precio - Producto
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //Precio - Destino
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
 
             //PrecioHistorico - Zona
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //PrecioHistorico - cliente
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //PrecioHistorico - Producto
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //PrecioHistorico - Destino
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
 
             modelBuilder.Entity<ZonaCliente>()
                 .HasOne(x => x.Zona)
@@ -312,22 +312,22 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //Precio - cliente
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //Precio - Producto
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //Precio - Destino
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
 
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Moneda)
@@ -343,6 +343,13 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Moneda)
                 .WithMany()
                 .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
+
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
         }
 
         public DbSet<Chofer> Chofer { get; set; }
@@ -371,5 +378,6 @@ namespace GComFuelManager.Server
         public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
         public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
+        public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
     }
 }
