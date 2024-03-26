@@ -2109,6 +2109,9 @@ namespace GComFuelManager.Server.Controllers
 
                 var user = context.Usuario.Find(usuario.UserCod);
                 if(user is null) { return NotFound(); }
+
+                //var bol_embarque
+
                 var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
                 if (ordenembarque is null) { return NotFound(); }
 
