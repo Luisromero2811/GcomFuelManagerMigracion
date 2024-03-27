@@ -25,7 +25,7 @@
                             </div>
                             <div class="col-3">
                                 <label>ID Destino Gobierno</label>
-                                <InputNumber @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="10"/>
+                                <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="10"/>
                             </div>
                             <div class="col-3 d-flex mt-auto">
                                 <button class="col-12 btn gcom-bg-amarillo" type="submit">
@@ -222,7 +222,6 @@
                 await Swal.FireAsync("Exito", $"Destino {Destino.Den} creado exitosamente", SweetAlertIcon.Success);
                 StateHasChanged();
                 await GetDestinos();
-                await ChangeDestinos();
             }
 
         }

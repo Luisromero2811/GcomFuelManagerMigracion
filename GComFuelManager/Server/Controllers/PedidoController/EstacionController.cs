@@ -180,6 +180,13 @@ namespace GComFuelManager.Server.Controllers
                 if (destino.Cod == 0)
                 {
                     destino.Id_Tad = id_terminal;
+                    //Con Any compruebo si el número aleatorio existe en la BD
+                    var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno);
+                    //Si ya existe, genera un nuevo número Random
+                    if (exist)
+                    {
+                        return BadRequest();
+                    }
                     //Agregamos cliente
                     context.Add(destino);
                 }

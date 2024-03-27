@@ -21,7 +21,7 @@
                         <div class="col-12 row">
                             <div class="col-3">
                                 <label>Grupo:</label>
-                                <RadzenDropDown @bind-Value="Cliente.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den"
+                                <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                 </RadzenDropDown>
@@ -242,7 +242,7 @@
     {
         try
         {
-            if (Cliente.grupo == null)
+            if (Cliente.Codgru == null)
             {
                 await Swal.FireAsync("Alerta", "Seleccione un grupo.", SweetAlertIcon.Warning);
             }
