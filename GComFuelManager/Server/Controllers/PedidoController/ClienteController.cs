@@ -106,7 +106,6 @@ namespace GComFuelManager.Server.Controllers
                 //Si el cliente viene en ceros del front lo agregamos como nuevo sino actualizamos
                 if (cliente.Cod == 0)
                 {
-                    cliente.Codgru = cliente.grupo!.Cod;
                     cliente.Id_Tad = id_terminal;
                     //Agregamos cliente
                     context.Add(cliente);

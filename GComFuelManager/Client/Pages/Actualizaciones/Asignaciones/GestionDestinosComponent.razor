@@ -1,4 +1,4 @@
-﻿@inject IRepositorio repositorio
+@inject IRepositorio repositorio
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService Ns
@@ -222,7 +222,6 @@
                 await Swal.FireAsync("Exito", $"Destino {Destino.Den} creado exitosamente", SweetAlertIcon.Success);
                 StateHasChanged();
                 await GetDestinos();
-                await ChangeDestinos();
             }
 
         }
