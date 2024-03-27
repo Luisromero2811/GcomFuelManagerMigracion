@@ -186,6 +186,7 @@
             else
             {
                 await Swal.FireAsync("Exito", $"Transportista {transportista.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                await GetCliente();
             }
 
         }

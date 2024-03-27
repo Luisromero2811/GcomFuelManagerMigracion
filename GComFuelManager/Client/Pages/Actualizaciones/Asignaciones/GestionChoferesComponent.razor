@@ -57,7 +57,7 @@
         <div class="col-12 row">
             <div class="col-3">
                 <label>Empresa Transportista</label>
-                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.Codtransport"
+                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.CodTra"
                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 AllowVirtualization="true" Change="@GetCliente" Style="height:20px">
                     <Template Context="data">
@@ -109,6 +109,7 @@
                                        @onchange="args => CheckItemAll(args?.Value)" />
                             </th>
                             <th>Choferes</th>
+                            <th></th>
                             <th>Unidades de Negocio</th>
                         </tr>
                     </thead>
@@ -121,7 +122,8 @@
                                         @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
                                         <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Chofer_Seleccionados.Contains(item))" @onchange="args => { CheckChofer(item, args?.Value); }" />
                                     </th>
-                                    <td>@item.FullName</td>
+                                    <td>@item.Den</td>
+                                    <td>@item.Shortden</td>
                                     <td>
                                         @if (item.Terminales is not null)
                                         {
@@ -199,9 +201,9 @@
             }
             else
             {
-                await Swal.FireAsync("Exito", $"Transportista {chofer.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
-                //await GetCliente();
+                await Swal.FireAsync("Exito", $"Chofer {chofer.Den} asignado a transportista seleccionado", SweetAlertIcon.Success);
                 await GetGrupos();
+                await GetCliente();
             }
 
         }
@@ -284,7 +286,7 @@
     {
         try
         {
-            string? busentid = Grupos.FirstOrDefault(x => x.Cod == chofer.Codtransport)?.Busentid;
+            string? busentid = Grupos.FirstOrDefault(x => x.Cod == chofer.CodTra)?.Busentid;
             var response = await repositorio.Get<List<Chofer>>($"api/chofer/listado/{busentid}");
             if (response.Error)
             {

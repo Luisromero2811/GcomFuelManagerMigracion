@@ -1,6 +1,8 @@
 ﻿@inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
+@inject TooltipService ts
+@inject IJSRuntime JS
 @attribute [Authorize]
 
 <div class="col-12 card shadow-sm">
@@ -40,7 +42,7 @@
         </div>
         <div class="col-12 row my-2">
             <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
-                <div class="col-12 row">
+                <div class="col-12 row d-flex">
                     <div class="col-4 my-1">
                         <label>BOL / Embarque</label>
                         <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" />
@@ -56,18 +58,212 @@
                         <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
                         <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
                     </div>
-                    <div class="col-4 my-1">
+                </div>
+                <div class="col-12 d-flex justify-content-center mt-2">
+                    <div class="col-4">
                         <button class="col-12 btn btn-sm gcom-bg-amarillo">
                             Guardar
                         </button>
                     </div>
                 </div>
-
             </EditForm>
         </div>
     </div>
 </div>
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
+    <!--Segundo formulario para exportación de ETA-->
+    <div class="col-12 card shadow mt-3 mb-5">
+        <div class="card-body">
+            <EditForm Model="@ordenEmbarque">
+                <div class="row g3 d-flex">
+                    <div class="row justify-content-center">
+                        <label><b>Reporte</b></label>
+                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                            <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha final</label>
+                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
+                        </div>
+                        <div class="col-md-4">
+                            <label></label>
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
+                        </div>
+                    </div>
+                    <!--RadioButtons-->
+                    <div class="row col-12 mt-3" style="text-align: center;">
+                        <div style="text-align: center;">
+                            <label style="text-align: center;">Modelos de Venta (Rack, Delivery's Interno-Externo)</label>
+                        </div>
+                    </div>
+                    <div class="row col-12 mt-3">
+                        <div class="d-flex justify-content-center">
+                            @*<label>Modelos de Venta</label>*@
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                <label class="form-check-label" for="Ambas">Ambos Delivery's</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                <label class="form-check-label" for="Interno">Interno</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                <label class="form-check-label" for="Externo">Externo</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                <label class="form-check-label" for="Todos">Delivery-Rack</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--Tabla de muestreo de datos-->
+                <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
+                    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                        <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                            <thead class="fila" style="position: sticky;">
+                                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
+                                    <th>
+                                        Referencia
+                                    </th>
+                                    <th>
+                                        Fecha de Programa
+                                    </th>
+                                    <th>
+                                        Unidad de Negocio
+                                    </th>
+                                    <th>
+                                        Estatus de Orden
+                                    </th>
+                                    <th style="max-width:200px; position: sticky;">
+                                        Fecha de Carga
+                                    </th>
+                                    <th>
+                                        BOL
+                                    </th>
+                                    <th>
+                                        Tipo de Venta
+                                    </th>
+                                    <th>
+                                        Cliente
+                                    </th>
+                                    <th>
+                                        Destino
+                                    </th>
+                                    <th>
+                                        Producto
+                                    </th>
+                                    <th>
+                                        Volumen Natural
+                                    </th>
+                                    <th>
+                                        Volumen Cargado
+                                    </th>
+                                    <th>
+                                        Transportista
+                                    </th>
+                                    <th>
+                                        Unidad
+                                    </th>
+                                    <th>
+                                        Operador
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="sticky-column" style="background-color:white;"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                <Virtualize Items="@ordens" Context="data" TItem="EtaNTDTO">
+                                    <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
+
+
+                                        <td>@data?.Referencia</td>
+                                        <td style="max-width:200px; text-align: center;">
+                                            <p class="text-break">
+                                                @*@data?.FechaPrograma*@
+                                                @*@(data?.orden.BatchId is null ? data?.orden.Fchcar : data?.ordenEmbarque?.Fchcar )*@
+                                                @*@(data?.Bol is null ? data?.FechaPrograma : data?.FechaCargaEmbarque)*@
+                                                @data?.FechaPrograma
+                                            </p>
+                                        </td>
+                                        <td>@data?.Unidad_Negocio</td>
+                                        <td>@data?.EstatusOrden</td>
+                                        <td>
+                                            @*@data?.FechaCarga*@
+                                            @*@(data?.orden?.Fchcar is not null && data?.orden.BatchId is not null ? data?.orden.Fchcar : "")*@
+                                            @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
+                                        </td>
+                                        <td>@data?.Bol</td>
+                                        <td style="text-align: center;">
+                                            @data?.DeliveryRack
+                                        </td>
+                                        <td>@data?.Cliente</td>
+                                        <td>@data?.Destino</td>
+                                        <td>@data?.Producto</td>
+                                        <!--Volumen Natural-->
+                                        <td style="text-align: center;">
+                                            @data?.Volms
+                                            @*@(data?.Bol is not null ? data?.Volms : data?.VolumenN)*@
+                                        </td>
+                                        <td style="text-align: center;">@data?.Vols</td>
+                                        <td>@data?.Transportista</td>
+                                        <td>@data?.Unidad</td>
+                                        <td>@data?.Operador</td>
+                                        @*<td style="text-align: center;">@data?.FechaDoc?</td>*@
+                                        <!--Horas Estimadas de Viaje-->
+                                        @*<td>@data?.Eta</td>
+                                        <td>@data?.FechaEst</td>
+                                        <td style="text-align: center;">@data?.Trayecto</td>
+                                        <td>@data?.Observaciones</td>
+                                        <td style="text-align: center;">@data?.FechaRealEta</td>
+                                        <td>@data?.EntLit</td>*@
+                                        @*@(data?.Compartimento == 1 ? data.Capcom
+                                            : data?.Compartimento == 2 ? data.Capcom2
+                                            : data?.Compartimento == 3 ? data.Capcom3
+                                            : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
+                                            : data?.Volms)*@
+                                    </tr>
+                                </Virtualize>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row justify-content-end me-3 mt-3 mb-3">
+                    <div class="col-3 mt-3 mb-3">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</AuthorizeView>
+
 @code {
+    EtaNTDTO etaDto = new EtaNTDTO();
+    private List<EtaNTDTO> ordens { get; set; } = new List<EtaNTDTO>();
+    FechasF fechas = new FechasF();
+    ElementReference infosIcon;
+    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de obtener órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
+
     Folio_Activo_Vigente folio_ { get; set; } = new();
     OrdenEmbarque ordenEmbarque { get; set; } = new();
     Orden Datos_BOL = new();
@@ -140,4 +336,65 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    public async Task MostrarEtaFecha()
+    {
+        try
+        {
+            var responseHttp = await http.Post<FechasF, List<EtaNTDTO>?>($"api/Eta/Reportesnotuxpan", fechas);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response!;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            var responseHttp = await http.Post<FechasF, List<EtaNTDTO>?>($"api/Eta/Reportesnotuxpan", fechas);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response!;
+                //Licencia para guardado de Excel
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                //Generacion de Excel
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                worksheet.Columns.Width = 49;
+                worksheet.Columns.AutoFit();
+                //Formación de Excel
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
+                    ordens
+                  , true);
+                tablebody.Style.Font.Bold = true;
+                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                var header = worksheet.Cells["A1:O1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //Guardar Excell
+                await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }

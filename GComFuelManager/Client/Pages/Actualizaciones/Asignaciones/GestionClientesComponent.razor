@@ -258,6 +258,7 @@
                 {
                     await Swal.FireAsync("Exito", $"Cliente {Cliente.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
                     StateHasChanged();
+                    await GetCliente();
                 }
             }
 
