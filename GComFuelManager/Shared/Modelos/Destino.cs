@@ -35,6 +35,8 @@ namespace GComFuelManager.Shared.Modelos
         public long? CodGamo { get; set; } = 0;
         public short? Id_Tad { get; set; }
 
+        public int? Id_DestinoGobierno { get; set; } 
+
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
         [NotMapped] public Cliente? Cliente { get; set; } = null!;

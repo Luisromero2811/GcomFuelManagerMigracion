@@ -239,8 +239,10 @@
             }
             else
             {
-                await Swal.FireAsync("Exito", $"Transportista {Unidad.Placa} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                await Swal.FireAsync("Exito", $"Unidad {Unidad.Placa} asignado a transportista seleccionado", SweetAlertIcon.Success);
                 //await ObtenerChoferes(string.Empty);
+                await GetGrupos();
+                await GetCliente();
             }
 
         }

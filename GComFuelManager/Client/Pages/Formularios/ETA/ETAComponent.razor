@@ -25,10 +25,10 @@
                                 <RadzenNumeric Change="@GetEta" class="form-control" @bind-value="@Ordenes.Bol" TValue="int?" />
                             </div>
                             @* <div class="col-1 mt-4">
-                        <button class="btn gcom-bg-amarillo col-12">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        </button>
-                        </div> *@
+                                <button class="btn gcom-bg-amarillo col-12">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                                </div> *@
                         </div>
                     </div>
                 </AuthorizeView>
@@ -38,7 +38,7 @@
                             <div class="col-4">
                                 <label>Fecha documentación:</label>
                                 <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                                @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
+                                                  @bind-Value="Ordenes.FchDoc"></RadzenDatePicker>
                             </div>
                             <div class="col-4">
                                 <label>ETA:</label>
@@ -48,7 +48,7 @@
                             <div class="col-4">
                                 <label>Fecha de llegada estimada:</label>
                                 <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                                @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
+                                                  @bind-Value="Ordenes.Fchlleest"></RadzenDatePicker>
                             </div>
                         </div>
                     </div>
@@ -86,9 +86,6 @@
                         </AuthorizeView>
                     </div>
                 </div>
-
-
-
                 <AuthorizeView Roles="Admin, Administrador Sistema, Capturista Recepcion Producto, Comprador" Context="EtaReal">
                     <!--btn look-->
                     <div class="row d-flex g-3">
@@ -99,7 +96,7 @@
                         <div class="col-6">
                             <label>Fecha real de llegada a destino:</label>
                             <RadzenDatePicker class="col-12" ShowTime="true" Culture="CultureInfo.CurrentCulture" ShowSeconds="true"
-                            @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
+                                              @bind-Value="Ordenes.Fchrealledes"></RadzenDatePicker>
                         </div>
                         <div class="col-6" @onmouseenter="@(args => ShowToolTips(infoIcons))" @ref="infoIcons">
                             <label>Cantidad de litros recibidos:</label><i class="fa-solid fa-circle-info fa-xs"></i>
@@ -131,253 +128,225 @@
             </EditForm>
         </div>
     </div>
+
+    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
+        <!--Segundo formulario para exportación de ETA-->
+        <div class="col-12 card shadow mt-3 mb-5">
+            <div class="card-body">
+                <EditForm Model="@ordenEmbarque">
+                    <div class="row g3 d-flex">
+                        <div class="row justify-content-center">
+                            <label><b>Reporte</b></label>
+                            <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                                <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                                <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
+                            </div>
+                            <div class="col-md-4">
+                                <label>Fecha final</label>
+                                <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
+                            </div>
+                            <div class="col-md-4">
+                                <label></label>
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
+                            </div>
+                        </div>
+                        <!--RadioButtons-->
+                        <div class="row col-12 mt-3" style="text-align: center;">
+                            <div style="text-align: center;">
+                                <label style="text-align: center;">Modelos de Venta (Rack, Delivery's Interno-Externo)</label>
+                            </div>
+                        </div>
+                        <div class="row col-12 mt-3">
+                            <div class="d-flex justify-content-center">
+                                @*<label>Modelos de Venta</label>*@
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                    <label class="form-check-label" for="Ambas">Ambos Delivery's</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                    <label class="form-check-label" for="Interno">Interno</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                    <label class="form-check-label" for="Externo">Externo</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                    <label class="form-check-label" for="Todos">Delivery-Rack</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Tabla de muestreo de datos-->
+                    <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
+                        <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                            <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                                <thead class="fila" style="position: sticky;">
+                                    <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
+                                        <th>
+                                            Referencia
+                                        </th>
+                                        <th>
+                                            Fecha de Programa
+                                        </th>
+                                        <th>
+                                            Unidad de Negocio
+                                        </th>
+                                        <th>
+                                            Estatus de Orden
+                                        </th>
+                                        <th style="max-width:200px; position: sticky;">
+                                            Fecha de Carga
+                                        </th>
+                                        <th>
+                                            BOL
+                                        </th>
+                                        <th>
+                                            Tipo de Venta
+                                        </th>
+                                        <th>
+                                            Cliente
+                                        </th>
+                                        <th>
+                                            Destino
+                                        </th>
+                                        <th>
+                                            Producto
+                                        </th>
+                                        <th>
+                                            Volumen Natural
+                                        </th>
+                                        <th>
+                                            Volumen Cargado
+                                        </th>
+                                        <th>
+                                            Transportista
+                                        </th>
+                                        <th>
+                                            Unidad
+                                        </th>
+                                        <th>
+                                            Operador
+                                        </th>
+                                        <th>
+                                            Fecha Documentación
+                                        </th>
+                                        <th>
+                                            Horas Estimadas de Viaje
+                                        </th>
+                                        <th>
+                                            ETA
+                                        </th>
+                                        <th>
+                                            Estado de Orden
+                                        </th>
+                                        <th>
+                                            Observaciones
+                                        </th>
+                                        <th>
+                                            Fecha real de llegada
+                                        </th>
+                                        <th>
+                                            Litros entregados
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="sticky-column" style="background-color:white;"></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    <Virtualize Items="@ordens" Context="data" TItem="EtaDTO">
+                                        <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
+
+
+                                            <td>@data?.Referencia</td>
+                                            <td style="max-width:200px; text-align: center;">
+                                                <p class="text-break">
+                                                    @*@data?.FechaPrograma*@
+                                                    @*@(data?.orden.BatchId is null ? data?.orden.Fchcar : data?.ordenEmbarque?.Fchcar )*@
+                                                    @*@(data?.Bol is null ? data?.FechaPrograma : data?.FechaCargaEmbarque)*@
+                                                    @data?.FechaPrograma
+                                                </p>
+                                            </td>
+                                            <td>@data?.Unidad_Negocio</td>
+                                            <td>@data?.EstatusOrden</td>
+                                            <td>
+                                                @*@data?.FechaCarga*@
+                                                @*@(data?.orden?.Fchcar is not null && data?.orden.BatchId is not null ? data?.orden.Fchcar : "")*@
+                                                @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
+                                            </td>
+                                            <td>@data?.Bol</td>
+                                            <td style="text-align: center;">
+                                                @data?.DeliveryRack
+                                            </td>
+                                            <td>@data?.Cliente</td>
+                                            <td>@data?.Destino</td>
+                                            <td>@data?.Producto</td>
+                                            <!--Volumen Natural-->
+                                            <td style="text-align: center;">
+                                                @data?.Volms
+                                                @*@(data?.Bol is not null ? data?.Volms : data?.VolumenN)*@
+                                            </td>
+                                            <td style="text-align: center;">@data?.Vols</td>
+                                            <td>@data?.Transportista</td>
+                                            <td>@data?.Unidad</td>
+                                            <td>@data?.Operador</td>
+                                            <td style="text-align: center;">@data?.FechaDoc?</td>
+                                            <!--Horas Estimadas de Viaje-->
+                                            <td>@data?.Eta</td>
+                                            <td>@data?.FechaEst</td>
+                                            <td style="text-align: center;">@data?.Trayecto</td>
+                                            <td>@data?.Observaciones</td>
+                                            <td style="text-align: center;">@data?.FechaRealEta</td>
+                                            <td>@data?.EntLit</td>
+                                            @*@(data?.Compartimento == 1 ? data.Capcom
+                                                : data?.Compartimento == 2 ? data.Capcom2
+                                                : data?.Compartimento == 3 ? data.Capcom3
+                                                : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
+                                                : data?.Volms)*@
+                                        </tr>
+                                    </Virtualize>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row justify-content-end me-3 mt-3 mb-3">
+                        <div class="col-3 mt-3 mb-3">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </AuthorizeView>
 }
 else
 {
     <GComFuelManager.Client.Pages.Formularios.Orden.Asignar_Embarque_Orden_Componente></GComFuelManager.Client.Pages.Formularios.Orden.Asignar_Embarque_Orden_Componente>
 }
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
-    <!--Segundo formulario para exportación de ETA-->
-    <div class="col-12 card shadow mt-3 mb-5">
-        <div class="card-body">
-            <EditForm Model="@ordenEmbarque">
-                <div class="row g3 d-flex">
-                    <div class="row justify-content-center">
-                        <label><b>Reporte</b></label>
-                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
-                            <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
-                        </div>
-                        <div class="col-md-4">
-                            <label>Fecha final</label>
-                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
-                        </div>
-                        @*<div class="col-md-3" @onmouseenter="@(args => ShowToolsTip(infossIcon))" @ref="infossIcon">
-                        <label>Modelo de Venta (Solo Delivery)</label><i class="fa-solid fa-circle-info fa-xs"></i>
-                        <InputSelect class="form-select" @bind-Value="@fechas.TipVenta">
-                        <option value="">--Seleccione una opcion--</option>
-                        @if (TpVenta is null)
-                        {
-                        <option disabled> Cargando ...</option>
-                        }
-                        @if (TpVenta.Count == 0)
-                        {
-                        <option disabled> No hay tipos de venta</option>
-                        }
-                        else
-                        {
-                        foreach (var item in TpVenta)
-                        {
-                        <option value="@item">@item</option>
-                        }
-                        }
-
-                        </InputSelect>
-                        </div>*@
-                        @*<div class="col-md-1">
-                        <label></label>
-                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@ClearForm">
-                        <i class="fa fa-solid fa-broom"></i>
-                        </button>
-                        </div>*@
-                        <div class="col-md-4">
-                            <label></label>
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
-                        </div>
-                    </div>
-                    <!--RadioButtons-->
-                    <div class="row col-12 mt-3" style="text-align: center;">
-                        <div style="text-align: center;">
-                            <label style="text-align: center;">Modelos de Venta (Rack, Delivery's Interno-Externo)</label>
-                        </div>
-                    </div>
-                    <div class="row col-12 mt-3">
-                        <div class="d-flex justify-content-center">
-                            @*<label>Modelos de Venta</label>*@
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
-                                <label class="form-check-label" for="Ambas">Ambos Delivery's</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
-                                <label class="form-check-label" for="Interno">Interno</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                <label class="form-check-label" for="Externo">Externo</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
-                                <label class="form-check-label" for="Todos">Delivery-Rack</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Tabla de muestreo de datos-->
-                <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
-                    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
-                        <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
-                            <thead class="fila" style="position: sticky;">
-                                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
-                                    <th>
-                                        Referencia
-                                    </th>
-                                    <th>
-                                        Fecha de Programa
-                                    </th>
-                                    <th>
-                                        Unidad de Negocio
-                                    </th>
-                                    <th>
-                                        Estatus de Orden
-                                    </th>
-                                    <th style="max-width:200px; position: sticky;">
-                                        Fecha de Carga
-                                    </th>
-                                    <th>
-                                        BOL
-                                    </th>
-                                    <th>
-                                        Tipo de Venta
-                                    </th>
-                                    <th>
-                                        Cliente
-                                    </th>
-                                    <th>
-                                        Destino
-                                    </th>
-                                    <th>
-                                        Producto
-                                    </th>
-                                    <th>
-                                        Volumen Natural
-                                    </th>
-                                    <th>
-                                        Volumen Cargado
-                                    </th>
-                                    <th>
-                                        Transportista
-                                    </th>
-                                    <th>
-                                        Unidad
-                                    </th>
-                                    <th>
-                                        Operador
-                                    </th>
-                                    <th>
-                                        Fecha Documentación
-                                    </th>
-                                    <th>
-                                        Horas Estimadas de Viaje
-                                    </th>
-                                    <th>
-                                        ETA
-                                    </th>
-                                    <th>
-                                        Estado de Orden
-                                    </th>
-                                    <th>
-                                        Observaciones
-                                    </th>
-                                    <th>
-                                        Fecha real de llegada
-                                    </th>
-                                    <th>
-                                        Litros entregados
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="sticky-column" style="background-color:white;"></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                </tr>
-                                <Virtualize Items="@ordens" Context="data" TItem="EtaDTO">
-                                    <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
-
-
-                                        <td>@data?.Referencia</td>
-                                        <td style="max-width:200px; text-align: center;">
-                                            <p class="text-break">
-                                                @*@data?.FechaPrograma*@
-                                                @*@(data?.orden.BatchId is null ? data?.orden.Fchcar : data?.ordenEmbarque?.Fchcar )*@
-                                                @*@(data?.Bol is null ? data?.FechaPrograma : data?.FechaCargaEmbarque)*@
-                                                @data?.FechaPrograma
-                                            </p>
-                                        </td>
-                                        <td>@data?.Unidad_Negocio</td>
-                                        <td>@data?.EstatusOrden</td>
-                                        <td>
-                                            @*@data?.FechaCarga*@
-                                            @*@(data?.orden?.Fchcar is not null && data?.orden.BatchId is not null ? data?.orden.Fchcar : "")*@
-                                            @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
-                                        </td>
-                                        <td>@data?.Bol</td>
-                                        <td style="text-align: center;">
-                                            @data?.DeliveryRack
-                                        </td>
-                                        <td>@data?.Cliente</td>
-                                        <td>@data?.Destino</td>
-                                        <td>@data?.Producto</td>
-                                        <!--Volumen Natural-->
-                                        <td style="text-align: center;">
-                                            @data?.Volms
-                                            @*@(data?.Bol is not null ? data?.Volms : data?.VolumenN)*@
-                                        </td>
-                                        <td style="text-align: center;">@data?.Vols</td>
-                                        <td>@data?.Transportista</td>
-                                        <td>@data?.Unidad</td>
-                                        <td>@data?.Operador</td>
-                                        <td style="text-align: center;">@data?.FechaDoc?</td>
-                                        <!--Horas Estimadas de Viaje-->
-                                        <td>@data?.Eta</td>
-                                        <td>@data?.FechaEst</td>
-                                        <td style="text-align: center;">@data?.Trayecto</td>
-                                        <td>@data?.Observaciones</td>
-                                        <td style="text-align: center;">@data?.FechaRealEta</td>
-                                        <td>@data?.EntLit</td>
-                                        @*@(data?.Compartimento == 1 ? data.Capcom
-                                        : data?.Compartimento == 2 ? data.Capcom2
-                                        : data?.Compartimento == 3 ? data.Capcom3
-                                        : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
-                                        : data?.Volms)*@
-                                    </tr>
-                                </Virtualize>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="row justify-content-end me-3 mt-3 mb-3">
-                    <div class="col-3 mt-3 mb-3">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
-                    </div>
-                </div>
-            </EditForm>
-        </div>
-    </div>
-</AuthorizeView>
-
 <style type="text/css">
     .ancho {
         width: @TotalWidth;
@@ -444,13 +413,13 @@ else
     Cliente cliente { get; set; } = new Cliente();
     //Instancia a modelo de OrdEmbDet
     OrdEmbDet Ordenes { get; set; } = new OrdEmbDet()
+    {
+        Orden = new Orden()
         {
-            Orden = new Orden()
-            {
-                Estado = new Estado(),
-                Tonel = new Tonel()
-            }
-        };
+            Estado = new Estado(),
+            Tonel = new Tonel()
+        }
+    };
     //Instancia a DTO
     FechasF fechas = new FechasF();
     EtaDTO etaDto = new EtaDTO();
@@ -536,12 +505,12 @@ else
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Success,
-                                Summary = "Eta registrado",
-                                Detail = $"Se ha registrado el eta correctamente",
-                                Duration = 5000
-                            });
+                        {
+                            Severity = NotificationSeverity.Success,
+                            Summary = "Eta registrado",
+                            Detail = $"Se ha registrado el eta correctamente",
+                            Duration = 5000
+                        });
                         Ordenes = responseHttp.Response;
                     }
                 }
@@ -634,12 +603,12 @@ else
                 else
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Success,
-                            Summary = "Buscando...",
-                            Detail = $"Buscando orden con bol {Ordenes.Bol}",
-                            Duration = 5000
-                        });
+                    {
+                        Severity = NotificationSeverity.Success,
+                        Summary = "Buscando...",
+                        Detail = $"Buscando orden con bol {Ordenes.Bol}",
+                        Duration = 5000
+                    });
                     if (Ordenes.Cod != 0)
                     {
                         if (responseHttp.Response.Cod != 0)

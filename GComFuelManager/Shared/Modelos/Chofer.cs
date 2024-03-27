@@ -19,7 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activo { get; set; } = true;
         public bool? Activo_Permanente { get; set; } = true;
         public short? Id_Tad { get; set; }
-
+        [NotMapped] public int? CodTra { get; set; }
         [NotMapped]
         public string FullName
         {
