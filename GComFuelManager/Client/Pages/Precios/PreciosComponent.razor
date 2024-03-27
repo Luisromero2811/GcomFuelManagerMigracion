@@ -18,7 +18,7 @@
                 <div class="col-12 row card-body">
 
                     <div class="col-12 row  mb-3">
-                        <div class="col-3">
+                        <div class="col-6">
                             <div class="form-label">
                                 <label class="form-label">Importar:</label>
                             </div>
@@ -63,6 +63,7 @@
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Synthesis" Property="CodSyn" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Tuxpan" Property="CodTux" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Gobierno" Property="Id_DestinoGobierno" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
@@ -792,18 +793,25 @@
 
         var header = ws.Cells["A1:J1"];
 
-        var tablebody = ws.Cells["A1:A1"].LoadFromCollection<FormatoExcelPrecioDTO>(formato, true);
-        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        tablebody.Style.Font.Bold = true;
-        header.Style.Font.Size = 14;
-        header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        header.Style.Font.Color.SetColor(Color.White);
-        tablebody.Style.Font.Size = 14;
-        header.Style.Font.Size = 14;
+        var tablebody = ws.Cells["A1"].LoadFromCollection(formato, c => { c.PrintHeaders = true; c.TableStyle = TableStyles.Medium15; });
 
-        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-        header.Style.Fill.BackgroundColor.SetColor(Color.Black);
-        header.Style.Font.Bold = true;
+        ws.Cells[$"I1:I2"].Style.Numberformat.Format = "_-$* #,##0.00_-;-$* #,##0.00_-;_-$* \"-\"??_-;_-@_-";
+        ws.Cells[$"H1:H2"].Style.Numberformat.Format = "dd/mm/yyyy";
+
+        ws.Cells[1, 1, 2, ws.Dimension.End.Column].AutoFitColumns();
+
+        // var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(formato_precios, true);
+        // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        // tablebody.Style.Font.Bold = true;
+        // header.Style.Font.Size = 14;
+        // header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        // header.Style.Font.Color.SetColor(Color.White);
+        // tablebody.Style.Font.Size = 14;
+        // header.Style.Font.Size = 14;
+
+        // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+        // header.Style.Fill.BackgroundColor.SetColor(Color.Black);
+        // header.Style.Font.Bold = true;
 
         await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", excel.GetAsByteArray());
     }
