@@ -178,6 +178,7 @@
             if (response.Error)
             {
                 await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                await Obtener_Terminal();
             }
             else
             {

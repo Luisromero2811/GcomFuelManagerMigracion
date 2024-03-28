@@ -1081,14 +1081,14 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("{Orden_Compra}")]
-        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra)
+        [HttpGet("{Orden_Compra}/{Id_Terminal}")]
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, [FromRoute] Int16 Id_Terminal)
         {
             try
             {
                 List<PrecioBol> precios = new();
 
-                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra)
+                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra && x.Codtad == Id_Terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -1121,7 +1121,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                             if (!string.IsNullOrEmpty(orden.Terminal.Den))
                             {
                                 precio.Terminal_Final = orden.Terminal.Den;
-                                precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
+                                if (!string.IsNullOrEmpty(orden.Terminal.Codigo))
+                                    precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
                             }
 
                         precio.BOL = orden.BatchId ?? 0;
