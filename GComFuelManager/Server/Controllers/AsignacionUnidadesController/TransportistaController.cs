@@ -132,7 +132,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (transportista.Cod == 0)
                 {
                     transportista.Id_Tad = id_terminal;
-                    transportista.Codgru = transportista.GrupoTransportista!.cod!;
+                    //transportista.Codgru = transportista.GrupoTransportista!.cod!;
 
                     //Genero el número aleatorio para el Carrid
                     transportista.CarrId = Convert.ToString(random.Next(1, 50000));
@@ -141,7 +141,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //Si ya existe, genera un nuevo número Random
                     if (exist)
                     {
-                        transportista.CarrId =  Convert.ToString(random.Next(1, 50000));
+                        transportista.CarrId = Convert.ToString(random.Next(1, 50000));
                     }
 
                     //Genero el número aleatorio para busentid
@@ -340,6 +340,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (transportista_Tad is null)
                     return NotFound();
 
+                if (context.OrdenEmbarque.Include(x => x.Tonel).Any(x => x.Codtad == transportista_Tad.Id_Terminal && x.Tonel.Transportista.Cod == transportista_Tad.Id_Transportista) ||
+                    context.OrdenCierre.Include(x => x.OrdenEmbarque).ThenInclude(x => x.Tonel).ThenInclude(x => x.Transportista).Any(x => x.Id_Tad == transportista_Tad.Id_Terminal && x.OrdenEmbarque!.Tonel.Transportista!.Cod == transportista_Tad.Id_Transportista)
+                    || context.Orden.Include(x => x.Tonel).ThenInclude(x => x.Transportista).Any(x => x.Id_Tad == transportista_Tad.Id_Terminal && x.Tonel!.Transportista!.Cod == transportista_Tad.Id_Transportista))
+                {
+                    return BadRequest("Error, no puede eliminar la relación debido a pedidos u órdenes activas ligadas a esta empresa transportista y Unidad de negocio");
+                }
+
                 var id = await verifyUser.GetId(HttpContext, UserManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
@@ -362,6 +369,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 if (transportista_Tad is null)
                     return NotFound();
+
+                if (context.OrdenEmbarque.Any(x => x.Codtad == transportista_Tad.Id_Terminal) ||
+                    context.OrdenCierre.Any(x => x.Id_Tad == transportista_Tad.Id_Terminal) ||
+                    context.Orden.Any(x => x.Id_Tad == transportista_Tad.Id_Terminal))
+                {
+                    return BadRequest("Error, no puede eliminar la relación debido a pedidos u órdenes activas ligadas a este Grupo transportista y Unidad de negocio");
+                }
 
                 var id = await verifyUser.GetId(HttpContext, UserManager);
                 if (string.IsNullOrEmpty(id))

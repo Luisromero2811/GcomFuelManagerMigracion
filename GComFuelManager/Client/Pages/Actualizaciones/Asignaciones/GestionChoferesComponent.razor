@@ -57,7 +57,7 @@
         <div class="col-12 row">
             <div class="col-3">
                 <label>Empresa Transportista</label>
-                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.CodTra"
+                <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.Codtransport"
                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 AllowVirtualization="true" Change="@GetCliente" Style="height:20px">
                     <Template Context="data">
@@ -191,6 +191,7 @@
     {
         try
         {
+            //string? busentid = Grupos.FirstOrDefault(x => x.Cod == chofer.Codtransport)?.Busentid;
             chofer.Codtransport = Convert.ToInt32(chofer.Transportista!.Busentid);
             //transportista.Codgru = transportista.GrupoTransportista!.cod!;
             var response = await repositorio.Post<Chofer>($"api/chofer/crearChofer", chofer);
@@ -203,7 +204,7 @@
             {
                 await Swal.FireAsync("Exito", $"Chofer {chofer.Den} asignado a transportista seleccionado", SweetAlertIcon.Success);
                 await GetGrupos();
-                await GetCliente();
+                //await GetCliente();
             }
 
         }
@@ -235,31 +236,6 @@
         }
     }
 
-    //private async Task ObtenerEmpresa(string value)
-    //{
-    //    try
-    //    {
-    //        Dictionary<string, string> query = new();
-    //        query["den"] = value;
-    //        var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-
-    //        var response = await repositorio.Get<List<Transportista>>($"api/transportista/filtrarempresa?{uri}");
-    //        if (response.Error)
-    //        {
-    //            var message = await response.ObtenerMensajeError();
-    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            EmpresaTransporte = response.Response;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
-
     public async Task GetGrupos()
     {
         try
@@ -286,7 +262,7 @@
     {
         try
         {
-            string? busentid = Grupos.FirstOrDefault(x => x.Cod == chofer.CodTra)?.Busentid;
+            string? busentid = Grupos.FirstOrDefault(x => x.Cod == chofer.Codtransport)?.Busentid;
             var response = await repositorio.Get<List<Chofer>>($"api/chofer/listado/{busentid}");
             if (response.Error)
             {

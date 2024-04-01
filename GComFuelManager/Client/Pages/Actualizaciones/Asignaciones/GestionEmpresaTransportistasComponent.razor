@@ -20,7 +20,7 @@
                         <div class="col-12 row">
                             <div class="col-4">
                                 <label>Grupo Transportes:</label>
-                                <RadzenDropDown @bind-Value="transportista.GrupoTransportista" TValue="GrupoTransportista" Data="Grupos" TextProperty="den"
+                                <RadzenDropDown @bind-Value="transportista.Codgru" TValue="int?" Data="Grupos" ValueProperty="cod" TextProperty="den"
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                 </RadzenDropDown>
@@ -176,7 +176,7 @@
     {
         try
         {
-            transportista.Codgru = transportista.GrupoTransportista!.cod!;
+            //transportista.Codgru = transportista.GrupoTransportista!.cod!;
             var response = await repositorio.Post<Transportista>($"api/transportista/crearTransportista", transportista);
             if (response.Error)
             {

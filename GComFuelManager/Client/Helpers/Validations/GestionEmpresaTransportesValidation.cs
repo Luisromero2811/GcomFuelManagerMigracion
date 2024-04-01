@@ -8,7 +8,7 @@ namespace GComFuelManager.Client.Helpers.Validations
 	{
 		public GestionEmpresaTransportesValidation()
 		{
-			RuleFor(x => x.GrupoTransportista).NotEmpty().WithName("Grupo de Transporte");
+			RuleFor(x => x.Codgru).NotEmpty().WithName("Grupo de Transporte");
 			RuleFor(x => x.Den).NotEmpty().WithName("Empresa transportista");
 		}
 	}
