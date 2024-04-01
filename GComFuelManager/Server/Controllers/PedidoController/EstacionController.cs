@@ -185,7 +185,7 @@ namespace GComFuelManager.Server.Controllers
                     //Si ya existe, genera un nuevo número Random
                     if (exist)
                     {
-                        return BadRequest();
+                        return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
                     }
                     //Agregamos cliente
                     context.Add(destino);
@@ -268,6 +268,13 @@ namespace GComFuelManager.Server.Controllers
             {
                 if (clienteterminal is null)
                     return NotFound();
+
+                if (context.OrdenEmbarque.Any(x => x.Codtad == clienteterminal.Id_Terminal && x.Coddes == clienteterminal.Id_Destino) ||
+                    context.OrdenCierre.Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.CodDes == clienteterminal.Id_Destino)
+                    || context.Orden.Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.Coddes == clienteterminal.Id_Destino))
+                {
+                    return BadRequest("Error, no puede eliminar la relación debido a órdenes activas ligadas a este Destino y Unidad de Negocio");
+                }
 
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))

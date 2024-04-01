@@ -105,7 +105,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     tonel.Id_Tad = id_terminal;
                     tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
                     tonel.Transportista = null!;
-                    //tonel.Carid = tonel.Transportista.CarrId;
+                    tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
                 }
                 else
@@ -164,6 +164,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 if (tonel_tad is null)
                     return NotFound();
+
+                if (context.OrdenEmbarque.Any(x => x.Codtad == tonel_tad.Id_Terminal && x.Codton == tonel_tad.Id_Unidad) ||
+                    context.Orden.Any(x => x.Id_Tad == tonel_tad.Id_Terminal && x.Coduni == tonel_tad.Id_Unidad)
+                    || context.OrdenCierre.Include(x => x.OrdenEmbarque).Any(x => x.Id_Tad == tonel_tad.Id_Terminal && x.OrdenEmbarque.Tonel.Cod == tonel_tad.Id_Unidad))
+                {
+                    return BadRequest("Error, no puede borrar esta relación debido a pedidos u órdenes activas relacionadas a este Vehículo y Unidad de Negocio");
+                }
 
                 var id = await verifyUser.GetId(HttpContext, UserManager);
                 if (string.IsNullOrEmpty(id))

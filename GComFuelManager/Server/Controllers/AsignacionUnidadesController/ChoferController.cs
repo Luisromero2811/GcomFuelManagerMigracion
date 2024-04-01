@@ -127,6 +127,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (chofer_tad is null)
                     return NotFound();
 
+                if(context.OrdenEmbarque.Any(x => x.Codtad == chofer_tad.Id_Terminal && x.Codchf == chofer_tad.Id_Chofer) ||
+                   context.Orden.Any(x => x.Id_Tad == chofer_tad.Id_Terminal && x.Codchf == chofer_tad.Id_Chofer)
+                   || context.OrdenCierre.Include(x => x.OrdenEmbarque).Any(x => x.Id_Tad == chofer_tad.Id_Terminal && x.OrdenEmbarque!.Chofer!.Cod == chofer_tad.Id_Chofer))
+                {
+                    return BadRequest("Error, no puede borrar la relación, debido a pedidos u órdenes activas asociadas a este chofer o Unidad de Negocio");
+                }
+
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
