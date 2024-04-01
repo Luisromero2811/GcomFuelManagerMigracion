@@ -1145,11 +1145,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Producto_Original = item.Producto.Den;
 
                         if (item.Tad is not null)
+                        {
                             if (!string.IsNullOrEmpty(item.Tad.Den))
-                            {
                                 precio.Terminal_Original = item.Tad.Den;
+
+                            if (!string.IsNullOrEmpty(item.Tad.Codigo))
                                 precio.Codigo_Terminal_Original = item.Tad.Codigo;
-                            }
+                        }
                     }
 
                     var precioVig = context.Precio.IgnoreAutoIncludes()
