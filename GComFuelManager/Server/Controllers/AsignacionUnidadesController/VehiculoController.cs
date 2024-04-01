@@ -105,12 +105,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     tonel.Id_Tad = id_terminal;
                     tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
                     tonel.Transportista = null!;
-                    tonel.Carid = tonel.Transportista.CarrId;
+                    //tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
                 }
                 else
                 {
-            
                     context.Update(tonel);
                 }
                 await context.SaveChangesAsync();
