@@ -61,7 +61,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 List<string?> tads = new();
-                tads = context.Tad.Where(x => x.Activo == true && !string.IsNullOrEmpty(x.Den)).Select(x => x.Den).OrderBy(x=>x).ToList();
+                tads = context.Tad.Where(x => x.Activo == true && !string.IsNullOrEmpty(x.Den)).Select(x => x.Den).OrderBy(x => x).ToList();
                 return Ok(tads);
             }
             catch (Exception e)
@@ -80,10 +80,10 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest();
 
                 if (terminal is null) { return NotFound(); }
-                
-                if(string.IsNullOrEmpty(terminal.Den) || string.IsNullOrWhiteSpace(terminal.Den)) { return BadRequest("La terminal no puede tener un nombre vacio."); }
-                if(string.IsNullOrEmpty(terminal.Codigo) || string.IsNullOrWhiteSpace(terminal.Codigo)) { return BadRequest("La terminal no puede tener una abreviacion vacia."); }
-                if(string.IsNullOrEmpty(terminal.CodigoOrdenes) || string.IsNullOrWhiteSpace(terminal.CodigoOrdenes)) { return BadRequest("La terminal no puede tener un identificador de ordenes vacio."); }
+
+                if (string.IsNullOrEmpty(terminal.Den) || string.IsNullOrWhiteSpace(terminal.Den)) { return BadRequest("La terminal no puede tener un nombre vacio."); }
+                if (string.IsNullOrEmpty(terminal.Codigo) || string.IsNullOrWhiteSpace(terminal.Codigo)) { return BadRequest("La terminal no puede tener una abreviacion vacia."); }
+                if (string.IsNullOrEmpty(terminal.CodigoOrdenes) || string.IsNullOrWhiteSpace(terminal.CodigoOrdenes)) { return BadRequest("La terminal no puede tener un identificador de ordenes vacio."); }
 
                 if (terminal.Cod != 0)
                 {
@@ -95,6 +95,16 @@ namespace GComFuelManager.Server.Controllers
 
                     if (context.Tad.Any(x => !string.IsNullOrEmpty(x.CodigoOrdenes) && x.CodigoOrdenes.ToLower().Equals(terminal.CodigoOrdenes.ToLower()) && x.Cod != terminal.Cod))
                     { return BadRequest("Ya existe una terminal con el mismo identificador de orden"); }
+
+                    if (terminal.Activo == false)
+                    {
+                        if (context.OrdenEmbarque.Any(x => x.Codtad == terminal.Cod) ||
+                            context.OrdenCierre.Any(x => x.Id_Tad == terminal.Cod) ||
+                            context.Orden.Any(x => x.Id_Tad == terminal.Cod))
+                        {
+                            return BadRequest("No se puede desactivar esta terinal, cuanta con registros de ordenes en la base de datos");
+                        }
+                    }
 
                     context.Update(terminal);
                     await context.SaveChangesAsync(id, 44);
@@ -144,7 +154,7 @@ namespace GComFuelManager.Server.Controllers
 
 
         [HttpGet("activas")]
-        public async Task <ActionResult<List<Tad>>> Obtener_Terminales_De_Login()
+        public async Task<ActionResult<List<Tad>>> Obtener_Terminales_De_Login()
         {
             try
             {

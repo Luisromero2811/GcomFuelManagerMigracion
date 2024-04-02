@@ -66,13 +66,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                             PreciosDTO precio = new();
 
                             //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
-                            var row = worksheet.Cells[r, 1, r, 10].ToList();
+                            var row = worksheet.Cells[r, 1, r, 11].ToList();
 
-                            if (row.Count == 10)
+                            if (row.Count == 11)
                             {
-                                if (row[8].Value is not null)
-                                    if (!context.Moneda.Any(x => x.Nombre == row[8].Value.ToString()))
-                                        return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
+                                if (row[9].Value is not null)
+                                    if (!context.Moneda.Any(x => x.Nombre == row[9].Value.ToString()))
+                                        return BadRequest($"No existe la moneda ingresada. Moneda: {row[9].Value?.ToString()}");
 
                                 if (context.Tad.Any(x => x.Cod == id_terminal && x.Activo == true))
                                 {
@@ -83,8 +83,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 else
                                     return BadRequest("Se se pudo encontrar la terminal o no se encuentra activa");
 
-                                if (row[8].Value is null)
-                                    row[8].Value = "MXN";
+                                if (row[9].Value is null)
+                                    row[9].Value = "MXN";
 
                                 precio.Producto = row[0].Value?.ToString();
                                 precio.Zona = row[1].Value?.ToString();
@@ -92,10 +92,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Destino = row[3].Value?.ToString();
                                 precio.CodSyn = row[4].Value?.ToString();
                                 precio.CodTux = row[5].Value?.ToString();
-                                precio.Fecha = row[6].Value?.ToString();
-                                precio.Precio = Math.Round((double)row[7].Value, 4);
-                                precio.Moneda = row[8].Value?.ToString();
-                                precio.Equibalencia = Math.Round((double)row[9].Value, 4);
+                                precio.CodDestinoGobierno = row[6].Value?.ToString();
+                                precio.Fecha = row[7].Value?.ToString();
+                                precio.Precio = Math.Round((double)row[8].Value, 4);
+                                precio.Moneda = row[9].Value?.ToString();
+                                precio.Equibalencia = Math.Round((double)row[10].Value, 4);
                                 precios.Add(precio);
                             }
                         }
@@ -586,10 +587,23 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var codzona = string.IsNullOrEmpty(item.Zona) ? "Sin Zona" : item.Zona;
                     var zona = context.Zona.FirstOrDefault(x => x.Nombre.Equals(codzona));
 
-                    var coddes = string.IsNullOrEmpty(item.CodSyn) ? string.Empty : item.CodSyn;
-                    var destino = context.Destino.FirstOrDefault(x => x.Codsyn == coddes);
-                    if (destino is null)
-                        return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                    Destino? destino = new();
+
+                    if (!string.IsNullOrEmpty(item.CodSyn) || !string.IsNullOrWhiteSpace(item.CodSyn))
+                    {
+                        destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn);
+                        if (destino is null)
+                            return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                    }
+                    else
+                    {
+                        if (string.IsNullOrEmpty(item.CodDestinoGobierno) || string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
+                            return BadRequest("No se admiten destinos sin identificadores");
+
+                        destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno);
+                        if (destino is null)
+                            return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                    }
 
                     if (!context.Destino_Tad.Any(x => x.Id_Destino == destino.Cod && x.Id_Terminal == id_terminal))
                         return BadRequest($"No se encontro el destino {item.Destino} en la terminal. synthesis:{item.CodSyn} tuxpan: {item.CodTux}");
@@ -712,7 +726,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 List<Destino> destinos = new();
                 List<PreciosDTO> destinosSinPre = new();
-                destinos = context.Destino.ToList();
+                destinos = context.Destino.Where(x => x.Id_Tad == id_terminal).ToList();
                 foreach (var item in destinos)
                     if (!context.PrecioProgramado.Any(x => x.CodDes == item.Cod && x.Id_Tad == id_terminal))
                     {
@@ -1067,14 +1081,14 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("{Orden_Compra}")]
-        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra)
+        [HttpGet("{Orden_Compra}/{Id_Terminal}")]
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, [FromRoute] Int16 Id_Terminal)
         {
             try
             {
                 List<PrecioBol> precios = new();
 
-                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra)
+                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra && x.Codtad == Id_Terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -1107,7 +1121,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                             if (!string.IsNullOrEmpty(orden.Terminal.Den))
                             {
                                 precio.Terminal_Final = orden.Terminal.Den;
-                                precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
+                                if (!string.IsNullOrEmpty(orden.Terminal.Codigo))
+                                    precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
                             }
 
                         precio.BOL = orden.BatchId ?? 0;
@@ -1130,11 +1145,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Producto_Original = item.Producto.Den;
 
                         if (item.Tad is not null)
+                        {
                             if (!string.IsNullOrEmpty(item.Tad.Den))
-                            {
                                 precio.Terminal_Original = item.Tad.Den;
+
+                            if (!string.IsNullOrEmpty(item.Tad.Codigo))
                                 precio.Codigo_Terminal_Original = item.Tad.Codigo;
-                            }
+                        }
                     }
 
                     var precioVig = context.Precio.IgnoreAutoIncludes()

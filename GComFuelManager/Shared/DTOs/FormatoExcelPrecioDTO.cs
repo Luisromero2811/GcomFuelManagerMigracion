@@ -17,6 +17,8 @@ namespace GComFuelManager.Shared.DTOs
         public string? CodSyn { get; set; } = string.Empty;
         [DisplayName("CODIGO TUXPAN")]
         public string? CodTux { get; set; } = string.Empty;
+        [DisplayName("CODIGO GOBIERNO")]
+        public string? CodDestinoGobierno { get; set; } = string.Empty;
         [DisplayName("FECHA")]
         public string? Fecha { get; set; } = string.Empty;
         [DisplayName("PRECIO FINAL")]

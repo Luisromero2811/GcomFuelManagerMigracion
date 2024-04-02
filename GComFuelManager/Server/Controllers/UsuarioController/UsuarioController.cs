@@ -264,6 +264,42 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
             }
         }
 
+        [HttpGet("relacionar/terminal"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema")]
+        public async Task<ActionResult> Relacionar_Usuario_Terminal()
+        {
+            try
+            {
+                var usuarios = context.Usuario.Where(x => x.Activo).ToList();
+
+                foreach (var usuario in usuarios)
+                {
+                    if (!string.IsNullOrEmpty(usuario.Usu) || !string.IsNullOrWhiteSpace(usuario.Usu))
+                    {
+                        var user = await userManager.FindByNameAsync(usuario.Usu);
+                        if (user != null)
+                        {
+                            if (!context.Usuario_Tad.Any(x => x.Id_Usuario == user.Id && x.Id_Terminal == 1))
+                            {
+                                Usuario_Tad usuario_tad = new()
+                                {
+                                    Id_Usuario = user.Id,
+                                    Id_Terminal = 1
+                                };
+
+                                context.Add(usuario_tad);
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
 

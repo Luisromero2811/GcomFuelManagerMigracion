@@ -1,4 +1,4 @@
-﻿@inject IRepositorio repositorio
+@inject IRepositorio repositorio
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService Ns
@@ -25,7 +25,7 @@
                             </div>
                             <div class="col-3">
                                 <label>ID Destino Gobierno</label>
-                                <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="10"/>
+                                <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="20"/>
                             </div>
                             <div class="col-3 d-flex mt-auto">
                                 <button class="col-12 btn gcom-bg-amarillo" type="submit">
