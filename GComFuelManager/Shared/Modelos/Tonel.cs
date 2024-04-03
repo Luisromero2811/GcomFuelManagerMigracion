@@ -36,6 +36,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Idcom4 { get; set; } = 0;
         public int? Capcom4 { get; set; } = 0;
         public short? Id_Tad { get; set; }
+        [MaxLength(50)] public string? Certificado_Calibracion { get; set; } = string.Empty;
 
         [NotMapped, JsonIgnore] public Tad? Tad { get; set; }
         [NotMapped] public List<Tad> Terminales { get; set; } = new();

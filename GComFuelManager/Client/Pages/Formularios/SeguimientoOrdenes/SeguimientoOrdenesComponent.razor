@@ -120,7 +120,7 @@
                         @(data?.Fchcar is not null && data?.BatchId is not null ? data?.Fchcar : "")
                     </Template>
                 </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Bol" Property="BatchId" Width="110px" Filterable="false" />
+                <RadzenDataGridColumn TItem="Orden" Title="Bol/Embarque" Property="BatchId" Width="110px" Filterable="false" />
                 @*<RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" Filterable="false" />*@
                 <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" FilterValue="ClientesSeleccionados" Width="305px">
                     <FilterTemplate>

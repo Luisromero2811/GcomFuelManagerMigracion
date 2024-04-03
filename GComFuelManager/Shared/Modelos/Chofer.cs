@@ -19,6 +19,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activo { get; set; } = true;
         public bool? Activo_Permanente { get; set; } = true;
         public short? Id_Tad { get; set; }
+        [MaxLength(50)]
+        public string? RFC { get; set; } = string.Empty;
         [NotMapped] public int? CodTra { get; set; }
         [NotMapped]
         public string FullName
