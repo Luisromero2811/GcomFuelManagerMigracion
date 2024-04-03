@@ -131,6 +131,9 @@ namespace GComFuelManager.Server.Controllers
             {
                 if (destino is null)
                     return BadRequest();
+                
+                destino.Destino_Tads = null!;
+                destino.Terminales = null!;
 
                 context.Update(destino);
                 await context.SaveChangesAsync();

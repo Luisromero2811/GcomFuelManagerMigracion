@@ -44,6 +44,11 @@
                     <RadzenNumeric @bind-Value="destino.CodGamo" Style="width:100%;display:block;" />
                 </EditTemplate>
             </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Destino" Title="Codigo de gobierno" Property="Id_DestinoGobierno" Filterable="false" Width="100px" OrderIndex="4">
+                <EditTemplate Context="destino">
+                    <input type="text" @bind="destino.Id_DestinoGobierno" class="form-control" style="width:100%;display:block;" />
+                </EditTemplate>
+            </RadzenDataGridColumn>
             <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Programador, Autorizador Vigencia Pedidos, Autorizador Vigencia Completo" Context="Cerrar">
                 <RadzenDataGridColumn TItem="Destino" Context="order" Filterable="false" Sortable="false" TextAlign="TextAlign.Left" Width="100px" Title="Editar">
                     <Template Context="data">
