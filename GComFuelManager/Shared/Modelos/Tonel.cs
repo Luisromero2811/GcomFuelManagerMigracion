@@ -15,37 +15,37 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Tonel
     {
-        [Key] public int Cod { get; set; }
+        [Key, EpplusIgnore] public int Cod { get; set; }
         [MaxLength(30)] public string? Placa { get; set; } = string.Empty;
-        public int? Codsyn { get; set; } = 0;
-        [AllowNull, DefaultValue("")] public string? Carid { get; set; } = string.Empty;
-        public int? Nrocom { get; set; } = 0;
-        public int? Idcom { get; set; } = 0;
-        public decimal? Capcom { get; set; } = decimal.Zero;
-        public int? Nrocom2 { get; set; } = 0;
-        public int? Idcom2 { get; set; } = 0;
-        public decimal? Capcom2 { get; set; } = decimal.Zero;
-        public int? Nrocom3 { get; set; } = 0;
-        public int? Idcom3 { get; set; } = 0;
-        public decimal? Capcom3 { get; set; } = decimal.Zero;
+        [EpplusIgnore] public int? Codsyn { get; set; } = 0;
+        [AllowNull, DefaultValue(""), EpplusIgnore] public string? Carid { get; set; } = string.Empty;
+        [DisplayName("Nº Compartimento")] public int? Nrocom { get; set; } = 0;
+        [EpplusIgnore]public int? Idcom { get; set; } = 0;
+        [DisplayName("Capacidad de Compartimento")] public decimal? Capcom { get; set; } = decimal.Zero;
+        [DisplayName("Nº Compartimento 2")] public int? Nrocom2 { get; set; } = 0;
+        [EpplusIgnore] public int? Idcom2 { get; set; } = 0;
+        [DisplayName("Capacidad de Compartimento 2")] public decimal? Capcom2 { get; set; } = decimal.Zero;
+        [DisplayName("Nº Compartimento 3")] public int? Nrocom3 { get; set; } = 0;
+        [EpplusIgnore] public int? Idcom3 { get; set; } = 0;
+        [DisplayName("Capacidad de Compartimento 3")] public decimal? Capcom3 { get; set; } = decimal.Zero;
         [MaxLength(20)] public string? Tracto { get; set; } = string.Empty;
         [MaxLength(20)] public string? Placatracto { get; set; } = string.Empty;
-        public bool? Activo { get; set; } = true;
-        public bool? Gps { get; set; } = false;
-        public int? Nrocom4 { get; set; } = 0;
-        public int? Idcom4 { get; set; } = 0;
-        public int? Capcom4 { get; set; } = 0;
-        public short? Id_Tad { get; set; }
-        [StringLength(50)] public string? Certificado_Calibracion { get; set; } = string.Empty;
+        [EpplusIgnore] public bool? Activo { get; set; } = true;
+        [EpplusIgnore] public bool? Gps { get; set; } = false;
+        [DisplayName("Nº Compartimento 4")] public int? Nrocom4 { get; set; } = 0;
+        [EpplusIgnore] public int? Idcom4 { get; set; } = 0;
+        [DisplayName("Capacidad de Compartimento 4")] public int? Capcom4 { get; set; } = 0;
+        [EpplusIgnore] public short? Id_Tad { get; set; }
+        [StringLength(50), DisplayName("Certificado de Calibración")] public string? Certificado_Calibracion { get; set; } = string.Empty;
 
-        [NotMapped, JsonIgnore] public Tad? Tad { get; set; }
-        [NotMapped] public List<Tad> Terminales { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
+        [NotMapped, JsonIgnore, EpplusIgnore] public Tad? Tad { get; set; }
+        [NotMapped, EpplusIgnore] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped, JsonIgnore, EpplusIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
         [NotMapped, EpplusIgnore] public Transportista? Transportista { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Chofer? Chofer { get; set; } = null!;
 
-        public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
-        public string Veh { get { return $"{Tracto} {Placa}"; } }
+        [EpplusIgnore] public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
+        [EpplusIgnore] public string Veh { get { return $"{Tracto} {Placa}"; } }
         [NotMapped, EpplusIgnore]
         public int CapDisponible
         {
@@ -64,7 +64,7 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
 
-        [NotMapped] public int? CodTra { get; set; }
+        [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
 
         [NotMapped,EpplusIgnore]
         public List<CapTonel> Capacidades

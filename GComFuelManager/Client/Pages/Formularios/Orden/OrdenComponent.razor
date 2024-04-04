@@ -81,7 +81,7 @@
                                         IsLoading="loading" Density="Density.Default" @ref="@grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />
-                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" Frozen="true" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL/Embarque" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" Frozen="true" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Filterable="false" Width="100px">
                                     <Template Context="data">
@@ -173,7 +173,7 @@
                                         IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
                             <Columns>
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" Width="80px" />
-                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" />
+                                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL/Embarque" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="100px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" Width="130px" />
                                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Filterable="false" Width="100px">
                                     <Template Context="data">

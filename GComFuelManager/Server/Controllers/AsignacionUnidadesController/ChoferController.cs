@@ -52,6 +52,27 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("getAll")]
+        public async Task<ActionResult> GetChoferes()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var transportistas = context.Chofer.IgnoreAutoIncludes()
+                    .Where(x =>  x.Activo_Permanente == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales).IgnoreAutoIncludes()
+                    .OrderBy(x => x.Den)
+                    .ToList();
+                return Ok(transportistas);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
         [HttpPost("crearChofer")]
         public async Task<ActionResult> PostChofer([FromBody] Chofer chofer)

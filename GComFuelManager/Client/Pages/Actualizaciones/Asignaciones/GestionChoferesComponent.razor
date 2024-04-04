@@ -33,7 +33,11 @@
                                 <label>Apellido del Chofer:</label>
                                 <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
                             </div>
-                            <div class="col-3 d-flex mt-auto">
+                            <div class="col-3">
+                                <label>RFC:</label>
+                                <InputText @bind-Value="chofer.RFC" class="form-control" MaxLenght="50"></InputText>
+                            </div>
+                            <div class="col-3 d-flex mt-2 mx-auto">
                                 <button class="col-12 btn gcom-bg-amarillo" type="submit">
                                     <i class="fa fa-solid fa-plus"></i> Registrar Chofer
                                 </button>

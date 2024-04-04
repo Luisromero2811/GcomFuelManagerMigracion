@@ -53,6 +53,7 @@
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\Formularios\ETA\" />
     <None Remove="Pages\Tarifario\" />
+    <None Remove="Pages\Obtencion de Catalogos\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -61,6 +62,7 @@
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\Formularios\ETA\" />
     <Folder Include="Pages\Tarifario\" />
+    <Folder Include="Pages\Obtencion de Catalogos\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />

@@ -222,6 +222,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("allGT")]
+        public ActionResult GetAllGT()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var GrupoTransportes = context.GrupoTransportista.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.den);
+                return Ok(GrupoTransportes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("filtraractivos")]
         public ActionResult Obtener_Grupos_Activos([FromQuery] GrupoTransportista grupo)
         {
