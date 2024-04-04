@@ -552,6 +552,16 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Terminal)
                 .WithOne()
                 .HasForeignKey<Consecutivo>(x => x.Id_Tad);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.TipoProducto)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tipo);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
         }
 
 
@@ -613,5 +623,6 @@ namespace GComFuelManager.Server
         public DbSet<GrupoTransportista_Tad> GrupoTransportista_Tad { get; set; }
         public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
         public DbSet<Unidad_Tad> Unidad_Tad { get; set; }
+        public DbSet<TipoProducto> TipoProducto { get; set; }
     }
 }

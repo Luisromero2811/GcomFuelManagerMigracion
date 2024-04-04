@@ -47,6 +47,7 @@
     list-style: none;
     max-height: 400px;
     overflow-y: scroll;
+    width:100%;
 }
 
     .dropdown-com-content li {
@@ -54,6 +55,7 @@
         display: block;
         padding: .3rem .4rem;
         cursor: pointer;
+        width: 100%;
     }
 
         .dropdown-com-content li:hover {
