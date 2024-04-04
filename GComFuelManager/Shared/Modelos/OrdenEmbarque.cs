@@ -41,6 +41,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? FolioSyn { get; set; } = string.Empty;
         [EpplusIgnore]
         public int? Bol { get; set; }
+        public byte? Estatus { get; set; }
 
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
@@ -50,6 +51,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [NotMapped] public OrdenCompra? OrdenCompra { get; set; } = null!;
         [NotMapped] public Estado? Estado { get; set; } = null!;
+        [NotMapped] public Estado? Estatus_Orden { get; set; } = null!;
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public Usuario? Usuario { get; set; } = null!;
         [NotMapped] public Orden? Orden { get; set; } = null!;
@@ -90,7 +92,8 @@ namespace GComFuelManager.Shared.Modelos
                 ID_Moneda = ID_Moneda,
                 Equibalencia = Equibalencia,
                 Bol = Bol,
-                Vol = Vol
+                Vol = Vol,
+                Estatus = Estatus
             };
         }
 

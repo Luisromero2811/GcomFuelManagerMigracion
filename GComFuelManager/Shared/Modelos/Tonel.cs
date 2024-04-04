@@ -36,6 +36,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Idcom4 { get; set; } = 0;
         public int? Capcom4 { get; set; } = 0;
         public short? Id_Tad { get; set; }
+        [StringLength(50)] public string? Certificado_Calibracion { get; set; } = string.Empty;
 
         [NotMapped, JsonIgnore] public Tad? Tad { get; set; }
         [NotMapped] public List<Tad> Terminales { get; set; } = new();
@@ -111,6 +112,35 @@ namespace GComFuelManager.Shared.Modelos
 
                 return capTonels;
             }
+        }
+
+        public Tonel HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Placa = Placa,
+                Codsyn = Codsyn,
+                Carid = Carid,
+                Nrocom = Nrocom,
+                Idcom = Idcom,
+                Capcom = Capcom,
+                Nrocom2 = Nrocom2,
+                Idcom2 = Idcom2,
+                Capcom2 = Capcom2,
+                Nrocom3 = Nrocom3,
+                Idcom3 = Idcom3,
+                Capcom3 = Capcom3,
+                Tracto = Tracto,
+                Placatracto = Placatracto,
+                Activo = Activo,
+                Gps = Gps,
+                Nrocom4 = Nrocom4,
+                Idcom4 = Idcom4,
+                Capcom4 = Capcom4,
+                Id_Tad = Id_Tad,
+                Certificado_Calibracion = Certificado_Calibracion
+            };
         }
     }
 

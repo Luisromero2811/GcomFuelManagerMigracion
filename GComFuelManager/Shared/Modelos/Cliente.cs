@@ -85,5 +85,31 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
 
+        public Cliente HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                Codusu = Codusu,
+                Codforpag = Codforpag,
+                Tem = Tem,
+                Codgru = Codgru,
+                Email = Email,
+                Con = Con,
+                Codtad = Codtad,
+                Codsyn = Codsyn,
+                Esenergas = Esenergas,
+                Tipven = Tipven,
+                Consecutivo = Consecutivo,
+                Activo = Activo,
+                precioSemanal = precioSemanal,
+                MdVenta = MdVenta,
+                CodCte = CodCte,
+                Id_Vendedor = Id_Vendedor,
+                Es_Meta = Es_Meta,
+                Id_Originador = Id_Originador
+            };
+        }
     }
 }

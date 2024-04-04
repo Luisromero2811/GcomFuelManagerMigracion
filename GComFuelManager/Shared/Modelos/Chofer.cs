@@ -7,7 +7,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Chofer
     {
-        [Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Cod { get; set; }
         [MaxLength(128)]
         public string? Den { get; set; } = string.Empty;
@@ -19,7 +19,11 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activo { get; set; } = true;
         public bool? Activo_Permanente { get; set; } = true;
         public short? Id_Tad { get; set; }
+        [StringLength(13)]
+        public string? RFC { get; set; } = string.Empty;
+        
         [NotMapped] public int? CodTra { get; set; }
+
         [NotMapped]
         public string FullName
         {
@@ -36,6 +40,22 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public List<Tad> Terminales { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+
+        public Chofer HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                Codtransport = Codtransport,
+                Dricod = Dricod,
+                Shortden = Shortden,
+                Activo = Activo,
+                Activo_Permanente = Activo_Permanente,
+                Id_Tad = Id_Tad,
+                RFC = RFC
+            };
+        }
     }
 }
 

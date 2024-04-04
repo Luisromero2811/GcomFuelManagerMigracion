@@ -562,6 +562,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Terminal)
                 .WithMany()
                 .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Estatus_Orden)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
         }
 
 

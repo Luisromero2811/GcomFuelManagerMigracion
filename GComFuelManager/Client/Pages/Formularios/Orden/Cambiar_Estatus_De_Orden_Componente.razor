@@ -1,0 +1,103 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+@inject TooltipService ts
+@inject IJSRuntime JS
+@attribute [Authorize]
+
+<div class="col-12 card">
+    <div class="card-header">
+        Cambio de estatus de orden
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <div class="col-3">
+                <input placeholder="Referencia de orden" class="col-12 form-control form-control-sm" @bind-value="OrdenEmbarque.FolioSyn"/>
+            </div>
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo"> <i class="fa fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+        <div class="col-12">
+            Estado de orden
+            <select class="form-select form-select-sm col-12">
+                <option></option>
+            </select>
+        </div>
+        <div class="col-12 row my-2">
+            <div class="col-4">
+                Terminal de origen: @OrdenEmbarque?.Tad?.Den
+            </div>
+            <div class="col-4">
+                Cliente de origen: @OrdenEmbarque?.Destino?.Cliente?.Den
+            </div>
+            <div class="col-4">
+                Destino de origen: @OrdenEmbarque?.Destino?.Den
+            </div>
+            <div class="col-4">
+                Proucto de origen: @OrdenEmbarque?.Producto?.Den
+            </div>
+            <div class="col-4">
+                Unidad de origen: @OrdenEmbarque?.Tonel?.Veh
+            </div>
+            <div class="col-4">
+                Compartimento de origen: @OrdenEmbarque?.Compartment
+            </div>
+            <div class="col-4">
+                Chofer de origen: @OrdenEmbarque?.Chofer?.FullName
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    OrdenEmbarque OrdenEmbarque { get; set; } = new();
+    List<Estado> Estados { get; set; } = new();
+
+    bool loading_buscar = false;
+    bool loading_guardar = false;
+
+    private async Task Obtener_Estados()
+    {
+        try
+        {
+
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Orden()
+    {
+
+        try
+        {
+            loading_buscar = true;
+
+            Dictionary<string, string> query = new();
+            query["Folio"] = OrdenEmbarque.FolioSyn ?? string.Empty;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<OrdenEmbarque>($"api/pedido/orden?{uri}");
+            if (response.Error)
+            {
+                loading_buscar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_buscar = false;
+                OrdenEmbarque = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}
