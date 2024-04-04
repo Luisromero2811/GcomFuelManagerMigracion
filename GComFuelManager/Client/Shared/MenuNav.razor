@@ -2,6 +2,7 @@
 @inject SweetAlertService swal
 @inject NavigationManager navigate
 @inject IJSRuntime js
+@inject IRepositorio repositorio
 
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
@@ -220,7 +221,8 @@
                             </ChildContent>
                         </RadzenMenuItem>
                     </AuthorizeView>
-
+                    @if (Esta_En_Tuxpan)
+                    {
                     <AuthorizeView Roles="Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
@@ -301,7 +303,11 @@
                             </ChildContent>
                         </RadzenMenuItem>
                     </AuthorizeView>
+                        }
+                        else
+                        {
 
+                        }
                     <!--Menú de órdenes-->
                     <AuthorizeView Roles="Consulta Precio Orden, Lectura Asignacion, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
@@ -519,7 +525,7 @@
                     @if (MenuGeneral.User.Identity is not null)
                     {
                         <p class="my-auto">
-                            @MenuGeneral.User.Claims.Where(x=>x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
+                            @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
                         </p>
                     }
                 </div>
@@ -544,6 +550,35 @@
 
 
 @code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Checar_Terminal();
+    }
+
+    bool Esta_En_Tuxpan = true;
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
     private async void OpenMenuLateral()
     {

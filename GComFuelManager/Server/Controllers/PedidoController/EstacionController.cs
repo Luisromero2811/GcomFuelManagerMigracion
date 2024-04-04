@@ -124,6 +124,24 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("all")]
+        public ActionResult GetAllDestins()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.Den);
+                return Ok(destinos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost()]
         public async Task<ActionResult> EditDestino([FromBody] Destino destino)
         {

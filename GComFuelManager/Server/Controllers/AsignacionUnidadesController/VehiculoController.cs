@@ -51,6 +51,28 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("getAll")]
+        public async Task<ActionResult>GetUnidades()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Where(x => x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales)
+                    .OrderBy(x => x.Tracto)
+                    .ToList();
+                return Ok(vehiculos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("gestion/{transportista:int}")]
         public ActionResult GetTonel(int transportista)
         {

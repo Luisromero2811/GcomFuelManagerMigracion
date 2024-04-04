@@ -1,4 +1,6 @@
 ﻿@inject IJSRuntime js
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
 
 <div id="mySidepanel" class="sidepanel">
     <a href="javascript:void(0)" class="closebtn" @onclick="CloseMenuLateral">×</a>
@@ -78,7 +80,7 @@
 @code {
     List<Menu> Menus { get; set; } = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         //usuarios
         Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
@@ -90,7 +92,7 @@
             icon = "gear",
             roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
             Menus = new()
-                {
+            {
                     new()
                     {
                         isMenu = true,
@@ -98,7 +100,7 @@
                         icon = "server",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         Menus = new()
-                        {
+                    {
                             new()
                             {
                                 name = "Tonel",
@@ -129,7 +131,7 @@
                         icon = "percent",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         Menus = new()
-                        {
+                    {
                             new()
                             {
                                 name = "Calculo de cierre",
@@ -153,7 +155,7 @@
                         icon = "rotate",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                         Menus = new()
-                        {
+                    {
                             new()
                             {
                                 name = "Actualizar datos",
@@ -219,6 +221,13 @@
                         icon = "gas-pump",
                         roles = "Admin, Administrador Sistema",
                     },
+                     new()
+                    {
+                        path = "obtencion/catalogos",
+                        name = "Descarga de catalogos",
+                        icon = "file-excel",
+                        roles = "Admin, Administrador Sistema",
+                    },
                 }
         });
         //precios
@@ -229,7 +238,7 @@
             roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
             isMenu = true,
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Precios", icon = "money-bill-1-wave", path = "precios",
@@ -242,15 +251,19 @@
                     }
                 }
         });
-        //cierres
-        Menus.Add(new Menu()
         {
-            isMenu = true,
-            name = "Cierres",
-            icon = "store-slash",
-            roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
-            Menus = new()
+            await Checar_Terminal();
+            if (Esta_En_Tuxpan)
+            {
+                //cierres
+                Menus.Add(new Menu()
                 {
+                    isMenu = true,
+                    name = "Cierres",
+                    icon = "store-slash",
+                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
+                    Menus = new()
+            {
                     new()
                     {
                         name = "Cierre de pedidos",
@@ -302,7 +315,13 @@
                     }
                 }
 
-        });
+                });
+            }
+            else
+            {
+
+            }
+        }
         //ordenes
         Menus.Add(new Menu()
         {
@@ -311,7 +330,7 @@
             icon = "rectangle-list",
             roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Órdenes sin pedido",
@@ -399,7 +418,7 @@
             roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
             isMenu = true,
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Costos",
@@ -424,7 +443,7 @@
             roles = "Admin, Administrador Sistema",
             isMenu = true,
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Redireccionar ordenes",
@@ -450,7 +469,7 @@
             roles = "Admin, Administrador Sistema, Reportes De Venta",
             isMenu = true,
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Desempeño de ventas",
@@ -476,7 +495,7 @@
             roles = "Admin, Administrador Sistema, Tarifas",
             isMenu = true,
             Menus = new()
-                {
+            {
                     new()
                     {
                         name = "Tarifas",
@@ -494,6 +513,30 @@
                 }
         });
 
+    }
+
+    bool Esta_En_Tuxpan = true;
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
     private async void CloseMenuLateral()

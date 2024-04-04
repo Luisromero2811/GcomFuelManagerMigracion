@@ -1,4 +1,5 @@
 ﻿using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -7,41 +8,41 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Destino
     {
-        [Key]
+        [Key, EpplusIgnore]
         public int Cod { get; set; }
-        public int? Num { get; set; } = 0;
+        [EpplusIgnore]public int? Num { get; set; } = 0;
         [MaxLength(128)]
-        public string? Den { get; set; } = string.Empty;
-        public int? Codcte { get; set; } = 0;
-        [MaxLength(30)]
+        [DisplayName("Nombre del Destino")]public string? Den { get; set; } = string.Empty;
+        [EpplusIgnore] public int? Codcte { get; set; } = 0;
+        [MaxLength(30), EpplusIgnore]
         public string? Nroper { get; set; } = string.Empty;
-        public string? Dir { get; set; } = string.Empty;
-        public int? CodbdTan { get; set; } = 0;
-        [MaxLength(10)]
+        [DisplayName("Dirección")] public string? Dir { get; set; } = string.Empty;
+        [EpplusIgnore] public int? CodbdTan { get; set; } = 0;
+        [MaxLength(10), EpplusIgnore]
         public string? DesCod { get; set; } = string.Empty;
-        [MaxLength(20)]
+        [MaxLength(20), EpplusIgnore]
         public string? Codsyn { get; set; } = string.Empty;
-        public bool? Esenergas { get; set; } = false;
-        public bool Activo { get; set; } = true;
-        [MaxLength(50)]
+        [EpplusIgnore] public bool? Esenergas { get; set; } = false;
+        [EpplusIgnore]public bool Activo { get; set; } = true;
+        [MaxLength(50), EpplusIgnore]
         public string? Lat { get; set; } = string.Empty;
-        [MaxLength(50)]
+        [MaxLength(50), EpplusIgnore]
         public string? Lon { get; set; } = string.Empty;
-        public Int16? Codciu { get; set; } = 0;
+        [EpplusIgnore] public Int16? Codciu { get; set; } = 0;
         [MaxLength(50)]
-        public string? Ciu { get; set; } = string.Empty;
+        [DisplayName("Ciudad")] public string? Ciu { get; set; } = string.Empty;
         [MaxLength(50)]
-        public string? Est { get; set; } = string.Empty;
-        public long? CodGamo { get; set; } = 0;
-        public short? Id_Tad { get; set; }
+        [DisplayName("Estado")]public string? Est { get; set; } = string.Empty;
+        [EpplusIgnore] public long? CodGamo { get; set; } = 0;
+        [EpplusIgnore] public short? Id_Tad { get; set; }
 
-        public string? Id_DestinoGobierno { get; set; } = string.Empty;
+        [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
 
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
-        [NotMapped] public Cliente? Cliente { get; set; } = null!;
-        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
-        [NotMapped] public Producto? Producto { get; set; } = null!;
-        [NotMapped] public Tad? Tad { get; set; } = null!;
+        [EpplusIgnore,NotMapped] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public OrdenCierre? OrdenCierre { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Tad? Tad { get; set; } = null!;
     }
 }
