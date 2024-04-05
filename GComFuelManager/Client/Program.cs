@@ -69,6 +69,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<GestionEmpresaTransportesValidation>();
     services.AddScoped<GestionChoferesValidation>();
     services.AddScoped<GestionUnidadValidation>();
+    services.AddScoped<AutorizadoresValidation>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 

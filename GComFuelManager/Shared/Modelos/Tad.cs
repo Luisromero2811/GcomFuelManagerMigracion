@@ -33,6 +33,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Tonel> Unidades { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Autorizador> Autorizadores { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Autorizadores_Tad> Autorizador_Tad { get; set; } = new();
 
         [NotMapped] public List<GrupoTransportista> GruposTransportes { get; set; } = new();
         [NotMapped] public List<GrupoTransportista_Tad> GrupoTransportista_Tads { get; set; } = new();
