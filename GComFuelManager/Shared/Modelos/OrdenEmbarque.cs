@@ -43,6 +43,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Bol { get; set; }
         public byte? Estatus { get; set; }
 
+        [NotMapped] public List<HistorialEstados> HistorialEstados { get; set; } = new();
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;

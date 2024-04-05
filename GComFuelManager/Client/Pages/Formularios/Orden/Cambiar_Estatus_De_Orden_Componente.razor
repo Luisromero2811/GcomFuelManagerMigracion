@@ -10,42 +10,79 @@
         Cambio de estatus de orden
     </div>
     <div class="card-body">
-        <div class="col-12">
-            <div class="col-3">
-                <input placeholder="Referencia de orden" class="col-12 form-control form-control-sm" @bind-value="OrdenEmbarque.FolioSyn"/>
+        <div class="col-12 row">
+            <div class="col-10">
+                <div class="col-12 row my-1">
+                    <div class="col-3">
+                        <input placeholder="Referencia de orden" class="col-12 form-control form-control-sm" @bind="OrdenEmbarque.FolioSyn" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="Obtener_Orden">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 row my-1 mx-2">
+                    Estado de orden
+                    <div class="col-4">
+                        <select class="form-select form-select-sm col-12" @bind="@OrdenEmbarque.Estatus">
+                            <option>-- Seleccione un estado --</option>
+                            @foreach (var estado in Estados)
+                            {
+                                <option value="@estado.Cod">@estado.den</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Estatus">
+                            <i class="fa fa-solid fa-floppy-disk"></i>
+                        </button>
+                    </div>
+                    <div class="col">
+                        Ultimo estatus de orden: @OrdenEmbarque.Estatus_Orden?.den
+                    </div>
+                </div>
+                <div class="col-12 row my-1">
+                    <div class="col-4">
+                        Terminal de origen: @OrdenEmbarque?.Tad?.Den
+                    </div>
+                    <div class="col-4">
+                        Cliente de origen: @OrdenEmbarque?.Destino?.Cliente?.Den
+                    </div>
+                    <div class="col-4">
+                        Destino de origen: @OrdenEmbarque?.Destino?.Den
+                    </div>
+                    <div class="col-4">
+                        Proucto de origen: @OrdenEmbarque?.Producto?.Den
+                    </div>
+                    <div class="col-4">
+                        Unidad de origen: @OrdenEmbarque?.Tonel?.Veh
+                    </div>
+                    <div class="col-4">
+                        Compartimento de origen: @OrdenEmbarque?.Compartment
+                    </div>
+                    <div class="col-4">
+                        Chofer de origen: @OrdenEmbarque?.Chofer?.FullName
+                    </div>
+                </div>
             </div>
-            <div class="col-2">
-                <button class="btn btn-sm gcom-bg-amarillo"> <i class="fa fa-solid fa-magnifying-glass"></i></button>
-            </div>
-        </div>
-        <div class="col-12">
-            Estado de orden
-            <select class="form-select form-select-sm col-12">
-                <option></option>
-            </select>
-        </div>
-        <div class="col-12 row my-2">
-            <div class="col-4">
-                Terminal de origen: @OrdenEmbarque?.Tad?.Den
-            </div>
-            <div class="col-4">
-                Cliente de origen: @OrdenEmbarque?.Destino?.Cliente?.Den
-            </div>
-            <div class="col-4">
-                Destino de origen: @OrdenEmbarque?.Destino?.Den
-            </div>
-            <div class="col-4">
-                Proucto de origen: @OrdenEmbarque?.Producto?.Den
-            </div>
-            <div class="col-4">
-                Unidad de origen: @OrdenEmbarque?.Tonel?.Veh
-            </div>
-            <div class="col-4">
-                Compartimento de origen: @OrdenEmbarque?.Compartment
-            </div>
-            <div class="col-4">
-                Chofer de origen: @OrdenEmbarque?.Chofer?.FullName
-            </div>
+            @if (OrdenEmbarque is not null)
+            {
+                @if (OrdenEmbarque.HistorialEstados is not null)
+                {
+                    @if (OrdenEmbarque.HistorialEstados.Count > 0)
+                    {
+                        <div class="col-2" style="overflow-y:scroll;">
+                            <b>Registro:</b>
+                            @foreach (var item in OrdenEmbarque.HistorialEstados)
+                            {
+                                <p class="m-0">@item.Fecha_Actualizacion | @item.Estado?.den</p>
+                            }
+                        </div>
+                    }
+
+                }
+            }
         </div>
     </div>
 </div>
@@ -58,11 +95,24 @@
     bool loading_buscar = false;
     bool loading_guardar = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Estados();
+    }
+
     private async Task Obtener_Estados()
     {
         try
         {
-
+            var response = await http.Get<List<Estado>>($"api/estado/11");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Estados = response.Response;
+            }
         }
         catch (Exception e)
         {
@@ -97,6 +147,34 @@
         catch (Exception e)
         {
             loading_buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Estatus()
+    {
+
+        try
+        {
+
+            Dictionary<string, string> query = new();
+            query["Folio"] = OrdenEmbarque.FolioSyn ?? string.Empty;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Post<OrdenEmbarque>($"api/estado/cambio/estado", OrdenEmbarque);
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                ns.Notify(new() { Severity = NotificationSeverity.Success, Detail = "Estado de orden cambiado.", Summary = "Estado modificado." });
+                await Obtener_Orden();
+            }
+        }
+        catch (Exception e)
+        {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }

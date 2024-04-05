@@ -2070,7 +2070,7 @@ namespace GComFuelManager.Server.Controllers
                 if (string.IsNullOrEmpty(folio_.Folio) || string.IsNullOrWhiteSpace(folio_.Folio))
                     return NotFound();
 
-                var orden = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Codtad == id_terminal && !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(folio_.Folio))
+                var orden = context.OrdenEmbarque.Where(x => x.Codtad == id_terminal && !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(folio_.Folio))
                     .Include(x => x.Tad)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -2079,7 +2079,10 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Chofer)
                     .Include(x => x.Producto)
                     .Include(x => x.Estado)
-                    .Include(x => x.Orden)
+                    .Include(x => x.Orden).IgnoreAutoIncludes()
+                    .Include(x => x.Estatus_Orden)
+                    .Include(x => x.HistorialEstados)
+                    .ThenInclude(x=>x.Estado)
                     .FirstOrDefault();
 
                 if (orden is null) { return NotFound(); }
@@ -2108,7 +2111,7 @@ namespace GComFuelManager.Server.Controllers
                 if (usuario is null) { return NotFound(); }
 
                 var user = context.Usuario.Find(usuario.UserCod);
-                if(user is null) { return NotFound(); }
+                if (user is null) { return NotFound(); }
 
                 //var bol_embarque
 
@@ -2169,7 +2172,7 @@ namespace GComFuelManager.Server.Controllers
                     Fchmod = DateTime.Now,
                     Bol = orden.BatchId
                 };
-                
+
                 context.Add(ordEmbDet);
                 await context.SaveChangesAsync();
 

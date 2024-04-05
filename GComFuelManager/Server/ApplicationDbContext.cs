@@ -567,6 +567,17 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estatus_Orden)
                 .WithMany()
                 .HasForeignKey(x => x.Estatus);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasMany(x => x.HistorialEstados)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey(x => x.Id_Orden)
+                .HasPrincipalKey(x => x.Cod);
+
+            modelBuilder.Entity<HistorialEstados>()
+                .HasOne(x => x.Estado)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Estado);
         }
 
 
@@ -629,5 +640,7 @@ namespace GComFuelManager.Server
         public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
         public DbSet<Unidad_Tad> Unidad_Tad { get; set; }
         public DbSet<TipoProducto> TipoProducto { get; set; }
+        public DbSet<Estado> Estado { get; set; }
+        public DbSet<HistorialEstados> HistorialEstados { get; set; }
     }
 }
