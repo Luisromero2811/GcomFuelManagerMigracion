@@ -9,7 +9,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Chofer
     {
-        [Key, EpplusIgnore]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), EpplusIgnore]
         public int Cod { get; set; }
         [MaxLength(128), DisplayName("Nombre del Chofer")]
         public string? Den { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public bool? Activo { get; set; } = true;
         [EpplusIgnore] public bool? Activo_Permanente { get; set; } = true;
         [EpplusIgnore] public short? Id_Tad { get; set; }
-        [MaxLength(50)]
+        [StringLength(13)]
         public string? RFC { get; set; } = string.Empty;
         [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
         [NotMapped, DisplayName("Nombre completo del Chofer")]
@@ -36,10 +36,26 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
 
-        [NotMapped, EpplusIgnore] public Transportista? Transportista { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Tonel? Tonel { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public List<Tad> Terminales { get; set; } = new();
-        [NotMapped, JsonIgnore, EpplusIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+        [NotMapped] public Transportista? Transportista { get; set; } = null!;
+        [NotMapped] public Tonel? Tonel { get; set; } = null!;
+        [NotMapped] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+
+        public Chofer HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                Codtransport = Codtransport,
+                Dricod = Dricod,
+                Shortden = Shortden,
+                Activo = Activo,
+                Activo_Permanente = Activo_Permanente,
+                Id_Tad = Id_Tad,
+                RFC = RFC
+            };
+        }
     }
 }
 

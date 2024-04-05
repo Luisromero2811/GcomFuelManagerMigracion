@@ -40,9 +40,34 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
-        [EpplusIgnore,NotMapped] public Cliente? Cliente { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public OrdenCierre? OrdenCierre { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
-        [NotMapped, EpplusIgnore] public Tad? Tad { get; set; } = null!;
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
+        [NotMapped] public Producto? Producto { get; set; } = null!;
+        [NotMapped] public Tad? Tad { get; set; } = null!;
+
+        public Destino HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Num = Num,
+                Den = Den,
+                Codcte = Codcte,
+                Nroper = Nroper,
+                Dir = Dir,
+                CodbdTan = CodbdTan,
+                DesCod = DesCod,
+                Codsyn = Codsyn,
+                Esenergas = Esenergas,
+                Activo = Activo,
+                Lat = Lat,
+                Lon = Lon,
+                Codciu = Codciu,
+                Ciu = Ciu,
+                Est = Est,
+                CodGamo = CodGamo,
+                Id_DestinoGobierno = Id_DestinoGobierno
+            };
+        }
     }
 }

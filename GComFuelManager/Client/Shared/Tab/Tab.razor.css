@@ -1,0 +1,25 @@
+﻿.tab {
+    width: calc(100vw - .5vw);
+    overflow-x: scroll;
+    display: inline-flex;
+    background-color: #f1f1f1;
+}
+
+    .tab button {
+        background-color: inherit;
+        float: left;
+        border: none;
+        outline: none;
+        padding: .2rem .3rem;
+        transition: 0.3s;
+        font-size: .1rem;
+        white-space: nowrap;
+    }
+
+.tap button:hover {
+    background-color: #ddd;
+}
+
+.tab button.active{
+    background-color: #ccc;
+}

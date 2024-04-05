@@ -560,6 +560,32 @@ namespace GComFuelManager.Server
                 .WithOne()
                 .HasForeignKey<Consecutivo>(x => x.Id_Tad);
 
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.TipoProducto)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tipo);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Estatus_Orden)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasMany(x => x.HistorialEstados)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey(x => x.Id_Orden)
+                .HasPrincipalKey(x => x.Cod);
+
+            modelBuilder.Entity<HistorialEstados>()
+                .HasOne(x => x.Estado)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Estado);
+
             modelBuilder.Entity<Autorizador>()
                 .HasOne(x => x.Terminal)
                 .WithOne()
@@ -626,6 +652,9 @@ namespace GComFuelManager.Server
         public DbSet<GrupoTransportista_Tad> GrupoTransportista_Tad { get; set; }
         public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
         public DbSet<Unidad_Tad> Unidad_Tad { get; set; }
+        public DbSet<TipoProducto> TipoProducto { get; set; }
+        public DbSet<Estado> Estado { get; set; }
+        public DbSet<HistorialEstados> HistorialEstados { get; set; }
         public DbSet<Autorizador> Autorizador { get; set; }
         public DbSet<Autorizadores_Tad> Autorizadores_Tad { get; set; }
     }

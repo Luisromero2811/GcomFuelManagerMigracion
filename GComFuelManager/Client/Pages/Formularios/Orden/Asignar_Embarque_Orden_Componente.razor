@@ -37,6 +37,9 @@
                 Unidad de origen: @ordenEmbarque?.Tonel?.Veh
             </div>
             <div class="col-4">
+                Compartimento de origen: @ordenEmbarque?.Compartment
+            </div>
+            <div class="col-4">
                 Chofer de origen: @ordenEmbarque?.Chofer?.FullName
             </div>
         </div>
@@ -70,6 +73,8 @@
         </div>
     </div>
 </div>
+
+<Cambiar_Estatus_De_Orden_Componente />
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
     <!--Segundo formulario para exportación de ETA-->
@@ -199,17 +204,12 @@
                                         <td>@data?.Referencia</td>
                                         <td style="max-width:200px; text-align: center;">
                                             <p class="text-break">
-                                                @*@data?.FechaPrograma*@
-                                                @*@(data?.orden.BatchId is null ? data?.orden.Fchcar : data?.ordenEmbarque?.Fchcar )*@
-                                                @*@(data?.Bol is null ? data?.FechaPrograma : data?.FechaCargaEmbarque)*@
                                                 @data?.FechaPrograma
                                             </p>
                                         </td>
                                         <td>@data?.Unidad_Negocio</td>
                                         <td>@data?.EstatusOrden</td>
                                         <td>
-                                            @*@data?.FechaCarga*@
-                                            @*@(data?.orden?.Fchcar is not null && data?.orden.BatchId is not null ? data?.orden.Fchcar : "")*@
                                             @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
                                         </td>
                                         <td>@data?.Bol</td>
@@ -219,28 +219,13 @@
                                         <td>@data?.Cliente</td>
                                         <td>@data?.Destino</td>
                                         <td>@data?.Producto</td>
-                                        <!--Volumen Natural-->
                                         <td style="text-align: center;">
                                             @data?.Volms
-                                            @*@(data?.Bol is not null ? data?.Volms : data?.VolumenN)*@
                                         </td>
                                         <td style="text-align: center;">@data?.Vols</td>
                                         <td>@data?.Transportista</td>
                                         <td>@data?.Unidad</td>
                                         <td>@data?.Operador</td>
-                                        @*<td style="text-align: center;">@data?.FechaDoc?</td>*@
-                                        <!--Horas Estimadas de Viaje-->
-                                        @*<td>@data?.Eta</td>
-                                        <td>@data?.FechaEst</td>
-                                        <td style="text-align: center;">@data?.Trayecto</td>
-                                        <td>@data?.Observaciones</td>
-                                        <td style="text-align: center;">@data?.FechaRealEta</td>
-                                        <td>@data?.EntLit</td>*@
-                                        @*@(data?.Compartimento == 1 ? data.Capcom
-                                            : data?.Compartimento == 2 ? data.Capcom2
-                                            : data?.Compartimento == 3 ? data.Capcom3
-                                            : data?.Compartimento == 4 ? data.Capcom4 volnat es el vol2
-                                            : data?.Volms)*@
                                     </tr>
                                 </Virtualize>
                             </tbody>

@@ -1,0 +1,198 @@
+﻿@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService Ns
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+
+<div class="card">
+    <div class="card-header">
+        <b>Gestion de productos</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="Producto" OnValidSubmit="Guardar_Producto">
+                <div class="col-12 row">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="col-3">
+                        <InputText @bind-Value="Producto.Den" class="form-control form-control-sm col-12" placeholder="Nombre del producto" maxLenght="50" />
+                        <ValidationMessage For="@(()=>Producto.Den)" />
+                    </div>
+                    <div class="col-3">
+                        <InputSelect @bind-Value="Producto.Id_Tipo" class="form-select form-select-sm col-12">
+                            <option value="0">Tipo de producto</option>
+                            @foreach (var item in TipoProductos)
+                            {
+                                <option value="@item.Id">@item.Tipo</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Producto.Id_Tipo)" />
+                    </div>
+                    <div class="col-4">
+                        <div class="col-12 row">
+                            <div class="col-6">
+                                <button class="col-12 btn btn-sm gcom-bg-amarillo" type="submit">
+                                    Guardar
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = new())">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<hr />
+<Tabla Datos="Productos" Type="Producto">
+    <Cabeceras>
+        <tr>
+            <th>Producto</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Editar</th>
+        </tr>
+    </Cabeceras>
+    <Columnas Context="producto">
+        <tr>
+            <td>@producto.Den</td>
+            <td>@producto.Obtener_Tipo</td>
+            <td>
+                <div class="form-check form-switch mx-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo">
+                </div>
+            </td>
+            <td>
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = producto)">
+                    <i class="fa fa-solid fa-edit"></i>
+                </button>
+            </td>
+        </tr>
+    </Columnas>
+</Tabla>
+
+@code {
+    Producto Producto { get; set; } = new();
+    List<Producto> Productos { get; set; } = new();
+    List<TipoProducto> TipoProductos { get; set; } = new();
+    List<Tad> Terminales { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Tipos();
+        await Obtener_Terminales();
+        await Obtener_Productos();
+    }
+
+    private async Task Guardar_Producto()
+    {
+        try
+        {
+            var response = await repositorio.Post<Producto>($"api/producto", Producto);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Ns.Notify(new() { Summary = "Registro de producto", Detail = "El producto fue registrado con exito", Severity = NotificationSeverity.Success });
+                await Obtener_Productos();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Tipos()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<TipoProducto>>($"api/producto/tipos");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                TipoProductos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Productos()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Producto>>($"api/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Productos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Terminales()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Tad>>($"api/terminal");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Relacion()
+    {
+        try
+        {
+            var response = await repositorio.Post<Producto>($"api/producto", Producto);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Ns.Notify(new() { Summary = "Registro de producto", Detail = "El producto fue registrado con exito", Severity = NotificationSeverity.Success });
+                await Obtener_Productos();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}
