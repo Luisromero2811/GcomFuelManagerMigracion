@@ -40,6 +40,7 @@ namespace GComFuelManager.Server.Controllers
                 PdfPage page = pdfDocument.AddPage();
                 XGraphics graphics = XGraphics.FromPdfPage(page);
                 XFont font = new("Arial", 11, XFontStyle.Regular);
+                XFont font_valor = new("Arial", 9, XFontStyle.Regular);
                 XFont font_bold = new("Arial", 11, XFontStyle.Bold);
                 XTextFormatter tf = new(graphics);
                 XPen pen = new(XColors.Black, .8);
@@ -257,7 +258,6 @@ namespace GComFuelManager.Server.Controllers
                 rect = new(36, 723, 540, 26);
                 tf.DrawString("MGC Mexico, S.A. de C.V. Lago Zurich 245 Piso 7, Col. Ampliacion Granada, Alcaldia Miguel Hidalgo, Ciudad de Mexico, CP  11529, Telefono (55) 4122 - 1532", font, XBrushes.Black, rect, XStringFormats.TopLeft);
                 #endregion
-
 
                 var ms = new System.IO.MemoryStream();
                 pdfDocument.Save(ms);

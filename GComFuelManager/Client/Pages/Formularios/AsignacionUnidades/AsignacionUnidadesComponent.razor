@@ -185,6 +185,9 @@
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
                     Asignar / cancelar
                 </th>
+                <th>
+                    Autorizador
+                </th>
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
                 {
                     <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
@@ -277,6 +280,7 @@
         <tbody>
             <tr class="fila">
                 <td class="sticky-column-header" style="background-color:white;"></td>
+                <td></td>
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
                 {
                     <td></td>
@@ -371,6 +375,16 @@
                                     </Authorized>
                                 </AuthorizeView>
                             </div>
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="rz-text-truncate">
+                            <select @bind="@data.Id_Autorizador" class="form-select form-select-sm">
+                                @foreach (var item in collection)
+                                {
+                                    
+                                }
+                            </select>
                         </div>
                     </td>
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
@@ -755,6 +769,8 @@ else
     bool AlertVisible = false;
     bool showDropDown = false;
     List<Columna_Tabla> Columnas = new List<Columna_Tabla>();
+
+    List<Autorizador> 
 
     protected override async Task OnInitializedAsync()
     {
