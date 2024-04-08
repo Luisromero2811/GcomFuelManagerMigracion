@@ -8,6 +8,9 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Lectura Asignacion")]
 
+<button @onclick="Descargar_Pdf">
+    Pdf
+</button>
 <RadzenAlert Variant="@Variant.Flat" AlertStyle="@AlertStyle.Info" Size="@AlertSize.Large" AllowClose="true" Visible="@AlertVisible">
     Se estan enviano las ordenes a synthesis, este proceso puede tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.
 </RadzenAlert>
@@ -1505,6 +1508,27 @@ else
         catch (Exception e)
         {
             updateData = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Descargar_Pdf()
+    {
+        try
+        {
+            var response = await repositorio.Get<byte[]>($"api/pdf/vale");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Vale.pdf", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
