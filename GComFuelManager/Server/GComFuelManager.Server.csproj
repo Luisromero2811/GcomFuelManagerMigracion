@@ -51,6 +51,7 @@
     <None Remove="Controllers\UsuarioController\" />
     <None Remove="Controllers\Porcentajes\" />
     <None Remove="Controllers\Tarifas\" />
+    <None Remove="Controllers\Autorizadores\" />
   </ItemGroup>
 
 
@@ -65,5 +66,6 @@
     <Folder Include="Files\" />
     <Folder Include="Controllers\Porcentajes\" />
     <Folder Include="Controllers\Tarifas\" />
+    <Folder Include="Controllers\Autorizadores\" />
   </ItemGroup>
 </Project>

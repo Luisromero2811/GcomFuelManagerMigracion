@@ -19,6 +19,7 @@ namespace GComFuelManager.Shared.DTOs
         public List<Transportista> Transportistas { get; set; } = new List<Transportista>();
         public List<Chofer> Chofer { get; set; } = new List<Chofer>();
         public List<Tonel> Toneles { get; set; } = new List<Tonel>();
+        public List<Autorizador> Autorizadors { get; set; } = new List<Autorizador>();
         //Strings
         public string NombreCliente { get; set; } = string.Empty!;
         public string NombreTerminal { get; set; } = string.Empty!;

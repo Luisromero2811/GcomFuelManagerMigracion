@@ -467,6 +467,7 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
             modelBuilder.Entity<Chofer_Tad>().HasKey(ut => new { ut.Id_Chofer, ut.Id_Terminal });
             modelBuilder.Entity<Unidad_Tad>().HasKey(ut => new { ut.Id_Unidad, ut.Id_Terminal });
+            modelBuilder.Entity<Autorizadores_Tad>().HasKey(at => new { at.Id_Autorizador, at.Id_Terminal });
 
             modelBuilder.Entity<Cliente>()
                 .HasMany(x => x.Terminales)
@@ -516,7 +517,13 @@ namespace GComFuelManager.Server
                 r => r.HasOne(x => x.Tonel).WithMany(x => x.Unidad_Tads).HasForeignKey(x => x.Id_Unidad).OnDelete(DeleteBehavior.Restrict)
                 );
 
-
+            modelBuilder.Entity<Autorizador>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Autorizadores)
+                .UsingEntity<Autorizadores_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Autorizador_Tad).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Autorizador).WithMany(x => x.Autorizador_Tad).HasForeignKey(X => X.Id_Autorizador).OnDelete(DeleteBehavior.Restrict)
+                );
 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Terminal)
@@ -578,6 +585,12 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estado)
                 .WithMany()
                 .HasForeignKey(x => x.Id_Estado);
+
+            modelBuilder.Entity<Autorizador>()
+                .HasOne(x => x.Terminal)
+                .WithOne()
+                .HasForeignKey<Autorizador>(x => x.Id_Tad);
+
         }
 
 
@@ -642,5 +655,7 @@ namespace GComFuelManager.Server
         public DbSet<TipoProducto> TipoProducto { get; set; }
         public DbSet<Estado> Estado { get; set; }
         public DbSet<HistorialEstados> HistorialEstados { get; set; }
+        public DbSet<Autorizador> Autorizador { get; set; }
+        public DbSet<Autorizadores_Tad> Autorizadores_Tad { get; set; }
     }
 }

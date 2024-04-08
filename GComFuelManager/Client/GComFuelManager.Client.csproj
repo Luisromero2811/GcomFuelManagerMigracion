@@ -54,6 +54,7 @@
     <None Remove="Pages\Formularios\ETA\" />
     <None Remove="Pages\Tarifario\" />
     <None Remove="Pages\Obtencion de Catalogos\" />
+    <None Remove="Pages\Formularios\Autorizadores\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -63,6 +64,7 @@
     <Folder Include="Pages\Formularios\ETA\" />
     <Folder Include="Pages\Tarifario\" />
     <Folder Include="Pages\Obtencion de Catalogos\" />
+    <Folder Include="Pages\Formularios\Autorizadores\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
