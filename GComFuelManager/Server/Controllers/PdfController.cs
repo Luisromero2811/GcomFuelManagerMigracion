@@ -1,5 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Org.BouncyCastle.Asn1.Pkcs;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Drawing.Layout;
 using PdfSharpCore.Pdf;
+using System.Drawing;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -21,19 +23,25 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserToken verifyUser;
+        private readonly User_Terminal _terminal;
 
-        public PdfController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
+        public PdfController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser, User_Terminal user_Terminal)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            this._terminal = user_Terminal;
         }
 
         [HttpGet("vale")]
-        public ActionResult Obtener_Vale()
+        public ActionResult Obtener_Vale([FromBody] OrdenEmbarque ordenEmbarque)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 //x 540 - y 720 (con margen) x 612 - y 792 (completa) -- tamaño carta
                 PdfDocument pdfDocument = new();
 
@@ -46,10 +54,50 @@ namespace GComFuelManager.Server.Controllers
                 XPen pen = new(XColors.Black, .8);
                 XRect rect = new();
 
+                #region Consulta
+
+                var terminal = context.Tad.FirstOrDefault(x => x.Cod == ordenEmbarque.Cod);
+
+                if (terminal is null) { return BadRequest("No se encontro la terminal"); }
+                if (string.IsNullOrEmpty(terminal.Den) || string.IsNullOrWhiteSpace(terminal.Den)) { return BadRequest("No se encontro la terminal"); }
+
+                var producto = context.Producto.FirstOrDefault(x => x.Cod == ordenEmbarque.Codprd);
+                if (producto is null) { return BadRequest("No se encontro el producto"); }
+                if (string.IsNullOrEmpty(producto.Den) || string.IsNullOrWhiteSpace(producto.Den)) { return BadRequest("No se encontro el producto"); }
+
+                var tonel = context.Tonel.FirstOrDefault(x => x.Cod == ordenEmbarque.Codton);
+                if (tonel is null) { return BadRequest("No se encontro el tonel"); }
+
+                var transportista = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
+                if (transportista is null) { return BadRequest("No se encontro el transportista"); }
+                if (string.IsNullOrEmpty(transportista.Den) || string.IsNullOrWhiteSpace(transportista.Den)) { return BadRequest("No se encontro el producto"); }
+
+                var chofer = context.Chofer.FirstOrDefault(x => x.Cod == ordenEmbarque.Codchf);
+                if (chofer is null) { return BadRequest("No se encontro un chofer"); }
+
+                var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
+                if (destino is null) { return BadRequest("No se encontro el destino"); }
+
+                var producto_anterior = string.Empty;
+                var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton).LastOrDefault();
+                if (orden_anterior is not null)
+                {
+                    var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
+                    if (prod_anterior is not null)
+                    {
+                        producto_anterior = prod_anterior.Den;
+                    }
+                }
+
+                var autorizador = context.Autorizador.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Autorizador);
+                if (autorizador is null) { return BadRequest("No se encontro el autorizador"); }
+
+                #endregion
+
                 #region imagen de mgc
                 string path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/MGC_Icon.png");
                 XImage xImage = XImage.FromFile(path);
-                graphics.DrawImage(xImage, 36,36);
+                graphics.DrawImage(xImage, 36, 36);
                 #endregion
 
                 #region Folio de vale
@@ -66,8 +114,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("Pemex Transformacion Industrial", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(36, 121, 220, 13);
-                tf.DrawString("NOMBRE_DE_TERMINAL", font, XBrushes.Black, rect, XStringFormats.TopLeft);
-
+                tf.DrawString(terminal.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
                 #endregion
 
                 #region Datos inicio
@@ -95,7 +142,7 @@ namespace GComFuelManager.Server.Controllers
 
                 tf.Alignment = XParagraphAlignment.Center;
                 rect = new(380, 205, 190, 13);
-                tf.DrawString("FECHA_DOCUMENTO_COMPLETA", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(DateTime.Today.ToString("D"), font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 tf.Alignment = XParagraphAlignment.Left;
 
@@ -106,7 +153,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("CLAVE DE CLIENTE SIIC:", font_bold, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(455, 220, 122, 13);
-                tf.DrawString("CLAVE_CLIENTE", font_bold, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString("0000202967", font_bold, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 455, 232, 540, 232);
                 #endregion
@@ -120,7 +167,7 @@ namespace GComFuelManager.Server.Controllers
 
                 rect = new(316, 245, 260, 13);
                 tf.Alignment = XParagraphAlignment.Center;
-                tf.DrawString("NOMBRE_PRODUCTO", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(producto.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
                 tf.Alignment = XParagraphAlignment.Left;
 
                 graphics.DrawLine(pen, 316, 257, 540, 257);
@@ -136,7 +183,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("EMPRESA TRANSPORTISTA:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 285, 360, 13);
-                tf.DrawString("NOMBRE_TRANSPORTISTA", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(transportista.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 298, 540, 298);
                 #endregion
@@ -146,7 +193,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NOMBRE DEL OPERADOR:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 300, 360, 13);
-                tf.DrawString("NOMBRE_DEL_OPERADOR", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(chofer.FullName, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 313, 540, 313);
                 #endregion
@@ -156,7 +203,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NOMBRE DEL OPERADOR:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 316, 360, 13);
-                tf.DrawString("NOMBRE_DEL_OPERADOR", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(chofer.RFC, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 329, 540, 329);
                 #endregion
@@ -166,7 +213,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NÚMERO DE EQUIPO:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 332, 360, 13);
-                tf.DrawString("NÚMERO_DE_EQUIPO", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(tonel.Tracto, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 345, 540, 345);
                 #endregion
@@ -186,7 +233,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NUM. DE CERTIFICADO:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 364, 360, 13);
-                tf.DrawString("NUMERO_DE_CERTIFICADO", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(tonel.Certificado_Calibracion, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 377, 540, 377);
                 #endregion
@@ -196,7 +243,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NUM. DE PLACAS:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 380, 360, 13);
-                tf.DrawString("NUMUERO_DE_PLACAS", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(tonel.Placa, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 393, 540, 393);
                 #endregion
@@ -206,7 +253,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("PRODUCTO QUE TRANSPORTÓ EN EL VIAJE ANTERIOR:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(343, 396, 230, 13);
-                tf.DrawString("PRODUCTO_TRANSPORTADO_ANTERIOR", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(producto_anterior, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 343, 409, 540, 409);
                 #endregion
@@ -216,7 +263,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("DESTINO:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(105, 412, 470, 13);
-                tf.DrawString("NOMBRE_COMPLETO_DEL_DESTINO", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(destino.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 105, 425, 540, 425);
                 #endregion
@@ -229,7 +276,7 @@ namespace GComFuelManager.Server.Controllers
 
                 rect = new(106, 503, 400, 13);
                 tf.Alignment = XParagraphAlignment.Center;
-                tf.DrawString("NOMBRE_COMPLETO_DEL_OPERADOR", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(chofer.FullName, font, XBrushes.Black, rect, XStringFormats.TopLeft);
                 tf.Alignment = XParagraphAlignment.Left;
 
                 graphics.DrawLine(pen, 106, 518, 506, 518);
@@ -245,7 +292,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("ATENTAMENTE", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(106, 660, 400, 13);
-                tf.DrawString("NOMBRE_COMPLETO_DEL_ENCARGADO", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(autorizador.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
                 tf.Alignment = XParagraphAlignment.Left;
 
                 graphics.DrawLine(pen, 106, 675, 506, 675);
