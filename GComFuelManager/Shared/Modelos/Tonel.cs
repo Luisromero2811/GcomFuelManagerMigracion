@@ -20,7 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public int? Codsyn { get; set; } = 0;
         [AllowNull, DefaultValue(""), EpplusIgnore] public string? Carid { get; set; } = string.Empty;
         [DisplayName("Nº Compartimento")] public int? Nrocom { get; set; } = 0;
-        [EpplusIgnore]public int? Idcom { get; set; } = 0;
+        [EpplusIgnore] public int? Idcom { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento")] public decimal? Capcom { get; set; } = decimal.Zero;
         [DisplayName("Nº Compartimento 2")] public int? Nrocom2 { get; set; } = 0;
         [EpplusIgnore] public int? Idcom2 { get; set; } = 0;
@@ -46,6 +46,24 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore] public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
         [EpplusIgnore] public string Veh { get { return $"{Tracto} {Placa}"; } }
+        [EpplusIgnore]
+        public string Tanque
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(Tracto))
+                {
+                    if (Tracto.Contains("-T1"))
+                        return "T1";
+
+                    if (Tracto.Contains("-T2"))
+                        return "T2";
+                }
+
+                return string.Empty;
+            }
+        }
+
         [NotMapped, EpplusIgnore]
         public int CapDisponible
         {
@@ -66,7 +84,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
 
-        [NotMapped,EpplusIgnore]
+        [NotMapped, EpplusIgnore]
         public List<CapTonel> Capacidades
         {
             get
@@ -74,7 +92,7 @@ namespace GComFuelManager.Shared.Modelos
                 CapTonel capTonel = new CapTonel();
                 List<CapTonel> capTonels = new List<CapTonel>();
 
-                if(Nrocom != null && Nrocom != 0)
+                if (Nrocom != null && Nrocom != 0)
                 {
                     capTonel.CapCom = Capcom;
                     capTonel.IdCom = Idcom;

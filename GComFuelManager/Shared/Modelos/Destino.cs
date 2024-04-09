@@ -10,9 +10,9 @@ namespace GComFuelManager.Shared.Modelos
     {
         [Key, EpplusIgnore]
         public int Cod { get; set; }
-        [EpplusIgnore]public int? Num { get; set; } = 0;
+        [EpplusIgnore] public int? Num { get; set; } = 0;
         [MaxLength(128)]
-        [DisplayName("Nombre del Destino")]public string? Den { get; set; } = string.Empty;
+        [DisplayName("Nombre del Destino")] public string? Den { get; set; } = string.Empty;
         [EpplusIgnore] public int? Codcte { get; set; } = 0;
         [MaxLength(30), EpplusIgnore]
         public string? Nroper { get; set; } = string.Empty;
@@ -23,7 +23,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(20), EpplusIgnore]
         public string? Codsyn { get; set; } = string.Empty;
         [EpplusIgnore] public bool? Esenergas { get; set; } = false;
-        [EpplusIgnore]public bool Activo { get; set; } = true;
+        [EpplusIgnore] public bool Activo { get; set; } = true;
         [MaxLength(50), EpplusIgnore]
         public string? Lat { get; set; } = string.Empty;
         [MaxLength(50), EpplusIgnore]
@@ -32,12 +32,20 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(50)]
         [DisplayName("Ciudad")] public string? Ciu { get; set; } = string.Empty;
         [MaxLength(50)]
-        [DisplayName("Estado")]public string? Est { get; set; } = string.Empty;
+        [DisplayName("Estado")] public string? Est { get; set; } = string.Empty;
         [EpplusIgnore] public long? CodGamo { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; }
 
         [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
 
+        [NotMapped]
+        public string FULLDEN
+        {
+            get
+            {
+                return $"{Den}, {Dir}, {Est}, {Ciu}";
+            }
+        }
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
         [NotMapped] public Cliente? Cliente { get; set; } = null!;

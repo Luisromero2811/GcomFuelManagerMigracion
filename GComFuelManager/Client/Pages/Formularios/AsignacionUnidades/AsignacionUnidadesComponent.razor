@@ -182,7 +182,7 @@
                                     Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
                     Asignar / cancelar
                 </th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
                     Autorizador
                 </th>
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
@@ -378,6 +378,7 @@
                         <div class="rz-text-truncate row">
                             <div class="col-10">
                                 <select @bind="@data.Id_Autorizador" class="form-select form-select-sm">
+                                    <option>Autorizador</option>
                                     @foreach (var item in Autorizadores)
                                     {
                                         <option value="@item.Cod">@item.Den</option>
@@ -997,10 +998,10 @@ else
                         Chofer = asignacion.CodChf,
                         Tonel = asignacion.CodTon,
                         Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                                                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                                                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                                                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                                                                                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                                                                    : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                                                                    : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                                                                    : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
                         //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
                         FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
                     };
@@ -1136,10 +1137,10 @@ else
                                 Producto = item?.Producto?.Den ?? "",
                                 //Volumen = item?.Vol,
                                 Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
                                 FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
                                 Transportista = item?.Tonel?.Transportista?.Den ?? "",
                                 Unidad = item?.Tonel?.Veh ?? "",
@@ -1545,7 +1546,7 @@ else
             }
             else
             {
-                await js.GuardarComo($"Vale.pdf", response.Response);
+                await js.GuardarComo($"Vale_De_Retiro_{orden.Bin}_{orden.Compartment}.pdf", response.Response);
             }
         }
         catch (Exception e)
