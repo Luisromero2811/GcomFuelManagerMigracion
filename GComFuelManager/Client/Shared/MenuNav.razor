@@ -407,7 +407,16 @@
                                             </div>
                                         </Template>
                                     </RadzenMenuItem>
+                                </AuthorizeView>
 
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Estados">
+                                    <RadzenMenuItem Path="/gestionEstados" class="gcom-bg-rojo col-12">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-bars-progress"></i> Gestión de Estados
+                                            </div>
+                                        </Template>
+                                    </RadzenMenuItem>
                                 </AuthorizeView>
 
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="OrdenHistorial">
