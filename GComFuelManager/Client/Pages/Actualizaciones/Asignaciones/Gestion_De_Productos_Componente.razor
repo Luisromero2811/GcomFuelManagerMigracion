@@ -64,7 +64,7 @@
             <td>@producto.Obtener_Tipo</td>
             <td>
                 <div class="form-check form-switch mx-2">
-                    <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo">
+                    <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo" @onchange="@((args)=>ChangeStatus(args, producto))">
                 </div>
             </td>
             <td>
@@ -87,6 +87,32 @@
         await Obtener_Tipos();
         await Obtener_Terminales();
         await Obtener_Productos();
+    }
+
+    private async void ChangeStatus(ChangeEventArgs args, Producto producto)
+    {
+        try
+        {
+            if (args.Value is null) { return; }
+            producto.Activo = (bool)args.Value;
+
+            var response = await repositorio.Post<Producto>($"api/producto", producto);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Ns.Notify(new() { Summary = "Estado modificado", Detail = "El estado del producto ha sido modificado", Severity = NotificationSeverity.Success });
+                await Obtener_Productos();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 
     private async Task Guardar_Producto()
@@ -136,7 +162,7 @@
     {
         try
         {
-            var response = await repositorio.Get<List<Producto>>($"api/producto");
+            var response = await repositorio.Get<List<Producto>>($"api/producto/all");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

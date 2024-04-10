@@ -268,7 +268,8 @@ namespace GComFuelManager.Server.Controllers
                         BatchId = null!,
                         Tonel = o.Tonel,
                         Chofer = o.Chofer,
-                        Compartimento = o.Compartment
+                        Compartimento = o.Compartment,
+                        OrdenEmbarque = o
                     })
                     //.OrderBy(x => x.Fchcar)
                     //ordens.OrderByDescending(x => x.Bin);
@@ -2015,7 +2016,7 @@ namespace GComFuelManager.Server.Controllers
 
                 var codigo_terminal = context.Tad.Single(x => x.Cod == id_terminal).CodigoOrdenes;
 
-
+                if (ordens.Any(x => x.Id_Autorizador == 0 || x.Id_Autorizador == null)) { return BadRequest("No tiene un autorizador seleccionado"); }
 
                 foreach (var orden in ordens)
                 {
@@ -2082,7 +2083,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Orden).IgnoreAutoIncludes()
                     .Include(x => x.Estatus_Orden)
                     .Include(x => x.HistorialEstados)
-                    .ThenInclude(x=>x.Estado)
+                    .ThenInclude(x => x.Estado)
                     .FirstOrDefault();
 
                 if (orden is null) { return NotFound(); }

@@ -257,4 +257,21 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
     }
+
+    public class OrdenEmbarque_Excel
+    {
+        [DisplayName("Fecha de carga")]
+        public DateTime Fecha_Programa { get; set; } = DateTime.MinValue;
+        [DisplayName("Fecha de llegada estimada")]
+        public DateTime Fecha_Estimada { get; set; } = DateTime.MinValue;
+        public string Producto { get; set; } = string.Empty;
+        public double Volumen { get; set; } = 0;
+        public string Cliente { get; set; } = string.Empty;
+        public string Destino { get; set; } = string.Empty;
+        //public string Tonel { get; set; } = string.Empty;
+        //public int Compartimento { get; set; } = 0;
+        //public string Operador { get; set; } = string.Empty;
+        public string Turno { get; set; } = string.Empty;
+
+    }
 }

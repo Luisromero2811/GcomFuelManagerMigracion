@@ -48,6 +48,25 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAll()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var productos = await context.Producto.Where(x => x.Id_Tad == id_terminal).Include(x => x.TipoProducto).OrderBy(x => x.Den).ToListAsync();
+                return Ok(productos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] Producto producto)
         {
