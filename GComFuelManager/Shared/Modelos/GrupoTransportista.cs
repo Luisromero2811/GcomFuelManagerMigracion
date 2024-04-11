@@ -16,6 +16,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(255)]
         [DisplayName("Nombre del Grupo Transportista")] public string? den { get; set; } = string.Empty;
         [EpplusIgnore] public short? Id_Tad { get; set; }
+        [EpplusIgnore] public bool Activo { get; set; } = true;
 
         [NotMapped, EpplusIgnore] public Tad? Tad { get; set; }
         [NotMapped, EpplusIgnore] public List<Tad> Terminales { get; set; } = new();

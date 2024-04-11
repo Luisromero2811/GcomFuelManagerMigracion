@@ -90,13 +90,47 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     chofer.Id_Tad = id_terminal;
                     chofer.Codtransport = Convert.ToInt32(chofer.Transportista!.Busentid);
+                    var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
+                    //Si ya existe, genera un nuevo número Random
+                    if (exist)
+                    {
+                        return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                    }
                     context.Add(chofer);
+                    await context.SaveChangesAsync();
+                    if (!context.Chofer_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Chofer == chofer.Cod))
+                    {
+                        Chofer_Tad choferTad = new()
+                        {
+                            Id_Chofer = chofer.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(choferTad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    chofer.Id_Tad = id_terminal;
+                    if (context.Chofer.Any(x => x.RFC != chofer.RFC))
+                    {
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Chofer.Any(x => x.RFC == chofer.RFC && x.Den != chofer.Den);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist)
+                        {
+                            return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                    }
+
                     context.Update(chofer);
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
+           
                 return Ok();
             }
             catch (Exception e)
@@ -199,7 +233,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             try
             {
                 var transportistas = context.Chofer.IgnoreAutoIncludes()
-                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true)
+                    .Where(x => x.Codtransport == transportista)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
                     .ToList();

@@ -6,46 +6,91 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
 
-<h4>Catalogo de Transportistas</h4>
+<div class="card">
+    <div class="card-header">
+        <b>Catalogo de Empresa Transportista</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@transportista" class="form col-12" OnValidSubmit="@CreateEmpresaTransportes" Context="Validations">
+                <FluentValidationValidator Validator="gestionTransportista" />
+                <ValidationSummary />
+                <div class="col-12 row">
+                    <div class="col-4">
+                        <label>Grupo Transportes:</label>
+                        <RadzenDropDown @bind-Value="transportista.Codgru" TValue="int?" Data="Grupos" ValueProperty="cod" TextProperty="den"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown>
+                    </div>
+                    <div class="col-4">
+                        <label>Nombre empresa de Transportes:</label>
+                        <InputText @bind-Value="transportista.Den" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2 d-flex mt-auto">
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Registrar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!--<h4>Catalogo de Transportistas</h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-                    <h5>Agregar Empresas Transportistas</h5>
-                    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
-                    <EditForm Model="@transportista" class="form col-12" OnValidSubmit="@CreateEmpresaTransportes" Context="Validations">
-                        <FluentValidationValidator Validator="gestionTransportista" />
-                        <ValidationSummary />
-                        <div class="col-12 row">
-                            <div class="col-4">
-                                <label>Grupo Transportes:</label>
-                                <RadzenDropDown @bind-Value="transportista.Codgru" TValue="int?" Data="Grupos" ValueProperty="cod" TextProperty="den"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                </RadzenDropDown>
-                            </div>
-                            <div class="col-4">
-                                <label>Nombre empresa de Transportes:</label>
-                                <InputText @bind-Value="transportista.Den" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2 d-flex mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-plus"></i> Registrar
-                                </button>
-                            </div>
-                        </div>
-                    </EditForm>
-                </AuthorizeView>
-                <!--Aquí ligamos la terminal a los clientes-->
+                    <h5>Agregar Empresas Transportistas</h5>-->
+<!--Aquí se agregará las validaciones para gestionar a los clientes-->
+<!--<EditForm Model="@transportista" class="form col-12" OnValidSubmit="@CreateEmpresaTransportes" Context="Validations">
+        <FluentValidationValidator Validator="gestionTransportista" />
+        <ValidationSummary />
+        <div class="col-12 row">
+            <div class="col-4">
+                <label>Grupo Transportes:</label>
+                <RadzenDropDown @bind-Value="transportista.Codgru" TValue="int?" Data="Grupos" ValueProperty="cod" TextProperty="den"
+                                AllowVirtualization="true" AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                </RadzenDropDown>
+            </div>
+            <div class="col-4">
+                <label>Nombre empresa de Transportes:</label>
+                <InputText @bind-Value="transportista.Den" class="form-control" MaxLenght="80" />
+            </div>
+            <div class="col-2 d-flex mt-auto">
+                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                    <i class="fa fa-solid fa-plus"></i> Registrar
+                </button>
             </div>
         </div>
+    </EditForm>
+</AuthorizeView>-->
+<!--Aquí ligamos la terminal a los clientes-->
+<!--</div>
+        </div>
     </div>
-</AuthorizeView>
+</AuthorizeView>-->
 
 <div class="card mt-2" style="height:500px;">
     <div class="card-header">
-        <b>Gestión de Transportista - Unidades de negocio</b>
+        <b>Gestión de Transportista</b>
     </div>
     <div class="card-body">
         <div class="col-12 row">
@@ -61,46 +106,48 @@
                     </Render>
                 </DropDownFilter>
             </div>
-            <div class="col-3">
-                <label>Unidad de Negocio</label>
-                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                    <RenderValue>
-                        <div>@context.Den</div>
-                    </RenderValue>
-                    <Render>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                            <label class="form-check-label" for="@context.Cod">
-                                @if (context is not null)
-                                {
-                                    @context.Den
-                                }
-                                else
-                                {
-                                    <p>@context.Den</p>
-                                }
-                            </label>
-                        </div>
-                    </Render>
-                </DropDownFilter>
-            </div>
-            <div class="col-3">
-                <label></label>
-                <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                    <i class="fa fa-solid fa-plus"></i> Relacionar Transportista-Unidad
-                </button>
-            </div>
+            @*<div class="col-3">
+                    <label>Unidad de Negocio</label>
+                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                        <RenderValue>
+                            <div>@context.Den</div>
+                        </RenderValue>
+                        <Render>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                <label class="form-check-label" for="@context.Cod">
+                                    @if (context is not null)
+                                    {
+                                        @context.Den
+                                    }
+                                    else
+                                    {
+                                        <p>@context.Den</p>
+                                    }
+                                </label>
+                            </div>
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                <div class="col-3">
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Transportista-Unidad
+                    </button>
+                </div>*@
         </div>
         <div class="col-12">
             <table class="table table-sm table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>
-                            <input type="checkbox" checked="@(Transportistas.Any(i => Transportista_Seleccionados != null && Transportista_Seleccionados.Contains(i)))"
-                                   @onchange="args => CheckItemAll(args?.Value)" />
-                        </th>
+                        @*<th>
+                                <input type="checkbox" checked="@(Transportistas.Any(i => Transportista_Seleccionados != null && Transportista_Seleccionados.Contains(i)))"
+                                       @onchange="args => CheckItemAll(args?.Value)" />
+                            </th>*@
                         <th>Transportista</th>
-                        <th>Unidades de Negocio</th>
+                        <th>Estado</th>
+                        <th>Editar</th>
+                        @*<th>Unidades de Negocio</th>*@
                     </tr>
                 </thead>
                 <tbody>
@@ -108,27 +155,39 @@
                     {
                         <Virtualize Items="Transportistas" TItem="Transportista" Context="item">
                             <tr>
-                                <th>
-                                    @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
-                                    <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Transportista_Seleccionados.Contains(item))" @onchange="args => { CheckTransportista(item, args?.Value); }" />
-                                </th>
+                                <!--<th>-->
+                                @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
+                                <!--<input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Transportista_Seleccionados.Contains(item))" @onchange="args => { CheckTransportista(item, args?.Value); }" />
+                                </th>-->
                                 <td>@item.Den</td>
                                 <td>
-                                    @if (item.Terminales is not null)
-                                    {
-                                        @foreach (var items in item.Terminales)
-                                        {
-                                            <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                @items.Den
-
-                                                <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                    <i class="fa fa-solid fa-xmark"></i>
-                                                </button>
-
-                                            </span>
-                                        }
-                                    }
+                                    <div class="form-check form-switch mx-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
+                                               @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                    </div>
                                 </td>
+                                <!--Editar-->
+                                <td>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                        <i class="fa fa-solid fa-edit"></i>
+                                    </button>
+                                </td>
+                                @*<td>
+                                        @if (item.Terminales is not null)
+                                        {
+                                            @foreach (var items in item.Terminales)
+                                            {
+                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                    @items.Den
+
+                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                        <i class="fa fa-solid fa-xmark"></i>
+                                                    </button>
+
+                                                </span>
+                                            }
+                                        }
+                                    </td>*@
                             </tr>
                         </Virtualize>
                     }
@@ -165,7 +224,7 @@
     ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
 
     Transportista_Tad transportista_Tad { get; set; } = new Transportista_Tad();
-
+    bool isEdit = false;
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
@@ -410,6 +469,66 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private async Task HabilitarDeshabilitar(Transportista transportista, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/transportista/desactivarempresas/{transportista.Cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{transportista.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{transportista.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetDestino(Transportista destino)
+    {
+        try
+        {
+            isEdit = true;
+            transportista = destino;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        transportista = new Transportista();
     }
 
 }

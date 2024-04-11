@@ -6,56 +6,107 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
 
-<h4>Catalogo de Choferes</h4>
+<div class="card">
+    <div class="card-header">
+        <b>Catalogo de Choferes</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@chofer" class="form col-12" OnValidSubmit="@CreateChofer" Context="Validations">
+                <FluentValidationValidator Validator="gestionChofer" />
+                <ValidationSummary />
+                <div class="col-12 row mb-3">
+                    <div class="col-3">
+                        <label>Transportista(Empresa):</label>
+                        <RadzenDropDown @bind-Value="chofer.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown>
+                    </div>
+                    <div class="col-3">
+                        <label>Nombre del Chofer:</label>
+                        <InputText @bind-Value="chofer.Den" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-3">
+                        <label>Apellido del Chofer:</label>
+                        <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-3">
+                        <label>RFC:</label>
+                        <InputText @bind-Value="chofer.RFC" class="form-control" MaxLenght="50"></InputText>
+                    </div>
+                    <div class="col-3 d-flex mt-2 mx-auto">
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Registrar Chofer
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<!--<h4>Catalogo de Choferes</h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
                 <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-                    <h5>Agregar Choferes</h5>
-                    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
-                    <EditForm Model="@chofer" class="form col-12" OnValidSubmit="@CreateChofer" Context="Validations">
-                        <FluentValidationValidator Validator="gestionChofer" />
-                        <ValidationSummary />
-                        <div class="col-12 row mb-3">
-                            <div class="col-3">
-                                <label>Transportista(Empresa):</label>
-                                <RadzenDropDown @bind-Value="chofer.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                </RadzenDropDown>
-                            </div>
-                            <div class="col-3">
-                                <label>Nombre del Chofer:</label>
-                                <InputText @bind-Value="chofer.Den" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-3">
-                                <label>Apellido del Chofer:</label>
-                                <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-3">
-                                <label>RFC:</label>
-                                <InputText @bind-Value="chofer.RFC" class="form-control" MaxLenght="50"></InputText>
-                            </div>
-                            <div class="col-3 d-flex mt-2 mx-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-plus"></i> Registrar Chofer
-                                </button>
-                            </div>
-                        </div>
-                    </EditForm>
-                </AuthorizeView>
-
-                <!--Aquí empieza la tabla de muestreo de datos-->
-                <hr />
+                    <h5>Agregar Choferes</h5>-->
+<!--Aquí se agregará las validaciones para gestionar a los clientes-->
+<!--<EditForm Model="@chofer" class="form col-12" OnValidSubmit="@CreateChofer" Context="Validations">
+        <FluentValidationValidator Validator="gestionChofer" />
+        <ValidationSummary />
+        <div class="col-12 row mb-3">
+            <div class="col-3">
+                <label>Transportista(Empresa):</label>
+                <RadzenDropDown @bind-Value="chofer.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
+                                AllowVirtualization="true" AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                </RadzenDropDown>
+            </div>
+            <div class="col-3">
+                <label>Nombre del Chofer:</label>
+                <InputText @bind-Value="chofer.Den" class="form-control" MaxLenght="80" />
+            </div>
+            <div class="col-3">
+                <label>Apellido del Chofer:</label>
+                <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
+            </div>
+            <div class="col-3">
+                <label>RFC:</label>
+                <InputText @bind-Value="chofer.RFC" class="form-control" MaxLenght="50"></InputText>
+            </div>
+            <div class="col-3 d-flex mt-2 mx-auto">
+                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                    <i class="fa fa-solid fa-plus"></i> Registrar Chofer
+                </button>
             </div>
         </div>
+    </EditForm>
+</AuthorizeView>-->
+<!--Aquí empieza la tabla de muestreo de datos-->
+<!--</div>
+        </div>
     </div>
-</AuthorizeView>
+</AuthorizeView>-->
 
 <div class="card mt-2" style="height:500px;">
     <div class="card-header">
-        <b>Gestión de Cliente - Unidades de negocio</b>
+        <b>Gestión de Cliente</b>
     </div>
     <div class="card-body">
         <div class="col-12 row">
@@ -76,45 +127,48 @@
                     </ValueTemplate>
                 </RadzenDropDown>
             </div>
-            <div class="col-3">
-                <label>Unidad de Negocio</label>
-                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                    <RenderValue>
-                        <div>@context.Den</div>
-                    </RenderValue>
-                    <Render>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                            <label class="form-check-label" for="@context.Cod">
-                                @if (context is not null)
-                                {
-                                    @context.Den
-                                }
-                                else
-                                {
-                                    <p>@context.Den</p>
-                                }
-                            </label>
-                        </div>
-                    </Render>
-                </DropDownFilter>
-            </div>
-            <div class="col-3">
-                <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                    <i class="fa fa-solid fa-plus"></i> Relacionar Chofer-Unidad
-                </button>
-            </div>
+            @*<div class="col-3">
+                    <label>Unidad de Negocio</label>
+                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                        <RenderValue>
+                            <div>@context.Den</div>
+                        </RenderValue>
+                        <Render>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                <label class="form-check-label" for="@context.Cod">
+                                    @if (context is not null)
+                                    {
+                                        @context.Den
+                                    }
+                                    else
+                                    {
+                                        <p>@context.Den</p>
+                                    }
+                                </label>
+                            </div>
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                <div class="col-3">
+                    <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Chofer-Unidad
+                    </button>
+                </div>*@
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>
-                                <input type="checkbox" checked="@(Choferes.Any(i => Chofer_Seleccionados != null && Chofer_Seleccionados.Contains(i)))"
-                                       @onchange="args => CheckItemAll(args?.Value)" />
-                            </th>
-                            <th>Choferes</th>
-                            <th></th>
-                            <th>Unidades de Negocio</th>
+                            @*<th>
+                                    <input type="checkbox" checked="@(Choferes.Any(i => Chofer_Seleccionados != null && Chofer_Seleccionados.Contains(i)))"
+                                           @onchange="args => CheckItemAll(args?.Value)" />
+                                </th>*@
+                            <th>Nombre del Chofer</th>
+                            <th>Apellido</th>
+                            <th>RFC</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
+                            @*<th>Unidades de Negocio</th>*@
                         </tr>
                     </thead>
                     <tbody>
@@ -122,28 +176,41 @@
                         {
                             <Virtualize Items="Choferes" TItem="Chofer" Context="item">
                                 <tr>
-                                    <th>
-                                        @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
-                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Chofer_Seleccionados.Contains(item))" @onchange="args => { CheckChofer(item, args?.Value); }" />
-                                    </th>
+                                    <!--<th>-->
+                                    @*<input type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckItem(item, args?.Value); }" />*@
+                                    <!--<input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Chofer_Seleccionados.Contains(item))" @onchange="args => { CheckChofer(item, args?.Value); }" />
+                                    </th>-->
                                     <td>@item.Den</td>
                                     <td>@item.Shortden</td>
+                                    <td>@item.RFC</td>
                                     <td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                            @foreach (var items in item.Terminales)
-                                            {
-                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                    @items.Den
-
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                    </button>
-
-                                                </span>
-                                            }
-                                        }
+                                        <div class="form-check form-switch mx-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo_Permanente"
+                                                   @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                        </div>
                                     </td>
+                                    <!--Editar-->
+                                    <td>
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                    </td>
+                                    @*<td>
+                                            @if (item.Terminales is not null)
+                                            {
+                                                @foreach (var items in item.Terminales)
+                                                {
+                                                    <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                        @items.Den
+
+                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                        </button>
+
+                                                    </span>
+                                                }
+                                            }
+                                        </td>*@
                                 </tr>
                             </Virtualize>
                         }
@@ -183,6 +250,7 @@
     AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
 
     Chofer_Tad chofer_Tad { get; set; } = new Chofer_Tad();
+    bool isEdit = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -405,6 +473,66 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private async Task HabilitarDeshabilitar(Chofer chofer, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/chofer/status/{chofer.Cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{chofer.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{chofer.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetDestino(Chofer destino)
+    {
+        try
+        {
+            isEdit = true;
+            chofer = destino;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        chofer = new Chofer();
     }
 
 }

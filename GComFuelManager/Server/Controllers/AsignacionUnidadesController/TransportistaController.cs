@@ -66,14 +66,56 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     grupoTransportista.Id_Tad = id_terminal;
                     context.Add(grupoTransportista);
+                    await context.SaveChangesAsync();
+                    if (!context.GrupoTransportista_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_GrupoTransportista == grupoTransportista.cod))
+                    {
+                        GrupoTransportista_Tad grupotransportetad = new()
+                        {
+                            Id_GrupoTransportista = grupoTransportista.cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(grupotransportetad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    grupoTransportista.Id_Tad = id_terminal;
                     context.Update(grupoTransportista);
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
+        [HttpPut("desactivargrupo/{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.GrupoTransportista.Where(x => x.cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -131,9 +173,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 //Si el cod del transportista viene en ceros se procede a la creación de una empresa transportista con el Id_Tad con la terminal que estamos logueados, el codgru del transportista al grupo y el carrid y busentid random para nuevos registros 
                 if (transportista.Cod == 0)
                 {
-                    transportista.Id_Tad = id_terminal;
                     //transportista.Codgru = transportista.GrupoTransportista!.cod!;
-
                     //Genero el número aleatorio para el Carrid
                     transportista.CarrId = Convert.ToString(random.Next(1, 50000));
                     //Con Any compruebo si el número aleatorio existe en la BD
@@ -153,16 +193,60 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     {
                         transportista.Busentid = Convert.ToString(random.Next(1, 50000));
                     }
-
+                    transportista.Id_Tad = id_terminal;
                     context.Add(transportista);
+                    await context.SaveChangesAsync();
+                    if (!context.Transportista_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Transportista == transportista.Cod))
+                    {
+                        Transportista_Tad transportista_Tad = new()
+                        {
+                            Id_Transportista = transportista.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(transportista_Tad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    transportista.Id_Tad = id_terminal;
                     context.Update(transportista);
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
+               
                 return Ok();
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("desactivarempresas/{cod:int}")]
+        public async Task<ActionResult> ChangeStatusTransportistas([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.Transportista.Where(x => x.Cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = (bool)destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -285,7 +369,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var transportistas = await context.Transportista
                     .Include(x => x.Terminales)
-                    .Where(x => x.Codgru == grupo && x.Activo == true)
+                    .Where(x => x.Codgru == grupo)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);
