@@ -87,8 +87,12 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var estaciones = await context.Destino
-                    .Where(x => x.Codcte == cliente)
+                    .Where(x => x.Codcte == cliente && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -170,8 +174,12 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var estaciones = await context.Destino
-                    .Where(x => x.Activo == true)
+                    .Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -227,6 +235,22 @@ namespace GComFuelManager.Server.Controllers
                 else
                 {
                     destino.Id_Tad = id_terminal;
+                    destino.Terminales = null!;
+                    //Verifico si es diferente al ID que ya tenía
+                    if (context.Destino.Any(x => x.Id_DestinoGobierno != destino.Id_DestinoGobierno))
+                    {
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Codciu != destino.Codciu);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist)
+                        {
+                            return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                    }
                     context.Update(destino);
                     await context.SaveChangesAsync();
                 }

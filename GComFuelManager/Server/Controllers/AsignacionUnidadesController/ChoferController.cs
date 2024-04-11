@@ -115,7 +115,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     if (context.Chofer.Any(x => x.RFC != chofer.RFC))
                     {
                         //Con Any compruebo si el número aleatorio existe en la BD
-                        var exist = context.Chofer.Any(x => x.RFC == chofer.RFC && x.Den != chofer.Den);
+                        var exist = context.Chofer.Any(x => x.RFC == chofer.RFC && x.Dricod != chofer.Dricod);
                         //Si ya existe, genera un nuevo número Random
                         if (exist)
                         {
@@ -126,7 +126,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     {
                         return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
                     }
-
+                    chofer.Terminales = null!;
                     context.Update(chofer);
                     await context.SaveChangesAsync();
                 }

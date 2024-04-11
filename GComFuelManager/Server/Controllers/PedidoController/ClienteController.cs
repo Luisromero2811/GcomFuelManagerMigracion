@@ -59,9 +59,13 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var grupos = await context.Cliente
                     .Include(x => x.Terminales)
-                    .Where(x => x.Codgru == grupo && x.Activo == true)
+                    .Where(x => x.Codgru == grupo && x.Terminales.Any(x => x.Cod == id_terminal))
                     .OrderBy(x => x.Den)
                     .ToListAsync();
 
@@ -109,12 +113,27 @@ namespace GComFuelManager.Server.Controllers
                     cliente.Id_Tad = id_terminal;
                     //Agregamos cliente
                     context.Add(cliente);
+                    await context.SaveChangesAsync();
+                    if (!context.Cliente_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Cliente == cliente.Cod))
+                    {
+                        Cliente_Tad clientetad = new()
+                        {
+                            Id_Cliente = cliente.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(clientetad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    cliente.Id_Tad = id_terminal;
+                    cliente.Tad = null!;
+                    cliente.Terminales = null!;
                     context.Update(cliente);
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
+
                 return Ok();
 
             }
@@ -183,6 +202,37 @@ namespace GComFuelManager.Server.Controllers
                 await context.SaveChangesAsync();
 
                 return Ok(clienteterminal);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.Cliente.Where(x => x.Cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {

@@ -112,7 +112,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = await context.Cliente.Where(x => x.Activo == true).OrderBy(x => x.Den).ToListAsync();
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = await context.Cliente.Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).OrderBy(x => x.Den).ToListAsync();
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -126,10 +130,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = context.Cliente.IgnoreAutoIncludes().AsQueryable();
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = context.Cliente.Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal)).IgnoreAutoIncludes().AsQueryable();
 
                 if (!string.IsNullOrEmpty(cliente.Den))
-                    clientes = clientes.Where(x => x.Den!.ToLower().Contains(cliente.Den.ToLower()) && x.Activo == true);
+                    clientes = clientes.Where(x => x.Den!.ToLower().Contains(cliente.Den.ToLower()) && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal));
 
                 return Ok(clientes);
             }

@@ -6,7 +6,6 @@
 
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
-
 @* <h4>Catalogo de clientes</h4> *@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
     <div class="card">
@@ -72,32 +71,38 @@
                         </InputSelect>
                     </div>
                     <div class="col-2 d-flex mt-auto">
-                        <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                            <i class="fa fa-solid fa-plus"></i> Guardar
-                        </button>
-                    </div>
-
-                    <div class="col-2 d-flex mt-auto">
-                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>Cliente = new())">
-                            <i class="fa fa-solid fa-xmark"></i> Cancelar
-                        </button>
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Guardar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                                <button class="col mx-2 btn gcom-bg-amarillo" type="button" @onclick="@cancelEdit">
+                                    <i class="fa fa-solid fa-xmark"></i>
+                                </button>
+                        }
                     </div>
                 </div>
             </EditForm>
         </div>
     </div>
     @*     <div class="col-12 d-flex justify-content-center">
-    <div class="col-10 card shadow-sm">
-    <div class="col-12 row card-body">
-    <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-    <h5>Agregar Clientes</h5>
-    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
+        <div class="col-10 card shadow-sm">
+        <div class="col-12 row card-body">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
+        <h5>Agregar Clientes</h5>
+        <!--Aquí se agregará las validaciones para gestionar a los clientes-->
 
-    </AuthorizeView>
-    <!--Aquí empieza la tabla de muestreo de datos-->
-    </div>
-    </div>
-    </div> *@
+        </AuthorizeView>
+        <!--Aquí empieza la tabla de muestreo de datos-->
+        </div>
+        </div>
+        </div> *@
     <div class="card mt-2" style="height:500px;">
         <div class="card-header">
             <b>Gestión de Clientes</b>
@@ -117,45 +122,49 @@
                     </DropDownFilter>
                 </div>
                 @* <div class="col-3">
-                <label>Unidad de Negocio</label>
-                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                <RenderValue>
-                <div>@context.Den</div>
-                </RenderValue>
-                <Render>
-                <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                <label class="form-check-label" for="@context.Cod">
-                @if (context is not null)
-                {
-                @context.Den
-                }
-                else
-                {
-                <p>@context.Den</p>
-                }
-                </label>
-                </div>
-                </Render>
-                </DropDownFilter>
-                </div> *@
+                    <label>Unidad de Negocio</label>
+                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                    <RenderValue>
+                    <div>@context.Den</div>
+                    </RenderValue>
+                    <Render>
+                    <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                    <label class="form-check-label" for="@context.Cod">
+                    @if (context is not null)
+                    {
+                    @context.Den
+                    }
+                    else
+                    {
+                    <p>@context.Den</p>
+                    }
+                    </label>
+                    </div>
+                    </Render>
+                    </DropDownFilter>
+                    </div> *@
                 @* <div class="col-3">
-                <label></label>
-                <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
-                </button>
-                </div> *@
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+                    <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
+                    </button>
+                    </div> *@
             </div>
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>
+                            @*<th>
                                 <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
                                        @onchange="args => CheckItemAll(args?.Value)" />
-                            </th>
+                            </th>*@
                             @*<th></th>*@
                             <th>Cliente</th>
+                            <th>Modelo de Venta</th>
+                            <th>Tipo de Venta</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
                             @* <th>Unidades de Negocio</th> *@
                         </tr>
                     </thead>
@@ -164,31 +173,45 @@
                         {
                             <Virtualize Items="Clientes" TItem="Cliente" Context="item">
                                 <tr>
-                                    <th>
-                                        <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
-                                    </th>
                                     @*<th>
-                                <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
-                                <i class="fa-regular fa-pen-to-square"></i>
-                                </button>
-                                </th>*@
+                                            <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
+                                        </th>*@
+                                    @*<th>
+                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                        </th>*@
                                     <td>@item.Den</td>
+                                    <td>@item.MdVenta</td>
+                                    <td>@item.Tipven</td>
+                                    <td>
+                                        <div class="form-check form-switch mx-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
+                                                   @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                        </div>
+                                    </td>
+                                    <!--Editar-->
+                                    <td>
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                    </td>
                                     @* <td>
-                                @if (item.Terminales is not null)
-                                {
-                                @foreach (var items in item.Terminales)
-                                {
-                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                @items.Den
+                                        @if (item.Terminales is not null)
+                                        {
+                                        @foreach (var items in item.Terminales)
+                                        {
+                                        <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                        @items.Den
 
-                                <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
-                                <i class="fa fa-solid fa-xmark"></i>
-                                </button>
+                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
+                                        <i class="fa fa-solid fa-xmark"></i>
+                                        </button>
 
-                                </span>
-                                }
-                                }
-                                </td> *@
+                                        </span>
+                                        }
+                                        }
+                                        </td> *@
                                 </tr>
                             </Virtualize>
                         }
@@ -243,7 +266,7 @@
 
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
-
+    bool isEdit = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -497,6 +520,67 @@
         }
 
     }
+
+    private async Task HabilitarDeshabilitar(Cliente destino, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/cliente/{destino.Cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{destino.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{destino.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetDestino(Cliente destino)
+    {
+        try
+        {
+            isEdit = true;
+            Cliente = destino;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        Cliente = new Cliente();
+    }
+
 }
 
 

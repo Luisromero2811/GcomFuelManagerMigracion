@@ -153,7 +153,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     if (context.Tonel.Any(x => x.Certificado_Calibracion != tonel.Certificado_Calibracion))
                     {
                         //Con Any compruebo si el número aleatorio existe en la BD
-                        var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Placa != tonel.Placa);
+                        var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Gps != tonel.Gps);
                         //Si ya existe, genera un nuevo número Random
                         if (exist)
                         {
@@ -164,6 +164,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     {
                         return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
                     }
+                    tonel.Terminales = null!;
                     context.Update(tonel);
                     await context.SaveChangesAsync();
                 }

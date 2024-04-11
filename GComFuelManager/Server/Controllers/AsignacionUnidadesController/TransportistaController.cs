@@ -81,6 +81,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 else
                 {
                     grupoTransportista.Id_Tad = id_terminal;
+                    grupoTransportista.Terminales = null!;
+                    grupoTransportista.GrupoTransportista_Tads = null!;
+                    grupoTransportista.Tad = null!;
                     context.Update(grupoTransportista);
                     await context.SaveChangesAsync();
                 }
@@ -210,6 +213,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 else
                 {
                     transportista.Id_Tad = id_terminal;
+                    transportista.Terminales = null!;
                     context.Update(transportista);
                     await context.SaveChangesAsync();
                 }
@@ -294,7 +298,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var grupostransporte = await context.GrupoTransportista
+                    .Where(x => x.Terminales.Any(x => x.Cod == id_terminal))
                      .Include(x => x.Terminales)
                     .OrderBy(x => x.den)
                     .ToListAsync();
@@ -367,9 +376,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var transportistas = await context.Transportista
                     .Include(x => x.Terminales)
-                    .Where(x => x.Codgru == grupo)
+                    .Where(x => x.Codgru == grupo && x.Terminales.Any(y => y.Cod == id_terminal))
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);
@@ -385,7 +398,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                var transportistas = await context.Transportista.Where(x => x.Activo == true)
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var transportistas = await context.Transportista.Where(x => x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
                     .OrderBy(x => x.Den)
                     .ToListAsync();
                 return Ok(transportistas);
