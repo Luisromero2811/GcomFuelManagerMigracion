@@ -80,10 +80,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 }
                 else
                 {
-                    grupoTransportista.Id_Tad = id_terminal;
                     grupoTransportista.Terminales = null!;
                     grupoTransportista.GrupoTransportista_Tads = null!;
                     grupoTransportista.Tad = null!;
+                    grupoTransportista.Id_Tad = id_terminal;
+           
                     context.Update(grupoTransportista);
                     await context.SaveChangesAsync();
                 }
