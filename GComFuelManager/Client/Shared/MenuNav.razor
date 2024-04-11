@@ -439,6 +439,16 @@
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
 
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo">
+                                    <RadzenPanelMenuItem Path="subir/ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-file-arrow-up" aria-hidden="true"></i> Subir ordenes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
+
                             </ChildContent>
                         </RadzenMenuItem>
                     </AuthorizeView>

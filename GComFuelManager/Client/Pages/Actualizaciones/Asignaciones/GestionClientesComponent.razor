@@ -7,86 +7,100 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
 
-<h4>Catalogo de clientes</h4>
+@* <h4>Catalogo de clientes</h4> *@
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
-    <div class="col-12 d-flex justify-content-center">
-        <div class="col-10 card shadow-sm">
-            <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-                    <h5>Agregar Clientes</h5>
-                    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
-                    <EditForm Model="@Cliente" class="form col-12" OnValidSubmit="@CreateClientes" Context="Validations">
-                        <FluentValidationValidator Validator="gestionCliente" />
-                        <ValidationSummary />
-                        <div class="col-12 row">
-                            <div class="col-3">
-                                <label>Grupo:</label>
-                                <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                </RadzenDropDown>
-                            </div>
-                            <div class="col-3">
-                                <label>Nombre del cliente:</label>
-                                <InputText @bind-Value="Cliente.Den" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Modelo de Venta</label>
-                                <InputSelect @bind-Value="Cliente.MdVenta" class="form-control">
-                                    <option>--Selecciona una opción--</option>
-                                    @if (MdVenta is null)
-                                    {
-                                        <option disabled>Cargando ...</option>
-                                    }
-                                    else if (MdVenta.Count == 0)
-                                    {
-                                        <option disabled> No hay Modelo de Venta</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in MdVenta)
-                                        {
-                                            <option value="@item">@item</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div class="col-2">
-                                <label>Tipo de Venta</label>
-                                <InputSelect @bind-Value="Cliente.Tipven" class="form-select">
-                                    <option>--Selecciona una opción</option>
-                                    @if (TpVenta is null)
-                                    {
-                                        <option disabled> Cargando...</option>
-                                    }
-                                    else if (TpVenta.Count == 0)
-                                    {
-                                        <option disabled> No hay Tipo de Venta</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in TpVenta)
-                                        {
-                                            <option value="@item">@item</option>
-                                        }
-                                    }
-                                </InputSelect>
-                            </div>
-                            <div class="col-2 d-flex mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-plus"></i> Registrar cliente
-                                </button>
-                            </div>
-                        </div>
-                    </EditForm>
-                </AuthorizeView>
-                <!--Aquí empieza la tabla de muestreo de datos-->
-            </div>
+    <div class="card">
+        <div class="card-header">
+            <b>Agregar cliente</b>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@Cliente" class="form col-12" OnValidSubmit="@CreateClientes" Context="Validations">
+                <FluentValidationValidator Validator="gestionCliente" />
+                <ValidationSummary />
+                <div class="col-12 row">
+                    <div class="col-2">
+                        <label>Grupo:</label>
+                        <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown>
+                    </div>
+                    <div class="col-2">
+                        <label>Nombre del cliente:</label>
+                        <InputText @bind-Value="Cliente.Den" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Modelo de Venta</label>
+                        <InputSelect @bind-Value="Cliente.MdVenta" class="form-select">
+                            <option>--Selecciona una opción--</option>
+                            @if (MdVenta is null)
+                            {
+                                <option disabled>Cargando ...</option>
+                            }
+                            else if (MdVenta.Count == 0)
+                            {
+                                <option disabled> No hay Modelo de Venta</option>
+                            }
+                            else
+                            {
+                                foreach (var item in MdVenta)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-2">
+                        <label>Tipo de Venta</label>
+                        <InputSelect @bind-Value="Cliente.Tipven" class="form-select">
+                            <option>--Selecciona una opción</option>
+                            @if (TpVenta is null)
+                            {
+                                <option disabled> Cargando...</option>
+                            }
+                            else if (TpVenta.Count == 0)
+                            {
+                                <option disabled> No hay Tipo de Venta</option>
+                            }
+                            else
+                            {
+                                foreach (var item in TpVenta)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-2 d-flex mt-auto">
+                        <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                            <i class="fa fa-solid fa-plus"></i> Guardar
+                        </button>
+                    </div>
+
+                    <div class="col-2 d-flex mt-auto">
+                        <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>Cliente = new())">
+                            <i class="fa fa-solid fa-xmark"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
         </div>
     </div>
+    @*     <div class="col-12 d-flex justify-content-center">
+    <div class="col-10 card shadow-sm">
+    <div class="col-12 row card-body">
+    <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
+    <h5>Agregar Clientes</h5>
+    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
+
+    </AuthorizeView>
+    <!--Aquí empieza la tabla de muestreo de datos-->
+    </div>
+    </div>
+    </div> *@
     <div class="card mt-2" style="height:500px;">
         <div class="card-header">
-            <b>Gestión de Cliente - Unidades de negocio</b>
+            <b>Gestión de Clientes</b>
         </div>
         <div class="card-body">
             <div class="col-12 row">
@@ -102,35 +116,35 @@
                         </Render>
                     </DropDownFilter>
                 </div>
-                <div class="col-3">
-                    <label>Unidad de Negocio</label>
-                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                        <RenderValue>
-                            <div>@context.Den</div>
-                        </RenderValue>
-                        <Render>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                <label class="form-check-label" for="@context.Cod">
-                                    @if (context is not null)
-                                    {
-                                        @context.Den
-                                    }
-                                    else
-                                    {
-                                        <p>@context.Den</p>
-                                    }
-                                </label>
-                            </div>
-                        </Render>
-                    </DropDownFilter>
+                @* <div class="col-3">
+                <label>Unidad de Negocio</label>
+                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                <RenderValue>
+                <div>@context.Den</div>
+                </RenderValue>
+                <Render>
+                <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                <label class="form-check-label" for="@context.Cod">
+                @if (context is not null)
+                {
+                @context.Den
+                }
+                else
+                {
+                <p>@context.Den</p>
+                }
+                </label>
                 </div>
-                <div class="col-3">
-                    <label></label>
-                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                        <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
-                    </button>
-                </div>
+                </Render>
+                </DropDownFilter>
+                </div> *@
+                @* <div class="col-3">
+                <label></label>
+                <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+                <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
+                </button>
+                </div> *@
             </div>
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
@@ -142,7 +156,7 @@
                             </th>
                             @*<th></th>*@
                             <th>Cliente</th>
-                            <th>Unidades de Negocio</th>
+                            @* <th>Unidades de Negocio</th> *@
                         </tr>
                     </thead>
                     <tbody>
@@ -154,27 +168,27 @@
                                         <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
                                     </th>
                                     @*<th>
-                                            <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
-                                                <i class="fa-regular fa-pen-to-square"></i>
-                                            </button>
-                                        </th>*@
+                                <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                                </button>
+                                </th>*@
                                     <td>@item.Den</td>
-                                    <td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                            @foreach (var items in item.Terminales)
-                                            {
-                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                    @items.Den
+                                    @* <td>
+                                @if (item.Terminales is not null)
+                                {
+                                @foreach (var items in item.Terminales)
+                                {
+                                <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                @items.Den
 
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                    </button>
+                                <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
+                                <i class="fa fa-solid fa-xmark"></i>
+                                </button>
 
-                                                </span>
-                                            }
-                                        }
-                                    </td>
+                                </span>
+                                }
+                                }
+                                </td> *@
                                 </tr>
                             </Virtualize>
                         }
