@@ -176,14 +176,14 @@
                                         </div>
 
                                         @*<div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
-                                                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                </label>
-                                                <div class="col-12">
-                                                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
-                                                </div>
-                                            </div>
+                                        <div class="col-12">
+                                        <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                        </label>
+                                        <div class="col-12">
+                                        <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                                        </div>
+                                        </div>
                                         </div>*@
 
                                         <div class="col-12 mb-1">
@@ -319,13 +319,13 @@
                         <Template Context="item">
                             <div class="col-12">
                                 @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                                item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                                : item?.Volumen
-                                )
+                                         item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+                                         item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                         : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                         : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                         : item?.Volumen
+                                         )
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
@@ -727,13 +727,13 @@
                             Can_Make_Orden = true;
 
                 var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea crear ordenes de este pedido?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "¿Desea crear ordenes de este pedido?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
@@ -742,13 +742,13 @@
                 else
                 {
                     var confirmCancel = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = "¿Desea enviar una notificacion de cierre pendente al equipo interno?"
-                    });
+                        {
+                            Icon = SweetAlertIcon.Info,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "¿Desea enviar una notificacion de cierre pendente al equipo interno?"
+                        });
                     if (!string.IsNullOrEmpty(confirmCancel.Value))
                     {
 
@@ -895,12 +895,12 @@
         try
         {
             ms.Notify(new NotificationMessage()
-            {
-                Summary = "Enviando correos",
-                Detail = "Se estan enviando los correos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
-                Duration = 10000,
-                Severity = NotificationSeverity.Info
-            });
+                {
+                    Summary = "Enviando correos",
+                    Detail = "Se estan enviando los correos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
+                    Duration = 10000,
+                    Severity = NotificationSeverity.Info
+                });
 
             if (ordenCierres.Count > 0)
             {
@@ -922,13 +922,13 @@
                     count++;
                     loadingSend = true;
                     ms.Notify(new NotificationMessage()
-                    {
-                        Summary = "Enviando correos",
-                        Detail = $"Enviando {count} de {total} correos",
-                        Duration = 10000,
-                        Severity = NotificationSeverity.Info
-                    });
-                    var ordenes = ordenCierres.Where(x => x.CodGru == item && x.Activa == true).ToList();
+                        {
+                            Summary = "Enviando correos",
+                            Detail = $"Enviando {count} de {total} correos",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Info
+                        });
+                    var ordenes = ordenCierres.Where(x => x.CodGru == item && x.Estatus == true).ToList();
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
@@ -941,12 +941,12 @@
                     {
                         loadingSend = false;
                         ms.Notify(new NotificationMessage()
-                        {
-                            Summary = "Enviando correos",
-                            Detail = $"Correo enviado",
-                            Duration = 10000,
-                            Severity = NotificationSeverity.Success
-                        });
+                            {
+                                Summary = "Enviando correos",
+                                Detail = $"Correo enviado",
+                                Duration = 10000,
+                                Severity = NotificationSeverity.Success
+                            });
 
                         OrdenesEnviadas.AddRange(ordenes);
                     }
@@ -1272,12 +1272,12 @@
             await ds.OpenAsync<ViewCierreGrupalComponent>("Cierre grupal",
                 new Dictionary<string, object>() { { "isStatus", true } },
                 new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+                    {
+                        Width = "90%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
         }
         catch (Exception e)
         {
@@ -1292,12 +1292,12 @@
             await ds.OpenAsync<ViewAutocreacionOrdenesComponent>("Crear ordenes de pedido",
                 new Dictionary<string, object>() { { "CierresList", ordenCierres } },
                 new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+                    {
+                        Width = "90%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
         }
         catch (Exception e)
         {

@@ -72,7 +72,7 @@ namespace GComFuelManager.Server.Controllers
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0) { return BadRequest(); }
 
-                var MaxAllowedFile = 3;
+                var MaxAllowedFile = 1;
                 long MaxFileSize = 1024 * 10204 * 15;
                 var FilesProcessed = 0;
                 List<UploadResult> uploadResults = new();
@@ -85,7 +85,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     var uploadResult = new UploadResult();
 
-                    var unthrushtedFileName = file.Name;
+                    var unthrushtedFileName = file.FileName;
                     uploadResult.FileName = unthrushtedFileName;
                     var thrustFileName = WebUtility.HtmlDecode(unthrushtedFileName);
 
@@ -323,6 +323,7 @@ namespace GComFuelManager.Server.Controllers
                                     context.Add(ordenembarque);
                                     await context.SaveChangesAsync();
 
+                                    ordenembarque.Estado = context.Estado.Single(x => x.Cod == ordenembarque.Codest);
                                     //ordencierre.CodPed = ordenembarque.Cod;
 
                                     //context.Add(ordencierre);
@@ -331,6 +332,15 @@ namespace GComFuelManager.Server.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        uploadResult.ErrorCode = 6;
+                        uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {thrustFileName} : El limite de archivo es de {MaxAllowedFile}.";
+                        uploadResult.HasError = true; HasErrors = true;
+                        return BadRequest($"(Error: {uploadResult.ErrorCode}) {thrustFileName} : El limite de archivo es de {MaxAllowedFile}.");
+                    }
+
+                    FilesProcessed++;
                 }
 
                 return Ok(ordenEmbarques);

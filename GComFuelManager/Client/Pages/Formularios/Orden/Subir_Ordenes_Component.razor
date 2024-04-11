@@ -20,7 +20,7 @@
                 </button>
             </div>
         </div>
-        <InputFile accept=".xlsx, .csv" multiple OnChange="OnInputFileChange" class="form-control form-control-sm"/>
+        <InputFile accept=".xlsx, .csv" multiple OnChange="OnInputFileChange" class="form-control form-control-sm col-4" />
         @if (loading_upload)
         {
             <SpinnerLoading />
@@ -51,11 +51,12 @@
         }
     </div>
 </div>
-<div>
+<div class="ancho-tabla" style="height: 10rem;">
     <Tabla Datos="ordens">
         <Cabeceras>
             <tr>
-                <th></th>
+                @* <th></th> *@
+                <th>Folio</th>
                 <th>Fecha de carga</th>
                 <th>Fecha de llegada estimada</th>
                 <th>Producto</th>
@@ -69,11 +70,12 @@
         </Cabeceras>
         <Columnas Context="orden">
             <tr>
-                <td>
-                    <button class="btn btn-sm btn-danger">
-                        <i class="fa fa-solid fa-cancel"></i>
-                    </button>
-                </td>
+                @* <td>
+                <button class="btn btn-sm btn-danger">
+                <i class="fa fa-solid fa-cancel"></i>
+                </button>
+                </td> *@
+                <td>@orden.OrdenCierre?.Folio</td>
                 <td>@orden.Fchcar?.ToString("dd/MM/yyyy")</td>
                 <td>@orden.OrdenCierre?.FchLlegada?.ToString("dd/MM/yyyy")</td>
                 <td>@orden.Obtener_Producto_De_Orden</td>
@@ -87,9 +89,26 @@
         </Columnas>
     </Tabla>
 </div>
+
+@if (ordens.Count > 0)
+{
+    <div class="mt-2 col-12 row">
+        <div class="col-3">
+            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Confirmar_Ordenes">
+                <i class="fa fa-solid fa-check"></i>Confirmar ordenes
+            </button>
+        </div>
+        @*     <div class="col-3">
+    <button class="btn btn-sm gcom-bg-amarillo">
+    <i class="fa fa-solid fa-check"></i>Cancelar ordenes
+    </button>
+    </div> *@
+    </div>
+}
+
 @code {
     bool loading_upload = false;
-    private int MaxAllowedFiles = 3;
+    private int MaxAllowedFiles = 1;
 
     private List<File> files = new();
     private List<UploadResult> UploadResults = new();
@@ -158,7 +177,7 @@
                 }
                 else
                 {
-                    ordens.AddRange(response.Response);
+                    ordens = response.Response;
                 }
                 // var response = await http.PostAsync("api/orden/subir", content);
                 // // var newResponse = await response.Content.ReadFromJsonAsync<IList<UploadResult>>();
@@ -193,5 +212,27 @@
     public class File
     {
         public string Name { get; set; } = string.Empty;
+    }
+
+    private async Task Confirmar_Ordenes()
+    {
+        try
+        {
+            var response = await repositorio.Post<List<OrdenEmbarque>, OrdenCompra>("api/pedido/confirm", ordens);
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Folio", response.Response.den, SweetAlertIcon.Info);
+                ordens = new();
+
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 }

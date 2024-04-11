@@ -836,7 +836,9 @@ namespace GComFuelManager.Server.Controllers.Services
                         //}
                     }
 
-                    var destinos_en_tuxpan_no_terminal_destino = destinos.Except(context.Destino.Where(x => x.Codcte == cliente.Cod && x.Id_Tad == id_terminal).ToList());
+                    var destinos_validos = destinos.Where(x => x.Codcte == cliente.Cod).ToList();
+
+                    var destinos_en_tuxpan_no_terminal_destino = destinos_validos.Except(context.Destino.Where(x => x.Codcte == cliente.Cod && x.Id_Tad == id_terminal).ToList());
 
                     var cliente_bd = context.Cliente.First(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente.Den) && x.Id_Tad == id_terminal && x.Activo);
                     
