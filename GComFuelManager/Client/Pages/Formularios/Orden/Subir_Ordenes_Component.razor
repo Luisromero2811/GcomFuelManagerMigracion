@@ -20,7 +20,7 @@
                 </button>
             </div>
         </div>
-        <InputFile accept=".xlsx, .csv" multiple OnChange="OnInputFileChange" />
+        <InputFile accept=".xlsx, .csv" multiple OnChange="OnInputFileChange" class="form-control form-control-sm"/>
         @if (loading_upload)
         {
             <SpinnerLoading />
@@ -55,6 +55,7 @@
     <Tabla Datos="ordens">
         <Cabeceras>
             <tr>
+                <th></th>
                 <th>Fecha de carga</th>
                 <th>Fecha de llegada estimada</th>
                 <th>Producto</th>
@@ -62,8 +63,28 @@
                 <th>Cliente</th>
                 <th>Destino</th>
                 <th>Turno</th>
+                <th>Precio</th>
+                <th>Estado</th>
             </tr>
         </Cabeceras>
+        <Columnas Context="orden">
+            <tr>
+                <td>
+                    <button class="btn btn-sm btn-danger">
+                        <i class="fa fa-solid fa-cancel"></i>
+                    </button>
+                </td>
+                <td>@orden.Fchcar?.ToString("dd/MM/yyyy")</td>
+                <td>@orden.OrdenCierre?.FchLlegada?.ToString("dd/MM/yyyy")</td>
+                <td>@orden.Obtener_Producto_De_Orden</td>
+                <td>@orden.Obtener_Volumen_De_Orden_En_Formato()</td>
+                <td>@orden.Obtener_Cliente_De_Orden</td>
+                <td>@orden.Obtener_Destino_De_Orden</td>
+                <td>@orden.OrdenCierre?.Turno</td>
+                <td>@orden.Pre</td>
+                <td>@orden.Estado?.den</td>
+            </tr>
+        </Columnas>
     </Tabla>
 </div>
 @code {
@@ -129,11 +150,27 @@
             if (upload)
             {
                 loading_upload = true;
-                
-                var response = await http.PostAsync("api/orden/subir", content);
-                var newResponse = await response.Content.ReadFromJsonAsync<IList<UploadResult>>();
-                
-                UploadResults = newResponse?.ToList() ?? new();
+
+                var response = await repositorio.PostFile<List<OrdenEmbarque>>("api/orden/subir", content);
+                if (response.Error)
+                {
+                    await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                }
+                else
+                {
+                    ordens.AddRange(response.Response);
+                }
+                // var response = await http.PostAsync("api/orden/subir", content);
+                // // var newResponse = await response.Content.ReadFromJsonAsync<IList<UploadResult>>();
+
+                // // UploadResults = newResponse?.ToList() ?? new();
+                // if (response.IsSuccessStatusCode)
+                // {
+                //     var newResponse = await response.Content.ReadFromJsonAsync<List<OrdenEmbarque>>();
+                //     if (newResponse is not null)
+                //         ordens = newResponse;
+                // }
+
 
                 loading_upload = false;
             }
