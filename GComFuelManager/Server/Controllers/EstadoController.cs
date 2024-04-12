@@ -123,7 +123,7 @@ namespace GComFuelManager.Server.Controllers
                                FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd") ?? "",
                                Unidad_Negocio = e.Tad.Den ?? "",
                                EstatusOrden = e.Estado.den,
-                               FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                               FechaCarga = e.Orden.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
                                Bol = e.Orden.BatchId,
                                DeliveryRack = e.Destino.Cliente.Tipven ?? "",
                                Cliente = e.Destino.Cliente.Den ?? "",
@@ -133,7 +133,7 @@ namespace GComFuelManager.Server.Controllers
                             e.Compartment == 2 ? Convert.ToDouble(e.Tonel.Capcom2) :
                             e.Compartment == 3 ? Convert.ToDouble(e.Tonel.Capcom3) :
                             e.Compartment == 4 ? e.Tonel.Capcom4 : e.Vol,
-                               VolCar = e.Vol,
+                               VolCar = e.Orden.Vol,
                                Transportista = e.Tonel.Transportista.Den ?? "",
                                Unidad = e.Tonel.Veh ?? "",
                                Operador = e.Chofer.Den ?? "",
