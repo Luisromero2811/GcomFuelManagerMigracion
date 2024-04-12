@@ -183,6 +183,9 @@
                     Asignar / cancelar
                 </th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
+                    Destino de retiro
+                </th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
                     Autorizador
                 </th>
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
@@ -278,6 +281,7 @@
             <tr class="fila">
                 <td class="sticky-column-header" style="background-color:white;"></td>
                 <td></td>
+                <td></td>
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
                 {
                     <td></td>
@@ -371,6 +375,19 @@
                                         </button>
                                     </Authorized>
                                 </AuthorizeView>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="overflow-hidden">
+                        <div class="rz-text-truncate row">
+                            <div class="col-10">
+                                <select @bind="@data.Id_Multidestino" class="form-select form-select-sm">
+                                    <option>Multidestino</option>
+                                    @foreach (var item in Multidestinos)
+                                    {
+                                        <option value="@item.Cod">@item.Den</option>
+                                    }
+                                </select>
                             </div>
                         </div>
                     </td>
@@ -776,11 +793,13 @@ else
     List<Columna_Tabla> Columnas = new List<Columna_Tabla>();
 
     List<Autorizador> Autorizadores { get; set; } = new();
+    List<Destino> Multidestinos { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         await Checar_Terminal();
         await ObtenerAutorizadores();
+        await ObtenerMultidestinos();
         //await GetDestinos();
         //await GetProductos();
         await GetTransportista();
@@ -1568,6 +1587,27 @@ else
             else
             {
                 Autorizadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerMultidestinos()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Destino>>("api/estacion/multidestino");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Multidestinos = response.Response;
             }
         }
         catch (Exception e)

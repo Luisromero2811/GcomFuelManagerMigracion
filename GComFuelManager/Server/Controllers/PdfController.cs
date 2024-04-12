@@ -59,6 +59,7 @@ namespace GComFuelManager.Server.Controllers
                 if (ordenEmbarque is null) { return BadRequest("No se encontro la orden."); }
 
                 ordenEmbarque.Id_Autorizador = orden.Id_Autorizador;
+                ordenEmbarque.Id_Multidestino = orden.Id_Multidestino;
 
                 if (ordenEmbarque.Folio_Vale is null || ordenEmbarque.Folio_Vale == 0)
                 {
@@ -120,7 +121,7 @@ namespace GComFuelManager.Server.Controllers
                 if (chofer is null) { return BadRequest("No se encontro un chofer"); }
                 if (string.IsNullOrEmpty(chofer.RFC) || string.IsNullOrWhiteSpace(chofer.RFC)) { return BadRequest($"El chofer {chofer.FullName} no cuenta con el RFC"); }
 
-                var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
+                var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Multidestino);
                 if (destino is null) { return BadRequest("No se encontro el destino"); }
 
                 var producto_anterior = string.Empty;

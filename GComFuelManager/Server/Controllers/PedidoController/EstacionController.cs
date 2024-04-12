@@ -382,7 +382,23 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("multidestino")]
+        public ActionResult Obtener_Multidestinos()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
 
+                var multidestinos = context.Destino.Where(x =>x.Activo && x.Es_Multidestino == true && x.Id_Tad == id_terminal).ToList();
+                return Ok(multidestinos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 
 }
