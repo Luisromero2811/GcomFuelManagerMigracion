@@ -57,7 +57,7 @@ namespace GComFuelManager.Server.Controllers
 
                 var ordenEmbarque = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => x.Cod == orden.Cod);
                 if (ordenEmbarque is null) { return BadRequest("No se encontro la orden."); }
-                
+
                 ordenEmbarque.Id_Autorizador = orden.Id_Autorizador;
 
                 if (ordenEmbarque.Folio_Vale is null || ordenEmbarque.Folio_Vale == 0)
@@ -109,6 +109,8 @@ namespace GComFuelManager.Server.Controllers
 
                 var tonel = context.Tonel.FirstOrDefault(x => x.Cod == ordenEmbarque.Codton);
                 if (tonel is null) { return BadRequest("No se encontro el tonel"); }
+                if (string.IsNullOrEmpty(tonel.Certificado_Calibracion) || string.IsNullOrWhiteSpace(tonel.Certificado_Calibracion))
+                { return BadRequest($"El tonel {tonel.Tracto} no cuanta con un certificado de calibracion"); }
 
                 var transportista = context.Transportista.FirstOrDefault(x => x.CarrId == tonel.Carid);
                 if (transportista is null) { return BadRequest("No se encontro el transportista"); }
@@ -116,6 +118,7 @@ namespace GComFuelManager.Server.Controllers
 
                 var chofer = context.Chofer.FirstOrDefault(x => x.Cod == ordenEmbarque.Codchf);
                 if (chofer is null) { return BadRequest("No se encontro un chofer"); }
+                if (string.IsNullOrEmpty(chofer.RFC) || string.IsNullOrWhiteSpace(chofer.RFC)) { return BadRequest($"El chofer {chofer.FullName} no cuenta con el RFC"); }
 
                 var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Coddes);
                 if (destino is null) { return BadRequest("No se encontro el destino"); }
@@ -221,7 +224,7 @@ namespace GComFuelManager.Server.Controllers
                 #endregion
 
                 #region Empresa transportista
-                rect = new(36, 285, 150, 13);
+                rect = new(36, 285, 160, 13);
                 tf.DrawString("EMPRESA TRANSPORTISTA:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 285, 360, 13);
@@ -242,7 +245,7 @@ namespace GComFuelManager.Server.Controllers
 
                 #region RFC del operador
                 rect = new(36, 316, 150, 13);
-                tf.DrawString("NOMBRE DEL OPERADOR:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString("RFC DEL OPERADOR:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 316, 360, 13);
                 tf.DrawString(chofer.RFC, font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
@@ -305,7 +308,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("DESTINO:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(105, 412, 470, 26);
-                tf.DrawString(destino.FULLDEN, font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(destino.Den, font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 105, 425, 540, 425);
                 #endregion

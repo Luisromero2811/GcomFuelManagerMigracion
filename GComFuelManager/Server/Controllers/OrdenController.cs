@@ -165,9 +165,9 @@ namespace GComFuelManager.Server.Controllers
                                             {
                                                 ordenEmbarque.OrdenCierre.FchLlegada = date;
                                             }
-                                            else if (double.TryParse(ws.Cells[r, 1].Value.ToString(), out var date_excel))
+                                            else if (double.TryParse(ws.Cells[r, 2].Value.ToString(), out var date_excel))
                                             {
-                                                ordenEmbarque.Fchcar = DateTime.FromOADate(date_excel);
+                                                ordenEmbarque.OrdenCierre.FchLlegada = DateTime.FromOADate(date_excel);
                                             }
                                             else
                                             {
