@@ -80,7 +80,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 var vehiculos = context.Tonel.IgnoreAutoIncludes()
                     .Include(x => x.Terminales)
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista)
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
                     .ToList();
@@ -127,14 +127,79 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     tonel.Id_Tad = id_terminal;
                     tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
                     tonel.Transportista = null!;
+                    var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion);
+                    //Si ya existe, genera un nuevo número Random
+                    if (exist)
+                    {
+                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    }
                     //tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
+                    await context.SaveChangesAsync();
+                    if (!context.Unidad_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Unidad == tonel.Cod))
+                    {
+                        Unidad_Tad tonelTad = new()
+                        {
+                            Id_Unidad = tonel.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(tonelTad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    tonel.Id_Tad = id_terminal;
+                    if (context.Tonel.Any(x => x.Certificado_Calibracion != tonel.Certificado_Calibracion))
+                    {
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Gps != tonel.Gps);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist)
+                        {
+                            return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    }
+                    tonel.Terminales = null!;
                     context.Update(tonel);
+                    await context.SaveChangesAsync();
                 }
+              
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.Tonel.Where(x => x.Cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = (bool)destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
                 await context.SaveChangesAsync();
+
                 return Ok();
             }
             catch (Exception e)

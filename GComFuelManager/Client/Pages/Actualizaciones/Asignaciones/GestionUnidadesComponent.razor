@@ -6,95 +6,104 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
 
-<h4>Catalogo de Unidades</h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
-    <div class="col-12 d-flex justify-content-center">
-        <div class="col-10 card shadow-sm">
-            <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-                    <h5>Agregar Unidades</h5>
-                    <!--Aquí se agregará las validaciones para gestionar a los clientes-->
-                    <EditForm Model="@Unidad" class="form col-12" OnValidSubmit="@CreateUnidad" Context="Validations">
-                        <FluentValidationValidator Validator="gestionUnidad" />
-                        <ValidationSummary />
-                        <div class="col-12 row mb-3">
-                            <div class="col-2">
-                                <label>Transportista(Empresa):</label>
-                                <RadzenDropDown @bind-Value="Unidad.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
-                                                AllowVirtualization="true" AllowFiltering="true"
-                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                                </RadzenDropDown>
-                            </div>
-                            <div class="col-2">
-                                <label>Placa:</label>
-                                <InputText @bind-Value="Unidad.Placa" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Nº Compartimento:</label>
-                                <InputNumber @bind-Value="Unidad.Nrocom" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Capacidad:</label>
-                                <InputNumber @bind-Value="Unidad.Capcom" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Nº Compartimento 2:</label>
-                                <InputNumber @bind-Value="Unidad.Nrocom2" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Capacidad 2:</label>
-                                <InputNumber @bind-Value="Unidad.Capcom2" class="form-control" MaxLenght="80" />
-                            </div>
-                        </div>
-                        <hr />
-                        @*Segunda Parte*@
-                        <div class="col-12 row mb-3">
-                            <div class="col-2">
-                                <label>Nº Compartimento 3:</label>
-                                <InputNumber @bind-Value="Unidad.Nrocom3" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Capacidad 3</label>
-                                <InputNumber @bind-Value="Unidad.Capcom3" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Nº Compartimento 4:</label>
-                                <InputNumber @bind-Value="Unidad.Nrocom4" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-1">
-                                <label>Cap 4:</label>
-                                <InputNumber @bind-Value="Unidad.Capcom4" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-1">
-                                <label>Tracto:</label>
-                                <InputText @bind-Value="Unidad.Tracto" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Placa-Tracto:</label>
-                                <InputText @bind-Value="Unidad.Placatracto" class="form-control" MaxLenght="80" />
-                            </div>
-                            <div class="col-2">
-                                <label>Certificado:</label>
-                                <InputText @bind-Value="Unidad.Certificado_Calibracion" class="form-control" MaxLenght="50"></InputText>
-                            </div>
-                        </div>
-                        <div class="col-12 row mb-3 justify-content-center">
-                            <div class="col-4 d-flex mt-auto">
-                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                    <i class="fa fa-solid fa-plus"></i> Registrar Unidad
-                                </button>
-                            </div>
-                        </div>
-                    </EditForm>
-                </AuthorizeView>
-            </div>
+<div class="card">
+    <div class="card-header">
+        <b>Catalogo de Toneles</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@Unidad" class="form col-12" OnValidSubmit="@CreateUnidad" Context="Validations">
+                <FluentValidationValidator Validator="gestionUnidad" />
+                <ValidationSummary />
+                <div class="col-12 row mb-3">
+                    <div class="col-2">
+                        <label>Transportista(Empresa):</label>
+                        <RadzenDropDown @bind-Value="Unidad.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
+                                        AllowVirtualization="true" AllowFiltering="true"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown>
+                    </div>
+                    <div class="col-2">
+                        <label>Placa:</label>
+                        <InputText @bind-Value="Unidad.Placa" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Nº Compartimento:</label>
+                        <InputNumber @bind-Value="Unidad.Nrocom" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Capacidad:</label>
+                        <InputNumber @bind-Value="Unidad.Capcom" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Nº Compartimento 2:</label>
+                        <InputNumber @bind-Value="Unidad.Nrocom2" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Capacidad 2:</label>
+                        <InputNumber @bind-Value="Unidad.Capcom2" class="form-control" MaxLenght="80" />
+                    </div>
+                </div>
+                <hr />-->
+                @*Segunda Parte*@
+                <div class="col-12 row mb-3">
+                    <div class="col-2">
+                        <label>Nº Compartimento 3:</label>
+                        <InputNumber @bind-Value="Unidad.Nrocom3" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Capacidad 3</label>
+                        <InputNumber @bind-Value="Unidad.Capcom3" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Nº Compartimento 4:</label>
+                        <InputNumber @bind-Value="Unidad.Nrocom4" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-1">
+                        <label>Cap 4:</label>
+                        <InputNumber @bind-Value="Unidad.Capcom4" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-1">
+                        <label>Tracto:</label>
+                        <InputText @bind-Value="Unidad.Tracto" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Placa-Tracto:</label>
+                        <InputText @bind-Value="Unidad.Placatracto" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-2">
+                        <label>Certificado:</label>
+                        <InputText @bind-Value="Unidad.Certificado_Calibracion" class="form-control" MaxLenght="50"></InputText>
+                    </div>
+                </div>
+                <div class="col-12 row mb-3 justify-content-center">
+                    <div class="col-4 d-flex mt-auto">
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Registrar Unidad
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+
+                    </div>
+                </div>
+            </EditForm>
         </div>
     </div>
-</AuthorizeView>
+</div>
 
 <div class="card mt-2" style="height:500px;">
     <div class="card-header">
-        <b>Gestión de Vehículos - Unidades de negocio</b>
+        <b>Gestión de Vehículos</b>
     </div>
     <div class="card-body">
         <div class="col-12 row">
@@ -115,45 +124,48 @@
                     </ValueTemplate>
                 </RadzenDropDown>
             </div>
-            <div class="col-3">
-                <label>Unidad de Negocio</label>
-                <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                    <RenderValue>
-                        <div>@context.Den</div>
-                    </RenderValue>
-                    <Render>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                            <label class="form-check-label" for="@context.Cod">
-                                @if (context is not null)
-                                {
-                                    @context.Den
-                                }
-                                else
-                                {
-                                    <p>@context.Den</p>
-                                }
-                            </label>
-                        </div>
-                    </Render>
-                </DropDownFilter>
-            </div>
-            <div class="col-3">
-                <label></label>
-                <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                    <i class="fa fa-solid fa-plus"></i> Relacionar Tonel-Unidad de Negocio
-                </button>
-            </div>
+            @*<div class="col-3">
+                    <label>Unidad de Negocio</label>
+                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                        <RenderValue>
+                            <div>@context.Den</div>
+                        </RenderValue>
+                        <Render>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                                <label class="form-check-label" for="@context.Cod">
+                                    @if (context is not null)
+                                    {
+                                        @context.Den
+                                    }
+                                    else
+                                    {
+                                        <p>@context.Den</p>
+                                    }
+                                </label>
+                            </div>
+                        </Render>
+                    </DropDownFilter>
+                </div>
+                <div class="col-3">
+                    <label></label>
+                    <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                        <i class="fa fa-solid fa-plus"></i> Relacionar Tonel-Unidad de Negocio
+                    </button>
+                </div>*@
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
                     <thead>
                         <tr>
-                            <th>
-                                <input type="checkbox" checked="@(Toneles.Any(i => Unidad_Seleccionados != null && Unidad_Seleccionados.Contains(i)))"
-                                       @onchange="args => CheckItemAll(args?.Value)" />
-                            </th>
+                            @*<th>
+                                    <input type="checkbox" checked="@(Toneles.Any(i => Unidad_Seleccionados != null && Unidad_Seleccionados.Contains(i)))"
+                                           @onchange="args => CheckItemAll(args?.Value)" />
+                                </th>*@
                             <th>Vehiculos</th>
-                            <th>Unidades de Negocio</th>
+                            <th>Certificado de Calibración</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
+                            @*<th>Unidades de Negocio</th>*@
                         </tr>
                     </thead>
                     <tbody>
@@ -161,26 +173,39 @@
                         {
                             <Virtualize Items="Toneles" TItem="Tonel" Context="item">
                                 <tr>
-                                    <th>
-                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Unidad_Seleccionados.Contains(item))" @onchange="args => { CheckUnidad(item, args?.Value); }" />
-                                    </th>
+                                    @*<th>
+                                            <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Unidad_Seleccionados.Contains(item))" @onchange="args => { CheckUnidad(item, args?.Value); }" />
+                                        </th>*@
                                     <td>@item.Den</td>
+                                    <td>@item.Certificado_Calibracion</td>
                                     <td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                            @foreach (var items in item.Terminales)
-                                            {
-                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                    @items.Den
-
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                    </button>
-
-                                                </span>
-                                            }
-                                        }
+                                        <div class="form-check form-switch mx-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
+                                                   @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                        </div>
                                     </td>
+                                    <!--Editar-->
+                                    <td>
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                    </td>
+                                    @*<td>
+                                            @if (item.Terminales is not null)
+                                            {
+                                                @foreach (var items in item.Terminales)
+                                                {
+                                                    <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                        @items.Den
+
+                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                        </button>
+
+                                                    </span>
+                                                }
+                                            }
+                                        </td>*@
                                 </tr>
                             </Virtualize>
                         }
@@ -219,6 +244,7 @@
     ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
     Unidad_Tad tonel_tad { get; set; } = new Unidad_Tad();
     AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
+    bool isEdit = false;
 
     Dictionary<string, string> query = new Dictionary<string, string>();
 
@@ -467,6 +493,66 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private async Task HabilitarDeshabilitar(Tonel tonel, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/vehiculo/{tonel.Cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{tonel.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{tonel.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetDestino(Tonel destino)
+    {
+        try
+        {
+            isEdit = true;
+            Unidad = destino;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        Unidad = new Tonel();
     }
 
 }

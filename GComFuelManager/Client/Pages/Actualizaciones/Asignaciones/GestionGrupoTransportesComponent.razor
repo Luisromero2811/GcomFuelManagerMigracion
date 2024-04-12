@@ -4,93 +4,131 @@
 @inject NotificationService Ns
 @inject GestionGrupoTransportesValidation validarGrupoT
 
-<h4>Catalogo de Grupo Transportistas</h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
-    <div class="col-12 d-flex justify-content-center" style="height:40vh;">
-        <div class="col-10 card shadow-sm">
-            <div class="col-12 row card-body">
-                <h5>Agregar Grupos transportistas</h5>
-                <!--Aquí se agregará las validaciones para gestionar a los grupos de transportes-->
-                <EditForm Model="@grupoTransportista" class="form col-12" OnValidSubmit="@SaveGrupo" Context="validacion">
-                    <FluentValidationValidator Validator="validarGrupoT" />
-                    <ValidationSummary />
-                    <div class="col-12 row">
-                        <div class="col-3">
-                            <label>Nombre del grupo de transportes:</label>
-                            <InputText @bind-Value="grupoTransportista.den" class="form-control" MaxLenght="80" />
-                        </div>
-                        <div class="col-3 d-flex mt-auto">
+<div class="card">
+    <div class="card-header">
+        Catalogo de Grupo Transportistas
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@grupoTransportista" class="form col-12" OnValidSubmit="@SaveGrupo" Context="validacion">
+                <FluentValidationValidator Validator="validarGrupoT" />
+                <ValidationSummary />
+                <div class="col-12 row">
+                    <div class="col-3">
+                        <label>Nombre del grupo de transportes:</label>
+                        <InputText @bind-Value="grupoTransportista.den" class="form-control" MaxLenght="80" />
+                    </div>
+                    <div class="col-3 d-flex mt-auto">
+                        @if (!isEdit)
+                        {
                             <button class="col-12 btn gcom-bg-amarillo" type="submit">
                                 <i class="fa fa-solid fa-plus"></i> Registrar Grupo transportista
                             </button>
-                        </div>
-                    </div>
-                </EditForm>
-                <hr />
-                <div class="col-12 row">
-                    <h5>Relacionar Grupos transportistas - Unidades de negocio</h5>
-                    <div class="col-4">
-                        <label>Grupos:</label>
-                        <DropDownFilter Listado="GrupoTransportistas" TListado="GrupoTransportista" TValue="int" Seleccion_Multiple="true" FiltrarValor="Obtener_Grupos"
-                                        Default_Placeholder="Seleccione un grupo transportista">
-                            <RenderValue>
-                                <div>Grupos Transportistas</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context.cod" checked="@(GruposTransportes_Seleccionados.Contains(context))" @onchange="args => { CheckGrupo(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context.cod">
-                                        @if (context is not null)
-                                        {
-                                            @context.den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-4">
-                        <label>Unidades de negocio:</label>
-                        <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                            <RenderValue>
-                                <div>Unidades de negocio</div>
-                            </RenderValue>
-                            <Render>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                    <label class="form-check-label" for="@context.Cod">
-                                        @if (context is not null)
-                                        {
-                                            @context.Den
-                                        }
-                                        else
-                                        {
-                                            <p>Todos</p>
-                                        }
-                                    </label>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                    </div>
-                    <div class="col-4">
-                        <label></label>
-                        <button class="col-12 mt-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                            <i class="fa fa-solid fa-plus"></i> Relacionar Grupo Transportista-Unidad
-                        </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+
                     </div>
                 </div>
-            </div>
+            </EditForm>
         </div>
     </div>
-</AuthorizeView>
+</div>
+
+@*<h4>Catalogo de Grupo Transportistas</h4>*@
+@*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="GestionClientes">
+    <div class="col-12 d-flex justify-content-center" style="height:20vh;">
+        <div class="col-10 card shadow-sm">
+            <div class="col-12 row card-body">
+                <h5>Agregar Grupos transportistas</h5>*@
+<!--Aquí se agregará las validaciones para gestionar a los grupos de transportes-->
+@*<EditForm Model="@grupoTransportista" class="form col-12" OnValidSubmit="@SaveGrupo" Context="validacion">
+        <FluentValidationValidator Validator="validarGrupoT" />
+        <ValidationSummary />
+        <div class="col-12 row">
+            <div class="col-3">
+                <label>Nombre del grupo de transportes:</label>
+                <InputText @bind-Value="grupoTransportista.den" class="form-control" MaxLenght="80" />
+            </div>
+            <div class="col-3 d-flex mt-auto">
+                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                    <i class="fa fa-solid fa-plus"></i> Registrar Grupo transportista
+                </button>
+            </div>
+        </div>
+    </EditForm>*@
+@*<hr />
+    <div class="col-12 row">
+        <h5>Relacionar Grupos transportistas - Unidades de negocio</h5>
+        <div class="col-4">
+            <label>Grupos:</label>
+            <DropDownFilter Listado="GrupoTransportistas" TListado="GrupoTransportista" TValue="int" Seleccion_Multiple="true" FiltrarValor="Obtener_Grupos"
+                            Default_Placeholder="Seleccione un grupo transportista">
+                <RenderValue>
+                    <div>Grupos Transportistas</div>
+                </RenderValue>
+                <Render>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="@context.cod" checked="@(GruposTransportes_Seleccionados.Contains(context))" @onchange="args => { CheckGrupo(context, args?.Value); }" />
+                        <label class="form-check-label" for="@context.cod">
+                            @if (context is not null)
+                            {
+                                @context.den
+                            }
+                            else
+                            {
+                                <p>Todos</p>
+                            }
+                        </label>
+                    </div>
+                </Render>
+            </DropDownFilter>
+        </div>
+        <div class="col-4">
+            <label>Unidades de negocio:</label>
+            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+                <RenderValue>
+                    <div>Unidades de negocio</div>
+                </RenderValue>
+                <Render>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+                        <label class="form-check-label" for="@context.Cod">
+                            @if (context is not null)
+                            {
+                                @context.Den
+                            }
+                            else
+                            {
+                                <p>Todos</p>
+                            }
+                        </label>
+                    </div>
+                </Render>
+            </DropDownFilter>
+        </div>
+        <div class="col-4">
+            <label></label>
+            <button class="col-12 mt-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
+                <i class="fa fa-solid fa-plus"></i> Relacionar Grupo Transportista-Unidad
+            </button>
+        </div>
+    </div>*@
+@*</div>
+            </div>
+        </div>
+    </AuthorizeView>*@
 
 <div class="card mt-2" style="height:500px;">
     <div class="card-header">
-        <b>Gestión de Grupo Transportes - Unidades de negocio</b>
+        <b>Gestión de Grupo Transportes</b>
     </div>
     <div class="card-body">
         <div class="col-12 row">
@@ -103,7 +141,9 @@
                                            @onchange="args => CheckItemAll(args?.Value)" />
                                 </th>*@
                             <th>Grupos Transportistas</th>
-                            <th>Unidades de Negocio</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
+                            @*<th>Unidades de Negocio</th>*@
                         </tr>
                     </thead>
                     <tbody>
@@ -112,22 +152,35 @@
                             <Virtualize Items="GrupoTransportistas" TItem="GrupoTransportista" Context="item">
                                 <tr>
                                     <td>@item.den</td>
+                                    <!--Estado-->
                                     <td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                            @foreach (var items in item.Terminales)
-                                            {
-                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                    @items.Den
-
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                    </button>
-
-                                                </span>
-                                            }
-                                        }
+                                        <div class="form-check form-switch mx-2">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="@item.cod" checked="@item.Activo"
+                                                   @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                        </div>
                                     </td>
+                                    <!--Editar-->
+                                    <td>
+                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                    </td>
+                                    @*<td>
+                                            @if (item.Terminales is not null)
+                                            {
+                                                @foreach (var items in item.Terminales)
+                                                {
+                                                    <span class="badge rounded-pill gcom-bg-rojo me-2">
+                                                        @items.Den
+
+                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                        </button>
+
+                                                    </span>
+                                                }
+                                            }
+                                        </td>*@
                                 </tr>
                             </Virtualize>
                         }
@@ -162,12 +215,12 @@
     List<GrupoTransportista> GrupoTransportistas { get; set; } = new();
 
     GrupoTransportista_Tad grupoTransportista_Tad { get; set; } = new GrupoTransportista_Tad();
-
+    bool isEdit = false;
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
         await ObtenerGruposTransportes();
-        await Obtener_Grupos(string.Empty);
+        //await Obtener_Grupos(string.Empty);
     }
 
     private async Task SaveGrupo()
@@ -184,7 +237,7 @@
             {
                 await Swal.FireAsync("Exito", $"Grupo {grupoTransportista.den} creado con éxito", SweetAlertIcon.Success);
                 await ObtenerGruposTransportes();
-                await Obtener_Grupos(string.Empty);
+                //await Obtener_Grupos(string.Empty);
             }
         }
         catch (Exception e)
@@ -383,6 +436,66 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private async Task HabilitarDeshabilitar(GrupoTransportista gt, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/transportista/desactivargrupo/{gt.cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{gt.den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{gt.den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1800,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetDestino(GrupoTransportista destino)
+    {
+        try
+        {
+            isEdit = true;
+            grupoTransportista = destino;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        grupoTransportista = new GrupoTransportista();
     }
 
 }

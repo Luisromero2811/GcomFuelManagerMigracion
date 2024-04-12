@@ -87,8 +87,12 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var estaciones = await context.Destino
-                    .Where(x => x.Codcte == cliente && x.Activo == true)
+                    .Where(x => x.Codcte == cliente && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -149,7 +153,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 if (destino is null)
                     return BadRequest();
-                
+
                 destino.Destino_Tads = null!;
                 destino.Terminales = null!;
 
@@ -170,8 +174,12 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var estaciones = await context.Destino
-                    .Where(x => x.Activo == true)
+                    .Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
                     .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
                     .OrderBy(x => x.Den)
                     .ToListAsync();
@@ -200,7 +208,6 @@ namespace GComFuelManager.Server.Controllers
                 //Si el destino viene en ceros del front lo agregamos como nuevo sino actualizamos
                 if (destino.Cod == 0)
                 {
-                    destino.Id_Tad = id_terminal;
                     //Con Any compruebo si el número aleatorio existe en la BD
                     var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno);
                     //Si ya existe, genera un nuevo número Random
@@ -208,14 +215,46 @@ namespace GComFuelManager.Server.Controllers
                     {
                         return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
                     }
+                    //Se liga de forma directa a la terminal donde fue creada
+                    destino.Id_Tad = id_terminal;
+                
                     //Agregamos cliente
                     context.Add(destino);
+                    await context.SaveChangesAsync();
+                    if (!context.Destino_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Destino == destino.Cod))
+                    {
+                        Destino_Tad destino_Tad = new()
+                        {
+                            Id_Destino = destino.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(destino_Tad);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 else
                 {
+                    destino.Id_Tad = id_terminal;
+                    destino.Terminales = null!;
+                    //Verifico si es diferente al ID que ya tenía
+                    if (context.Destino.Any(x => x.Id_DestinoGobierno != destino.Id_DestinoGobierno))
+                    {
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Codciu != destino.Codciu);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist)
+                        {
+                            return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                    }
                     context.Update(destino);
+                    await context.SaveChangesAsync();
                 }
-                await context.SaveChangesAsync();
+               
                 return Ok();
 
             }
@@ -311,6 +350,38 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.Destino.Where(x => x.Cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
     }
 
