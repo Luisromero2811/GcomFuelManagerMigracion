@@ -999,6 +999,23 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
+        [HttpGet("copiar/cliente/{terminal}")]
+        public async Task<ActionResult> Copiar_Clientes([FromRoute] short terminal)
+        {
+            try
+            {
+                var clienstes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+
+
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         private string GetRandomCarid()
         {
             var random = new Random().Next(1, 100000);

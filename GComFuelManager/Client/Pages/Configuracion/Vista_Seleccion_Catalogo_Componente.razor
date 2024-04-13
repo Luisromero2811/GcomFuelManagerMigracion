@@ -8,6 +8,18 @@
         <b>Catalogo</b>
     </div>
     <div class="card-body">
+        <div class="col-12 my-2">
+            <p>
+                Copiar desde Unidad de negocio:
+                <select @bind="@Terminal.Cod" class="form-select form-select-sm">
+                    <option>Unidad de negocio</option>
+                    @foreach (var terminal in Terminales)
+                    {
+                        <option value="@terminal.Cod">@terminal.Den</option>
+                    }
+                </select>
+            </p>
+        </div>
         <Tabla Datos="Acciones">
             <Cabeceras>
                 <tr>
@@ -50,10 +62,12 @@
 @code {
     List<AccionesCatalogo> Acciones = new();
     List<AccionesCatalogo> Acciones_Seleccionadas = new();
+    List<Tad> Terminales { get; set; } = new();
+    Tad Terminal { get; set; } = new();
 
     bool copiando_catalogos = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Acciones = new()
         {
@@ -63,6 +77,27 @@
             new(){Catalogo = "Choferes",URL = "service/copiar/chofer"},
             new(){Catalogo = "Toneles",URL = "service/copiar/tonel"},
         };
+        await Obtener_Terminal();
+    }
+
+    private async Task Obtener_Terminal()
+    {
+        try
+        {
+            var response = await http.Get<List<Tad>>("api/terminal/all");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
     private void Seleccionar_Catalogo(ChangeEventArgs e, AccionesCatalogo catalogo)
@@ -80,12 +115,13 @@
         try
         {
             if (Acciones_Seleccionadas.Count == 0) { return; }
+            if (Terminal.Cod == 0) { return; }
 
             copiando_catalogos = true;
 
             var acciones_totales = Acciones_Seleccionadas.Count;
             var acciones_procesadas = 0;
-            
+
             ns.Notify(new()
                 {
                     Severity = NotificationSeverity.Info,
@@ -96,7 +132,7 @@
 
             foreach (var accion in Acciones_Seleccionadas)
             {
-                var responseOC = await http.Get<bool>(accion.URL);
+                var responseOC = await http.Get<bool>($"{accion.URL}/{Terminal.Cod}");
                 if (responseOC.Error)
                 {
                     var responseHttp = await responseOC.ObtenerMensajeError();

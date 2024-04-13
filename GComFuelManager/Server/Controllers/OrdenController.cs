@@ -308,6 +308,9 @@ namespace GComFuelManager.Server.Controllers
 
                                     var Cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordencierre.CodCte && x.Id_Tad == id_terminal);
 
+                                    var bin = await context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefaultAsync();
+                                    ordenembarque.Bin = i == 0 ? ++bin : i % 2 == 0 ? ++bin : bin;
+
                                     var folio = string.Empty;
                                     folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:0000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}-{consecutivo.Obtener_Codigo_Terminal}";
                                     ordencierre.Folio = folio;

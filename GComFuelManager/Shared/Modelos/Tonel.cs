@@ -19,20 +19,20 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(30)] public string? Placa { get; set; } = string.Empty;
         [EpplusIgnore] public int? Codsyn { get; set; } = 0;
         [AllowNull, DefaultValue(""), EpplusIgnore] public string? Carid { get; set; } = string.Empty;
-        [DisplayName("Nº Compartimento")] public int? Nrocom { get; set; } = 0;
+        [DisplayName("Nº Compartimento")] public int? Nrocom { get; set; } = 1;
         [EpplusIgnore] public int? Idcom { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento")] public decimal? Capcom { get; set; } = decimal.Zero;
-        [DisplayName("Nº Compartimento 2")] public int? Nrocom2 { get; set; } = 0;
+        [DisplayName("Nº Compartimento 2")] public int? Nrocom2 { get; set; } = 2;
         [EpplusIgnore] public int? Idcom2 { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento 2")] public decimal? Capcom2 { get; set; } = decimal.Zero;
-        [DisplayName("Nº Compartimento 3")] public int? Nrocom3 { get; set; } = 0;
+        [DisplayName("Nº Compartimento 3")] public int? Nrocom3 { get; set; } = 3;
         [EpplusIgnore] public int? Idcom3 { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento 3")] public decimal? Capcom3 { get; set; } = decimal.Zero;
         [MaxLength(20)] public string? Tracto { get; set; } = string.Empty;
         [MaxLength(20)] public string? Placatracto { get; set; } = string.Empty;
         [EpplusIgnore] public bool? Activo { get; set; } = true;
         [EpplusIgnore] public bool? Gps { get; set; } = false;
-        [DisplayName("Nº Compartimento 4")] public int? Nrocom4 { get; set; } = 0;
+        [DisplayName("Nº Compartimento 4")] public int? Nrocom4 { get; set; } = 4;
         [EpplusIgnore] public int? Idcom4 { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento 4")] public int? Capcom4 { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; }

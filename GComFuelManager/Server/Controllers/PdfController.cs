@@ -125,7 +125,8 @@ namespace GComFuelManager.Server.Controllers
                 if (destino is null) { return BadRequest("No se encontro el destino"); }
 
                 var producto_anterior = string.Empty;
-                var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment).OrderByDescending(x => x.Fchpet).FirstOrDefault();
+                var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment && x.Cod != orden.Cod
+                && x.Fchcar < orden.Fchcar).OrderByDescending(x => x.Fchpet).FirstOrDefault();
                 if (orden_anterior is not null)
                 {
                     var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
