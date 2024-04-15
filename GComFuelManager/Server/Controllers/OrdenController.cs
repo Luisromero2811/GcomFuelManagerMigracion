@@ -28,6 +28,64 @@ namespace GComFuelManager.Server.Controllers
             this.userManager = userManager;
         }
 
+        [HttpGet("{Referencia}")]
+        public ActionResult Obtener_Por_Referencia([FromRoute] string Referencia)
+        {
+            try
+            {
+                var orden = context.OrdenEmbarque.IgnoreAutoIncludes().Include(x => x.Datos_Facturas)
+                    .FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(Referencia));
+
+                if (orden is null) { return NotFound(); }
+
+                return Ok(orden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("factura")]
+        public async Task<ActionResult> Guardar_Datos_Factura([FromBody] Datos_Facturas _Facturas)
+        {
+            try
+            {
+                if (!string.IsNullOrEmpty(_Facturas.Numero_Orden) && _Facturas.Fecha_Numero_Orden is null)
+                    _Facturas.Fecha_Numero_Orden = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(_Facturas.Factura_MGC) && _Facturas.Fecha_Factura_MGC is null)
+                    _Facturas.Fecha_Factura_MGC = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(_Facturas.Factura_MexicoS) && _Facturas.Fecha_Factura_MexicoS is null)
+                    _Facturas.Fecha_Factura_MexicoS = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(_Facturas.Factura_DCL) && _Facturas.Fecha_Factura_DCL is null)
+                    _Facturas.Fecha_Factura_DCL = DateTime.Now;
+
+                if (!string.IsNullOrEmpty(_Facturas.Factura_Energas) && _Facturas.Fecha_Factura_Energas is null)
+                    _Facturas.Fecha_Factura_Energas = DateTime.Now;
+
+                if (_Facturas.Id == 0)
+                {
+                    context.Add(_Facturas);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    _Facturas.OrdenEmbarque = null!;
+                    context.Update(_Facturas);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("formato")]
         public ActionResult Formato()
         {

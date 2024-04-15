@@ -85,7 +85,10 @@
                             }
                             else
                             {
-                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Copiar_catalogo(terminal.Cod))">
+                                @* <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Copiar_catalogo(terminal.Cod))">
+                            Copiar catalogo inicial
+                            </button> *@
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modulo_Copiado(terminal))">
                                     Copiar catalogo inicial
                                 </button>
                             }
@@ -218,8 +221,8 @@
         }
     }
 
-    private async Task Abrir_Modulo_Copiado()
+    private async Task Abrir_Modulo_Copiado(Tad tad)
     {
-        
+        await ds.OpenAsync<Vista_Seleccion_Catalogo_Componente>("Seleccion de catalogo", new() { { "Terminal_Destino", tad.Cod } });
     }
 }

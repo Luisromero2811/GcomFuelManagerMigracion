@@ -6,11 +6,15 @@
 @inject NavigationManager navigationManager
 @inject TooltipService ts
 @inject NotificationService ns
-@using GComFuelManager.Shared.DTOs;
 
-<h3>Gestión de Estados</h3>
+<div class="card">
+    <div class="card-header">
+        <b>Gestión de Estados</b>
+    </div>
+</div>
 <!--Componente para registrar los cambios de estado-->
-<Cambiar_Estatus_De_Orden_Componente></Cambiar_Estatus_De_Orden_Componente>
+<Guardar_Datos_Factura_Componente />
+<Cambiar_Estatus_De_Orden_Componente />
 <!--Filtrado entre rango de fechas-->
 <div class="col-12 mt-1">
     <div class="d-flex justify-content-center">
@@ -61,66 +65,31 @@
                     <th style="max-width:200px; position: sticky;">
                         Fecha de Carga
                     </th>
-                    <th>
-                        BOL/Embarque
-                    </th>
-                    <th>
-                        Tipo de Venta
-                    </th>
-                    <th>
-                        Cliente
-                    </th>
-                    <th>
-                        Destino
-                    </th>
-                    <th>
-                        Producto
-                    </th>
-                    <th>
-                        Volumen Natural
-                    </th>
-                    <th>
-                        Volumen Cargado
-                    </th>
-                    <th>
-                        Transportista
-                    </th>
-                    <th>
-                        Unidad
-                    </th>
-                    <th>
-                        Operador
-                    </th>
-                    <th>
-                        Por Asignar
-                    </th>
-                    <th>
-                        Asignado
-                    </th>
-                    <th>
-                        Por Cargar
-                    </th>
-                    <th>
-                        Cargado
-                    </th>
-                    <th>
-                        En ruta a TAS
-                    </th>
-                    <th>
-                        Fuera de TAS
-                    </th>
-                    <th>
-                        En espera dentro de TAS
-                    </th>
-                    <th>
-                        En proceso de descarga
-                    </th>
-                    <th>
-                        Descargado
-                    </th>
-                    <th>
-                        Orden Cancelada
-                    </th>
+                    <th>BOL/Embarque</th>
+                    <th>Tipo de Venta</th>
+                    <th>Cliente</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen Natural</th>
+                    <th>Volumen Cargado</th>
+                    <th>Transportista</th>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+                    <th>Numero de orden</th>
+                    <th>Factura MGC</th>
+                    <th>Factura Mexico S</th>
+                    <th>Factura DCL</th>
+                    <th>Factura Energas</th>
+                    <th>Por Asignar</th>
+                    <th>Asignado</th>
+                    <th>Por Cargar</th>
+                    <th>Cargado</th>
+                    <th>En ruta a TAS</th>
+                    <th>Fuera de TAS</th>
+                    <th>En espera dentro de TAS</th>
+                    <th>En proceso de descarga</th>
+                    <th>Descargado</th>
+                    <th>Orden Cancelada</th>
                 </tr>
             </thead>
             <tbody>
@@ -151,8 +120,13 @@
                     <td></td>
                     <td></td>
                     <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
-                <Virtualize Items="@ordens" Context="data" TItem="Gestión_EstadosDTO"> 
+                <Virtualize Items="@ordens" Context="data" TItem="Gestión_EstadosDTO">
                     <tr class="@(Gestión_Estados == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
                         <td>@data.Referencia</td>
                         <td>@data.FechaPrograma</td>
@@ -169,6 +143,11 @@
                         <td>@data.Transportista</td>
                         <td>@data.Unidad</td>
                         <td>@data.Operador</td>
+                        <td>@data.Numero_Factura</td>
+                        <td>@data.Factura_MGC</td>
+                        <td>@data.Factura_MexicoS</td>
+                        <td>@data.Factura_DCL</td>
+                        <td>@data.Factura_Energas</td>
                         <td>@data.Por_Asignar</td>
                         <td>@data.Asignado</td>
                         <td>@data.Por_Cargar</td>
@@ -286,17 +265,24 @@
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
                 var Worksheet = excel.Workbook.Worksheets.Add("CatalogoClientes");
-                Worksheet.Columns.Width = 79;
-                Worksheet.Columns.AutoFit();
+                // Worksheet.Columns.Width = 70;
+                // Worksheet.Columns.AutoFit();
                 //Formación del Excel
-                var tablebody = Worksheet.Cells["A1:A1"].LoadFromCollection(
+                var tablebody = Worksheet.Cells["A1"].LoadFromCollection(
                    ordens
-                 , true);
-                tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
-                var header = Worksheet.Cells["A1:Y1"];
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                 , c =>
+                 {
+                     c.PrintHeaders = true;
+                     c.TableStyle = TableStyles.Medium2;
+                 });
+
+                Worksheet.Cells[1, 1, Worksheet.Dimension.End.Row, Worksheet.Dimension.End.Column].AutoFitColumns();
+                
+                // tablebody.Style.Font.Bold = true;
+                // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                // var header = Worksheet.Cells["A1:Y1"];
+                // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                // header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 //Guardar Excell
                 await JS.GuardarComo($"Órdenes_Estados{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
             }

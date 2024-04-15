@@ -12,6 +12,8 @@ using Newtonsoft.Json;
 using ServiceReference2; //qa
 using System;
 using System.Diagnostics;
+using System.Transactions;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace GComFuelManager.Server.Controllers.Services
 {
@@ -816,7 +818,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == 1).ToList();
                 //List<Cliente> clientes_nuevos = new();
                 //List<Destino> destinos_nuevos = new();
-                var clientes_en_tuxpa_no_terminal_destino = clientes.Except(context.Cliente.Where(x=>x.Id_Tad == id_terminal && x.Activo).ToList());
+                var clientes_en_tuxpa_no_terminal_destino = clientes.Except(context.Cliente.Where(x => x.Id_Tad == id_terminal && x.Activo).ToList());
 
                 foreach (var cliente in clientes_en_tuxpa_no_terminal_destino)
                 {
@@ -841,7 +843,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     var destinos_en_tuxpan_no_terminal_destino = destinos_validos.Except(context.Destino.Where(x => x.Codcte == cliente.Cod && x.Id_Tad == id_terminal).ToList());
 
                     var cliente_bd = context.Cliente.First(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente.Den) && x.Id_Tad == id_terminal && x.Activo);
-                    
+
                     foreach (var destino in destinos_en_tuxpan_no_terminal_destino)
                     {
                         if (!context.Destino.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino.Den)))
@@ -937,7 +939,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                     var unidades_validas = unidades.Where(x => x.Carid == transportista_terminal.CarId_Original).ToList();
 
-                    var unidad_tuxpan_no_terminal_destino = unidades_validas.Except(context.Tonel.Where(x =>!string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(transportista_terminal.CarrId)).ToList());
+                    var unidad_tuxpan_no_terminal_destino = unidades_validas.Except(context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(transportista_terminal.CarrId)).ToList());
 
                     foreach (var chofer in choferes_tuxpan_no_terminal_destino)
                     {
@@ -999,15 +1001,231 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
-        [HttpGet("copiar/cliente/{terminal}")]
-        public async Task<ActionResult> Copiar_Clientes([FromRoute] short terminal)
+        [HttpGet("copiar/cliente/{terminal}/{terminal_destino}")]
+        public ActionResult Copiar_Clientes([FromRoute] short terminal, [FromRoute] short terminal_destino)
         {
             try
             {
-                var clienstes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+                using var Transaction = context.Database.BeginTransaction();
+
+                List<Cliente> Clientes_validos = new();
+
+                for (int i = 0; i < clientes.Count; i++)
+                {
+                    if (!context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var new_cliente = clientes[i].HardCopy();
+                        new_cliente.Cod = 0;
+                        new_cliente.Id_Tad = terminal_destino;
+                        //Clientes_validos.Add(new_cliente);
+                        context.SaveChanges();
+
+                        context.Add(new Cliente_Tad() { Id_Cliente = new_cliente.Cod, Id_Terminal = terminal_destino });
+                        context.SaveChanges();
+
+                        Transaction.Commit();
+                    }
+                }
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/destino/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Destinos([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { Cod = x.Cod, Den = x.Den }).ToList();
+                var destinos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+
+                List<Destino> destinos_validos = new();
+
+                for (int i = 0; i < clientes.Count; i++)
+                {
+                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var destinos_cliente = destinos.Where(x => x.Codcte == clientes[i].Cod).ToList();
+
+                        for (int j = 0; j < destinos_cliente.Count; j++)
+                        {
+                            if (!context.Destino.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == destinos_cliente[j].Den && x.Id_Tad == terminal_destino))
+                            {
+                                var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+                                if (cliente is not null)
+                                {
+                                    var new_destino = destinos_cliente[j].HardCopy();
+                                    new_destino.Cod = 0;
+                                    new_destino.Id_Tad = terminal_destino;
+                                    new_destino.Codcte = cliente.Cod;
+                                    //destinos_validos.Add(new_destino);
+                                    context.Add(new_destino);
+                                    await context.SaveChangesAsync();
+
+                                    context.Add(new Destino_Tad() { Id_Destino = new_destino.Cod, Id_Terminal = terminal_destino });
+                                    await context.SaveChangesAsync();
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //context.AddRange(destinos_validos);
+                //await context.SaveChangesAsync();
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/transportista/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Transportista([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+
+                List<Transportista> transportistas_validos = new();
+
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino
+                    && x.Busentid == transportistas[i].Busentid && x.CarrId == transportistas[i].CarrId))
+                    {
+                        var numero = GetRandomCarid();
+                        var new_transpor = transportistas[i].HardCopy();
 
 
+                        new_transpor.Cod = 0;
+                        new_transpor.Id_Tad = terminal_destino;
 
+                        new_transpor.BusentId_Original = new_transpor.Busentid;
+                        new_transpor.CarId_Original = new_transpor.CarrId;
+
+                        new_transpor.CarrId = numero;
+                        new_transpor.Busentid = numero;
+
+                        Debug.WriteLine($"numero_transportista: {numero}");
+                        context.Add(new_transpor);
+                        await context.SaveChangesAsync();
+
+                        context.Add(new Transportista_Tad() { Id_Transportista = new_transpor.Cod, Id_Terminal = terminal_destino });
+                        await context.SaveChangesAsync();
+                    }
+                }
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/chofer/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Choferes([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.Busentid }).ToList();
+                var choferes = context.Chofer.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+
+                List<Destino> destinos_validos = new();
+
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var transportista = context.Transportista.Where(x => x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino).Select(x => x.Busentid).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(transportista))
+                        {
+                            var choferes_transpor = choferes.Where(x => x.Codtransport.ToString() == transportistas[i].Busentid).ToList();
+
+                            for (int j = 0; j < choferes_transpor.Count; j++)
+                            {
+                                if (!context.Chofer.Any(x => x.Id_Tad == terminal_destino && !string.IsNullOrEmpty(x.Den) && !string.IsNullOrEmpty(x.Shortden) && x.Den.Equals(choferes_transpor[j].Den)
+                                && x.Shortden.Equals(choferes_transpor[j].Shortden) && x.Codtransport == choferes_transpor[j].Codtransport))
+                                {
+                                    var new_chofer = choferes_transpor[j].HardCopy();
+                                    new_chofer.Cod = 0;
+                                    new_chofer.Id_Tad = terminal_destino;
+                                    new_chofer.Codtransport = Convert.ToInt32(transportista);
+                                    //choferes_nuevos.Add(new_chofer);
+                                    context.Add(new_chofer);
+                                    await context.SaveChangesAsync();
+
+                                    context.Add(new Chofer_Tad() { Id_Chofer = new_chofer.Cod, Id_Terminal = terminal_destino });
+                                    await context.SaveChangesAsync();
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                //context.AddRange(destinos_validos);
+                //await context.SaveChangesAsync();
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/tonel/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Toneles([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
+                var toneles = context.Tonel.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+
+                List<Destino> destinos_validos = new();
+
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var transportista = context.Transportista.Where(x => x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino).Select(x => x.CarrId).FirstOrDefault();
+                        if (!string.IsNullOrEmpty(transportista))
+                        {
+                            var toneles_transpor = toneles.Where(x => x.Carid == transportistas[i].CarrId).ToList();
+
+                            for (int j = 0; j < toneles_transpor.Count; j++)
+                            {
+                                if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && !string.IsNullOrEmpty(x.Tracto) && x.Tracto == toneles_transpor[j].Tracto
+                                && !string.IsNullOrEmpty(x.Placa) && x.Placa == toneles_transpor[j].Placa && !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto == toneles_transpor[j].Placatracto))
+                                {
+                                    //if (!unidades_nuevas.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Equals(unidad.Tracto)))
+                                    //{
+                                    var new_unidad = toneles_transpor[j].HardCopy();
+                                    new_unidad.Cod = 0;
+                                    new_unidad.Id_Tad = terminal_destino;
+                                    new_unidad.Carid = transportista;
+                                    //unidades_nuevas.Add(new_unidad);
+                                    context.Add(new_unidad);
+                                    await context.SaveChangesAsync();
+
+                                    context.Add(new Unidad_Tad() { Id_Unidad = new_unidad.Cod, Id_Terminal = terminal_destino });
+                                    await context.SaveChangesAsync();
+                                    //}
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                //context.AddRange(destinos_validos);
+                //await context.SaveChangesAsync();
                 return Ok(true);
             }
             catch (Exception e)

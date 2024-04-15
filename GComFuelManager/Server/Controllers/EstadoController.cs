@@ -102,8 +102,9 @@ namespace GComFuelManager.Server.Controllers
 
                 List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
 
-                var ordenesTotales = await context.OrdenEmbarque
+                var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && x.Codtad == id_terminal)
+                    .Include(x => x.Datos_Facturas)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -116,38 +117,40 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.OrdenCierre)
                      .Include(x => x.OrdenPedido)
                      .Include(x => x.HistorialEstados)
+                     .ThenInclude(x => x.Estado)
                     .OrderBy(x => x.Fchpet)
-                           .Select(e => new Gestión_EstadosDTO()
-                           {
-                               Referencia = e.FolioSyn ?? "",
-                               FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd") ?? "",
-                               Unidad_Negocio = e.Tad.Den ?? "",
-                               EstatusOrden = e.Estado.den,
-                               FechaCarga = e.Orden.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
-                               Bol = e.Orden.BatchId,
-                               DeliveryRack = e.Destino.Cliente.Tipven ?? "",
-                               Cliente = e.Destino.Cliente.Den ?? "",
-                               Destino = e.Destino.Den ?? "",
-                               Producto = e.Producto.Den ?? "",
-                               VolNat = e.Compartment == 1 ? Convert.ToDouble(e.Tonel.Capcom) :
-                            e.Compartment == 2 ? Convert.ToDouble(e.Tonel.Capcom2) :
-                            e.Compartment == 3 ? Convert.ToDouble(e.Tonel.Capcom3) :
-                            e.Compartment == 4 ? e.Tonel.Capcom4 : e.Vol,
-                               VolCar = e.Orden.Vol,
-                               Transportista = e.Tonel.Transportista.Den ?? "",
-                               Unidad = e.Tonel.Veh ?? "",
-                               Operador = e.Chofer.Den ?? "",
-                               Por_Asignar = e.HistorialEstados.Where(x => x.Estado.den == "1_Por asignar").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Asignado = e.HistorialEstados.Where(x => x.Estado.den == "2_Asignado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Por_Cargar = e.HistorialEstados.Where(x => x.Estado.den == "3_Por cargar").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Cargado = e.HistorialEstados.Where(x => x.Estado.den == "4_Cargado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Ruta_Tas = e.HistorialEstados.Where(x => x.Estado.den == "5_En ruta a TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Fuera_Tas = e.HistorialEstados.Where(x => x.Estado.den == "6_Fuera de TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Espera_dentro_TAS = e.HistorialEstados.Where(x => x.Estado.den == "7_En espera dentro de TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Proceso_descarga = e.HistorialEstados.Where(x => x.Estado.den == "8_En proceso de descarga").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Descargado = e.HistorialEstados.Where(x => x.Estado.den == "9_Descargado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                               Orden_Cancelada = e.HistorialEstados.Where(x => x.Estado.den == "10_Orden cancelada").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
-                           })
+                    .Select(x => x.Obtener_Orden_Gestion_Estado())
+                    //.Select(e => new Gestión_EstadosDTO()
+                    //{
+                    //    Referencia = e.FolioSyn ?? "",
+                    //    FechaPrograma = e.Fchcar.Value.ToString("yyyy-MM-dd") ?? "",
+                    //    Unidad_Negocio = e.Tad.Den ?? "",
+                    //    EstatusOrden = e.Estado.den,
+                    //    FechaCarga = e.Orden.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss") ?? "",
+                    //    Bol = e.Orden.BatchId,
+                    //    DeliveryRack = e.Destino.Cliente.Tipven ?? "",
+                    //    Cliente = e.Destino.Cliente.Den ?? "",
+                    //    Destino = e.Destino.Den ?? "",
+                    //    Producto = e.Producto.Den ?? "",
+                    //    VolNat = e.Compartment == 1 ? Convert.ToDouble(e.Tonel.Capcom) :
+                    // e.Compartment == 2 ? Convert.ToDouble(e.Tonel.Capcom2) :
+                    // e.Compartment == 3 ? Convert.ToDouble(e.Tonel.Capcom3) :
+                    // e.Compartment == 4 ? e.Tonel.Capcom4 : e.Vol,
+                    //    VolCar = e.Orden.Vol,
+                    //    Transportista = e.Tonel.Transportista.Den ?? "",
+                    //    Unidad = e.Tonel.Veh ?? "",
+                    //    Operador = e.Chofer.Den ?? "",
+                    //    Por_Asignar = e.HistorialEstados.Where(x => x.Estado.den == "1_Por asignar").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Asignado = e.HistorialEstados.Where(x => x.Estado.den == "2_Asignado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Por_Cargar = e.HistorialEstados.Where(x => x.Estado.den == "3_Por cargar").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Cargado = e.HistorialEstados.Where(x => x.Estado.den == "4_Cargado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Ruta_Tas = e.HistorialEstados.Where(x => x.Estado.den == "5_En ruta a TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Fuera_Tas = e.HistorialEstados.Where(x => x.Estado.den == "6_Fuera de TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Espera_dentro_TAS = e.HistorialEstados.Where(x => x.Estado.den == "7_En espera dentro de TAS").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Proceso_descarga = e.HistorialEstados.Where(x => x.Estado.den == "8_En proceso de descarga").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Descargado = e.HistorialEstados.Where(x => x.Estado.den == "9_Descargado").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //    Orden_Cancelada = e.HistorialEstados.Where(x => x.Estado.den == "10_Orden cancelada").FirstOrDefault().Fecha_Actualizacion.ToString() ?? "",
+                    //})
                     .Take(10000)
                     .ToListAsync();
                 Ordenes.AddRange(ordenesTotales);
