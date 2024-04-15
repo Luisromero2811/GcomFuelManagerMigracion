@@ -44,6 +44,7 @@ namespace GComFuelManager.Shared.Modelos
         public byte? Estatus { get; set; }
         public int? Id_Autorizador { get; set; }
         public int? Folio_Vale { get; set; }
+        public int? Id_Multidestino { get; set; }
 
         [NotMapped] public List<HistorialEstados> HistorialEstados { get; set; } = new();
         [NotMapped] public Destino? Destino { get; set; } = null!;

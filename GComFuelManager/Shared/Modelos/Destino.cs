@@ -37,6 +37,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public short? Id_Tad { get; set; }
 
         [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
+        [EpplusIgnore] public bool? Es_Multidestino { get; set; } = false;
 
         [NotMapped]
         public string FULLDEN

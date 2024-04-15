@@ -13,19 +13,19 @@
     </div>
     <div class="card-body">
         <div class="col-12">
-            <EditForm Model="@Destino" class="form col-12" OnValidSubmit="@CreateDestinos" Context="Validations">
+            <EditForm Model="@Destino" class="col-12 row" OnValidSubmit="@CreateDestinos" Context="Validations">
                 <FluentValidationValidator Validator="gestionDestino" />
                 <ValidationSummary />
                 <div class="col-12 row mb-2">
-                    <div class="col-2 row">
+                    <div class="col-3 row">
                         <label>Nombre del destino:</label>
                         <InputText @bind-Value="Destino.Den" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Dirección:</label>
                         <InputText @bind-Value="Destino.Dir" class="form-control" MaxLenght="80"></InputText>
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Ciudad:</label>
                         <InputText @bind-Value="Destino.Ciu" class="form-control" MaxLenght="10"></InputText>
                     </div>
@@ -37,6 +37,15 @@
                         <label>ID Destino Gobierno</label>
                         <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="20" />
                     </div>
+                    <div class="col-3 d-flex">
+                        <div class="form-check mt-auto">
+                            <input class="form-check-input" type="checkbox" value="@Destino.Es_Multidestino" id="multidestino"
+                                   checked="@Destino.Es_Multidestino" @onchange="@(()=>Destino.Es_Multidestino = !Destino.Es_Multidestino)">
+                            <label class="form-check-label" for="multidestino">
+                                Es Multidestino
+                            </label>
+                        </div>
+                    </div>
                     <div class="col-2 d-flex mt-auto">
                         @if (!isEdit)
                         {
@@ -47,16 +56,16 @@
                         else
                         {
                             <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
-                                <i class="fa fa-solid fa-check"></i> 
+                                <i class="fa fa-solid fa-check"></i>
                             </button>
                             <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
-                                   <i class="fa fa-solid fa-xmark"></i>
+                                <i class="fa fa-solid fa-xmark"></i>
                             </button>
                         }
                     </div>
                 </div>
             </EditForm>
-            <EditForm Model="@ClienteDestinoDTO" class="form col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
+            <EditForm Model="@ClienteDestinoDTO" class="col-12" OnValidSubmit="@AsignarDestinosClientes" Context="validacion">
                 <FluentValidationValidator Validator="validation" />
                 <ValidationSummary />
                 <h6>Relacion Cliente-Destino</h6>
@@ -111,43 +120,43 @@
                 </DropDownFilter>
             </div>
             @*<div class="col-3">
-                    <label>Unidad de Negocio</label>
-                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                        <RenderValue>
-                            <div>@context.Den</div>
-                        </RenderValue>
-                        <Render>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                <label class="form-check-label" for="@context.Cod">
-                                    @if (context is not null)
-                                    {
-                                        @context.Den
-                                    }
-                                    else
-                                    {
-                                        <p>@context.Den</p>
-                                    }
-                                </label>
-                            </div>
-                        </Render>
-                    </DropDownFilter>
-                </div>
-                <div class="col-3">
-                    <label></label>
-                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                        <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Unidad
-                    </button>
-                </div>*@
+            <label>Unidad de Negocio</label>
+            <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
+            <RenderValue>
+            <div>@context.Den</div>
+            </RenderValue>
+            <Render>
+            <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
+            <label class="form-check-label" for="@context.Cod">
+            @if (context is not null)
+            {
+            @context.Den
+            }
+            else
+            {
+            <p>@context.Den</p>
+            }
+            </label>
+            </div>
+            </Render>
+            </DropDownFilter>
+            </div>
+            <div class="col-3">
+            <label></label>
+            <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
+            <i class="fa fa-solid fa-plus"></i> Relacionar Destino-Unidad
+            </button>
+            </div>*@
         </div>
         <div class="col-12">
             <table class="table table-sm table-striped table-bordered">
                 <thead>
                     <tr>
                         @*<th>
-                                <input type="checkbox" checked="@(Destinos.Any(i => Destinos_Seleccionados != null && Destinos_Seleccionados.Contains(i)))"
-                                       @onchange="args => CheckItemAll(args?.Value)" />
-                            </th>*@
+                        <input type="checkbox" checked="@(Destinos.Any(i => Destinos_Seleccionados != null && Destinos_Seleccionados.Contains(i)))"
+                        @onchange="args => CheckItemAll(args?.Value)" />
+                        </th>*@
                         <th>Destino</th>
                         <th>Dirección</th>
                         <th>Ciudad</th>
@@ -164,8 +173,8 @@
                         <Virtualize Items="Destinos" TItem="Destino" Context="item">
                             <tr>
                                 @*<th>
-                                        <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Destinos_Seleccionados.Contains(item))" @onchange="args => { CheckDestinos(item, args?.Value); }" />
-                                    </th>*@
+                            <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Destinos_Seleccionados.Contains(item))" @onchange="args => { CheckDestinos(item, args?.Value); }" />
+                            </th>*@
                                 <td>@item.Den</td>
                                 <td>@item.Dir</td>
                                 <td>@item.Ciu</td>
@@ -185,23 +194,23 @@
                                     </button>
                                 </td>
                                 @*<td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                            @foreach (var items in item.Terminales)
-                                            {
-                                                <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                    @items.Den
+                            @if (item.Terminales is not null)
+                            {
+                            @foreach (var items in item.Terminales)
+                            {
+                            <span class="badge rounded-pill gcom-bg-rojo me-2">
+                            @items.Den
 
-                                                    <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                    </button>
+                            <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
+                            <i class="fa fa-solid fa-xmark"></i>
+                            </button>
 
-                                                </span>
-                                            }
+                            </span>
+                            }
 
-                                        }
+                            }
 
-                                    </td>*@
+                            </td>*@
                             </tr>
                         </Virtualize>
                     }
@@ -567,12 +576,12 @@
     private async Task Message(string Message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-        {
-            Position = "top-end",
-            ShowConfirmButton = false,
-            Timer = 1800,
-            Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+            {
+                Position = "top-end",
+                ShowConfirmButton = false,
+                Timer = 1800,
+                Toast = true,
+            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
     }
 
     private void SetDestino(Destino destino)

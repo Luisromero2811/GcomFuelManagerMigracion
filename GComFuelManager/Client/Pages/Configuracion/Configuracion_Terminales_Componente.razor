@@ -2,6 +2,7 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
+@inject DialogService ds
 @attribute [Authorize]
 
 <div class="card shadow-sm">
@@ -215,5 +216,10 @@
             loading_catalogo = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private async Task Abrir_Modulo_Copiado()
+    {
+        
     }
 }
