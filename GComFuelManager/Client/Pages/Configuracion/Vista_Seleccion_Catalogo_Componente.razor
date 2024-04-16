@@ -64,7 +64,7 @@
     List<AccionesCatalogo> Acciones_Seleccionadas = new();
     List<Tad> Terminales { get; set; } = new();
     Tad Terminal { get; set; } = new();
-    
+
     [Parameter] public short Terminal_Destino { get; set; } = 0;
 
     bool copiando_catalogos = false;
@@ -138,7 +138,14 @@
                 if (responseOC.Error)
                 {
                     var responseHttp = await responseOC.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    // await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    ns.Notify(new()
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Detail = $"{responseHttp}",
+                            Summary = "Erro de catalogo",
+                            Duration = 30000
+                        });
                     ns.Notify(new()
                         {
                             Severity = NotificationSeverity.Error,
@@ -150,7 +157,16 @@
                 else
                 {
                     if (responseOC.Response)
+                    {
                         acciones_procesadas++;
+                        ns.Notify(new()
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Detail = $"Catalogo {accion.Catalogo} copiado con exito. Se continuara con los demas catalogos seleccionados.",
+                                Summary = "Copiando catalogo",
+                                Duration = 10000
+                            });
+                    }
                 }
             }
 

@@ -1002,14 +1002,13 @@ namespace GComFuelManager.Server.Controllers.Services
         }
 
         [HttpGet("copiar/cliente/{terminal}/{terminal_destino}")]
-        public ActionResult Copiar_Clientes([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        public async Task<ActionResult> Copiar_Clientes([FromRoute] short terminal, [FromRoute] short terminal_destino)
         {
             try
             {
                 var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
-                using var Transaction = context.Database.BeginTransaction();
 
-                List<Cliente> Clientes_validos = new();
+                List<Cliente_Tad> Clientes_validos = new();
 
                 for (int i = 0; i < clientes.Count; i++)
                 {
@@ -1018,15 +1017,20 @@ namespace GComFuelManager.Server.Controllers.Services
                         var new_cliente = clientes[i].HardCopy();
                         new_cliente.Cod = 0;
                         new_cliente.Id_Tad = terminal_destino;
-                        //Clientes_validos.Add(new_cliente);
-                        context.SaveChanges();
 
-                        context.Add(new Cliente_Tad() { Id_Cliente = new_cliente.Cod, Id_Terminal = terminal_destino });
-                        context.SaveChanges();
+                        Cliente_Tad cliente_Tad = new()
+                        {
+                            Id_Terminal = terminal_destino,
+                            Cliente = new_cliente,
+                            Terminal = null!
+                        };
 
-                        Transaction.Commit();
+                        Clientes_validos.Add(cliente_Tad);
                     }
                 }
+
+                context.AddRange(Clientes_validos);
+                await context.SaveChangesAsync();
 
                 return Ok(true);
             }
@@ -1041,42 +1045,47 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { Cod = x.Cod, Den = x.Den }).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { x.Cod, x.Den }).ToList();
                 var destinos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
 
-                List<Destino> destinos_validos = new();
+                List<Destino_Tad> destinos_validos = new();
 
                 for (int i = 0; i < clientes.Count; i++)
                 {
                     if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
                     {
                         var destinos_cliente = destinos.Where(x => x.Codcte == clientes[i].Cod).ToList();
+                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
 
                         for (int j = 0; j < destinos_cliente.Count; j++)
                         {
                             if (!context.Destino.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == destinos_cliente[j].Den && x.Id_Tad == terminal_destino))
                             {
-                                var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+
                                 if (cliente is not null)
                                 {
                                     var new_destino = destinos_cliente[j].HardCopy();
                                     new_destino.Cod = 0;
                                     new_destino.Id_Tad = terminal_destino;
                                     new_destino.Codcte = cliente.Cod;
-                                    //destinos_validos.Add(new_destino);
-                                    context.Add(new_destino);
-                                    await context.SaveChangesAsync();
 
-                                    context.Add(new Destino_Tad() { Id_Destino = new_destino.Cod, Id_Terminal = terminal_destino });
-                                    await context.SaveChangesAsync();
+                                    Destino_Tad destino_Tad = new()
+                                    {
+                                        Id_Terminal = terminal_destino,
+                                        Destino = new_destino,
+                                        Terminal = null!
+                                    };
+
+                                    destinos_validos.Add(destino_Tad);
                                 }
                             }
                         }
                     }
                 }
 
-                //context.AddRange(destinos_validos);
-                //await context.SaveChangesAsync();
+                context.AddRange(destinos_validos);
+                await context.SaveChangesAsync();
+
                 return Ok(true);
             }
             catch (Exception e)
@@ -1092,7 +1101,7 @@ namespace GComFuelManager.Server.Controllers.Services
             {
                 var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
 
-                List<Transportista> transportistas_validos = new();
+                List<Transportista_Tad> transportistas_validos = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
@@ -1112,14 +1121,19 @@ namespace GComFuelManager.Server.Controllers.Services
                         new_transpor.CarrId = numero;
                         new_transpor.Busentid = numero;
 
-                        Debug.WriteLine($"numero_transportista: {numero}");
-                        context.Add(new_transpor);
-                        await context.SaveChangesAsync();
+                        Transportista_Tad transportista_Tad = new()
+                        {
+                            Id_Terminal = terminal_destino,
+                            Transportista = new_transpor,
+                            Terminal = null!
+                        };
 
-                        context.Add(new Transportista_Tad() { Id_Transportista = new_transpor.Cod, Id_Terminal = terminal_destino });
-                        await context.SaveChangesAsync();
+                        transportistas_validos.Add(transportista_Tad);
                     }
                 }
+
+                context.AddRange(transportistas_validos);
+                await context.SaveChangesAsync();
 
                 return Ok(true);
             }
@@ -1137,7 +1151,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.Busentid }).ToList();
                 var choferes = context.Chofer.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
 
-                List<Destino> destinos_validos = new();
+                List<Chofer_Tad> chofer_Tads = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
@@ -1150,19 +1164,22 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             for (int j = 0; j < choferes_transpor.Count; j++)
                             {
-                                if (!context.Chofer.Any(x => x.Id_Tad == terminal_destino && !string.IsNullOrEmpty(x.Den) && !string.IsNullOrEmpty(x.Shortden) && x.Den.Equals(choferes_transpor[j].Den)
-                                && x.Shortden.Equals(choferes_transpor[j].Shortden) && x.Codtransport == choferes_transpor[j].Codtransport))
+                                if (!context.Chofer.Any(x => x.Id_Tad == terminal_destino && x.Den == choferes_transpor[j].Den && x.Shortden == choferes_transpor[j].Shortden
+                                && x.Codtransport.ToString() == transportista))
                                 {
                                     var new_chofer = choferes_transpor[j].HardCopy();
                                     new_chofer.Cod = 0;
                                     new_chofer.Id_Tad = terminal_destino;
                                     new_chofer.Codtransport = Convert.ToInt32(transportista);
-                                    //choferes_nuevos.Add(new_chofer);
-                                    context.Add(new_chofer);
-                                    await context.SaveChangesAsync();
 
-                                    context.Add(new Chofer_Tad() { Id_Chofer = new_chofer.Cod, Id_Terminal = terminal_destino });
-                                    await context.SaveChangesAsync();
+                                    Chofer_Tad chofer_Tad = new()
+                                    {
+                                        Id_Terminal = terminal_destino,
+                                        Chofer = new_chofer,
+                                        Terminal = null!
+                                    };
+
+                                    chofer_Tads.Add(chofer_Tad);
                                 }
                             }
                         }
@@ -1170,8 +1187,9 @@ namespace GComFuelManager.Server.Controllers.Services
                     }
                 }
 
-                //context.AddRange(destinos_validos);
-                //await context.SaveChangesAsync();
+                context.AddRange(chofer_Tads);
+                await context.SaveChangesAsync();
+
                 return Ok(true);
             }
             catch (Exception e)
@@ -1188,7 +1206,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
                 var toneles = context.Tonel.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
 
-                List<Destino> destinos_validos = new();
+                List<Unidad_Tad> unidad_Tads = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
@@ -1202,21 +1220,22 @@ namespace GComFuelManager.Server.Controllers.Services
                             for (int j = 0; j < toneles_transpor.Count; j++)
                             {
                                 if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && !string.IsNullOrEmpty(x.Tracto) && x.Tracto == toneles_transpor[j].Tracto
-                                && !string.IsNullOrEmpty(x.Placa) && x.Placa == toneles_transpor[j].Placa && !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto == toneles_transpor[j].Placatracto))
+                                && !string.IsNullOrEmpty(x.Placa) && x.Placa == toneles_transpor[j].Placa && !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto == toneles_transpor[j].Placatracto
+                                && x.Carid == transportista))
                                 {
-                                    //if (!unidades_nuevas.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Equals(unidad.Tracto)))
-                                    //{
                                     var new_unidad = toneles_transpor[j].HardCopy();
                                     new_unidad.Cod = 0;
                                     new_unidad.Id_Tad = terminal_destino;
                                     new_unidad.Carid = transportista;
-                                    //unidades_nuevas.Add(new_unidad);
-                                    context.Add(new_unidad);
-                                    await context.SaveChangesAsync();
 
-                                    context.Add(new Unidad_Tad() { Id_Unidad = new_unidad.Cod, Id_Terminal = terminal_destino });
-                                    await context.SaveChangesAsync();
-                                    //}
+                                    Unidad_Tad unidad_Tad = new()
+                                    {
+                                        Id_Terminal = terminal_destino,
+                                        Tonel = new_unidad,
+                                        Terminal = null!
+                                    };
+
+                                    unidad_Tads.Add(unidad_Tad);
                                 }
                             }
                         }
@@ -1224,8 +1243,9 @@ namespace GComFuelManager.Server.Controllers.Services
                     }
                 }
 
-                //context.AddRange(destinos_validos);
-                //await context.SaveChangesAsync();
+                context.AddRange(unidad_Tads);
+                await context.SaveChangesAsync();
+
                 return Ok(true);
             }
             catch (Exception e)
