@@ -798,200 +798,61 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
-        [HttpGet("default/data/{id_terminal}")]
-        public async Task<ActionResult> Fijar_Datos_Por_Defecto([FromRoute] short id_terminal)
+        [HttpGet("default/data/{id_terminal}/{id_terminal_catalogo}")]
+        public async Task<ActionResult> Fijar_Datos_Por_Defecto([FromRoute] short id_terminal, [FromRoute] short id_terminal_catalogo)
         {
             try
             {
+                //var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                //if (id_terminal == 0)
+                //    return BadRequest();
+
                 if (!context.Tad.Any(x => x.Cod == id_terminal))
                     return NotFound();
 
-                var terminal = context.Tad.IgnoreAutoIncludes().FirstOrDefault(x => x.Cod == id_terminal);
-                if (terminal is null) { return BadRequest("No se encontro la terminal"); }
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                List<Cliente_Tad> cliente_Tads = new();
 
-                terminal.Ultima_Actualizacion_Catalogo = DateTime.Now;
-                context.Update(terminal);
+                foreach (var cliente in clientes)
+                    if (!context.Cliente_Tad.Any(x => x.Id_Cliente == cliente && x.Id_Terminal == id_terminal))
+                        cliente_Tads.Add(new() { Id_Cliente = cliente, Id_Terminal = id_terminal });
+
+                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                List<Destino_Tad> destino_Tads = new();
+
+                foreach (var destino in destinos)
+                    if (!context.Destino_Tad.Any(x => x.Id_Destino == destino && x.Id_Terminal == id_terminal))
+                        destino_Tads.Add(new() { Id_Destino = destino, Id_Terminal = id_terminal });
+
+                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                List<Transportista_Tad> transportista_s = new();
+
+                foreach (var trans in transportistas)
+                    if (!context.Transportista_Tad.Any(x => x.Id_Transportista == trans && x.Id_Terminal == id_terminal))
+                        transportista_s.Add(new() { Id_Terminal = id_terminal, Id_Transportista = trans });
+
+
+                var choferes = context.Chofer.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                List<Chofer_Tad> choferes_tad = new();
+
+                foreach (var chofer in choferes)
+                    if (!context.Chofer_Tad.Any(x => x.Id_Chofer == chofer && x.Id_Terminal == id_terminal))
+                        choferes_tad.Add(new() { Id_Chofer = chofer, Id_Terminal = id_terminal });
+
+                var unidades = context.Tonel.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                List<Unidad_Tad> unidad_Tads = new();
+
+                foreach (var unidad in unidades)
+                    if (!context.Unidad_Tad.Any(x => x.Id_Unidad == unidad && x.Id_Terminal == id_terminal))
+                        unidad_Tads.Add(new() { Id_Unidad = unidad, Id_Terminal = id_terminal });
+
+                context.AddRange(cliente_Tads);
+                context.AddRange(destino_Tads);
+                context.AddRange(transportista_s);
+                context.AddRange(choferes_tad);
+                context.AddRange(unidad_Tads);
+
                 await context.SaveChangesAsync();
-
-                //copia de cliente ligada a tuxpan
-                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == 1).ToList();
-                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == 1).ToList();
-                //List<Cliente> clientes_nuevos = new();
-                //List<Destino> destinos_nuevos = new();
-                var clientes_en_tuxpa_no_terminal_destino = clientes.Except(context.Cliente.Where(x => x.Id_Tad == id_terminal && x.Activo).ToList());
-
-                foreach (var cliente in clientes_en_tuxpa_no_terminal_destino)
-                {
-                    if (!context.Cliente.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente.Den)))
-                    {
-                        //if (!clientes_nuevos.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente.Den)))
-                        //{
-                        var new_cliente = cliente.HardCopy();
-                        new_cliente.Cod = 0;
-                        new_cliente.Id_Tad = id_terminal;
-                        //clientes_nuevos.Add(new_cliente);
-                        context.Add(new_cliente);
-                        await context.SaveChangesAsync();
-
-                        context.Add(new Cliente_Tad() { Id_Cliente = new_cliente.Cod, Id_Terminal = id_terminal });
-                        await context.SaveChangesAsync();
-                        //}
-                    }
-
-                    var destinos_validos = destinos.Where(x => x.Codcte == cliente.Cod).ToList();
-
-                    var destinos_en_tuxpan_no_terminal_destino = destinos_validos.Except(context.Destino.Where(x => x.Codcte == cliente.Cod && x.Id_Tad == id_terminal).ToList());
-
-                    var cliente_bd = context.Cliente.First(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente.Den) && x.Id_Tad == id_terminal && x.Activo);
-
-                    foreach (var destino in destinos_en_tuxpan_no_terminal_destino)
-                    {
-                        if (!context.Destino.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino.Den)))
-                        {
-                            //if (!destinos_nuevos.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino.Den)))
-                            //{
-                            var new_destino = destino.HardCopy();
-                            new_destino.Cod = 0;
-                            new_destino.Id_Tad = id_terminal;
-                            new_destino.Codcte = cliente_bd.Cod;
-                            //destinos_nuevos.Add(new_destino);
-                            context.Add(new_destino);
-                            await context.SaveChangesAsync();
-
-                            context.Add(new Destino_Tad() { Id_Destino = new_destino.Cod, Id_Terminal = id_terminal });
-                            await context.SaveChangesAsync();
-                            //}
-                        }
-                    }
-                }
-                //copia de destino ligado a tuxpan
-
-                //foreach (var destino in destinos)
-                //{
-                //    if (!context.Destino.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino.Den)))
-                //    {
-                //        //if (!destinos_nuevos.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino.Den)))
-                //        //{
-                //        var new_destino = destino.HardCopy();
-                //        new_destino.Cod = 0;
-                //        new_destino.Id_Tad = id_terminal;
-                //        //destinos_nuevos.Add(new_destino);
-                //        context.Add(new_destino);
-                //        await context.SaveChangesAsync();
-
-                //        context.Add(new Destino_Tad() { Id_Destino = new_destino.Cod, Id_Terminal = id_terminal });
-                //        await context.SaveChangesAsync();
-                //        //}
-                //    }
-                //}
-                //copia de transportista, tonel y chofer liagados a tuxpan
-                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == 1).ToList();
-                var choferes = context.Chofer.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == 1).ToList();
-                var unidades = context.Tonel.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == 1).ToList();
-
-                List<Transportista> transportistas_nuevos = new();
-                //List<Chofer> choferes_nuevos = new();
-                //List<Tonel> unidades_nuevas = new();
-
-                var transportistas_tuspan_no_terminal_destino = transportistas.Except(context.Transportista.Where(x => x.Id_Tad == id_terminal && x.Activo == true).ToList());
-
-                foreach (var trans in transportistas_tuspan_no_terminal_destino)
-                {
-                    //List<Chofer> choferes_nuevos = new();
-                    //List<Tonel> unidades_nuevas = new();
-
-                    if (!context.Transportista.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trans.Den))
-                        && !string.IsNullOrEmpty(trans.Busentid) && !string.IsNullOrEmpty(trans.CarrId))
-                    {
-                        //if (!transportistas_nuevos.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trans.Den)))
-                        //{
-                        var numero = GetRandomCarid();
-                        var new_transpor = trans.HardCopy();
-
-
-                        new_transpor.Cod = 0;
-                        new_transpor.Id_Tad = id_terminal;
-
-                        new_transpor.BusentId_Original = new_transpor.Busentid;
-                        new_transpor.CarId_Original = new_transpor.CarrId;
-
-                        new_transpor.CarrId = numero;
-                        new_transpor.Busentid = numero;
-
-                        //transportistas_nuevos.Add(new_transpor);
-                        Debug.WriteLine($"numero_transportista: {numero}");
-                        context.Add(new_transpor);
-                        await context.SaveChangesAsync();
-
-                        context.Add(new Transportista_Tad() { Id_Transportista = new_transpor.Cod, Id_Terminal = id_terminal });
-                        await context.SaveChangesAsync();
-                        //}
-
-                    }
-                    //else
-                    //{
-                    var transportista_terminal = context.Transportista.First(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trans.Den) && x.Id_Tad == id_terminal
-                    && !string.IsNullOrEmpty(x.Busentid) && !string.IsNullOrEmpty(x.CarrId) && !string.IsNullOrEmpty(x.BusentId_Original) && !string.IsNullOrEmpty(x.CarId_Original));
-
-                    var choferes_validos = choferes.Where(x => x.Codtransport == Convert.ToInt32(transportista_terminal.BusentId_Original)).ToList();
-
-                    var choferes_tuxpan_no_terminal_destino = choferes_validos.Except(context.Chofer.Where(x => x.Codtransport == Convert.ToInt32(transportista_terminal.Busentid)).ToList());
-
-                    var unidades_validas = unidades.Where(x => x.Carid == transportista_terminal.CarId_Original).ToList();
-
-                    var unidad_tuxpan_no_terminal_destino = unidades_validas.Except(context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(transportista_terminal.CarrId)).ToList());
-
-                    foreach (var chofer in choferes_tuxpan_no_terminal_destino)
-                    {
-                        if (!context.Chofer.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && !string.IsNullOrEmpty(x.Shortden) && x.Den.Equals(chofer.Den) && x.Shortden.Equals(chofer.Shortden)
-                        && x.Codtransport == chofer.Codtransport))
-                        {
-                            //if (!choferes_nuevos.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Den) && !string.IsNullOrEmpty(x.Shortden) && x.Den.Equals(chofer.Den) && x.Shortden.Equals(chofer.Shortden)
-                            //&& x.Codtransport == chofer.Codtransport))
-                            //{
-                            var new_chofer = chofer.HardCopy();
-                            new_chofer.Cod = 0;
-                            new_chofer.Id_Tad = id_terminal;
-                            new_chofer.Codtransport = Convert.ToInt32(transportista_terminal.Busentid);
-                            //choferes_nuevos.Add(new_chofer);
-                            context.Add(new_chofer);
-                            await context.SaveChangesAsync();
-
-                            context.Add(new Chofer_Tad() { Id_Chofer = new_chofer.Cod, Id_Terminal = id_terminal });
-                            await context.SaveChangesAsync();
-                            //}
-                        }
-                    }
-
-                    foreach (var unidad in unidad_tuxpan_no_terminal_destino)
-                    {
-                        if (!context.Tonel.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Equals(unidad.Tracto)))
-                        {
-                            //if (!unidades_nuevas.Any(x => x.Id_Tad == id_terminal && !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Equals(unidad.Tracto)))
-                            //{
-                            var new_unidad = unidad.HardCopy();
-                            new_unidad.Cod = 0;
-                            new_unidad.Id_Tad = id_terminal;
-                            new_unidad.Carid = transportista_terminal.CarrId;
-                            //unidades_nuevas.Add(new_unidad);
-                            context.Add(new_unidad);
-                            await context.SaveChangesAsync();
-
-                            context.Add(new Unidad_Tad() { Id_Unidad = new_unidad.Cod, Id_Terminal = id_terminal });
-                            await context.SaveChangesAsync();
-                            //}
-                        }
-                    }
-                    //}
-                }
-
-                //context.AddRange(clientes_nuevos);
-                //context.AddRange(destinos_nuevos);
-                //context.AddRange(transportistas_nuevos);
-                //context.AddRange(choferes_nuevos);
-                //context.AddRange(unidades_nuevas);
-
-                //await context.SaveChangesAsync();
 
                 return Ok(true);
             }
