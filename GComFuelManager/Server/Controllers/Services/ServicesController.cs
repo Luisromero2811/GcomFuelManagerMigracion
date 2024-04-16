@@ -846,11 +846,19 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!context.Unidad_Tad.Any(x => x.Id_Unidad == unidad && x.Id_Terminal == id_terminal))
                         unidad_Tads.Add(new() { Id_Unidad = unidad, Id_Terminal = id_terminal });
 
+                var usuarios = context.Users.Select(x => new { x.Id, x.UserName}).ToList();
+                List<Usuario_Tad> usuario_Tads = new();
+
+                foreach (var usuario in usuarios)
+                    if (!context.Usuario.Any(x => x.Usu == usuario.UserName && x.Activo))
+                        usuario_Tads.Add(new() { Id_Usuario = usuario.Id, Id_Terminal = id_terminal });
+
                 context.AddRange(cliente_Tads);
                 context.AddRange(destino_Tads);
                 context.AddRange(transportista_s);
                 context.AddRange(choferes_tad);
                 context.AddRange(unidad_Tads);
+                context.AddRange(usuario_Tads);
 
                 await context.SaveChangesAsync();
 
