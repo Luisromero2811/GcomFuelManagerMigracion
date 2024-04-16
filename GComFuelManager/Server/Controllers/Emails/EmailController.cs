@@ -26,18 +26,112 @@ namespace GComFuelManager.Server.Controllers.Emails
         private readonly IRegisterAccountService registerAccount;
         private readonly IVencimientoService vencimientoService;
         private readonly IPreciosService preciosService;
+        private readonly IValidacionCierreEmailService validacionCierre;
+        private readonly IValidacionOrdenEmailService validacionOrden;
 
         public EmailController(ApplicationDbContext context,
             IRazorViewToStringRenderer razorView,
             IRegisterAccountService registerAccount,
             IVencimientoService vencimientoService,
-            IPreciosService preciosService)
+            IPreciosService preciosService,
+            IValidacionCierreEmailService validacionCierre,
+            IValidacionOrdenEmailService validacionOrden)
         {
             this.context = context;
             this.razorView = razorView;
             this.registerAccount = registerAccount;
             this.vencimientoService = vencimientoService;
             this.preciosService = preciosService;
+            this.validacionCierre = validacionCierre;
+            this.validacionOrden = validacionOrden;
+        }
+
+
+        [HttpPost("validacioncierre")]
+        public async Task<ActionResult> SendEmailValidacionCierre([FromBody] List<OrdenCierre> ordenCierres)
+        {
+            try
+            {
+                int? VolumenTotal = 0;
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
+                && x.Accion.Nombre.Equals("ValidacionCierre"))
+                    .Include(x => x.Accion)
+                    .Include(x => x.Contacto)
+                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                    .AsEnumerable();
+
+                if (ToList is null || ToList.Count() == 0)
+                    return BadRequest($"{ordenCierres.FirstOrDefault().Cliente.Den}, No cuenta con un correo activo o registrado");
+
+                emailContent.CC = cc;
+                //Funcion para el volumen
+                IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in ordenCierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+
+                emailContent.ToList = ToList;
+                emailContent.Subject = "Aviso de creación de cierre de pedido";
+                emailContent.Lista = cierresDistinc;
+
+                await validacionCierre.ValidacionCierre(emailContent);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("validacionorden")]
+        public async Task<ActionResult> SendEmailValidacionOrden([FromBody] List<OrdenCierre> ordenCierres)
+        {
+            try
+            {
+                int? VolumenTotal = 0;
+                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
+                var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenCierres.FirstOrDefault().CodCte && x.Contacto.Estado == true
+                && x.Accion.Nombre.Equals("ValidacionOrden"))
+                    .Include(x => x.Accion)
+                    .Include(x => x.Contacto)
+                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                    .AsEnumerable();
+
+                emailContent.CC = cc;
+                //Funcion para el volumen
+                IEnumerable<OrdenCierre> cierresDistinc = ordenCierres.DistinctBy(x => x.Producto!.Den);
+
+                foreach (var item in cierresDistinc)
+                {
+                    foreach (var cierre in ordenCierres)
+                        if (cierre.Producto!.Den == item.Producto!.Den)
+                            VolumenTotal = VolumenTotal + cierre.Volumen;
+                    cierresDistinc.FirstOrDefault(x => x.Producto!.Den == item.Producto!.Den)!.Volumen = VolumenTotal;
+                    VolumenTotal = 0;
+                }
+
+                emailContent.ToList = ToList;
+                emailContent.Subject = "Aviso de creación de orden individual";
+                emailContent.Lista = cierresDistinc;
+
+                await validacionOrden.ValidacionOrden(emailContent);
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("confirmacion")]

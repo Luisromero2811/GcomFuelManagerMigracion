@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -36,6 +37,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Esenergas { get; set; } = false;
         [JsonProperty("tipven"), MaxLength(16)]
         public string? Tipven { get; set; } = string.Empty;
+        [JsonProperty("mdVenta"), DisplayName("Modelo de Venta")]
+        public string? MdVenta { get; set; } = string.Empty;
         [JsonProperty("codCte")]
         public string? CodCte { get; set; } = string.Empty;
         [JsonProperty("consecutivo")]

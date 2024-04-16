@@ -57,7 +57,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (user == null)
                     return BadRequest();
 
-                var clientes = context.Destino.Where(x => x.Codcte == user!.CodCte).AsEnumerable().OrderBy(x => x.Den);
+                var clientes = context.Destino.Where(x => x.Codcte == user!.CodCte && x.Activo == true).AsEnumerable().OrderBy(x => x.Den);
                 
                 return Ok(clientes);
             }

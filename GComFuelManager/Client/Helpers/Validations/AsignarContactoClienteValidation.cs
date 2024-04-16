@@ -7,8 +7,10 @@ namespace GComFuelManager.Client.Helpers.Validations
     {
         public AsignarContactoClienteValidation()
         {
-            RuleFor(x => x.Nombre).NotEmpty().WithName("Nombre").Length(26);
-            RuleFor(x => x.Correo).NotEmpty().WithName("Correo").Length(70).EmailAddress();
+            RuleFor(x => x.Nombre).NotEmpty().WithName("Nombre");
+            RuleFor(x => x.Correo).NotEmpty().WithName("Correo").EmailAddress();
+            RuleFor(x => x.Correo).NotEmpty().WithName("Correo").EmailAddress().WithMessage("El correo electrónico no es valido").Must(Correo => !Correo.StartsWith(" ")).WithMessage("El correo no puede comenzar con un espacio en blanco");
+            RuleFor(x => x.Accions).NotEmpty().WithName("Acciones");
         }
     }
 }

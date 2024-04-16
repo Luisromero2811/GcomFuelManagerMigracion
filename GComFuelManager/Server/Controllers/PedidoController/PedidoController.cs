@@ -517,6 +517,313 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpPost("create/all")]
+        public async Task<ActionResult> GetFolioToOrden([FromBody] OrdenCierre ordenCierre)
+        {
+            //try
+            //{
+            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+            //    {
+            //        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
+            //        if (cierre is not null)
+            //        {
+            //            if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
+            //            {
+            //                return BadRequest("El producto seleccionado no se encuentra en el cierre");
+            //            }
+            //        }
+            //    }
+
+            //    var id = await verifyUser.GetId(HttpContext, userManager);
+            //    if (string.IsNullOrEmpty(id))
+            //        return BadRequest();
+
+            //    if (ordenCierre is null)
+            //        return BadRequest("No se encontro ninguna orden");
+
+            //    string folio = string.Empty;
+
+            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+            //    folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
+            //    && x.CodPed != 0 && x.FchCierre == DateTime.Today && x.Estatus == true)?.Folio ?? string.Empty;
+
+            //    //var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+            //    //if (user == null)
+            //    //    return NotFound();
+
+            //    //Va y busca al usuario del cliente
+            //    var user = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+            //    if (user == null)
+            //        return NotFound();
+            //    //Si el cliente es comprador
+            //    if (await userManager.IsInRoleAsync(user, "Comprador"))
+            //    {
+            //        var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+            //        if (userSis == null)
+            //            return NotFound();
+            //        ordenCierre.CodCte = userSis.CodCte;
+            //        ordenCierre.CodGru = userSis.CodGru;
+            //        ordenCierre.Vendedor = userSis.Den;
+            //    }
+
+
+            //    if (string.IsNullOrEmpty(folio))
+            //    {
+            //        var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+            //        if (consecutivo is null)
+            //        {
+            //            Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
+            //            context.Add(Nuevo_Consecutivo);
+            //            await context.SaveChangesAsync();
+            //            consecutivo = Nuevo_Consecutivo;
+            //        }
+            //        else
+            //        {
+            //            consecutivo.Numeracion++;
+            //            context.Update(consecutivo);
+            //            await context.SaveChangesAsync();
+            //        }
+
+            //        context.Update(consecutivo);
+            //        await context.SaveChangesAsync();
+
+            //        var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
+
+            //        if (cliente is null)
+            //            return BadRequest("No se encontro el cliente");
+
+            //        if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+            //            ordenCierre.Folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
+            //        else
+            //            ordenCierre.Folio = $"OP{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
+
+            //    }
+
+            //    var bin = context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefault();
+
+            //    var bincount = context.OrdenEmbarque.Count(x => x.Bin == bin);
+
+            //    var count = context.OrdenCierre.Count(x => x.Folio == folio && x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte
+            //    && x.CodPrd == ordenCierre.CodPrd);
+
+            //    OrdenEmbarque ordenEmbarque = new()
+            //    {
+            //        Codest = 9,
+            //        Codtad = ordenCierre.CodTad,
+            //        Codprd = ordenCierre.CodPrd,
+            //        Pre = ordenCierre.Precio,
+            //        Vol = ordenCierre.Volumen,
+            //        Coddes = ordenCierre.CodDes,
+            //        Fchpet = DateTime.Now,
+            //        Fchcar = ordenCierre.FchCar,
+            //        Bin = count == 0 || bincount >= 2 ? ++bin : count % 2 == 0 ? ++bin : bin,
+            //        //Codusu = user?.Cod,
+            //        Moneda = ordenCierre.Moneda,
+            //        Equibalencia = ordenCierre.Equibalencia
+            //    };
+
+            //    context.Add(ordenEmbarque);
+            //    await context.SaveChangesAsync();
+
+            //    ordenCierre.Producto = null!;
+            //    ordenCierre.Destino = null!;
+            //    ordenCierre.Grupo = null!;
+            //    ordenCierre.OrdenEmbarque = null!;
+            //    ordenCierre.OrdenPedidos = null!;
+            //    ordenCierre.Cliente = null!;
+
+            //    ordenCierre.CodPed = ordenEmbarque.Cod;
+            //    ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(5);
+
+            //    context.Add(ordenCierre);
+
+            //    await context.SaveChangesAsync();
+
+            //    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+            //    {
+            //        var cierre = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenCierre.Folio_Perteneciente);
+
+            //        if (cierre is not null)
+            //        {
+            //            ordenCierre.TipoPago = cierre.TipoPago ?? string.Empty;
+            //            context.Update(ordenCierre);
+
+            //            OrdenPedido ordenPedido = new()
+            //            {
+            //                CodPed = ordenEmbarque.Cod,
+            //                CodCierre = cierre?.Cod ?? 0,
+            //                Folio = ordenCierre.Folio_Perteneciente,
+            //            };
+
+            //            context.Add(ordenPedido);
+            //            await context.SaveChangesAsync();
+            //        }
+            //    }
+
+            //    var newOrden = context.OrdenCierre.Where(x => x.Cod == ordenCierre.Cod)
+            //        .Include(x => x.Producto)
+            //        .Include(x => x.Destino)
+            //        .Include(x => x.Cliente)
+            //        .Include(x => x.OrdenEmbarque)
+            //        .ThenInclude(x => x.Tad)
+            //        .Include(x => x.OrdenEmbarque)
+            //        .ThenInclude(x => x.Estado)
+            //        .Include(x => x.OrdenPedidos)
+            //        .FirstOrDefault();
+
+            //    return Ok(newOrden);
+            //}
+            //catch (Exception e)
+            //{
+            //    return BadRequest(e.Message);
+            //}
+            try
+            {
+                if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                {
+                    var cierre = context.OrdenCierre.Where(x => x.Folio == ordenCierre.Folio_Perteneciente).ToList();
+                    if (cierre is not null)
+                    {
+                        if (cierre.Where(x => x.CodPrd == ordenCierre.CodPrd).Count() == 0)
+                        {
+                            return BadRequest("El producto seleccionado no se encuentra en el cierre");
+                        }
+                    }
+                }
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                if (ordenCierre is null)
+                    return BadRequest("No se encontro ninguna orden");
+
+                string folio = string.Empty;
+
+                //if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                folio = context.OrdenCierre.FirstOrDefault(x => x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte && x.CodPrd == ordenCierre.CodPrd
+                && x.CodPed != 0 && x.FchCierre == DateTime.Today && x.Estatus == true)?.Folio ?? string.Empty;
+
+                var user = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == HttpContext.User.FindFirstValue(ClaimTypes.Name));
+                if (user == null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(folio))
+                {
+                    var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                    if (consecutivo is null)
+                    {
+                        Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
+                        context.Add(Nuevo_Consecutivo);
+                        await context.SaveChangesAsync();
+                        consecutivo = Nuevo_Consecutivo;
+                    }
+                    else
+                    {
+                        consecutivo.Numeracion++;
+                        context.Update(consecutivo);
+                        await context.SaveChangesAsync();
+                    }
+
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == ordenCierre.CodCte);
+
+                    if (cliente is null)
+                        return BadRequest("No se encontro el cliente");
+
+                    if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                        ordenCierre.Folio = $"O{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
+                    else
+                        ordenCierre.Folio = $"OP{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(cliente is not null && !string.IsNullOrEmpty(cliente.CodCte) ? $"-{cliente.CodCte}" : "-DFT")}";
+
+                }
+                else
+                {
+                    ordenCierre.Folio = folio;
+                }
+
+                var bin = context.OrdenEmbarque.Select(x => x.Bin).OrderBy(x => x).LastOrDefault();
+
+                var bincount = context.OrdenEmbarque.Count(x => x.Bin == bin);
+
+                var count = context.OrdenCierre.Count(x => x.Folio == folio && x.CodDes == ordenCierre.CodDes && x.CodCte == ordenCierre.CodCte
+                && x.CodPrd == ordenCierre.CodPrd);
+
+                OrdenEmbarque ordenEmbarque = new()
+                {
+                    Codest = 9,
+                    Codtad = ordenCierre.CodTad,
+                    Codprd = ordenCierre.CodPrd,
+                    Pre = ordenCierre.Precio,
+                    Vol = ordenCierre.Volumen,
+                    Coddes = ordenCierre.CodDes,
+                    Fchpet = DateTime.Now,
+                    Fchcar = ordenCierre.FchCar,
+                    Bin = count == 0 || bincount >= 2 ? ++bin : count % 2 == 0 ? ++bin : bin,
+                    Codusu = user?.Cod,
+                    Moneda = ordenCierre.Moneda,
+                    Equibalencia = ordenCierre.Equibalencia
+                };
+
+                context.Add(ordenEmbarque);
+                await context.SaveChangesAsync();
+
+                ordenCierre.Producto = null!;
+                ordenCierre.Destino = null!;
+                ordenCierre.Grupo = null!;
+                ordenCierre.OrdenEmbarque = null!;
+                ordenCierre.OrdenPedidos = null!;
+                ordenCierre.Cliente = null!;
+
+                ordenCierre.CodPed = ordenEmbarque.Cod;
+                ordenCierre.FchVencimiento = ordenCierre.FchCierre?.AddDays(5);
+
+                context.Add(ordenCierre);
+
+                await context.SaveChangesAsync();
+
+                if (!string.IsNullOrEmpty(ordenCierre.Folio_Perteneciente))
+                {
+                    var cierre = context.OrdenCierre.FirstOrDefault(x => x.Folio == ordenCierre.Folio_Perteneciente);
+
+                    if (cierre is not null)
+                    {
+                        ordenCierre.TipoPago = cierre.TipoPago ?? string.Empty;
+                        context.Update(ordenCierre);
+
+                        OrdenPedido ordenPedido = new()
+                        {
+                            CodPed = ordenEmbarque.Cod,
+                            CodCierre = cierre?.Cod ?? 0,
+                            Folio = ordenCierre.Folio_Perteneciente,
+                        };
+
+                        context.Add(ordenPedido);
+                        await context.SaveChangesAsync();
+                    }
+                }
+
+                var newOrden = context.OrdenCierre.Where(x => x.Cod == ordenCierre.Cod)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Tad)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                    .Include(x => x.OrdenPedidos)
+                    .FirstOrDefault();
+
+                return Ok(newOrden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost("verificar/carga")]
         public async Task<ActionResult> VerifyVolumenAsignacion([FromBody] OrdenEmbarque orden)
         {

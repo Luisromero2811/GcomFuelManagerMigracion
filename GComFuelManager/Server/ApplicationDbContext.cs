@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -271,10 +271,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
-            modelBuilder.Entity<OrdenPedido>()
-                .HasOne(x => x.OrdenEmbarque)
-                .WithMany()
-                .HasForeignKey(x => x.CodPed);
+            ////Esta sobrando
+            //modelBuilder.Entity<OrdenPedido>()
+            //    .HasOne(x => x.OrdenEmbarque)
+            //    .WithMany()
+            //    .HasForeignKey(x => x.CodPed);
 
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
@@ -378,6 +379,7 @@ namespace GComFuelManager.Server
         public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
         public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
+        public DbSet<Consecutivo> Consecutivo { get; set; }
         public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
     }
 }

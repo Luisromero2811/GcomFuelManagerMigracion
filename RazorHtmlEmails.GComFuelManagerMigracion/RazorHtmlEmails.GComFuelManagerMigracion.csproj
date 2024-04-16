@@ -11,6 +11,7 @@
   <ItemGroup>
     <None Remove="Views\gcom_unilogo.png" />
     <None Remove="wwwroot\img\gcom_unilogo.png" />
+    <None Remove="Views\Emails\Avisos\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,4 +31,7 @@
 
 
 
+  <ItemGroup>
+    <Folder Include="Views\Emails\Avisos\" />
+  </ItemGroup>
 </Project>

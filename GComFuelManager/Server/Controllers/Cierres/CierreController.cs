@@ -148,6 +148,130 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpPost("orden/add")]
+        public async Task<ActionResult> PostRelation([FromBody] OrdenPedido ordenPedido)
+        {
+            try
+            {
+                ordenPedido.OrdenEmbarque = null!;
+                context.Add(ordenPedido);
+                await context.SaveChangesAsync();
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpPost("cierrefolio")]
+        public async Task<ActionResult> PostCierre([FromBody] OrdenCierre orden)
+        {
+            try
+            {
+                //Va y busca al usuario del cliente
+                var user = await UserManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
+                if (user == null)
+                    return NotFound();
+                //Si el cliente es comprador
+                if (await UserManager.IsInRoleAsync(user, "Comprador"))
+                {
+                    var userSis = context.Usuario.FirstOrDefault(x => x.Usu == user.UserName);
+                    if (userSis == null)
+                        return NotFound();
+                    orden.CodCte = userSis.CodCte;
+                    orden.CodGru = userSis.CodGru;
+                    orden.Vendedor = userSis.Den;
+                }
+
+                //Aquí empieza la adecuación 
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                if (orden is null)
+                    return BadRequest("No se aceptan ordenes vacias");
+                Cliente? Cliente = new();
+
+                var consecutivo = context.Consecutivo.First(x => x.Nombre == "Folio");
+                if (consecutivo is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Folio" };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                    consecutivo = Nuevo_Consecutivo;
+                }
+                else
+                {
+                    consecutivo.Numeracion++;
+                    context.Update(consecutivo);
+                    await context.SaveChangesAsync();
+                }
+                if (!orden.isGroup)
+                {
+                    Cliente = context.Cliente.FirstOrDefault(x => x.Cod == orden.CodCte);
+
+                    orden.TipoVenta = Cliente?.Tipven;
+                    if (!string.IsNullOrEmpty(Cliente?.Tipven))
+                    {
+                        orden.ModeloVenta = Cliente?.Tipven.ToLower() == "rack" ? "Rack" : "Delivery";
+                        orden.ModeloVenta = Cliente?.MdVenta;
+                        orden.TipoVenta = Cliente?.Tipven;
+                    }
+                    else
+                    {
+                        orden.ModeloVenta = string.Empty;
+                        orden.TipoVenta = string.Empty;
+                    }
+                }
+
+                if (!orden.isGroup)
+                    orden.Folio = $"P{DateTime.Now:yy}-{consecutivo.Numeracion:000000}{(Cliente is not null && !string.IsNullOrEmpty(Cliente.CodCte) ? $"-{Cliente.CodCte}" : "-DFT")}";
+                orden.OrdenEmbarque = null!;
+                orden.Cliente = null!;
+                orden.Producto = null!;
+                orden.Destino = null!;
+
+                orden.FchVencimiento = orden.FchCierre?.AddDays(5);
+                context.Add(orden);
+
+                await context.SaveChangesAsync(id, 1);
+
+                var NewOrden = await context.OrdenCierre.Where(x => x.Cod == orden.Cod)
+                    .Include(x => x.Destino)
+                    .Include(x => x.Producto)
+                    .Include(x => x.OrdenEmbarque)
+                    .ThenInclude(x => x.Estado)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Destino)
+                    .Include(x => x.OrdenPedidos)
+                    .ThenInclude(x => x.OrdenEmbarque)
+                    .FirstOrDefaultAsync();
+
+                if (orden.PrecioOverDate)
+                {
+                    CierrePrecioDespuesFecha cierreprecio = new CierrePrecioDespuesFecha()
+                    {
+                        CodCie = orden.Cod,
+                        CodCte = orden.CodCte,
+                        CodPrd = orden.CodPrd,
+                        Precio = orden.Precio
+                    };
+                    context.Add(cierreprecio);
+                    await context.SaveChangesAsync();
+                }
+                if (NewOrden is not null)
+                    NewOrden.SetVolumen();
+
+                return Ok(NewOrden);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] OrdenCierre orden)
         {
@@ -827,8 +951,9 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 else
                     folios = await context.OrdenCierre.OrderBy(x => x.FchCierre).Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                         && !string.IsNullOrEmpty(x.Folio) && x.Activa == true && x.CodPed == 0 && x.Estatus == true && x.CodCte == userSis.CodCte ||
-                        x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                        && !string.IsNullOrEmpty(x.Folio)
+                        //x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                        //&&
+                        !string.IsNullOrEmpty(x.Folio)
                         && x.Activa == true
                         && x.Folio.StartsWith("OP")
                         && x.Estatus == true
@@ -900,8 +1025,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 else
                     folios = await context.OrdenCierre.Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin
                 && !string.IsNullOrEmpty(x.Folio) && x.CodPed == 0 && x.Estatus == true && x.CodCte == userSis.CodCte ||
-                x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
-                && !string.IsNullOrEmpty(x.Folio)
+                //x.FchCierre >= DateTime.Today.AddDays(-10) && x.FchCierre <= DateTime.Today.AddDays(1)
+                //&&
+                x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin &&
+                !string.IsNullOrEmpty(x.Folio)
                 && x.Folio.StartsWith("OP")
                 && x.Estatus == true && x.CodCte == userSis.CodCte)
                     .Include(x => x.Cliente)
@@ -927,5 +1054,97 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
+        [HttpGet("caducidad/verify")]
+        public async Task<ActionResult> VerificarCaducidad([FromQuery] CierreFiltroDTO dTO)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dTO.Folio))
+                    return BadRequest("No se encontro un folio");
+
+                var activo = false;
+                var fchActiva = string.Empty;
+
+                var cierre = context.OrdenCierre.Where(x => !string.IsNullOrEmpty(x.Folio) && x.Folio.Equals(dTO.Folio)).ToList();
+
+                foreach (var item in cierre)
+                    if (item?.FchVencimiento >= DateTime.Today)
+                        activo = true;
+                    else
+                        fchActiva = item?.FchVen;
+
+                if (cierre is not null)
+                {
+                    if (activo)
+                        return Ok(activo);
+                    else
+                        return BadRequest($"Este pedido ya no se encuentra vigente.Fecha de vecimiento: {fchActiva}");
+                }
+                else
+                    return BadRequest($"No se encontro algun cierre perteneciente al folio {dTO.Folio}");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("cerrar/pedido/{folio}")]
+        public async Task<ActionResult> ClosePedido([FromRoute] string folio)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(folio))
+                    return BadRequest("Folio vacio o no valido");
+
+                var ordens = context.OrdenCierre.Where(x => x.Folio.Equals(folio)).ToList();
+
+                foreach (var item in ordens)
+                {
+                    await CloseOrden(item.Cod);
+                }
+                return Ok(true);
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("cerrar/orden/{cod:int}")]
+        public async Task<ActionResult> CloseOrden([FromRoute] int cod)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest("Orden no valida");
+
+                var orden = context.OrdenCierre.Find(cod);
+
+                if (orden is null)
+                {
+                    return BadRequest("No se encontro la orden");
+                }
+
+                orden.Activa = false;
+                orden.Estatus = false;
+
+                context.Update(orden);
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync(id, 16);
+
+                return Ok(true);
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

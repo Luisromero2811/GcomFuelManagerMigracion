@@ -50,6 +50,8 @@ builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>(
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
 builder.Services.AddScoped<IPreciosService, PreciosService>();
+builder.Services.AddScoped<IValidacionCierreEmailService, ValidacionCierreEmailService>();
+builder.Services.AddScoped<IValidacionOrdenEmailService, ValidacionOrdenEmailService>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();
