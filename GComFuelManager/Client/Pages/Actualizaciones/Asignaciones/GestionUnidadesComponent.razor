@@ -16,62 +16,63 @@
                 <FluentValidationValidator Validator="gestionUnidad" />
                 <ValidationSummary />
                 <div class="col-12 row mb-3">
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Transportista(Empresa):</label>
                         <RadzenDropDown @bind-Value="Unidad.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
                                         AllowVirtualization="true" AllowFiltering="true"
                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                         </RadzenDropDown>
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Placa:</label>
                         <InputText @bind-Value="Unidad.Placa" class="form-control" MaxLenght="80" />
                     </div>
+                    @*<div class="col-2">
+                            <label>Nº Compartimento:</label>
+                            <InputNumber @bind-Value="Unidad.Nrocom" class="form-control" MaxLenght="80" />
+                        </div>*@
                     <div class="col-2">
-                        <label>Nº Compartimento:</label>
-                        <InputNumber @bind-Value="Unidad.Nrocom" class="form-control" MaxLenght="80" />
-                    </div>
-                    <div class="col-2">
-                        <label>Capacidad:</label>
+                        <label>Capacidad 1:</label>
                         <InputNumber @bind-Value="Unidad.Capcom" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-2">
-                        <label>Nº Compartimento 2:</label>
-                        <InputNumber @bind-Value="Unidad.Nrocom2" class="form-control" MaxLenght="80" />
-                    </div>
+                    @*<div class="col-2">
+                            <label>Nº Compartimento 2:</label>
+                            <InputNumber @bind-Value="Unidad.Nrocom2" class="form-control" MaxLenght="80" />
+                        </div>*@
                     <div class="col-2">
                         <label>Capacidad 2:</label>
                         <InputNumber @bind-Value="Unidad.Capcom2" class="form-control" MaxLenght="80" />
                     </div>
-                </div>
-                <hr />-->
-                @*Segunda Parte*@
-                <div class="col-12 row mb-3">
                     <div class="col-2">
-                        <label>Nº Compartimento 3:</label>
-                        <InputNumber @bind-Value="Unidad.Nrocom3" class="form-control" MaxLenght="80" />
-                    </div>
-                    <div class="col-2">
-                        <label>Capacidad 3</label>
+                        <label>Capacidad 3:</label>
                         <InputNumber @bind-Value="Unidad.Capcom3" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-2">
-                        <label>Nº Compartimento 4:</label>
-                        <InputNumber @bind-Value="Unidad.Nrocom4" class="form-control" MaxLenght="80" />
-                    </div>
-                    <div class="col-1">
-                        <label>Cap 4:</label>
+                </div>
+                <hr />
+                @*Segunda Parte*@
+                <div class="col-12 row mb-3">
+                    @*<div class="col-2">
+                            <label>Nº Compartimento 3:</label>
+                            <InputNumber @bind-Value="Unidad.Nrocom3" class="form-control" MaxLenght="80" />
+                        </div>*@
+
+                    @*<div class="col-2">
+                            <label>Nº Compartimento 4:</label>
+                            <InputNumber @bind-Value="Unidad.Nrocom4" class="form-control" MaxLenght="80" />
+                        </div>*@
+                    <div class="col-3">
+                        <label>Capacidad 4:</label>
                         <InputNumber @bind-Value="Unidad.Capcom4" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-1">
+                    <div class="col-3">
                         <label>Tracto:</label>
                         <InputText @bind-Value="Unidad.Tracto" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Placa-Tracto:</label>
                         <InputText @bind-Value="Unidad.Placatracto" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-2">
+                    <div class="col-3">
                         <label>Certificado:</label>
                         <InputText @bind-Value="Unidad.Certificado_Calibracion" class="form-control" MaxLenght="50"></InputText>
                     </div>
@@ -101,7 +102,7 @@
     </div>
 </div>
 
-<div class="card mt-2" style="height:500px;">
+<div class="card mt-2" style="height: 500px; overflow: scroll;">
     <div class="card-header">
         <b>Gestión de Vehículos</b>
     </div>

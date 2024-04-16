@@ -17,8 +17,8 @@
                 <FluentValidationValidator Validator="gestionDestino" />
                 <ValidationSummary />
                 <div class="col-12 row mb-2">
-                    <div class="col-3 row">
-                        <label>Nombre del destino:</label>
+                    <div class="col-2 row">
+                        <label>Destino:</label>
                         <InputText @bind-Value="Destino.Den" class="form-control" MaxLenght="80" />
                     </div>
                     <div class="col-3">
@@ -37,31 +37,33 @@
                         <label>ID Destino Gobierno</label>
                         <InputText @bind-Value="Destino.Id_DestinoGobierno" class="form-control" MaxLenght="20" />
                     </div>
-                    <div class="col-3 d-flex">
-                        <div class="form-check mt-auto">
-                            <input class="form-check-input" type="checkbox" value="@Destino.Es_Multidestino" id="multidestino"
-                                   checked="@Destino.Es_Multidestino" @onchange="@(()=>Destino.Es_Multidestino = !Destino.Es_Multidestino)">
-                            <label class="form-check-label" for="multidestino">
-                                Es Multidestino
-                            </label>
+                    <div class="col-12 row justify-content-center">
+                        <div class="col-3 d-flex">
+                            <div class="form-check mt-auto">
+                                <input class="form-check-input" type="checkbox" value="@Destino.Es_Multidestino" id="multidestino"
+                                       checked="@Destino.Es_Multidestino" @onchange="@(()=>Destino.Es_Multidestino = !Destino.Es_Multidestino)">
+                                <label class="form-check-label" for="multidestino">
+                                    Es Multidestino
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="col-2 d-flex mt-auto">
-                        @if (!isEdit)
-                        {
-                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
-                                <i class="fa fa-solid fa-plus"></i> Agregar Destino
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
-                                <i class="fa fa-solid fa-check"></i>
-                            </button>
-                            <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
-                                <i class="fa fa-solid fa-xmark"></i>
-                            </button>
-                        }
+                        <div class="col-3 d-flex mt-2">
+                            @if (!isEdit)
+                            {
+                                <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-plus"></i> Agregar Destino
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-check"></i>
+                                </button>
+                                <button class="col mx-2 btn gcom-bg-amarillo" @onclick="@cancelEdit" type="button">
+                                    <i class="fa fa-solid fa-xmark"></i>
+                                </button>
+                            }
+                        </div>
                     </div>
                 </div>
             </EditForm>

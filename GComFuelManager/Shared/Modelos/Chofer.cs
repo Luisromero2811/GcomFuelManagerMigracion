@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -21,7 +22,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public bool? Activo { get; set; } = true;
         [EpplusIgnore] public bool? Activo_Permanente { get; set; } = true;
         [EpplusIgnore] public short? Id_Tad { get; set; }
-        [StringLength(13)]
+        [StringLength(13), Validar_RFC, Required(ErrorMessage = "{0} no puede estar vacio")]
         public string? RFC { get; set; } = string.Empty;
         [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
         [NotMapped, DisplayName("Nombre completo del Chofer")]
@@ -56,6 +57,34 @@ namespace GComFuelManager.Shared.Modelos
                 RFC = RFC
             };
         }
+
+        public void RFC_A_Capitalizado()
+        {
+            RFC = RFC.ToUpper();
+        }
+        [NotMapped, EpplusIgnore]
+        public string RFC_Capitales
+        {
+            get => RFC;
+            set => RFC = value.ToUpper();
+        }
+
+        public class Validar_RFC : ValidationAttribute
+        {
+            protected override ValidationResult IsValid(object? value, ValidationContext validation)
+            {
+                if (value is null || string.IsNullOrEmpty(value.ToString()) || string.IsNullOrWhiteSpace(value.ToString())) return new ValidationResult("No se aceptan valores vacios");
+
+                string FormatoPersonaFisica = @"^[A-Z]{4}\d{6}[A-Z0-9]{3}$";
+                string FormatoPersonaMoral = @"^[A-Z]{3}\d{6}[A-Z0-9]{3}$";
+
+                if (Regex.IsMatch(value!.ToString()!, FormatoPersonaFisica) || Regex.IsMatch(value!.ToString()!, FormatoPersonaMoral))
+                { return ValidationResult.Success!; }
+
+                return new ValidationResult("El RFC no cuenta con un formato valido.");
+            }
+        }
+
     }
 }
 

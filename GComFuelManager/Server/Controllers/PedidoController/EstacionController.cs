@@ -217,7 +217,7 @@ namespace GComFuelManager.Server.Controllers
                     }
                     //Se liga de forma directa a la terminal donde fue creada
                     destino.Id_Tad = id_terminal;
-                
+
                     //Agregamos cliente
                     context.Add(destino);
                     await context.SaveChangesAsync();
@@ -254,7 +254,7 @@ namespace GComFuelManager.Server.Controllers
                     context.Update(destino);
                     await context.SaveChangesAsync();
                 }
-               
+
                 return Ok();
 
             }
@@ -364,6 +364,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     return NotFound();
                 }
+
                 destino.Activo = status;
 
                 context.Update(destino);

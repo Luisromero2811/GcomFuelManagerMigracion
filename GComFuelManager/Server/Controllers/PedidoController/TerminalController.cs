@@ -165,5 +165,19 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("activasNOTXP")]
+        public async Task<ActionResult<List<Tad>>> Obtener_Terminales_De_LoginNOTXP()
+        {
+            try
+            {
+                return await context.Tad.Where(x => x.Den != "TAS TUXPAN" && x.Activo == true).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
