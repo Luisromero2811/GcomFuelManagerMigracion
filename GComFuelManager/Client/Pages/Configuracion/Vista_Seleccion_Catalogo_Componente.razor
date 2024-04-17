@@ -65,17 +65,19 @@
     List<Tad> Terminales { get; set; } = new();
     Tad Terminal { get; set; } = new();
 
+    [Parameter] public short Terminal_Destino { get; set; } = 0;
+
     bool copiando_catalogos = false;
 
     protected override async Task OnInitializedAsync()
     {
         Acciones = new()
         {
-            new(){Catalogo = "Clientes",URL = "service/copiar/cliente"},
-            new(){Catalogo = "Destinos",URL = "service/copiar/destino"},
-            new(){Catalogo = "Transportistas",URL = "service/copiar/transportista"},
-            new(){Catalogo = "Choferes",URL = "service/copiar/chofer"},
-            new(){Catalogo = "Toneles",URL = "service/copiar/tonel"},
+            new(){Catalogo = "Clientes",URL = "api/services/copiar/cliente", Orden = 1},
+            new(){Catalogo = "Destinos",URL = "api/services/copiar/destino", Orden = 2},
+            new(){Catalogo = "Transportistas",URL = "api/services/copiar/transportista", Orden = 3},
+            new(){Catalogo = "Choferes",URL = "api/services/copiar/chofer", Orden = 4},
+            new(){Catalogo = "Toneles",URL = "api/services/copiar/tonel", Orden = 5},
         };
         await Obtener_Terminal();
     }
@@ -130,13 +132,20 @@
                     Duration = 10000
                 });
 
-            foreach (var accion in Acciones_Seleccionadas)
+            foreach (var accion in Acciones_Seleccionadas.OrderBy(x => x.Orden))
             {
-                var responseOC = await http.Get<bool>($"{accion.URL}/{Terminal.Cod}");
+                var responseOC = await http.Get<bool>($"{accion.URL}/{Terminal.Cod}/{Terminal_Destino}");
                 if (responseOC.Error)
                 {
                     var responseHttp = await responseOC.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    // await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    ns.Notify(new()
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Detail = $"{responseHttp}",
+                            Summary = "Erro de catalogo",
+                            Duration = 30000
+                        });
                     ns.Notify(new()
                         {
                             Severity = NotificationSeverity.Error,
@@ -148,7 +157,16 @@
                 else
                 {
                     if (responseOC.Response)
+                    {
                         acciones_procesadas++;
+                        ns.Notify(new()
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Detail = $"Catalogo {accion.Catalogo} copiado con exito. Se continuara con los demas catalogos seleccionados.",
+                                Summary = "Copiando catalogo",
+                                Duration = 10000
+                            });
+                    }
                 }
             }
 
@@ -167,5 +185,6 @@
         public bool Es_Seleccionado { get; set; } = false;
         public string Catalogo { get; set; } = string.Empty;
         public string URL { get; set; } = string.Empty;
+        public int Orden { get; set; } = 0;
     }
 }

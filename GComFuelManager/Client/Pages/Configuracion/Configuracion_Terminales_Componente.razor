@@ -80,13 +80,14 @@
                             @if (loading_catalogo)
                             {
                                 <button class="btn btn-sm gcom-bg-amarillo" disabled>
-                                    Copiar catalogo inicial
+                                    Copiar catalogo
+                                    <SpinnerLoading />
                                 </button>
                             }
                             else
                             {
-                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Copiar_catalogo(terminal.Cod))">
-                                    Copiar catalogo inicial
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modulo_Copiado(terminal))">
+                                    Copiar catalogo
                                 </button>
                             }
                         </div>
@@ -148,11 +149,11 @@
                             ShowCancelButton = true,
                             ConfirmButtonText = "Aceptar",
                             CancelButtonText = "Cancelar",
-                            Text = "¿Desea copiar el catalogo inicial de synthesis (clientes, destinos, choferes, etc.) a la nueva terminal?"
+                            Text = "¿Desea copiar el catalogo (clientes, destinos, choferes, etc.) de alguna terminal existente a la nueva terminal?"
                         });
 
                     if (!string.IsNullOrEmpty(confirm.Value))
-                        await Copiar_catalogo(response.Response.Cod);
+                        await Abrir_Modulo_Copiado(response.Response);
                 }
             }
         }
@@ -218,8 +219,8 @@
         }
     }
 
-    private async Task Abrir_Modulo_Copiado()
+    private async Task Abrir_Modulo_Copiado(Tad tad)
     {
-        
+        await ds.OpenAsync<Vista_Seleccion_Catalogo_Componente>("Seleccion de catalogo", new() { { "Terminal_Destino", tad.Cod } });
     }
 }

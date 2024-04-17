@@ -591,6 +591,10 @@ namespace GComFuelManager.Server
                 .WithOne()
                 .HasForeignKey<Autorizador>(x => x.Id_Tad);
 
+            modelBuilder.Entity<Datos_Facturas>()
+                .HasOne(x => x.OrdenEmbarque)
+                .WithOne(x=>x.Datos_Facturas)
+                .HasForeignKey<Datos_Facturas>(x => x.Id_Orden);
         }
 
 
@@ -657,5 +661,6 @@ namespace GComFuelManager.Server
         public DbSet<HistorialEstados> HistorialEstados { get; set; }
         public DbSet<Autorizador> Autorizador { get; set; }
         public DbSet<Autorizadores_Tad> Autorizadores_Tad { get; set; }
+        public DbSet<Datos_Facturas> Datos_Facturas { get; set; }
     }
 }

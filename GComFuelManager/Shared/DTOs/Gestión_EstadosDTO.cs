@@ -43,7 +43,16 @@ namespace GComFuelManager.Shared.DTOs
 
         [DisplayName("Unidad de Negocio")]
         public string? Unidad_Negocio { get; set; } = string.Empty;
-
+        [DisplayName("Numero de orden")]
+        public string? Numero_Factura { get; set; } = string.Empty;
+        [DisplayName("Factura MGC")]
+        public string? Factura_MGC { get; set; } = string.Empty;
+        [DisplayName("Factura Mexico S")]
+        public string? Factura_MexicoS { get; set; } = string.Empty;
+        [DisplayName("Factura DCL")]
+        public string? Factura_DCL { get; set; } = string.Empty;
+        [DisplayName("Factura Energas")]
+        public string? Factura_Energas { get; set; } = string.Empty;
         [DisplayName("Por Asignar")]
         public string? Por_Asignar { get; set; } = string.Empty;
 
