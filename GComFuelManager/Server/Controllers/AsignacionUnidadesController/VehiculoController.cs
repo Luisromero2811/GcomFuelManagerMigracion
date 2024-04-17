@@ -52,7 +52,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
         [HttpGet("getAll")]
-        public async Task<ActionResult>GetUnidades()
+        public async Task<ActionResult> GetUnidades()
         {
             try
             {
@@ -168,7 +168,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     context.Update(tonel);
                     await context.SaveChangesAsync();
                 }
-              
+
                 return Ok();
             }
             catch (Exception e)
@@ -343,10 +343,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     //Placatracto = item.RfiTagId.Trim(),
                                     Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
                                     Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
-                                    Carid = item.CarrierId.Id.Value.ToString()
+                                    Carid = item.CarrierId.Id.Value.ToString(),
+                                    Id_Tad = 1
                                 };
                                 //Obtenemos el code del tonel
-                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
+                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid
+                                && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
 
@@ -427,7 +429,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         }
 
-                        List<Tonel> toneles = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(carrId.ToString())).ToList();
+                        List<Tonel> toneles = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(carrId.ToString()) && x.Id_Tad == 1).ToList();
 
                         toneles.ForEach(x =>
                         {
