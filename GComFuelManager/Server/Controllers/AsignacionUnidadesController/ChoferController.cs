@@ -350,9 +350,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     Codtransport = Convert.ToInt32(code),
                                     Dricod = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
                                     Activo = item.BusinessEntity.ActiveIndicator.Value == ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Id_Tad = 1,
                                 };
                                 //Obtención del code del chofer
-                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
+                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
                                 //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
@@ -376,7 +377,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 else
                                 {
                                     //Actualizamos el campo activo del chofer
-                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
+                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod && x.Id_Tad == 1)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)
@@ -397,9 +398,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     Codtransport = Convert.ToInt32(code),
                                     Dricod = item.AssociatedBusinessEntity.BusinessEntityId.Id.Value.ToString(),
                                     Activo = item.AssociatedBusinessEntity.ActiveIndicator.Value == ActiveIndicatorEnum.ACTIVE ? true : false,
+                                    Id_Tad = 1,
                                 };
                                 //Obtención del code del chofer
-                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod)
+                                Chofer? c = context.Chofer.Where(x => x.Den == chofer.Den && x.Codtransport == chofer.Codtransport && x.Dricod == chofer.Dricod && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
                                 //Condicion de si el chofer esta activo dentro condicionando si el chofer existe sino activas campo de activo
@@ -423,7 +425,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 else
                                 {
                                     //Actualizamos el campo activo del chofer
-                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod)
+                                    var cod = context.Chofer.Where(x => x.Cod == chofer.Cod && x.Id_Tad == 1)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)

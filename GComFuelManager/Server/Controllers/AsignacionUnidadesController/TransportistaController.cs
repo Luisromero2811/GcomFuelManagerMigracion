@@ -596,12 +596,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 Den = item.BusinessEntity.BusinessEntityName,
                                 Busentid = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
                                 Activo = item.BusinessEntity.ActiveIndicator.Value == ServiceReference8.ActiveIndicatorEnum.ACTIVE ? true : false,
-                                CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString()
+                                CarrId = carrid == null ? string.Empty : carrid.CarrierId.Id.Value.ToString(),
+                                Id_Tad = 1
                             };
                             //Si el transportista esta activo 
                             if (transportista.Activo == true)
                             {
-                                Transportista? t = context.Transportista.Where(x => x.Busentid == transportista.Busentid)
+                                Transportista? t = context.Transportista.Where(x => x.Busentid == transportista.Busentid && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
                                 //Si el transportista no es nulo 
@@ -620,10 +621,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             else
                             {
                                 //Actualiza el campo de activo 
-                                var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId)).DefaultIfEmpty().FirstOrDefault();
+                                var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId) && x.Id_Tad == 1).DefaultIfEmpty().FirstOrDefault();
                                 if (cod != null)
                                 {
-                                    var tinactivo = context.Transportista.Find(cod.Cod);
+                                    var tinactivo = context.Transportista.FirstOrDefault(x=>x.Cod == cod.Cod && x.Id_Tad == 1);
                                     if (tinactivo != null)
                                     {
                                         tinactivo.Activo = false;
