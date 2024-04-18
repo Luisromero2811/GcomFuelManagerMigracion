@@ -846,7 +846,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!context.Unidad_Tad.Any(x => x.Id_Unidad == unidad && x.Id_Terminal == id_terminal))
                         unidad_Tads.Add(new() { Id_Unidad = unidad, Id_Terminal = id_terminal });
 
-                var usuarios = context.Users.Select(x => new { x.Id, x.UserName}).ToList();
+                var usuarios = context.Users.Select(x => new { x.Id, x.UserName }).ToList();
                 List<Usuario_Tad> usuario_Tads = new();
 
                 foreach (var usuario in usuarios)
@@ -953,6 +953,66 @@ namespace GComFuelManager.Server.Controllers.Services
                 }
 
                 context.AddRange(destinos_validos);
+                await context.SaveChangesAsync();
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/contacto/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Contacto([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { x.Cod, x.Den }).ToList();
+                //var contactos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+
+                List<Contacto> contactos_validos = new();
+
+                for (int i = 0; i < clientes.Count; i++)
+                {
+                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var contactos_cliente = context.Contacto.IgnoreAutoIncludes().Where(x => x.CodCte == clientes[i].Cod).Include(x => x.AccionCorreos).IgnoreAutoIncludes().ToList();
+                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+
+                        for (int j = 0; j < contactos_cliente.Count; j++)
+                        {
+                            if (cliente is not null)
+                            {
+                                if (!context.Contacto.Any(x => !string.IsNullOrEmpty(x.Correo) && x.Correo == contactos_cliente[j].Correo && x.CodCte == cliente.Cod))
+                                {
+
+
+                                    var new_contacto = contactos_cliente[j].HardCopy();
+                                    new_contacto.Cod = 0;
+                                    new_contacto.CodCte = cliente.Cod;
+                                    new_contacto.Cliente = null!;
+                                    
+                                    var acciones = new_contacto.AccionCorreos;
+                                    
+                                    new_contacto.AccionCorreos = new();
+
+                                    if (acciones is not null)
+                                    {
+                                        foreach (var accion in acciones)
+                                        {
+                                            new_contacto.AccionCorreos.Add(new() { CodAccion = accion.CodAccion });
+                                        }
+                                    }
+
+                                    contactos_validos.Add(new_contacto);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                context.AddRange(contactos_validos);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
