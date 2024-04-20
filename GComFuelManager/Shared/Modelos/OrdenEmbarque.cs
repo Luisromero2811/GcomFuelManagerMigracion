@@ -163,9 +163,9 @@ namespace GComFuelManager.Shared.Modelos
                 return "0";
             }
         }
-        public Gestión_EstadosDTO Obtener_Orden_Gestion_Estado()
+        public GestiÃ³n_EstadosDTO Obtener_Orden_Gestion_Estado()
         {
-            Gestión_EstadosDTO gestion_ = new();
+            GestiÃ³n_EstadosDTO gestion_ = new();
             gestion_.Referencia = FolioSyn;
             gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
 

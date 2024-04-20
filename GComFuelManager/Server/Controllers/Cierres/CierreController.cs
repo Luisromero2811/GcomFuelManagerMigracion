@@ -2174,8 +2174,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
 
                 List<FolioCierreDTO> folios = new();
                 folios = await context.OrdenCierre.OrderBy(x => x.FchCierre)
-                      .Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("P") && x.Id_Tad == id_terminal
-                   || x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("G") && x.Id_Tad == id_terminal)
+                      .Where(x => x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("P") && x.Id_Tad == id_terminal && x.Confirmada == true
+                   || x.FchCierre >= filtro.FchInicio && x.FchCierre <= filtro.FchFin && x.Folio.StartsWith("G") && x.Id_Tad == id_terminal && x.Confirmada == true)
                       .Include(x => x.Cliente)
                       .Include(x => x.Destino)
                       .Include(x => x.Terminal)
