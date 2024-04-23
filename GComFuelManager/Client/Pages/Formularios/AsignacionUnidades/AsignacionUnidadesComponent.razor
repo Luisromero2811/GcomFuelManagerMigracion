@@ -623,6 +623,27 @@ else
                                 }
                             </button>
                         }
+
+                        @if (loadingDownloadPDF)
+                        {
+                            <button class="btn gcom-bg-amarillo ms-2" disabled>
+                                Descargar Vales
+                                @if (loadingDownloadPDF)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn gcom-bg-amarillo ms-2" @onclick="Descargar_Pdfs">
+                                Descargar Vales
+                                @if (loadingDownloadPDF)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        }
                     </AuthorizeView>
                 </div>
                 <div class="col-6">
@@ -790,6 +811,7 @@ else
     bool loadingAgregar = false;
     bool loadingSend = false;
     bool SendAsignacion = false;
+    bool loadingDownloadPDF = false;
     //
     CheckChofer checkChofer = new CheckChofer();
     AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
@@ -1025,17 +1047,17 @@ else
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = asignacion.CodChf,
-                    Tonel = asignacion.CodTon,
-                    Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                                                                    (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                                                                    : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                                                                    : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                                                                    : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = asignacion.CodChf,
+                        Tonel = asignacion.CodTon,
+                        Compartimento = Vehiculos?.Count == null ? 0 :
+                                                                                                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                                                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                                                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                                                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -1062,13 +1084,13 @@ else
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                        {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -1160,29 +1182,29 @@ else
                        && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                        {
-                            OrdenCompra = item?.OrdenCompra?.den ?? "",
-                            Referencia = item?.OrdenCierre?.Folio ?? "",
-                            Cliente = item?.Destino?.Cliente?.Den ?? "",
-                            Destino = item?.Destino?.Den ?? "",
-                            Producto = item?.Producto?.Den ?? "",
-                            //Volumen = item?.Vol,
-                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                                                                                Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                            Unidad = item?.Tonel?.Veh ?? "",
-                            Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                            Bin = item?.Bin,
-                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                            Turno = item?.OrdenCierre?.Turno ?? "",
-                            Unidad_Negocio = item?.Tad?.Den ?? "",
-                            //Status = item?.Estado?.den
-                        });
+                            {
+                                OrdenCompra = item?.OrdenCompra?.den ?? "",
+                                Referencia = item?.OrdenCierre?.Folio ?? "",
+                                Cliente = item?.Destino?.Cliente?.Den ?? "",
+                                Destino = item?.Destino?.Den ?? "",
+                                Producto = item?.Producto?.Den ?? "",
+                                //Volumen = item?.Vol,
+                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                                Unidad = item?.Tonel?.Veh ?? "",
+                                Compartimento = item?.Compartment,
+                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                                Bin = item?.Bin,
+                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                                Turno = item?.OrdenCierre?.Turno ?? "",
+                                Unidad_Negocio = item?.Tad?.Den ?? "",
+                                //Status = item?.Estado?.den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -1261,23 +1283,23 @@ else
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Ordenes a Synthesis",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                        Duration = 150000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Enviando Ordenes a Synthesis",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                            Duration = 150000
+                        });
 
                     loadingSend = true;
                     AlertVisible = true;
@@ -1378,13 +1400,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Info,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1421,13 +1443,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+                });
             ordenEmbarque = orden;
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1582,6 +1604,32 @@ else
         }
         catch (Exception e)
         {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Descargar_Pdfs()
+    {
+        try
+        {
+            loadingDownloadPDF = true;
+            var ordens = ordenesSeleccionada.Where(x => x!.Tonel != null && x.Chofer != null && x.Destino != null && x.Destino?.Cliente != null).ToList();
+            var response = await repositorio.Post<List<OrdenEmbarque>, byte[]>($"api/pdf/vale/multiple", ordens);
+            if (response.Error)
+            {
+                loadingDownloadPDF = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingDownloadPDF = false;
+                await js.GuardarComo($"Vales_De_Retiro_{DateTime.Now.ToString("yyyyMMddHHmmss")}.pdf", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingDownloadPDF = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
