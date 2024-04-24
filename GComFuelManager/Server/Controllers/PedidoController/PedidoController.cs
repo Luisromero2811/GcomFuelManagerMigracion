@@ -220,8 +220,8 @@ namespace GComFuelManager.Server.Controllers
 
         //Method para obtener pedidos mediante rango de fechas y checbox seleccionado
         //REALIZAR TRES CONDICIONES, UNA POR CADA RADIOBUTTON, QUE SEA EN TRUE SE HARÁ EL MISMO FILTRO POR FECHAS EN WHERE AÑADIENDO LOS CAMPOS QUE UTILIZAN CADA CLAUSULA
-        [HttpPost("filtro")]
-        public async Task<ActionResult> GetDateRadio([FromBody] FechasF fechas)
+        [HttpGet("filtro")]
+        public async Task<ActionResult> GetDateRadio([FromQuery] ParametrosBusquedaOrdenes fechas)
         {
             try
             {
@@ -232,9 +232,9 @@ namespace GComFuelManager.Server.Controllers
                 //editar registros de orden con el nuevo campo de folio en 0 al remplazar los registros
                 if (fechas.Estado == 1)
                 {
-                    List<Orden> newOrden = new();
+                    
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
-                    var pedidosDate = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var pedidosDate = context.OrdenEmbarque.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null
                     && x.Tonel != null && x.Tonel.Transportista != null && x.Tonel.Transportista.Activo == true && x.Codtad == id_terminal
                     || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null
@@ -275,22 +275,25 @@ namespace GComFuelManager.Server.Controllers
                     //ordens.OrderByDescending(x => x.Bin);
                     .OrderBy(x => x.Ref)
                     .Take(10000)
-                    .ToListAsync();
+                    .AsQueryable();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
 
-                    foreach (var item in pedidosDate)
-                        if (!newOrden.Contains(item))
-                            newOrden.Add(item);
+                    //foreach (var item in pedidosDate)
+                    //    if (!newOrden.Contains(item))
+                    //        newOrden.Add(item);
+                    if (!string.IsNullOrEmpty(fechas.producto))
+                        pedidosDate = pedidosDate.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(fechas.producto.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.destino))
+                        pedidosDate = pedidosDate.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(fechas.destino.ToLower()));
 
-
-                    return Ok(newOrden);
+                    return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 2)
                 {
                     //List<Orden> pedidosDate = new List<Orden>();
                     List<Orden> newOrden = new();
                     //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
-                    var pedidosDate = await context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20 && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -305,21 +308,21 @@ namespace GComFuelManager.Server.Controllers
                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
                     //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
                     .Take(10000)
-                    .ToListAsync();
+                    .AsQueryable();
                     // pedidosDate.OrderByDescending(x => x.Fchcar);
 
 
-                    foreach (var item in pedidosDate)
-                        if (!newOrden.Contains(item))
-                            newOrden.Add(item);
+                    //foreach (var item in pedidosDate)
+                    //    if (!newOrden.Contains(item))
+                    //        newOrden.Add(item);
 
-                    return Ok(newOrden);
+                    return Ok(pedidosDate);
                 }
                 else if (fechas.Estado == 3)
                 {
                     List<Orden> newOrden = new();
                     //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
-                    var pedidosDate = await context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel != null && x.Tonel.Transportista != null
                     && x.Tonel.Transportista.Activo == true && x.Codest == 26 && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
@@ -332,7 +335,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Terminal)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
-                    .ToListAsync();
+                    .AsQueryable();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
@@ -341,7 +344,7 @@ namespace GComFuelManager.Server.Controllers
                     //Ordenes canceladas
                     List<Orden> ordenesCanceladas = new();
 
-                    var pedidosDate = await context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 14 && x.Id_Tad == id_terminal)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -353,12 +356,12 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Terminal)
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
-                        .ToListAsync();
+                        .AsQueryable();
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
                     if (pedidosDate is not null)
                         ordenesCanceladas.AddRange(pedidosDate);
 
-                    var ordenes = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var ordenes =  context.OrdenEmbarque.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 14 && x.Bolguidid != null && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -389,7 +392,13 @@ namespace GComFuelManager.Server.Controllers
                     })
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
-                    .ToListAsync();
+                    .AsQueryable();
+
+                    if (!string.IsNullOrEmpty(fechas.producto))
+                        ordenes = ordenes.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(fechas.producto.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.destino))
+                        ordenes = ordenes.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(fechas.destino.ToLower()));
+
                     if (ordenes is not null)
                         ordenesCanceladas.AddRange(ordenes);
 
