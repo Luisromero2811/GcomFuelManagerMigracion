@@ -18,13 +18,13 @@
                         <div class="col-4">
                             <div class="col-12">
                                 <label class="form-label" for="form2Example17">Del:</label>
-                                <InputDate class="form-control" @bind-Value="@fechas.DateInicio" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-outline">
                                 <label class="form-label" for="form2Example17">Al:</label>
-                                <InputDate class="form-control" @bind-Value="@fechas.DateFin" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
                             </div>
                         </div>
                         <div class="col-4 d-flex mt-auto">
@@ -40,11 +40,11 @@
                         <div class="row col-12 mt-3">
                             <div class="d-flex justify-content-center">
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                    <input type="radio" class="form-check-input" id="SinCargar" name="estatus" checked="@(busquedaOrdenes.Estado == 1)" @onchange="@(()=>busquedaOrdenes.Estado = 1)" />
                                     <label class="form-check-label" for="SinCargar">Sin Cargar</label>
                                 </div>
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="Cargadas" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                    <input class="form-check-input" type="radio" id="Cargadas" name="estatus" checked="@(busquedaOrdenes.Estado == 2)" @onchange="@(()=>busquedaOrdenes.Estado = 2)" />
                                     <label class="form-check-label" for="Cargadas">Cargadas</label>
                                 </div>
                                 @*<div class="form-check form-check-inline">
@@ -52,7 +52,7 @@
                                     <label class="form-check-label" for="Trayecto">En Trayecto</label>
                                     </div>*@
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                    <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(busquedaOrdenes.Estado == 4)" @onchange="@(()=>busquedaOrdenes.Estado = 4)" />
                                     <label class="form-check-label" for="Canceladas">Canceladas</label>
                                 </div>
                             </div>
@@ -81,191 +81,219 @@
         Total de registros: @ordens?.Count()
     </div>
     <!--Maquetación de Tabla con Radzen-->
-    <div class="col-12 d-flex justify-content-center">
-        <RadzenDataGrid TItem="Orden" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:600px;" ColumnResized="@(()=>Grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                        IsLoading="loadingFiltro" Density="Density.Default" @ref="@Grid" AllowColumnPicking="true" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture"
-                        @bind-Settings="@Settings">
-            <Columns>
-                <RadzenDataGridColumn TItem="Orden" Title="Vale de retiro" Width="100px" Filterable="false" OrderIndex="1">
-                    <Template Context="data">
-                        @if (data.OrdenEmbarque is not null && !Esta_En_Tuxpan)
-                        {
-                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Descargar_Pdf(data.OrdenEmbarque))" type="button">
-                                <i class="fa fa-solid fa-download"></i>Vale
-                            </button>
-                        }
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Referencia" Property="Ref" Filterable="false" Width="160px" Frozen="true" />
-                <!--Para órdenes sin cargar usamos la fecha de programa pero con la propiedad de fecha de carga de la tabla orden, para órdenes cargadas usamos la propiedad de fecha de programa como fecha de carga de ordenEmbarque-->
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Programa" FormatString="{0:d}" Filterable="false" Width="160px" Frozen="true">
-                    <Template Context="data">
-                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
-                        @(data?.BatchId is null ? data?.Fchcar?.ToString("dd/MM/yyyy") : data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"))
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Unidad de Negocio" Width="180px" Filterable="false">
-                    <Template Context="data">
-                        @(data.Terminal is not null ? data.Terminal.Den : "Sin unidad de negocio")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Estatus Orden" Property="Estado.den" Width="160px" Filterable="false">
-                    <Template Context="data">
-                        <div class="col-12">
-                            @*@if (Status is true)
+    <div class="col-12 ancho-tabla overflow-scroll mt-4" style="height:450px;resize:both;">
+        <table class="table table-sm table-bordered table-hover" id="miTabla">
+            <thead class="fila">
+                <tr style="max-height:50px;white-space:nowrap;">
+                    @if (!Esta_En_Tuxpan)
+                    {
+                        <th>Vale de Retiro</th>
+                    }
+                    <th>Referencia</th>
+                    <th>Fecha Programa</th>
+                    <th>Unidad de Negocio</th>
+                    <th>Estatus Orden</th>
+                    <th>Fecha Carga</th>
+                    <th>BOL / EMBARQUE</th>
+                    <th>Tipo de Venta</th>
+                    <th>Cliente</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen Solicitado</th>
+                    <th>Volumen Cargado</th>
+                    <th>Transportista</th>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="fila">
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.destino" />
+                    </td>
+                    <td>
+                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.producto" />
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                @if (ordens is null)
+                {
+                    <tr>
+                        <td colspan="12">
+                            <p>No hay órdenes</p>
+                        </td>
+                    </tr>
+                }
+                else if (ordens?.Count > 0)
+                {
+                    @foreach (var item in ordens)
+                    {
+                        <tr>
+                            <td>
+                                @if (item.OrdenEmbarque is not null && !Esta_En_Tuxpan)
                                 {
-                                <p>CLOSED</p>
+                                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(() => Descargar_Pdf(item.OrdenEmbarque))" type="button">
+                                        <i class="fa fa-solid fa-download"></i>Vale
+                                    </button>
+                                }
+                            </td>
+                            <td>
+                                <RadzenText Text="@item.Ref" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                @(item?.BatchId is null ? item?.Fchcar?.ToString("dd/MM/yyyy") : item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"))
+                            </td>
+                            <td>
+                                @(item.Terminal is not null ? item.Terminal.Den : "Sin unidad de negocio")
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Estado?.den" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                @(item?.Fchcar is not null && item?.BatchId is not null ? item?.Fchcar : "")
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.BatchId.ToString()" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Destino?.Cliente?.Tipven" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Destino?.Cliente?.Den" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                @if (busquedaOrdenes.Estado == 1)
+                                {
+                                    <div class="col-12">
+                                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+
+                                                 item?.Compartimento == 1 ? item?.Tonel?.Capcom
+                                                 : item?.Compartimento == 2 ? item?.Tonel?.Capcom2
+                                                 : item?.Compartimento == 3 ? item?.Tonel?.Capcom3
+                                                 : item?.Compartimento == 4 ? item?.Tonel?.Capcom4
+                                                 : item?.Vol
+                                                 )
+                                    </div>
                                 }
                                 else
-                                {*@
-                            <p> @data?.Estado?.den </p>
-                            @*}*@
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <!--Para la fecha de carga solo la utilizaremos para órdenes cargadas, en órdenes sin cargar no mostrará nada, su propiedad es de fecha de carga fechas.Estado != 4 && fechas.Estado != 1-->
-                <RadzenDataGridColumn TItem="Orden" Title="Fecha Carga" Property="Fchcar" FormatString="{0:d}" Width="160px" Filterable="false">
-                    <Template Context="data">
-                        @(data?.Fchcar is not null && data?.BatchId is not null ? data?.Fchcar : "")
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Bol/Embarque" Property="BatchId" Width="110px" Filterable="false" />
-                @*<RadzenDataGridColumn TItem="Orden" Title="Tipo de Venta" Property="Destino.Cliente.Tipven" Width="150px" Filterable="false" />*@
-                <RadzenDataGridColumn TItem="Orden" Title="Cliente" Property="Destino.Cliente.Den" FilterValue="ClientesSeleccionados" Width="305px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data="ClienteList" @bind-Value="ClientesSeleccionados" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ClientesSeleccionados" MaxLength="190" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data.Destino?.Cliente?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" Width="290px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data="DestinoList" @bind-Value="DestinosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="DestinosSeleccionado" MaxLength="180" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data.Destino?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Producto" Property="Producto.Den" FilterValue="ProductosSeleccionado" Width="290px">
-                    <FilterTemplate>
-                        <RadzenDropDown Data="ProductList" @bind-Value="ProductosSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
-                            <ValueTemplate Context="data">
-                                <InputText class="form-control col-12" @bind-Value="ProductosSeleccionado" MaxLength="190" />
-                            </ValueTemplate>
-                        </RadzenDropDown>
-                    </FilterTemplate>
-                    <Template Context="data">
-                        <div>
-                            @data.Producto?.Den
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Natural" Width="160px" FormatString="{0:#,##0.00}" Filterable="false">
-                    <Template Context="data">
-                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
-                        @*@(data?.OrdenEmbarque is not null ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                            : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                            : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                            : data?.Vol2))
-                            : (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            data?.Compartimento == 1 ? data?.Tonel?.Capcom
-                            : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
-                            : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
-                            : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
-                            : data?.Vol
-                            )))*@
-                        @if (fechas.Estado == 1)
-                        {
-                            <div class="col-12">
-                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                {
+                                    <div class="col-12">
+                                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                                 item?.Vol2
+                                                 )
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @if (item?.BatchId is null)
+                                {
 
-                                         data?.Compartimento == 1 ? data?.Tonel?.Capcom
-                                         : data?.Compartimento == 2 ? data?.Tonel?.Capcom2
-                                         : data?.Compartimento == 3 ? data?.Tonel?.Capcom3
-                                         : data?.Compartimento == 4 ? data?.Tonel?.Capcom4
-                                         : data?.Vol
-                                         )
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="col-12">
-                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                         //data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                                         //: data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                                         //: data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                                         //: data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                                         //:
-                                         data?.Vol2
-                                         )
-                            </div>
-                        }
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Volúmen Cargado" Property="Vol" Width="180px" FormatString="{0:N2}" Filterable="false">
-                    <Template Context="data">
-                        @*@(data?.OrdenEmbarque is not null ? data?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy") : data?.Fchcar?.ToString("dd/MM/yyyy"))*@
-                        @*@(data?.OrdenEmbarque is not null  ? (string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                            data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                            : data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                            : data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                            : data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                            : data?.Vol))
-                            : (""))*@
+                                }
+                                else
+                                {
+                                    <div class="col-12">
+                                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                                 item?.Vol)
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Tonel.Transportista.Den" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                @item?.Tonel?.Tracto @item?.Tonel?.Placa
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.Chofer.Den" TextStyle="TextStyle.Body2" />
+                            </td>
+                        </tr>
+                    }
 
-                        @if (data?.BatchId is null)
-                        {
-
-                        }
-                        else
-                        {
-                            <div class="col-12">
-                                @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                         //  data?.OrdenEmbarque?.Compartment == 1 ? data?.Tonel?.Capcom
-                                         //: data?.OrdenEmbarque?.Compartment == 2 ? data?.Tonel?.Capcom2
-                                         //: data?.OrdenEmbarque?.Compartment == 3 ? data?.Tonel?.Capcom3
-                                         //: data?.OrdenEmbarque?.Compartment == 4 ? data?.Tonel?.Capcom4
-                                         // :
-                                         data?.Vol)
-                            </div>
-                        }
-
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Transportista" Property="Tonel.Transportista.Den" Width="290px" Filterable="false" />
-                <RadzenDataGridColumn TItem="Orden" Title="Unidad" Property="" Width="200px" Filterable="false">
-                    <Template Context="data">
-                        <div class="col-12">
-                            @data?.Tonel?.Tracto @data?.Tonel?.Placa
-                        </div>
-                    </Template>
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn TItem="Orden" Title="Operador" Property="Chofer.Den" Width="290px" Filterable="false" />
-            </Columns>
-        </RadzenDataGrid>
+                }
+                else if (ordens?.Count == 0)
+                {
+                    <tr>
+                        <td colspan="14">
+                            <p>No hay órdenes</p>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
 
 </AuthorizeView>
 <style type="text/css">
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
     .ancho {
         width: @TotalWidth;
     }
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
 </style>
 
 @code {
@@ -305,6 +333,8 @@
     OrdenesDTO ordenes = new OrdenesDTO();
 
     List<OrdenesDTO> SeguimientoOrden { get; set; } = new List<OrdenesDTO>();
+    Dictionary<string, string> query = new Dictionary<string, string>();
+    ParametrosBusquedaOrdenes busquedaOrdenes = new ParametrosBusquedaOrdenes();
 
     int width = 0;
     string TotalWidth = string.Empty;
@@ -343,11 +373,16 @@
     {
         try
         {
-            //loadingFiltro = true;
-            //ordeness = null!;
-            //StateHasChanged();
+            query = new Dictionary<string, string>();
+            query["DateInicio"] = busquedaOrdenes.DateInicio.ToString("MM/dd/yyyy") ?? string.Empty;
+            query["DateFin"] = busquedaOrdenes.DateFin.ToString("MM/dd/yyyy") ?? string.Empty;
+            query["Estado"] = busquedaOrdenes.Estado.ToString() ?? string.Empty;
+            query["producto"] = busquedaOrdenes.producto ?? string.Empty;
+            query["cliente"] = busquedaOrdenes.cliente ?? string.Empty;
+            query["destino"] = busquedaOrdenes.destino ?? string.Empty;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             Status = true;
-            var responseHttp = await repositorio.Post<FechasF, ICollection<Orden>>($"api/pedido/filtro", fechas);
+            var responseHttp = await repositorio.Get<List<Orden>>($"api/pedido/filtro?{uri}");
 
 
             if (responseHttp.Error)
@@ -373,6 +408,21 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
+
+    private async Task LoadData()
+    {
+        Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["producto"] = busquedaOrdenes.producto;
+        queryStringObject["destino"] = busquedaOrdenes.destino;
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await MostrarOrdenFechaRadio();
+    }
+
     //public async Task MostrarTraffic()
     //{
     //    try
@@ -412,7 +462,7 @@
         {
             if (ordens.Count != 0)
             {
-                if (fechas.Estado == 1 || fechas.Estado == 4)
+                if (busquedaOrdenes.Estado == 1 || busquedaOrdenes.Estado == 4)
                 {
                     foreach (var item in ordens!)
                     {

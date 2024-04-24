@@ -7,49 +7,49 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Programador, Analista Suministros, Ejecutivo de Cuenta Comercial")]
 <RadzenTabs>
     <Tabs>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Analista Credito">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito">
             <Authorized>
                 <RadzenTabsItem Text="Gestion de Clientes" Style="font-size: x-small;">
                     <GestionClientesComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Analista Credito">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito">
             <Authorized>
                 <RadzenTabsItem Text="Gestión de Destinos" Style="font-size: x-small;">
                     <GestionDestinosComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
             <Authorized>
                 <RadzenTabsItem Text="Gestion Grupo Transportes" Style="font-size: x-small;">
                     <GestionGrupoTransportesComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
             <Authorized>
                 <RadzenTabsItem Text="Gestion de Empresas Transportes" Style="font-size: x-small;">
                     <GestionEmpresaTransportistasComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
             <Authorized>
                 <RadzenTabsItem Text="Gestion de Choferes" Style="font-size: x-small;">
                     <GestionChoferesComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
             <Authorized>
                 <RadzenTabsItem Text="Gestion de Vehiculos" Style="font-size: x-small;">
                     <GestionUnidadesComponent />
                 </RadzenTabsItem>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Analista Suministros, Ejecutivo de Cuenta Operativo">
             <Authorized>
                 <RadzenTabsItem Text="Gestion de productos" Style="font-size: x-small;">
                     <Gestion_De_Productos_Componente />
