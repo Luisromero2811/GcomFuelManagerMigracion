@@ -1123,6 +1123,50 @@ namespace GComFuelManager.Server.Controllers
                         item.Ordenes_Synthesis.AddRange(Ordenes_Synthesis);
                 }
 
+                //foreach (var item in ordenes)
+                //{
+                //    if (context.Orden.Count(x => item != null && item.Orden != null && x.Ref == item.FolioSyn
+                //            && x.Codest != 14 && item.Codest != 14) > 1)
+                //    {
+                //        var Ordenes_Adicionales = context.Orden.Where(x => item != null && item.Orden != null && x.Ref == item.FolioSyn
+                //        && x.Cod != item.Orden.Cod).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.Producto).Include(x => x.Tonel).Include(x => x.Estado).IgnoreAutoIncludes().ToList();
+
+                //        foreach (var oa in Ordenes_Adicionales)
+                //        {
+                //            OrdenEmbarque ordenEmbarque = new();
+
+                //            if (item != null && item.Orden != null)
+                //            {
+                //                ordenEmbarque.Folio = item.Folio;
+                //                ordenEmbarque.Pre = item.Pre;
+                //                ordenEmbarque.Destino = new() { Den = oa?.Destino?.Den };
+                //                ordenEmbarque.Cliente = new() { Den = oa?.Cliente?.Den };
+                //                ordenEmbarque.Producto = new() { Den = oa?.Producto?.Den };
+                //                ordenEmbarque.Tonel = new()
+                //                {
+                //                    Tracto = oa?.Tonel?.Tracto,
+                //                    Placa = oa?.Tonel?.Placa
+                //                };
+                //                ordenEmbarque.Orden = new()
+                //                {
+                //                    Cod = oa.Cod,
+                //                    BatchId = oa?.BatchId,
+                //                    Fchcar = oa?.Fchcar,
+                //                    Vol = oa.Vol,
+                //                    Vol2 = oa.Vol2,
+                //                    Liniteid = oa.Liniteid,
+                //                };
+                //                ordenEmbarque.Orden.Estado = new() { den = oa.Estado?.den };
+
+                //                if (!ordenes_adicionales.Contains(ordenEmbarque))
+                //                    ordenes_adicionales.Add(ordenEmbarque);
+                //            }
+                //        }
+                //    }
+                //}
+
+                //ordenes.AddRange(ordenes_adicionales);
+
                 return Ok(ordenes.OrderByDescending(x => x.Fchcar));
             }
             catch (Exception e)
