@@ -2156,6 +2156,13 @@ namespace GComFuelManager.Server.Controllers
                     var orden_existente = context.Orden.FirstOrDefault(x => x.Cod == orden.Cod);
                     if (orden_existente is not null)
                     {
+                        var ordembdet = context.OrdEmbDet.FirstOrDefault(x => x.Bol == orden_existente.BatchId && x.Id_Tad == id_terminal);
+                        if (ordembdet is not null)
+                        {
+                            context.Remove(ordembdet);
+                            await context.SaveChangesAsync();
+                        }
+
                         orden_existente.Vol = orden.Vol;
                         orden_existente.BatchId = orden.BatchId;
                         orden_existente.Fchcar = orden.Fchcar;
@@ -2171,7 +2178,8 @@ namespace GComFuelManager.Server.Controllers
                     Codusu = user.Cod,
                     Codusumod = user.Cod,
                     Fchmod = DateTime.Now,
-                    Bol = orden.BatchId
+                    Bol = orden.BatchId,
+                    Id_Tad = id_terminal
                 };
 
                 context.Add(ordEmbDet);

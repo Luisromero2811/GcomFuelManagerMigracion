@@ -457,17 +457,18 @@ namespace GComFuelManager.Server.Controllers
                     var destino = context.Destino.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Multidestino);
                     if (destino is null) { return BadRequest("No se encontro el destino"); }
 
-                    var producto_anterior = string.Empty;
-                    var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment && x.Cod != orden[i].Cod
-                    && x.Fchcar < orden[i].Fchcar).OrderByDescending(x => x.Fchpet).FirstOrDefault();
-                    if (orden_anterior is not null)
-                    {
-                        var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
-                        if (prod_anterior is not null)
-                        {
-                            producto_anterior = prod_anterior.Den;
-                        }
-                    }
+                    var producto_anterior = producto.Den;
+                    //var producto_anterior = string.Empty;
+                    //var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment && x.Cod != orden[i].Cod
+                    //&& x.Fchcar < orden[i].Fchcar).OrderByDescending(x => x.Fchpet).FirstOrDefault();
+                    //if (orden_anterior is not null)
+                    //{
+                    //    var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
+                    //    if (prod_anterior is not null)
+                    //    {
+                    //        producto_anterior = prod_anterior.Den;
+                    //    }
+                    //}
 
                     var autorizador = context.Autorizador.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Autorizador);
                     if (autorizador is null) { return BadRequest("No se encontro el autorizador"); }

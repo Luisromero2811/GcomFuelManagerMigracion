@@ -1638,7 +1638,7 @@ else
     {
         try
         {
-            var response = await repositorio.Get<List<Autorizador>>("api/Autorizadores/gruposactivos");
+            var response = await repositorio.Get<List<Autorizador>>("api/Autorizadores");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

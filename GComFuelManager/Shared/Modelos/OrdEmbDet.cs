@@ -60,5 +60,6 @@ namespace GComFuelManager.Shared.Modelos
 
         //Propiedad de navegación
         [NotMapped] public Orden? Orden { get; set; } = null!;
+        public short Id_Tad { get; set; } = 1;
     }
 }

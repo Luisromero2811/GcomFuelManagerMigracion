@@ -60,12 +60,12 @@ namespace GComFuelManager.Shared.Modelos
 
         public void RFC_A_Capitalizado()
         {
-            RFC = RFC.ToUpper();
+            RFC = RFC?.ToUpper();
         }
         [NotMapped, EpplusIgnore]
         public string RFC_Capitales
         {
-            get => RFC;
+            get => RFC ?? string.Empty;
             set => RFC = value.ToUpper();
         }
 
