@@ -378,7 +378,7 @@
             if (respuestaHTTP.Error)
             {
                 var responseHTTP = await respuestaHTTP.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Verifique que el Nombre de Usuario o Contraseña cumpla con los requisitos" + responseHTTP, SweetAlertIcon.Error);
+                await swal.FireAsync("Error", responseHTTP, SweetAlertIcon.Error);
             }
             else
             {
@@ -387,9 +387,6 @@
                 {
 
                     await swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
-                    //Hacer un reload de la tabla
-                    Usuarios.Add(respuestaHTTP.Response);
-                    grid?.Reload();
                     await GetUsers();
 
                 }

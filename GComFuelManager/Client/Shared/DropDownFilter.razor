@@ -2,7 +2,7 @@
 @typeparam TValue
 
 @* @inject IJSRuntime js *@
-<div class="dropdown-com" @onmouseleave="@(()=>ShowDropDown = false)">
+<div class="dropdown-com" @onclick="@(()=>ShowDropDown = ShowDropDown)">
     <div class="dropdown-com-btn-container">
         <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="dropdown-com-btn" type="button" data-toggle="dropdown">
             @if (RenderValue is null || Valor_Seleleccionado is null)
