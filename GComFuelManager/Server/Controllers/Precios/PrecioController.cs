@@ -151,8 +151,8 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("{Orden_Compra}/{Id_Terminal}")]
-        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, [FromRoute] Int16 Id_Terminal)
+        [HttpGet("{Orden_Compra}")]
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, Int16 Id_Terminal = 1)
         {
             try
             {

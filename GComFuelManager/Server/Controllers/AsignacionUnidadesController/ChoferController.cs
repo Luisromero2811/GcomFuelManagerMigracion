@@ -25,23 +25,23 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             this.context = context;
         }
-        [HttpGet("{transportista:int}")]
-        public async Task<ActionResult> Get(int transportista)
-        {
-            try
-            {
-                var transportistas = await context.Chofer
-                    .Where(x => x.Codtransport == transportista && x.Activo == true)
-                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
-                    .OrderBy(x => x.Den)
-                    .ToListAsync();
-                return Ok(transportistas);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //[HttpGet("{transportista:int}")]
+        //public async Task<ActionResult> Get(int transportista)
+        //{
+        //    try
+        //    {
+        //        var transportistas = await context.Chofer
+        //            .Where(x => x.Codtransport == transportista && x.Activo == true)
+        //            //.Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+        //            .OrderBy(x => x.Den)
+        //            .ToListAsync();
+        //        return Ok(transportistas);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }
 
