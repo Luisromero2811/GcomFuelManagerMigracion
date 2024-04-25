@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -47,6 +48,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activo { get; set; } = true;
         [JsonProperty("precioSemanal")]
         public bool? precioSemanal { get; set; } = false;
+
+        [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
 
     }
 }

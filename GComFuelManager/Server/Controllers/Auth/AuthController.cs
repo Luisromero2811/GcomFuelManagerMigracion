@@ -96,25 +96,40 @@ namespace GComFuelManager.Server.Controllers.Auth
 
         [HttpGet("renovarToken")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult<UserTokenDTO>> Renovar()
+        public async Task<ActionResult<UserTokenDTO>> Renovar([FromQuery] string t)
         {
-            //Construimos un userInfo para poder utilizar el method de BuildToken
-            var userInfo = new UsuarioInfo()
+            var userInfo = new UsuarioInfo();
+
+            var Claims = Validar_Token(t);
+
+            if (Claims is not null)
             {
-                UserName = HttpContext.User.Identity!.Name!
-            };
+                userInfo.UserName = Claims.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
+                userInfo.Terminal = Claims.FindFirstValue("Terminal") ?? string.Empty;
+            }
 
             return await BuildToken(userInfo);
         }
 
         private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
+            if (!context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
+                return new UserTokenDTO();
+
             var claims = new List<Claim>()
             {
                 new Claim(ClaimTypes.Name, info.UserName),
                 new Claim(JwtRegisteredClaimNames.UniqueName, info.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("Terminal",info.Terminal)
             };
+
+            if (string.IsNullOrEmpty(info.UserName))
+                throw new ArgumentNullException(nameof(info.UserName));
+
+            if (string.IsNullOrEmpty(info.Terminal))
+                throw new ArgumentNullException(nameof(info.Terminal));
+
             var usuario = await userManager.FindByNameAsync(info.UserName);
             if (usuario != null)
             {
@@ -140,6 +155,7 @@ namespace GComFuelManager.Server.Controllers.Auth
             {
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Expiration = expiration,
+                Claims = claims
             };
         }
 
@@ -200,5 +216,28 @@ namespace GComFuelManager.Server.Controllers.Auth
                 return BadRequest(e);
             }
         }
+
+        private ClaimsPrincipal Validar_Token(string token)
+        {
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwtkey"]!))
+                };
+
+                SecurityToken Token_validado;
+
+                return new JwtSecurityTokenHandler().ValidateToken(token, validationParameters, out Token_validado);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
     }
 }

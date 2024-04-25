@@ -81,6 +81,8 @@ namespace GComFuelManager.Client.Auth
             var tiempoExpiracionObject = await js.GetItemLocalStorage(EXPIRATIONTOKENKEY);
             DateTime tiempoExpiracion;
 
+            await CheckLoginApp();
+
             if (DateTime.TryParse(tiempoExpiracionObject.ToString(), out tiempoExpiracion))
             {
                 if (TokenExpirado(tiempoExpiracion))
@@ -103,10 +105,27 @@ namespace GComFuelManager.Client.Auth
             Console.WriteLine("Renovando Token");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>("api/cuentas/renovarToken");
+            Dictionary<string, string> query = new();
+
+            query["t"] = token;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/cuentas/renovarToken?{url}");
             var nuevoToken = nuevoTokenResponse.Response!;
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))
+            {
+                await Logoute();
+                return "";
+            }
+
+            if (nuevoToken is null)
+            {
+                await Logoute();
+                return "";
+            }
+
+            if (string.IsNullOrEmpty(nuevoToken.Token) || string.IsNullOrWhiteSpace(nuevoToken.Token))
             {
                 await Logoute();
                 return "";
@@ -152,6 +171,15 @@ namespace GComFuelManager.Client.Auth
             await js.RemoveItemLocalStorage(TOKENKEY);
             await js.RemoveItemLocalStorage(EXPIRATIONTOKENKEY);
             client.DefaultRequestHeaders.Authorization = null!;
+        }
+
+        public async Task CheckLoginApp()
+        {
+            var token = await js.GetItemLocalStorage(TOKENKEY);
+            var tiempoExpiracionObject = await js.GetItemLocalStorage(EXPIRATIONTOKENKEY);
+
+            if (string.IsNullOrEmpty(token) || string.IsNullOrWhiteSpace(tiempoExpiracionObject))
+                await Logoute();
         }
     }
 }

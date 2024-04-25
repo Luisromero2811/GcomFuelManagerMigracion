@@ -55,6 +55,7 @@ builder.Services.AddScoped<IValidacionOrdenEmailService, ValidacionOrdenEmailSer
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();
+builder.Services.AddSingleton<User_Terminal>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
 builder.Services.Configure<CookiePolicyOptions>(options =>

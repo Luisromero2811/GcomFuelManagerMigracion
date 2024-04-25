@@ -8,23 +8,31 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using GComFuelManager.Server.Helpers;
+using Microsoft.AspNetCore.Identity;
+using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class DestinoController : ControllerBase 
-	{
+    public class DestinoController : ControllerBase
+    {
         private readonly ApplicationDbContext context;
         private readonly VerifyUserToken verifyUser;
+        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserId verify;
+        private readonly User_Terminal _terminal;
 
-        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser)
-		{
+        public DestinoController(ApplicationDbContext context, VerifyUserToken verifyUser, UserManager<IdentityUsuario> userManager, VerifyUserId verify, User_Terminal _Terminal)
+        {
             this.context = context;
             this.verifyUser = verifyUser;
+            this.userManager = userManager;
+            this.verify = verify;
+            this._terminal = _Terminal;
         }
-        
+
         [HttpGet]
         public async Task<ActionResult> Get()
         {
@@ -48,8 +56,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var userId = verifyUser.GetName(HttpContext);
-                
+
                 if (string.IsNullOrEmpty(userId))
                     return BadRequest();
 
@@ -57,8 +69,9 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (user == null)
                     return BadRequest();
 
-                var clientes = context.Destino.Where(x => x.Codcte == user!.CodCte && x.Activo == true).AsEnumerable().OrderBy(x => x.Den);
-                
+                var clientes = context.Destino.IgnoreAutoIncludes().Where(x => x.Codcte == user!.CodCte && x.Activo == true && x.Id_Tad == id_terminal)
+                    .IgnoreAutoIncludes().AsEnumerable().OrderBy(x => x.Den).ToList();
+
                 return Ok(clientes);
             }
             catch (Exception e)

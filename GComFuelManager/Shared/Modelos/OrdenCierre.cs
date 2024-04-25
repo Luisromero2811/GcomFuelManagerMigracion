@@ -140,6 +140,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore, NotMapped]
         public DateTime? FchCar { get; set; } = DateTime.Today;
+        [EpplusIgnore, NotMapped] public short? Id_Tad { get; set; } = 0;
         [EpplusIgnore, NotMapped]
         public Int16? CodTad { get; set; } = 1;
         [EpplusIgnore, NotMapped]
@@ -187,6 +188,21 @@ namespace GComFuelManager.Shared.Modelos
             }
         }
 
+        [DisplayName("Estado de Orden"), NotMapped]
+        public string Estado_Orden
+        {
+            get
+            {
+                if (OrdenEmbarque is not null)
+                    if (OrdenEmbarque.Estado is not null)
+                        if (!string.IsNullOrEmpty(OrdenEmbarque.Estado.den))
+                            return OrdenEmbarque.Estado.den;
+                return "Sin estado";
+            }
+        }
+
+        [NotMapped, EpplusIgnore] public Tad? Terminal { get; set; } = null!;
+
         public OrdenCierre ShallowCopy()
         {
             return (OrdenCierre)this.MemberwiseClone();
@@ -202,6 +218,7 @@ namespace GComFuelManager.Shared.Modelos
                 CodGru = CodGru,
                 CodPed = CodPed,
                 CodPrd = CodPrd,
+                Id_Tad = Id_Tad,
                 CodTad = CodTad,
                 fchPrecio = fchPrecio,
                 FchCar = FchCar,

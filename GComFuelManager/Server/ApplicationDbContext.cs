@@ -278,6 +278,18 @@ namespace GComFuelManager.Server
             //    .HasForeignKey(x => x.CodPed);
 
             modelBuilder.Entity<OrdenEmbarque>()
+               .HasOne(x => x.OrdenPedido)
+               .WithOne(x => x.OrdenEmbarque)
+               .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+               .HasForeignKey<OrdenPedido>(x => x.CodPed);
+
+            modelBuilder.Entity<OrdenCierre>()
+               .HasMany(x => x.OrdenPedidos)
+               .WithOne(x => x.OrdenCierre)
+               .HasPrincipalKey(x => x.Cod)
+               .HasForeignKey(x => x.CodCierre);
+
+            modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenEmbarque>(x => x.FolioSyn)
@@ -351,6 +363,42 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Terminal)
                 .WithMany()
                 .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<Consecutivo>()
+             .HasOne(x => x.Terminal)
+             .WithOne()
+             .HasForeignKey<Consecutivo>(x => x.Id_Tad);
+
+            modelBuilder.Entity<Orden>()
+               .HasOne(x => x.Terminal)
+               .WithMany()
+               .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
         }
 
         public DbSet<Chofer> Chofer { get; set; }

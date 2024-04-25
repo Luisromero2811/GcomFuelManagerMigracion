@@ -1,7 +1,7 @@
 ﻿@inject ILoginService login
 @inject SweetAlertService swal
 @inject NavigationManager navigate
-<AuthorizeView>
+<AuthorizeView Context="MenuGeneral">
     <Authorized>
         <div class="col-12 py-2 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") d-flex">
             <div class="col">
@@ -60,7 +60,7 @@
 
                         </AuthorizeView>
                         <!--Cierre de Pedidos-->
-                        <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
+                        @*<RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
                                     <i class="fa-solid fa-business-time" aria-hidden="true"></i> Pedidos
@@ -86,10 +86,10 @@
                                     </RadzenMenuItem>
                                 </AuthorizeView>
                             </ChildContent>
-                        </RadzenMenuItem>
+                        </RadzenMenuItem>*@
                         <!--Órdenes-->
                         @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador, Cliente Lectura, Ejecutivo de Cuenta Comercial, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto" Context="Ordenes">
-                            <Authorized>*@
+                    <Authorized>*@
 
 
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
@@ -113,26 +113,26 @@
                                     <RadzenMenuItem Path="orden" class="gcom-bg-rojo col-12">
                                         <Template>
                                             <div class="text-white">
-                                                <i class="fa fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Estado de orden
+                                                <i class="fa fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Historial de Órdenes
                                             </div>
                                         </Template>
                                     </RadzenMenuItem>
                                 </AuthorizeView>
 
                                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador" Context="ETA">
-                                        <RadzenMenuItem Path="eta" class="gcom-bg-rojo col-12" >
-                                            <Template>
-                                                <div class="text-white">
-                                                    <i class="fa fa-solid fa-hourglass-half" aria-hidden="true"></i> ETA
-                                                </div>
-                                            </Template>
-                                        </RadzenMenuItem>
+                                <RadzenMenuItem Path="eta" class="gcom-bg-rojo col-12" >
+                                    <Template>
+                                        <div class="text-white">
+                                            <i class="fa fa-solid fa-hourglass-half" aria-hidden="true"></i> ETA
+                                        </div>
+                                    </Template>
+                                </RadzenMenuItem>
 
-                                    </AuthorizeView>*@
+                            </AuthorizeView>*@
                             </ChildContent>
                         </RadzenMenuItem>
                         @*</Authorized>
-                            </AuthorizeView>*@
+                    </AuthorizeView>*@
                     </RadzenMenu>
                 </div>
             }
@@ -140,12 +140,17 @@
             {
                 <div class="col-8" />
             }
-            <div class="col-3 d-flex">
-                <div class="col-6 text-center my-auto d-flex justify-content-end">
-                    <h6> @context.User.Identity.Name</h6>
+            <div class="col-3 d-flex gcom-bg-rojo-dark">
+                <div class="col-6 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
+                    @if (MenuGeneral.User.Identity is not null)
+                    {
+                        <p class="my-auto">
+                            @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
+                        </p>
+                    }
                 </div>
                 <div class="col-6 text-center my-auto">
-                    <button class="btn" @onclick="@CerrarSesion">Cerrar sesion</button>
+                    <button class="btn text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
                 </div>
             </div>
         </div>

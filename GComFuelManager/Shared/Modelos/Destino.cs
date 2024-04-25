@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -44,6 +45,8 @@ namespace GComFuelManager.Shared.Modelos
         [JsonProperty("est"), MaxLength(50)]
         public string? Est { get; set; } = string.Empty;
 
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore] public short? Id_Tad { get; set; }
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
 
         [NotMapped] public Cliente? Cliente { get; set; } = null!;

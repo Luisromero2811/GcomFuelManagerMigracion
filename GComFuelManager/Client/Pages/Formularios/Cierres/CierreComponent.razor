@@ -1020,6 +1020,14 @@
             else
             {
                 Precios = response.Response;
+                if (Precios.Count == 0)
+                    ms.Notify(new NotificationMessage()
+                    {
+                        Summary = "Precios",
+                        Detail = $"No se han encontrado precios para este destino.",
+                        Duration = 10000,
+                        Severity = NotificationSeverity.Warning
+                    });
                 StateHasChanged();
                 DestinoSeleccionado = ordenCierre.CodDes;
             }

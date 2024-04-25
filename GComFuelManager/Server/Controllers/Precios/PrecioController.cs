@@ -19,12 +19,14 @@ namespace GComFuelManager.Server.Controllers.Precios
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserToken verifyUser;
+        private readonly User_Terminal terminal;
 
-        public PrecioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
+        public PrecioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            terminal = _Terminal;
         }
 
         //[HttpGet]
@@ -52,6 +54,10 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 List<Precio> precios = new();
                 List<PrecioProgramado> preciosPro = new();
                 var LimiteDate = DateTime.Today.AddHours(16);
@@ -66,7 +72,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 if (!string.IsNullOrEmpty(folio))
                 {
-                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio)
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true && x.Id_Tad == id_terminal)
                             .Include(x => x.Cliente)
                             .ToListAsync();
                     var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
@@ -89,7 +95,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     return Ok(precios);
                 }
 
-                precios = await context.Precio.Where(x => x.CodCte == userSis.CodCte && x.CodDes == zonaCliente.DesCod && x.Activo == true)
+                precios = await context.Precio.Where(x => x.CodCte == userSis.CodCte && x.CodDes == zonaCliente.DesCod && x.Activo == true && x.Id_Tad == id_terminal)
                     //&& x.CodZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();
@@ -112,7 +118,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                 {
                     preciosPro = await context.PrecioProgramado.Where(x => x.CodCte == userSis.CodCte
-                    && x.CodDes == zonaCliente.DesCod && x.Activo == true)
+                    && x.CodDes == zonaCliente.DesCod && x.Activo == true && x.Id_Tad == id_terminal)
                     //&& x.CodZona == zona.ZonaCod)
                     .Include(x => x.Producto)
                     .ToListAsync();

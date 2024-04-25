@@ -28,8 +28,8 @@
                 GridLines="DataGridGridLines.Both" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" AllowColumnPicking="true">
     <Columns>
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
-        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de pedido" Property="Folio" Filterable="false" Width="200px" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Fecha de orden" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" />
+        <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Folio de orden" Property="Folio" Filterable="false" Width="200px" />
         <RadzenDataGridColumn TItem="FolioDetalleDTO" Title="Destino" Filterable="false">
             <Template Context="data">
                 @(data.Destino is not null ? data.Destino.Den : "Sin destino asignado")
@@ -104,7 +104,7 @@
             fechas.forFolio = forFolio;
             if (!isStatus)
             {
-                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalles", fechas);
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/pedido/folios/detalles", fechas);
                 if (response.Error)
                 {
                     loading = false;
@@ -119,7 +119,7 @@
             }
             else if (isStatus)
             {
-                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/cierre/folios/detalles/status", fechas);
+                var response = await http.Post<CierreFiltroDTO, List<FolioDetalleDTO>>("api/pedido/folios/detalles/status", fechas);
                 if (response.Error)
                 {
                     loading = false;

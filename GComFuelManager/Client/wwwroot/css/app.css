@@ -169,3 +169,11 @@ a, .btn-link {
     background-color: #AC0608;
 }
 
+* {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.ancho-tabla {
+    width: calc(100vw - 100px);
+}

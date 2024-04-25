@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 namespace GComFuelManager.Shared.Modelos
 {
@@ -18,7 +19,26 @@ namespace GComFuelManager.Shared.Modelos
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
 
-		//public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
-	}
+        public short? Id_Tad { get; set; } = 0;
+       
+        [NotMapped]
+        public Tad? Terminal { get; set; } = null!;
+
+        public string Nombre_Producto { get { return !string.IsNullOrEmpty(Den) ? Den : string.Empty; } }
+     
+        public string Obtener_Terminal
+        {
+            get
+            {
+                if (Terminal is not null)
+                    if (!string.IsNullOrEmpty(Terminal.Den) || !string.IsNullOrWhiteSpace(Terminal.Den))
+                        return Terminal.Den;
+
+                return string.Empty;
+            }
+        }
+
+        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+    }
 }
 
