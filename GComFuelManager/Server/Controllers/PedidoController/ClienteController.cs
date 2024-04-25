@@ -19,23 +19,23 @@ namespace GComFuelManager.Server.Controllers
             this.context = context;
         }
 
-        [HttpGet("{grupo:int}")]
-        public async Task<ActionResult> Get(int grupo)
-        {
-            try
-            {
-                var grupos = await context.Cliente
-                    .Where(x => x.codgru == grupo && x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
-                    .OrderBy(x => x.Den)
-                    .ToListAsync();
-                return Ok(grupos);
-            }
-            catch (Exception e)
-            {
+        //[HttpGet("{grupo:int}")]
+        //public async Task<ActionResult> Get(int grupo)
+        //{
+        //    try
+        //    {
+        //        var grupos = await context.Cliente
+        //            .Where(x => x.codgru == grupo && x.Activo == true)
+        //            .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! })
+        //            .OrderBy(x => x.Den)
+        //            .ToListAsync();
+        //        return Ok(grupos);
+        //    }
+        //    catch (Exception e)
+        //    {
 
-                return BadRequest(e.Message);
-            }
-        }
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }
