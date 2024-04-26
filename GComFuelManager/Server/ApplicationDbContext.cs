@@ -126,7 +126,7 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Tonel>()
                 .HasOne(x => x.Transportista)
                 .WithMany()
-                .HasPrincipalKey(x=>x.CarrId)
+                .HasPrincipalKey(x => x.CarrId)
                 .IsRequired(false)
                 .HasForeignKey(x => x.Carid)
                 .IsRequired(false);
@@ -142,9 +142,9 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.Codcte);
             //Estado
             modelBuilder.Entity<OrdenEmbarque>()
-                .HasOne(x=>x.Estado)
+                .HasOne(x => x.Estado)
                 .WithMany()
-                .HasForeignKey(x=>x.Codest);
+                .HasForeignKey(x => x.Codest);
             //Relaciones Tabla de OrdEmbDet
             modelBuilder.Entity<OrdEmbDet>()
                 .HasOne(x => x.Orden)
@@ -307,14 +307,14 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<Contacto>()
                 .HasMany(x => x.AccionCorreos)
-                .WithOne(x=>x.Contacto)
+                .WithOne(x => x.Contacto)
                 .HasForeignKey(x => x.CodContacto);
 
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.OrdenCierre)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenCierre>(x => x.CodPed);
-            
+
             //modelBuilder.Entity<Orden>()
             //    .HasOne(x => x.OrdenEmbarque)
             //    .WithMany()
@@ -399,6 +399,10 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.Id_Tad);
 
+            modelBuilder.Entity<Usuario>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.CodCte);
         }
 
         public DbSet<Chofer> Chofer { get; set; }

@@ -33,23 +33,23 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             this._terminal = _Terminal;
         }
 
-        [HttpGet]
-        public async Task<ActionResult> Get()
-        {
-            try
-            {
-                var destinos = await context.Destino
-                    .Where(x => x.Activo == true)
-                    .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den })
-                    .ToListAsync();
-                return Ok(destinos);
-            }
-            catch (Exception e)
-            {
+        //[HttpGet]
+        //public async Task<ActionResult> Get()
+        //{
+        //    try
+        //    {
+        //        var destinos = await context.Destino
+        //            .Where(x => x.Activo == true)
+        //            .Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den })
+        //            .ToListAsync();
+        //        return Ok(destinos);
+        //    }
+        //    catch (Exception e)
+        //    {
 
-                return BadRequest(e.Message);
-            }
-        }
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpGet("comprador")]
         public ActionResult GetClientComprador()
@@ -69,10 +69,16 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (user == null)
                     return BadRequest();
 
-                var clientes = context.Destino.IgnoreAutoIncludes().Where(x => x.Codcte == user!.CodCte && x.Activo == true && x.Id_Tad == id_terminal)
-                    .IgnoreAutoIncludes().AsEnumerable().OrderBy(x => x.Den).ToList();
+                var cliente = context.Cliente.FirstOrDefault(x => x.Cod == user.CodCte);
+                if (cliente is null) { return BadRequest("El cliente no existe"); }
 
-                return Ok(clientes);
+                var cliente_terminal = context.Cliente.FirstOrDefault(x => x.Den == cliente.Den && x.Id_Tad == id_terminal);
+                if (cliente_terminal is null) { return BadRequest("No existe el cliente en la terminal"); }
+
+                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Codcte == cliente_terminal.Cod && x.Activo == true && x.Id_Tad == id_terminal)
+                    .IgnoreAutoIncludes().OrderBy(x => x.Den).ToList();
+
+                return Ok(destinos);
             }
             catch (Exception e)
             {
