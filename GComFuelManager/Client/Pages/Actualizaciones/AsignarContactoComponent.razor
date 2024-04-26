@@ -68,47 +68,50 @@
 </div>
 <AuthorizeView Roles="Admin, Administrador Sistema, Gerencia, Direccion, Correo de Clientes">
     @*<div class="col-12 d-flex justify-content-center">*@
-        <div class="col-12 d-flex justify-content-center table-responsive">
+        <div class="col-12 d-flex justify-content-center table-responsive" style="height:450px;resize:both;">
             @*<div class="col-12 row card-body">*@
                 <RadzenDataGrid TItem="Contacto" Data="@Contactos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" ColumnResized="@(()=>grid!.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                GridLines="DataGridGridLines.Both" class="rz-my-12 overflow-scroll" Style="height:600px;" ColumnResized="@(()=>grid!.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" FilterMode="FilterMode.Simple" @bind-Settings="@Settings" PageSizeOptions="@pageSizeOptions">
                     <Columns>
-                        <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" Width="200px" OrderIndex="1" Filterable="true" />
-                        <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" Filterable="true" />
-                        <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3" Filterable="false">
-                            <Template Context="data">
-                                <div class="col-12">
-                                    @foreach (var item in data.AccionCorreos)
-                                    {
-                                        <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
-                                            @item.Accion?.Nombre
-                                        </RadzenBadge>
-                                    }
-                                </div>
-                            </Template>
-                        </RadzenDataGridColumn>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="Acciones">
-                            <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="70px" OrderIndex="4" Filterable="false">
-                                <Template Context="item">
-                                    <div class="col-12 ">
-                                        <div class="col">
-                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                        </div>
-                                    </div>
-                                </Template>
-                            </RadzenDataGridColumn>
-                            <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="100px" OrderIndex="5" Filterable="false">
+                        <div class="ms-2">
+                            <RadzenDataGridColumn TItem="Contacto" Title="Nombre de contacto" Property="Nombre" Width="200px" OrderIndex="1" Filterable="true" />
+                            <RadzenDataGridColumn TItem="Contacto" Title="Correo" Property="Correo" Width="200px" OrderIndex="2" Filterable="true" />
+                            <RadzenDataGridColumn TItem="Contacto" Title="Acciones" Width="200px" OrderIndex="3" Filterable="false">
                                 <Template Context="data">
                                     <div class="col-12">
-                                        <div class="form-check form-switch m-2">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Estado"
-                                                   @onchange="@((ChangeEventArgs e) => HabilitarDesabilitar(data, e))">
-                                        </div>
+                                        @foreach (var item in data.AccionCorreos)
+                                        {
+                                            <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="Light">
+                                                @item.Accion?.Nombre
+                                            </RadzenBadge>
+                                        }
                                     </div>
                                 </Template>
                             </RadzenDataGridColumn>
-                        </AuthorizeView>
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Correo de Clientes" Context="Acciones">
+                                <RadzenDataGridColumn TItem="Contacto" Title="Editar" Width="70px" OrderIndex="4" Filterable="false">
+                                    <Template Context="item">
+                                        <div class="col-12 ">
+                                            <div class="col">
+                                                <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                            </div>
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="Contacto" Title="Habilitar / Deshabilitar" Width="100px" OrderIndex="5" Filterable="false">
+                                    <Template Context="data">
+                                        <div class="col-12">
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Estado"
+                                                       @onchange="@((ChangeEventArgs e) => HabilitarDesabilitar(data, e))">
+                                            </div>
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                            </AuthorizeView>
+                        </div>
                     </Columns>
                 </RadzenDataGrid>
             </div>

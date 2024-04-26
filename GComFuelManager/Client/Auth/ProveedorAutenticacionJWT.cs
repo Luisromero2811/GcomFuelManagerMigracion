@@ -36,7 +36,7 @@ namespace GComFuelManager.Client.Auth
         {
             var token = await js.GetItemLocalStorage(TOKENKEY);
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))
             {
                 navigation.NavigateTo("/login");
                 return anonimo;
@@ -48,6 +48,7 @@ namespace GComFuelManager.Client.Auth
             if (tiempoExpiracionObject is null)
             {
                 await Limpiar();
+                navigation.NavigateTo("/login");
                 return anonimo;
             }
             if (DateTime.TryParse(tiempoExpiracionObject.ToString(), out tiempoExpiracion))
@@ -55,6 +56,7 @@ namespace GComFuelManager.Client.Auth
                 if (TokenExpirado(tiempoExpiracion))
                 {
                     await Limpiar();
+                    navigation.NavigateTo("/login");
                     return anonimo;
                 }
                 if (DebeRenovarToken(tiempoExpiracion))

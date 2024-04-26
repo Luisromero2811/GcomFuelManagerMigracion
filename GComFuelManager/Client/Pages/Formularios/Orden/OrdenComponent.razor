@@ -14,19 +14,19 @@
     </div>
     <div class="card-body">
         <div class="row col-12">
-            <div class="col-md-4">
+            <div class="col-md-4 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Del:</label>
                     <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd"  />
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Al:</label>
                     <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd"/>
                 </div>
             </div>
-            <div class="col-md-4 d-flex mt-auto">
+            <div class="col-md-4 d-flex col-sm-6 mt-auto">
                 <button class="btn gcom-bg-amarillo mt-2 col-12" @onclick="@MostrarOrdenFecha">
                     <i class="fa fa-solid fa-eye"></i>
                     <b>Mostrar Ordenes</b>
@@ -41,17 +41,17 @@
             <table class="table table-sm table-bordered table-hover" id="miTabla">
                 <thead class="fila">
                     <tr style="max-height:50px;white-space:nowrap;">
-                        <th>Fecha de orden</th>
-                        <th>Folio de orden</th>
-                        <th>BOL / Embarque</th>
-                        <th>Destino</th>
-                        <th>Producto</th>
-                        <th>Volumen Solicitado</th>
-                        <th>Volumen Cargado</th>
-                        <th>Transportista</th>
-                        <th>Unidad</th>
-                        <th>Chofer</th>
-                        <th>Estado de la orden</th>
+                        <th><small>Fecha de orden</small></th>
+                        <th><small>Folio de orden</small></th>
+                        <th><small>BOL / Embarque</small></th>
+                        <th><small>Destino</small></th>
+                        <th><small>Producto</small></th>
+                        <th><small>Volumen Solicitado</small></th>
+                        <th><small>Volumen Cargado</small></th>
+                        <th><small>Transportista</small></th>
+                        <th><small>Unidad</small></th>
+                        <th><small>Chofer</small></th>
+                        <th><small>Estado de la orden</small></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,16 +146,16 @@
             </table>
         </div>
         <div class="col-12 row m-0">
-            <div class="text-muted col-md-6 mt-2">
+            <div class="text-muted col-md-4 col-sm-6 mt-2">
                 <p>Total de registros: @ConteoTotal</p>
             </div>
-            <div class="col-md-6 offset-md-4 mt-2">
+            <div class="col-md-8 col-sm-6 offset-md-4 mt-2">
                 <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
             </div>
         </div>
     </div>
     <div class="card-footer">
-        <div class="col-md-3 mt-3 mb-3">
+        <div class="col-md-3 col-sm-6 mt-3 mb-3">
             <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /><b>Exportar</b></button>
         </div>
     </div>
