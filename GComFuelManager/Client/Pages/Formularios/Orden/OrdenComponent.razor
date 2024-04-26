@@ -37,7 +37,7 @@
                 </button>
             </div>
         </div>
-        <div class="col-12 ancho overflow-scroll mt-4" style="height:450px;resize:both;">
+        <div class="col-12 ancho-tabla overflow-scroll mt-4" style="height:450px;resize:both;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
                 <thead class="fila">
                     <tr style="max-height:50px;white-space:nowrap;">
@@ -188,9 +188,9 @@
         top: 28px;
         background-color: #f2f2f2;
     }
-    .ancho {
+/*     .ancho {
         width: @TotalWidth;
-    }
+    } */
     /*tr:hover {
         background-color: #FFF633;
     }
@@ -317,28 +317,6 @@
 
     protected async override Task OnInitializedAsync()
     {
-        //width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-        var cm = await js.GetItemLocalStorage("CloseMenu");
-        if (!string.IsNullOrEmpty(cm))
-            isClosed = bool.Parse(cm);
-
-        if (isClosed)
-            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-        else
-            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-        if (width < 0)
-            width = 500;
-        TotalWidth = $"{width}px";
-        var months = CultureInfo.CurrentCulture.DateTimeFormat.MonthNames.ToList();
-        months.RemoveAt(months.IndexOf(months.Last()));
-        var i = 1;
-        foreach (var item in months)
-        {
-
-            meses.Add(new CodDenDTO { Cod = i, Den = item.ToString() });
-            i++;
-        }
         await GetYears();
         await CheckClient();
         await LoadData();

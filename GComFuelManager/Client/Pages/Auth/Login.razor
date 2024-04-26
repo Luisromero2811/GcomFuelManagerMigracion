@@ -122,7 +122,7 @@
             {
                 loading = false;
                 string? message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos.", SweetAlertIcon.Error);
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {

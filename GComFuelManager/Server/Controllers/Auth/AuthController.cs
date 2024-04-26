@@ -1,4 +1,5 @@
-﻿using GComFuelManager.Server.Identity;
+﻿using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,18 +22,21 @@ namespace GComFuelManager.Server.Controllers.Auth
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration configuration;
         private readonly ApplicationDbContext context;
+        private readonly User_Terminal _terminal;
 
         public AuthController(UserManager<IdentityUsuario> userManager,
             SignInManager<IdentityUsuario> signInManager,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            User_Terminal _Terminal)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.roleManager = roleManager;
             this.configuration = configuration;
             this.context = context;
+            this._terminal = _Terminal;
         }
 
         [HttpPost("login")]
@@ -42,14 +46,14 @@ namespace GComFuelManager.Server.Controllers.Auth
             {
 
                 var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
-                if (usuario == null)
+                if (usuario is null)
                     return BadRequest("El usuario no tiene acceso al sistema");
 
-                if (usuario!.Activo == true)
+                if (usuario.Activo == true)
                 {
 
                     var user_asp = await userManager.FindByNameAsync(info.UserName);
-                    if (user_asp == null)
+                    if (user_asp is null)
                         return BadRequest("El usuario no tiene acceso al sistema");
 
                     var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
@@ -68,6 +72,15 @@ namespace GComFuelManager.Server.Controllers.Auth
                         }
                         else
                             return BadRequest("No tiene acceso a esta terminal");
+                    }
+
+                    if (usuario.IsClient)
+                    {
+                        var cliente = context.Cliente.FirstOrDefault(x => x.Cod == usuario.CodCte);
+                        if (cliente is null) { return BadRequest("No existe el cliente"); }
+
+                        var cliente_terminal = context.Cliente.FirstOrDefault(x => x.Den == cliente.Den && x.Id_Tad == terminal.Cod);
+                        if (cliente_terminal is null) { return BadRequest("No existe el cliente en la terminal"); }
                     }
 
                     if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal!.Cod))
@@ -159,39 +172,15 @@ namespace GComFuelManager.Server.Controllers.Auth
             };
         }
 
-        [HttpGet("check/user"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<ActionResult> GetClient()
-        {
-            try
-            {
-                var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
-                //Si el usuario no existe
-                if (usuario == null)
-                    return NotFound();
-
-                var user = new UsuarioInfo();
-
-                var isClient = await userManager.IsInRoleAsync(usuario, "Correo de Clientes");
-
-                user.IsClient = isClient;
-
-                if (isClient)
-                    user.CodCte = context.Usuario.Find(usuario.UserCod)!.CodCte;
-
-                return Ok(user);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e);
-            }
-        }
-
         [HttpGet("check/client"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<ActionResult> CheckClient()
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var usuario = await userManager.FindByNameAsync(HttpContext.User.FindFirstValue(ClaimTypes.Name)!);
                 //Si el usuario no existe
                 if (usuario == null)
@@ -206,8 +195,16 @@ namespace GComFuelManager.Server.Controllers.Auth
                 if (isClient)
                 {
                     var u = context.Usuario.Find(usuario.UserCod);
-                    user.CodCte = u.CodCte;
-                    user.CodGru = u.CodGru;
+                    if (u is null) { return BadRequest("No existe el usuario"); }
+
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Cod == u.CodCte);
+                    if (cliente is null) { return BadRequest("No existe el cliente."); }
+
+                    var cliente_terminal = context.Cliente.FirstOrDefault(x => x.Den == cliente.Den && x.Id_Tad == id_terminal);
+                    if (cliente_terminal is null) { return BadRequest("No existe el cliente en la terminal"); }
+
+                    user.CodCte = cliente_terminal.Cod;
+                    user.CodGru = cliente_terminal.codgru;
                 }
                 return Ok(user);
             }
