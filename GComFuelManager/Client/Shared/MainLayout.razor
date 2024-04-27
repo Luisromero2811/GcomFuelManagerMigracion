@@ -11,21 +11,17 @@
         <RadzenTooltip />
 
         <div class="page">
-            @if (!isClosed)
-            {
-                <div class="sidebar">
-                    @*<MenuLateral />*@
-                    <NavMenu></NavMenu>
-                </div>
-            }
-
+            <Menu_Lateral_Emergente />
             <main>
                 <div>
-                    <MenuNav close=@isClosed closeMenu="CloseMenu" />
+                    <MenuNav />
                 </div>
-
-                <article class="content px-4">
-                    @Body
+                <article class="content px-2">
+                    <ErrorBoundary @ref="errorBoundary">
+                        <ChildContent>
+                            @Body
+                        </ChildContent>
+                    </ErrorBoundary>
                 </article>
             </main>
         </div>
@@ -33,23 +29,31 @@
 </AuthorizeView>
 
 @code{
-    public bool isClosed = false;
+    //public bool isClosed = false;
 
-    public async void CloseMenu()
-    {
-        isClosed = !isClosed;
-        await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
-    }
+    //public async void CloseMenu()
+    //{
+    //    isClosed = !isClosed;
+    //    await js.SetItemLocalStorage("CloseMenu", isClosed.ToString());
+    //}
+
+
 
     //[CascadingParameter]
     //public Task<AuthenticationState> AuthenticationStateTask { get; set; } = null!;
-    protected async override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         //await js.InvokeVoidAsync("timerInactivo", DotNetObjectReference.Create(this));
-        var cm = await js.GetItemLocalStorage("CloseMenu");
-        if (cm is not null)
-            isClosed = bool.Parse(cm);
+        //var cm = await js.GetItemLocalStorage("CloseMenu");
+        //if (cm is not null)
+        //    isClosed = bool.Parse(cm);
         renovadorToken.Iniciar();
+    }
+
+    private ErrorBoundary? errorBoundary;
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
     }
 
     //[JSInvokable]

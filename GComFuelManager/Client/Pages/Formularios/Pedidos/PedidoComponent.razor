@@ -10,6 +10,7 @@
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador")]
 
+
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Create">
     <div class="col-12 card shadow">
         <div class="card-body">
@@ -274,27 +275,9 @@
 </AuthorizeView>
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador">
-    <div class="col-12 d-flex justify-content-center row table-responsive card ms-1 mt-3">
-        @if (ordenCierre.IsCierreVolumen is true && volumenDisponible.Productos.Count > 0)
-        {
-            <div class="col-12 mt-2">
-                <b class="my-auto">
-                    @*Volumen: @(volumenDisponible.VolumenTotal.ToString("N2"))*@
-                    @foreach (var item in volumenDisponible.Productos)
-                    {
-                        @if (!string.IsNullOrEmpty(item.Nombre))
-                        {
-                            <div class="col-12 row">
-                                <p>@(item.Nombre) | Total : @(item.Total?.ToString("N")) | Disponible : @(item.Disponible?.ToString("N")) | Espera Carga : @(item.Congelado?.ToString("N")) | Consumido : @(item.Consumido?.ToString("N"))</p>
-                            </div>
-
-                        }
-                    }
-                </b>
-            </div>
-        }
+    <div class="col-12 d-flex ancho-tabla justify-content-center row table-responsive card ms-1 mt-3">
         <RadzenDataGrid TItem="OrdenCierre" Data="@ordenCierres" AllowColumnResize="true" AllowVirtualization="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
                         IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" PageSizeOptions="@pageSizeOptions">
             <Columns>
                 @*<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="Acciones">
@@ -414,6 +397,8 @@
     ElementReference infoIconVolumen;
     ElementReference infoFolio;
 
+    private ClaimsPrincipal User { get; set; } = null!;
+    int width = 0;
     string TotalWidth = string.Empty;
 
     int count = 0;
@@ -434,6 +419,24 @@
         await GetDestinosComprador();
         //await GetGrupos();
         await GetCantidades();
+
+        //width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+
+        var authState = await auth.GetAuthenticationStateAsync();
+        if (authState is not null)
+            User = authState.User;
 
         await CheckClient();
         ordenCierre.CodGru = user.CodGru;
@@ -887,6 +890,15 @@
             }
             else
             {
+                //if (string.IsNullOrEmpty(ordenCierre.Folio))
+                //{
+                //    Cliente = response.Response;
+                //    Cliente.Consecutivo = Cliente.Consecutivo != null ? Cliente.Consecutivo + 1 : 1;
+                //    var userCod = User.Identity?.Name?.Substring(0, 3);
+                //    var guid = Guid.NewGuid().ToString().Split("-");
+                //    ordenCierre.Folio = $"O-{userCod}{Cliente.Consecutivo}-{guid[0]}";
+                //}
+
                 await PutClientes();
                 await CreateCierre();
             }
@@ -1153,6 +1165,28 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GetFoliosFiltro()
+    {
+        try
+        {
+            var response = await http.Post<CierreFiltroDTO, List<string>>($"api/cierre/folios/{user.CodCte}", fechas);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Folios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
         }
     }
 

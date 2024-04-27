@@ -17,13 +17,13 @@
             <div class="col-md-4 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Del:</label>
-                    <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd"  />
+                    <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd" />
                 </div>
             </div>
             <div class="col-md-4 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Al:</label>
-                    <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd"/>
+                    <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd" />
                 </div>
             </div>
             <div class="col-md-4 d-flex col-sm-6 mt-auto">
@@ -37,7 +37,7 @@
                 </button>
             </div>
         </div>
-        <div class="col-12 ancho-tabla overflow-scroll mt-4" style="height:450px;resize:both;">
+        <div class="col-12 Jajajaancho overflow-scroll mt-4" style="height:450px;resize:both;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
                 <thead class="fila">
                     <tr style="max-height:50px;white-space:nowrap;">
@@ -60,15 +60,15 @@
                         <td></td>
                         <td></td>
                         <td>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.destino"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.destino" />
                         </td>
                         <td>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.producto"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.producto" />
                         </td>
                         <td></td>
                         <td></td>
                         <td>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.transportista"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.transportista" />
                         </td>
                         <td>
                             <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.unidad" />
@@ -77,7 +77,7 @@
                             <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.chofer" />
                         </td>
                         <td>
-                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.estado"/>
+                            <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.estado" />
                         </td>
                     </tr>
                     @if (FoliosOrdenes is null)
@@ -188,9 +188,9 @@
         top: 28px;
         background-color: #f2f2f2;
     }
-/*     .ancho {
+    .ancho {
         width: @TotalWidth;
-    } */
+    }
     /*tr:hover {
         background-color: #FFF633;
     }
@@ -246,7 +246,7 @@
             top: 0;
             right: 0;
             bottom: 0;
-            width: 8px;  Ancho del área de redimensionamiento 
+            width: 8px;
             background: transparent;
         }
 </style>
@@ -320,6 +320,21 @@
         await GetYears();
         await CheckClient();
         await LoadData();
+
+        //width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClosed = bool.Parse(cm);
+
+        if (isClosed)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+
     }
 
     protected override async Task OnParametersSetAsync()

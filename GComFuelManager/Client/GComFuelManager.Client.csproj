@@ -51,12 +51,14 @@
     <None Remove="Repositorios\" />
     <None Remove="Shared\Layouts\" />
     <None Remove="Pages\Formularios\ETA\" />
+    <None Remove="Shared\DropDownMenuComponents\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
     <Folder Include="wwwroot\js\" />
+    <Folder Include="Shared\DropDownMenuComponents\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\js\" />

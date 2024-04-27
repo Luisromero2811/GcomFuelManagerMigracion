@@ -1,0 +1,219 @@
+﻿@inject IJSRuntime js
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject ILoginService login
+@inject NavigationManager navigate
+
+<div id="mySidepanel" class="sidepanel">
+    <a href="javascript:void(0)" class="closebtn" @onclick="CloseMenuLateral">×</a>
+    @foreach (var level_0 in Menus)
+    {
+        <AuthorizeView Roles="@level_0.roles" Context="level_0_context">
+            <Authorized>
+                @if (!level_0.isMenu)
+                {
+                    <NavLink href="@level_0.path" Match="NavLinkMatch.All" ActiveClass="sidepanel-item-active">
+                        <div class="sidepanel-item">
+                            <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                            @level_0.name
+                        </div>
+                    </NavLink>
+                }
+                else
+                {
+                    <DropDownMenu Show="@level_0.showDropDown">
+                        <Button>
+                            <DropDownMenuButton @bind-ShowDropDown="@level_0.showDropDown">
+                                <ButtonTemplate>
+                                    <i class="fa fa-solid fa-@level_0.icon" aria-hidden="true"></i>
+                                    @level_0.name
+                                </ButtonTemplate>
+                            </DropDownMenuButton>
+                        </Button>
+                        <Items>
+                            @foreach (var level_1 in level_0.Menus)
+                            {
+
+                                @if (!level_1.isMenu)
+                                {
+                                    <DropDownMenuItem Path="@level_1.path" Use_Roles="@true" Roles="@level_1.roles">
+                                        <ItemTemplate>
+                                            <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                            @level_1.name
+                                        </ItemTemplate>
+                                    </DropDownMenuItem>
+                                }
+                                else
+                                {
+                                    <DropDownMenu Show="@level_1.showDropDown">
+                                        <Button>
+                                            <DropDownMenuButton @bind-ShowDropDown="level_1.showDropDown">
+                                                <ButtonTemplate>
+                                                    <i class="fa fa-solid fa-@level_1.icon" aria-hidden="true"></i>
+                                                    @level_1.name
+                                                </ButtonTemplate>
+                                            </DropDownMenuButton>
+                                        </Button>
+                                        <Items>
+                                            @foreach (var level_2 in level_1.Menus)
+                                            {
+                                                <DropDownMenuItem Path="@level_2.path" Use_Roles="@true" Roles="@level_2.roles">
+                                                    <ItemTemplate>
+                                                        <i class="fa fa-solid fa-@level_2.icon" aria-hidden="true"></i>
+                                                        @level_2.name
+                                                    </ItemTemplate>
+                                                </DropDownMenuItem>
+
+                                            }
+                                        </Items>
+                                    </DropDownMenu>
+                                }
+
+                            }
+                        </Items>
+                    </DropDownMenu>
+                }
+            </Authorized>
+        </AuthorizeView>
+    }
+    @*<AuthorizeView Context="MenuGeneral">
+        <div class="col-md-12 d-flex flex-end gcom-bg-rojo-dark">
+            <div class="col-md-12 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
+                @if (MenuGeneral.User.Identity is not null)
+                {
+                    <p class="my-auto">
+                        @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
+                    </p>
+                }
+            </div>
+            <div class="col-md-12 text-center my-auto">
+                <button class="btn text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
+            </div>
+        </div>
+    </AuthorizeView>*@
+</div>
+
+
+@code {
+    List<Menu> Menus { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        //configuracion
+        Menus.Add(new Menu()
+        {
+            isMenu = true,
+            name = "Configuracion",
+            icon = "gear",
+            roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo",
+            Menus = new()
+{
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Actualizacion de registros",
+                        icon = "rotate",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                        Menus = new()
+{
+                            new()
+                            {
+                                name = "Relacionar datos",
+                                icon = "user-tie",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes",
+                                path = "asignar-cliente-destino"
+                            },
+                        }
+                    },
+                }
+        });
+
+
+        //ordenes
+        Menus.Add(new Menu()
+        {
+            isMenu = true,
+            name = "Ordenes",
+            icon = "rectangle-list",
+            roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
+            Menus = new()
+{
+                    new()
+                    {
+                        name = "Órdenes",
+                        icon = "rectangle-list",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador",
+                        path = "pedidos"
+                    },
+                    new()
+                    {
+                        name = "Historial de Órdenes",
+                        icon = "truck-ramp-box",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
+                        path = "orden"
+                    },
+                }
+        });
+
+    }
+
+    bool Esta_En_Tuxpan = true;
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async void CloseMenuLateral()
+    {
+        await js.InvokeVoidAsync("CloseMenu");
+    }
+
+    public class Menu
+    {
+        public string name { get; set; } = string.Empty;
+        public string path { get; set; } = string.Empty;
+        public string icon { get; set; } = string.Empty;
+        public string roles { get; set; } = string.Empty;
+        public string context_item { get; set; } = string.Empty;
+        public bool isMenu { get; set; } = false;
+        public bool showDropDown { get; set; } = false;
+        public List<Menu> Menus { get; set; } = new();
+
+        public void ToggleShow()
+        {
+            showDropDown = !showDropDown;
+        }
+    }
+
+    private async void CerrarSesion()
+    {
+        try
+        {
+            await login.Logoute();
+            navigate.NavigateTo("/login");
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}
+

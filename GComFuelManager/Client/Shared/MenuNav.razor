@@ -1,10 +1,17 @@
 ﻿@inject ILoginService login
 @inject SweetAlertService swal
 @inject NavigationManager navigate
+@inject IJSRuntime js
+
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
-        <div class="col-12 gcom-bg-rojo text-white d-flex row m-0">
-            <div class="col-md-9 d-flex">
+        <div class="col-12 gcom-bg-rojo text-white  d-flex row m-0">
+            <div class="col d-flex">
+                <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral">
+                    <i class="fa fa-solid fa-bars"></i>
+                </button>
+            </div>
+            <div class="col-md-8 d-flex">
                 <RadzenMenu class="gcom-bg-rojo col-12 my-auto" Style="background-color:#BA1C15;--rz-menu-background-color:#BA1C15;--rz-menu-item-background-color:#BA1C15;--rz-menu-item-2nd-level-background-color: #BA1C15;--rz-menu-item-3nd-level-background-color: #BA1C15;width:150px;">
                     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial, Analista Credito, Contador" Context="Configs">
                         <!--Configuración de catalogos maestros-->
@@ -15,6 +22,7 @@
                                 </div>
                             </Template>
                             <ChildContent>
+
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes" Context="Update">
                                     <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                                         <Template>
@@ -42,7 +50,7 @@
                         </RadzenMenuItem>
 
                     </AuthorizeView>
-                  
+
                     <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                         <Template>
                             <div class="text-white">
@@ -69,11 +77,8 @@
                                     </Template>
                                 </RadzenMenuItem>
                             </AuthorizeView>
-
-                         
                         </ChildContent>
                     </RadzenMenuItem>
-
                 </RadzenMenu>
             </div>
 
@@ -96,12 +101,10 @@
 </AuthorizeView>
 
 @code {
-    [Parameter] public bool close { get; set; } = false;
-    [Parameter] public EventCallback closeMenu { get; set; }
 
-    private void CloseMenuLateral()
+    private async void OpenMenuLateral()
     {
-        closeMenu.InvokeAsync();
+        await js.InvokeVoidAsync("OpenMenu");
     }
 
     private async void CerrarSesion()
