@@ -42,6 +42,9 @@
             <div class="col-4">
                 Chofer de origen: @ordenEmbarque?.Chofer?.FullName
             </div>
+            <div class="col-4">
+                Precio: @ordenEmbarque?.Pre
+            </div>
         </div>
         <div class="col-12 row my-2">
             <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
@@ -53,7 +56,7 @@
                     </div>
                     <div class="col-4 my-1">
                         <label>Fecha de carga</label>
-                        <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                        <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" max="@DateTime.Today" />
                         <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
                     </div>
                     <div class="col-4 my-1">
@@ -150,6 +153,9 @@
                                         BOL
                                     </th>
                                     <th>
+                                        Precio
+                                    </th>
+                                    <th>
                                         Tipo de Venta
                                     </th>
                                     <th>
@@ -196,6 +202,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                 </tr>
                                 <Virtualize Items="@ordens" Context="data" TItem="EtaNTDTO">
                                     <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
@@ -213,6 +220,7 @@
                                             @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
                                         </td>
                                         <td>@data?.Bol</td>
+                                        <td>@data?.Precio</td>
                                         <td style="text-align: center;">
                                             @data?.DeliveryRack
                                         </td>
@@ -285,6 +293,7 @@
                 }
                 else
                 {
+                    ns.Notify(new() { Summary = "Bol / embarque", Detail = "Esta orden no cuenta con un bol / embarque", Severity = NotificationSeverity.Warning });
                     Datos_BOL.Cod = null!;
                 }
             }

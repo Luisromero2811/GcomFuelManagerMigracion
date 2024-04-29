@@ -1266,31 +1266,39 @@ namespace GComFuelManager.Server.Controllers.Services
                                     }
                                 }
 
+                                using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
+
                                 for (int i = 2; i < 117; i++)
                                 {
-                                    var rows = ws.Cells[i, 43, i, 45].ToList();
-                                    if (rows.Count > 0)
+                                    var rows = ws_c.Cells[i, 43, i, 45].ToList();
+                                    if (rows is not null)
                                     {
-                                        if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
+                                        if (rows.Count > 0)
                                         {
-                                            var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
-                                            if (trans_validos is not null)
+                                            if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
                                             {
-                                                var choferes_validos = context.Chofer.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()
-                                                                                            && x.Codtransport.ToString() == trans_validos.Busentid).ToList();
-
-                                                for (int j = 0; j < choferes_validos.Count; j++)
+                                                if (rows[0].Value.ToString() != "S/D" && rows[1].Value.ToString() != "S/D" && rows[2].Value.ToString() != "S/D")
                                                 {
-                                                    var chofer = choferes_validos[j];
+                                                    var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
+                                                    if (trans_validos is not null)
+                                                    {
+                                                        var choferes_validos = context.Chofer.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()
+                                                                                                    && x.Codtransport.ToString() == trans_validos.Busentid).ToList();
 
-                                                    chofer.RFC = rows[1].Value.ToString();
+                                                        for (int j = 0; j < choferes_validos.Count; j++)
+                                                        {
+                                                            var chofer = choferes_validos[j];
 
-                                                    listado_choferes.Add(chofer);
+                                                            chofer.RFC = rows[1].Value.ToString();
+
+                                                            listado_choferes.Add(chofer);
+                                                        }
+                                                    }
                                                 }
                                             }
-
                                         }
                                     }
+
                                 }
                             }
                         }
