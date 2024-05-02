@@ -22,7 +22,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public bool? Activo { get; set; } = true;
         [EpplusIgnore] public bool? Activo_Permanente { get; set; } = true;
         [EpplusIgnore] public short? Id_Tad { get; set; }
-        [StringLength(13), Validar_RFC, Required(ErrorMessage = "{0} no puede estar vacio")]
+        [StringLength(13)]
         public string? RFC { get; set; } = string.Empty;
         [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
         [NotMapped, DisplayName("Nombre completo del Chofer")]

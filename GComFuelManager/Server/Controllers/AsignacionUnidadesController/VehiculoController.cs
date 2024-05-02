@@ -127,12 +127,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     tonel.Id_Tad = id_terminal;
                     tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
                     tonel.Transportista = null!;
-                    var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion);
-                    //Si ya existe, genera un nuevo número Random
-                    if (exist)
-                    {
-                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
-                    }
+                    //var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion);
+                    ////Si ya existe, genera un nuevo número Random
+                    //if (exist)
+                    //{
+                    //    return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    //}
                     //tonel.Carid = tonel.Transportista.CarrId;
                     context.Add(tonel);
                     await context.SaveChangesAsync();
@@ -150,20 +150,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 else
                 {
                     tonel.Id_Tad = id_terminal;
-                    if (context.Tonel.Any(x => x.Certificado_Calibracion != tonel.Certificado_Calibracion))
-                    {
-                        //Con Any compruebo si el número aleatorio existe en la BD
-                        var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Gps != tonel.Gps);
-                        //Si ya existe, genera un nuevo número Random
-                        if (exist)
-                        {
-                            return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
-                        }
-                    }
-                    else
-                    {
-                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
-                    }
+                    //if (context.Tonel.Any(x => x.Certificado_Calibracion != tonel.Certificado_Calibracion))
+                    //{
+                    //    //Con Any compruebo si el número aleatorio existe en la BD
+                    //    var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Gps != tonel.Gps);
+                    //    //Si ya existe, genera un nuevo número Random
+                    //    if (exist)
+                    //    {
+                    //        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    //}
                     tonel.Terminales = null!;
                     context.Update(tonel);
                     await context.SaveChangesAsync();
