@@ -5,9 +5,9 @@
 @inject GestionClienteValidation gestionCliente
 
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Programador")]
 @* <h4>Catalogo de clientes</h4> *@
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial" Context="GestionClientes">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Programador" Context="GestionClientes">
     <div class="card">
         <div class="card-header">
             <b>Agregar cliente</b>
