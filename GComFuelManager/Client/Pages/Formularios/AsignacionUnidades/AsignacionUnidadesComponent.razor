@@ -177,112 +177,118 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
-                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                    Asignar / cancelar
-                </th>
-                @if (!Esta_En_Synthesis)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
-                        Destino de retiro
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Aignar">
+                    <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
+                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                        Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                        Asignar / cancelar
                     </th>
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
-                        Autorizador
-                    </th>
-                }
-                else
-                {
+                    </AuthorizeView>
+                    @if (!Esta_En_Synthesis)
+                    {
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Multisd">
+                            <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
+                                Destino de retiro
+                            </th>
+                            <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
+                                Autorizador
+                            </th>
+                        </AuthorizeView>
+                    }
+                    else
+                    {
 
-                }
+                    }
 
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Orden de compra
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Folio
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 14).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Unidad de Negocio
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Cliente
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Destino
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Producto
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Volumen
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Fecha de carga
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Transportista
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Unidad
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Compartimiento
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                        Operador
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Bin
-                    </th>
-                }
-                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
-                {
-                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                        Estatus
-                    </th>
-                }
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
-                    Desasignar
-                </th>
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Orden de compra
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Folio
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 14).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Unidad de Negocio
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Cliente
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Destino
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Producto
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Volumen
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Fecha de carga
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Transportista
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Unidad
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Compartimiento
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                            Operador
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Bin
+                        </th>
+                    }
+                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
+                    {
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Estatus
+                        </th>
+                    }
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Desasignar">
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
+                            Desasignar
+                        </th>
+                    </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -388,37 +394,39 @@
                     </td>
                     @if (!Esta_En_Synthesis)
                     {
-                        <td class="overflow-hidden">
-                            <div class="rz-text-truncate row">
-                                <div class="col-10">
-                                    <select @bind="@data.Id_Multidestino" class="form-select form-select-sm">
-                                        <option>Multidestino</option>
-                                        @foreach (var item in Multidestinos)
-                                        {
-                                            <option value="@item.Cod">@item.Den</option>
-                                        }
-                                    </select>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Multi">
+                            <td class="overflow-hidden">
+                                <div class="rz-text-truncate row">
+                                    <div class="col-10">
+                                        <select @bind="@data.Id_Multidestino" class="form-select form-select-sm">
+                                            <option>Multidestino</option>
+                                            @foreach (var item in Multidestinos)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="overflow-hidden">
-                            <div class="rz-text-truncate row">
-                                <div class="col-10">
-                                    <select @bind="@data.Id_Autorizador" class="form-select form-select-sm">
-                                        <option>Autorizador</option>
-                                        @foreach (var item in Autorizadores)
-                                        {
-                                            <option value="@item.Cod">@item.Den</option>
-                                        }
-                                    </select>
+                            </td>
+                            <td class="overflow-hidden">
+                                <div class="rz-text-truncate row">
+                                    <div class="col-10">
+                                        <select @bind="@data.Id_Autorizador" class="form-select form-select-sm">
+                                            <option>Autorizador</option>
+                                            @foreach (var item in Autorizadores)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-2">
+                                        <button @onclick="@(()=>Descargar_Pdf(data))" class="btn btn-sm gcom-bg-amarillo">
+                                            Vale
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-2">
-                                    <button @onclick="@(()=>Descargar_Pdf(data))" class="btn btn-sm gcom-bg-amarillo">
-                                        Vale
-                                    </button>
-                                </div>
-                            </div>
-                        </td>
+                            </td>
+                        </AuthorizeView>
                     }
 
                     @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)

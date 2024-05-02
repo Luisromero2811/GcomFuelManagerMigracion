@@ -105,14 +105,14 @@
                             {
                                 name = "Tonel",
                                 icon = "truck-moving",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Gestion de Transporte",
                                 path = "datos/tonel"
                             },
                             new()
                             {
                                 name = "Chofer",
                                 icon = "id-card",
-                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte",
                                 path = "datos/Catalogo/Chofer"
                             },
                             new()
@@ -124,30 +124,30 @@
                             }
                         }
                     },
-                    new()
-                    {
-                        isMenu = true,
-                        name = "Porcentajes",
-                        icon = "percent",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
-                        Menus = new()
-                {
-                            new()
-                            {
-                                name = "Calculo de cierre",
-                                icon = "store-slash",
-                                roles = "Admin, Administrador Sistema",
-                                path = "porcentaje/cierre"
-                            },
-                            new()
-                            {
-                                name = "Clientes por formulacion",
-                                icon = "business-time",
-                                roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia",
-                                path = "porcentaje/clientes"
-                            },
-                        }
-                    },
+                //    new()
+                //    {
+                //        isMenu = true,
+                //        name = "Porcentajes",
+                //        icon = "percent",
+                //        roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                //        Menus = new()
+                //{
+                //            new()
+                //            {
+                //                name = "Calculo de cierre",
+                //                icon = "store-slash",
+                //                roles = "Admin, Administrador Sistema",
+                //                path = "porcentaje/cierre"
+                //            },
+                //            new()
+                //            {
+                //                name = "Clientes por formulacion",
+                //                icon = "business-time",
+                //                roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia",
+                //                path = "porcentaje/clientes"
+                //            },
+                //        }
+                //    },
                     new()
                     {
                         isMenu = true,
@@ -174,7 +174,7 @@
                             {
                                 name = "Catalogo de Unidades de Negocios",
                                 icon = "user-tie",
-                                roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Analista Suministros",
+                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
                                 path = "catalogoterminales"
                             }
                         }
@@ -191,49 +191,49 @@
                         path = "configuracion/moneda",
                         name = "Moneda",
                         icon = "coins",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito",
                     },
                     new()
                     {
                         path = "configuracion/generacion/folios",
                         name = "Generacion de folios",
                         icon = "marker",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                     },
                     new()
                     {
                         path = "configuracion/vendedores",
                         name = "Configurar vendedores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Ejecutivo de Cuenta Comercial",
                     },
                     new()
                     {
                         path = "configuracion/originador",
                         name = "Configurar originadores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                     },
                     new()
                     {
                         path = "terminales",
                         name = "Unidades de negocio",
                         icon = "gas-pump",
-                        roles = "Admin, Administrador Sistema",
+                        roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
                     },
                      new()
                     {
                         path = "obtencion/catalogos",
                         name = "Descarga de catalogos",
                         icon = "file-excel",
-                        roles = "Admin, Administrador Sistema",
+                        roles = "Admin, Administrador Sistema, Programador, Analista Credito",
                     },
                       new()
                     {
                         path = "autorizadores",
                         name = "Gestión de Autorizadores",
                         icon = "person-circle-check",
-                        roles = "Admin, Administrador Sistema",
+                        roles = "Admin, Administrador Sistema, Programador",
                     },
                 }
         });
@@ -398,14 +398,14 @@
                     {
                         name = "ETA",
                         icon = "hourglass-half",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
                         path = "eta"
                     },
                         new()
                     {
                         name = "Gestión de Estados",
                         icon = "bars-progress",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
                         path = "gestionEstados"
                     },
                     new()
@@ -419,14 +419,14 @@
                     {
                         name = "Actualizar ordenes",
                         icon = "repeat",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo",
+                        roles = "Admin, Administrador Sistema, Programador, Ejecutivo de Cuenta Operativo",
                         path = "actualizar/pedidos"
                     },
                     new()
                     {
                         name = "Subir ordenes",
                         icon = "file-arrow-up",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo",
+                        roles = "Admin, Administrador Sistema, Programador, Ejecutivo de Cuenta Operativo",
                         path = "subir/ordenes"
                     },
                 }
@@ -461,7 +461,7 @@
         {
             name = "Redireccionamientos",
             icon = "diamond-turn-right",
-            roles = "Admin, Administrador Sistema",
+            roles = "Admin, Administrador Sistema, Programador",
             isMenu = true,
             Menus = new()
         {
@@ -469,14 +469,14 @@
                     {
                         name = "Redireccionar ordenes",
                         icon = "diamond-turn-right",
-                        roles = "Admin, Administrador Sistema",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "redireccionamiento"
                     },
                     new()
                     {
                         name = "Listado redireccion",
                         icon = "diamond-turn-right",
-                        roles = "Admin, Administrador Sistema",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "listado/redireccion"
                     },
                 }

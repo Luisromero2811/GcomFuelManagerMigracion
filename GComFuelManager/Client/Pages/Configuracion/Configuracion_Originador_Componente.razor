@@ -4,51 +4,59 @@
 @inject SweetAlertService Swal
 @inject NotificationService ms
 
-<div class="card">
-    <div class="card-header">
-        <b>Configurar originador</b>
-    </div>
-    <div class="card-body">
-        <div class="col-12">
-            <EditForm Model="Originador" OnValidSubmit="Crear_Originador" class="form row">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="col-4">
-                    <InputText @bind-Value="@Originador.Nombre" class="form-control form-control-sm" />
-                    <ValidationMessage For="@(()=> Originador.Nombre)" />
-                </div>
-                <div class="col-4">
-                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
-                        <b>Guardar originador</b>
-                    </button>
-                </div>
-            </EditForm>
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Form">
+    <div class="card">
+        <div class="card-header">
+            <b>Configurar originador</b>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <EditForm Model="Originador" OnValidSubmit="Crear_Originador" class="form row">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="col-4">
+                        <InputText @bind-Value="@Originador.Nombre" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=> Originador.Nombre)" />
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
+                            <b>Guardar originador</b>
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
         </div>
     </div>
-</div>
+</AuthorizeView>
 <div class="col-12">
     <table class="table table-sm table-striped table-bordered">
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Activo</th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
+                    <th>Activo</th>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
-            @if(Loading_Buscar)
+            @if (Loading_Buscar)
             {
-                <SpinnerLoading/>
+                <SpinnerLoading />
             }
             else
             {
                 <Virtualize Items="@Originadores" TItem="Originador" Context="item">
                     <tr>
                         <td>@item.Nombre</td>
-                        <td>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Originador(item))" />
-                            </div>
-                        </td>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="Active">
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Originador(item))" />
+                                </div>
+                            </td>
+                        </AuthorizeView>
                     </tr>
                 </Virtualize>
             }

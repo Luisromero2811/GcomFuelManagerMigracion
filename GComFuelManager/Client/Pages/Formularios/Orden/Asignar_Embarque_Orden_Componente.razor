@@ -5,78 +5,79 @@
 @inject IJSRuntime JS
 @attribute [Authorize]
 
-<div class="col-12 card shadow-sm">
-    <div class="card-header">
-        Asignar bol a orden
-    </div>
-    <div class="card-body">
-        <div class="col-12 row">
-            <div class="col-3">
-                <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
-            </div>
-            <div class="col-2">
-                <button class="btn btn-sm gcom-bg-amarillo" @onclick="Obtener_Orden">
-                    <i class="fa fa-solid fa-magnifying-glass"></i>
-                </button>
-            </div>
+<AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Programador" Context="Filter">
+    <div class="col-12 card shadow-sm">
+        <div class="card-header">
+            Asignar bol a orden
         </div>
-        <div class="col-12 row my-2">
-            <div class="col-4">
-                Terminal de origen: @ordenEmbarque?.Tad?.Den
-            </div>
-            <div class="col-4">
-                Cliente de origen: @ordenEmbarque?.Destino?.Cliente?.Den
-            </div>
-            <div class="col-4">
-                Destino de origen: @ordenEmbarque?.Destino?.Den
-            </div>
-            <div class="col-4">
-                Proucto de origen: @ordenEmbarque?.Producto?.Den
-            </div>
-            <div class="col-4">
-                Unidad de origen: @ordenEmbarque?.Tonel?.Veh
-            </div>
-            <div class="col-4">
-                Compartimento de origen: @ordenEmbarque?.Compartment
-            </div>
-            <div class="col-4">
-                Chofer de origen: @ordenEmbarque?.Chofer?.FullName
-            </div>
-            <div class="col-4">
-                Precio: @ordenEmbarque?.Pre
-            </div>
-        </div>
-        <div class="col-12 row my-2">
-            <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
-                <div class="col-12 row d-flex">
-                    <div class="col-4 my-1">
-                        <label>BOL / Embarque</label>
-                        <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" />
-                        <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
-                    </div>
-                    <div class="col-4 my-1">
-                        <label>Fecha de carga</label>
-                        <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" max="@DateTime.Today" />
-                        <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
-                    </div>
-                    <div class="col-4 my-1">
-                        <label>Litros cargados</label>
-                        <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
-                        <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
-                    </div>
+        <div class="card-body">
+            <div class="col-12 row">
+                <div class="col-3">
+                    <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
                 </div>
-                <div class="col-12 d-flex justify-content-center mt-2">
-                    <div class="col-4">
-                        <button class="col-12 btn btn-sm gcom-bg-amarillo">
-                            Guardar
-                        </button>
-                    </div>
+                <div class="col-2">
+                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="Obtener_Orden">
+                        <i class="fa fa-solid fa-magnifying-glass"></i>
+                    </button>
                 </div>
-            </EditForm>
+            </div>
+            <div class="col-12 row my-2">
+                <div class="col-4">
+                    Terminal de origen: @ordenEmbarque?.Tad?.Den
+                </div>
+                <div class="col-4">
+                    Cliente de origen: @ordenEmbarque?.Destino?.Cliente?.Den
+                </div>
+                <div class="col-4">
+                    Destino de origen: @ordenEmbarque?.Destino?.Den
+                </div>
+                <div class="col-4">
+                    Proucto de origen: @ordenEmbarque?.Producto?.Den
+                </div>
+                <div class="col-4">
+                    Unidad de origen: @ordenEmbarque?.Tonel?.Veh
+                </div>
+                <div class="col-4">
+                    Compartimento de origen: @ordenEmbarque?.Compartment
+                </div>
+                <div class="col-4">
+                    Chofer de origen: @ordenEmbarque?.Chofer?.FullName
+                </div>
+                <div class="col-4">
+                    Precio: @ordenEmbarque?.Pre
+                </div>
+            </div>
+            <div class="col-12 row my-2">
+                <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
+                    <div class="col-12 row d-flex">
+                        <div class="col-4 my-1">
+                            <label>BOL / Embarque</label>
+                            <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
+                        </div>
+                        <div class="col-4 my-1">
+                            <label>Fecha de carga</label>
+                            <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
+                        </div>
+                        <div class="col-4 my-1">
+                            <label>Litros cargados</label>
+                            <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center mt-2">
+                        <div class="col-4">
+                            <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
         </div>
     </div>
-</div>
-
+</AuthorizeView>
 @*<Cambiar_Estatus_De_Orden_Componente />*@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
