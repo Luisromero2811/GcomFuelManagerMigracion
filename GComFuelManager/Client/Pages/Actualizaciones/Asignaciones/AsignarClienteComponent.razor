@@ -5,14 +5,14 @@
 @inject AsignarGrupoValidation validation
 @inject AsignarGrupoClienteValidation validate
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador")]
 
 <h4><b>Grupo - Cliente</b></h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Admin">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Programador" Context="Admin">
                     <h5>Agregar grupo</h5>
                     <EditForm Model="@Grupo" class="form col-12" OnValidSubmit="@CreateGrupos" Context="validations">
                         <FluentValidationValidator Validator="validation" />
@@ -79,7 +79,7 @@
                     <FluentValidationValidator Validator="validate" />
                     <ValidationSummary />
                     <div class="col-12 mb-4 row">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Gruposss">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador" Context="Gruposss">
                             <div class="col">
                                 <label>Grupo:</label>
                                 <RadzenDropDown @bind-Value="CliGru.grupo" TValue="Grupo" Data="Grupos" TextProperty="Den"
@@ -145,21 +145,21 @@
 
                     <!--Botones de funciones-->
                     <div class="col-12 mb-3 d-flex justify-content-center">
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="BuscarClientes">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador" Context="BuscarClientes">
                             <div class="col d-flex mt-auto">
                                 <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
                                     <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Clientes
                                 </button>
                             </div>
                         </AuthorizeView>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="BotonCli">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Programador" Context="BotonCli">
                             <div class="col d-flex mt-auto">
                                 <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
                                     <i class="fa fa-solid fa-plus"></i> Guardar
                                 </button>
                             </div>
                         </AuthorizeView>
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="ExportExcel">
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador" Context="ExportExcel">
                             <div class="col d-flex mt-auto">
                                 <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@ExportarExcel" type="button">
                                     <i class="fa fa-solid fa-file-excel"></i> Exportar
@@ -175,13 +175,13 @@
     </div>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="Cliente" Data="@Clientes" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
                         GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;"
                         IsLoading="loading" @ref="@grid" AllowSorting="true">
             <Columns>
-                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Action">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Programador" Context="Action">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="1">
                         <Template Context="data">
                             <div class="col-12">
@@ -195,7 +195,7 @@
                 <RadzenDataGridColumn TItem="Cliente" Title="Nombre de cliente" Property="Den" OrderIndex="2" />
                 <RadzenDataGridColumn TItem="Cliente" Title="Modelo de venta" Property="MdVenta" Width="200px" OrderIndex="3" />
                 <RadzenDataGridColumn TItem="Cliente" Title="Tipo de venta" Property="Tipven" Width="200px" OrderIndex="4" />
-                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Action">
+                <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Programador" Context="Action">
                     <RadzenDataGridColumn TItem="Cliente" Title="Habilitar / Deshabilitar" Width="200px" OrderIndex="5">
                         <Template Context="data">
                             <div class="col-12">
