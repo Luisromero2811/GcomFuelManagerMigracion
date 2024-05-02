@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -272,7 +273,27 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("formato")]
+        //[HttpGet("formato")]
+        //public async Task<ActionResult> Descargar_Formato()
+        //{
+        //    try
+        //    {
+        //        ExcelPackage.LicenseContext = LicenseContext.Commercial;
 
+        //        ExcelPackage package = new();
+
+        //        package.Workbook.Worksheets.Add("Registros");
+
+        //        var ws = package.Workbook.Worksheets.First();
+
+        //        ws.Cells["A1:J1"]
+
+        //        return Ok();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
     }
 }
