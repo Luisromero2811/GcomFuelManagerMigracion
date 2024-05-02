@@ -2025,7 +2025,7 @@ namespace GComFuelManager.Server.Controllers
 
                 var codigo_terminal = context.Tad.Single(x => x.Cod == id_terminal).CodigoOrdenes;
 
-                if (ordens.Any(x => x.Id_Autorizador == 0 || x.Id_Autorizador == null)) { return BadRequest("No tiene un autorizador seleccionado"); }
+                //if (ordens.Any(x => x.Id_Autorizador == 0 || x.Id_Autorizador == null)) { return BadRequest("No tiene un autorizador seleccionado"); }
 
                 foreach (var orden in ordens)
                 {
