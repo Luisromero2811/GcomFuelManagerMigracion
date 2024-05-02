@@ -11,7 +11,7 @@ namespace GComFuelManager.Shared.Modelos
         public int Id { get; set; }
         [StringLength(250, ErrorMessage = "{0} no debe de tener una longitud de mas de 250 caracteres")] public string Nombre { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
-        [NotMapped] public List<Cliente>? Clientes { get; set; } = null!;
+        [NotMapped, JsonIgnore] public List<Cliente>? Clientes { get; set; } = null!;
         [NotMapped] public List<Mes_Venta> Venta_Por_Meses { get; set; } = new();
         [NotMapped, EpplusIgnore] public int Fecha_Registro { get; set; } = DateTime.Today.Year;
         [NotMapped, JsonIgnore] public List<Vendedor_Originador> Vendedor_Originador { get; set; } = new();

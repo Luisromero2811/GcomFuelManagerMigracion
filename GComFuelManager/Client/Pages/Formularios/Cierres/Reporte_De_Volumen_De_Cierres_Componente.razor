@@ -183,6 +183,11 @@
                         </Template>
                     </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio del cierre / OC" Property="Folio" Filterable="false" Width="180px;" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Property="Terminal" Filterable="false" Width="160px;">
+                        <Template Context="data">
+                            @(data.Terminal is not null ? data.Terminal.Den : "Sin unidad de negocio")
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Grupo" Property="Grupo.Den" FilterValue="GruposSeleccionado" Filterable="true" Width="180px;">
                         <FilterTemplate>
                             <RadzenDropDown Data="GroupList" @bind-Value="GruposSeleccionado" AllowClear="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
@@ -364,7 +369,7 @@
                     ws.Columns.Width = 60;
                     ws.Columns.AutoFit();
 
-                    var header = ws.Cells["A1:P1"];
+                    var header = ws.Cells["A1:R1"];
                     var tablebody = ws.Cells["A1:A1"].LoadFromCollection(response.Response, true);
                     tablebody.Style.Font.Size = 12;
                     tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;

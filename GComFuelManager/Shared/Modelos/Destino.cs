@@ -1,54 +1,82 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+﻿using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace GComFuelManager.Shared.Modelos
 {
     public class Destino
     {
-        [JsonProperty("cod"), Key]
+        [Key, EpplusIgnore]
         public int Cod { get; set; }
-        [JsonProperty("num")]
-        public int? Num { get; set; } = 0;
-        [JsonProperty("den"),MaxLength(128)]
-        public string? Den { get; set; } = string.Empty;
-        [JsonProperty("codcte")]
-        public int? Codcte { get; set; } = 0;
-        [JsonProperty("nroper"), MaxLength(30)]
+        [EpplusIgnore] public int? Num { get; set; } = 0;
+        [MaxLength(128)]
+        [DisplayName("Nombre del Destino")] public string? Den { get; set; } = string.Empty;
+        [EpplusIgnore] public int? Codcte { get; set; } = 0;
+        [MaxLength(30), EpplusIgnore]
         public string? Nroper { get; set; } = string.Empty;
-        [JsonProperty("dir")]
-        public string? Dir { get; set; } = string.Empty;
-        [JsonProperty("codbdTan")]
-        public int? CodbdTan { get; set; } = 0;
-        [JsonProperty("descod"), MaxLength(10)]
+        [DisplayName("Dirección")] public string? Dir { get; set; } = string.Empty;
+        [EpplusIgnore] public int? CodbdTan { get; set; } = 0;
+        [MaxLength(10), EpplusIgnore]
         public string? DesCod { get; set; } = string.Empty;
-        [JsonProperty("codsyn"), MaxLength(20)]
+        [MaxLength(20), EpplusIgnore]
         public string? Codsyn { get; set; } = string.Empty;
-        [JsonProperty("esenergas")]
-        public bool? Esenergas { get; set; } = false;
-        [JsonProperty("activo")]
-        public bool Activo { get; set; } = true;
-        [JsonProperty("lat"), MaxLength(50)]
+        [EpplusIgnore] public bool? Esenergas { get; set; } = false;
+        [EpplusIgnore] public bool Activo { get; set; } = true;
+        [MaxLength(50), EpplusIgnore]
         public string? Lat { get; set; } = string.Empty;
-        [JsonProperty("lon"), MaxLength(50)]
+        [MaxLength(50), EpplusIgnore]
         public string? Lon { get; set; } = string.Empty;
-        [JsonProperty("codciu")]
-        public Int16? Codciu { get; set; } = 0;
-        [JsonProperty("ciu"), MaxLength(50)]
-        public string? Ciu { get; set; } = string.Empty;
-        [JsonProperty("est"), MaxLength(50)]
-        public string? Est { get; set; } = string.Empty;
-        [JsonProperty("codGamo")]
-        public long? CodGamo { get; set; } = 0;
-        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+        [EpplusIgnore] public Int16? Codciu { get; set; } = 0;
+        [MaxLength(50)]
+        [DisplayName("Ciudad")] public string? Ciu { get; set; } = string.Empty;
+        [MaxLength(50)]
+        [DisplayName("Estado")] public string? Est { get; set; } = string.Empty;
+        [EpplusIgnore] public long? CodGamo { get; set; } = 0;
+        [EpplusIgnore] public short? Id_Tad { get; set; }
 
+        [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
+        [EpplusIgnore] public bool? Es_Multidestino { get; set; } = false;
+
+        [NotMapped]
+        public string FULLDEN
+        {
+            get
+            {
+                return $"{Den}, {Dir}, {Est}, {Ciu}";
+            }
+        }
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;
-     }
+        [NotMapped] public Tad? Tad { get; set; } = null!;
+
+        public Destino HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Num = Num,
+                Den = Den,
+                Codcte = Codcte,
+                Nroper = Nroper,
+                Dir = Dir,
+                CodbdTan = CodbdTan,
+                DesCod = DesCod,
+                Codsyn = Codsyn,
+                Esenergas = Esenergas,
+                Activo = Activo,
+                Lat = Lat,
+                Lon = Lon,
+                Codciu = Codciu,
+                Ciu = Ciu,
+                Est = Est,
+                CodGamo = CodGamo,
+                Id_DestinoGobierno = Id_DestinoGobierno
+            };
+        }
+    }
 }

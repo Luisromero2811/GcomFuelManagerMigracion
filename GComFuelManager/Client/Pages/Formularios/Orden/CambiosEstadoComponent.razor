@@ -1,0 +1,299 @@
+﻿@page "/gestionEstados"
+@inject IRepositorio repositorio
+@inject SweetAlertService swal
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager navigationManager
+@inject TooltipService ts
+@inject NotificationService ns
+
+<div class="card">
+    <div class="card-header">
+        <b>Gestión de Estados</b>
+    </div>
+</div>
+<!--Componente para registrar los cambios de estado-->
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Coordinador">
+    <Guardar_Datos_Factura_Componente />
+    <Cambiar_Estatus_De_Orden_Componente />
+</AuthorizeView>
+<!--Filtrado entre rango de fechas-->
+<div class="col-12 mt-1">
+    <div class="d-flex justify-content-center">
+        <div class="col-12 mt-1">
+            <div class="col-12 card shadow-sm">
+                <div class="col-12 card-body">
+                    <label><b>Mostrar órdenes:</b></label>
+                    <div class="col-12 row">
+                        <div class="col-4 mb-1">
+                            <label>Del:</label>
+                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestión_Estados.DateInicio">
+                            </RadzenDatePicker>
+                        </div>
+                        <div class="col-4 mb-1">
+                            <label>A:</label>
+                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestión_Estados.DateFin">
+                            </RadzenDatePicker>
+                        </div>
+                        <div class="col-4 d-flex mt-2">
+                            <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@GetOrdersByStatus">
+                                <i class="fa fa-solid fa-eye"></i><b>Mostrar Órdenes</b>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Tabla de muestreo de datos-->
+<div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
+    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+        <table class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+            <thead class="fila" style="position: sticky;">
+                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
+                    <th>
+                        Referencia
+                    </th>
+                    <th>
+                        Fecha de Programa
+                    </th>
+                    <th>
+                        Unidad de Negocio
+                    </th>
+                    <th>
+                        Estatus de Orden
+                    </th>
+                    <th style="max-width:200px; position: sticky;">
+                        Fecha de Carga
+                    </th>
+                    <th>BOL/Embarque</th>
+                    <th>Tipo de Venta</th>
+                    <th>Cliente</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen Natural</th>
+                    <th>Volumen Cargado</th>
+                    <th>Transportista</th>
+                    <th>Unidad</th>
+                    <th>Operador</th>
+                    <th>Numero de orden</th>
+                    <th>Factura MGC</th>
+                    <th>Factura Mexico S</th>
+                    <th>Factura DCL</th>
+                    <th>Factura Energas</th>
+                    <th>Por Asignar</th>
+                    <th>Asignado</th>
+                    <th>Por Cargar</th>
+                    <th>Cargado</th>
+                    <th>En ruta a TAS</th>
+                    <th>Fuera de TAS</th>
+                    <th>En espera dentro de TAS</th>
+                    <th>En proceso de descarga</th>
+                    <th>Descargado</th>
+                    <th>Orden Cancelada</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="sticky-column" style="background-color:white;"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <Virtualize Items="@ordens" Context="data" TItem="Gestión_EstadosDTO">
+                    <tr class="@(Gestión_Estados == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                        <td>@data.Referencia</td>
+                        <td>@data.FechaPrograma</td>
+                        <td>@data.Unidad_Negocio</td>
+                        <td>@data.EstatusOrden</td>
+                        <td>@data.FechaCarga</td>
+                        <td>@data.Bol</td>
+                        <td>@data.DeliveryRack</td>
+                        <td>@data.Cliente</td>
+                        <td>@data.Destino</td>
+                        <td>@data.Producto</td>
+                        <td>@data.VolNat</td>
+                        <td>@data.VolCar</td>
+                        <td>@data.Transportista</td>
+                        <td>@data.Unidad</td>
+                        <td>@data.Operador</td>
+                        <td>@data.Numero_Factura</td>
+                        <td>@data.Factura_MGC</td>
+                        <td>@data.Factura_MexicoS</td>
+                        <td>@data.Factura_DCL</td>
+                        <td>@data.Factura_Energas</td>
+                        <td>@data.Por_Asignar</td>
+                        <td>@data.Asignado</td>
+                        <td>@data.Por_Cargar</td>
+                        <td>@data.Cargado</td>
+                        <td>@data.Ruta_Tas</td>
+                        <td>@data.Fuera_Tas</td>
+                        <td>@data.Espera_dentro_TAS</td>
+                        <td>@data.Proceso_descarga</td>
+                        <td>@data.Descargado</td>
+                        <td>@data.Orden_Cancelada</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!--Botón para exportar archivo excel-->
+<div class="col-12 my-3">
+    <div class="d-flex justify-content-center">
+        <div class="col card shadow-sm">
+            <div class="col-12 card-body">
+                <div class="col-12 my-1">
+                    <div class="row d-flex justify-content-start">
+                        <label><b>Exportar Historico de Órdenes</b></label>
+                    </div>
+                    <div class="row d-flex justify-content-end">
+                        <div class="col-4">
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@GenerateExcel"><i class="fa fa-solid fa-file-excel"></i> <b>Exportar</b></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+    .ancho {
+        width: @TotalWidth;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    table.asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+</style>
+
+@code {
+    string TotalWidth = string.Empty;
+    Gestión_EstadosDTO Gestión_Estados = new Gestión_EstadosDTO();
+    private List<Gestión_EstadosDTO> ordens { get; set; } = new List<Gestión_EstadosDTO>();
+
+    public async Task GetOrdersByStatus()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestión_Estados);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response!;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task GenerateExcel()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestión_Estados);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response!;
+                //Licencia para guardado de Excel
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var excel = new ExcelPackage();
+                var Worksheet = excel.Workbook.Worksheets.Add("CatalogoClientes");
+                // Worksheet.Columns.Width = 70;
+                // Worksheet.Columns.AutoFit();
+                //Formación del Excel
+                var tablebody = Worksheet.Cells["A1"].LoadFromCollection(
+                   ordens
+                 , c =>
+                 {
+                     c.PrintHeaders = true;
+                     c.TableStyle = TableStyles.Medium2;
+                 });
+
+                Worksheet.Cells[1, 1, Worksheet.Dimension.End.Row, Worksheet.Dimension.End.Column].AutoFitColumns();
+                
+                // tablebody.Style.Font.Bold = true;
+                // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+                // var header = Worksheet.Cells["A1:Y1"];
+                // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                // header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                //Guardar Excell
+                await JS.GuardarComo($"Órdenes_Estados{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}
+

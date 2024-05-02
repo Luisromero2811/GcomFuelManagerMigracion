@@ -1,36 +1,31 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
-
+using System.Text.Json.Serialization;
+using OfficeOpenXml.Attributes;
+using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace GComFuelManager.Shared.Modelos
 {
     public class Chofer
     {
-        [JsonProperty("cod"), Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity), EpplusIgnore]
         public int Cod { get; set; }
-
-        [JsonProperty("den"), MaxLength(128)]
+        [MaxLength(128), DisplayName("Nombre del Chofer")]
         public string? Den { get; set; } = string.Empty;
-
-        [JsonProperty("codtransport")]
-        public int? Codtransport { get; set; } = 0;
-
-        [JsonProperty("dricod"), MaxLength(6)]
+        [EpplusIgnore]public int? Codtransport { get; set; } = 0;
+        [MaxLength(6), EpplusIgnore]
         public string? Dricod { get; set; } = string.Empty;
-
-        [JsonProperty("shortden"), MaxLength(128)]
+        [MaxLength(128), DisplayName("Apellidos del Chofer")]
         public string? Shortden { get; set; } = string.Empty;
-
-        [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
-
-        [JsonProperty("Activo_Permanente")]
-        public bool? Activo_Permanente { get; set; } = true; 
-
-        [NotMapped]
+        [EpplusIgnore] public bool? Activo { get; set; } = true;
+        [EpplusIgnore] public bool? Activo_Permanente { get; set; } = true;
+        [EpplusIgnore] public short? Id_Tad { get; set; }
+        [StringLength(13), Validar_RFC, Required(ErrorMessage = "{0} no puede estar vacio")]
+        public string? RFC { get; set; } = string.Empty;
+        [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
+        [NotMapped, DisplayName("Nombre completo del Chofer")]
         public string FullName
         {
             get
@@ -41,8 +36,55 @@ namespace GComFuelManager.Shared.Modelos
                     return $"{Den} {Shortden}";
             }
         }
+
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
+        [NotMapped] public List<Tad> Terminales { get; set; } = new();
+        [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
+
+        public Chofer HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                Codtransport = Codtransport,
+                Dricod = Dricod,
+                Shortden = Shortden,
+                Activo = Activo,
+                Activo_Permanente = Activo_Permanente,
+                Id_Tad = Id_Tad,
+                RFC = RFC
+            };
+        }
+
+        public void RFC_A_Capitalizado()
+        {
+            RFC = RFC?.ToUpper();
+        }
+        [NotMapped, EpplusIgnore]
+        public string RFC_Capitales
+        {
+            get => RFC ?? string.Empty;
+            set => RFC = value.ToUpper();
+        }
+
+        public class Validar_RFC : ValidationAttribute
+        {
+            protected override ValidationResult IsValid(object? value, ValidationContext validation)
+            {
+                if (value is null || string.IsNullOrEmpty(value.ToString()) || string.IsNullOrWhiteSpace(value.ToString())) return new ValidationResult("No se aceptan valores vacios");
+
+                string FormatoPersonaFisica = @"^[A-Z]{4}\d{6}[A-Z0-9]{3}$";
+                string FormatoPersonaMoral = @"^[A-Z]{3}\d{6}[A-Z0-9]{3}$";
+
+                if (Regex.IsMatch(value!.ToString()!, FormatoPersonaFisica) || Regex.IsMatch(value!.ToString()!, FormatoPersonaMoral))
+                { return ValidationResult.Success!; }
+
+                return new ValidationResult("El RFC no cuenta con un formato valido.");
+            }
+        }
+
     }
 }
 

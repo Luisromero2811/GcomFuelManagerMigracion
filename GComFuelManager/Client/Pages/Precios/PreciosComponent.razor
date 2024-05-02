@@ -43,6 +43,11 @@
                                 <i class="fa-solid fa-download"></i> Descarga el formato aquí <i class="fa fa-solid fa-file-excel"></i>
                             </button>
                         </div>
+                        @* <div class="col-3 d-flex">
+                                <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
+                                    <i class="fa-solid fa-download"></i> Descarga el formato con destinos<i class="fa fa-solid fa-file-excel"></i>
+                                </button>
+                            </div> *@
                         <div class="col-12 mt-3">
                             @if (preciosExcel.Count() > 0)
                             {
@@ -58,6 +63,7 @@
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Synthesis" Property="CodSyn" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Tuxpan" Property="CodTux" Filterable="false" />
+                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Gobierno" Property="CodDestinoGobierno" Filterable="false" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="true" />
                                                 <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
@@ -91,7 +97,7 @@
                             <ValidationSummary />
                             <div class="col-4 mb-2">
                                 <label>Zona</label>
-                                <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
+                                <InputSelect @bind-Value="Precio.CodZona" class="form-select col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Zonas == null)
                                     {
@@ -112,7 +118,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Grupo</label>
-                                <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
+                                <InputSelect @bind-Value="Precio.CodGru" class="form-select col-12" onchange="@GetClientes()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Grupos == null)
                                     {
@@ -133,7 +139,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Cliente</label>
-                                <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
+                                <InputSelect @bind-Value="Precio.CodCte" class="form-select col-12" onchange="@GetEstaciones()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Clientes == null)
                                     {
@@ -155,7 +161,7 @@
                             <div class="col-4 mb-1">
                                 <div class="col-12">
                                     <label>Destino</label>
-                                    <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
+                                    <InputSelect @bind-Value="Precio.CodDes" class="form-select col-12">
                                         <option>-- Seleccione una opcion</option>
                                         @if (Destinos == null)
                                         {
@@ -177,7 +183,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Producto</label>
-                                <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
+                                <InputSelect @bind-Value="Precio.CodPrd" class="form-select col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Productos == null)
                                     {
@@ -286,6 +292,7 @@
                                     </AuthorizeView>
 
                                     <th>Fecha</th>
+                                    <th>Unidad de Negocio</th>
                                     <th>Precio</th>
                                     <th>Producto</th>
                                     <th>Destino</th>
@@ -306,6 +313,7 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -355,6 +363,9 @@
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
                                             <td>
+                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
+                                            </td>
+                                            <td>
                                                 <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
                                             </td>
                                             <td>
@@ -378,7 +389,7 @@
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
                                                 </AuthorizeView>
@@ -426,6 +437,7 @@
                                         </AuthorizeView>
                                     </th>
                                     <th>Fecha</th>
+                                    <th>Unidad de Negocio</th>
                                     <th>Precio</th>
                                     <th>Producto</th>
                                     <th>Destino</th>
@@ -446,6 +458,7 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -495,6 +508,9 @@
                                                 <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
                                             </td>
                                             <td>
+                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
+                                            </td>
+                                            <td>
                                                 <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
                                             </td>
                                             <td>
@@ -518,7 +534,7 @@
                                                     <div class="col-12">
                                                         <div class="form-check form-switch m-2">
                                                             <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                            @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
                                                         </div>
                                                     </div>
                                                 </td>
@@ -777,18 +793,25 @@
 
         var header = ws.Cells["A1:J1"];
 
-        var tablebody = ws.Cells["A1:A1"].LoadFromCollection<FormatoExcelPrecioDTO>(formato, true);
-        tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        tablebody.Style.Font.Bold = true;
-        header.Style.Font.Size = 14;
-        header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        header.Style.Font.Color.SetColor(Color.White);
-        tablebody.Style.Font.Size = 14;
-        header.Style.Font.Size = 14;
+        var tablebody = ws.Cells["A1"].LoadFromCollection(formato, c => { c.PrintHeaders = true; c.TableStyle = TableStyles.Medium15; });
 
-        header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-        header.Style.Fill.BackgroundColor.SetColor(Color.Black);
-        header.Style.Font.Bold = true;
+        ws.Cells[$"I1:I2"].Style.Numberformat.Format = "_-$* #,##0.00_-;-$* #,##0.00_-;_-$* \"-\"??_-;_-@_-";
+        ws.Cells[$"H1:H2"].Style.Numberformat.Format = "dd/mm/yyyy";
+
+        ws.Cells[1, 1, 2, ws.Dimension.End.Column].AutoFitColumns();
+
+        // var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(formato_precios, true);
+        // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        // tablebody.Style.Font.Bold = true;
+        // header.Style.Font.Size = 14;
+        // header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+        // header.Style.Font.Color.SetColor(Color.White);
+        // tablebody.Style.Font.Size = 14;
+        // header.Style.Font.Size = 14;
+
+        // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+        // header.Style.Fill.BackgroundColor.SetColor(Color.Black);
+        // header.Style.Font.Bold = true;
 
         await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", excel.GetAsByteArray());
     }
@@ -861,9 +884,9 @@
     {
         try
         {
-            if (Precio.codGru != null && Precio.codGru != GrupoSeleccionado)
+            if (Precio.CodGru != null && Precio.CodGru != GrupoSeleccionado)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.codGru}");
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.CodGru}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -871,7 +894,7 @@
                 }
                 else
                 {
-                    GrupoSeleccionado = Precio.codGru;
+                    GrupoSeleccionado = Precio.CodGru;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
@@ -888,9 +911,9 @@
     {
         try
         {
-            if (Precio.codCte != null && ClienteSeleccionado != Precio.codCte)
+            if (Precio.CodCte != null && ClienteSeleccionado != Precio.CodCte)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.codCte}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.CodCte}");
                 if (response.Error)
                 {
                     var responseHttp = await response.ObtenerMensajeError();
@@ -900,7 +923,7 @@
                 {
                     Destinos = response.Response;
                     StateHasChanged();
-                    ClienteSeleccionado = Precio.codCte;
+                    ClienteSeleccionado = Precio.CodCte;
                 }
             }
         }
@@ -1046,12 +1069,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Generando reporte",
-                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                            Duration = 15000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Generando reporte",
+                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                        Duration = 15000
+                    });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -1111,12 +1134,12 @@
             }
             totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                    Duration = 15000
-                });
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
 
             List<Precio> listaPrecios = new List<Precio>();
 
@@ -1125,12 +1148,12 @@
                 count++;
 
                 Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Correos",
-                        Detail = $"Enviando {count} de {totalcount}",
-                        Duration = 15000
-                    });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = $"Enviando {count} de {totalcount}",
+                    Duration = 15000
+                });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = cliente;
@@ -1154,12 +1177,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"El correo se ha enviado al cliente {cliente}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al cliente {cliente}",
+                            Duration = 15000
+                        });
                     }
                 }
                 else if (clientes.TipoEnvio == 2)
@@ -1175,12 +1198,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"El correo se ha enviado al cliente {cliente}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al cliente {cliente}",
+                            Duration = 15000
+                        });
                     }
                 }
             }
@@ -1229,12 +1252,12 @@
             totalcount = grupos.Grupos.Count;
             //Alerta de que los correos se estan enviando
             Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                    Duration = 15000
-                });
+            {
+                Severity = NotificationSeverity.Info,
+                Summary = "Enviando Correos",
+                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                Duration = 15000
+            });
 
             List<Precio> listaPrecios = new List<Precio>();
             //Por cada grupo seleccionado, se realiza la accion de mostrar las alertas y hacer la peticion para mandar el correo
@@ -1243,12 +1266,12 @@
                 count++;
                 //Enviando correo # de #...
                 Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Correos",
-                        Detail = $"Enviando {count} de {totalcount}",
-                        Duration = 15000
-                    });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = $"Enviando {count} de {totalcount}",
+                    Duration = 15000
+                });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = grupo;
@@ -1272,12 +1295,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
+                            Duration = 15000
+                        });
                     }
                 }
                 else if (grupos.TipoEnvio == 2)
@@ -1294,12 +1317,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                            {
-                                Severity = NotificationSeverity.Info,
-                                Summary = "Correo enviado",
-                                Detail = $"El correo se ha enviado al grupo {grupo}",
-                                Duration = 15000
-                            });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Correo enviado",
+                            Detail = $"El correo se ha enviado al grupo {grupo}",
+                            Duration = 15000
+                        });
                     }
                 }
             }

@@ -2,6 +2,7 @@
 @inject SweetAlertService swal
 @inject NavigationManager navigate
 @inject IJSRuntime js
+@inject IRepositorio repositorio
 
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
@@ -42,7 +43,7 @@
 
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial" Context="Configs">
+                    <AuthorizeView Roles="Programador, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial" Context="Configs">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
                                 <div class="text-white">
@@ -175,7 +176,7 @@
 
                                 </AuthorizeView>
 
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AsignarCliDest">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial" Context="AsignarCliDest">
                                     <RadzenPanelMenuItem Path="configuracion/generacion/folios" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -220,7 +221,8 @@
                             </ChildContent>
                         </RadzenMenuItem>
                     </AuthorizeView>
-
+                    @if (Esta_En_Tuxpan)
+                    {
                     <AuthorizeView Roles="Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
                             <Template>
@@ -247,6 +249,16 @@
                                             </div>
                                         </Template>
                                     </RadzenMenuItem>
+                                </AuthorizeView>
+
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial" Context="ConfirmCierre">
+                                    <RadzenPanelMenuItem Path="confirm-cierre" class="gcom-bg-rojo" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-clipboard-check"></i> Confirmación de cierres de clientes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
                                 </AuthorizeView>
 
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Cierre Pedidos" Context="CierreCerrar">
@@ -291,7 +303,11 @@
                             </ChildContent>
                         </RadzenMenuItem>
                     </AuthorizeView>
+                        }
+                        else
+                        {
 
+                        }
                     <!--Menú de órdenes-->
                     <AuthorizeView Roles="Consulta Precio Orden, Lectura Asignacion, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios" Context="Ordenes">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
@@ -391,7 +407,16 @@
                                             </div>
                                         </Template>
                                     </RadzenMenuItem>
+                                </AuthorizeView>
 
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Estados">
+                                    <RadzenMenuItem Path="/gestionEstados" class="gcom-bg-rojo col-12">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa-solid fa-bars-progress"></i> Gestión de Estados
+                                            </div>
+                                        </Template>
+                                    </RadzenMenuItem>
                                 </AuthorizeView>
 
                                 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="OrdenHistorial">
@@ -409,6 +434,16 @@
                                         <Template>
                                             <div class="text-white">
                                                 <i class="fa fa-solid fa-repeat" aria-hidden="true"></i> Actualizar ordenes
+                                            </div>
+                                        </Template>
+                                    </RadzenPanelMenuItem>
+                                </AuthorizeView>
+
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo">
+                                    <RadzenPanelMenuItem Path="subir/ordenes" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                        <Template>
+                                            <div class="text-white">
+                                                <i class="fa fa-solid fa-file-arrow-up" aria-hidden="true"></i> Subir ordenes
                                             </div>
                                         </Template>
                                     </RadzenPanelMenuItem>
@@ -448,7 +483,7 @@
                         </RadzenMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Analista Credito">
+                    <AuthorizeView Roles="Programador">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
@@ -456,7 +491,7 @@
                                 </div>
                             </Template>
                             <ChildContent>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_page">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Red_page">
                                     <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -465,7 +500,7 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_List_Page">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Red_List_Page">
                                     <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
@@ -505,10 +540,12 @@
                 </RadzenMenu>
             </div>
             <div class="col-3 d-flex gcom-bg-rojo-dark">
-                <div class="col-6 text-center my-auto d-flex justify-content-end">
+                <div class="col-6 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
                     @if (MenuGeneral.User.Identity is not null)
                     {
-                        @MenuGeneral.User.Identity.Name
+                        <p class="my-auto">
+                            @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
+                        </p>
                     }
                 </div>
                 <div class="col-6 text-center my-auto">
@@ -532,6 +569,35 @@
 
 
 @code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Checar_Terminal();
+    }
+
+    bool Esta_En_Tuxpan = true;
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
     private async void OpenMenuLateral()
     {

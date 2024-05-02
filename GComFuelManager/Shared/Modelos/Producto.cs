@@ -7,19 +7,42 @@ namespace GComFuelManager.Shared.Modelos
     public class Producto
     {
         //5
-        [JsonProperty("cod"), Key]
+        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public byte Cod { get; set; }//FK
-
-        [JsonProperty("den"), MaxLength(50)]
+        [MaxLength(50)]
         public string? Den { get; set; } = string.Empty;
-
-        [JsonProperty("codsyn"), MaxLength(10)]
+        [MaxLength(10)]
         public string? Codsyn { get; set; } = string.Empty;
-
-        [JsonProperty("activo")]
         public bool? Activo { get; set; } = true;
-        [NotMapped] public string Nombre_Producto { get { return !string.IsNullOrEmpty(Den) ? Den : string.Empty; } }
-        //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
+        public short? Id_Tad { get; set; } = 0;
+        public short? Id_Tipo { get; set; } = 0;
+
+        public string Nombre_Producto { get { return !string.IsNullOrEmpty(Den) ? Den : string.Empty; } }
+        public string Obtener_Tipo
+        {
+            get
+            {
+                if (TipoProducto is not null)
+                    return TipoProducto.Tipo;
+
+                return string.Empty;
+            }
+        }
+
+        public string Obtener_Terminal
+        {
+            get
+            {
+                if (Terminal is not null)
+                    if (!string.IsNullOrEmpty(Terminal.Den) || !string.IsNullOrWhiteSpace(Terminal.Den))
+                        return Terminal.Den;
+
+                return string.Empty;
+            }
+        }
+
+        public TipoProducto? TipoProducto { get; set; } = null!;
+        public Tad? Terminal { get; set; } = null!;
     }
 }
 

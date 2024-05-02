@@ -10,6 +10,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("den"), MaxLength(128)]
         public string? den { get; set; } = string.Empty;
+        public short? Id_Tipo { get; set; }
     }
 }
 

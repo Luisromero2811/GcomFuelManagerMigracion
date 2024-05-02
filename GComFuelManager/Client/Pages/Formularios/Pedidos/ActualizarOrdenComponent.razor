@@ -10,14 +10,11 @@
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
     <div class="col-12 row">
-        <div class="col-1 d-flex justify-content-end">
-            <p class="my-auto">ENER-</p>
-        </div>
         <div class="col-3 row">
-            <InputText class="form-control" @bind-Value="@folio" />
+            <InputText class="form-control form-control-sm" @bind-Value="@folio" placeholder="Referencia de orden. ej.ENER-1_1"/>
         </div>
         <div class="col-3">
-            <button class="col-12 btn gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
+            <button class="col-12 btn btn-sm gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
                 <i class="fa fa-solid fa-magnifying-glass"></i>
                 @if (loading)
                 {
@@ -30,7 +27,7 @@
     <div class="col-12 d-flex justify-content-center row">
         <div class="col-12 my-2">
             <div class="col-3">
-                <button class="btn gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
                     <i class="fa fa-solid fa-repeat"></i> Cancelar ordenes
                     @if (loadingUpdate)
                     {
@@ -39,36 +36,9 @@
                 </button>
             </div>
         </div>
-        @* <RadzenDataGrid TItem="OrdenEmbarque" Data="@ordens" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-        GridLines="DataGridGridLines.Both" class="ancho" Style="height:600px;" ColumnWidth="200px" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" @bind-Settings="@Settings"
-        IsLoading="loading" @ref="@gridOC" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture" AllowColumnPicking="true">
-        <Columns>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Folio" Property="Folio" Width="110px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Destino" Property="Obtener_Destino_De_Orden" Width="300px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Producto" Property="Obtener_Producto_De_Orden" Width="280px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Volumen" Width="130px" FormatString="{0:N2}" Filterable="false">
-
-        <Template Context="item">
-        <div class="col-12">
-        @item.Obtener_Volumen_De_Orden_En_Formato()
-        </div>
-        </Template>
-        </RadzenDataGridColumn>
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Precio" Width="140px" Property="Pre" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Fecha de carga" Property="Obtener_Fecha_De_Carga_De_Orden" FormatString="{0:d}" Width="180px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Estado" Property="Obtener_Estado_De_Orden" Width="130px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Chofer" Property="Chofer.Den" Width="300px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Unidad" Property="Obtener_Tonel_De_Orden" Width="300px" Filterable="false" />
-        <RadzenDataGridColumn TItem="OrdenEmbarque" Title="Compartimento" Property="Compartment" Width="300px" Filterable="false" />
-        </Columns>
-        </RadzenDataGrid> *@
     </div>
 
     <div class="ancho-tabla" style="overflow:auto;max-height:450px;font-size:12px;resize:both;">
-        @* @if (ordens?.Count > 0)
-        {
-
-        } *@
         <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
             <thead>
                 <tr>
@@ -117,7 +87,7 @@
                             <td style="min-width:120px;">@item.Chofer?.FullName</td>
                             <td style="min-width:120px;">@item.Tonel?.Veh</td>
                             <td style="min-width:120px;">@item.Compartment</td>
-                            <td style="min-width:120px;">@item.Obtener_Estado_De_Orden</td>
+                            <td style="min-width:120px;">@item.Estado?.den</td>
                         </tr>
                         @if (item.Mostrar_Detalle_Orden)
                         {

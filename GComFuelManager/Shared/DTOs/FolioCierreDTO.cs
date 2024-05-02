@@ -32,6 +32,8 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public string? Estado { get; set; } = null!;
         [EpplusIgnore]
+        public Tad? Terminal { get; set; } = null!;
+        [EpplusIgnore]
         public OrdenEmbarque? ordenEmbarque { get; set; } = null!;
         [EpplusIgnore]
         public OrdenCierre? ordenCierre { get; set; } = null!;
@@ -130,6 +132,8 @@ namespace GComFuelManager.Shared.DTOs
 
         [DisplayName("Tipo de Venta")]
         public string? Tipo_Venta { get; set; } = string.Empty;
+        [DisplayName("Unidad de Negocio")]
+        public string Terminales { get; set; } = null!;
     }
 }
 

@@ -30,7 +30,7 @@ namespace GComFuelManager.Shared.Modelos
         public double? Litros_Totales { get; set; } = 0;
         [NotMapped]
         public double Utilidad { get; set; } = 0;
-
+        public short Id_Tad { get; set; }
         public void RFC_A_Capitalizado()
         {
             RFC_Exportador = RFC_Exportador.ToUpper();

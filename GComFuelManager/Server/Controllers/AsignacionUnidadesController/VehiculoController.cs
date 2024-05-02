@@ -1,5 +1,6 @@
 ﻿using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 //using ServiceReference1;//qa
 using ServiceReference9;//prod
-using System.Diagnostics;
 
 namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 {
@@ -20,24 +20,252 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> UserManager;
         private readonly VerifyUserId verifyUser;
+        private readonly User_Terminal _terminal;
 
-        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser)
+        public VehiculoController(ApplicationDbContext context, UserManager<IdentityUsuario> UserManager, VerifyUserId verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.UserManager = UserManager;
             this.verifyUser = verifyUser;
+            this._terminal = _Terminal;
         }
         [HttpGet("{transportista:int}")]
-        public async Task<ActionResult> Get(int transportista)
+        public ActionResult Get(int transportista)
         {
             try
             {
-                var vehiculos = await context.Tonel
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true)
-                    //.Select(x => new CodDenDTO { Cod = x.Cod, Den =  $"{x.Tracto} {x.Placatracto} {x.Placa} {x.Capcom!} {x.Capcom2!} {x.Capcom3!} {x.Capcom4!} {x.Codsyn!}" })
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
-                    .ToListAsync();
+                    .ToList();
                 return Ok(vehiculos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("getAll")]
+        public async Task<ActionResult> GetUnidades()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Where(x => x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Include(x => x.Terminales)
+                    .OrderBy(x => x.Tracto)
+                    .ToList();
+                return Ok(vehiculos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("gestion/{transportista:int}")]
+        public ActionResult GetTonel(int transportista)
+        {
+            try
+            {
+                var vehiculos = context.Tonel.IgnoreAutoIncludes()
+                    .Include(x => x.Terminales)
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista)
+                    .Include(x => x.Terminales)
+                    .OrderBy(x => x.Tracto)
+                    .ToList();
+                return Ok(vehiculos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Grupos_Activos([FromQuery] Tonel tonel)
+        {
+            try
+            {
+                var toneles = context.Tonel.IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(tonel.Placa))
+                    toneles = toneles.Where(x => x.Placa!.ToLower().Contains(tonel.Placa.ToLower()) && x.Activo == true);
+
+                return Ok(toneles);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("crearUnidad")]
+        public async Task<ActionResult> PostVehiculos([FromBody] Tonel tonel)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                if (tonel is null)
+                    return BadRequest();
+                if (tonel.Cod == 0)
+                {
+                    tonel.Id_Tad = id_terminal;
+                    tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
+                    tonel.Transportista = null!;
+                    var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion);
+                    //Si ya existe, genera un nuevo número Random
+                    if (exist)
+                    {
+                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    }
+                    //tonel.Carid = tonel.Transportista.CarrId;
+                    context.Add(tonel);
+                    await context.SaveChangesAsync();
+                    if (!context.Unidad_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Unidad == tonel.Cod))
+                    {
+                        Unidad_Tad tonelTad = new()
+                        {
+                            Id_Unidad = tonel.Cod,
+                            Id_Terminal = id_terminal
+                        };
+                        context.Add(tonelTad);
+                        await context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    tonel.Id_Tad = id_terminal;
+                    if (context.Tonel.Any(x => x.Certificado_Calibracion != tonel.Certificado_Calibracion))
+                    {
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion && x.Gps != tonel.Gps);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist)
+                        {
+                            return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                        }
+                    }
+                    else
+                    {
+                        return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
+                    }
+                    tonel.Terminales = null!;
+                    context.Update(tonel);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("{cod:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
+        {
+            try
+            {
+                if (cod == 0)
+                    return BadRequest();
+
+                var destino = context.Tonel.Where(x => x.Cod == cod).FirstOrDefault();
+                if (destino == null)
+                {
+                    return NotFound();
+                }
+                destino.Activo = status;
+
+                context.Update(destino);
+                var acc = (bool)destino.Activo ? 26 : 27;
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("relacion")]
+        public async Task<ActionResult> PostClienteTerminal([FromBody] ClienteTadDTO clienteTadDTO)
+        {
+            try
+            {
+                //Si el cliente es nulo, retornamos un notfound
+                if (clienteTadDTO is null)
+                    return NotFound();
+
+                foreach (var terminal in clienteTadDTO.Tads)
+                {
+                    foreach (var tonel in clienteTadDTO.Toneles)
+                    {
+                        if (!context.Unidad_Tad.Any(x => x.Id_Terminal == terminal.Cod && x.Id_Unidad == tonel.Cod))
+                        {
+                            Unidad_Tad tonelTad = new()
+                            {
+                                Id_Unidad = tonel.Cod,
+                                Id_Terminal = terminal.Cod
+                            };
+                            context.Add(tonelTad);
+                        }
+                    }
+                }
+                await context.SaveChangesAsync();
+
+                return Ok();
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("borrar/relacion")]
+        public async Task<ActionResult> Borrar_Relacion([FromBody] Unidad_Tad tonel_tad)
+        {
+            try
+            {
+                if (tonel_tad is null)
+                    return NotFound();
+
+                if (context.OrdenEmbarque.Any(x => x.Codtad == tonel_tad.Id_Terminal && x.Codton == tonel_tad.Id_Unidad) ||
+                    context.Orden.Any(x => x.Id_Tad == tonel_tad.Id_Terminal && x.Coduni == tonel_tad.Id_Unidad)
+                    || context.OrdenCierre.Include(x => x.OrdenEmbarque).Any(x => x.Id_Tad == tonel_tad.Id_Terminal && x.OrdenEmbarque.Tonel.Cod == tonel_tad.Id_Unidad))
+                {
+                    return BadRequest("Error, no puede borrar esta relación debido a pedidos u órdenes activas relacionadas a este Vehículo y Unidad de Negocio");
+                }
+
+                var id = await verifyUser.GetId(HttpContext, UserManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                context.Remove(tonel_tad);
+                await context.SaveChangesAsync();
+
+                return Ok(tonel_tad);
             }
             catch (Exception e)
             {
@@ -51,8 +279,25 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         {
             try
             {
-                List<Tonel> TonelesActivos = new List<Tonel>();
-                VehicleServiceClient client = new VehicleServiceClient(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
+                if (HttpContext.User.Identity is null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name))
+                    return NotFound();
+
+                var user = await UserManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                    return NotFound();
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0 && !await UserManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest();
+
+                if (id_terminal != 1 && !await UserManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest("No esta permitida esta accion en esta terminal");
+
+
+                List<Tonel> TonelesActivos = new();
+                VehicleServiceClient client = new(VehicleServiceClient.EndpointConfiguration.BasicHttpBinding_VehicleService);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -62,7 +307,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     var svc = client.ChannelFactory.CreateChannel();
 
-                    WsGetVehiclesRequest getReq = new WsGetVehiclesRequest();
+                    WsGetVehiclesRequest getReq = new();
 
                     getReq.IncludeChildObjects = new NBool();
                     getReq.IncludeChildObjects.Value = true;
@@ -91,17 +336,19 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                             if (carrId == item.CarrierId.Id.Value)
                             {
                                 //Creamos el objeto del Tonel
-                                Tonel tonel = new Tonel()
+                                Tonel tonel = new()
                                 {
                                     Placa = item.RegistrationNumber.Trim(),
                                     Tracto = item.VehicleCode.Trim(),
                                     //Placatracto = item.RfiTagId.Trim(),
                                     Placatracto = item.RfiTagId != null ? item.RfiTagId.Trim() : "",
                                     Codsyn = Convert.ToInt32(item.VehicleId.Id.Value),
-                                    Carid = item.CarrierId.Id.Value.ToString()
+                                    Carid = item.CarrierId.Id.Value.ToString(),
+                                    Id_Tad = 1
                                 };
                                 //Obtenemos el code del tonel
-                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid)
+                                Tonel? t = context.Tonel.Where(x => x.Placa == tonel.Placa && x.Tracto == tonel.Tracto && x.Placatracto == tonel.Placatracto && x.Codsyn == tonel.Codsyn && x.Carid == tonel.Carid
+                                && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
 
@@ -182,7 +429,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         }
 
-                        List<Tonel> toneles = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(carrId.ToString())).ToList();
+                        List<Tonel> toneles = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Carid) && x.Carid.Equals(carrId.ToString()) && x.Id_Tad == 1).ToList();
 
                         toneles.ForEach(x =>
                         {

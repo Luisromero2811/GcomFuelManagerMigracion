@@ -19,20 +19,26 @@ namespace GComFuelManager.Server.Controllers.Precios
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserToken verifyUser;
+        private readonly User_Terminal _terminal;
 
-        public PrecioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
+        public PrecioController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
+            this._terminal = _Terminal;
         }
 
         [HttpPost]
-        [Route("upload")]
+        [Route("upload")]//TODO: checar utilidad
         public async Task<ActionResult> Convert(IFormFile file)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (file == null)
                     return BadRequest("No se pudo leer el archivo enviado.");
 
@@ -60,16 +66,25 @@ namespace GComFuelManager.Server.Controllers.Precios
                             PreciosDTO precio = new();
 
                             //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
-                            var row = worksheet.Cells[r, 1, r, 10].ToList();
+                            var row = worksheet.Cells[r, 1, r, 11].ToList();
 
-                            if (row.Count == 10)
+                            if (row.Count == 11)
                             {
-                                if (row[8].Value is not null)
-                                    if (!context.Moneda.Any(x => x.Nombre == row[8].Value.ToString()))
-                                        return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
+                                if (row[9].Value is not null)
+                                    if (!context.Moneda.Any(x => x.Nombre == row[9].Value.ToString()))
+                                        return BadRequest($"No existe la moneda ingresada. Moneda: {row[9].Value?.ToString()}");
 
-                                if (row[8].Value is null)
-                                    row[8].Value = "MXN";
+                                if (context.Tad.Any(x => x.Cod == id_terminal && x.Activo == true))
+                                {
+                                    var terminal = context.Tad.Find(id_terminal);
+                                    if (terminal is not null)
+                                        precio.Terminal = terminal.Den;
+                                }
+                                else
+                                    return BadRequest("Se se pudo encontrar la terminal o no se encuentra activa");
+
+                                if (row[9].Value is null)
+                                    row[9].Value = "MXN";
 
                                 precio.Producto = row[0].Value?.ToString();
                                 precio.Zona = row[1].Value?.ToString();
@@ -77,10 +92,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 precio.Destino = row[3].Value?.ToString();
                                 precio.CodSyn = row[4].Value?.ToString();
                                 precio.CodTux = row[5].Value?.ToString();
-                                precio.Fecha = row[6].Value?.ToString();
-                                precio.Precio = Math.Round((double)row[7].Value, 4);
-                                precio.Moneda = row[8].Value?.ToString();
-                                precio.Equibalencia = Math.Round((double)row[9].Value, 4);
+                                precio.CodDestinoGobierno = row[6].Value?.ToString();
+                                precio.Fecha = row[7].Value?.ToString();
+                                precio.Precio = Math.Round((double)row[8].Value, 4);
+                                precio.Moneda = row[9].Value?.ToString();
+                                precio.Equibalencia = Math.Round((double)row[10].Value, 4);
                                 precios.Add(precio);
                             }
                         }
@@ -95,105 +111,16 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-
-        [HttpPost]
-        [Route("uploads")]
-        public async Task<ActionResult> ConvertExcell(IFormFile file)
-        {
-            try
-            {
-                if (file == null)
-                    return BadRequest("No se pudo leer el archivo enviado.");
-                using var streams = new MemoryStream();
-                await file.CopyToAsync(streams);
-                //file.OpenReadStream();
-                file.CopyTo(streams);
-                using (var stream = file.OpenReadStream())
-                {
-                    using (var packages = new OfficeOpenXml.ExcelPackage(stream))
-                    {
-                        List<PreciosDTO> precios = new();
-
-                        //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
-
-                        ExcelPackage package = new();
-                        var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                        if (worksheet != null)
-                        {
-                            using (ExcelWorksheet worksheets = package.Workbook.Worksheets.First())
-                            {
-                                for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
-                                {
-                                    PreciosDTO precio = new();
-
-                                    //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
-                                    var row = worksheet.Cells[r, 1, r, 10].ToList();
-
-                                    if (row.Count == 10)
-                                    {
-                                        if (row[8].Value is not null)
-                                            if (!context.Moneda.Any(x => x.Nombre == row[8].Value.ToString()))
-                                                return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
-
-                                        if (string.IsNullOrEmpty(row[8].Value.ToString()))
-                                            row[8].Value = "MXN";
-
-                                        precio.Producto = row[0].Value?.ToString();
-                                        precio.Zona = row[1].Value?.ToString();
-                                        precio.Cliente = row[2].Value?.ToString();
-                                        precio.Destino = row[3].Value?.ToString();
-                                        precio.CodSyn = row[4].Value?.ToString();
-                                        precio.CodTux = row[5].Value?.ToString();
-                                        precio.Fecha = row[6].Value?.ToString();
-                                        precio.Precio = Math.Round((double)row[7].Value, 4);
-                                        precio.Moneda = row[8].Value?.ToString();
-                                        precio.Equibalencia = Math.Round((double)row[9].Value, 4);
-                                        precios.Add(precio);
-                                    }
-                                }
-                            }
-                        }
-                        package.Load(streams);
-
-
-                        return Ok(precios);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-
-        [HttpGet]
-        public async Task<ActionResult> GetPrecios()
-        {
-            try
-            {
-                var precios = await context.Precio
-                    .Include(x => x.Zona)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Destino)
-                    .ToListAsync();
-
-                return Ok(precios);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
         [HttpGet("filtro")]
         public async Task<ActionResult> GetPreciosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
         {
             try
             {
-                var precios = context.Precio
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var precios = context.Precio.Where(x => x.Id_Tad == id_terminal)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
@@ -203,14 +130,14 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(parametros.cliente))
-                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
+                    precios = precios.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente.Den) && x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
 
                 if (!string.IsNullOrEmpty(parametros.producto))
-                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                    precios = precios.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.destino))
-                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                    precios = precios.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.zona))
-                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+                    precios = precios.Where(x => x.Zona != null && !string.IsNullOrEmpty(x.Zona.Nombre) && x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
 
                 await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
 
@@ -219,7 +146,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var pagina = HttpContext.Response.Headers["pagina"];
                     if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
                     {
-                        parametros.pagina = int.Parse(pagina);
+                        parametros.pagina = int.Parse(pagina!);
                     }
                 }
 
@@ -238,10 +165,15 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var precios = context.PreciosHistorico
-                 .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin)
+                 .Where(x => x.FchDia >= parametros.DateInicio && x.FchDia <= parametros.DateFin && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
                     .Include(x => x.Cliente)
+                    .Include(x => x.Terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Zona)
                     .Include(x => x.Moneda)
@@ -250,14 +182,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(parametros.cliente))
-                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
-
+                    precios = precios.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente.Den) && x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.producto))
-                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                    precios = precios.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.destino))
-                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                    precios = precios.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.zona))
-                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+                    precios = precios.Where(x => x.Zona != null && !string.IsNullOrEmpty(x.Zona.Nombre) && x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
 
                 await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
 
@@ -266,7 +197,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var pagina = HttpContext.Response.Headers["pagina"];
                     if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
                     {
-                        parametros.pagina = int.Parse(pagina);
+                        parametros.pagina = int.Parse(pagina!);
                     }
                 }
 
@@ -285,7 +216,11 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
-                var precios = context.PrecioProgramado
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var precios = context.PrecioProgramado.Where(x => x.Id_Tad == id_terminal)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
@@ -295,14 +230,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(parametros.cliente))
-                    precios = precios.Where(x => x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
-
+                    precios = precios.Where(x => x.Cliente != null && !string.IsNullOrEmpty(x.Cliente.Den) && x.Cliente.Den.ToLower().Contains(parametros.cliente.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.producto))
-                    precios = precios.Where(x => x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
+                    precios = precios.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(parametros.producto.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.destino))
-                    precios = precios.Where(x => x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
+                    precios = precios.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(parametros.destino.ToLower()));
                 if (!string.IsNullOrEmpty(parametros.zona))
-                    precios = precios.Where(x => x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
+                    precios = precios.Where(x => x.Zona != null && !string.IsNullOrEmpty(x.Zona.Nombre) && x.Zona.Nombre.ToLower().Contains(parametros.zona.ToLower()));
 
                 await HttpContext.InsertarParametrosPaginacion(precios, parametros.tamanopagina, parametros.pagina);
 
@@ -311,7 +245,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var pagina = HttpContext.Response.Headers["pagina"];
                     if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
                     {
-                        parametros.pagina = int.Parse(pagina);
+                        parametros.pagina = int.Parse(pagina!);
                     }
                 }
 
@@ -330,12 +264,17 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var acc = 0;
                 precio.Producto = null!;
                 precio.Zona = null!;
                 precio.Destino = null!;
                 precio.Cliente = null!;
                 precio.FchActualizacion = DateTime.Now;
+                precio.Terminal = null!;
 
                 if (precio.Cod != null)
                 {
@@ -344,8 +283,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                 }
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.codZona == precio.codZona))
+                    if (context.Precio.Any(x => x.CodDes == precio.CodDes && x.CodCte == precio.CodCte && x.CodPrd == precio.CodPrd && x.CodZona == precio.CodZona && x.Id_Tad == id_terminal))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
+
+                    precio.Id_Tad = id_terminal;
 
                     context.Add(precio);
                     acc = 3;
@@ -354,15 +295,16 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     Cod = null!,
                     pre = precio.Pre,
-                    codCte = precio?.codCte,
-                    codDes = precio?.codDes,
-                    codGru = precio?.codGru,
-                    codPrd = precio?.codPrd,
-                    codZona = precio?.codZona,
+                    CodCte = precio.CodCte,
+                    CodDes = precio.CodDes,
+                    CodGru = precio.CodGru,
+                    CodPrd = precio.CodPrd,
+                    CodZona = precio.CodZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = precio.FchActualizacion,
-                    Moneda = precio.Moneda,
-                    Equibalencia = precio.Equibalencia
+                    ID_Moneda = precio.ID_Moneda,
+                    Equibalencia = precio.Equibalencia,
+                    Id_Tad = id_terminal
                 };
 
                 context.Add(precioH);
@@ -384,14 +326,19 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 List<Precio> precios = new();
                 List<PrecioProgramado> preciosPro = new();
                 var LimiteDate = DateTime.Today.AddHours(16);
 
                 if (!string.IsNullOrEmpty(folio))
                 {
-                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true)
+                    var ordenes = await context.OrdenCierre.Where(x => x.Folio == folio && x.Estatus == true && x.Id_Tad == id_terminal)
                             .Include(x => x.Cliente)
+                            .Include(x => x.Moneda)
                             .ToListAsync();
                     var ordenesUnic = ordenes.DistinctBy(x => x.CodPrd).Select(x => x);
 
@@ -403,11 +350,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                             Precio precio = new()
                             {
                                 Pre = item.Precio,
-                                codCte = item.CodCte,
-                                codDes = item.CodDes,
-                                codPrd = item.CodPrd,
-                                codGru = item.Cliente?.codgru,
-                                codZona = zona?.CteCod,
+                                CodCte = item.CodCte,
+                                CodDes = item.CodDes,
+                                CodPrd = item.CodPrd,
+                                CodGru = item.Cliente?.Codgru,
+                                CodZona = zona?.CteCod,
                                 Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd),
                                 Moneda = item.Moneda,
                                 ID_Moneda = item.ID_Moneda,
@@ -418,12 +365,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     }
                     return Ok(precios);
                 }
-
-                precios = await context.Precio.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
-                    .Include(x => x.Producto)
-                    .ToListAsync();
+                if (zonaCliente is not null)
+                    precios = await context.Precio.Where(x => x.CodCte == zonaCliente.CteCod && x.CodDes == zonaCliente.DesCod && x.Activo == true && x.Id_Tad == id_terminal)
+                        //&& x.codZona == zona.ZonaCod)
+                        .Include(x => x.Producto)
+                        .ToListAsync();
 
                 precios.ForEach(x =>
                 {
@@ -433,8 +379,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     && DateTime.Today.DayOfWeek != DayOfWeek.Monday)
                     {
                         var porcentaje = context.Porcentaje.FirstOrDefault(x => x.Accion == "cliente");
-                        var aumento = (porcentaje.Porcen / 100) + 1;
-                        x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
+                        if (porcentaje is not null)
+                        {
+                            var aumento = (porcentaje.Porcen / 100) + 1;
+                            x.Pre = x.FchDia < DateTime.Today ? Math.Round((x.Pre * aumento), 4) : Math.Round(x.Pre, 4);
+                        }
                     }
                 });
 
@@ -442,30 +391,33 @@ namespace GComFuelManager.Server.Controllers.Precios
                     DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
                     DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
                 {
-                    preciosPro = await context.PrecioProgramado.Where(x => x.codCte == zonaCliente.CteCod
-                    && x.codDes == zonaCliente.DesCod && x.Activo == true)
-                    //&& x.codZona == zona.ZonaCod)
-                    .Include(x => x.Producto)
-                    .ToListAsync();
+                    if (zonaCliente is not null)
+                        preciosPro = await context.PrecioProgramado.Where(x => x.CodCte == zonaCliente.CteCod && x.CodDes == zonaCliente.DesCod && x.Activo == true && x.Id_Tad == id_terminal)
+                        //&& x.codZona == zona.ZonaCod)
+                        .Include(x => x.Producto)
+                        .ToListAsync();
 
                     foreach (var item in preciosPro)
                     {
                         if (item.FchDia > DateTime.Today)
                         {
-                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).Pre = item.Pre;
-                            precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd).FchDia = item.FchDia;
-                            var pre = precios.FirstOrDefault(x => x.codDes == item.codDes && x.codCte == item.codCte && x.codPrd == item.codPrd);
+                            var pre = precios.FirstOrDefault(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd);
                             if (pre is null)
                             {
                                 precios.Add(new Precio()
                                 {
                                     Pre = item.Pre,
-                                    codCte = item.codCte,
-                                    codDes = item.codDes,
-                                    codPrd = item.codPrd,
-                                    codGru = item.Cliente?.codgru,
-                                    Producto = context.Producto.FirstOrDefault(x => x.Cod == item.codPrd)
+                                    CodCte = item.CodCte,
+                                    CodDes = item.CodDes,
+                                    CodPrd = item.CodPrd,
+                                    CodGru = item.Cliente?.Codgru,
+                                    Producto = context.Producto.FirstOrDefault(x => x.Cod == item.CodPrd)
                                 });
+                            }
+                            else
+                            {
+                                precios.First(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd).Pre = item.Pre;
+                                precios.First(x => x.CodDes == item.CodDes && x.CodCte == item.CodCte && x.CodPrd == item.CodPrd).FchDia = item.FchDia;
                             }
                         }
                     }
@@ -484,6 +436,10 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
@@ -502,9 +458,12 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte));
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte) && x.Id_Tad == id_terminal);
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
+
+                    if (!context.Cliente_Tad.Any(x => x.Id_Cliente == cliente.Cod && x.Id_Terminal == id_terminal))
+                        return BadRequest($"No se encontro el cliente {item.Cliente} en la terminal");
 
                     var codprd = string.Empty;
                     if (string.IsNullOrEmpty(item.Producto))
@@ -522,22 +481,41 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var codzona = string.IsNullOrEmpty(item.Zona) ? "Sin Zona" : item.Zona;
                     var zona = context.Zona.FirstOrDefault(x => x.Nombre.Equals(codzona));
 
-                    var coddes = string.IsNullOrEmpty(item.CodSyn) ? string.Empty : item.CodSyn;
-                    var destino = context.Destino.FirstOrDefault(x => x.Codsyn == coddes);
-                    if (destino is null)
-                        return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                    Destino? destino = new();
+
+                    if (!string.IsNullOrEmpty(item.CodSyn) || !string.IsNullOrWhiteSpace(item.CodSyn))
+                    {
+                        destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn);
+                        if (destino is null)
+                            return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                    }
+                    else
+                    {
+                        //if (string.IsNullOrEmpty(item.CodDestinoGobierno) || string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
+                        //    return BadRequest("No se admiten destinos sin identificadores");
+                        if (!string.IsNullOrEmpty(item.CodDestinoGobierno) || !string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
+                        {
+                            destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno && x.Id_Tad == id_terminal);
+                            if (destino is null)
+                                return BadRequest($"No se encontro el destino {item.Destino}. Id gobierno: {item.CodDestinoGobierno}");
+                        }
+                        else
+                        {
+                            destino = context.Destino.FirstOrDefault(x => x.Den == item.Destino && x.Id_Tad == id_terminal);
+                            if (destino is null)
+                                return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                        }
+
+                    }
+
+                    if (!context.Destino_Tad.Any(x => x.Id_Destino == destino.Cod && x.Id_Terminal == id_terminal))
+                        return BadRequest($"No se encontro el destino {item.Destino} en la terminal. synthesis:{item.CodSyn} tuxpan: {item.CodTux}");
 
                     if (item?.Precio == null || item.Precio == 0)
                         return BadRequest($"El destino {destino.Den} no tiene un precio con valor");
 
                     if (string.IsNullOrEmpty(item.Fecha))
                         return BadRequest("No se admiten valores vacios en la fecha de vigencia");
-
-                    //if (string.IsNullOrEmpty(item.Moneda))
-                    //    return BadRequest("No se admiten valores vacios en la moneda");
-
-                    //if (!context.Moneda.Any(x => x.Nombre == item.Moneda))
-                    //    return BadRequest($"No se encontro la moneda ingresada. Moneda: {item.Moneda}");
 
                     if (item.Equibalencia is null || item.Equibalencia == 0)
                         return BadRequest("La equibalencia no puede estar vacia o con valor 0");
@@ -553,24 +531,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var precio = new PrecioProgramado
                         {
-                            codCte = cliente.Cod,
-                            codDes = destino.Cod,
-                            codGru = cliente.codgru,
-                            codPrd = producto.Cod,
-                            codZona = zona?.Cod,
+                            CodCte = cliente.Cod,
+                            CodDes = destino.Cod,
+                            CodGru = cliente.Codgru,
+                            CodPrd = producto.Cod,
+                            CodZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio,
                             ID_Moneda = moneda?.Id,
                             Equibalencia = (double)item.Equibalencia,
-                            ID_Usuario = user_system.Cod
+                            ID_Usuario = user_system.Cod,
+                            Id_Tad = id_terminal
                         };
 
-                        var p = context.PrecioProgramado.IgnoreAutoIncludes().FirstOrDefault(x => x.codGru == precio.codGru
+                        var p = context.PrecioProgramado.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precio.CodGru
                         //&& x.codZona == precio.codZona
-                        && x.codCte == precio.codCte
-                        && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes);
+                        && x.CodCte == precio.CodCte
+                        && x.CodPrd == precio.CodPrd
+                        && x.CodDes == precio.CodDes
+                        && x.Id_Tad == id_terminal);
 
                         if (p is not null)
                         {
@@ -590,24 +570,26 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         var precio = new Precio
                         {
-                            codCte = cliente.Cod,
-                            codDes = destino.Cod,
-                            codGru = cliente.codgru,
-                            codPrd = producto.Cod,
-                            codZona = zona?.Cod,
+                            CodCte = cliente.Cod,
+                            CodDes = destino.Cod,
+                            CodGru = cliente.Codgru,
+                            CodPrd = producto.Cod,
+                            CodZona = zona?.Cod,
                             FchDia = DateTime.Parse(item.Fecha),
                             FchActualizacion = DateTime.Now,
                             Pre = item.Precio,
                             ID_Moneda = moneda?.Id,
                             Equibalencia = (double)item.Equibalencia,
-                            ID_Usuario = user_system.Cod
+                            ID_Usuario = user_system.Cod,
+                            Id_Tad = id_terminal
                         };
 
-                        var p = context.Precio.IgnoreAutoIncludes().FirstOrDefault(x => x.codGru == precio.codGru
+                        var p = context.Precio.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precio.CodGru
                         //&& x.codZona == precio.codZona
-                        && x.codCte == precio.codCte
-                        && x.codPrd == precio.codPrd
-                        && x.codDes == precio.codDes);
+                        && x.CodCte == precio.CodCte
+                        && x.CodPrd == precio.CodPrd
+                        && x.CodDes == precio.CodDes
+                        && x.Id_Tad == id_terminal);
 
                         if (p is not null)
                         {
@@ -626,35 +608,30 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             Cod = null!,
                             pre = precio.Pre,
-                            codCte = precio.codCte == null ? 0 : precio.codCte,
-                            codDes = precio.codDes == null ? 0 : precio.codDes!,
-                            codGru = precio.codGru == null ? (short)0 : (short)precio.codGru!,
-                            codPrd = precio.codPrd == null ? 0 : precio.codPrd,
-                            codZona = precio.codZona == null ? 0 : precio.codZona,
+                            CodCte = precio.CodCte == null ? 0 : precio.CodCte,
+                            CodDes = precio.CodDes == null ? 0 : precio.CodDes!,
+                            CodGru = precio.CodGru == null ? (short)0 : (short)precio.CodGru!,
+                            CodPrd = precio.CodPrd == null ? 0 : precio.CodPrd,
+                            CodZona = precio.CodZona == null ? 0 : precio.CodZona,
                             FchDia = precio.FchDia,
                             FchActualizacion = precio.FchActualizacion,
                             ID_Moneda = precio?.ID_Moneda,
                             Equibalencia = precio?.Equibalencia,
-                            ID_Usuario = user_system.Cod
+                            ID_Usuario = user_system.Cod,
+                            Id_Tad = id_terminal
                         };
 
                         context.Add(precioH);
                     }
                 }
 
-                //if (prec.Count > 0)
-                //{
-                //    context.PrecioProgramado.ExecuteDelete();
-                //    context.AddRange(prec);
-                //}
-
                 await context.SaveChangesAsync(id, 8);
 
                 List<Destino> destinos = new();
                 List<PreciosDTO> destinosSinPre = new();
-                destinos = context.Destino.ToList();
+                destinos = context.Destino.Where(x => x.Id_Tad == id_terminal).ToList();
                 foreach (var item in destinos)
-                    if (!context.PrecioProgramado.Any(x => x.codDes == item.Cod))
+                    if (!context.PrecioProgramado.Any(x => x.CodDes == item.Cod && x.Id_Tad == id_terminal))
                     {
                         PreciosDTO dTO = new()
                         {
@@ -680,10 +657,16 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var precios = await context.PreciosHistorico
-                .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin)
+                .Where(x => x.FchDia >= fechas.DateInicio && x.FchDia <= fechas.DateFin && x.Id_Tad == id_terminal)
                    .Include(x => x.Destino)
                    .Include(x => x.Cliente)
+                   .Include(x => x.Terminal)
                    .Include(x => x.Producto)
                    .Include(x => x.Zona)
                    .Include(x => x.Moneda)
@@ -699,7 +682,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                        Moneda = item.Moneda!.Nombre,
                        Cliente = item.Cliente!.Den,
                        Usuario = item.Usuario!.Den,
-                       Fecha_De_Subida = item.FchActualizacion.ToString()
+                       Fecha_De_Subida = item.FchActualizacion.ToString(),
+                       Unidad_Negocio = item.Terminal!.Den
                    })
                    .ToListAsync();
                 return Ok(precios);
@@ -710,7 +694,7 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("programado")]
+        [HttpGet("programado")]//no modificar
         public async Task<ActionResult> GetDateHistorialPrecioProgramado()
         {
             try
@@ -727,16 +711,16 @@ namespace GComFuelManager.Server.Controllers.Precios
                     {
                         if (item is not null)
                         {
-                            var precio = context.Precio.FirstOrDefault(x => x.codCte == item.codCte && x.codDes == item.codDes && x.codPrd == item.codPrd && x.Activo == true);
+                            var precio = context.Precio.FirstOrDefault(x => x.CodCte == item.CodCte && x.CodDes == item.CodDes && x.CodPrd == item.CodPrd && x.Activo == true);
                             if (precio is null)
                             {
                                 var precioN = new Precio
                                 {
-                                    codCte = item.codCte,
-                                    codDes = item.codDes,
-                                    codGru = item?.codGru,
-                                    codPrd = item?.codPrd,
-                                    codZona = item?.codZona,
+                                    CodCte = item.CodCte,
+                                    CodDes = item.CodDes,
+                                    CodGru = item?.CodGru,
+                                    CodPrd = item?.CodPrd,
+                                    CodZona = item?.CodZona,
                                     FchDia = item?.FchDia ?? DateTime.MinValue,
                                     FchActualizacion = DateTime.Now,
                                     Pre = item?.Pre ?? 0,
@@ -761,13 +745,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                             var precioH = new PrecioHistorico
                             {
                                 Cod = null!,
-                                pre = item.Pre,
-                                codCte = item.codCte,
-                                codDes = item.codDes,
-                                codGru = item?.codGru,
-                                codPrd = item?.codPrd,
-                                codZona = item?.codZona,
-                                FchDia = item.FchDia,
+                                pre = item!.Pre,
+                                CodCte = item.CodCte,
+                                CodDes = item.CodDes,
+                                CodGru = item?.CodGru,
+                                CodPrd = item?.CodPrd,
+                                CodZona = item?.CodZona,
+                                FchDia = item!.FchDia,
                                 FchActualizacion = item.FchActualizacion,
                                 Equibalencia = item?.Equibalencia,
                                 ID_Moneda = item?.ID_Moneda,
@@ -793,13 +777,17 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("programados/lista")]
+        [HttpGet("programados/lista")]//TODO: checar utilidad
         public async Task<ActionResult> GetPreciosProgramados()
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 var precios = await context.PrecioProgramado
-                    .Where(x => x.FchDia > DateTime.Today)
+                    .Where(x => x.FchDia > DateTime.Today && x.Id_Tad == id_terminal)
                     .Include(x => x.Zona)
                     .Include(x => x.Cliente)
                     .Include(x => x.Producto)
@@ -814,38 +802,44 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpPost("programado")]
+        [HttpPost("programado")]//TODO: checar utilidad
         public async Task<ActionResult> PostProgramado([FromBody] Precio precio)
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 precio.Producto = null!;
                 precio.Zona = null!;
                 precio.Destino = null!;
                 precio.Cliente = null!;
                 precio.FchActualizacion = DateTime.Now;
+                precio.Terminal = null!;
 
                 var precioPro = new PrecioProgramado
                 {
                     Cod = precio.Cod,
-                    codCte = precio.codCte,
-                    codDes = precio.codDes,
-                    codGru = precio.codGru,
-                    codPrd = precio.codPrd,
-                    codZona = precio.codZona,
+                    CodCte = precio.CodCte,
+                    CodDes = precio.CodDes,
+                    CodGru = precio.CodGru,
+                    CodPrd = precio.CodPrd,
+                    CodZona = precio.CodZona,
                     FchDia = precio.FchDia,
                     FchActualizacion = DateTime.Now,
                     Pre = precio.Pre,
                     Activo = precio.Activo,
                     Equibalencia = precio.Equibalencia,
-                    ID_Moneda = precio.ID_Moneda
+                    ID_Moneda = precio.ID_Moneda,
+                    Id_Tad = precio.Id_Tad
                 };
 
                 if (precio.Cod != null)
                     context.Update(precioPro);
                 else
                 {
-                    if (context.Precio.Any(x => x.codDes == precio.codDes && x.codCte == precio.codCte && x.codPrd == precio.codPrd && x.FchDia == precio.FchDia && x.codZona == precio.codZona))
+                    if (context.Precio.Any(x => x.CodDes == precio.CodDes && x.CodCte == precio.CodCte && x.CodPrd == precio.CodPrd && x.FchDia == precio.FchDia && x.CodZona == precio.CodZona && x.Id_Tad == id_terminal))
                         return BadRequest("El destino ya cuenta con un precio asignado para ese producto.");
 
                     context.Add(precioPro);
@@ -903,15 +897,15 @@ namespace GComFuelManager.Server.Controllers.Precios
                 precio.BOL = ordenes.BatchId;
                 precio.Volumen_Cargado = ordenes.Vol;
 
-                var precioVig = context.Precio.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+                var precioVig = context.Precio.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd)
+                var precioPro = context.PrecioProgramado.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.codDes == ordenes.Coddes && x.codPrd == ordenes.Codprd
+                var precioHis = context.PreciosHistorico.Where(x => ordenes != null && x.CodDes == ordenes.Coddes && x.CodPrd == ordenes.Codprd
                     && ordenes.Fchcar != null && x.FchDia <= ordenes.Fchcar.Value.Date)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
@@ -991,16 +985,17 @@ namespace GComFuelManager.Server.Controllers.Precios
         }
 
         [HttpGet("{Orden_Compra}")]
-        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra)
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, Int16 Id_Terminal = 1)
         {
             try
             {
                 List<PrecioBol> precios = new();
 
-                var ordenes = context.OrdenEmbarque.Where(x => x.Folio == Orden_Compra)
+                var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => x.Folio == Orden_Compra && x.Codtad == Id_Terminal)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
                     .ToList();
 
                 if (ordenes is null)
@@ -1011,7 +1006,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     PrecioBol precio = new();
 
                     Orden? orden = new();
-                    orden = context.Orden.Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).FirstOrDefault();
+                    orden = context.Orden.IgnoreAutoIncludes().Where(x => x.Ref == item.FolioSyn).Include(x => x.Producto).Include(x => x.Destino).ThenInclude(x => x.Cliente).Include(x => x.Terminal).FirstOrDefault();
 
                     precio.Fecha_De_Carga = orden?.Fchcar ?? item.Fchcar;
 
@@ -1024,6 +1019,14 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                         if (orden.Destino is not null)
                             precio.Destino_Synthesis = orden.Destino.Den ?? string.Empty;
+
+                        if (orden.Terminal is not null)
+                            if (!string.IsNullOrEmpty(orden.Terminal.Den))
+                            {
+                                precio.Terminal_Final = orden.Terminal.Den;
+                                if (!string.IsNullOrEmpty(orden.Terminal.Codigo))
+                                    precio.Codigo_Terminal_Final = orden.Terminal.Codigo;
+                            }
 
                         precio.BOL = orden.BatchId ?? 0;
                         precio.Volumen_Cargado = orden.Vol;
@@ -1041,27 +1044,45 @@ namespace GComFuelManager.Server.Controllers.Precios
                         }
 
                         if (item.Producto is not null)
-                            precio.Producto_Original = item.Producto.Den ?? "";
+                            if (!string.IsNullOrEmpty(item.Producto.Den))
+                                precio.Producto_Original = item.Producto.Den;
+
+                        if (item.Tad is not null)
+                        {
+                            if (!string.IsNullOrEmpty(item.Tad.Den))
+                                precio.Terminal_Original = item.Tad.Den;
+
+                            if (!string.IsNullOrEmpty(item.Tad.Codigo))
+                                precio.Codigo_Terminal_Original = item.Tad.Codigo;
+                        }
                     }
 
-                    var precioVig = context.Precio.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioVig = context.Precio.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.Id_Tad == item.Codtad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioVig = context.Precio.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioVig = context.Precio.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioPro = context.PrecioProgramado.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                    var precioPro = context.PrecioProgramado.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.Id_Tad == item.Codtad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
                     if (orden is not null)
-                        precioPro = context.PrecioProgramado.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd).OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+                        precioPro = context.PrecioProgramado.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Id_Tad)
+                        .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
 
-                    var precioHis = context.PreciosHistorico.Where(x => item != null && x.codDes == item.Coddes && x.codPrd == item.Codprd
-                        && x.FchDia <= DateTime.Today)
+                    var precioHis = context.PreciosHistorico.IgnoreAutoIncludes()
+                        .Where(x => item != null && x.CodDes == item.Coddes && x.CodPrd == item.Codprd && x.FchDia <= DateTime.Today && x.Id_Tad == item.Codtad)
                         .OrderByDescending(x => x.FchActualizacion)
                         .FirstOrDefault();
 
                     if (orden is not null)
-                        precioHis = context.PreciosHistorico.Where(x => x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                        && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date)
+                        precioHis = context.PreciosHistorico.IgnoreAutoIncludes()
+                        .Where(x => x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && orden.Fchcar != null && x.FchDia <= orden.Fchcar.Value.Date && x.Id_Tad == orden.Id_Tad)
                         .OrderByDescending(x => x.FchDia)
                         .FirstOrDefault();
 
@@ -1146,7 +1167,7 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("modificar/orden")]
+        [HttpGet("modificar/orden")]// no modificar
         public async Task<ActionResult> Modificar_Precio_De_Orden()
         {
             try
@@ -1160,7 +1181,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     foreach (var item in Ordenes)
                     {
-                        item.Pre = Obtener_Precio_Del_Dia_De_Orden(item.Cod).Precio;
+                        item.Pre = Obtener_Precio_Del_Dia_De_Orden(item.Cod, item.Codtad).Precio;
                         context.Update(item);
                     }
                     await context.SaveChangesAsync();
@@ -1173,11 +1194,11 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden(int Id)
+        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden(int Id, short? id_terminal)
         {
             try
             {
-                var orden = context.OrdenEmbarque.Where(x => x.Cod == Id)
+                var orden = context.OrdenEmbarque.Where(x => x.Cod == Id && x.Codtad == id_terminal)
                     .Include(x => x.Orden)
                     .Include(x => x.OrdenCierre)
                     .IgnoreAutoIncludes()
@@ -1188,32 +1209,32 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                 PrecioBolDTO precio = new();
 
-                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == id_terminal)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
                 if (orden.Orden is not null)
-                    precioVig = context.Precio.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd)
+                    precioVig = context.Precio.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd && x.Id_Tad == id_terminal)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
-                    .OrderByDescending(x => x.FchActualizacion)
-                    .FirstOrDefault();
-
-                if (orden.Orden is not null)
-                    precioPro = context.PrecioProgramado.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd)
-                    .OrderByDescending(x => x.FchActualizacion)
-                    .FirstOrDefault();
-
-                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                    && x.FchDia <= DateTime.Today)
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == id_terminal)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
                 if (orden.Orden is not null)
-                    context.PreciosHistorico.Where(x => orden.Orden != null && x.codDes == orden.Orden.Coddes && x.codPrd == orden.Orden.Codprd
-                    && x.FchDia <= orden.Orden.Fchcar)
+                    precioPro = context.PrecioProgramado.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd && x.Id_Tad == id_terminal)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
+                    && x.FchDia <= DateTime.Today && x.Id_Tad == id_terminal)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                if (orden.Orden is not null)
+                    context.PreciosHistorico.Where(x => orden.Orden != null && x.CodDes == orden.Orden.Coddes && x.CodPrd == orden.Orden.Codprd
+                    && x.FchDia <= orden.Orden.Fchcar && x.Id_Tad == id_terminal)
                     .OrderByDescending(x => x.FchActualizacion)
                     .FirstOrDefault();
 
@@ -1276,6 +1297,10 @@ namespace GComFuelManager.Server.Controllers.Precios
             public string? Cliente_Original { get; set; } = string.Empty;
             public double? Volumen_Cargado { get; set; } = 0;
             public string Folio_Cierre { get; set; } = string.Empty;
+            public string Terminal_Original { get; set; } = string.Empty;
+            public string Codigo_Terminal_Original { get; set; } = string.Empty;
+            public string Terminal_Final { get; set; } = string.Empty;
+            public string Codigo_Terminal_Final { get; set; } = string.Empty;
         }
     }
 }

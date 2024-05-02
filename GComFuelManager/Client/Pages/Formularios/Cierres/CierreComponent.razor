@@ -28,7 +28,7 @@
                                     @*<div class="col-6 row">*@
                                     <div class="col-3">
                                         <label>Folio</label>
-                                        <input type="text" class="form-control col-12" @bind="filtro.Folio" maxlength="20" />
+                                        <input type="text" class="form-control col-12" @bind="filtro.Folio" maxlength="30" />
                                     </div>
                                     <div class="col-3 d-flex">
                                         <div class="col-12 mt-auto">
@@ -282,14 +282,14 @@
                                         </div>
 
                                         @*<div class="col-4 mb-1">
-                                            <div class="col-12">
-                                                <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
-                                                    Folio <i class="fa-solid fa-circle-info fa-xs"></i>
-                                                </label>
-                                                <div class="col-12">
-                                                    <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
-                                                </div>
-                                            </div>
+                                        <div class="col-12">
+                                        <label @onmouseenter="@(args => ShowTooltip(infoIcon))" @ref="infoIcon">
+                                        Folio <i class="fa-solid fa-circle-info fa-xs"></i>
+                                        </label>
+                                        <div class="col-12">
+                                        <RadzenTextBox class="form-control col-12 disabled" @bind-Value="ordenCierre.Folio" Disabled="true" />
+                                        </div>
+                                        </div>
                                         </div>*@
 
                                         <div class="col-12 mb-1">
@@ -377,8 +377,13 @@
                     </AuthorizeView>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de creación de cierre" Property="FchCierre" FormatString="{0:d}" Filterable="false" Width="140px" OrderIndex="2" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de vencimiento" Property="FchVencimiento" FormatString="{0:d}" Filterable="false" OrderIndex="3" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad de Negocio" Property="Terminal" Filterable="false" Width="160px;">
+                        <Template Context="data">
+                            @(data.Terminal is not null ? data.Terminal.Den : "Sin unidad de negocio")
+                        </Template>
+                    </RadzenDataGridColumn>
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Filterable="false" Width="120px" OrderIndex="4" />
-                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5" />
+                    <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL/Embarque" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" Width="120px" OrderIndex="5" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" OrderIndex="6" />
                     <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" FilterValue="DestinosSeleccionado" OrderIndex="7">
                         <FilterTemplate Context="Destinos">
@@ -433,13 +438,13 @@
                         <Template Context="item">
                             <div class="col-12">
                                 @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                                item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                                : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                                : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                                : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                                : item?.Volumen
-                                )
+                                         item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+                                         item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                         : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                         : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                         : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                         : item?.Volumen
+                                         )
                             </div>
                         </Template>
                     </RadzenDataGridColumn>
@@ -735,7 +740,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -839,13 +844,13 @@
                             Can_Make_Orden = true;
 
                 var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea crear ordenes de este pedido?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = "¿Desea crear ordenes de este pedido?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
@@ -854,13 +859,13 @@
                 else
                 {
                     var confirmCancel = await Swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = "¿Desea enviar una notificacion de cierre pendente al equipo interno?"
-                    });
+                        {
+                            Icon = SweetAlertIcon.Info,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "¿Desea enviar una notificacion de cierre pendente al equipo interno?"
+                        });
                     if (!string.IsNullOrEmpty(confirmCancel.Value))
                     {
 
@@ -987,7 +992,7 @@
                 ws.Columns.Width = 65;
                 ws.Columns.AutoFit();
 
-                var header = ws.Cells["A1:L1"];
+                var header = ws.Cells["A1:R1"];
 
                 var ordenFilter = new List<OrdenCierre>();
                 foreach (var item in ordenCierres)
@@ -995,15 +1000,22 @@
                        && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado)))
                         ordenFilter.Add(item);
 
-                var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
-                tablebody.Style.Font.Size = 14;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                tablebody.Style.Font.Bold = true;
-                header.Style.Font.Size = 14;
+                var tablebody = ws.Cells["A1"].LoadFromCollection<OrdenCierre>(ordenFilter, c => { c.PrintHeaders = true; c.TableStyle = TableStyles.Medium2; });
+                
+                ws.Cells[$"H1:H{ws.Dimension.End.Row}"].Style.Numberformat.Format = "#,####0.0000";
+                ws.Cells[$"L1:L{ws.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
 
-                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
-                header.Style.Font.Bold = true;
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                // var tablebody = ws.Cells["A1:A1"].LoadFromCollection<OrdenCierre>(ordenFilter, true);
+                // tablebody.Style.Font.Size = 14;
+                // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                // tablebody.Style.Font.Bold = true;
+                // header.Style.Font.Size = 14;
+
+                // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                // header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                // header.Style.Font.Bold = true;
 
                 await js.GuardarComo($"Cierre_{ordenCierre.Folio}_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
                 loadingExport = false;
@@ -1025,12 +1037,12 @@
         try
         {
             ms.Notify(new NotificationMessage()
-            {
-                Summary = "Enviando correos",
-                Detail = "Se estan enviando los corresos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
-                Duration = 10000,
-                Severity = NotificationSeverity.Info
-            });
+                {
+                    Summary = "Enviando correos",
+                    Detail = "Se estan enviando los corresos de notificacion de cierre, espere en esta pantalla hasta terminar el proceso.",
+                    Duration = 10000,
+                    Severity = NotificationSeverity.Info
+                });
             if (ordenCierres.Count > 0)
             {
                 var clientes = ordenCierres.DistinctBy(x => x.CodCte).Select(x => x.CodCte);
@@ -1044,13 +1056,13 @@
                     count++;
                     loadingSend = true;
                     ms.Notify(new NotificationMessage()
-                    {
-                        Summary = "Enviando correos",
-                        Detail = $"Enviando {count} de {total} correos",
-                        Duration = 10000,
-                        Severity = NotificationSeverity.Info
-                    });
-                    var ordenes = ordenCierres.Where(x => x.CodCte == item && x.Activa == true).ToList();
+                        {
+                            Summary = "Enviando correos",
+                            Detail = $"Enviando {count} de {total} correos",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Info
+                        });
+                    var ordenes = ordenCierres.Where(x => x.CodCte == item && x.Estatus == true).ToList();
                     var response = await http.Post<List<OrdenCierre>>("api/email/confirmacion", ordenes);
                     if (response.Error)
                     {
@@ -1063,12 +1075,12 @@
                     {
                         loadingSend = false;
                         ms.Notify(new NotificationMessage()
-                        {
-                            Summary = "Enviando correos",
-                            Detail = $"Correo enviado",
-                            Duration = 10000,
-                            Severity = NotificationSeverity.Success
-                        });
+                            {
+                                Summary = "Enviando correos",
+                                Detail = $"Correo enviado",
+                                Duration = 10000,
+                                Severity = NotificationSeverity.Success
+                            });
 
                         OrdenesEnviadas.AddRange(ordenes);
                     }
@@ -1204,12 +1216,12 @@
                 Precios = response.Response;
                 if (Precios.Count == 0)
                     ms.Notify(new NotificationMessage()
-                    {
-                        Summary = "Precios",
-                        Detail = $"No se han encontrado precios para este destino.",
-                        Duration = 10000,
-                        Severity = NotificationSeverity.Warning
-                    });
+                        {
+                            Summary = "Precios",
+                            Detail = $"No se han encontrado precios para este destino.",
+                            Duration = 10000,
+                            Severity = NotificationSeverity.Warning
+                        });
                 StateHasChanged();
                 DestinoSeleccionado = ordenCierre.CodDes;
             }
@@ -1273,7 +1285,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1297,7 +1309,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1319,7 +1331,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1343,7 +1355,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1366,7 +1378,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1389,7 +1401,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1412,7 +1424,7 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            
+
         }
     }
 
@@ -1458,12 +1470,12 @@
             await ds.OpenAsync<ViewCierresComponent>("Cierres de pedidos",
                 new Dictionary<string, object>() { { "isStatus", true } },
                 new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+                    {
+                        Width = "90%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
         }
         catch (Exception e)
         {
@@ -1478,12 +1490,12 @@
             await ds.OpenAsync<ViewAutocreacionOrdenesComponent>("Crear ordenes de pedido",
                 new Dictionary<string, object>() { { "CierresList", ordenCierres } },
                 new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+                    {
+                        Width = "90%",
+                        Height = "600px",
+                        Resizable = true,
+                        Draggable = false
+                    });
         }
         catch (Exception e)
         {

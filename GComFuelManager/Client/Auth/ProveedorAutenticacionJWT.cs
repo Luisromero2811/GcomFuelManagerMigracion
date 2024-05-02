@@ -107,10 +107,27 @@ namespace GComFuelManager.Client.Auth
             //Console.WriteLine("Renovando Token");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>("api/cuentas/renovarToken");
-            var nuevoToken = nuevoTokenResponse.Response!;
+            Dictionary<string, string> query = new();
+
+            query["t"] = token;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/cuentas/renovarToken?{url}");
+            var nuevoToken = nuevoTokenResponse.Response;
 
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))
+            {
+                await Logoute();
+                return "";
+            }
+
+            if (nuevoToken is null)
+            {
+                await Logoute();
+                return "";
+            }
+
+            if (string.IsNullOrEmpty(nuevoToken.Token) || string.IsNullOrWhiteSpace(nuevoToken.Token))
             {
                 await Logoute();
                 return "";

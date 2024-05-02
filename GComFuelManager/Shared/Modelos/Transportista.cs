@@ -1,35 +1,55 @@
+using OfficeOpenXml.Attributes;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Newtonsoft.Json;
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
-using System.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace GComFuelManager.Shared.Modelos
 {
     public class Transportista
     {
-        [JsonProperty("cod"), Key]
+        [Key, EpplusIgnore]
         public int Cod { get; set; } = 0;
-
-        [JsonProperty("den"), MaxLength(256)]
+        [MaxLength(256), DisplayName("Nombre de Transportista")]
         public string? Den { get; set; } = string.Empty;
-
-        [JsonProperty("carrId"), AllowNull, DefaultValue("")]
+        [AllowNull, DefaultValue(""), EpplusIgnore]
         public string? CarrId { get; set; } = string.Empty;
-
-        [JsonProperty("busentid"), MaxLength(15)]
+        [MaxLength(15), EpplusIgnore]
         public string? Busentid { get; set; } = string.Empty;
+        [EpplusIgnore] public bool? Activo { get; set; } = true;
+        [EpplusIgnore] public bool? Simsa { get; set; } = true;
+        [EpplusIgnore] public string? Gru { get; set; } = string.Empty;
 
-        [JsonProperty("activo")]
-        public bool? Activo { get; set; } = true;
+        //Union con GrupoTransportista
+        [NotMapped, EpplusIgnore]
+        public GrupoTransportista? GrupoTransportista { get; set; } = null!;
 
-        [JsonProperty("simsa")]
-        public bool? Simsa { get; set; } = true;
+        [EpplusIgnore] public int? Codgru { get; set; } = null!;
+        [EpplusIgnore] public short? Id_Tad { get; set; }
+        [EpplusIgnore] public string? CarId_Original { get; set; } = string.Empty;   
+        [EpplusIgnore] public string? BusentId_Original { get; set; } = string.Empty;   
 
-        [JsonProperty("gru")]
-        public string? Gru { get; set; } = string.Empty;
+        [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
+        [EpplusIgnore, NotMapped, JsonIgnore] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
 
+        [NotMapped] public Tad? Tad { get; set; } = null!;
+
+        public Transportista HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                CarrId = CarrId,
+                Busentid = Busentid,
+                Activo = Activo,
+                Simsa = Simsa,
+                Gru = Gru,
+                Codgru = Codgru,
+                Id_Tad = Id_Tad
+            };
+        }
     }
 }
 

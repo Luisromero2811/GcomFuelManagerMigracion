@@ -34,7 +34,7 @@
             <Columns>
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio" Property="Folio" Frozen="true" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Fecha de cierre" Property="FchCierre" Filterable="false" FormatString="{0:d}" />
-                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
+                <RadzenDataGridColumn TItem="OrdenCierre" Title="BOL/Embarque" Property="OrdenEmbarque.Orden.BatchId" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Folio de referencia" Property="OrdenEmbarque.Folio" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Destino" Property="Destino.Den" Filterable="false" />
                 <RadzenDataGridColumn TItem="OrdenCierre" Title="Unidad" Property="OrdenEmbarque.Tonel.Veh" Filterable="false" />
@@ -201,16 +201,23 @@
                         if (item.Producto == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
                             ordenFilter.Add(item);
 
-                    var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(response.Response, true);
-                    tablebody.Style.Font.Size = 14;
-                    tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                    tablebody.Style.Font.Bold = true;
+                    var tablebody = ws.Cells["A1"].LoadFromCollection(response.Response, c => { c.PrintHeaders = true; c.TableStyle = TableStyles.Medium2; });
 
-                    header.Style.Font.Size = 14;
+                    ws.Cells[$"G1:G{ws.Dimension.End.Row}"].Style.Numberformat.Format = "#,####0.0000";
+                    ws.Cells[$"H1:H{ws.Dimension.End.Row}"].Style.Numberformat.Format = "#,##0.00";
 
-                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
-                    header.Style.Font.Bold = true;
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    // var tablebody = ws.Cells["A1:A1"].LoadFromCollection<DetalleCierreDTO>(response.Response, true);
+                    // tablebody.Style.Font.Size = 14;
+                    // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    // tablebody.Style.Font.Bold = true;
+
+                    // header.Style.Font.Size = 14;
+
+                    // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    // header.Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+                    // header.Style.Font.Bold = true;
 
                     await js.GuardarComo($"Detalle_Cierre_{DateTime.Now.ToString()}.xlsx", excel.GetAsByteArray());
                     loadingExport = false;

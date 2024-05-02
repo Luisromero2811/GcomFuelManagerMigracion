@@ -57,7 +57,8 @@ namespace GComFuelManager.Shared.DTOs
         public double? LitEnt { get; set; } = 0;
         [DisplayName("Litros Entregados")]
         public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } }
-
+        [DisplayName("Unidad de Negocio")]
+        public string? Unidad_Negocio { get; set; } = string.Empty;
         [EpplusIgnore]
         public Orden? orden { get; set; } 
         [EpplusIgnore]

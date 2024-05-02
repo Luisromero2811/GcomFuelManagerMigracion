@@ -3,121 +3,127 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 
-<div class="col-12 card">
-    <div class="card-body">
-        <EditForm Model="Moneda" class="form col-12 row" OnValidSubmit="@Guardar_Moneda">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Precios")]
+    <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Precios" Context="Forms">
+        <div class="col-12 card">
+            <div class="card-body">
+                <EditForm Model="Moneda" class="form col-12 row" OnValidSubmit="@Guardar_Moneda">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-            <div class="col-4">
-                <label>Abreviatura de moneda</label>
-                <InputText class="col-12 form-control form-control-sm" @bind-Value="Moneda.Nombre"/>
-                <ValidationMessage For="()=>Moneda.Nombre"/>
+                    <div class="col-4">
+                        <label>Abreviatura de moneda</label>
+                        <InputText class="col-12 form-control form-control-sm" @bind-Value="Moneda.Nombre" />
+                        <ValidationMessage For="()=>Moneda.Nombre" />
+                    </div>
+                    <div class="col-3 d-flex">
+                        <button class="btn btn-sm col-12 gcom-bg-amarillo mt-auto" type="submit">
+                            Guardar
+                        </button>
+                    </div>
+                </EditForm>
             </div>
-            <div class="col-3 d-flex">
-                <button class="btn btn-sm col-12 gcom-bg-amarillo mt-auto" type="submit">
-                    Guardar
-                </button>
-            </div>
-        </EditForm>
-    </div>
-</div>
-<div class="col-12">
-    <table class="table table-hover table-bordered">
-        <thead>
-            <tr>
-                <th>Moneda</th>
-                <th>Estatus</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (Monedas is null || Monedas.Count == 0)
-            {
+        </div>
+    </AuthorizeView>
+    <div class="col-12">
+        <table class="table table-hover table-bordered">
+            <thead>
                 <tr>
-                    <td colspan="2">No hay registros</td>
+                    <th>Moneda</th>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Precios">
+                        <th>Estatus</th>
+                    </AuthorizeView>
+
                 </tr>
-            }
-            else
-            {
-                <Virtualize Items="Monedas" TItem="Moneda">
+            </thead>
+            <tbody>
+                @if (Monedas is null || Monedas.Count == 0)
+                {
                     <tr>
-                        <td>@context.Nombre</td>
-                        <td>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" checked="@context.Estatus" @onchange="@(()=>Eliminar_Monedas(context))">
-                            </div>
-                        </td>
+                        <td colspan="2">No hay registros</td>
                     </tr>
-                </Virtualize>
+                }
+                else
+                {
+                    <Virtualize Items="Monedas" TItem="Moneda">
+                        <tr>
+                            <td>@context.Nombre</td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" checked="@context.Estatus" @onchange="@(()=>Eliminar_Monedas(context))">
+                                </div>
+                            </td>
+                        </tr>
+                    </Virtualize>
+                }
+            </tbody>
+        </table>
+    </div>
+    @code {
+
+        List<Moneda> Monedas { get; set; } = new List<Moneda>();
+        Moneda Moneda { get; set; } = new Moneda();
+
+        protected async override Task OnInitializedAsync()
+        {
+            await Obtener_Monedas();
+        }
+
+        private async Task Guardar_Moneda()
+        {
+            try
+            {
+                var response = await http.Post<Moneda, Moneda>("api/moneda", Moneda);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                }
+                else
+                {
+                    Monedas.Add(response.Response);
+                }
             }
-        </tbody>
-    </table>
-</div>
-@code {
+            catch (Exception)
+            {
 
-    List<Moneda> Monedas { get; set; } = new List<Moneda>();
-    Moneda Moneda { get; set; } = new Moneda();
+            }
+        }
 
-    protected async override Task OnInitializedAsync()
-    {
-        await Obtener_Monedas();
+        private async Task Obtener_Monedas()
+        {
+            try
+            {
+                var response = await http.Get<List<Moneda>>("api/moneda/completas");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                }
+                else
+                {
+                    Monedas = response.Response;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+        }
+
+        private async Task Eliminar_Monedas(Moneda moneda)
+        {
+            try
+            {
+                var response = await http.Delete($"api/moneda/{moneda.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                }
+                else
+                    moneda.Estatus = false;
+            }
+            catch (Exception)
+            {
+
+            }
+        }
     }
-
-    private async Task Guardar_Moneda()
-    {
-        try
-        {
-            var response = await http.Post<Moneda, Moneda>("api/moneda", Moneda);
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-            {
-                Monedas.Add(response.Response);
-            }
-        }
-        catch (Exception)
-        {
-
-        }
-    }
-
-    private async Task Obtener_Monedas()
-    {
-        try
-        {
-            var response = await http.Get<List<Moneda>>("api/moneda/completas");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-            {
-                Monedas = response.Response;
-            }
-        }
-        catch (Exception)
-        {
-
-        }
-    }
-
-    private async Task Eliminar_Monedas(Moneda moneda)
-    {
-        try
-        {
-            var response = await http.Delete($"api/moneda/{moneda.Id}");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-                moneda.Estatus = false;
-        }
-        catch (Exception)
-        {
-
-        }
-    }
-}

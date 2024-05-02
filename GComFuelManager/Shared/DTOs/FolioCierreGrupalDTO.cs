@@ -19,6 +19,8 @@ namespace GComFuelManager.Shared.DTOs
         public DateTime? FchCierre { get; set; } = DateTime.MinValue;
         [EpplusIgnore]
         public Grupo? Grupo { get; set; } = null!;
+        [EpplusIgnore]
+        public Tad? Terminal { get; set; } = null!;
         [NotMapped, EpplusIgnore]
         public string? Estado { get; set; } = null!;
         [NotMapped, EpplusIgnore]
@@ -48,6 +50,8 @@ namespace GComFuelManager.Shared.DTOs
         public double Precio { get; set; } = 0;
         //Observaciones
         public string? Observaciones { get; set; } = string.Empty;
+        [DisplayName("Unidad de Negocio")]
+        public string Terminales { get; set; } = null!;
 
     }
 }

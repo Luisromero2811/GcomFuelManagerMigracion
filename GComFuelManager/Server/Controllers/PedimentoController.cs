@@ -1,4 +1,5 @@
 ﻿using GComFuelManager.Client.Shared;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,10 +15,11 @@ namespace GComFuelManager.Server.Controllers
     public class PedimentoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
-
-        public PedimentoController(ApplicationDbContext context)
+        private readonly User_Terminal _terminal;
+        public PedimentoController(ApplicationDbContext context, User_Terminal _Terminal)
         {
             this.context = context;
+            this._terminal = _Terminal;
         }
 
         [HttpGet]
@@ -25,10 +27,14 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (filtroDTO is null)
                     return BadRequest("valores no permitidos");
 
-                List<Pedimento> pedimentos = context.Pedimentos.Where(x => x.Fecha_Actual >= filtroDTO.Fecha_Inicio && x.Fecha_Actual <= filtroDTO.Fecha_Fin && x.Activo == true)
+                List<Pedimento> pedimentos = context.Pedimentos.Where(x => x.Fecha_Actual >= filtroDTO.Fecha_Inicio && x.Fecha_Actual <= filtroDTO.Fecha_Fin && x.Activo == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Producto)
                     .OrderByDescending(x => x.Fecha_Actual)
                     .ToList();
@@ -46,14 +52,18 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                Pedimento? pedimento = context.Pedimentos.Include(x => x.Producto).FirstOrDefault(x => x.Id == Id);
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                Pedimento? pedimento = context.Pedimentos.Include(x => x.Producto).FirstOrDefault(x => x.Id == Id && x.Id_Tad == id_terminal);
 
                 if (pedimento is null)
                     return BadRequest("No se encontro el pedimento");
 
                 List<OrdenEmbarque> Ordenes_Pedimento = new();
-                var Ordenes_Pedimento_Query = context.OrdenEmbarque.Where(x => (x.Orden == null && x.Fchcar >= pedimento.Fecha_Actual && x.Fchcar <= pedimento.Fecha_Actual)
-                                                                            || (x.Orden != null && x.Orden.Fchcar >= pedimento.Fecha_Actual && x.Orden.Fchcar <= pedimento.Fecha_Actual))
+                var Ordenes_Pedimento_Query = context.OrdenEmbarque.Where(x => (x.Orden == null && x.Fchcar >= pedimento.Fecha_Actual && x.Fchcar <= pedimento.Fecha_Actual && x.Codtad == id_terminal)
+                                                                            || (x.Orden != null && x.Orden.Fchcar >= pedimento.Fecha_Actual && x.Orden.Fchcar <= pedimento.Fecha_Actual && x.Codtad == id_terminal))
                     .Include(x => x.Orden).Include(x => x.Estado).Include(x => x.OrdenCierre).ThenInclude(x => x.Cliente).Include(x => x.Destino).Include(x => x.Producto)
                     .Include(x => x.Orden).ThenInclude(x => x.Destino)
                     .Include(x => x.Orden).Include(x => x.Producto)
@@ -66,7 +76,7 @@ namespace GComFuelManager.Server.Controllers
 
                 Ordenes_Pedimento.ForEach(x =>
                 {
-                    x.Pre = Obtener_Precio_Del_Dia_De_Orden(x.Cod).Precio;
+                    x.Pre = Obtener_Precio_Del_Dia_De_Orden(x.Cod, id_terminal).Precio;
                     x.Costo = pedimento.Costo;
                     pedimento.Litros_Totales += x.Obtener_Volumen_De_Orden();
                 });
@@ -86,10 +96,14 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 List<OrdenEmbarque> Ordenes_Pedimento = new();
 
-                var Ordenes_Pedimento_Query = context.OrdenEmbarque.Where(x => (x.Orden == null && x.Fchcar >= filtroDTO.Fecha_Inicio && x.Fchcar <= filtroDTO.Fecha_Fin)
-                                                                            || (x.Orden != null && x.Orden.Fchcar >= filtroDTO.Fecha_Inicio && x.Orden.Fchcar <= filtroDTO.Fecha_Fin))
+                var Ordenes_Pedimento_Query = context.OrdenEmbarque.Where(x => (x.Orden == null && x.Fchcar >= filtroDTO.Fecha_Inicio && x.Fchcar <= filtroDTO.Fecha_Fin && x.Codtad == id_terminal)
+                                                                            || (x.Orden != null && x.Orden.Fchcar >= filtroDTO.Fecha_Inicio && x.Orden.Fchcar <= filtroDTO.Fecha_Fin && x.Codtad == id_terminal))
                     .Include(x => x.Orden).Include(x => x.Estado).Include(x => x.OrdenCierre).ThenInclude(x => x.Cliente).Include(x => x.Destino).Include(x => x.Producto)
                     .Include(x => x.Orden).ThenInclude(x => x.Destino)
                     .Include(x => x.Orden).Include(x => x.Producto)
@@ -103,8 +117,8 @@ namespace GComFuelManager.Server.Controllers
 
                 Ordenes_Pedimento.ForEach(x =>
                 {
-                    x.Pre = Obtener_Precio_Del_Dia_De_Orden(x.Cod).Precio;
-                    x.Costo = Obtener_Costo_De_Pedimento(x).Costo;
+                    x.Pre = Obtener_Precio_Del_Dia_De_Orden(x.Cod, id_terminal).Precio;
+                    x.Costo = Obtener_Costo_De_Pedimento(x, id_terminal).Costo;
                 });
 
                 return Ok(Ordenes_Pedimento);
@@ -142,8 +156,14 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
                 if (pedimento is null)
                     return BadRequest("Los valores no pueden estar vacios");
+
+                pedimento.Id_Tad = id_terminal;
 
                 if (pedimento.Id == 0)
                     context.Add(pedimento);
@@ -165,11 +185,11 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden(int Id)
+        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden(int Id, short terminal)
         {
             try
             {
-                var orden = context.OrdenEmbarque.Where(x => x.Cod == Id)
+                var orden = context.OrdenEmbarque.Where(x => x.Cod == Id && x.Codtad == terminal)
                     .Include(x => x.Orden)
                     .Include(x => x.OrdenCierre)
                     .IgnoreAutoIncludes()
@@ -180,16 +200,16 @@ namespace GComFuelManager.Server.Controllers
 
                 PrecioBolDTO precio = new();
 
-                var precioVig = context.Precio.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == terminal)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd)
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == terminal)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
-                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.codDes == orden.Coddes && x.codPrd == orden.Codprd
-                    && orden.Fchcar != null && x.FchDia <= DateTime.Today)
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
+                    && orden.Fchcar != null && x.FchDia <= DateTime.Today && x.Id_Tad == terminal)
                     .OrderByDescending(x => x.FchDia)
                     .FirstOrDefault();
 
@@ -208,7 +228,7 @@ namespace GComFuelManager.Server.Controllers
 
                     if (ordenepedido is not null)
                     {
-                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio && x.Id_Tad == terminal
                          && x.CodPrd == orden.Codprd).FirstOrDefault();
 
                         if (cierre is not null)
@@ -234,13 +254,13 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        private Pedimento Obtener_Costo_De_Pedimento(OrdenEmbarque orden)
+        private Pedimento Obtener_Costo_De_Pedimento(OrdenEmbarque orden, short terminal)
         {
             try
             {
                 Pedimento? pedimento = new();
 
-                pedimento = context.Pedimentos.Where(x => x.ID_Producto == orden.Codprd && x.Fecha_Actual <= orden.Fchcar).OrderByDescending(x => x.Fecha_Actual).FirstOrDefault();
+                pedimento = context.Pedimentos.Where(x => x.ID_Producto == orden.Codprd && x.Fecha_Actual <= orden.Fchcar && x.Id_Tad == terminal).OrderByDescending(x => x.Fecha_Actual).FirstOrDefault();
 
                 if (pedimento is not null)
                     return pedimento;

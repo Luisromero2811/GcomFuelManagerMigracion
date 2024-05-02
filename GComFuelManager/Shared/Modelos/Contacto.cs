@@ -11,15 +11,11 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class Contacto
     {
-        [JsonProperty("cod"), Key]
+        [Key]
         public int Cod { get; set; }
-        [JsonProperty("nombre")]
         public string Nombre { get; set; } = string.Empty;
-        [JsonProperty("correo")]
         public string Correo { get; set; } = string.Empty;
-        [JsonProperty("codCte")]
         public int? CodCte { get; set; } = 0;
-        [JsonProperty("estado")]
         public bool Estado { get; set; } = true;
         [NotMapped]
         public Cliente? Cliente { get; set; } = null!;
@@ -27,5 +23,18 @@ namespace GComFuelManager.Shared.Modelos
         public List<AccionCorreo>? AccionCorreos { get; set; } = null!;
         [NotMapped]
         public List<Accion>? Accions { get; set; } = new List<Accion>();
+
+        public Contacto HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Nombre = Nombre,
+                Correo = Correo,
+                CodCte = CodCte,
+                Estado = Estado,
+                AccionCorreos = AccionCorreos
+            };
+        }
     }
 }

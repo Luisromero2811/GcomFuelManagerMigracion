@@ -1,3 +1,4 @@
+using GComFuelManager.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
@@ -10,62 +11,65 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class OrdenEmbarque
     {
-        [JsonProperty("cod"), Key] public int Cod { get; set; }
-        [JsonProperty("fchOrd")] public DateTime? FchOrd { get; set; }
-        [JsonProperty("fchPro")] public DateTime? FchPro { get; set; }
-        [JsonProperty("codtad")] public Int16? Codtad { get; set; } = 1;
-        [JsonProperty("codprd")] public byte? Codprd { get; set; }
+        [Key] public int Cod { get; set; }
+        public DateTime? FchOrd { get; set; }
+        public DateTime? FchPro { get; set; }
+        public Int16? Codtad { get; set; } = 1;
+        public byte? Codprd { get; set; }
 
-        [JsonProperty("vol"), DisplayName("Volumen"), EpplusIgnore]
+        [DisplayName("Volumen"), EpplusIgnore]
         public double? Vol { get; set; } = 0;
         [DisplayName("Volumen")]
         public string Volumenes { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", Vol); } }
-        [JsonProperty("codchf")] public int? Codchf { get; set; }
-        [JsonProperty("coddes")] public int? Coddes { get; set; }
-        [JsonProperty("codest")] public byte? Codest { get; set; }
-        [JsonProperty("fchpet")] public DateTime? Fchpet { get; set; }
-        [JsonProperty("fchcar")] public DateTime? Fchcar { get; set; } = DateTime.Today;
-        [JsonProperty("codton")] public int? Codton { get; set; }
-        [JsonProperty("bin")] public int? Bin { get; set; }
-        [JsonProperty("codusu")] public int? Codusu { get; set; }
-        [JsonProperty("folio")] public int? Folio { get; set; }
-        [JsonProperty("pre")] public double? Pre { get; set; } = 0;
-        [JsonProperty("codordCom")] public int? CodordCom { get; set; }
-        [JsonProperty("bolguidid")] public string? Bolguidid { get; set; }
-        [JsonProperty("tp")] public bool? Tp { get; set; }
-        [JsonProperty("CompartmentId")] public int? CompartmentId { get; set; }
-        [JsonProperty("compartment")] public int? Compartment { get; set; } = 1;
-        [JsonProperty("numTonel")] public int? NumTonel { get; set; }
-        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
+        public int? Codchf { get; set; }
+        public int? Coddes { get; set; }
+        public byte? Codest { get; set; }
+        public DateTime? Fchpet { get; set; }
+        public DateTime? Fchcar { get; set; } = DateTime.Today;
+        public int? Codton { get; set; }
+        public int? Bin { get; set; }
+        public int? Codusu { get; set; }
+        public int? Folio { get; set; }
+        public double? Pre { get; set; } = 0;
+        public int? CodordCom { get; set; }
+        public string? Bolguidid { get; set; }
+        public bool? Tp { get; set; }
+        public int? CompartmentId { get; set; }
+        public int? Compartment { get; set; } = 1;
+        public int? NumTonel { get; set; }
         [EpplusIgnore] public int? ID_Moneda { get; set; } = 0;
         public double? Equibalencia { get; set; } = 1;
+        public string? FolioSyn { get; set; } = string.Empty;
+        [EpplusIgnore]
+        public int? Bol { get; set; }
+        public byte? Estatus { get; set; }
+        public int? Id_Autorizador { get; set; }
+        public int? Folio_Vale { get; set; }
+        public int? Id_Multidestino { get; set; }
+
+        [NotMapped] public List<HistorialEstados> HistorialEstados { get; set; } = new();
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;
         [NotMapped] public Tonel? Tonel { get; set; } = null!;
         [NotMapped] public Chofer? Chofer { get; set; } = null!;
-
+        [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [NotMapped] public OrdenCompra? OrdenCompra { get; set; } = null!;
         [NotMapped] public Estado? Estado { get; set; } = null!;
-
+        [NotMapped] public Estado? Estatus_Orden { get; set; } = null!;
         [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public Usuario? Usuario { get; set; } = null!;
-
         [NotMapped] public Orden? Orden { get; set; } = null!;
-
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
-
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
         [NotMapped] public int? Compartimento { get; set; } = null!;
-        public string? FolioSyn { get; set; } = string.Empty;
-        [EpplusIgnore]
-        public int? Bol { get; set; }
+        [NotMapped] public Datos_Facturas? Datos_Facturas { get; set; } = null!;
+
         public OrdenEmbarque ShallowCopy()
         {
             return (OrdenEmbarque)this.MemberwiseClone();
         }
-
         public OrdenEmbarque HardCopy()
         {
             return new()
@@ -94,7 +98,8 @@ namespace GComFuelManager.Shared.Modelos
                 ID_Moneda = ID_Moneda,
                 Equibalencia = Equibalencia,
                 Bol = Bol,
-                Vol = Vol
+                Vol = Vol,
+                Estatus = Estatus
             };
         }
 
@@ -104,6 +109,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public double? Utilidad_Sobre_Volumen { get; set; } = 0;
         [NotMapped, EpplusIgnore] public bool Mostrar_Detalle_Orden { get; set; } = false;
         [NotMapped, EpplusIgnore] public List<Orden> Ordenes_Synthesis { get; set; } = new();
+        [NotMapped, EpplusIgnore] public string? Terminales { get; set; }
 
         public double Obtener_Utilidad_Coste()
         {
@@ -156,6 +162,74 @@ namespace GComFuelManager.Shared.Modelos
             {
                 return "0";
             }
+        }
+        public Gestión_EstadosDTO Obtener_Orden_Gestion_Estado()
+        {
+            Gestión_EstadosDTO gestion_ = new();
+            gestion_.Referencia = FolioSyn;
+            gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
+
+            if (Tad is not null)
+                if (!string.IsNullOrEmpty(Tad.Den))
+                    gestion_.Unidad_Negocio = Tad.Den;
+
+            gestion_.EstatusOrden = Obtener_Estado_De_Orden;
+
+            gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
+            gestion_.Bol = Orden?.BatchId;
+            gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
+            gestion_.Cliente = Obtener_Cliente_De_Orden;
+            gestion_.Destino = Obtener_Destino_De_Orden;
+            gestion_.Producto = Obtener_Producto_De_Orden;
+            if (Tonel is not null)
+                gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
+                        Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
+                        Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
+                        Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
+            gestion_.VolCar = Vol;
+            gestion_.Transportista = Tonel?.Transportista?.Den;
+            gestion_.Unidad = Obtener_Tonel_De_Orden;
+            gestion_.Operador = Chofer?.FullName;
+            gestion_.Numero_Factura = Datos_Facturas?.Numero_Orden;
+            gestion_.Factura_MGC = Datos_Facturas?.Factura_MGC;
+            gestion_.Factura_MexicoS = Datos_Facturas?.Factura_MexicoS;
+            gestion_.Factura_DCL = Datos_Facturas?.Factura_DCL;
+            gestion_.Factura_Energas = Datos_Facturas?.Factura_Energas;
+            if (HistorialEstados is not null)
+            {
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "1_Por asignar") is not null)
+                    gestion_.Por_Asignar = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "1_Por asignar").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "2_Asignado") is not null)
+                    gestion_.Asignado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "2_Asignado").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "3_Por cargar") is not null)
+                    gestion_.Por_Cargar = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "3_Por cargar").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "4_Cargado") is not null)
+                    gestion_.Cargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "4_Cargado").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "5_En ruta a TAS") is not null)
+                    gestion_.Ruta_Tas = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "5_En ruta a TAS").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "6_Fuera de TAS") is not null)
+                    gestion_.Fuera_Tas = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "6_Fuera de TAS").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "7_En espera dentro de TAS") is not null)
+                    gestion_.Espera_dentro_TAS = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "7_En espera dentro de TAS").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "8_En proceso de descarga") is not null)
+                    gestion_.Proceso_descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8_En proceso de descarga").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
+                    gestion_.Descargado  = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
+
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
+                    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
+
+            }
+
+            return gestion_;
         }
         public string Obtener_Cliente_De_Orden
         {
@@ -253,5 +327,22 @@ namespace GComFuelManager.Shared.Modelos
                 return "Si unidad asignada";
             }
         }
+    }
+
+    public class OrdenEmbarque_Excel
+    {
+        [DisplayName("Fecha de carga")]
+        public DateTime Fecha_Programa { get; set; } = DateTime.MinValue;
+        [DisplayName("Fecha de llegada estimada")]
+        public DateTime Fecha_Estimada { get; set; } = DateTime.MinValue;
+        public string Producto { get; set; } = string.Empty;
+        public double Volumen { get; set; } = 0;
+        public string Cliente { get; set; } = string.Empty;
+        public string Destino { get; set; } = string.Empty;
+        //public string Tonel { get; set; } = string.Empty;
+        //public int Compartimento { get; set; } = 0;
+        //public string Operador { get; set; } = string.Empty;
+        public string Turno { get; set; } = string.Empty;
+
     }
 }

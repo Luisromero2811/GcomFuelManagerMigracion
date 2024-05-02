@@ -1,0 +1,226 @@
+﻿@page "/terminales"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+@inject DialogService ds
+@attribute [Authorize]
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        Configuracion de unidades de negocio
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <b>Agregar unidad de negocio</b>
+        </div>
+        <div class="col-12">
+            <EditForm Model="Terminal" OnValidSubmit="Guardar_Terminal">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-12 row">
+                    <div class="col-3">
+                        <InputText @bind-Value="Terminal.Den" max="128" class="form-control form-control-sm" placeholder="Nombre de la unidad de negocio" />
+                        <ValidationMessage For="@(()=>Terminal.Den)" />
+                    </div>
+                    <div class="col-3">
+                        <InputText @bind-Value="Terminal.Codigo" max="128" class="form-control form-control-sm" placeholder="Abreviacion de la unidad de negocio" />
+                        <ValidationMessage For="@(()=>Terminal.Codigo)" />
+                    </div>
+                    <div class="col-3">
+                        <InputText @bind-Value="Terminal.CodigoOrdenes" max="128" class="form-control form-control-sm" placeholder="Identificador de orden" />
+                        <ValidationMessage For="@(()=>Terminal.CodigoOrdenes)" />
+                    </div>
+                    <div class="col-3 row">
+                        <div class="col-6">
+                            <button class="col-12 btn btn-sm gcom-bg-amarillo" type="submit">
+                                Guardar
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" @onclick="@(()=>Terminal = new())">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+<div class="ancho-tabla my-2">
+    <table class="table table-stripped table-bordered">
+        <thead>
+            <tr>
+                <th>Unidad de negocio</th>
+                <th>Abreviacion</th>
+                <th>Identificador de orden</th>
+                <th>Editar</th>
+                <th>Activar / Desactivar</th>
+                <th>Catalogo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <Virtualize Items="Terminales" TItem="Tad" Context="terminal">
+                <tr>
+                    <td>@terminal.Den</td>
+                    <td>@terminal.Codigo</td>
+                    <td>@terminal.CodigoOrdenes</td>
+                    <td>
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Fijar_Terminal(terminal))">
+                            <i class="fa fa-sild fa-edit"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <div class="form-check form-switch">
+                            <input type="checkbox" class="form-check-input" role="switch" checked="@terminal.Activo" @onchange="@((args)=>Cambiar_Status_Terminal(args, terminal))" />
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            @if (loading_catalogo)
+                            {
+                                <button class="btn btn-sm gcom-bg-amarillo" disabled>
+                                    Copiar catalogo
+                                    <SpinnerLoading />
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modulo_Copiado(terminal))">
+                                    Copiar catalogo
+                                </button>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+    </table>
+</div>
+@code {
+    Tad Terminal { get; set; } = new();
+    List<Tad> Terminales { get; set; } = new();
+
+    bool loading_catalogo = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Terminal();
+    }
+
+    private async Task Obtener_Terminal()
+    {
+        try
+        {
+            var response = await http.Get<List<Tad>>("api/terminal/all");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Terminal()
+    {
+        try
+        {
+            var response = await http.Post<Tad, Tad>("api/terminal", Terminal);
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminal = new();
+                await Obtener_Terminal();
+                if (response.Response is not null)
+                {
+                    var confirm = await swal.FireAsync(new SweetAlertOptions
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "¿Desea copiar el catalogo (clientes, destinos, choferes, etc.) de alguna terminal existente a la nueva terminal?"
+                        });
+
+                    if (!string.IsNullOrEmpty(confirm.Value))
+                        await Abrir_Modulo_Copiado(response.Response);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Fijar_Terminal(Tad terminal)
+    {
+        Terminal = terminal;
+    }
+
+    private async Task Cambiar_Status_Terminal(ChangeEventArgs args, Tad terminal)
+    {
+        try
+        {
+            if (args.Value is null) { return; }
+
+            terminal.Activo = (bool)args.Value;
+
+            var response = await http.Post<Tad>("api/terminal", terminal);
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                await Obtener_Terminal();
+            }
+            else
+            {
+                Terminal = new();
+                await Obtener_Terminal();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Copiar_catalogo(short id)
+    {
+        try
+        {
+            loading_catalogo = true;
+            ns.Notify(new() { Summary = "Copiando catalogo", Detail = "Copiando catalogo inicial. Permanesca en este modulo hasta terminar el proceso", Duration = 60000, Severity = NotificationSeverity.Info });
+            var response = await http.Get<bool>($"api/services/default/data/{id}");
+            if (response.Error)
+            {
+                loading_catalogo = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_catalogo = false;
+                await swal.FireAsync("Catalogo", "Catalogo de terminal completado", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_catalogo = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Abrir_Modulo_Copiado(Tad tad)
+    {
+        await ds.OpenAsync<Vista_Seleccion_Catalogo_Componente>("Seleccion de catalogo", new() { { "Terminal_Destino", tad.Cod } });
+    }
+}

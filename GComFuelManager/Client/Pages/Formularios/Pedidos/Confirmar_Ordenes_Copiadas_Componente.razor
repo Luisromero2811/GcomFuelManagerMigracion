@@ -14,7 +14,7 @@
                 <div class="col-12 row">
                     <div class="col-3">
                         <label>Folio</label>
-                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="20" />
+                        <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="30" />
                     </div>
                     <div class="col-9 d-flex row mb-1">
                         <div class="col-2 mt-auto">
@@ -58,7 +58,7 @@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Terminal</label>
-                            <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.CodTad"
+                            <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.Id_Tad"
                                             AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                             AllowVirtualization="true" Style="height:31px;">
                                 <Template Context="data">

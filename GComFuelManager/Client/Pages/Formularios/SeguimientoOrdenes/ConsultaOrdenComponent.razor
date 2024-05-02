@@ -5,7 +5,7 @@
 @inject IJSRuntime Js
 @inject TooltipService ts
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Consulta Precio Orden")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Consulta Precio Orden, Ejecutivo de Cuenta Operativo")]
 
 <div class="col-12 d-flex justify-content-center mb-2 shadow-sm">
     <div class="col-12">
@@ -20,7 +20,7 @@
                 </div>
                 <div class="col-12 row">
                     <div class="col-3">
-                        <label class="form-label">Referencia ENER:</label>
+                        <label class="form-label">Referencia de orden:</label>
                         <InputText class="form-control col-12" MaxLength="70" @bind-Value="preciosBols.Referencia" />
                     </div>
                     <div class="col-3 d-flex">
@@ -39,13 +39,14 @@
     <table class="table table-hover table-bordered table-sm table-responsive" style="max-height: 600px; overflow: auto; width: 100%">
         <thead>
             <tr>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">BOL</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">BOL/Embarque</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Unidad de Negocio</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Cliente</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Destino</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Producto</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Precio</th>
                 <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Volumen Cargado</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">Folio de Pedido <i class="fa-solid fa-circle-info fa-xs"></i></th> 
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">Folio de Pedido <i class="fa-solid fa-circle-info fa-xs"></i></th>
             </tr>
         </thead>
         <tbody>
@@ -53,6 +54,9 @@
                 <tr style="height:49px;">
                     <td>
                         @data.BOL
+                    </td>
+                    <td>
+                        @data.Unidad_Negocio
                     </td>
                     <td>
                         @data.Cliente_Original
