@@ -13,8 +13,10 @@
     </div>
 </div>
 <!--Componente para registrar los cambios de estado-->
-<Guardar_Datos_Factura_Componente />
-<Cambiar_Estatus_De_Orden_Componente />
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Coordinador">
+    <Guardar_Datos_Factura_Componente />
+    <Cambiar_Estatus_De_Orden_Componente />
+</AuthorizeView>
 <!--Filtrado entre rango de fechas-->
 <div class="col-12 mt-1">
     <div class="d-flex justify-content-center">

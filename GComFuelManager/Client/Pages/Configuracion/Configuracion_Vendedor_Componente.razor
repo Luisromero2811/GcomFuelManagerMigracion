@@ -4,29 +4,30 @@
 @inject SweetAlertService Swal
 @inject NotificationService ms
 @inject DialogService ds
-
-<div class="card">
-    <div class="card-header">
-        <b>Configurar vendedor</b>
-    </div>
-    <div class="card-body">
-        <div class="col-12">
-            <EditForm Model="Vendedor" OnValidSubmit="Crear_Vendedor" class="form row">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="col-4">
-                    <InputText @bind-Value="@Vendedor.Nombre" class="form-control form-control-sm" />
-                    <ValidationMessage For="@(()=> Vendedor.Nombre)" />
-                </div>
-                <div class="col-2">
-                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
-                        <b>Guardar vendedor</b>
-                    </button>
-                </div>
-            </EditForm>
+<AuthorizeView Roles="Admin, Administrador Sistema, Reportes De Venta, Ejecutivo de Cuenta Comercial" Context="Card">
+    <div class="card">
+        <div class="card-header">
+            <b>Configurar vendedor</b>
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <EditForm Model="Vendedor" OnValidSubmit="Crear_Vendedor" class="form row">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="col-4">
+                        <InputText @bind-Value="@Vendedor.Nombre" class="form-control form-control-sm" />
+                        <ValidationMessage For="@(()=> Vendedor.Nombre)" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
+                            <b>Guardar vendedor</b>
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
         </div>
     </div>
-</div>
+</AuthorizeView>
 <div class="col-12" style="height:450px;">
     <table class="table table-sm table-striped table-bordered">
         <thead>
@@ -34,7 +35,9 @@
                 <th>Vendedor</th>
                 <th>Ver clientes</th>
                 <th>Originadores</th>
-                <th>Activo</th>
+                <AuthorizeView Roles="Admin, Administrador Sistema, Reportes De Venta, Ejecutivo de Cuenta Comercial" Context="Column">
+                    <th>Activo</th>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -51,21 +54,25 @@
                             <div class="col-1 d-flex justify-content-center">
                                 @if (item.Activo)
                                 {
-                                    <button class="btn btn-sm gcom-bg-amarillo my-auto" @onclick="@(()=>item.Show_Originador = !item.Show_Originador)">
-                                        <i class="fa fa-solid fa-edit"></i>
-                                    </button>
-                                }
-                            </div>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Reportes De Venta, Ejecutivo de Cuenta Comercial" Context="Edits">
+                                        <button class="btn btn-sm gcom-bg-amarillo my-auto" @onclick="@(()=>item.Show_Originador = !item.Show_Originador)">
+                                            <i class="fa fa-solid fa-edit"></i>
+                                        </button>
+                                    </AuthorizeView>
+                                        }
+                                </div>
 
                             <div class="col-11 row">
                                 @if (item.Show_Originador)
                                 {
                                     <div class="col-12 row">
-                                        <div class="col-1">
-                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Crear_Relacion_Vendedor_Originador(item))">
-                                                <i class="fa fa-solid fa-floppy-disk"></i>
-                                            </button>
-                                        </div>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Reportes De Venta, Ejecutivo de Cuenta Comercial" Context="Edit">
+                                            <div class="col-1">
+                                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Crear_Relacion_Vendedor_Originador(item))">
+                                                    <i class="fa fa-solid fa-floppy-disk"></i>
+                                                </button>
+                                            </div>
+                                        </AuthorizeView>
                                         <div class="col-10">
                                             <DropDownFilter Listado="Originadores" TListado="Originador" TValue="int" FiltrarValor="Obtener_Vendedores"
                                                             Default_Placeholder="Seleccione un originador" Propiedad_Valor="Id" @bind-Valor="@item.Id_Originador">
@@ -102,11 +109,13 @@
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Vendedor(item))" />
-                        </div>
-                    </td>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Reportes De Venta, Ejecutivo de Cuenta Comercial" Context="Active">
+                        <td>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" checked="@item.Activo" value="@item.Activo" @onchange="@(()=>Desactivar_Activar_Vendedor(item))" />
+                            </div>
+                        </td>
+                    </AuthorizeView>
                 </tr>
             </Virtualize>
         </tbody>
@@ -125,7 +134,6 @@
         cursor: pointer;
         border-radius: 2rem;
     }
-
 </style>
 
 @code {

@@ -15,7 +15,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador, Reportes De Venta")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador, Reportes De Venta, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
     public class VendedorController : ControllerBase
     {
         private readonly ApplicationDbContext context;

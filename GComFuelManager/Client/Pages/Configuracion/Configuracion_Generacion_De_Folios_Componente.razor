@@ -3,7 +3,7 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
-
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
 <h4>Configuracion de generacion de folios</h4>
 <div class="col-12 card">
     <div class="card-body col-12">
@@ -17,7 +17,9 @@
                                     <tr>
                                         <th>Cliente</th>
                                         <th>Codigo de folio</th>
-                                        <th>Editar</th>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
+                                            <th>Editar</th>
+                                        </AuthorizeView>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -51,29 +53,31 @@
                                                             </div>
                                                         }
                                                     </td>
-                                                    <td>
-                                                        @if (!item.IsEditing)
-                                                        {
-                                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
-                                                                <i class="fa fa-solid fa-edit"></i>
-                                                            </button>
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="col-12 row">
-                                                                <div class="col-6">
-                                                                    <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Cliente(item))">
-                                                                        <i class="fa fa-solid fa-check"></i>
-                                                                    </button>
+                                                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
+                                                        <td>
+                                                            @if (!item.IsEditing)
+                                                            {
+                                                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
+                                                                    <i class="fa fa-solid fa-edit"></i>
+                                                                </button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-12 row">
+                                                                    <div class="col-6">
+                                                                        <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Cliente(item))">
+                                                                            <i class="fa fa-solid fa-check"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Cliente(item))">
+                                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-6">
-                                                                    <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Cliente(item))">
-                                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                    </td>
+                                                            }
+                                                        </td>
+                                                    </AuthorizeView>
                                                 </tr>
                                             </Virtualize>
                                         }
@@ -107,7 +111,9 @@
                                     <tr>
                                         <th>Grupo</th>
                                         <th>Codigo de folio</th>
-                                        <th>Editar</th>
+                                        <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
+                                            <th>Editar</th>
+                                        </AuthorizeView>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -141,29 +147,31 @@
                                                             </div>
                                                         }
                                                     </td>
-                                                    <td>
-                                                        @if (!item.IsEditing)
-                                                        {
-                                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
-                                                                <i class="fa fa-solid fa-edit"></i>
-                                                            </button>
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="col-12 row">
-                                                                <div class="col-6">
-                                                                    <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Grupo(item))">
-                                                                        <i class="fa fa-solid fa-check"></i>
-                                                                    </button>
+                                                    <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial">
+                                                        <td>
+                                                            @if (!item.IsEditing)
+                                                            {
+                                                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.IsEditing = !item.IsEditing)">
+                                                                    <i class="fa fa-solid fa-edit"></i>
+                                                                </button>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-12 row">
+                                                                    <div class="col-6">
+                                                                        <button class="col-12 btn btn-sm btn-success" @onclick="@(()=>Guardar_Grupo(item))">
+                                                                            <i class="fa fa-solid fa-check"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Grupo(item))">
+                                                                            <i class="fa fa-solid fa-xmark"></i>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-6">
-                                                                    <button class="col-12 btn btn-sm btn-danger" @onclick="@(()=>Cancelar_Editar_Grupo(item))">
-                                                                        <i class="fa fa-solid fa-xmark"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        }
-                                                    </td>
+                                                            }
+                                                        </td>
+                                                    </AuthorizeView>
                                                 </tr>
                                             </Virtualize>
                                         }
