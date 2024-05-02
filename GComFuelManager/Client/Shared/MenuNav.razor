@@ -5,95 +5,52 @@
 
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
-        <div class="col-12 gcom-bg-rojo text-white  d-flex row m-0">
-            <div class="col d-flex">
+        @*<div class="col-12 gcom-bg-rojo text-white  d-flex row m-0">
+            <div class="col-md-6 d-flex">
                 <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral">
                     <i class="fa fa-solid fa-bars"></i>
                 </button>
             </div>
-            <div class="col-md-8 d-flex">
-                <RadzenMenu class="gcom-bg-rojo col-12 my-auto" Style="background-color:#BA1C15;--rz-menu-background-color:#BA1C15;--rz-menu-item-background-color:#BA1C15;--rz-menu-item-2nd-level-background-color: #BA1C15;--rz-menu-item-3nd-level-background-color: #BA1C15;width:150px;">
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial, Analista Credito, Contador" Context="Configs">
-                        <!--Configuración de catalogos maestros-->
-                        <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
-                            <Template>
-                                <div class="text-white">
-                                    <i class="fa fa-solid fa-gear" aria-hidden="true"></i> Configuracion
-                                </div>
-                            </Template>
-                            <ChildContent>
-
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Gestion de Transporte, Correo de Clientes" Context="Update">
-                                    <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
-                                        <Template>
-                                            <div class="text-white">
-                                                <i class="fa fa-solid fa-rotate" aria-hidden="true"></i> Actualizacion de registros
-                                            </div>
-                                        </Template>
-                                        <ChildContent>
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Correo de Clientes" Context="AsignarCliDest">
-                                                <RadzenMenuItem Path="asignar-cliente-destino" class="gcom-bg-rojo col-12">
-                                                    <Template>
-                                                        <div class="text-white">
-                                                            <i class="fa fa-solid fa-user-tie" aria-hidden="true"></i> Relacionar datos
-                                                        </div>
-                                                    </Template>
-                                                </RadzenMenuItem>
-
-                                            </AuthorizeView>
-
-                                        </ChildContent>
-                                    </RadzenMenuItem>
-
-                                </AuthorizeView>
-                            </ChildContent>
-                        </RadzenMenuItem>
-
-                    </AuthorizeView>
-
-                    <RadzenMenuItem class="gcom-bg-rojo col-12 text-white">
-                        <Template>
-                            <div class="text-white">
-                                <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes
-                            </div>
-                        </Template>
-                        <ChildContent>
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador" Context="order">
-                                <RadzenMenuItem Path="pedidos" class="gcom-bg-rojo col-12">
-                                    <Template>
-                                        <div class="text-white">
-                                            <i class="fa fa-solid fa-rectangle-list" aria-hidden="true"></i> Órdenes
-                                        </div>
-                                    </Template>
-                                </RadzenMenuItem>
-                            </AuthorizeView>
-
-                            <AuthorizeView Roles="Admin, Administrador Sistema, Cliente Lectura" Context="Estado">
-                                <RadzenMenuItem Path="orden" class="gcom-bg-rojo col-12">
-                                    <Template>
-                                        <div class="text-white">
-                                            <i class="fa fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Historial de Órdenes
-                                        </div>
-                                    </Template>
-                                </RadzenMenuItem>
-                            </AuthorizeView>
-                        </ChildContent>
-                    </RadzenMenuItem>
-                </RadzenMenu>
-            </div>
-
-            <div class="col-md-3 d-flex gcom-bg-rojo-dark">
+            <div class="col-md-6 d-flex gcom-bg-rojo-dark">
                 <div class="col-md-6 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
                     @if (MenuGeneral.User.Identity is not null)
                     {
-                        <p class="my-auto">
-                            @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
-                        </p>
+                        <h6 class="my-auto">
+                            <small> @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
+                        </h6>
                     }
                 </div>
                 <div class="col-md-6 text-center my-auto">
-                    <button class="btn text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
+                    <button class="btn btn-sm text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
                 </div>
+            </div>
+        </div>*@
+        @*<div class="col-12 gcom-bg-rojo text-white d-flex justify-content-between align-items-center">
+            <button class="btn gcom-bg-rojo text-white" @onclick="OpenMenuLateral">
+                <i class="fa fa-solid fa-bars"></i>
+            </button>
+
+                @if (MenuGeneral.User.Identity is not null)
+                {
+                    <h6>
+                        <small>@MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
+                    </h6>
+                }
+
+            <button class="btn btn-sm text-white" @onclick="@CerrarSesion">Cerrar sesión</button>
+        </div>*@
+        <div class="col-12 gcom-bg-rojo text-white d-flex justify-content-between align-items-center">
+            <button class="btn gcom-bg-rojo text-white" @onclick="OpenMenuLateral">
+                <i class="fa fa-solid fa-bars"></i>
+            </button>
+            <div class="d-flex me-4 align-items-center gcom-bg-rojo-dark">
+                @if (MenuGeneral.User.Identity is not null)
+                {
+                    <h6 class="me-2">
+                        <small>@MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name</small>
+                    </h6>
+                }
+                <button class="btn btn-sm text-white ml-md-2" @onclick="@CerrarSesion">Cerrar sesión</button>
             </div>
         </div>
 

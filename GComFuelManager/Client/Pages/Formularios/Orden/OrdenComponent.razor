@@ -14,19 +14,19 @@
     </div>
     <div class="card-body">
         <div class="row col-12">
-            <div class="col-md-4 col-sm-6">
+            <div class="col-md-4 ms-2 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Del:</label>
                     <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd" />
                 </div>
             </div>
-            <div class="col-md-4 col-sm-6">
+            <div class="col-md-4 ms-2 col-sm-6">
                 <div class="col-12 mt-2">
                     <label class="form-label" for="form2Example17">Al:</label>
                     <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd" />
                 </div>
             </div>
-            <div class="col-md-4 d-flex col-sm-6 mt-auto">
+            <div class="col-md-3 d-flex ms-2 col-sm-6 mt-auto">
                 <button class="btn gcom-bg-amarillo mt-2 col-12" @onclick="@MostrarOrdenFecha">
                     <i class="fa fa-solid fa-eye"></i>
                     <b>Mostrar Ordenes</b>
@@ -37,7 +37,7 @@
                 </button>
             </div>
         </div>
-        <div class="col-12 Jajajaancho overflow-scroll mt-4" style="height:450px;resize:both;">
+        <div class="col-12 ancho overflow-scroll mt-4" style="height: 450px; width: 90vw;">
             <table class="table table-sm table-bordered table-hover" id="miTabla">
                 <thead class="fila">
                     <tr style="max-height:50px;white-space:nowrap;">
@@ -168,6 +168,10 @@
         text-align: left;
         table-layout: fixed;
     }*/
+
+    .ancho-tabla {
+        width: calc(100vw - 100px);
+    }
 
     table, th, td {
         background-color: white;

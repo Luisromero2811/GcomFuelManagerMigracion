@@ -76,21 +76,6 @@
             </Authorized>
         </AuthorizeView>
     }
-    @*<AuthorizeView Context="MenuGeneral">
-        <div class="col-md-12 d-flex flex-end gcom-bg-rojo-dark">
-            <div class="col-md-12 text-center d-flex justify-content-end" style="text-overflow:ellipsis">
-                @if (MenuGeneral.User.Identity is not null)
-                {
-                    <p class="my-auto">
-                        @MenuGeneral.User.Claims.Where(x => x.Type == "Terminal").FirstOrDefault()?.Value | @MenuGeneral.User.Identity.Name
-                    </p>
-                }
-            </div>
-            <div class="col-md-12 text-center my-auto">
-                <button class="btn text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
-            </div>
-        </div>
-    </AuthorizeView>*@
 </div>
 
 
@@ -128,58 +113,35 @@
                 }
         });
 
-
         //ordenes
-        Menus.Add(new Menu()
+           Menus.Add(new Menu()
+           {
+               isMenu = true,
+               name = "Ordenes",
+               icon = "rectangle-list",
+               roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
+               Menus = new()
         {
-            isMenu = true,
-            name = "Ordenes",
-            icon = "rectangle-list",
-            roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
-            Menus = new()
-{
-                    new()
-                    {
-                        name = "Órdenes",
-                        icon = "rectangle-list",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Comprador",
-                        path = "pedidos"
-                    },
-                    new()
-                    {
-                        name = "Historial de Órdenes",
-                        icon = "truck-ramp-box",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
-                        path = "orden"
-                    },
-                }
-        });
+                       new()
+                       {
+                           name = "Órdenes",
+                           icon = "rectangle-list",
+                           roles = "Admin, Administrador Sistema, Comprador",
+                           path = "pedidos"
+                       },
+                       new()
+                       {
+                           name = "Historial de órdenes",
+                           icon = "truck-ramp-box",
+                           roles = "Admin, Administrador Sistema, Comprador",
+                           path = "orden"
+                       },
+                   }
+           });
 
     }
 
     bool Esta_En_Tuxpan = true;
-    private async Task Checar_Terminal()
-    {
-        try
-        {
-            var response = await repositorio.Get<Tad>($"api/terminal/check");
-            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
-
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Esta_En_Tuxpan = response.Response.Cod == 1;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
 
     private async void CloseMenuLateral()
     {
