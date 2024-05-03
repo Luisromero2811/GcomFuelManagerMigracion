@@ -146,19 +146,20 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estado)
                 .WithMany()
                 .HasForeignKey(x => x.Codest);
-            //Relaciones Tabla de OrdEmbDet
-            modelBuilder.Entity<OrdEmbDet>()
-                .HasOne(x => x.Orden)
-                .WithMany()
-                .HasPrincipalKey(x => x.BatchId)
-                .HasForeignKey(x => x.Bol);
-            //Relaciones Tabla orden
-            //Orden-OrdEmbDet
-            modelBuilder.Entity<Orden>()
-                .HasOne(x => x.OrdEmbDet)
-                .WithMany()
-                .HasPrincipalKey(x => x.Bol)
-                .HasForeignKey(x => x.BatchId);
+            ////Relaciones Tabla de OrdEmbDet
+            //modelBuilder.Entity<OrdEmbDet>()
+            //    .HasOne(x => x.Orden)
+            //    .WithMany()
+            //    .HasPrincipalKey(x => x.BatchId)
+            //    .HasForeignKey(x => x.Bol);
+            ////Relaciones Tabla orden
+            ////Orden-OrdEmbDet
+            //modelBuilder.Entity<Orden>()
+            //    .HasOne(x => x.OrdEmbDet)
+            //    .WithMany()
+            //    .HasPrincipalKey(x => x.Bol)
+            //    .HasForeignKey(x => x.BatchId)
+            //    .OnDelete(DeleteBehavior.Restrict);
             //Orden-Estado 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Estado)
@@ -593,8 +594,15 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<Datos_Facturas>()
                 .HasOne(x => x.OrdenEmbarque)
-                .WithOne(x=>x.Datos_Facturas)
+                .WithOne(x => x.Datos_Facturas)
                 .HasForeignKey<Datos_Facturas>(x => x.Id_Orden);
+
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Conjunto).WithMany().HasForeignKey(x => x.Conjunto_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Tipo).WithMany().HasForeignKey(x => x.Tipo_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Unidad).WithMany().HasForeignKey(x => x.Unidad_Medida);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Condicion).WithMany().HasForeignKey(x => x.Condicion_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Origen).WithMany().HasForeignKey(x => x.Origen_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Etiqueta).WithMany().HasForeignKey(x => x.Etiquetado_Activo);
         }
 
 
@@ -662,5 +670,7 @@ namespace GComFuelManager.Server
         public DbSet<Autorizador> Autorizador { get; set; }
         public DbSet<Autorizadores_Tad> Autorizadores_Tad { get; set; }
         public DbSet<Datos_Facturas> Datos_Facturas { get; set; }
+        public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
+        public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
     }
 }

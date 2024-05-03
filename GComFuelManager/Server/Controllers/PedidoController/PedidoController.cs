@@ -232,7 +232,7 @@ namespace GComFuelManager.Server.Controllers
                 //editar registros de orden con el nuevo campo de folio en 0 al remplazar los registros
                 if (fechas.Estado == 1)
                 {
-                    
+
                     //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
                     var pedidosDate = context.OrdenEmbarque.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 3 && x.Bolguidid != null
@@ -293,7 +293,7 @@ namespace GComFuelManager.Server.Controllers
                     //List<Orden> pedidosDate = new List<Orden>();
                     List<Orden> newOrden = new();
                     //Traerme al transportista activo en 1 y codest = 26 --Ordenes Cargadas--
-                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate = context.Orden.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20 && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -322,7 +322,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     List<Orden> newOrden = new();
                     //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
-                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate = context.Orden.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel != null && x.Tonel.Transportista != null
                     && x.Tonel.Transportista.Activo == true && x.Codest == 26 && x.Id_Tad == id_terminal)
                     .Include(x => x.Destino)
@@ -344,7 +344,7 @@ namespace GComFuelManager.Server.Controllers
                     //Ordenes canceladas
                     List<Orden> ordenesCanceladas = new();
 
-                    var pedidosDate =  context.Orden.IgnoreAutoIncludes()
+                    var pedidosDate = context.Orden.IgnoreAutoIncludes()
                         .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 14 && x.Id_Tad == id_terminal)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -361,7 +361,7 @@ namespace GComFuelManager.Server.Controllers
                     if (pedidosDate is not null)
                         ordenesCanceladas.AddRange(pedidosDate);
 
-                    var ordenes =  context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var ordenes = context.OrdenEmbarque.IgnoreAutoIncludes()
                     .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 14 && x.Bolguidid != null && x.Codtad == id_terminal)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -2025,7 +2025,7 @@ namespace GComFuelManager.Server.Controllers
 
                 var codigo_terminal = context.Tad.Single(x => x.Cod == id_terminal).CodigoOrdenes;
 
-                if (ordens.Any(x => x.Id_Autorizador == 0 || x.Id_Autorizador == null)) { return BadRequest("No tiene un autorizador seleccionado"); }
+                //if (ordens.Any(x => x.Id_Autorizador == 0 || x.Id_Autorizador == null)) { return BadRequest("No tiene un autorizador seleccionado"); }
 
                 foreach (var orden in ordens)
                 {
@@ -2125,6 +2125,10 @@ namespace GComFuelManager.Server.Controllers
 
                 //var bol_embarque
 
+                if (orden.Fchcar is null) { return BadRequest("Fecha de carga invalida"); }
+                if (string.IsNullOrEmpty(orden.Ref)) { return BadRequest("Fecha de carga invalida"); }
+
+
                 var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
                 if (ordenembarque is null) { return NotFound(); }
 
@@ -2135,6 +2139,8 @@ namespace GComFuelManager.Server.Controllers
                 orden.Codest = 20;
 
                 ordenembarque.Codest = 20;
+
+                ordenembarque.Pre = GetPrecioByEner(orden.Ref!, id_terminal, (DateTime)orden.Fchcar!).Precio;
 
                 orden.Fch = DateTime.Now;
                 orden.Folio = ordenembarque.Folio;
@@ -2165,6 +2171,13 @@ namespace GComFuelManager.Server.Controllers
                     var orden_existente = context.Orden.FirstOrDefault(x => x.Cod == orden.Cod);
                     if (orden_existente is not null)
                     {
+                        var ordembdet = context.OrdEmbDet.FirstOrDefault(x => x.Bol == orden_existente.BatchId && x.Id_Tad == id_terminal);
+                        if (ordembdet is not null)
+                        {
+                            context.Remove(ordembdet);
+                            await context.SaveChangesAsync();
+                        }
+
                         orden_existente.Vol = orden.Vol;
                         orden_existente.BatchId = orden.BatchId;
                         orden_existente.Fchcar = orden.Fchcar;
@@ -2180,7 +2193,8 @@ namespace GComFuelManager.Server.Controllers
                     Codusu = user.Cod,
                     Codusumod = user.Cod,
                     Fchmod = DateTime.Now,
-                    Bol = orden.BatchId
+                    Bol = orden.BatchId,
+                    Id_Tad = id_terminal
                 };
 
                 context.Add(ordEmbDet);
@@ -2363,5 +2377,82 @@ namespace GComFuelManager.Server.Controllers
                 return new PrecioBolDTO();
             }
         }
+
+        public PrecioBolDTO GetPrecioByEner(string Orden_Compra, Int16 Id_Terminal, DateTime date)
+        {
+            try
+            {
+                var orden = context.OrdenEmbarque.IgnoreAutoIncludes().Where(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(Orden_Compra) && x.Codtad == Id_Terminal)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
+                    .FirstOrDefault() ?? throw new ArgumentNullException();
+
+                PrecioBolDTO precio = new();
+
+                var precioVig = context.Precio.IgnoreAutoIncludes()
+                    .Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Codtad)
+                    .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+
+                var precioPro = context.PrecioProgramado.IgnoreAutoIncludes()
+                    .Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Codtad)
+                    .OrderByDescending(x => x.FchActualizacion).FirstOrDefault();
+
+                var precioHis = context.PreciosHistorico.IgnoreAutoIncludes()
+                    .Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.FchDia <= date && x.Id_Tad == orden.Codtad)
+                    .OrderByDescending(x => x.FchActualizacion)
+                    .FirstOrDefault();
+
+                if (precioHis is not null)
+                {
+                    precio.Precio = precioHis.pre;
+                }
+
+                if (orden is not null && precioVig is not null)
+                {
+                    if (precioVig.FchDia == date.Date)
+                    {
+                        precio.Precio = precioVig.Pre;
+                    }
+                }
+
+                if (orden is not null && precioPro is not null && context.PrecioProgramado.Any())
+                {
+                    if (precioPro.FchDia == date.Date)
+                    {
+                        precio.Precio = precioPro.Pre;
+                    }
+                }
+
+                if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)))
+                {
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio) && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia)).FirstOrDefault();
+
+                    if (ordenepedido is not null)
+                    {
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido.Folio
+                         && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                        if (cierre is not null)
+                        {
+                            precio.Precio = cierre.Precio;
+                        }
+                    }
+                }
+
+                if (orden is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                {
+                    precio.Precio = orden.Pre;
+                }
+
+                return precio;
+            }
+            catch (Exception e)
+            {
+                return new();
+            }
+        }
+
     }
 }

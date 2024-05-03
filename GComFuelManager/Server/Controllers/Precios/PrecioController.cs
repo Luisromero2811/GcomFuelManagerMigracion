@@ -111,112 +111,6 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-
-        [HttpPost]
-        [Route("uploads")]//TODO: checar utilidad
-        public async Task<ActionResult> ConvertExcell(IFormFile file)
-        {
-            try
-            {
-                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
-                if (id_terminal == 0)
-                    return BadRequest();
-
-                if (file == null)
-                    return BadRequest("No se pudo leer el archivo enviado.");
-                using var streams = new MemoryStream();
-                await file.CopyToAsync(streams);
-                //file.OpenReadStream();
-                file.CopyTo(streams);
-                using (var stream = file.OpenReadStream())
-                {
-                    using (var packages = new OfficeOpenXml.ExcelPackage(stream))
-                    {
-                        List<PreciosDTO> precios = new();
-
-                        //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                        ExcelPackage.LicenseContext = LicenseContext.Commercial;
-
-                        ExcelPackage package = new();
-                        var worksheet = package.Workbook.Worksheets.FirstOrDefault();
-                        if (worksheet != null)
-                        {
-                            using (ExcelWorksheet worksheets = package.Workbook.Worksheets.First())
-                            {
-                                for (int r = 2; r < (worksheet.Dimension.End.Row + 1); r++)
-                                {
-                                    PreciosDTO precio = new();
-
-                                    //var row = worksheet.Cells[r, 1, r, worksheet.Dimension.End.Column].ToList();
-                                    var row = worksheet.Cells[r, 1, r, 10].ToList();
-
-                                    if (row.Count == 10)
-                                    {
-                                        if (row[8].Value is not null)
-                                            if (!context.Moneda.Any(x => x.Nombre == row[8].Value.ToString()))
-                                                return BadRequest($"No existe la moneda ingresada. Moneda: {row[8].Value?.ToString()}");
-
-                                        if (context.Tad.Any(x => x.Cod == id_terminal && x.Activo == true))
-                                        {
-                                            var terminal = context.Tad.Find(id_terminal);
-                                            if (terminal is not null)
-                                                precio.Terminal = terminal.Den;
-                                        }
-                                        else
-                                            return BadRequest("Se se pudo encontrar la terminal o no se encuentra activa");
-
-                                        if (string.IsNullOrEmpty(row[8].Value.ToString()))
-                                            row[8].Value = "MXN";
-
-                                        precio.Producto = row[0].Value?.ToString();
-                                        precio.Zona = row[1].Value?.ToString();
-                                        precio.Cliente = row[2].Value?.ToString();
-                                        precio.Destino = row[3].Value?.ToString();
-                                        precio.CodSyn = row[4].Value?.ToString();
-                                        precio.CodTux = row[5].Value?.ToString();
-                                        precio.Fecha = row[6].Value?.ToString();
-                                        precio.Precio = Math.Round((double)row[7].Value, 4);
-                                        precio.Moneda = row[8].Value?.ToString();
-                                        precio.Equibalencia = Math.Round((double)row[9].Value, 4);
-                                        precios.Add(precio);
-                                    }
-                                }
-                            }
-                        }
-                        package.Load(streams);
-
-
-                        return Ok(precios);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-
-        //[HttpGet]//TODO: checat utilidad
-        //public async Task<ActionResult> GetPrecios()
-        //{
-        //    try
-        //    {
-        //        var precios = await context.Precio
-        //            .Include(x => x.Zona)
-        //            .Include(x => x.Cliente)
-        //            .Include(x => x.Producto)
-        //            .Include(x => x.Destino)
-        //            .ToListAsync();
-
-        //        return Ok(precios);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
-
         [HttpGet("filtro")]
         public async Task<ActionResult> GetPreciosFiltro([FromQuery] ParametrosBusquedaPrecios parametros)
         {
@@ -564,7 +458,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte));
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte) && x.Id_Tad == id_terminal);
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
@@ -597,12 +491,21 @@ namespace GComFuelManager.Server.Controllers.Precios
                     }
                     else
                     {
-                        if (string.IsNullOrEmpty(item.CodDestinoGobierno) || string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
-                            return BadRequest("No se admiten destinos sin identificadores");
+                        //if (string.IsNullOrEmpty(item.CodDestinoGobierno) || string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
+                        //    return BadRequest("No se admiten destinos sin identificadores");
+                        if (!string.IsNullOrEmpty(item.CodDestinoGobierno) || !string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
+                        {
+                            destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod);
+                            if (destino is null)
+                                return BadRequest($"No se encontro el destino {item.Destino}. Id gobierno: {item.CodDestinoGobierno}");
+                        }
+                        else
+                        {
+                            destino = context.Destino.FirstOrDefault(x => x.Den == item.Destino && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod);
+                            if (destino is null)
+                                return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
+                        }
 
-                        destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno);
-                        if (destino is null)
-                            return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
                     }
 
                     if (!context.Destino_Tad.Any(x => x.Id_Destino == destino.Cod && x.Id_Terminal == id_terminal))
@@ -1081,8 +984,8 @@ namespace GComFuelManager.Server.Controllers.Precios
             }
         }
 
-        [HttpGet("{Orden_Compra}/{Id_Terminal}")]
-        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, [FromRoute] Int16 Id_Terminal)
+        [HttpGet("{Orden_Compra}")]
+        public ActionResult GetPrecioByEner([FromRoute] int Orden_Compra, Int16 Id_Terminal = 1)
         {
             try
             {

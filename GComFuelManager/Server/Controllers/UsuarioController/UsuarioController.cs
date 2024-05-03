@@ -91,14 +91,22 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
             {
                 var userSistema = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
                 if (userSistema != null)
-                {
                     return BadRequest("El usuario ya existe");
-                }
+
                 var userAsp = await userManager.FindByNameAsync(info.UserName);
                 if (userAsp != null)
-                {
                     return BadRequest("El usuario ya existe");
+
+                if (info.IsClient)
+                {
+                    var cliente = context.Cliente.Find(info.CodCte);
+                    if (cliente is null) { return BadRequest("El cliente seleccionado no existe"); }
+
+                    foreach (var terminal in info.Terminales_Seleccionadas)
+                        if (!context.Cliente.Any(x => x.Id_Tad == terminal && x.Den == cliente.Den))
+                            return BadRequest($"El cliente selecconado no existe en una terminal seleccionada. Terminal: {context.Tad.Find(terminal)?.Den}");
                 }
+
                 var newUserSistema = new Usuario
                 {
                     Den = info.Nombre,
@@ -157,9 +165,17 @@ namespace GComFuelManager.Server.Controllers.UsuarioController
                 //Buscamos al usuario y lo sincronizamos con el usuario de ASP
                 var updateUserSistema = await context.Usuario.FirstOrDefaultAsync(x => x.Cod == info.UserCod);
 
-                if (updateUserSistema == null)
-                {
+                if (updateUserSistema is null)
                     return NotFound();
+
+                if (info.IsClient)
+                {
+                    var cliente = context.Cliente.Find(info.CodCte);
+                    if (cliente is null) { return BadRequest("El cliente seleccionado no existe"); }
+
+                    foreach (var terminal in info.Terminales_Seleccionadas)
+                        if (!context.Cliente.Any(x => x.Id_Tad == terminal && x.Den == cliente.Den))
+                            return BadRequest($"El cliente selecconado no existe en una terminal seleccionada. Terminal: {context.Tad.Find(terminal)?.Den}");
                 }
 
                 var oldUser = updateUserSistema;

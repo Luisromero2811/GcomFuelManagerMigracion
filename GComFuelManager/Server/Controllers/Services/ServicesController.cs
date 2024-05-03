@@ -8,8 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-//using ServiceReference7; //prod 
-using ServiceReference2; //qa
+using OfficeOpenXml;
+
+using ServiceReference7; //prod 
+//using ServiceReference2; //qa
 using System;
 using System.Diagnostics;
 using System.Transactions;
@@ -798,6 +800,8 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
+        #region Copia de catalogos
+
         [HttpGet("default/data/{id_terminal}/{id_terminal_catalogo}")]
         public async Task<ActionResult> Fijar_Datos_Por_Defecto([FromRoute] short id_terminal, [FromRoute] short id_terminal_catalogo)
         {
@@ -846,7 +850,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!context.Unidad_Tad.Any(x => x.Id_Unidad == unidad && x.Id_Terminal == id_terminal))
                         unidad_Tads.Add(new() { Id_Unidad = unidad, Id_Terminal = id_terminal });
 
-                var usuarios = context.Users.Select(x => new { x.Id, x.UserName}).ToList();
+                var usuarios = context.Users.Select(x => new { x.Id, x.UserName }).ToList();
                 List<Usuario_Tad> usuario_Tads = new();
 
                 foreach (var usuario in usuarios)
@@ -953,6 +957,66 @@ namespace GComFuelManager.Server.Controllers.Services
                 }
 
                 context.AddRange(destinos_validos);
+                await context.SaveChangesAsync();
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/contacto/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Contacto([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { x.Cod, x.Den }).ToList();
+                //var contactos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+
+                List<Contacto> contactos_validos = new();
+
+                for (int i = 0; i < clientes.Count; i++)
+                {
+                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var contactos_cliente = context.Contacto.IgnoreAutoIncludes().Where(x => x.CodCte == clientes[i].Cod).Include(x => x.AccionCorreos).IgnoreAutoIncludes().ToList();
+                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+
+                        for (int j = 0; j < contactos_cliente.Count; j++)
+                        {
+                            if (cliente is not null)
+                            {
+                                if (!context.Contacto.Any(x => !string.IsNullOrEmpty(x.Correo) && x.Correo == contactos_cliente[j].Correo && x.CodCte == cliente.Cod))
+                                {
+
+
+                                    var new_contacto = contactos_cliente[j].HardCopy();
+                                    new_contacto.Cod = 0;
+                                    new_contacto.CodCte = cliente.Cod;
+                                    new_contacto.Cliente = null!;
+
+                                    var acciones = new_contacto.AccionCorreos;
+
+                                    new_contacto.AccionCorreos = new();
+
+                                    if (acciones is not null)
+                                    {
+                                        foreach (var accion in acciones)
+                                        {
+                                            new_contacto.AccionCorreos.Add(new() { CodAccion = accion.CodAccion });
+                                        }
+                                    }
+
+                                    contactos_validos.Add(new_contacto);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                context.AddRange(contactos_validos);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1122,6 +1186,140 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+
+        #endregion
+
+        #region Insercion de rfc chofer y certificado de calibracion unidad
+        [HttpPost("default/rf/calibracion")]
+        public async Task<ActionResult> Default_RFC_Certificado([FromForm] IEnumerable<IFormFile> files)
+        {
+            try
+            {
+                var MaxAllowedFiles = 1;
+                var MaxFileSize = 1024 * 1024 * 15;
+                var FilesProceseed = 0;
+
+                List<Chofer> choferes = context.Chofer.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
+                List<Transportista> trans = context.Transportista.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
+                List<Tonel> toneles = context.Tonel.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
+
+                List<Chofer> listado_choferes = new();
+                List<Tonel> listado_toneles = new();
+
+                foreach (var file in files)
+                {
+                    if (FilesProceseed < MaxAllowedFiles)
+                    {
+                        if (file.Length == 0)
+                        {
+
+                        }
+                        else if (file.Length > MaxFileSize)
+                        {
+
+                        }
+                        else
+                        {
+                            using var stream = new MemoryStream();
+                            await file.CopyToAsync(stream);
+
+                            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                            ExcelPackage excelPackage = new();
+
+                            excelPackage.Load(stream);
+
+                            if (excelPackage.Workbook.Worksheets.Count > 0)
+                            {
+                                using ExcelWorksheet ws = excelPackage.Workbook.Worksheets.First();
+
+                                for (int i = 2; i < 130; i++)
+                                {
+                                    var rows = ws.Cells[i, 34, i, 40].ToList();
+                                    if (rows.Count > 0)
+                                    {
+                                        if (rows[0].Value is not null && rows[5].Value is not null && rows[6].Value is not null)
+                                        {
+                                            if (rows[5].Value.ToString() != "S/D" && rows[5].Value.ToString() != "S/D")
+                                            {
+                                                var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[6].Value.ToString());
+                                                if (trans_validos is not null)
+                                                {
+                                                    if (!string.IsNullOrEmpty(rows[0].Value.ToString()))
+                                                    {
+                                                        var toneles_validos = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Contains(rows[0].Value.ToString())
+                                                                                                                                       && x.Carid == trans_validos.CarrId).ToList();
+                                                        for (int j = 0; j < toneles_validos.Count; j++)
+                                                        {
+                                                            var tonel = toneles_validos[j];
+
+                                                            tonel.Certificado_Calibracion = rows[5].Value.ToString();
+
+                                                            listado_toneles.Add(tonel);
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+
+
+                                        }
+                                    }
+                                }
+
+                                using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
+
+                                for (int i = 2; i < 117; i++)
+                                {
+                                    var rows = ws_c.Cells[i, 43, i, 45].ToList();
+                                    if (rows is not null)
+                                    {
+                                        if (rows.Count > 0)
+                                        {
+                                            if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
+                                            {
+                                                if (rows[0].Value.ToString() != "S/D" && rows[1].Value.ToString() != "S/D" && rows[2].Value.ToString() != "S/D")
+                                                {
+                                                    var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
+                                                    if (trans_validos is not null)
+                                                    {
+                                                        var choferes_validos = context.Chofer.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()
+                                                                                                    && x.Codtransport.ToString() == trans_validos.Busentid).ToList();
+
+                                                        for (int j = 0; j < choferes_validos.Count; j++)
+                                                        {
+                                                            var chofer = choferes_validos[j];
+
+                                                            chofer.RFC = rows[1].Value.ToString();
+
+                                                            listado_choferes.Add(chofer);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    FilesProceseed++;
+                }
+
+                context.UpdateRange(listado_toneles);
+                context.UpdateRange(listado_choferes);
+
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        #endregion
 
         private string GetRandomCarid()
         {

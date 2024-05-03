@@ -27,12 +27,31 @@ namespace GComFuelManager.Server.Controllers.Autorizadores
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly User_Terminal _terminal;
 
-        public AutorizadoresController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal) 
+        public AutorizadoresController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal _Terminal)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
             this._terminal = _Terminal;
+        }
+
+        [HttpGet]
+        public ActionResult Obtenee_Autorizadores_Activos_Y_Validos()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var autorizadores = context.Autorizador.Where(x => x.Terminales.Any(y => y.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().ToList();
+
+                return Ok(autorizadores);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost("save")]

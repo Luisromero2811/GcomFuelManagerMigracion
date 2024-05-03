@@ -18,13 +18,13 @@
                         <div class="col-4">
                             <div class="col-12">
                                 <label class="form-label" for="form2Example17">Del:</label>
-                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateInicio" @bind-Value:format="yyyy-MM-dd" Type="InputDateType.Date" />
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-outline">
                                 <label class="form-label" for="form2Example17">Al:</label>
-                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd hh:mm:ss" Type="InputDateType.DateTimeLocal" />
+                                <InputDate class="form-control" @bind-Value="@busquedaOrdenes.DateFin" @bind-Value:format="yyyy-MM-dd" Type="InputDateType.Date" />
                             </div>
                         </div>
                         <div class="col-4 d-flex mt-auto">
@@ -48,9 +48,9 @@
                                     <label class="form-check-label" for="Cargadas">Cargadas</label>
                                 </div>
                                 @*<div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                    <label class="form-check-label" for="Trayecto">En Trayecto</label>
-                                    </div>*@
+                                <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                <label class="form-check-label" for="Trayecto">En Trayecto</label>
+                                </div>*@
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(busquedaOrdenes.Estado == 4)" @onchange="@(()=>busquedaOrdenes.Estado = 4)" />
                                     <label class="form-check-label" for="Canceladas">Canceladas</label>
@@ -66,12 +66,12 @@
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de órdenes</b></button>
                         </div>
                         @*<div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
-                            </div>
-                            <div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
+                        </div>
+                        <div class="col-3">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
 
-                            </div>*@
+                        </div>*@
                     </div>
                 </EditForm>
             </div>
@@ -146,14 +146,14 @@
                     @foreach (var item in ordens)
                     {
                         <tr>
-                            <td>
-                                @if (item.OrdenEmbarque is not null && !Esta_En_Tuxpan)
-                                {
+                            @if (item.OrdenEmbarque is not null && !Esta_En_Tuxpan)
+                            {
+                                <td>
                                     <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(() => Descargar_Pdf(item.OrdenEmbarque))" type="button">
                                         <i class="fa fa-solid fa-download"></i>Vale
                                     </button>
-                                }
-                            </td>
+                                </td>
+                            }
                             <td>
                                 <RadzenText Text="@item.Ref" TextStyle="TextStyle.Body2" />
                             </td>
@@ -161,7 +161,7 @@
                                 @(item?.BatchId is null ? item?.Fchcar?.ToString("dd/MM/yyyy") : item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"))
                             </td>
                             <td>
-                                @(item.Terminal is not null ? item.Terminal.Den : "Sin unidad de negocio")
+                                @(item?.Terminal is not null ? item.Terminal.Den : "Sin unidad de negocio")
                             </td>
                             <td>
                                 <RadzenText Text="@item?.Estado?.den" TextStyle="TextStyle.Body2" />
@@ -221,13 +221,13 @@
                                 }
                             </td>
                             <td>
-                                <RadzenText Text="@item?.Tonel.Transportista.Den" TextStyle="TextStyle.Body2" />
+                                <RadzenText Text="@item?.Tonel?.Transportista?.Den" TextStyle="TextStyle.Body2" />
                             </td>
                             <td>
                                 @item?.Tonel?.Tracto @item?.Tonel?.Placa
                             </td>
                             <td>
-                                <RadzenText Text="@item?.Chofer.Den" TextStyle="TextStyle.Body2" />
+                                <RadzenText Text="@item?.Chofer?.Den" TextStyle="TextStyle.Body2" />
                             </td>
                         </tr>
                     }
@@ -262,9 +262,7 @@
         top: 28px;
         background-color: #f2f2f2;
     }
-    .ancho {
-        width: @TotalWidth;
-    }
+
     .sticky-column {
         position: sticky;
         left: 0;
@@ -283,6 +281,7 @@
     .sticky-column, .sticky-column + th, .sticky-column + td {
         min-width: 180px;
     }
+
     .th-resizable {
         position: relative;
         cursor: col-resize;
@@ -343,33 +342,9 @@
     string TotalWidth = string.Empty;
     bool isClose = false;
 
-    DataGridSettings _settings;
-    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
-
     protected override async Task OnInitializedAsync()
     {
-        var cm = await JS.GetItemLocalStorage("CloseMenu");
-        if (!string.IsNullOrEmpty(cm))
-            isClose = bool.Parse(cm);
-
-        if (isClose)
-            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-        else
-            width = await JS.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-        if (width < 0)
-            width = 500;
-        TotalWidth = $"{width}px";
         await Checar_Terminal();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool first)
-    {
-        if (first)
-        {
-            await LoadStateAsync();
-            StateHasChanged();
-        }
     }
 
     public async Task MostrarOrdenFechaRadio()
@@ -473,23 +448,23 @@
                             && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                             && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                             SeguimientoOrden.Add(new OrdenesDTO
-                            {
-                                Referencia = item?.Ref,
-                                FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                                Unidad_Negocio = item?.Terminal?.Den,
-                                EstatusOrden = item?.Estado.den,
-                                //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                                Bol = item?.BatchId,
-                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                Cliente = item?.Destino?.Cliente?.Den,
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
-                                VolCar = null!,
-                                Transportista = item?.Tonel?.Transportista?.Den,
-                                Unidad = item?.Tonel?.Veh,
-                                Operador = item?.Chofer?.Den,
-                            });
+                                {
+                                    Referencia = item?.Ref,
+                                    FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                                    Unidad_Negocio = item?.Terminal?.Den,
+                                    EstatusOrden = item?.Estado.den,
+                                    //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                                    Bol = item?.BatchId,
+                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                    Cliente = item?.Destino?.Cliente?.Den,
+                                    Destino = item?.Destino?.Den,
+                                    Producto = item?.Producto?.Den,
+                                    VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
+                                    VolCar = null!,
+                                    Transportista = item?.Tonel?.Transportista?.Den,
+                                    Unidad = item?.Tonel?.Veh,
+                                    Operador = item?.Chofer?.Den,
+                                });
                     }
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     var excel = new ExcelPackage();
@@ -518,23 +493,23 @@
                             && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                             && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                             SeguimientoOrden.Add(new OrdenesDTO
-                            {
-                                Referencia = item?.Ref,
-                                FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                                Unidad_Negocio = item?.Terminal?.Den,
-                                EstatusOrden = item?.Estado.den,
-                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                                Bol = item?.BatchId,
-                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                Cliente = item?.Destino?.Cliente?.Den,
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                VolNat = item?.Vol2,
-                                VolCar = item?.Vol,
-                                Transportista = item?.Tonel?.Transportista?.Den,
-                                Unidad = item?.Tonel?.Veh,
-                                Operador = item?.Chofer?.Den
-                            });
+                                {
+                                    Referencia = item?.Ref,
+                                    FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                    Unidad_Negocio = item?.Terminal?.Den,
+                                    EstatusOrden = item?.Estado.den,
+                                    FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                    Bol = item?.BatchId,
+                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                    Cliente = item?.Destino?.Cliente?.Den,
+                                    Destino = item?.Destino?.Den,
+                                    Producto = item?.Producto?.Den,
+                                    VolNat = item?.Vol2,
+                                    VolCar = item?.Vol,
+                                    Transportista = item?.Tonel?.Transportista?.Den,
+                                    Unidad = item?.Tonel?.Veh,
+                                    Operador = item?.Chofer?.Den
+                                });
                     }
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     var excel = new ExcelPackage();
@@ -685,57 +660,57 @@
                     if (item.BatchId == null)
                     {
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                            Unidad_Negocio = item?.Terminal?.Den,
-                            EstatusOrden = item?.Estado.den,
-                            Bol = item?.BatchId,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
-                            VolCar = null!,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den,
-                        });
+                            {
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                                Unidad_Negocio = item?.Terminal?.Den,
+                                EstatusOrden = item?.Estado.den,
+                                Bol = item?.BatchId,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
+                                VolCar = null!,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den,
+                            });
                     }
                     else
                     {
                         //Cambio de seguridad
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            //Referencia = item?.Ref,
-                            //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                            //EstatusOrden = item?.Estado.den,
-                            //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
-                            //Bol = item?.BatchId,
-                            ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                            //Cliente = item?.Destino?.Cliente?.Den,
-                            //Destino = item?.Destino?.Den,
-                            //Producto = item?.Producto?.Den,
-                            //VolNat = item?.Vol2,
-                            //VolCar = item?.Vol,
-                            //Transportista = item?.Tonel?.Transportista?.Den,
-                            //Unidad = item?.Tonel?.Veh,
-                            //Operador = item?.Chofer?.Den
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                            Unidad_Negocio = item?.Terminal?.Den,
-                            EstatusOrden = item?.Estado.den,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                            Bol = item?.BatchId,
-                            //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item?.Vol2,
-                            VolCar = item?.Vol,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den
-                        });
+                            {
+                                //Referencia = item?.Ref,
+                                //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                                //EstatusOrden = item?.Estado.den,
+                                //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
+                                //Bol = item?.BatchId,
+                                ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                                //Cliente = item?.Destino?.Cliente?.Den,
+                                //Destino = item?.Destino?.Den,
+                                //Producto = item?.Producto?.Den,
+                                //VolNat = item?.Vol2,
+                                //VolCar = item?.Vol,
+                                //Transportista = item?.Tonel?.Transportista?.Den,
+                                //Unidad = item?.Tonel?.Veh,
+                                //Operador = item?.Chofer?.Den
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                Unidad_Negocio = item?.Terminal?.Den,
+                                EstatusOrden = item?.Estado.den,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                Bol = item?.BatchId,
+                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item?.Vol2,
+                                VolCar = item?.Vol,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den
+                            });
                     }
                 }
 
@@ -790,93 +765,6 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
-    }
-    //public async Task ExportHist()
-    //{
-    //    try
-    //    {
-    //        var responseHttp = await repositorio.Post<OrdenesDTO, List<Orden>>($"api/pedido/filtro", ordenes);
-    //        if (responseHttp.Error)
-    //        {
-    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            // Generacion Excel 1 //
-    //            var excel = new ExcelPackage();
-    //            var worksheet = excel.Workbook.Worksheets.Add("Historial1");
-    //            //Formación de Excel
-    //            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection(
-    //            from o in ordeness
-    //                //Referencia, Fecha Programa, Estatus Orden, Fecha Carga, Bol, Cliente, Destino, Producto, Volúmen natural, Volúmen Cargado, Transportista, Unidad, Operador
-    //            select new OrdenesDTO() { Referencia = o.Folio, FechaPrograma = o.Fchcar.Value.ToString("yyyy-MM-dd"), EstatusOrden = o.Estado.den, FechaCarga = o.Fchcar.Value.ToString("yyyy-MM-dd"), Bol = o.Bolguidid, DeliveryRack = o.Destino!.Cliente!.Tipven, Cliente = o.Destino!.Cliente!.Den, Destino = o.Destino!.Den }, true);
-    //            //Guardado de Excel
-    //            await JS.GuardarComo($"Historial_{DateTime.Now.ToString("yyyy-MM-dd hh:mm")}.xlsx", excel.GetAsByteArray());
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
-    //public async Task MostrarTraffic()
-    //{
-    //    try
-    //    {
-    //        loadingFiltro = true;
-    //        ordeness = null!;
-    //        StateHasChanged();
-
-    //        var responseHttp = await repositorio.Post<FechasF, IEnumerable<Orden>>($"api/pedido/filtro", fechas);
-
-    //        if (responseHttp.Error)
-    //        {
-    //            loadingFiltro = false;
-    //            var respuestaHttp = await responseHttp.ObtenerMensajeError();
-    //            await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            loadingFiltro = false;
-    //            ordeness = responseHttp.Response;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        loadingFiltro = false;
-    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
-
-    private async Task SaveStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            await JS.SetItemLocalStorage("settingsSeguimiento", JsonConvert.SerializeObject(Settings));
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-    private async Task LoadStateAsync()
-    {
-        try
-        {
-            await Task.CompletedTask;
-            var result = await JS.GetItemLocalStorage("settingsSeguimiento");
-            if (!string.IsNullOrEmpty(result))
-            {
-                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
     }
 
     private async Task Descargar_Pdf(OrdenEmbarque orden)

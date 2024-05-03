@@ -43,6 +43,9 @@
                 <div class="col-4">
                     Chofer de origen: @ordenEmbarque?.Chofer?.FullName
                 </div>
+                <div class="col-4">
+                    Precio: @ordenEmbarque?.Pre
+                </div>
             </div>
             <div class="col-12 row my-2">
                 <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
@@ -151,6 +154,9 @@
                                         BOL
                                     </th>
                                     <th>
+                                        Precio
+                                    </th>
+                                    <th>
                                         Tipo de Venta
                                     </th>
                                     <th>
@@ -197,6 +203,7 @@
                                     <td></td>
                                     <td></td>
                                     <td></td>
+                                    <td></td>
                                 </tr>
                                 <Virtualize Items="@ordens" Context="data" TItem="EtaNTDTO">
                                     <tr class="@(etaDto == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
@@ -214,6 +221,7 @@
                                             @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
                                         </td>
                                         <td>@data?.Bol</td>
+                                        <td>@data?.Precio</td>
                                         <td style="text-align: center;">
                                             @data?.DeliveryRack
                                         </td>
@@ -286,6 +294,7 @@
                 }
                 else
                 {
+                    ns.Notify(new() { Summary = "Bol / embarque", Detail = "Esta orden no cuenta con un bol / embarque", Severity = NotificationSeverity.Warning });
                     Datos_BOL.Cod = null!;
                 }
             }
