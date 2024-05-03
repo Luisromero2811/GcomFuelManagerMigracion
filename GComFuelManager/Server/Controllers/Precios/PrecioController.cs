@@ -458,7 +458,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                 {
                     //Debug.WriteLine($"Destino: {item.Destino}, count :{precios.IndexOf(item)}");
                     var codcte = string.IsNullOrEmpty(item.Cliente) ? string.Empty : item.Cliente;
-                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte) && x.Id_Tad == id_terminal && x.Activo);
+                    var cliente = context.Cliente.FirstOrDefault(x => x.Den!.Replace("\"", "").Equals(codcte) && x.Id_Tad == id_terminal);
                     if (cliente is null)
                         return BadRequest($"No se encontro el cliente {item.Cliente}");
 
@@ -485,7 +485,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     if (!string.IsNullOrEmpty(item.CodSyn) || !string.IsNullOrWhiteSpace(item.CodSyn))
                     {
-                        destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn && x.Activo);
+                        destino = context.Destino.FirstOrDefault(x => x.Codsyn == item.CodSyn);
                         if (destino is null)
                             return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
                     }
@@ -495,13 +495,13 @@ namespace GComFuelManager.Server.Controllers.Precios
                         //    return BadRequest("No se admiten destinos sin identificadores");
                         if (!string.IsNullOrEmpty(item.CodDestinoGobierno) || !string.IsNullOrWhiteSpace(item.CodDestinoGobierno))
                         {
-                            destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod && x.Activo);
+                            destino = context.Destino.FirstOrDefault(x => x.Id_DestinoGobierno == item.CodDestinoGobierno && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod);
                             if (destino is null)
                                 return BadRequest($"No se encontro el destino {item.Destino}. Id gobierno: {item.CodDestinoGobierno}");
                         }
                         else
                         {
-                            destino = context.Destino.FirstOrDefault(x => x.Den == item.Destino && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod && x.Activo);
+                            destino = context.Destino.FirstOrDefault(x => x.Den == item.Destino && x.Id_Tad == id_terminal && x.Codcte == cliente.Cod);
                             if (destino is null)
                                 return BadRequest($"No se encontro el destino {item.Destino} synthesis:{item.CodSyn} tuxpan {item.CodTux}");
                         }
