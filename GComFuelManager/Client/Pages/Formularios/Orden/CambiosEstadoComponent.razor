@@ -27,13 +27,15 @@
                     <div class="col-12 row">
                         <div class="col-4 mb-1">
                             <label>Del:</label>
-                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestión_Estados.DateInicio">
-                            </RadzenDatePicker>
+                            <input class="form-control form-control-sm" type="date" @bind="@Gestion_Estados.DateInicio" />
+                            @* <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestion_Estados.DateInicio">
+                            </RadzenDatePicker> *@
                         </div>
                         <div class="col-4 mb-1">
                             <label>A:</label>
-                            <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestión_Estados.DateFin">
-                            </RadzenDatePicker>
+                            <input class="form-control form-control-sm" type="date" @bind="@Gestion_Estados.DateFin" />
+                            @* <RadzenDatePicker class="col-12" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@Gestion_Estados.DateFin">
+                            </RadzenDatePicker> *@
                         </div>
                         <div class="col-4 d-flex mt-2">
                             <button class="btn gcom-bg-amarillo col-12 my-auto" @onclick="@GetOrdersByStatus">
@@ -129,7 +131,7 @@
                     <td></td>
                 </tr>
                 <Virtualize Items="@ordens" Context="data" TItem="Gestión_EstadosDTO">
-                    <tr class="@(Gestión_Estados == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
+                    <tr class="@(Gestion_Estados == data ? "table-active" : string.Empty)" style="white-space:nowrap;">
                         <td>@data.Referencia</td>
                         <td>@data.FechaPrograma</td>
                         <td>@data.Unidad_Negocio</td>
@@ -226,14 +228,14 @@
 
 @code {
     string TotalWidth = string.Empty;
-    Gestión_EstadosDTO Gestión_Estados = new Gestión_EstadosDTO();
+    Gestión_EstadosDTO Gestion_Estados = new Gestión_EstadosDTO();
     private List<Gestión_EstadosDTO> ordens { get; set; } = new List<Gestión_EstadosDTO>();
 
     public async Task GetOrdersByStatus()
     {
         try
         {
-            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestión_Estados);
+            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestion_Estados);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -254,7 +256,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestión_Estados);
+            var responseHttp = await repositorio.Post<Gestión_EstadosDTO, List<Gestión_EstadosDTO>>($"api/Estado/estados/ordenes", Gestion_Estados);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -279,7 +281,7 @@
                  });
 
                 Worksheet.Cells[1, 1, Worksheet.Dimension.End.Row, Worksheet.Dimension.End.Column].AutoFitColumns();
-                
+
                 // tablebody.Style.Font.Bold = true;
                 // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
                 // var header = Worksheet.Cells["A1:Y1"];

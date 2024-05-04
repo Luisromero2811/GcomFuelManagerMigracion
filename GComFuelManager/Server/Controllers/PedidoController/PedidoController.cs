@@ -2194,7 +2194,8 @@ namespace GComFuelManager.Server.Controllers
                     Codusumod = user.Cod,
                     Fchmod = DateTime.Now,
                     Bol = orden.BatchId,
-                    Id_Tad = id_terminal
+                    Id_Tad = id_terminal,
+                    Fchlleest = orden.Fecha_llegada
                 };
 
                 context.Add(ordEmbDet);

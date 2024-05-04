@@ -35,7 +35,31 @@ namespace GComFuelManager.Shared.Modelos
 
         [DisplayName("Unidad de Negocio"), NotMapped]
         public string? Unidad_Negocio { get; set; } = string.Empty;
+        [NotMapped, DisplayName("Fecha de llegad estimada")]
+        public DateTime? Fecha_llegada { get; set; } = DateTime.Today;
+        public string Eta
+        {
+            get
+            {
+                if (OrdEmbDet is not null)
+                {
+                    if (OrdEmbDet.Fchlleest is not null)
+                    {
+                        if (OrdEmbDet.FchDoc is not null)
+                        {
+                            return OrdEmbDet.Fchlleest.Value.Subtract((DateTime)OrdEmbDet.FchDoc).ToString("hh\\:mm");
+                        }
+                    }
+                }
 
+                if (Fchcar is not null && Fecha_llegada is not null)
+                {
+                    return Fecha_llegada.Value.Subtract((DateTime)Fchcar).ToString("hh\\:mm");
+                }
+
+                return string.Empty;
+            }
+        }
         //Prop de nav Estado
         [NotMapped] public Tad? Terminal { get; set; } = null!;
         [NotMapped] public Estado? Estado { get; set; } = null!;

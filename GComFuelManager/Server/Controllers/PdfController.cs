@@ -190,7 +190,7 @@ namespace GComFuelManager.Server.Controllers
 
                 tf.Alignment = XParagraphAlignment.Center;
                 rect = new(380, 205, 190, 13);
-                tf.DrawString(DateTime.Today.ToString("D"), font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(orden.Fchcar?.ToString("D"), font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 tf.Alignment = XParagraphAlignment.Left;
 
@@ -291,7 +291,7 @@ namespace GComFuelManager.Server.Controllers
                 tf.DrawString("NUM. DE PLACAS:", font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(210, 380, 360, 13);
-                tf.DrawString(tonel.Placa, font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
+                tf.DrawString(tonel.Placatracto, font_valor, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 graphics.DrawLine(pen, 210, 393, 540, 393);
                 #endregion

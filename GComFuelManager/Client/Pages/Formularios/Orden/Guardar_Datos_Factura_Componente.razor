@@ -115,6 +115,7 @@
             else
             {
                 loading_guardar = false;
+                ns.Notify(new() { Severity = NotificationSeverity.Success, Detail = "Datos de factura guardados", Summary = "Factura" });
                 await Buscar_Orden();
             }
         }

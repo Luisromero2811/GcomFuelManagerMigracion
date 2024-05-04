@@ -11,6 +11,8 @@ namespace GComFuelManager.Shared.DTOs
 {
     public class PreciosDTO
     {
+        [DisplayName("TERMINAL")]
+        public string? Terminal { get; set; } = string.Empty;
         [DisplayName("PRODUCTO")]
         public string? Producto { get; set; } = string.Empty;
         [DisplayName("ZONA")]
@@ -29,11 +31,11 @@ namespace GComFuelManager.Shared.DTOs
         public string? Fecha { get; set; } = string.Empty;
         [DisplayName("PRECIO FINAL")]
         public double Precio { get; set; } = 0;
+        [DisplayName("PRECIO DE COMPRA")]
+        public double? Precio_Compra { get; set; } = 0;
         [DisplayName("MONEDA")]
-        public string? Moneda { get; set; } = string.Empty;
+        public string? Moneda { get; set; } = "MXN";
         [DisplayName("EQUIBALENCIA")]
         public double? Equibalencia { get; set; } = 1;
-        [DisplayName("TERMINAL")]
-        public string? Terminal { get; set; } = string.Empty;
     }
 }

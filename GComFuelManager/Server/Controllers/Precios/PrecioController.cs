@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using OfficeOpenXml.Table;
+using System.Net;
 
 namespace GComFuelManager.Server.Controllers.Precios
 {
@@ -27,6 +29,356 @@ namespace GComFuelManager.Server.Controllers.Precios
             this.userManager = userManager;
             this.verifyUser = verifyUser;
             this._terminal = _Terminal;
+        }
+
+        [HttpGet("formato")]
+        public async Task<ActionResult> Descargar_Formato()
+        {
+            try
+            {
+                List<PreciosDTO> precios = new();
+
+                var terminales = context.Tad.Where(x => !string.IsNullOrEmpty(x.Den) && x.Activo == true).ToList();
+                for (int t = 0; t < terminales.Count; t++)
+                {
+                    var productos = context.Producto.Where(x => x.Activo == true && x.Id_Tad.Equals(terminales[t].Cod)).ToList();
+                    for (int p = 0; p < productos.Count; p++)
+                    {
+                        precios.Add(new()
+                        {
+                            Terminal = terminales[t].Den,
+                            Producto = productos[p].Den,
+                            Fecha = DateTime.Today.ToString("d"),
+                            Precio = 0,
+                            Precio_Compra = 0
+                        });
+                    }
+                }
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+
+                ExcelPackage excel = new();
+
+                excel.Workbook.Worksheets.Add("Precios_Globales");
+
+                var ws = excel.Workbook.Worksheets.First();
+
+                ws.Cells["A1"].LoadFromCollection(precios, c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = TableStyles.Medium15;
+                });
+
+                ws.Cells[1, 10, ws.Dimension.End.Row, 11].Style.Numberformat.Format = "_-$* #,##0.00_-;-$* #,##0.00_-;_-$* \"-\"??_-;_-@_-";
+                ws.Cells[1, 9, ws.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                return Ok(await excel.GetAsByteArrayAsync());
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("file")]
+        public async Task<ActionResult> Subir_Precios_Masivos([FromForm] IEnumerable<IFormFile> files)
+        {
+            if (files is null) { throw new ArgumentNullException(nameof(files)); }
+
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0) { return BadRequest(); }
+
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var user = await userManager.FindByIdAsync(id);
+
+                if (user is null)
+                    return NotFound();
+
+                var user_system = context.Usuario.Find(user.UserCod);
+                if (user_system is null)
+                    return NotFound();
+
+                var MaxAllowedFiles = 10;
+                var MaxAllowedSize = 1024 * 1024 * 15;
+                var FilesProcesed = 0;
+
+                List<UploadResult> uploadResults = new();
+
+                List<Precio> precios = new();
+                List<Precio> precios_editados = new();
+                List<PrecioProgramado> precios_programados_editados = new();
+                List<PrecioProgramado> precios_programados = new();
+                List<PrecioHistorico> precios_historico = new();
+
+                foreach (var file in files)
+                {
+                    var uploadResult = new UploadResult();
+
+                    var unthrustFileName = file.FileName;
+                    var thrustFileName = WebUtility.HtmlDecode(unthrustFileName);
+                    uploadResult.FileName = thrustFileName;
+
+                    if (FilesProcesed < MaxAllowedFiles)
+                    {
+                        if (file.Length == 0)
+                        {
+                            uploadResult.ErrorCode = 2;
+                            uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {uploadResult.FileName} : Archivo vacio.";
+                            return BadRequest(uploadResult.ErrorMessage);
+                        }
+                        else if (file.Length > MaxAllowedSize)
+                        {
+                            uploadResult.ErrorCode = 3;
+                            uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {uploadResult.FileName} : {file.Length / 1000000} Mb es mayor a la capacidad permitida ({Math.Round((double)(MaxAllowedSize / 1000000))}) Mb ";
+                            return BadRequest(uploadResult.ErrorMessage);
+                        }
+                        else
+                        {
+                            using var stream = new MemoryStream();
+                            await file.CopyToAsync(stream);
+
+                            ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                            ExcelPackage package = new();
+
+                            package.Load(stream);
+
+                            if (package.Workbook.Worksheets.Count > 0)
+                            {
+                                using ExcelWorksheet ws = package.Workbook.Worksheets.First();
+
+                                for (int r = 2; r < (ws.Dimension.End.Row + 1); r++)
+                                {
+                                    var rows = ws.Cells[r, 1, r, 13].ToList();
+                                    if (rows.Count > 0)
+                                    {
+                                        var terminal = ws.Cells[r, 1].Value.ToString();
+                                        if (string.IsNullOrEmpty(terminal) || string.IsNullOrWhiteSpace(terminal)) { return BadRequest($"La terminal no puede estar vacia. (fila: {r}, columna: 1)"); }
+
+                                        var ter = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(terminal) && x.Activo == true);
+                                        if (ter is null) { return BadRequest($"No se encontro la terminal. (fila: {r}, columna: 1)"); }
+
+                                        var producto = ws.Cells[r, 2].Value.ToString();
+                                        if (string.IsNullOrEmpty(producto) || string.IsNullOrWhiteSpace(producto)) { return BadRequest($"El producto no puede estar vacio. (fila: {r}, columna: 2)"); }
+
+                                        var prd = context.Producto.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(producto) && x.Activo == true && x.Id_Tad == ter.Cod);
+                                        if (prd is null) { return BadRequest($"No se encontro el producto en la terminal {ter?.Den}. (fila: {r}, columna: 2)"); }
+
+                                        var zona = ws.Cells[r, 3].Value.ToString();
+                                        if (string.IsNullOrEmpty(zona) || string.IsNullOrWhiteSpace(zona)) { zona = "Sin Zona"; }
+
+                                        var z = context.Zona.FirstOrDefault(x => !string.IsNullOrEmpty(x.Nombre) && x.Nombre.Equals(zona));
+                                        if (z is null) { return BadRequest($"No se encontro la zona ingresada. (fila: {r}, columna: 3)"); }
+
+                                        var cliente = ws.Cells[r, 4].Value.ToString();
+                                        if (string.IsNullOrEmpty(cliente) || string.IsNullOrWhiteSpace(cliente)) { return BadRequest($"El cliente no puede estar vacio. (fila: {r}, columna: 4)"); }
+
+                                        var cte = context.Cliente.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(cliente) && x.Id_Tad == ter.Cod);
+                                        if (cte is null) { return BadRequest($"No se encontro el cliente en la terminal {ter.Den}. (fila: {r}, columna: 4)"); }
+
+                                        Destino des = new();
+
+                                        var cod_des = ws.Cells[r, 6].Value.ToString();
+                                        if (!string.IsNullOrEmpty(cod_des) || !string.IsNullOrWhiteSpace(cod_des))
+                                        {
+                                            var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(cod_des) && x.Id_Tad == ter.Cod);
+                                            if (d is null) { return BadRequest($"No se encontro el destino con el codigo de synthesis: {cod_des} en la terminal {ter.Den}. (fila: {r}, columna: 6)"); }
+                                            des = d;
+                                        }
+                                        else
+                                        {
+
+                                            var cod_des_gob = ws.Cells[r, 8].Value.ToString();
+                                            if (!string.IsNullOrEmpty(cod_des_gob) || !string.IsNullOrWhiteSpace(cod_des_gob))
+                                            {
+                                                var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Id_DestinoGobierno) && x.Id_DestinoGobierno.Equals(cod_des_gob) && x.Id_Tad == ter.Cod);
+                                                if (d is null) { return BadRequest($"No se encontro el destino con el codigo de gobierno: {cod_des_gob} en la terminal {ter.Den}. (fila: {r}, columna: 8)"); }
+                                                des = d;
+                                            }
+                                            else
+                                            {
+                                                var destino = ws.Cells[r, 5].Value.ToString();
+                                                if (string.IsNullOrEmpty(destino) || string.IsNullOrWhiteSpace(destino)) { return BadRequest($"El destino no puede estar vacio. (fila: {r}, columna: 5)"); }
+
+                                                var des_db = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(destino) && x.Id_Tad == ter.Cod);
+                                                if (des_db is null) { return BadRequest($"No se encontro el destino en la terminal {ter.Den}. (fila: {r}, columna: 5)"); }
+                                                else
+                                                    des = des_db;
+                                            }
+
+                                        }
+
+                                        DateTime fecha_valida = DateTime.Today;
+
+                                        var fecha = ws.Cells[r, 9].Value.ToString();
+                                        if (string.IsNullOrEmpty(fecha) || string.IsNullOrWhiteSpace(fecha)) { return BadRequest($"La fehca no puede estar vacia. (fila: {r}, columna: 9)"); }
+
+                                        if (DateTime.TryParse(fecha, out DateTime fch))
+                                            fecha_valida = fch;
+                                        else
+                                            return BadRequest($"La fecha no tiene un formato valido. (fila: {r}, columna: 9)");
+
+                                        double precio_final = 0;
+                                        double precio_compra = 0;
+
+                                        var preciofinal = ws.Cells[r, 10].Value.ToString();
+                                        if (string.IsNullOrEmpty(preciofinal) || string.IsNullOrWhiteSpace(preciofinal)) { return BadRequest($"El precio final no puede estar vacio. (fila: {r}, columna: 10)"); }
+
+                                        if (double.TryParse(preciofinal, out double pre))
+                                            precio_final = pre;
+                                        else
+                                            return BadRequest($"No se pudo convertir el precio final a un dato valido. (fila: {r}, columna: 10)");
+
+                                        var preciocompra = ws.Cells[r, 11].Value.ToString();
+                                        if (string.IsNullOrEmpty(preciocompra) || string.IsNullOrWhiteSpace(preciocompra)) { return BadRequest($"El precio de compra no puede estar vacio. (fila: {r}, columna: 11)"); }
+
+                                        if (double.TryParse(preciocompra, out double pre_com))
+                                            precio_compra = pre_com;
+                                        else
+                                            return BadRequest($"No se pudo convertir el precio de compra a un dato valido. (fila: {r}, columna: 11)");
+
+                                        var moneda = ws.Cells[r, 12].Value.ToString();
+                                        if (string.IsNullOrEmpty(moneda) || string.IsNullOrWhiteSpace(moneda)) { moneda = "MXN"; }
+
+                                        var mon = context.Moneda.FirstOrDefault(x => !string.IsNullOrEmpty(x.Nombre) && x.Nombre.Equals(moneda));
+                                        if (mon is null) { return BadRequest($"No se encontro la moneda ingresada. (fila: {r}, columna: 12)"); }
+
+                                        double equi = 0;
+                                        var equibalencia = ws.Cells[r, 13].Value.ToString();
+                                        if (string.IsNullOrEmpty(equibalencia) || string.IsNullOrWhiteSpace(equibalencia)) { equibalencia = "1"; }
+
+                                        if (double.TryParse(equibalencia, out double equiba))
+                                            equi = equiba;
+                                        else
+                                            return BadRequest($"No se pudo convertir la equibalencia a un dato valido. (fila: {r}), columna: 13");
+
+                                        if (fecha_valida > DateTime.Today)
+                                        {
+                                            var precioprogramado = new PrecioProgramado()
+                                            {
+                                                CodCte = cte.Cod,
+                                                CodDes = des.Cod,
+                                                CodGru = cte.Codgru,
+                                                CodPrd = prd.Cod,
+                                                CodZona = z.Cod,
+                                                FchDia = fecha_valida,
+                                                FchActualizacion = DateTime.Now,
+                                                Pre = precio_final,
+                                                Precio_Compra = precio_compra,
+                                                ID_Moneda = mon.Id,
+                                                Equibalencia = equi,
+                                                ID_Usuario = user_system.Cod,
+                                                Id_Tad = ter.Cod
+                                            };
+
+                                            var p = context.PrecioProgramado.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precioprogramado.CodGru
+                                            && x.CodCte == precioprogramado.CodCte
+                                            && x.CodPrd == precioprogramado.CodPrd
+                                            && x.CodDes == precioprogramado.CodDes
+                                            && x.Id_Tad == precioprogramado.Id_Tad);
+
+                                            if (p is not null)
+                                            {
+                                                p.Pre = precioprogramado.Pre;
+                                                p.Precio_Compra = precioprogramado.Precio_Compra;
+                                                p.FchDia = precioprogramado.FchDia;
+                                                p.FchActualizacion = DateTime.Now;
+                                                p.ID_Moneda = precioprogramado.ID_Moneda;
+                                                p.Equibalencia = precioprogramado.Equibalencia;
+                                                p.ID_Usuario = precioprogramado.ID_Usuario;
+                                                precios_programados_editados.Add(p);
+                                            }
+                                            else
+                                                precios_programados.Add(precioprogramado);
+                                        }
+                                        else if (fecha_valida == DateTime.Today)
+                                        {
+                                            var precio = new Precio()
+                                            {
+                                                CodCte = cte.Cod,
+                                                CodDes = des.Cod,
+                                                CodGru = cte.Codgru,
+                                                CodPrd = prd.Cod,
+                                                CodZona = z.Cod,
+                                                FchDia = fecha_valida,
+                                                FchActualizacion = DateTime.Now,
+                                                Pre = precio_final,
+                                                Precio_Compra = precio_compra,
+                                                ID_Moneda = mon.Id,
+                                                Equibalencia = equi,
+                                                ID_Usuario = user_system.Cod,
+                                                Id_Tad = ter.Cod
+                                            };
+
+                                            var p = context.Precio.IgnoreAutoIncludes().FirstOrDefault(x => x.CodGru == precio.CodGru
+                                            && x.CodCte == precio.CodCte
+                                            && x.CodPrd == precio.CodPrd
+                                            && x.CodDes == precio.CodDes
+                                            && x.Id_Tad == precio.Id_Tad);
+
+                                            if (p is not null)
+                                            {
+                                                p.Pre = precio.Pre;
+                                                p.Precio_Compra = precio.Precio_Compra;
+                                                p.FchDia = precio.FchDia;
+                                                p.FchActualizacion = DateTime.Now;
+                                                p.ID_Moneda = precio.ID_Moneda;
+                                                p.Equibalencia = precio.Equibalencia;
+                                                p.ID_Usuario = precio.ID_Usuario;
+                                                precios_editados.Add(p);
+                                            }
+                                            else
+                                                precios.Add(precio);
+
+                                            var preciohistorico = new PrecioHistorico()
+                                            {
+                                                Cod = null!,
+                                                CodCte = cte.Cod,
+                                                CodDes = des.Cod,
+                                                CodGru = cte.Codgru,
+                                                CodPrd = prd.Cod,
+                                                CodZona = z.Cod,
+                                                FchDia = fecha_valida,
+                                                FchActualizacion = DateTime.Now,
+                                                pre = precio_final,
+                                                Precio_Compra = precio_compra,
+                                                ID_Moneda = mon.Id,
+                                                Equibalencia = equi,
+                                                ID_Usuario = user_system.Cod,
+                                                Id_Tad = ter.Cod
+                                            };
+
+                                            precios_historico.Add(preciohistorico);
+                                        }
+                                    }
+                                }
+
+                                context.UpdateRange(precios_editados);
+                                context.UpdateRange(precios_programados_editados);
+                                context.AddRange(precios);
+                                context.AddRange(precios_programados);
+                                context.AddRange(precios_historico);
+
+                                await context.SaveChangesAsync();
+                            }
+                        }
+                    }
+
+                    FilesProcesed++;
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
