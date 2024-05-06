@@ -90,12 +90,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     chofer.Id_Tad = id_terminal;
                     chofer.Codtransport = Convert.ToInt32(chofer.Transportista!.Busentid);
-                    var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
+                    //var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
                     //Si ya existe, genera un nuevo número Random
-                    if (exist)
-                    {
-                        return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
-                    }
+                    //if (exist)
+                    //{
+                    //    return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                    //}
                     context.Add(chofer);
                     await context.SaveChangesAsync();
                     if (!context.Chofer_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Chofer == chofer.Cod))
@@ -112,20 +112,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 else
                 {
                     chofer.Id_Tad = id_terminal;
-                    if (context.Chofer.Any(x => x.RFC != chofer.RFC))
-                    {
-                        //Con Any compruebo si el número aleatorio existe en la BD
-                        var exist = context.Chofer.Any(x => x.RFC == chofer.RFC && x.Dricod != chofer.Dricod);
-                        //Si ya existe, genera un nuevo número Random
-                        if (exist)
-                        {
-                            return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
-                        }
-                    }
-                    else
-                    {
-                        return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
-                    }
+                    //if (context.Chofer.Any(x => x.RFC != chofer.RFC))
+                    //{
+                    //    //Con Any compruebo si el número aleatorio existe en la BD
+                    //    var exist = context.Chofer.Any(x => x.RFC == chofer.RFC && x.Dricod != chofer.Dricod);
+                    //    //Si ya existe, genera un nuevo número Random
+                    //    if (exist)
+                    //    {
+                    //        return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
+                    //}
                     chofer.Terminales = null!;
                     context.Update(chofer);
                     await context.SaveChangesAsync();

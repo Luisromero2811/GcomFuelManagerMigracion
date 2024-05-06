@@ -1042,7 +1042,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino
                     && x.Busentid == transportistas[i].Busentid && x.CarrId == transportistas[i].CarrId))
                     {
-                        var numero = GetRandomCarid();
+                        var numero = GetRandomCarid(transportistas_validos);
                         var new_transpor = transportistas[i].HardCopy();
 
 
@@ -1137,7 +1137,8 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
+                //var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToList();
                 var toneles = context.Tonel.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Unidad_Tad> unidad_Tads = new();
@@ -1415,20 +1416,20 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
-        private string GetRandomCarid()
+        private string GetRandomCarid(List<Transportista_Tad> transportistas)
         {
-            var random = new Random().Next(1, 100000);
+            var random = new Random().Next(1, 999999);
 
             if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random)
                                              || !string.IsNullOrEmpty(x.Busentid) && x.Busentid.Equals(random)))
             {
-                //if (!transportistas.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random.ToString())))
-                return random.ToString();
-                //else
-                //    GetRandomCarid(transportistas);
+                if (!transportistas.Any(x => !string.IsNullOrEmpty(x.Transportista?.CarrId) && x.Transportista.CarrId.Equals(random.ToString())))
+                    return random.ToString();
+                else
+                    GetRandomCarid(transportistas);
             }
             else
-                GetRandomCarid();
+                GetRandomCarid(transportistas);
 
             return string.Empty;
         }
