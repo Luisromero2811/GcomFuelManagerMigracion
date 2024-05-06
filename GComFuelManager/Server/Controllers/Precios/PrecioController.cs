@@ -158,24 +158,28 @@ namespace GComFuelManager.Server.Controllers.Precios
                                     var rows = ws.Cells[r, 1, r, 13].ToList();
                                     if (rows.Count > 0)
                                     {
+                                        if (ws.Cells[r, 1].Value is null) { return BadRequest($"La terminal no puede estar vacia. (fila: {r}, columna: 1)"); }
                                         var terminal = ws.Cells[r, 1].Value.ToString();
                                         if (string.IsNullOrEmpty(terminal) || string.IsNullOrWhiteSpace(terminal)) { return BadRequest($"La terminal no puede estar vacia. (fila: {r}, columna: 1)"); }
 
                                         var ter = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(terminal) && x.Activo == true);
                                         if (ter is null) { return BadRequest($"No se encontro la terminal. (fila: {r}, columna: 1)"); }
 
+                                        if (ws.Cells[r, 2].Value is null) { return BadRequest($"El producto no puede estar vacio. (fila: {r}, columna: 2)"); }
                                         var producto = ws.Cells[r, 2].Value.ToString();
                                         if (string.IsNullOrEmpty(producto) || string.IsNullOrWhiteSpace(producto)) { return BadRequest($"El producto no puede estar vacio. (fila: {r}, columna: 2)"); }
 
                                         var prd = context.Producto.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(producto) && x.Activo == true && x.Id_Tad == ter.Cod);
                                         if (prd is null) { return BadRequest($"No se encontro el producto en la terminal {ter?.Den}. (fila: {r}, columna: 2)"); }
 
-                                        var zona = ws.Cells[r, 3].Value.ToString();
-                                        if (string.IsNullOrEmpty(zona) || string.IsNullOrWhiteSpace(zona)) { zona = "Sin Zona"; }
+                                        var zona = ws.Cells[r, 3].Value;
+                                        zona ??= "Sin Zona";
+                                        if (string.IsNullOrEmpty(zona.ToString()) || string.IsNullOrWhiteSpace(zona.ToString())) { zona = "Sin Zona"; }
 
                                         var z = context.Zona.FirstOrDefault(x => !string.IsNullOrEmpty(x.Nombre) && x.Nombre.Equals(zona));
                                         if (z is null) { return BadRequest($"No se encontro la zona ingresada. (fila: {r}, columna: 3)"); }
 
+                                        if (ws.Cells[r, 4].Value is null) { return BadRequest($"El cliente no puede estar vacio. (fila: {r}, columna: 4)"); }
                                         var cliente = ws.Cells[r, 4].Value.ToString();
                                         if (string.IsNullOrEmpty(cliente) || string.IsNullOrWhiteSpace(cliente)) { return BadRequest($"El cliente no puede estar vacio. (fila: {r}, columna: 4)"); }
 
@@ -184,25 +188,31 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                                         Destino des = new();
 
-                                        var cod_des = ws.Cells[r, 6].Value.ToString();
-                                        if (!string.IsNullOrEmpty(cod_des) || !string.IsNullOrWhiteSpace(cod_des))
+                                        if (ws.Cells[r, 6].Value is not null && (!string.IsNullOrEmpty(ws.Cells[r, 6].Value.ToString()) || !string.IsNullOrWhiteSpace(ws.Cells[r, 6].Value.ToString())))
                                         {
-                                            var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(cod_des) && x.Id_Tad == ter.Cod);
-                                            if (d is null) { return BadRequest($"No se encontro el destino con el codigo de synthesis: {cod_des} en la terminal {ter.Den}. (fila: {r}, columna: 6)"); }
-                                            des = d;
+                                            var cod_des = ws.Cells[r, 6].Value.ToString();
+                                            if (!string.IsNullOrEmpty(cod_des) || !string.IsNullOrWhiteSpace(cod_des))
+                                            {
+                                                var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(cod_des) && x.Id_Tad == ter.Cod);
+                                                if (d is null) { return BadRequest($"No se encontro el destino con el codigo de synthesis: {cod_des} en la terminal {ter.Den}. (fila: {r}, columna: 6)"); }
+                                                des = d;
+                                            }
                                         }
                                         else
                                         {
-
-                                            var cod_des_gob = ws.Cells[r, 8].Value.ToString();
-                                            if (!string.IsNullOrEmpty(cod_des_gob) || !string.IsNullOrWhiteSpace(cod_des_gob))
+                                            if (ws.Cells[r, 8].Value is not null && (!string.IsNullOrEmpty(ws.Cells[r, 8].Value.ToString()) || !string.IsNullOrWhiteSpace(ws.Cells[r, 8].Value.ToString())))
                                             {
-                                                var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Id_DestinoGobierno) && x.Id_DestinoGobierno.Equals(cod_des_gob) && x.Id_Tad == ter.Cod);
-                                                if (d is null) { return BadRequest($"No se encontro el destino con el codigo de gobierno: {cod_des_gob} en la terminal {ter.Den}. (fila: {r}, columna: 8)"); }
-                                                des = d;
+                                                var cod_des_gob = ws.Cells[r, 8].Value.ToString();
+                                                if (!string.IsNullOrEmpty(cod_des_gob) || !string.IsNullOrWhiteSpace(cod_des_gob))
+                                                {
+                                                    var d = context.Destino.FirstOrDefault(x => !string.IsNullOrEmpty(x.Id_DestinoGobierno) && x.Id_DestinoGobierno.Equals(cod_des_gob) && x.Id_Tad == ter.Cod);
+                                                    if (d is null) { return BadRequest($"No se encontro el destino con el codigo de gobierno: {cod_des_gob} en la terminal {ter.Den}. (fila: {r}, columna: 8)"); }
+                                                    des = d;
+                                                }
                                             }
                                             else
                                             {
+                                                if (ws.Cells[r, 5].Value is null) { return BadRequest($"El destino no puede estar vacio. (fila: {r}, columna: 5)"); }
                                                 var destino = ws.Cells[r, 5].Value.ToString();
                                                 if (string.IsNullOrEmpty(destino) || string.IsNullOrWhiteSpace(destino)) { return BadRequest($"El destino no puede estar vacio. (fila: {r}, columna: 5)"); }
 
@@ -216,6 +226,7 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                                         DateTime fecha_valida = DateTime.Today;
 
+                                        if (ws.Cells[r, 9].Value is null) { return BadRequest($"La fehca no puede estar vacia. (fila: {r}, columna: 9)"); }
                                         var fecha = ws.Cells[r, 9].Value.ToString();
                                         if (string.IsNullOrEmpty(fecha) || string.IsNullOrWhiteSpace(fecha)) { return BadRequest($"La fehca no puede estar vacia. (fila: {r}, columna: 9)"); }
 
@@ -227,6 +238,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                         double precio_final = 0;
                                         double precio_compra = 0;
 
+                                        if (ws.Cells[r, 10].Value is null) { return BadRequest($"El precio final no puede estar vacio. (fila: {r}, columna: 10)"); }
                                         var preciofinal = ws.Cells[r, 10].Value.ToString();
                                         if (string.IsNullOrEmpty(preciofinal) || string.IsNullOrWhiteSpace(preciofinal)) { return BadRequest($"El precio final no puede estar vacio. (fila: {r}, columna: 10)"); }
 
@@ -235,6 +247,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                                         else
                                             return BadRequest($"No se pudo convertir el precio final a un dato valido. (fila: {r}, columna: 10)");
 
+                                        if (ws.Cells[r, 11].Value is null) { return BadRequest($"El precio de compra no puede estar vacio. (fila: {r}, columna: 11)"); }
                                         var preciocompra = ws.Cells[r, 11].Value.ToString();
                                         if (string.IsNullOrEmpty(preciocompra) || string.IsNullOrWhiteSpace(preciocompra)) { return BadRequest($"El precio de compra no puede estar vacio. (fila: {r}, columna: 11)"); }
 
@@ -243,17 +256,19 @@ namespace GComFuelManager.Server.Controllers.Precios
                                         else
                                             return BadRequest($"No se pudo convertir el precio de compra a un dato valido. (fila: {r}, columna: 11)");
 
-                                        var moneda = ws.Cells[r, 12].Value.ToString();
-                                        if (string.IsNullOrEmpty(moneda) || string.IsNullOrWhiteSpace(moneda)) { moneda = "MXN"; }
+                                        var moneda = ws.Cells[r, 12].Value;
+                                        moneda ??= "MXN";
+                                        if (string.IsNullOrEmpty(moneda.ToString()) || string.IsNullOrWhiteSpace(moneda.ToString())) { moneda = "MXN"; }
 
                                         var mon = context.Moneda.FirstOrDefault(x => !string.IsNullOrEmpty(x.Nombre) && x.Nombre.Equals(moneda));
                                         if (mon is null) { return BadRequest($"No se encontro la moneda ingresada. (fila: {r}, columna: 12)"); }
 
                                         double equi = 0;
-                                        var equibalencia = ws.Cells[r, 13].Value.ToString();
-                                        if (string.IsNullOrEmpty(equibalencia) || string.IsNullOrWhiteSpace(equibalencia)) { equibalencia = "1"; }
+                                        var equibalencia = ws.Cells[r, 13].Value;
+                                        equibalencia ??= "1";
+                                        if (string.IsNullOrEmpty(equibalencia.ToString()) || string.IsNullOrWhiteSpace(equibalencia.ToString())) { equibalencia = "1"; }
 
-                                        if (double.TryParse(equibalencia, out double equiba))
+                                        if (double.TryParse(equibalencia.ToString(), out double equiba))
                                             equi = equiba;
                                         else
                                             return BadRequest($"No se pudo convertir la equibalencia a un dato valido. (fila: {r}), columna: 13");

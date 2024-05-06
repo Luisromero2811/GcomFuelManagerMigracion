@@ -237,293 +237,343 @@
             <Tabs>
                 <RadzenTabsItem Text="Precios Vigentes">
                     <div class="col-12 ancho-tabla overflow-scroll">
-                        <table class="table table-sm table-bordered table-hover">
-                            <thead>
+                        <Tabla Datos="precios">
+                            <Cabeceras>
                                 <tr>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th>
-                                                Editar
-                                            </th>
+                                            <th style="width:100px !important;">Editar</th>
                                         </Authorized>
                                     </AuthorizeView>
-
-                                    <th>Fecha</th>
-                                    <th>Unidad de Negocio</th>
-                                    <th>Precio</th>
-                                    <th>Producto</th>
-                                    <th>Destino</th>
-                                    <th>Zona</th>
-                                    <th>Cliente</th>
-                                    <th>Moneda</th>
-                                    <th>Cambio</th>
-                                    <th>Usuario</th>
-                                    <th>Fecha de subida</th>
+                                    <th style="width:100px !important;">Fechas</th>
+                                    <th style="width:150px !important;">Unidad de negocio</th>
+                                    <th style="width:100px !important;">Precio</th>
+                                    <th style="width:150px !important;">Producto</th>
+                                    <th style="width:200px !important;">Destino</th>
+                                    <th style="width:100px !important;">Zona</th>
+                                    <th style="width:200px !important;">Cliente</th>
+                                    <th style="width:90px !important;">Moneda</th>
+                                    <th style="width:50px !important;">Cambio</th>
+                                    <th style="width:100px !important;">Usuario</th>
+                                    <th style="width:100px !important;">Fecha de carga</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="min-width:20px;width:200px;">
-                                                Habilitar / deshabilitar
-                                            </th>
+                                            <th style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            </Cabeceras>
+                            <Filtros>
                                 <tr>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.producto" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.destino" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.zona" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,false))" />
                                     </td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
-                                @if (precios is null)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                                else if (precios?.Count > 0)
-                                {
-                                    @foreach (var item in precios)
-                                    {
-                                        <tr>
-
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-
-                                            <td>
-                                                <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Zona?.Nombre" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>@item?.Moneda?.Nombre</td>
-                                            <td>@(item?.Equibalencia ?? 1)</td>
-                                            <td>@item?.Usuario?.Den</td>
-                                            <td>@item?.FchActualizacion</td>
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                    <div class="col-12">
-                                                        <div class="form-check form-switch m-2">
-                                                            <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-                                        </tr>
-                                    }
-
-                                }
-                                else if (precios?.Count == 0)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
+                            </Filtros>
+                            <Columnas Context="precio">
                                 <tr>
-                                    <td colspan="12">
-                                        <div class="col-12 row">
-                                            <div class="text-muted col-2">
-                                                <p>total de registros: @ConteoTotal</p>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
                                             </div>
-                                            <div class="col-6 offset-4">
-                                                <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
-                                            </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    </AuthorizeView>
                                 </tr>
-                            </tfoot>
-                        </table>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotal</p>
+                            </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
+                            </div>
+                        </div>
                     </div>
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Precios Programados">
                     <div class="col-12 ancho-tabla overflow-scroll">
-                        <table class="table table-sm table-bordered table-hover">
-                            <thead>
+                        <Tabla Datos="preciosPro">
+                            <Cabeceras>
                                 <tr>
-                                    <th>
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
-                                            <Authorized>
-                                                Editar
-                                            </Authorized>
-                                        </AuthorizeView>
-                                    </th>
-                                    <th>Fecha</th>
-                                    <th>Unidad de Negocio</th>
-                                    <th>Precio</th>
-                                    <th>Producto</th>
-                                    <th>Destino</th>
-                                    <th>Zona</th>
-                                    <th>Cliente</th>
-                                    <th>Moneda</th>
-                                    <th>Cambio</th>
-                                    <th>Usuario</th>
-                                    <th>Fecha de subida</th>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th>
-                                                Habilitar / deshabilitar
-                                            </th>
+                                            <th style="width:100px !important;">Editar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <th style="width:100px !important;">Fechas</th>
+                                    <th style="width:150px !important;">Unidad de negocio</th>
+                                    <th style="width:100px !important;">Precio</th>
+                                    <th style="width:150px !important;">Producto</th>
+                                    <th style="width:200px !important;">Destino</th>
+                                    <th style="width:100px !important;">Zona</th>
+                                    <th style="width:200px !important;">Cliente</th>
+                                    <th style="width:90px !important;">Moneda</th>
+                                    <th style="width:50px !important;">Cambio</th>
+                                    <th style="width:100px !important;">Usuario</th>
+                                    <th style="width:100px !important;">Fecha de carga</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            </Cabeceras>
+                            <Filtros>
                                 <tr>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.producto" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.destino" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.zona" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.cliente" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,true))" />
                                     </td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
-                                @if (preciosPro is null)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                                else if (preciosPro?.Count > 0)
-                                {
-                                    @foreach (var item in preciosPro)
-                                    {
-                                        <tr>
-
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-
-                                            <td>
-                                                <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Zona?.Nombre" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>@item?.Moneda?.Nombre</td>
-                                            <td>@(item?.Equibalencia ?? 1)</td>
-                                            <td>@item?.Usuario?.Den</td>
-                                            <td>@item?.FchActualizacion</td>
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                <td>
-                                                    <div class="col-12">
-                                                        <div class="form-check form-switch m-2">
-                                                            <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </AuthorizeView>
-                                        </tr>
-                                    }
-
-                                }
-                                else if (preciosPro?.Count == 0)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
+                            </Filtros>
+                            <Columnas Context="precio">
                                 <tr>
-                                    <td colspan="12">
-                                        <div class="col-12 row">
-                                            <div class="text-muted col-2">
-                                                <p>total de registros: @ConteoTotalPro</p>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
                                             </div>
-                                            <div class="col-6 offset-4">
-                                                <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
-                                            </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    </AuthorizeView>
                                 </tr>
-                            </tfoot>
-                        </table>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotalPro</p>
+                            </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
+                            </div>
+                        </div>
+                        @* <table class="table table-sm table-bordered table-hover">
+                        <thead>
+                        <tr>
+                        <th>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                        <Authorized>
+                        Editar
+                        </Authorized>
+                        </AuthorizeView>
+                        </th>
+                        <th>Fecha</th>
+                        <th>Unidad de Negocio</th>
+                        <th>Precio</th>
+                        <th>Producto</th>
+                        <th>Destino</th>
+                        <th>Zona</th>
+                        <th>Cliente</th>
+                        <th>Moneda</th>
+                        <th>Cambio</th>
+                        <th>Usuario</th>
+                        <th>Fecha de subida</th>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                        <Authorized>
+                        <th>
+                        Habilitar / deshabilitar
+                        </th>
+                        </Authorized>
+                        </AuthorizeView>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>
+                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.producto" />
+                        </td>
+                        <td>
+                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.destino" />
+                        </td>
+                        <td>
+                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.zona" />
+                        </td>
+                        <td>
+                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.cliente" />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        </tr>
+                        @if (preciosPro is null)
+                        {
+                        <tr>
+                        <td colspan="12">
+                        <p>No hay precios</p>
+                        </td>
+                        </tr>
+                        }
+                        else if (preciosPro?.Count > 0)
+                        {
+                        @foreach (var item in preciosPro)
+                        {
+                        <tr>
+
+                        <td>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                        <div class="col-12">
+                        <div class="col p-2">
+                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                        </div>
+                        </div>
+                        </AuthorizeView>
+                        </td>
+
+                        <td>
+                        <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item?.Zona?.Nombre" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>
+                        <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
+                        </td>
+                        <td>@item?.Moneda?.Nombre</td>
+                        <td>@(item?.Equibalencia ?? 1)</td>
+                        <td>@item?.Usuario?.Den</td>
+                        <td>@item?.FchActualizacion</td>
+                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
+                        <td>
+                        <div class="col-12">
+                        <div class="form-check form-switch m-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
+                        @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
+                        </div>
+                        </div>
+                        </td>
+                        </AuthorizeView>
+                        </tr>
+                        }
+
+                        }
+                        else if (preciosPro?.Count == 0)
+                        {
+                        <tr>
+                        <td colspan="12">
+                        <p>No hay precios</p>
+                        </td>
+                        </tr>
+                        }
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                        <td colspan="12">
+                        <div class="col-12 row">
+                        <div class="text-muted col-2">
+                        <p>total de registros: @ConteoTotalPro</p>
+                        </div>
+                        <div class="col-6 offset-4">
+                        <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
+                        </div>
+                        </div>
+                        </td>
+                        </tr>
+                        </tfoot>
+                        </table> *@
                     </div>
                 </RadzenTabsItem>
             </Tabs>
@@ -531,12 +581,6 @@
 
     </Authorized>
 </AuthorizeView>
-
-<style type="text/css">
-    .ancho {
-        width: @TotalWidth;
-    }
-</style>
 
 @code {
     ElementReference infoIcon;
@@ -622,6 +666,74 @@
         await Obtener_Monedas();
         await LoadData();
         await LoadDataProgramados();
+    }
+
+    private async Task Filtrar_Producto(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.producto = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.producto = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.cliente = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.cliente = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Destino(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.destino = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.destino = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Zona(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.zona = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.zona = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
     }
 
     private async Task LoadData()
