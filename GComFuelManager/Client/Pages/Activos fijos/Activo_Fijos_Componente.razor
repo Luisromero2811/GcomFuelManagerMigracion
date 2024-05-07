@@ -2,6 +2,7 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Activos Fijos")]
 
 <div class="card">
@@ -9,6 +10,16 @@
         <b>Activo Fijo</b>
     </div>
     <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-6">
+                <Subir_Archivo Accept=".xlsx,.xls" TResponse="bool" Mensaje_Exitoso="Activos subidos exitosamente" URL="api/activo/file" Subida_Completa="Obtener_Activos_Fijos" />
+            </div>
+            <div class="col-2">
+                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Descargar_Formato">
+                    Descargar formato
+                </button>
+            </div>
+        </div>
         <div class="col-12 row">
             <EditForm Model="Activo_Fijo" OnValidSubmit="@Guardar_Activo">
                 <DataAnnotationsValidator />
@@ -123,7 +134,14 @@
     </div>
 </div>
 
-<div class="ancho-tabla">
+<div class="col-12 card">
+    <div class="card-header"> 
+         <button class="col-2 btn btn-sm gcom-bg-amarillo" @onclick="Descargar_Exportacion">
+             Exportar
+         </button>
+    </div>
+</div>
+<div class="ancho-tabla overflow-scroll my-1">
     <Tabla Datos="Activo_Fijos">
         <Cabeceras>
             <tr>
@@ -627,4 +645,46 @@
         Activo_Fijo = new();
         is_edit = false;
     }
+
+    private async Task Descargar_Formato()
+    {
+        try
+        {
+            var response = await http.Get<byte[]>($"api/activo/formato");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"FormatoActivos{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Descargar_Exportacion()
+    {
+        try
+        {
+            var url = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros_Busqueda());
+            var response = await http.Get<byte[]>($"api/activo/exportar?{url}");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Activos_Fijos_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }

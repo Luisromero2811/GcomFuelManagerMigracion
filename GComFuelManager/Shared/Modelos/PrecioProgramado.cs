@@ -27,6 +27,7 @@ namespace GComFuelManager.Shared.Modelos
         public double? Equibalencia { get; set; } = 1;
         [EpplusIgnore] public int? ID_Usuario { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
+        [EpplusIgnore] public double? Precio_Compra { get; set; } = 0;
 
         [NotMapped, EpplusIgnore] public Tad? Terminal { get; set; } = null!;
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;

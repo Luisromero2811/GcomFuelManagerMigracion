@@ -814,21 +814,21 @@ namespace GComFuelManager.Server.Controllers.Services
                 if (!context.Tad.Any(x => x.Cod == id_terminal))
                     return NotFound();
 
-                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
                 List<Cliente_Tad> cliente_Tads = new();
 
                 foreach (var cliente in clientes)
                     if (!context.Cliente_Tad.Any(x => x.Id_Cliente == cliente && x.Id_Terminal == id_terminal))
                         cliente_Tads.Add(new() { Id_Cliente = cliente, Id_Terminal = id_terminal });
 
-                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Activo && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                var destinos = context.Destino.IgnoreAutoIncludes().Where(x => x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
                 List<Destino_Tad> destino_Tads = new();
 
                 foreach (var destino in destinos)
                     if (!context.Destino_Tad.Any(x => x.Id_Destino == destino && x.Id_Terminal == id_terminal))
                         destino_Tads.Add(new() { Id_Destino = destino, Id_Terminal = id_terminal });
 
-                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
                 List<Transportista_Tad> transportista_s = new();
 
                 foreach (var trans in transportistas)
@@ -836,14 +836,14 @@ namespace GComFuelManager.Server.Controllers.Services
                         transportista_s.Add(new() { Id_Terminal = id_terminal, Id_Transportista = trans });
 
 
-                var choferes = context.Chofer.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                var choferes = context.Chofer.IgnoreAutoIncludes().Where(x => x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
                 List<Chofer_Tad> choferes_tad = new();
 
                 foreach (var chofer in choferes)
                     if (!context.Chofer_Tad.Any(x => x.Id_Chofer == chofer && x.Id_Terminal == id_terminal))
                         choferes_tad.Add(new() { Id_Chofer = chofer, Id_Terminal = id_terminal });
 
-                var unidades = context.Tonel.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
+                var unidades = context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == id_terminal_catalogo).Select(x => x.Cod).ToList();
                 List<Unidad_Tad> unidad_Tads = new();
 
                 foreach (var unidad in unidades)
@@ -854,8 +854,9 @@ namespace GComFuelManager.Server.Controllers.Services
                 List<Usuario_Tad> usuario_Tads = new();
 
                 foreach (var usuario in usuarios)
-                    if (!context.Usuario.Any(x => x.Usu == usuario.UserName && x.Activo))
-                        usuario_Tads.Add(new() { Id_Usuario = usuario.Id, Id_Terminal = id_terminal });
+                    if (!context.Usuario.Any(x => x.Usu == usuario.UserName))
+                        if (!context.Usuario_Tad.Any(x => x.Id_Usuario == usuario.Id && x.Id_Terminal == id_terminal))
+                            usuario_Tads.Add(new() { Id_Usuario = usuario.Id, Id_Terminal = id_terminal });
 
                 context.AddRange(cliente_Tads);
                 context.AddRange(destino_Tads);
@@ -879,7 +880,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Cliente_Tad> Clientes_validos = new();
 
@@ -918,8 +919,8 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { x.Cod, x.Den }).ToList();
-                var destinos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den }).ToList();
+                var destinos = context.Destino.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Destino_Tad> destinos_validos = new();
 
@@ -972,7 +973,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && x.Activo).Select(x => new { x.Cod, x.Den }).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den }).ToList();
                 //var contactos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
 
                 List<Contacto> contactos_validos = new();
@@ -1041,7 +1042,7 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino
                     && x.Busentid == transportistas[i].Busentid && x.CarrId == transportistas[i].CarrId))
                     {
-                        var numero = GetRandomCarid();
+                        var numero = GetRandomCarid(transportistas_validos);
                         var new_transpor = transportistas[i].HardCopy();
 
 
@@ -1081,8 +1082,8 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.Busentid }).ToList();
-                var choferes = context.Chofer.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den, x.Busentid }).ToList();
+                var choferes = context.Chofer.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Chofer_Tad> chofer_Tads = new();
 
@@ -1136,8 +1137,9 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
-                var toneles = context.Tonel.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+                //var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
+                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToList();
+                var toneles = context.Tonel.Where(x => x.Id_Tad == terminal).ToList();
 
                 List<Unidad_Tad> unidad_Tads = new();
 
@@ -1177,6 +1179,38 @@ namespace GComFuelManager.Server.Controllers.Services
                 }
 
                 context.AddRange(unidad_Tads);
+                await context.SaveChangesAsync();
+
+                return Ok(true);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("copiar/producto/{terminal}/{terminal_destino}")]
+        public async Task<ActionResult> Copiar_Productos([FromRoute] short terminal, [FromRoute] short terminal_destino)
+        {
+            try
+            {
+                var productos = context.Producto.Where(x => x.Id_Tad == terminal).ToList();
+
+                List<Producto> productos_validos = new();
+
+                for (int i = 0; i < productos.Count; i++)
+                {
+                    if (!context.Producto.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == productos[i].Den && x.Id_Tad == terminal_destino))
+                    {
+                        var new_producto = productos[i].HardCopy();
+                        new_producto.Cod = 0;
+                        new_producto.Id_Tad = terminal_destino;
+
+                        productos_validos.Add(new_producto);
+                    }
+                }
+
+                context.AddRange(productos_validos);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1266,40 +1300,101 @@ namespace GComFuelManager.Server.Controllers.Services
                                     }
                                 }
 
-                                using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
+                                //List<string> transportistas_excel = new();
+                                //using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
 
-                                for (int i = 2; i < 117; i++)
-                                {
-                                    var rows = ws_c.Cells[i, 43, i, 45].ToList();
-                                    if (rows is not null)
-                                    {
-                                        if (rows.Count > 0)
-                                        {
-                                            if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
-                                            {
-                                                if (rows[0].Value.ToString() != "S/D" && rows[1].Value.ToString() != "S/D" && rows[2].Value.ToString() != "S/D")
-                                                {
-                                                    var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
-                                                    if (trans_validos is not null)
-                                                    {
-                                                        var choferes_validos = context.Chofer.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()
-                                                                                                    && x.Codtransport.ToString() == trans_validos.Busentid).ToList();
+                                //for (int i = 1; i < 117; i++)
+                                //{
+                                //    var rows = ws_c.Cells[i, 4, i, 4].ToList();
 
-                                                        for (int j = 0; j < choferes_validos.Count; j++)
-                                                        {
-                                                            var chofer = choferes_validos[j];
+                                //    if (rows is not null)
+                                //    {
+                                //        if (!string.IsNullOrEmpty(rows[0].Value.ToString()) && rows[0].Value.ToString() != "S/D")
+                                //        {
+                                //            transportistas_excel.Add(rows[0].Value.ToString());
+                                //        }
+                                //    }
+                                //}
 
-                                                            chofer.RFC = rows[1].Value.ToString();
+                                //var trasnport = transportistas_excel.Distinct();
+                                //List<Transportista> transportistas = new();
 
-                                                            listado_choferes.Add(chofer);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
+                                //for (int i = 0; i < trasnport.Count(); i++)
+                                //{
+                                //    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trasnport.ElementAt(i)) && x.Id_Tad == 1))
+                                //    {
+                                //        var trans_encontrado = context.Transportista.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trasnport.ElementAt(i)) && x.Id_Tad == 1);
+                                //        if (trans_encontrado is not null)
+                                //        {
+                                //            transportistas.Add(trans_encontrado);
+                                //        }
+                                //    }
+                                //}
 
-                                }
+                                //var choferes_bd = context.Chofer.ToList();
+
+                                //for (int i = 1; i < 117; i++)
+                                //{
+                                //    var rows = ws_c.Cells[i, 2, i, 3].ToList();
+
+                                //    if (rows is not null)
+                                //    {
+                                //        if (!string.IsNullOrEmpty(rows[0].Value.ToString()) && rows[0].Value.ToString() != "S/D"
+                                //            && !string.IsNullOrEmpty(rows[1].Value.ToString()) && rows[1].Value.ToString() != "S/D")
+                                //        {
+                                //            var curp = string.Empty;
+
+                                //            if (rows[1].Value.ToString().Contains("-"))
+                                //            {
+                                //                var curp_full = rows[1].Value.ToString().Split("-");
+                                //                for (int y = 0; y < curp_full.Length; y++)
+                                //                {
+                                //                    curp += curp_full[y];
+                                //                }
+                                //            }
+                                //            else
+                                //            {
+                                //                curp = rows[1].Value.ToString();
+                                //            }
+                                //        }
+
+                                //    }
+                                //}
+
+                                //using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
+
+                                //for (int i = 1; i < 117; i++)
+                                //{
+                                //    var rows = ws_c.Cells[i, 2, i, 4].ToList();
+                                //    if (rows is not null)
+                                //    {
+                                //        if (rows.Count > 0)
+                                //        {
+                                //            if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
+                                //            {
+                                //                if (rows[0].Value.ToString() != "S/D" && rows[1].Value.ToString() != "S/D" && rows[2].Value.ToString() != "S/D")
+                                //                {
+                                //                    var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
+                                //                    if (trans_validos is not null)
+                                //                    {
+                                //                        var choferes_validos = context.Chofer.Where(x => //!string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()&& 
+                                //                                                                    x.Codtransport.ToString() == trans_validos.Busentid).ToList();
+
+                                //                        for (int j = 0; j < choferes_validos.Count; j++)
+                                //                        {
+
+                                //                            var chofer = choferes_validos[j];
+                                //                            chofer.RFC = rows[1].Value.ToString();
+
+                                //                            listado_choferes.Add(chofer);
+                                //                        }
+                                //                    }
+                                //                }
+                                //            }
+                                //        }
+                                //    }
+
+                                //}
                             }
                         }
                     }
@@ -1308,7 +1403,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 }
 
                 context.UpdateRange(listado_toneles);
-                context.UpdateRange(listado_choferes);
+                //context.UpdateRange(listado_choferes);
 
                 await context.SaveChangesAsync();
 
@@ -1321,20 +1416,20 @@ namespace GComFuelManager.Server.Controllers.Services
         }
         #endregion
 
-        private string GetRandomCarid()
+        private string GetRandomCarid(List<Transportista_Tad> transportistas)
         {
-            var random = new Random().Next(1, 100000);
+            var random = new Random().Next(1, 999999);
 
             if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random)
                                              || !string.IsNullOrEmpty(x.Busentid) && x.Busentid.Equals(random)))
             {
-                //if (!transportistas.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random.ToString())))
-                return random.ToString();
-                //else
-                //    GetRandomCarid(transportistas);
+                if (!transportistas.Any(x => !string.IsNullOrEmpty(x.Transportista?.CarrId) && x.Transportista.CarrId.Equals(random.ToString())))
+                    return random.ToString();
+                else
+                    GetRandomCarid(transportistas);
             }
             else
-                GetRandomCarid();
+                GetRandomCarid(transportistas);
 
             return string.Empty;
         }

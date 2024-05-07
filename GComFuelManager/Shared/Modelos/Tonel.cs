@@ -19,6 +19,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(30)] public string? Placa { get; set; } = string.Empty;
         [EpplusIgnore] public int? Codsyn { get; set; } = 0;
         [AllowNull, DefaultValue(""), EpplusIgnore] public string? Carid { get; set; } = string.Empty;
+        [NotMapped, EpplusIgnore] public int Codtransport { get; set; } = 0;
         [DisplayName("Nº Compartimento")] public int? Nrocom { get; set; } = 1;
         [EpplusIgnore] public int? Idcom { get; set; } = 0;
         [DisplayName("Capacidad de Compartimento")] public decimal? Capcom { get; set; } = decimal.Zero;

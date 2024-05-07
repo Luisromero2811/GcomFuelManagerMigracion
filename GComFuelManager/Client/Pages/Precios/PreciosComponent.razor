@@ -6,87 +6,44 @@
 @inject NotificationService ns
 @inject PreciosValidation validation
 @inject TooltipService ts
+@inject ILogger<PreciosComponent> Logger
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios, Revision Precios, Auditor")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
-        <h3>Precios</h3>
 
         <div class="d-flex justify-content-center col-12 shadow-sm mt-3">
             <div class="col-12 card">
+                <div class="card-header">
+                    <b>Precios</b>
+                </div>
                 <div class="col-12 row card-body">
 
                     <div class="col-12 row  mb-3">
                         <div class="col-6">
                             <div class="form-label">
                                 <label class="form-label">Importar:</label>
+                                <InputFile accept=".xlsx,.xls" class="form-control form-control-sm" OnChange="Subir_Precios" multiple />
+                                @if (loading_upload)
+                                {
+                                    <SpinnerLoading />
+                                }
                             </div>
-                            @if (radzenUpload.HasValue)
-                            {
-                                <p>Progreso: @Progress %</p>
-                            }
-                            <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload" Complete="@CompleteUpload"
-                                          Accept=".xlsx,.xls" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
-                                <RadzenUploadHeader Name="Authorization" Value="@Token" />
-                            </RadzenUpload>
-                        </div>
-                        <div class="col-2 d-flex">
-                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile">
-                                <i class="fa-solid fa-upload"></i>
-                                subir
-                            </button>
+                            @* <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload" Complete="@CompleteUpload"
+                            Accept=".xlsx,.xls" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
+                            <RadzenUploadHeader Name="Authorization" Value="@Token" />
+                            </RadzenUpload> *@
 
                         </div>
                         <div class="col-3 d-flex">
-                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
-                                <i class="fa-solid fa-download"></i> Descarga el formato aquí <i class="fa fa-solid fa-file-excel"></i>
+                            <button class="btn btn-sm gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
+                                <i class="fa-solid fa-download"></i> Descargar formato <i class="fa fa-solid fa-file-excel"></i>
+                                @if (loading_download)
+                                {
+                                    <SpinnerLoading />
+                                }
                             </button>
-                        </div>
-                        @* <div class="col-3 d-flex">
-                                <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
-                                    <i class="fa-solid fa-download"></i> Descarga el formato con destinos<i class="fa fa-solid fa-file-excel"></i>
-                                </button>
-                            </div> *@
-                        <div class="col-12 mt-3">
-                            @if (preciosExcel.Count() > 0)
-                            {
-
-                                <RadzenPanel AllowCollapse="true" Collapsed="true">
-                                    <HeaderTemplate>
-                                        Vista previa de precios
-                                    </HeaderTemplate>
-                                    <ChildContent>
-                                        <RadzenDataGrid TItem="PreciosDTO" Data="@preciosExcel" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                                        GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                        IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true" FilterMode="FilterMode.Simple">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Synthesis" Property="CodSyn" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Tuxpan" Property="CodTux" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Codigo Gobierno" Property="CodDestinoGobierno" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="true" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="true" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="true" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" Filterable="true" Property="Producto" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
-                                            </Columns>
-                                        </RadzenDataGrid>
-                                    </ChildContent>
-                                </RadzenPanel>
-                                <div class="col-12 d-flex justify-content-center mt-3">
-                                    <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios" disabled="@loadingSend">
-                                            <i class="fa fa-solid fa-floppy-disk"></i>
-                                            Guardar
-                                            @if (loadingSend)
-                                            {
-                                                <SpinnerLoading />
-                                            }
-                                        </button>
-                                    </div>
-                                </div>
-                            }
                         </div>
                     </div>
                     <hr />
@@ -97,7 +54,7 @@
                             <ValidationSummary />
                             <div class="col-4 mb-2">
                                 <label>Zona</label>
-                                <InputSelect @bind-Value="Precio.CodZona" class="form-select col-12">
+                                <InputSelect @bind-Value="Precio.CodZona" class="form-select form-select-sm col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Zonas == null)
                                     {
@@ -118,7 +75,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Grupo</label>
-                                <InputSelect @bind-Value="Precio.CodGru" class="form-select col-12" onchange="@GetClientes()">
+                                <InputSelect @bind-Value="Precio.CodGru" class="form-select form-select-sm col-12" onchange="@GetClientes()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Grupos == null)
                                     {
@@ -139,7 +96,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Cliente</label>
-                                <InputSelect @bind-Value="Precio.CodCte" class="form-select col-12" onchange="@GetEstaciones()">
+                                <InputSelect @bind-Value="Precio.CodCte" class="form-select form-select-sm col-12" onchange="@GetEstaciones()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Clientes == null)
                                     {
@@ -161,7 +118,7 @@
                             <div class="col-4 mb-1">
                                 <div class="col-12">
                                     <label>Destino</label>
-                                    <InputSelect @bind-Value="Precio.CodDes" class="form-select col-12">
+                                    <InputSelect @bind-Value="Precio.CodDes" class="form-select form-select-sm col-12">
                                         <option>-- Seleccione una opcion</option>
                                         @if (Destinos == null)
                                         {
@@ -183,7 +140,7 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Producto</label>
-                                <InputSelect @bind-Value="Precio.CodPrd" class="form-select col-12">
+                                <InputSelect @bind-Value="Precio.CodPrd" class="form-select form-select-sm col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Productos == null)
                                     {
@@ -204,11 +161,11 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Fecha</label>
-                                <InputDate @bind-Value="Precio.FchDia" class="form-control col-12" />
+                                <InputDate @bind-Value="Precio.FchDia" class="form-control form-control-sm col-12" />
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Precio</label>
-                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control col-12" />
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control form-control-sm col-12" />
                             </div>
                             <div class="col-4">
                                 <div class="col-12">
@@ -223,11 +180,11 @@
                             </div>
                             <div class="col-4 mb-2">
                                 <label>Tipo de cambio</label>
-                                <InputNumber TValue="double?" @bind-Value="Precio.Equibalencia" class="form-control col-12" />
+                                <InputNumber TValue="double?" @bind-Value="Precio.Equibalencia" class="form-control form-control-sm col-12" />
                             </div>
                             <div class="col-12 d-flex ms-2 mt-2 justify-content-center row">
                                 <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" type="submit">
+                                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         Guardar
                                         @if (loadingSave)
@@ -239,7 +196,7 @@
                                 <AuthorizeView Roles="Envio Precios, Admin, Administrador Sistema" Context="SendPrecios">
                                     <Authorized>
                                         <div class="col-4" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
-                                            <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
+                                            <button class="btn btn-sm col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
                                                 Enviar precios por cliente
                                                 @if (loadingSend)
@@ -253,7 +210,7 @@
                                 <AuthorizeView Roles="Admin, Administrador Sistema" Context="SendPrecioGrupal">
                                     <Authorized>
                                         <div class="col-4" @onmouseenter="@(args => ShowGroupTip(infosIcon))" @ref="infosIcon">
-                                            <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
+                                            <button class="btn btn-sm col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
                                                 <i class="fa fa-solid fa-paper-plane"></i>
                                                 Enviar precios grupal
                                                 @if (loadingSend)
@@ -280,306 +237,214 @@
             <Tabs>
                 <RadzenTabsItem Text="Precios Vigentes">
                     <div class="col-12 ancho-tabla overflow-scroll">
-                        <table class="table table-sm table-bordered table-hover">
-                            <thead>
+                        <Tabla Datos="precios">
+                            <Cabeceras>
                                 <tr>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th>
-                                                Editar
-                                            </th>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
                                         </Authorized>
                                     </AuthorizeView>
-
-                                    <th>Fecha</th>
-                                    <th>Unidad de Negocio</th>
-                                    <th>Precio</th>
-                                    <th>Producto</th>
-                                    <th>Destino</th>
-                                    <th>Zona</th>
-                                    <th>Cliente</th>
-                                    <th>Moneda</th>
-                                    <th>Cambio</th>
-                                    <th>Usuario</th>
-                                    <th>Fecha de subida</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="min-width:20px;width:200px;">
-                                                Habilitar / deshabilitar
-                                            </th>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            </Cabeceras>
+                            <Filtros>
                                 <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.producto" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.destino" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.zona" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,false))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaPrecios.cliente" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,false))" />
                                     </td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
-                                @if (precios is null)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                                else if (precios?.Count > 0)
-                                {
-                                    @foreach (var item in precios)
-                                    {
-                                        <tr>
-
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-
-                                            <td>
-                                                <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Zona?.Nombre" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>@item?.Moneda?.Nombre</td>
-                                            <td>@(item?.Equibalencia ?? 1)</td>
-                                            <td>@item?.Usuario?.Den</td>
-                                            <td>@item?.FchActualizacion</td>
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                    <div class="col-12">
-                                                        <div class="form-check form-switch m-2">
-                                                            <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-                                        </tr>
-                                    }
-
-                                }
-                                else if (precios?.Count == 0)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
+                            </Filtros>
+                            <Columnas Context="precio">
                                 <tr>
-                                    <td colspan="12">
-                                        <div class="col-12 row">
-                                            <div class="text-muted col-2">
-                                                <p>total de registros: @ConteoTotal</p>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
                                             </div>
-                                            <div class="col-6 offset-4">
-                                                <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
-                                            </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    </AuthorizeView>
                                 </tr>
-                            </tfoot>
-                        </table>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotal</p>
+                            </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
+                            </div>
+                        </div>
                     </div>
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Precios Programados">
                     <div class="col-12 ancho-tabla overflow-scroll">
-                        <table class="table table-sm table-bordered table-hover">
-                            <thead>
+                        <Tabla Datos="preciosPro">
+                            <Cabeceras>
                                 <tr>
-                                    <th>
-                                        <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
-                                            <Authorized>
-                                                Editar
-                                            </Authorized>
-                                        </AuthorizeView>
-                                    </th>
-                                    <th>Fecha</th>
-                                    <th>Unidad de Negocio</th>
-                                    <th>Precio</th>
-                                    <th>Producto</th>
-                                    <th>Destino</th>
-                                    <th>Zona</th>
-                                    <th>Cliente</th>
-                                    <th>Moneda</th>
-                                    <th>Cambio</th>
-                                    <th>Usuario</th>
-                                    <th>Fecha de subida</th>
-                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios, Ejecutivo de Cuenta Comercial">
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th>
-                                                Habilitar / deshabilitar
-                                            </th>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
-                            </thead>
-                            <tbody>
+                            </Cabeceras>
+                            <Filtros>
                                 <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.producto" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.destino" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.zona" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,true))" />
                                     </td>
                                     <td>
-                                        <RadzenTextBox Change="@LoadDataProgramados" @bind-Value="@busquedaPreciosPro.cliente" />
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,true))" />
                                     </td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
-                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
                                 </tr>
-                                @if (preciosPro is null)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                                else if (preciosPro?.Count > 0)
-                                {
-                                    @foreach (var item in preciosPro)
-                                    {
-                                        <tr>
-
-                                            <td>
-                                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                                    <div class="col-12">
-                                                        <div class="col p-2">
-                                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                        </div>
-                                                    </div>
-                                                </AuthorizeView>
-                                            </td>
-
-                                            <td>
-                                                <RadzenText Text="@item.FchDia.ToString("dd/MM/yyyy")" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Terminal?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item.Pre.ToString()" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Producto?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Destino?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Zona?.Nombre" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>
-                                                <RadzenText Text="@item?.Cliente?.Den" TextStyle="TextStyle.Body2" />
-                                            </td>
-                                            <td>@item?.Moneda?.Nombre</td>
-                                            <td>@(item?.Equibalencia ?? 1)</td>
-                                            <td>@item?.Usuario?.Den</td>
-                                            <td>@item?.FchActualizacion</td>
-                                            <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                                <td>
-                                                    <div class="col-12">
-                                                        <div class="form-check form-switch m-2">
-                                                            <input class="form-check-input" type="checkbox" role="switch" id="@item?.Cod" checked="@item?.Activo"
-                                                                   @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))">
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </AuthorizeView>
-                                        </tr>
-                                    }
-
-                                }
-                                else if (preciosPro?.Count == 0)
-                                {
-                                    <tr>
-                                        <td colspan="12">
-                                            <p>No hay precios</p>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                            <tfoot>
+                            </Filtros>
+                            <Columnas Context="precio">
                                 <tr>
-                                    <td colspan="12">
-                                        <div class="col-12 row">
-                                            <div class="text-muted col-2">
-                                                <p>total de registros: @ConteoTotalPro</p>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
                                             </div>
-                                            <div class="col-6 offset-4">
-                                                <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
-                                            </div>
-                                        </div>
-                                    </td>
+                                        </td>
+                                    </AuthorizeView>
                                 </tr>
-                            </tfoot>
-                        </table>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotalPro</p>
+                            </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
+                            </div>
+                        </div>
                     </div>
                 </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
-
     </Authorized>
 </AuthorizeView>
-
-<style type="text/css">
-    .ancho {
-        width: @TotalWidth;
-    }
-</style>
 
 @code {
     ElementReference infoIcon;
@@ -603,8 +468,6 @@
     List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
     List<Moneda> Monedas { get; set; } = new List<Moneda>();
 
-    private string Token { get; set; } = string.Empty;
-
     private short? GrupoSeleccionado = 0;
     private int? ClienteSeleccionado = 0;
 
@@ -618,6 +481,8 @@
     bool loading = false;
     bool loadingSave = false;
     bool loadingSend = false;
+    bool loading_download = false;
+    bool loading_upload = false;
 
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
     private IEnumerable<string?> ClientesSeleccionados { get; set; } = new List<string>();
@@ -649,6 +514,14 @@
     void ShowToolTip(ElementReference elementReference, TooltipService option = null!) => ts.Open(elementReference, "Opcion para solo mandar correo a clientes de manera individual");
     void ShowGroupTip(ElementReference elementReference, TooltipService service = null!) => ts.Open(elementReference, "Opcion para mandar correos a clientes ligados a grupos empresariales. NOTA: Tener para cada cliente un correo asignado");
 
+    private List<File> files = new();
+    private List<UploadResult> UploadResults = new();
+
+    private class File
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await GetProductos();
@@ -657,8 +530,74 @@
         await Obtener_Monedas();
         await LoadData();
         await LoadDataProgramados();
+    }
 
-        Token = "Bearer " + await js.GetItemLocalStorage("TOKENKEY");
+    private async Task Filtrar_Producto(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.producto = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.producto = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.cliente = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.cliente = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Destino(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.destino = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.destino = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Zona(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.zona = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.zona = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
     }
 
     private async Task LoadData()
@@ -714,49 +653,6 @@
         }
     }
 
-    private void OnProgress(UploadProgressArgs e)
-    {
-        try
-        {
-            //Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
-            Progress = e.Progress;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
-
-    private void OnChangeFile(UploadChangeEventArgs e)
-    {
-        try
-        {
-            foreach (var item in e.Files)
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(item));
-            }
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
-
-    private void OnChangeFileUpload(InputFileChangeEventArgs e)
-    {
-        try
-        {
-            foreach (var item in e.GetMultipleFiles(1))
-            {
-
-            }
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
-
     private async Task GenerateExcel()
     {
 
@@ -784,36 +680,28 @@
 
     private async Task DownloadFile()
     {
-        ExcelPackage.LicenseContext = LicenseContext.Commercial;
-        var excel = new ExcelPackage();
 
-        var ws = excel.Workbook.Worksheets.Add("Precios");
-        ws.Columns.Width = 49;
-        ws.Columns.AutoFit();
-
-        var header = ws.Cells["A1:J1"];
-
-        var tablebody = ws.Cells["A1"].LoadFromCollection(formato, c => { c.PrintHeaders = true; c.TableStyle = TableStyles.Medium15; });
-
-        ws.Cells[$"I1:I2"].Style.Numberformat.Format = "_-$* #,##0.00_-;-$* #,##0.00_-;_-$* \"-\"??_-;_-@_-";
-        ws.Cells[$"H1:H2"].Style.Numberformat.Format = "dd/mm/yyyy";
-
-        ws.Cells[1, 1, 2, ws.Dimension.End.Column].AutoFitColumns();
-
-        // var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(formato_precios, true);
-        // tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        // tablebody.Style.Font.Bold = true;
-        // header.Style.Font.Size = 14;
-        // header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-        // header.Style.Font.Color.SetColor(Color.White);
-        // tablebody.Style.Font.Size = 14;
-        // header.Style.Font.Size = 14;
-
-        // header.Style.Fill.PatternType = ExcelFillStyle.Solid;
-        // header.Style.Fill.BackgroundColor.SetColor(Color.Black);
-        // header.Style.Font.Bold = true;
-
-        await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", excel.GetAsByteArray());
+        try
+        {
+            loading_download = true;
+            var response = await http.Get<byte[]>("api/precio/formato");
+            if (response.Error)
+            {
+                loading_download = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_download = false;
+                await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_download = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
     private async Task GetProductos()
@@ -824,6 +712,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -846,6 +735,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -867,6 +757,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -1024,20 +915,6 @@
         }
     }
 
-    private async Task HandlerErrorUpload(Radzen.UploadErrorEventArgs ex)
-    {
-        try
-        {
-            await Swal.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
-            Progress = 0;
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task SendPrecios()
     {
         try
@@ -1069,12 +946,12 @@
                 if (response.Response.Count > 0)
                 {
                     ns.Notify(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Generando reporte",
-                        Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
-                        Duration = 15000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Generando reporte",
+                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                            Duration = 15000
+                        });
 
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;
                     var excel = new ExcelPackage();
@@ -1134,12 +1011,12 @@
             }
             totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
 
@@ -1148,12 +1025,12 @@
                 count++;
 
                 Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = $"Enviando {count} de {totalcount}",
-                    Duration = 15000
-                });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = cliente;
@@ -1177,12 +1054,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al cliente {cliente}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
                     }
                 }
                 else if (clientes.TipoEnvio == 2)
@@ -1198,12 +1075,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al cliente {cliente}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
                     }
                 }
             }
@@ -1252,12 +1129,12 @@
             totalcount = grupos.Grupos.Count;
             //Alerta de que los correos se estan enviando
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
             //Por cada grupo seleccionado, se realiza la accion de mostrar las alertas y hacer la peticion para mandar el correo
@@ -1266,12 +1143,12 @@
                 count++;
                 //Enviando correo # de #...
                 Message(new NotificationMessage
-                {
-                    Severity = NotificationSeverity.Info,
-                    Summary = "Enviando Correos",
-                    Detail = $"Enviando {count} de {totalcount}",
-                    Duration = 15000
-                });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
 
                 if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
                 queryStringObjectPre["den"] = grupo;
@@ -1295,12 +1172,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
+                                Duration = 15000
+                            });
                     }
                 }
                 else if (grupos.TipoEnvio == 2)
@@ -1317,12 +1194,12 @@
                     else
                     {
                         Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Correo enviado",
-                            Detail = $"El correo se ha enviado al grupo {grupo}",
-                            Duration = 15000
-                        });
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al grupo {grupo}",
+                                Duration = 15000
+                            });
                     }
                 }
             }
@@ -1484,6 +1361,65 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Subir_Precios(InputFileChangeEventArgs args)
+    {
+        long MaxAllowedSize = 1024 * 15 * 1024;
+        bool upload = false;
+        int MaxAllowedFiles = 10;
+
+        files = new();
+
+        using var content = new MultipartFormDataContent();
+        foreach (var file in args.GetMultipleFiles(MaxAllowedFiles))
+        {
+            try
+            {
+                files.Add(new() { Name = file.Name });
+                var filecontent = new StreamContent(file.OpenReadStream(MaxAllowedSize));
+                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: filecontent, name: "\"files\"", fileName: file.Name);
+                upload = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogInformation("{FileName} no se ha subido. (Err: 1) {Message}", file.Name, ex.Message);
+                UploadResults.Add(new()
+                    {
+                        FileName = file.Name,
+                        ErrorCode = 1,
+                        Upload = false
+                    });
+            }
+
+            if (upload)
+            {
+                loading_upload = true;
+                try
+                {
+                    var response = await http.PostFile("api/precio/file", content);
+                    if (response.Error)
+                    {
+                        loading_upload = false;
+                        await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loading_upload = false;
+                        await Swal.FireAsync("Exito", "Los precios fueron guardados con exito", SweetAlertIcon.Success);
+                        await LoadData();
+                        await LoadDataProgramados();
+                    }
+                }
+                catch (Exception e)
+                {
+                    loading_upload = false;
+                    await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                }
+            }
         }
     }
 }

@@ -109,7 +109,7 @@
         </div>
         <div class="card-body">
             <div class="col-12 row">
-                <div class="col-3">
+                <div class="col-3 mb-2">
                     <label>Grupo</label>
                     <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
                                     Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
@@ -153,7 +153,7 @@
             </div>
             <div class="col-12">
                 <table class="table table-sm table-striped table-bordered">
-                    <thead>
+                    <thead class="fila">
                         <tr>
                             @*<th>
                                 <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
@@ -169,6 +169,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr class="fila">
+                            <td>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.nombrecliente" />
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
                         @if (Clientes.Count > 0)
                         {
                             <Virtualize Items="Clientes" TItem="Cliente" Context="item">
@@ -234,12 +244,61 @@
         cursor: pointer;
         border-radius: 2rem;
     }
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
+
 </style>
 
 @code {
     //Variables
     private short? GrupoSeleccionado = 0;
-    private short GrupoSeleccionadoFiltro = 0;
 
     //Listas
     List<Tad> Tads_Seleccionados { get; set; } = new();
@@ -247,22 +306,20 @@
 
     List<Tad> Terminales { get; set; } = new List<Tad>();
     List<Cliente> Clientes { get; set; } = new();
-    List<Cliente> ClienteActivo { get; set; } = new List<Cliente>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<Grupo> GrupoActivo { get; set; } = new();
-
-    List<ClienteTadDTO> clientesTads { get; set; } = new List<ClienteTadDTO>();
-    List<Cliente> ClientesGrupo { get; set; } = new List<Cliente>();
 
     //Instancias
     ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
     public Cliente Cliente { get; set; } = new Cliente();
-    public GrupoClienteDTO CliGru { get; set; } = new GrupoClienteDTO();
     public Cliente_Tad cliente_tad { get; set; } = new Cliente_Tad();
 
     Cliente clientes { get; set; } = new();
     Tad tads { get; set; } = new();
     Grupo Grupo { get; set; } = new();
+
+    Dictionary<string, string> query = new Dictionary<string, string>();
+    ParametrosBusquedaCatalogo busquedaCatalogo = new ParametrosBusquedaCatalogo();
 
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
@@ -349,12 +406,28 @@
         }
     }
 
+    private async Task LoadData()
+    {
+        Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["nombrecliente"] = busquedaCatalogo.nombrecliente;
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await GetCliente();
+    }
 
     private async Task GetCliente()
     {
         try
         {
-            var response = await repositorio.Get<List<Cliente>>($"api/cliente/Grupo/{Cliente.Codgru}");
+            query = new Dictionary<string, string>();
+            query["nombrecliente"] = busquedaCatalogo.nombrecliente ?? string.Empty;
+            query["codgru"] = Grupos.FirstOrDefault(x => x.Cod == Cliente.Codgru)?.Cod.ToString() ?? string.Empty;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await repositorio.Get<List<Cliente>>($"api/cliente/listado?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

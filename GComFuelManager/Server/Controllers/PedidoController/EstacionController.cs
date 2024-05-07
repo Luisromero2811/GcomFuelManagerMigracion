@@ -82,8 +82,8 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("filtro/{cliente:int}")]
-        public async Task<ActionResult> GetCliente(int cliente)
+        [HttpGet("filtro")]
+        public async Task<ActionResult> GetCliente([FromQuery] ParametrosBusquedaCatalogo cliente)
         {
             try
             {
@@ -91,11 +91,15 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var estaciones = await context.Destino
-                    .Where(x => x.Codcte == cliente && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
+                var estaciones = context.Destino
+                    .Where(x => x.Codcte == cliente.codcte && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal))
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Den)
-                    .ToListAsync();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(cliente.nombredestino))
+                    estaciones = estaciones.Where(x => x.Den != null && !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(cliente.nombredestino.ToLower()));
+
                 return Ok(estaciones);
             }
             catch (Exception e)

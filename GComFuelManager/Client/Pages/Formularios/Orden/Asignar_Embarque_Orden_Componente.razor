@@ -49,21 +49,30 @@
             </div>
             <div class="col-12 row my-2">
                 <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
-                    <div class="col-12 row d-flex">
-                        <div class="col-4 my-1">
+                    <div class="col-12 row d-flex g-1">
+                        <div class="col-4">
                             <label>BOL / Embarque</label>
                             <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" />
                             <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
                         </div>
-                        <div class="col-4 my-1">
+                        <div class="col-4">
                             <label>Fecha de carga</label>
                             <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
                             <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
                         </div>
-                        <div class="col-4 my-1">
+                        <div class="col-4">
+                            <label>Fecha de llegada estimada</label>
+                            <InputDate @bind-Value="@Datos_BOL.Fecha_llegada" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
+                        </div>
+                        <div class="col-4">
                             <label>Litros cargados</label>
                             <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
                             <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
+                        </div>
+                        <div class="col-4 mt-auto">
+                            <label>ETA</label>
+                            @Datos_BOL.Eta
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
@@ -183,11 +192,19 @@
                                     <th>
                                         Operador
                                     </th>
+                                    <th>
+                                        ETA
+                                    </th>
+                                    <th>
+                                        Fecha de llegada estimada
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="sticky-column" style="background-color:white;"></td>
+                                    <td></td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -235,6 +252,8 @@
                                         <td>@data?.Transportista</td>
                                         <td>@data?.Unidad</td>
                                         <td>@data?.Operador</td>
+                                        <td>@data?.ETA</td>
+                                        <td>@data?.Fecha_llegada</td>
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -379,7 +398,7 @@
                   , true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:O1"];
+                var header = worksheet.Cells["A1:R1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 //Guardar Excell

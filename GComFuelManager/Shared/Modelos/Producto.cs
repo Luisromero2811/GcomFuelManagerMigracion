@@ -43,6 +43,19 @@ namespace GComFuelManager.Shared.Modelos
 
         public TipoProducto? TipoProducto { get; set; } = null!;
         public Tad? Terminal { get; set; } = null!;
+
+        public Producto HardCopy()
+        {
+            return new()
+            {
+                Cod = Cod,
+                Den = Den,
+                Codsyn = Codsyn,
+                Activo = Activo,
+                Id_Tad = Id_Tad,
+                Id_Tipo = Id_Tipo,
+            };
+        }
     }
 }
 
