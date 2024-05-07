@@ -9,7 +9,6 @@ namespace GComFuelManager.Client.Helpers.Validations
 		public GestionUnidadValidation()
 		{
 			RuleFor(x => x.Carid).NotEmpty().WithName("Empresa transportista");
-			RuleFor(x => x.Placa).NotEmpty().WithName("Placa");
 			RuleFor(x => x.Nrocom).NotEmpty().WithName("Nº Compartimento");
 			RuleFor(x => x.Capcom).NotEmpty().WithName("Capacidad");
 			RuleFor(x => x.Tracto).NotEmpty().WithName("Tracto");
