@@ -485,8 +485,6 @@ namespace GComFuelManager.Server.Controllers
                                         {
                                             numero_activo = ws.Cells[r, 3].Value.ToString();
                                         }
-
-
                                     }
                                 }
 
