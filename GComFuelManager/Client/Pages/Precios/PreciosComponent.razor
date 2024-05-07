@@ -242,23 +242,24 @@
                                 <tr>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="width:100px !important;">Editar</th>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
                                         </Authorized>
                                     </AuthorizeView>
-                                    <th style="width:100px !important;">Fechas</th>
-                                    <th style="width:150px !important;">Unidad de negocio</th>
-                                    <th style="width:100px !important;">Precio</th>
-                                    <th style="width:150px !important;">Producto</th>
-                                    <th style="width:200px !important;">Destino</th>
-                                    <th style="width:100px !important;">Zona</th>
-                                    <th style="width:200px !important;">Cliente</th>
-                                    <th style="width:90px !important;">Moneda</th>
-                                    <th style="width:50px !important;">Cambio</th>
-                                    <th style="width:100px !important;">Usuario</th>
-                                    <th style="width:100px !important;">Fecha de carga</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="width:100px !important;">Habilitar / Deshabilitar</th>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
@@ -270,6 +271,7 @@
                                             <td></td>
                                         </Authorized>
                                     </AuthorizeView>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -306,6 +308,7 @@
                                     <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
                                     <td>@precio.Terminal?.Den</td>
                                     <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
                                     <td>@precio.Producto?.Den</td>
                                     <td>@precio.Destino?.Den</td>
                                     <td>@precio.Zona?.Nombre</td>
@@ -313,7 +316,7 @@
                                     <td>@precio.Moneda?.Nombre</td>
                                     <td>@precio.Equibalencia</td>
                                     <td>@precio.Usuario?.Den</td>
-                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
                                         <td>
                                             <div class="form-check form-switch m-2">
@@ -342,23 +345,24 @@
                                 <tr>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="width:100px !important;">Editar</th>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
                                         </Authorized>
                                     </AuthorizeView>
-                                    <th style="width:100px !important;">Fechas</th>
-                                    <th style="width:150px !important;">Unidad de negocio</th>
-                                    <th style="width:100px !important;">Precio</th>
-                                    <th style="width:150px !important;">Producto</th>
-                                    <th style="width:200px !important;">Destino</th>
-                                    <th style="width:100px !important;">Zona</th>
-                                    <th style="width:200px !important;">Cliente</th>
-                                    <th style="width:90px !important;">Moneda</th>
-                                    <th style="width:50px !important;">Cambio</th>
-                                    <th style="width:100px !important;">Usuario</th>
-                                    <th style="width:100px !important;">Fecha de carga</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
                                     <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
                                         <Authorized>
-                                            <th style="width:100px !important;">Habilitar / Deshabilitar</th>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
                                         </Authorized>
                                     </AuthorizeView>
                                 </tr>
@@ -370,6 +374,7 @@
                                             <td></td>
                                         </Authorized>
                                     </AuthorizeView>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -406,6 +411,7 @@
                                     <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
                                     <td>@precio.Terminal?.Den</td>
                                     <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
                                     <td>@precio.Producto?.Den</td>
                                     <td>@precio.Destino?.Den</td>
                                     <td>@precio.Zona?.Nombre</td>
