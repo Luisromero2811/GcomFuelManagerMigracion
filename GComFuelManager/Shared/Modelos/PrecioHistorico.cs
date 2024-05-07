@@ -13,7 +13,7 @@ namespace GComFuelManager.Shared.Modelos
 {
     public class PrecioHistorico
     {
-        [Key, JsonProperty("cod"), EpplusIgnore] public int? Cod { get; set; } = 0;
+        [Key, EpplusIgnore] public int? Cod { get; set; } = 0;
         [EpplusIgnore] public int? CodZona { get; set; } = 0;
         [EpplusIgnore] public short? CodGru { get; set; } = 0;
         [EpplusIgnore] public int? CodCte { get; set; } = 0;
@@ -26,6 +26,7 @@ namespace GComFuelManager.Shared.Modelos
         public double? Equibalencia { get; set; } = 1;
         public int? ID_Usuario { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
+        [EpplusIgnore] public double? Precio_Compra { get; set; } = 0;
 
         [DisplayName("Fecha de actualizacion")]
         public string FechaActualizacion

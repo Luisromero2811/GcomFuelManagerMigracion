@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿  using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System;
 using System.Collections.Generic;
@@ -27,6 +27,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? ID_Usuario { get; set; } = 0;
         [EpplusIgnore] public bool Activo { get; set; } = true;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
+        [EpplusIgnore] public double? Precio_Compra { get; set; } = 0;
 
         [DisplayName("Fecha")]
         public string FechaActualizacion
