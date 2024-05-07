@@ -18,13 +18,13 @@
                 <div class="col-12 row mb-3">
                     <div class="col-3">
                         <label>Transportista(Empresa):</label>
-                        <RadzenDropDown @bind-Value="Unidad.Transportista" TValue="Transportista" Data="Grupos" TextProperty="Den"
+                        <RadzenDropDown @bind-Value="Unidad.Carid" TValue="string" Data="Grupos" TextProperty="Den" ValueProperty="CarrId"
                                         AllowVirtualization="true" AllowFiltering="true"
                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                         </RadzenDropDown>
                     </div>
                     <div class="col-3">
-                        <label>Placa:</label>
+                        <label>Placa tonel:</label>
                         <InputText @bind-Value="Unidad.Placa" class="form-control" MaxLenght="80" />
                     </div>
                     @*<div class="col-2">
@@ -108,7 +108,7 @@
     </div>
     <div class="card-body">
         <div class="col-12 row">
-            <div class="col-3">
+            <div class="col-3 mb-3">
                 <label>Empresa Transportista</label>
                 <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="Unidad.CodTra"
                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
@@ -125,58 +125,29 @@
                     </ValueTemplate>
                 </RadzenDropDown>
             </div>
-            @*<div class="col-3">
-                    <label>Unidad de Negocio</label>
-                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                        <RenderValue>
-                            <div>@context.Den</div>
-                        </RenderValue>
-                        <Render>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                                <label class="form-check-label" for="@context.Cod">
-                                    @if (context is not null)
-                                    {
-                                        @context.Den
-                                    }
-                                    else
-                                    {
-                                        <p>@context.Den</p>
-                                    }
-                                </label>
-                            </div>
-                        </Render>
-                    </DropDownFilter>
-                </div>
-                <div class="col-3">
-                    <label></label>
-                    <button class="col-12 mx-auto btn gcom-bg-amarillo" type="submit" @onclick="@PostRelacion">
-                        <i class="fa fa-solid fa-plus"></i> Relacionar Tonel-Unidad de Negocio
-                    </button>
-                </div>*@
             <div class="col-12">
-                <table class="table table-sm table-striped table-bordered">
-                    <thead>
+                <table class="table table-sm table-striped table-bordered table-hover" id="miTabla">
+                    <thead class="fila">
                         <tr>
-                            @*<th>
-                                    <input type="checkbox" checked="@(Toneles.Any(i => Unidad_Seleccionados != null && Unidad_Seleccionados.Contains(i)))"
-                                           @onchange="args => CheckItemAll(args?.Value)" />
-                                </th>*@
                             <th>Vehiculos</th>
                             <th>Certificado de Calibración</th>
                             <th>Estado</th>
                             <th>Editar</th>
-                            @*<th>Unidades de Negocio</th>*@
                         </tr>
                     </thead>
                     <tbody>
+                        <tr class="fila">
+                            <th>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.placatonel" Placeholder="Filtrar por placa tonel" />
+                            </th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
                         @if (Toneles.Count > 0)
                         {
                             <Virtualize Items="Toneles" TItem="Tonel" Context="item">
                                 <tr>
-                                    @*<th>
-                                            <input class="form-check-input" type="checkbox" value="" id="@item.Cod" checked="@(Unidad_Seleccionados.Contains(item))" @onchange="args => { CheckUnidad(item, args?.Value); }" />
-                                        </th>*@
                                     <td>@item.Den</td>
                                     <td>@item.Certificado_Calibracion</td>
                                     <td>
@@ -185,28 +156,11 @@
                                                    @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
                                         </div>
                                     </td>
-                                    <!--Editar-->
                                     <td>
                                         <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
                                             <i class="fa fa-solid fa-edit"></i>
                                         </button>
                                     </td>
-                                    @*<td>
-                                            @if (item.Terminales is not null)
-                                            {
-                                                @foreach (var items in item.Terminales)
-                                                {
-                                                    <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                                        @items.Den
-
-                                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(()=>Borrar_Relacion(item, items))">
-                                                            <i class="fa fa-solid fa-xmark"></i>
-                                                        </button>
-
-                                                    </span>
-                                                }
-                                            }
-                                        </td>*@
                                 </tr>
                             </Virtualize>
                         }
@@ -229,6 +183,56 @@
         cursor: pointer;
         border-radius: 2rem;
     }
+
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
 </style>
 
 @code {
@@ -248,7 +252,7 @@
     bool isEdit = false;
 
     Dictionary<string, string> query = new Dictionary<string, string>();
-
+    ParametrosBusquedaCatalogo busquedaCatalogo = new ParametrosBusquedaCatalogo();
     protected override async Task OnInitializedAsync()
     {
         await Obtener_Terminales_Validas();
@@ -260,7 +264,6 @@
     {
         try
         {
-            Unidad.Carid = Unidad.Transportista!.CarrId;
             //Unidad.Carid = Unidad.Transportista!.CarrId;
             var response = await repositorio.Post<Tonel>($"api/vehiculo/crearUnidad", Unidad);
             if (response.Error)
@@ -352,12 +355,29 @@
     //    }
     //}
 
+    private async Task LoadData()
+    {
+        Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["placatonel"] = busquedaCatalogo.placatonel;
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await GetCliente();
+    }
+
     private async Task GetCliente()
     {
         try
         {
-            string? carrid = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId;
-            var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/gestion/{carrid}");
+            query = new Dictionary<string, string>();
+            query["placatonel"] = busquedaCatalogo.placatonel ?? string.Empty;
+            query["carrid"] = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId ?? string.Empty;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            //string? carrid = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId;
+            var response = await repositorio.Get<List<Tonel>>($"api/vehiculo/gestion?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
