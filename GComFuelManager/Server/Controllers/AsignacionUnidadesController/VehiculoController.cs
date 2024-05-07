@@ -73,17 +73,21 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
-        [HttpGet("gestion/{transportista:int}")]
-        public ActionResult GetTonel(int transportista)
+        [HttpGet("gestion")]
+        public async Task<ActionResult> GetTonel([FromQuery] ParametrosBusquedaCatalogo transportista)
         {
             try
             {
                 var vehiculos = context.Tonel.IgnoreAutoIncludes()
                     .Include(x => x.Terminales)
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista)
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista.carrid)
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
-                    .ToList();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(transportista.placatonel))
+                    vehiculos = vehiculos.Where(x => x.Placa != null && !string.IsNullOrEmpty(x.Placa) && x.Placa.ToLower().Contains(transportista.placatonel.ToLower()));
+
                 return Ok(vehiculos);
             }
             catch (Exception e)
@@ -122,10 +126,11 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                 if (tonel is null)
                     return BadRequest();
+
                 if (tonel.Cod == 0)
                 {
                     tonel.Id_Tad = id_terminal;
-                    tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
+                    //tonel.Carid = Convert.ToString(tonel.Transportista!.CarrId);
                     tonel.Transportista = null!;
                     //var exist = context.Tonel.Any(x => x.Certificado_Calibracion == tonel.Certificado_Calibracion);
                     ////Si ya existe, genera un nuevo número Random

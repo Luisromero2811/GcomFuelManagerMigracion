@@ -89,8 +89,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (chofer.Cod == 0)
                 {
                     chofer.Id_Tad = id_terminal;
-                    chofer.Codtransport = Convert.ToInt32(chofer.Transportista!.Busentid);
-                    //var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
+                    chofer.Codtransport = Convert.ToInt32(chofer.Id_Transportista);
+                    var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
                     //Si ya existe, genera un nuevo número Random
                     //if (exist)
                     //{
@@ -112,6 +112,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 else
                 {
                     chofer.Id_Tad = id_terminal;
+                    chofer.Codtransport = Convert.ToInt32(chofer.Id_Transportista);
                     //if (context.Chofer.Any(x => x.RFC != chofer.RFC))
                     //{
                     //    //Con Any compruebo si el número aleatorio existe en la BD
@@ -227,16 +228,23 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
 
-        [HttpGet("listado/{transportista:int}")]//TODO: checar utilidad
-        public ActionResult GetChofer(int transportista)
+        [HttpGet("listado")]//TODO: checar utilidad /{transportista:int}
+        public async Task<ActionResult> GetChoferes([FromQuery] ParametrosBusquedaCatalogo transportista)
         {
             try
             {
                 var transportistas = context.Chofer.IgnoreAutoIncludes()
-                    .Where(x => x.Codtransport == transportista)
+                    .Where(x => x.Codtransport == transportista.busentid || x.Codtransport == transportista.codtransport)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToList();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(transportista.nombrechofer))
+                    transportistas = transportistas.Where(x => x.Den != null && !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(transportista.nombrechofer.ToLower()));
+
+                if (!string.IsNullOrEmpty(transportista.apellidochofer))
+                    transportistas = transportistas.Where(x => x.Shortden != null && !string.IsNullOrEmpty(x.Shortden) && x.Shortden.ToLower().Contains(transportista.apellidochofer.ToLower()));
+
                 return Ok(transportistas);
             }
             catch (Exception e)

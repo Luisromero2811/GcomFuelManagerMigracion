@@ -54,8 +54,8 @@ namespace GComFuelManager.Server.Controllers
         }
 
 
-        [HttpGet("Grupo/{grupo:int}")]
-        public async Task<ActionResult> GetCliente(int grupo)
+        [HttpGet("listado")]
+        public async Task<ActionResult> GetCliente([FromQuery] ParametrosBusquedaCatalogo grupo)
         {
             try
             {
@@ -63,11 +63,14 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var grupos = await context.Cliente
+                var grupos = context.Cliente
                     .Include(x => x.Terminales)
-                    .Where(x => x.Codgru == grupo && x.Terminales.Any(x => x.Cod == id_terminal))
+                    .Where(x => x.Codgru == grupo.codgru && x.Terminales.Any(x => x.Cod == id_terminal))
                     .OrderBy(x => x.Den)
-                    .ToListAsync();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(grupo.nombrecliente))
+                    grupos = grupos.Where(x => x.Den != null && !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(grupo.nombrecliente.ToLower()));
 
                 return Ok(grupos);
             }

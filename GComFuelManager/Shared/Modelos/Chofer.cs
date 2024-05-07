@@ -15,6 +15,7 @@ namespace GComFuelManager.Shared.Modelos
         [MaxLength(128), DisplayName("Nombre del Chofer")]
         public string? Den { get; set; } = string.Empty;
         [EpplusIgnore]public int? Codtransport { get; set; } = 0;
+        [EpplusIgnore, NotMapped] public string? Id_Transportista { get; set; } = string.Empty;
         [MaxLength(6), EpplusIgnore]
         public string? Dricod { get; set; } = string.Empty;
         [MaxLength(128), DisplayName("Apellidos del Chofer")]

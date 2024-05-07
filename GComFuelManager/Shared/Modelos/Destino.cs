@@ -20,7 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public int? CodbdTan { get; set; } = 0;
         [MaxLength(10), EpplusIgnore]
         public string? DesCod { get; set; } = string.Empty;
-        [MaxLength(20), EpplusIgnore]
+        [MaxLength(20), DisplayName("Código de Synthesis")]
         public string? Codsyn { get; set; } = string.Empty;
         [EpplusIgnore] public bool? Esenergas { get; set; } = false;
         [EpplusIgnore] public bool Activo { get; set; } = true;
@@ -39,7 +39,7 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("ID Gobierno")] public string? Id_DestinoGobierno { get; set; } = string.Empty;
         [EpplusIgnore] public bool? Es_Multidestino { get; set; } = false;
 
-        [NotMapped]
+        [NotMapped, DisplayName("Nombre Completo del Destino")]
         public string FULLDEN
         {
             get
@@ -49,10 +49,10 @@ namespace GComFuelManager.Shared.Modelos
         }
         [EpplusIgnore, NotMapped] public List<Tad> Terminales { get; set; } = new();
         [EpplusIgnore, NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
-        [NotMapped] public Cliente? Cliente { get; set; } = null!;
-        [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
-        [NotMapped] public Producto? Producto { get; set; } = null!;
-        [NotMapped] public Tad? Tad { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Cliente? Cliente { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public OrdenCierre? OrdenCierre { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
+        [NotMapped, EpplusIgnore] public Tad? Tad { get; set; } = null!;
 
         public Destino HardCopy()
         {
