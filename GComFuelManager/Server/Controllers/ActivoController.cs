@@ -41,7 +41,9 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Unidad)
                     .Include(x => x.Origen)
                     .Include(x => x.Etiqueta)
-                    .Where(x => x.Activo).AsQueryable();
+                    .Where(x => x.Activo)
+                    .OrderByDescending(x => x.Id)
+                    .AsQueryable();
 
                 if (!string.IsNullOrEmpty(activo.Nombre) || !string.IsNullOrWhiteSpace(activo.Nombre))
                     activos = activos.Where(x => x.Nombre.ToLower().Contains(activo.Nombre.ToLower()));
@@ -69,6 +71,9 @@ namespace GComFuelManager.Server.Controllers
 
                 if (activo.Etiquetado_Activo != 0)
                     activos = activos.Where(x => x.Etiquetado_Activo == activo.Etiquetado_Activo);
+
+                if (activo.Dto_Responsable != 0)
+                    activos = activos.Where(x => x.Dto_Responsable == activo.Dto_Responsable);
 
                 await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
 
@@ -103,6 +108,7 @@ namespace GComFuelManager.Server.Controllers
                 activo_Fijo.Unidad = null!;
                 activo_Fijo.Origen = null!;
                 activo_Fijo.Etiqueta = null!;
+                activo_Fijo.Departamento_Responsable = null!;
 
                 if (activo_Fijo.Id == 0)
                 {
@@ -125,8 +131,18 @@ namespace GComFuelManager.Server.Controllers
                     var conjunto = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Conjunto_Activo);
                     if (conjunto is null) { return BadRequest(); }
 
+
+
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
                     activo_Fijo.Numeracion = consecutivo.Numeracion;
+
+                    if (!string.IsNullOrEmpty(activo_Fijo.Nro_Activo) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Activo))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
+
+                        activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Add(activo_Fijo);
                 }
@@ -136,6 +152,14 @@ namespace GComFuelManager.Server.Controllers
                     if (conjunto is null) { return BadRequest(); }
 
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{activo_Fijo.Numeracion:00000}";
+
+                    if (!string.IsNullOrEmpty(activo_Fijo.Nro_Activo) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Activo))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
+
+                        activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Update(activo_Fijo);
                 }
@@ -279,7 +303,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("formato")]
-        public async Task<ActionResult> Descargar_Formato()
+        public ActionResult Descargar_Formato()
         {
             try
             {
@@ -310,7 +334,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("exportar")]
-        public async Task<ActionResult> Exportar_Excel([FromQuery] Activo_Fijo activo)
+        public ActionResult Exportar_Excel([FromQuery] Activo_Fijo activo)
         {
             try
             {
@@ -352,18 +376,22 @@ namespace GComFuelManager.Server.Controllers
 
                 if (activo.Etiquetado_Activo != 0)
                     activos = activos.Where(x => x.Etiquetado_Activo == activo.Etiquetado_Activo);
+                
+                if (activo.Dto_Responsable != 0)
+                    activos = activos.Where(x => x.Dto_Responsable == activo.Dto_Responsable);
 
                 var activos_dto = activos.Select(x => new Activos_Fijos_Excel()
                 {
                     Nombre = x.Nombre,
-                    Origen = x.Origen.Valor,
+                    Origen = x.Obtener_Origen,
                     Nro_Activo = x.Nro_Activo,
-                    Conjunto = x.Conjunto.Valor,
-                    Condicion = x.Condicion.Valor,
-                    Tipo = x.Tipo.Valor,
-                    Unidad = x.Unidad.Valor,
+                    Conjunto = x.Obtener_Conjunto,
+                    Condicion = x.Obtener_Condicion,
+                    Tipo = x.Obtener_Tipo,
+                    Unidad = x.Obtener_Unidad,
                     Nro_Etiqueta = x.Nro_Etiqueta,
-                    Etiquetado = x.Etiqueta.Valor
+                    Etiquetado = x.Obtener_Etiqueta,
+                    Dto_Responsable = x.Obtener_Departamento
                 });
 
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
@@ -439,10 +467,9 @@ namespace GComFuelManager.Server.Controllers
 
                                 for (int r = 2; r < (ws.Dimension.End.Row + 1); r++)
                                 {
-                                    var rows = ws.Cells[r, 1, r, 9].ToList();
+                                    var rows = ws.Cells[r, 1, r, 10].ToList();
                                     if (rows.Count > 0)
                                     {
-                                        Activo_Fijo activo_Fijo = new();
 
                                         if (ws.Cells[r, 1].Value is null) { return BadRequest($"El nombre del activo no puede estar vacio. (fila: {r}, columna: 1)"); }
                                         var nombre_activo = ws.Cells[r, 1].Value.ToString();
@@ -451,40 +478,108 @@ namespace GComFuelManager.Server.Controllers
                                         if (ws.Cells[r, 2].Value is null) { return BadRequest($"El origen del activo no puede estar vacio. (fila: {r}, columna: 2)"); }
                                         var origen_activo = ws.Cells[r, 2].Value.ToString();
                                         if (string.IsNullOrEmpty(origen_activo) || string.IsNullOrWhiteSpace(origen_activo)) { return BadRequest($"El origen del activo no puede estar vacio. (fila: {r}, columna: 2)"); }
+                                        var id_origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(origen_activo));
+                                        if (id_origen is null) { return BadRequest($"No se encontro el origen. (fila: {r}, columna: 2)"); }
 
                                         if (ws.Cells[r, 4].Value is null) { return BadRequest($"El conjunto del activo no puede estar vacio. (fila: {r}, columna: 4)"); }
                                         var conjunto_activo = ws.Cells[r, 4].Value.ToString();
                                         if (string.IsNullOrEmpty(conjunto_activo) || string.IsNullOrWhiteSpace(conjunto_activo)) { return BadRequest($"El conjunto del activo no puede estar vacio. (fila: {r}, columna: 4)"); }
+                                        var id_conjunto = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(conjunto_activo));
+                                        if (id_conjunto is null) { return BadRequest($"No se encontro el conjunto. (fila: {r}, columna: 4)"); }
 
                                         if (ws.Cells[r, 5].Value is null) { return BadRequest($"La condicion del activo no puede estar vacia. (fila: {r}, columna: 5)"); }
                                         var condicion_activo = ws.Cells[r, 5].Value.ToString();
                                         if (string.IsNullOrEmpty(condicion_activo) || string.IsNullOrWhiteSpace(condicion_activo)) { return BadRequest($"La condicion del activo no puede estar vacia. (fila: {r}, columna: 5)"); }
+                                        var id_condicion = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(condicion_activo));
+                                        if (id_condicion is null) { return BadRequest($"No se encontro la condicion. (fila: {r}, columna: 5)"); }
 
                                         if (ws.Cells[r, 6].Value is null) { return BadRequest($"El tipo del activo no puede estar vacio. (fila: {r}, columna: 6)"); }
                                         var tipo_activo = ws.Cells[r, 6].Value.ToString();
                                         if (string.IsNullOrEmpty(tipo_activo) || string.IsNullOrWhiteSpace(tipo_activo)) { return BadRequest($"El tipo del activo no puede estar vacio. (fila: {r}, columna: 6)"); }
+                                        var id_tipo = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(tipo_activo));
+                                        if (id_tipo is null) { return BadRequest($"No se encontro el tipo. (fila: {r}, columna: 6)"); }
 
                                         if (ws.Cells[r, 7].Value is null) { return BadRequest($"La unidad de medida del activo no puede estar vacia. (fila: {r}, columna: 7)"); }
                                         var unidad_activo = ws.Cells[r, 7].Value.ToString();
                                         if (string.IsNullOrEmpty(unidad_activo) || string.IsNullOrWhiteSpace(unidad_activo)) { return BadRequest($"La unidad de medida del activo no puede estar vacia. (fila: {r}, columna: 7)"); }
+                                        var id_unidad = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(unidad_activo));
+                                        if (id_unidad is null) { return BadRequest($"No se encontro la unidad de medida. (fila: {r}, columna: 7)"); }
 
-                                        if (ws.Cells[r, 8].Value is null) { return BadRequest($"La etiqueta del activo no puede estar vacia. (fila: {r}, columna: 8)"); }
-                                        var etiqueta_activo = ws.Cells[r, 8].Value.ToString();
-                                        if (string.IsNullOrEmpty(etiqueta_activo) || string.IsNullOrWhiteSpace(etiqueta_activo)) { return BadRequest($"La etiqueta del activo no puede estar vacia. (fila: {r}, columna: 8)"); }
+                                        //var etiqueta_activo = string.Empty;
+                                        //if (ws.Cells[r, 8].Value is not null && (!string.IsNullOrEmpty(ws.Cells[r, 8].Value.ToString()) || !string.IsNullOrWhiteSpace(ws.Cells[r, 8].Value.ToString())))
+                                        //{ etiqueta_activo = ws.Cells[r, 8].Value.ToString(); }
+                                        //else { etiqueta_activo = string.Empty; }
 
-                                        if (ws.Cells[r, 9].Value is null) { return BadRequest($"El etiquetado del activo no puede estar vacio. (fila: {r}, columna: 9)"); }
-                                        var etiquetado = ws.Cells[r, 9].Value.ToString();
-                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { return BadRequest($"El etiquetado del activo no puede estar vacio. (fila: {r}, columna: 9)"); }
+                                        var etiquetado = string.Empty;
+                                        if (ws.Cells[r, 9].Value is null) { etiquetado = "SI"; }
+                                        else { etiquetado = ws.Cells[r, 9].Value.ToString(); }
+                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { etiquetado = "SI"; }
+                                        var id_etiquetado = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(etiquetado));
+                                        if (id_etiquetado is null) { return BadRequest($"No se encontro el etiquetado. (fila: {r}, columna: 9)"); }
+
+                                        var id_departamento = 0;
+                                        if (ws.Cells[r, 10].Value is not null)
+                                        {
+                                            var dto_responsable = ws.Cells[r, 10].Value.ToString();
+                                            if (!string.IsNullOrEmpty(etiquetado) || !string.IsNullOrWhiteSpace(dto_responsable))
+                                            {
+                                                var departamento = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(dto_responsable));
+                                                if (departamento is null) { return BadRequest($"No se encontro el departamento responsable. (fila: {r}, columna: 10)"); }
+                                                id_departamento = departamento.Id;
+                                            }
+                                        }
 
                                         var numero_activo = string.Empty;
-                                        if (ws.Cells[r, 3].Value is null && (string.IsNullOrEmpty(ws.Cells[r, 3].Value.ToString()) || string.IsNullOrWhiteSpace(ws.Cells[r, 3].Value.ToString())))
-                                        {
+                                        var nro_consecutivo = 0;
 
+                                        //if (ws.Cells[r,3].Value is not null)
+                                        //{
+                                        //    numero_activo = ws.Cells[r, 3].Value.ToString();
+                                        //    if(!string.IsNullOrEmpty(numero_activo) || !string.IsNullOrWhiteSpace(numero_activo))
+                                        //    {
+                                        //        var string_numero = numero_activo.Replace(conjunto_activo, "");
+
+                                        //        int.TryParse(string_numero, out nro_consecutivo);
+
+                                        //    }
+                                        //}
+
+                                        var consecutivo = context.Consecutivo.FirstOrDefault(x => x.Nombre.Equals("Activo_Fijo"));
+                                        if (consecutivo is null)
+                                        {
+                                            Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Activo_Fijo" };
+                                            context.Add(Nuevo_Consecutivo);
+                                            await context.SaveChangesAsync();
+                                            consecutivo = Nuevo_Consecutivo;
                                         }
                                         else
                                         {
-                                            numero_activo = ws.Cells[r, 3].Value.ToString();
+                                            consecutivo.Numeracion++;
+                                            context.Update(consecutivo);
+                                            await context.SaveChangesAsync();
                                         }
+
+                                        numero_activo = $"{id_conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
+                                        nro_consecutivo = consecutivo.Numeracion;
+
+                                        var etiqueta_activo = $"{id_origen.Abreviacion}-OF. OPER-{numero_activo}";
+
+                                        Activo_Fijo activo_Fijo = new()
+                                        {
+                                            Nombre = nombre_activo,
+                                            Origen_Activo = id_origen.Id,
+                                            Conjunto_Activo = id_conjunto.Id,
+                                            Condicion_Activo = id_condicion.Id,
+                                            Tipo_Activo = id_tipo.Id,
+                                            Unidad_Medida = id_unidad.Id,
+                                            Etiquetado_Activo = id_etiquetado.Id,
+                                            Nro_Activo = numero_activo,
+                                            Nro_Etiqueta = etiqueta_activo,
+                                            Dto_Responsable = id_departamento,
+                                            Numeracion = nro_consecutivo,
+                                        };
+
+                                        activos.Add(activo_Fijo);
                                     }
                                 }
 
@@ -498,7 +593,7 @@ namespace GComFuelManager.Server.Controllers
                     FilesProcesed++;
                 }
 
-                return Ok();
+                return Ok(true);
             }
             catch (Exception e)
             {

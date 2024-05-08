@@ -603,6 +603,7 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Condicion).WithMany().HasForeignKey(x => x.Condicion_Activo);
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Origen).WithMany().HasForeignKey(x => x.Origen_Activo);
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Etiqueta).WithMany().HasForeignKey(x => x.Etiquetado_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Departamento_Responsable).WithMany().HasForeignKey(x => x.Dto_Responsable);
         }
 
 
