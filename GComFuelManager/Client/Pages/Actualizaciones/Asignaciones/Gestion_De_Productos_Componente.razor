@@ -49,33 +49,85 @@
     </div>
 </div>
 <hr />
-<Tabla Datos="Productos" Type="Producto">
-    <Cabeceras>
-        <tr>
-            <th>Producto</th>
-            <th>Tipo</th>
-            <th>Estado</th>
-            <th>Editar</th>
-        </tr>
-    </Cabeceras>
-    <Columnas Context="producto">
-        <tr>
-            <td>@producto.Den</td>
-            <td>@producto.Obtener_Tipo</td>
-            <td>
-                <div class="form-check form-switch mx-2">
-                    <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo" @onchange="@((args)=>ChangeStatus(args, producto))">
-                </div>
-            </td>
-            <td>
-                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = producto)">
-                    <i class="fa fa-solid fa-edit"></i>
-                </button>
-            </td>
-        </tr>
-    </Columnas>
-</Tabla>
+<div style="height: 500px; overflow: scroll;">
+    <Tabla Datos="Productos" Type="Producto">
+        <Cabeceras>
+            <tr class="fila">
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Editar</th>
+            </tr>
+        </Cabeceras>
+        <Columnas Context="producto">
+            <tr>
+                <td>@producto.Den</td>
+                <td>@producto.Obtener_Tipo</td>
+                <td>
+                    <div class="form-check form-switch mx-2">
+                        <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo" @onchange="@((args)=>ChangeStatus(args, producto))">
+                    </div>
+                </td>
+                <td>
+                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = producto)">
+                        <i class="fa fa-solid fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
 
+<style>
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
+</style>
 @code {
     Producto Producto { get; set; } = new();
     List<Producto> Productos { get; set; } = new();
