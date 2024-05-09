@@ -113,36 +113,38 @@ namespace GComFuelManager.Server.Controllers
                 if (activo_Fijo.Id == 0)
                 {
 
-                    var consecutivo = context.Consecutivo.FirstOrDefault(x => x.Nombre.Equals("Activo_Fijo"));
-                    if (consecutivo is null)
-                    {
-                        Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Activo_Fijo" };
-                        context.Add(Nuevo_Consecutivo);
-                        await context.SaveChangesAsync();
-                        consecutivo = Nuevo_Consecutivo;
-                    }
-                    else
-                    {
-                        consecutivo.Numeracion++;
-                        context.Update(consecutivo);
-                        await context.SaveChangesAsync();
-                    }
+                    //var consecutivo = context.Consecutivo.FirstOrDefault(x => x.Nombre.Equals("Activo_Fijo"));
+                    //if (consecutivo is null)
+                    //{
+                    //    Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Activo_Fijo" };
+                    //    context.Add(Nuevo_Consecutivo);
+                    //    await context.SaveChangesAsync();
+                    //    consecutivo = Nuevo_Consecutivo;
+                    //}
+                    //else
+                    //{
+                    //    consecutivo.Numeracion++;
+                    //    context.Update(consecutivo);
+                    //    await context.SaveChangesAsync();
+                    //}
+
+                    var consecutivo = context.Activo_Fijo.OrderBy(x => x.Numeracion).LastOrDefault(x => x.Activo);
+                    if (consecutivo is null) { consecutivo = new() { Numeracion = 1 }; }
+                    else { consecutivo.Numeracion++; }
 
                     var conjunto = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Conjunto_Activo);
                     if (conjunto is null) { return BadRequest(); }
 
-
-
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
                     activo_Fijo.Numeracion = consecutivo.Numeracion;
 
-                    if (!string.IsNullOrEmpty(activo_Fijo.Nro_Activo) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Activo))
-                    {
-                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                        if (origen is null) { return BadRequest(); }
+                    //if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    //{
+                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                    //    if (origen is null) { return BadRequest(); }
 
-                        activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    }
+                    //    activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    //}
 
                     context.Add(activo_Fijo);
                 }
@@ -153,13 +155,13 @@ namespace GComFuelManager.Server.Controllers
 
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{activo_Fijo.Numeracion:00000}";
 
-                    if (!string.IsNullOrEmpty(activo_Fijo.Nro_Activo) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Activo))
-                    {
-                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                        if (origen is null) { return BadRequest(); }
+                    //if (!string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    //{
+                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                    //    if (origen is null) { return BadRequest(); }
 
-                        activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    }
+                    //    activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    //}
 
                     context.Update(activo_Fijo);
                 }
@@ -376,7 +378,7 @@ namespace GComFuelManager.Server.Controllers
 
                 if (activo.Etiquetado_Activo != 0)
                     activos = activos.Where(x => x.Etiquetado_Activo == activo.Etiquetado_Activo);
-                
+
                 if (activo.Dto_Responsable != 0)
                     activos = activos.Where(x => x.Dto_Responsable == activo.Dto_Responsable);
 
@@ -505,11 +507,6 @@ namespace GComFuelManager.Server.Controllers
                                         var id_unidad = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(unidad_activo));
                                         if (id_unidad is null) { return BadRequest($"No se encontro la unidad de medida. (fila: {r}, columna: 7)"); }
 
-                                        //var etiqueta_activo = string.Empty;
-                                        //if (ws.Cells[r, 8].Value is not null && (!string.IsNullOrEmpty(ws.Cells[r, 8].Value.ToString()) || !string.IsNullOrWhiteSpace(ws.Cells[r, 8].Value.ToString())))
-                                        //{ etiqueta_activo = ws.Cells[r, 8].Value.ToString(); }
-                                        //else { etiqueta_activo = string.Empty; }
-
                                         var etiquetado = string.Empty;
                                         if (ws.Cells[r, 9].Value is null) { etiquetado = "SI"; }
                                         else { etiquetado = ws.Cells[r, 9].Value.ToString(); }
@@ -530,39 +527,32 @@ namespace GComFuelManager.Server.Controllers
                                         }
 
                                         var numero_activo = string.Empty;
-                                        var nro_consecutivo = 0;
+                                        if (ws.Cells[r, 3].Value is null) { return BadRequest($"El numero de arctivo no puede estar vacio. (fila: {r}, columna: 3)"); }
+                                        numero_activo = ws.Cells[r, 3].Value.ToString();
+                                        if (string.IsNullOrEmpty(numero_activo) || string.IsNullOrWhiteSpace(numero_activo))
+                                        { return BadRequest($"El numero de arctivo no puede estar vacio. (fila: {r}, columna: 3)"); }
 
-                                        //if (ws.Cells[r,3].Value is not null)
-                                        //{
-                                        //    numero_activo = ws.Cells[r, 3].Value.ToString();
-                                        //    if(!string.IsNullOrEmpty(numero_activo) || !string.IsNullOrWhiteSpace(numero_activo))
-                                        //    {
-                                        //        var string_numero = numero_activo.Replace(conjunto_activo, "");
-
-                                        //        int.TryParse(string_numero, out nro_consecutivo);
-
-                                        //    }
-                                        //}
-
-                                        var consecutivo = context.Consecutivo.FirstOrDefault(x => x.Nombre.Equals("Activo_Fijo"));
-                                        if (consecutivo is null)
+                                        var string_numero = numero_activo.Replace(conjunto_activo, "");
+                                        if (int.TryParse(string_numero, out int nro_consecutivo))
                                         {
-                                            Consecutivo Nuevo_Consecutivo = new() { Numeracion = 1, Nombre = "Activo_Fijo" };
-                                            context.Add(Nuevo_Consecutivo);
-                                            await context.SaveChangesAsync();
-                                            consecutivo = Nuevo_Consecutivo;
-                                        }
-                                        else
-                                        {
-                                            consecutivo.Numeracion++;
-                                            context.Update(consecutivo);
-                                            await context.SaveChangesAsync();
+                                            var string_prefijo = numero_activo.Replace(string_numero, "");
+                                            numero_activo = $"{string_prefijo}{nro_consecutivo:00000}";
                                         }
 
-                                        numero_activo = $"{id_conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
-                                        nro_consecutivo = consecutivo.Numeracion;
+                                        if (ws.Cells[r, 8].Value is null) { return BadRequest($"El numero de etiqueta no puede estar vacio. (fila: {r}, columna: 8)"); }
+                                        if (string.IsNullOrEmpty(ws.Cells[r, 8].Value.ToString()) || string.IsNullOrWhiteSpace(ws.Cells[r, 8].Value.ToString()))
+                                        { return BadRequest($"El numero de etiqueta no puede estar vacio. (fila: {r}, columna: 8)"); }
 
-                                        var etiqueta_activo = $"{id_origen.Abreviacion}-OF. OPER-{numero_activo}";
+                                        var etiqueta_activo = string.Empty;
+                                        etiqueta_activo = ws.Cells[r, 8].Value.ToString()!;
+
+                                        string[] etiqueta_compuesta = etiqueta_activo.Split("-");
+                                        string_numero = etiqueta_compuesta[2].Replace(conjunto_activo, "");
+                                        if (int.TryParse(string_numero, out int nro_etiqueta))
+                                        {
+                                            var string_prefijo = etiqueta_compuesta[2].Replace(string_numero, "");
+                                            etiqueta_activo = $"{etiqueta_compuesta[0]}-{etiqueta_compuesta[1]}-{string_prefijo}{nro_etiqueta:00000}";
+                                        }
 
                                         Activo_Fijo activo_Fijo = new()
                                         {
