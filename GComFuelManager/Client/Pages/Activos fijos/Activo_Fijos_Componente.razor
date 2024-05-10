@@ -2,6 +2,7 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Activos Fijos")]
 
 <div class="card">
@@ -10,16 +11,27 @@
     </div>
     <div class="card-body">
         <div class="col-12 row">
+            <div class="col-6">
+                <Subir_Archivo Accept=".xlsx,.xls" TResponse="bool" Mensaje_Exitoso="Activos subidos exitosamente" URL="api/activo/file" Subida_Completa="Obtener_Activos_Fijos" />
+            </div>
+            <div class="col-2 d-flex">
+                <button class="btn btn-sm gcom-bg-amarillo col-12 mt-auto" @onclick="Descargar_Formato">
+                    Descargar formato
+                </button>
+            </div>
+        </div>
+        <br />
+        <div class="col-12 row g-1">
             <EditForm Model="Activo_Fijo" OnValidSubmit="@Guardar_Activo">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="col-12 row g-1">
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Nombre</label>
                         <InputText @bind-Value="@Activo_Fijo.Nombre" class="form-control form-control-sm" placeholder="Nombre de activo" />
                         <ValidationMessage For="@(()=>Activo_Fijo.Nombre)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Origen</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Origen_Activo" class="form-select form-select-sm">
                             <option>-- seleccione un origen --</option>
@@ -30,7 +42,7 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Origen_Activo)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Conjunto de activo</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Conjunto_Activo" class="form-select form-select-sm">
                             <option>-- seleccione un conjunto --</option>
@@ -41,7 +53,7 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Conjunto_Activo)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Condición del activo</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Condicion_Activo" class="form-select form-select-sm">
                             <option>-- seleccione un condicion --</option>
@@ -52,7 +64,7 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Condicion_Activo)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Tipo</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Tipo_Activo" class="form-select form-select-sm">
                             <option>-- seleccione un tipo --</option>
@@ -63,7 +75,7 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Tipo_Activo)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Unidad de medida</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Unidad_Medida" class="form-select form-select-sm">
                             <option>-- seleccione un unidad de medida --</option>
@@ -74,12 +86,12 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Unidad_Medida)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Número de etiqueta</label>
                         <InputText @bind-Value="@Activo_Fijo.Nro_Etiqueta" class="form-control form-control-sm" placeholder="Número de etiqueta" />
                         <ValidationMessage For="@(()=>Activo_Fijo.Nro_Etiqueta)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col-4 my-1">
                         <label>Etiquetado</label>
                         <InputSelect @bind-Value="@Activo_Fijo.Etiquetado_Activo" class="form-select form-select-sm">
                             <option>-- seleccione un estado de etiqueta --</option>
@@ -89,6 +101,17 @@
                             }
                         </InputSelect>
                         <ValidationMessage For="@(()=>Activo_Fijo.Unidad_Medida)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Dto. Responsable</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Dto_Responsable" class="form-select form-select-sm">
+                            <option>-- seleccione un dto. responsable --</option>
+                            @foreach (var dto in Cat_Dto_Responsable)
+                            {
+                                <option value="@dto.Id">@dto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Dto_Responsable)" />
                     </div>
                     <div class="col-4 d-flex mt-auto">
                         @if (!is_edit)
@@ -123,7 +146,14 @@
     </div>
 </div>
 
-<div class="ancho-tabla">
+<div class="col-12 card">
+    <div class="card-header"> 
+         <button class="col-2 btn btn-sm gcom-bg-amarillo" @onclick="Descargar_Exportacion">
+             Exportar
+         </button>
+    </div>
+</div>
+<div class="ancho-tabla overflow-scroll my-1">
     <Tabla Datos="Activo_Fijos">
         <Cabeceras>
             <tr>
@@ -137,6 +167,7 @@
                 <th class="resizable-column" style="width:150px;">Unidad de medida</th>
                 <th class="resizable-column" style="width:150px;">Número de etiqueta</th>
                 <th class="resizable-column" style="width:150px;">Etiquetado</th>
+                <th class="resizable-column" style="width:150px;">Dto. Responsable</th>
             </tr>
         </Cabeceras>
         <Filtros>
@@ -205,6 +236,15 @@
                         }
                     </select>
                 </td>
+                <td>
+                    <select @onchange="Filtro_Dto_Responsable" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Origen)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
             </tr>
         </Filtros>
         <Columnas Context="activo">
@@ -220,14 +260,15 @@
                     </div>
                 </td>
                 <td>@activo.Nombre</td>
-                <td>@activo.Origen.Valor</td>
+                <td>@activo.Origen?.Valor</td>
                 <td>@activo.Nro_Activo</td>
-                <td>@activo.Conjunto.Valor</td>
-                <td>@activo.Condicion.Valor</td>
-                <td>@activo.Tipo.Valor</td>
-                <td>@activo.Unidad.Valor</td>
+                <td>@activo.Conjunto?.Valor</td>
+                <td>@activo.Condicion?.Valor</td>
+                <td>@activo.Tipo?.Valor</td>
+                <td>@activo.Unidad?.Valor</td>
                 <td>@activo.Nro_Etiqueta</td>
-                <td>@activo.Etiqueta.Valor</td>
+                <td>@activo.Etiqueta?.Valor</td>
+                <td>@activo.Departamento_Responsable?.Valor</td>
             </tr>
         </Columnas>
     </Tabla>
@@ -241,7 +282,6 @@
 </div>
 
 @code {
-    // Parametros_Busqueda_Gen<Activo_Fijo> parametros_ = new();
     Dictionary<string, string> query = new();
 
     Activo_Fijo Activo_Fijo = new();
@@ -253,6 +293,7 @@
     List<Catalogo_Fijo> Cat_Tipo = new();
     List<Catalogo_Fijo> Cat_Unidad = new();
     List<Catalogo_Fijo> Cat_Origen = new();
+    List<Catalogo_Fijo> Cat_Dto_Responsable = new();
     List<Catalogo_Fijo> Cat_Etiqueta = new();
 
     bool loading_guardar = false;
@@ -361,6 +402,7 @@
             else
             {
                 Cat_Origen = response.Response;
+                Cat_Dto_Responsable = response.Response;
             }
         }
         catch (Exception e)
@@ -500,6 +542,8 @@
         query["Origen_Activo"] = Activo_Fijo_Filtro.Origen_Activo.ToString();
         query["Nro_Etiqueta"] = Activo_Fijo_Filtro.Nro_Etiqueta.ToString();
         query["Etiquetado_Activo"] = Activo_Fijo_Filtro.Etiquetado_Activo.ToString();
+        query["Dto_Responsable"] = Activo_Fijo_Filtro.Dto_Responsable.ToString();
+        query["Nro_Activo"] = Activo_Fijo_Filtro.Nro_Activo.ToString();
         query["Pagina"] = Activo_Fijo_Filtro.Pagina.ToString();
         query["Registros_por_pagina"] = Activo_Fijo_Filtro.Registros_por_pagina.ToString();
 
@@ -606,6 +650,18 @@
         }
     }
 
+    private async Task Filtro_Dto_Responsable(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int origen))
+            {
+                Activo_Fijo_Filtro.Dto_Responsable = origen;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
     #endregion
 
     private async Task Pagina_Seleccionada(int pagina)
@@ -627,4 +683,46 @@
         Activo_Fijo = new();
         is_edit = false;
     }
+
+    private async Task Descargar_Formato()
+    {
+        try
+        {
+            var response = await http.Get<byte[]>($"api/activo/formato");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"FormatoActivos{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Descargar_Exportacion()
+    {
+        try
+        {
+            var url = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros_Busqueda());
+            var response = await http.Get<byte[]>($"api/activo/exportar?{url}");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Activos_Fijos_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
