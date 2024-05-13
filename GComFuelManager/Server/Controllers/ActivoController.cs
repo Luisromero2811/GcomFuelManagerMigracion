@@ -41,6 +41,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Unidad)
                     .Include(x => x.Origen)
                     .Include(x => x.Etiqueta)
+                    .Include(x => x.Departamento_Responsable)
                     .Where(x => x.Activo)
                     .OrderByDescending(x => x.Id)
                     .AsQueryable();
@@ -508,9 +509,9 @@ namespace GComFuelManager.Server.Controllers
                                         if (id_unidad is null) { return BadRequest($"No se encontro la unidad de medida. (fila: {r}, columna: 7)"); }
 
                                         var etiquetado = string.Empty;
-                                        if (ws.Cells[r, 9].Value is null) { etiquetado = "SI"; }
+                                        if (ws.Cells[r, 9].Value is null) { etiquetado = "PENDIENTE"; }
                                         else { etiquetado = ws.Cells[r, 9].Value.ToString(); }
-                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { etiquetado = "SI"; }
+                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { etiquetado = "PENDIENTE"; }
                                         var id_etiquetado = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(etiquetado));
                                         if (id_etiquetado is null) { return BadRequest($"No se encontro el etiquetado. (fila: {r}, columna: 9)"); }
 
