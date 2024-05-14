@@ -139,13 +139,13 @@ namespace GComFuelManager.Server.Controllers
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
                     activo_Fijo.Numeracion = consecutivo.Numeracion;
 
-                    //if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
-                    //{
-                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                    //    if (origen is null) { return BadRequest(); }
+                    if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
 
-                    //    activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    //}
+                        activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Add(activo_Fijo);
                 }
@@ -156,13 +156,13 @@ namespace GComFuelManager.Server.Controllers
 
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{activo_Fijo.Numeracion:00000}";
 
-                    //if (!string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
-                    //{
-                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                    //    if (origen is null) { return BadRequest(); }
+                    if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
 
-                    //    activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    //}
+                        activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Update(activo_Fijo);
                 }
