@@ -21,6 +21,17 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public Tad? Tad { get; set; }
         [NotMapped, EpplusIgnore] public List<Tad> Terminales { get; set; } = new();
         [NotMapped, EpplusIgnore] public List<GrupoTransportista_Tad> GrupoTransportista_Tads { get; set; } = new();
+
+        public GrupoTransportista HardCopy()
+        {
+            return new()
+            {
+                cod = cod,
+                den = den,
+                Activo = Activo
+            };
+        }
+
     }
 }
 
