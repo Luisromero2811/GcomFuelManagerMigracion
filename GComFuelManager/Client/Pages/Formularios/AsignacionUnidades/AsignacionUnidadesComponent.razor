@@ -177,118 +177,118 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Aignar">
+               
                     <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
                         <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
                                         Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
                         Asignar / cancelar
                     </th>
-                    </AuthorizeView>
-                    @if (!Esta_En_Synthesis)
-                    {
-                        <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Multisd">
-                            <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
-                                Destino de retiro
-                            </th>
-                            <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
-                                Autorizador
-                            </th>
-                        </AuthorizeView>
-                    }
-                    else
-                    {
-
-                    }
-
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Orden de compra
+            
+                @if (!Esta_En_Synthesis)
+                {
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Multisd">
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
+                            Destino de retiro
                         </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Folio
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 14).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Unidad de Negocio
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Cliente
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Destino
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Producto
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                            Volumen
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                            Fecha de carga
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Transportista
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Unidad
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                            Compartimiento
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
-                            Operador
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                            Bin
-                        </th>
-                    }
-                    @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
-                    {
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
-                            Estatus
-                        </th>
-                    }
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Desasignar">
-                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
-                            Desasignar
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:250px;">
+                            Autorizador
                         </th>
                     </AuthorizeView>
+                }
+                else
+                {
+
+                }
+
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 1).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Orden de compra
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Folio
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 14).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Unidad de Negocio
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Cliente
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 4).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Destino
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 5).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Producto
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 6).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Volumen
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 7).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Fecha de carga
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 8).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Transportista
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 9).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Unidad
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 10).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Compartimiento
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 11).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
+                        Operador
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 12).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Bin
+                    </th>
+                }
+                @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 13).Visible)
+                {
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                        Estatus
+                    </th>
+                }
+                <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Desasignar">
+                    <th class="th-resizable overflow-hidden" style="min-width:20px;width:180px;">
+                        Desasignar
+                    </th>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -300,14 +300,20 @@
                 {
                     <td></td>
                 }
+
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 2).Visible)
                 {
-                    <td></td>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Columnas">
+                        <td></td>
+                    </AuthorizeView>
                 }
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 14).Visible)
                 {
-                    <td></td>
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Columnas2">
+                        <td></td>
+                    </AuthorizeView>
                 }
+
                 @if (Columnas.Count > 0 && Columnas.First(x => x.ID == 3).Visible)
                 {
                     <td>
@@ -1055,17 +1061,17 @@ else
             else
             {
                 checkChofer = new CheckChofer()
-                    {
-                        Chofer = asignacion.CodChf,
-                        Tonel = asignacion.CodTon,
-                        Compartimento = Vehiculos?.Count == null ? 0 :
+                {
+                    Chofer = asignacion.CodChf,
+                    Tonel = asignacion.CodTon,
+                    Compartimento = Vehiculos?.Count == null ? 0 :
                                                                                                                         (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
                                                                                                                         : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
                                                                                                                         : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
                                                                                                                         : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                    };
+                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -1092,13 +1098,13 @@ else
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                            {
-                                Icon = SweetAlertIcon.Warning,
-                                ShowCancelButton = true,
-                                ConfirmButtonText = "Aceptar",
-                                CancelButtonText = "Cancelar",
-                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                            });
+                        {
+                            Icon = SweetAlertIcon.Warning,
+                            ShowCancelButton = true,
+                            ConfirmButtonText = "Aceptar",
+                            CancelButtonText = "Cancelar",
+                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                        });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -1190,29 +1196,29 @@ else
                        && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                            {
-                                OrdenCompra = item?.OrdenCompra?.den ?? "",
-                                Referencia = item?.OrdenCierre?.Folio ?? "",
-                                Cliente = item?.Destino?.Cliente?.Den ?? "",
-                                Destino = item?.Destino?.Den ?? "",
-                                Producto = item?.Producto?.Den ?? "",
-                                //Volumen = item?.Vol,
-                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                        {
+                            OrdenCompra = item?.OrdenCompra?.den ?? "",
+                            Referencia = item?.OrdenCierre?.Folio ?? "",
+                            Cliente = item?.Destino?.Cliente?.Den ?? "",
+                            Destino = item?.Destino?.Den ?? "",
+                            Producto = item?.Producto?.Den ?? "",
+                            //Volumen = item?.Vol,
+                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
                                                                                                                     Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
                                                                                                                     Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
                                                                                                                     Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
                                                                                                                     Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                                Unidad = item?.Tonel?.Veh ?? "",
-                                Compartimento = item?.Compartment,
-                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                                Bin = item?.Bin,
-                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                                Turno = item?.OrdenCierre?.Turno ?? "",
-                                Unidad_Negocio = item?.Tad?.Den ?? "",
-                                //Status = item?.Estado?.den
-                            });
+                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                            Unidad = item?.Tonel?.Veh ?? "",
+                            Compartimento = item?.Compartment,
+                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                            Bin = item?.Bin,
+                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                            Turno = item?.OrdenCierre?.Turno ?? "",
+                            Unidad_Negocio = item?.Tad?.Den ?? "",
+                            //Status = item?.Estado?.den
+                        });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -1291,23 +1297,23 @@ else
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                    {
-                        Icon = SweetAlertIcon.Info,
-                        ShowCancelButton = true,
-                        ConfirmButtonText = "Aceptar",
-                        CancelButtonText = "Cancelar",
-                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                    });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                        {
-                            Severity = NotificationSeverity.Info,
-                            Summary = "Enviando Ordenes a Synthesis",
-                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                            Duration = 150000
-                        });
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Ordenes a Synthesis",
+                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                        Duration = 150000
+                    });
 
                     loadingSend = true;
                     AlertVisible = true;
@@ -1408,13 +1414,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Info,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1451,13 +1457,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+            });
             ordenEmbarque = orden;
             if (!string.IsNullOrEmpty(confirm.Value))
             {

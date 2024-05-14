@@ -59,7 +59,18 @@ namespace GComFuelManager.Shared.DTOs
         public double? Volumen_Cargado { get; set; } = 0;
         [DisplayName("Precio")]
         public double? Precio { get; set; } = 0;
-
+        [DisplayName("Transportista")]
+        public string? Transportista { get; set; } = string.Empty;
+        [DisplayName("Unidad")]
+        public string? Unidad { get; set; } = string.Empty;
+        [DisplayName("Operador")]
+        public string? Operador { get; set; } = string.Empty;
+        [DisplayName("Sellos")]
+        public string? Sellos { get; set; } = string.Empty;
+        [DisplayName("Pedimentos")]
+        public string? Pedimentos { get; set; } = string.Empty;
+        [DisplayName("Folio")]
+        public string ReferenciaOrden { get; set; } = string.Empty;
         [EpplusIgnore]
         public string Folio_Cierre { get; set; } = string.Empty;
         //[DisplayName("Tipo de venta")]
