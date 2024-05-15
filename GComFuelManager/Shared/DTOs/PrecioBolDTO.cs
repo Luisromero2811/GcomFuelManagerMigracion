@@ -35,6 +35,33 @@ namespace GComFuelManager.Shared.DTOs
 
         [EpplusIgnore]
         public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
+
+        [DisplayName("BOL")]
+        public int? BOL { get; set; } = 0;
+        [DisplayName("Transportista")]
+        public string? Transportista { get; set; } = string.Empty;
+        [DisplayName("Unidad")]
+        public string? Unidad { get; set; } = string.Empty;
+        [DisplayName("Operador")]
+        public string? Operador { get; set; } = string.Empty;
+        [DisplayName("Sellos")]
+        public string? Sellos { get; set; } = string.Empty;
+        [DisplayName("Cliente")]
+        public string? Cliente_Original { get; set; } = string.Empty;
+        [DisplayName("Destino")]
+        public string? Destino_Original { get; set; } = string.Empty;
+        [DisplayName("Volumen")]
+        public double? Volumen_Cargado { get; set; } = 0;
+        [DisplayName("Producto")]
+        public string? Producto_Original { get; set; } = string.Empty;
+        [DisplayName("Precio")]
+        public double? Precio { get; set; } = 0;
+        [DisplayName("Unidad de Negocio")]
+        public string? Unidad_Negocio { get; set; } = string.Empty;
+        [DisplayName("Folio")]
+        public string Folio_Cierre { get; set; } = string.Empty;
+        [DisplayName("Folio")]
+        public string ReferenciaOrden { get; set; } = string.Empty;
         [DisplayName("Fecha de Carga")]
         public string Fechas
         {
@@ -45,34 +72,10 @@ namespace GComFuelManager.Shared.DTOs
                 return DateTime.MinValue.ToString();
             }
         }
-        [DisplayName("BOL")]
-        public int? BOL { get; set; } = 0;
-        [DisplayName("Unidad de Negocio")]
-        public string? Unidad_Negocio { get; set; } = string.Empty;
-        [DisplayName("Cliente")]
-        public string? Cliente_Original { get; set; } = string.Empty;
-        [DisplayName("Destino")]
-        public string? Destino_Original { get; set; } = string.Empty;
-        [DisplayName("Producto")]
-        public string? Producto_Original { get; set; } = string.Empty;
-        [DisplayName("Volumen")]
-        public double? Volumen_Cargado { get; set; } = 0;
-        [DisplayName("Precio")]
-        public double? Precio { get; set; } = 0;
-        [DisplayName("Transportista")]
-        public string? Transportista { get; set; } = string.Empty;
-        [DisplayName("Unidad")]
-        public string? Unidad { get; set; } = string.Empty;
-        [DisplayName("Operador")]
-        public string? Operador { get; set; } = string.Empty;
-        [DisplayName("Sellos")]
-        public string? Sellos { get; set; } = string.Empty;
         [DisplayName("Pedimentos")]
         public string? Pedimentos { get; set; } = string.Empty;
-        [DisplayName("Folio")]
-        public string ReferenciaOrden { get; set; } = string.Empty;
-        [EpplusIgnore]
-        public string Folio_Cierre { get; set; } = string.Empty;
+     
+
         //[DisplayName("Tipo de venta")]
         ////public string? TipoVenta { get { return OrdenCierre!.TipoPago; } }
         //public string TipoVenta { get; set; } = string.Empty;
@@ -92,4 +95,3 @@ namespace GComFuelManager.Shared.DTOs
         [NotMapped, EpplusIgnore] public Tad? Tad { get; set; } = null!;
     }
 }
-
