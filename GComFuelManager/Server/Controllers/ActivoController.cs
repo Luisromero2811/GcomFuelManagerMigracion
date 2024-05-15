@@ -41,6 +41,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Unidad)
                     .Include(x => x.Origen)
                     .Include(x => x.Etiqueta)
+                    .Include(x => x.Departamento_Responsable)
                     .Where(x => x.Activo)
                     .OrderByDescending(x => x.Id)
                     .AsQueryable();
@@ -138,13 +139,13 @@ namespace GComFuelManager.Server.Controllers
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
                     activo_Fijo.Numeracion = consecutivo.Numeracion;
 
-                    //if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
-                    //{
-                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                    //    if (origen is null) { return BadRequest(); }
+                    if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
 
-                    //    activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    //}
+                        activo_Fijo.Nro_Etiqueta = $"{origen.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Add(activo_Fijo);
                 }
@@ -155,13 +156,13 @@ namespace GComFuelManager.Server.Controllers
 
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{activo_Fijo.Numeracion:00000}";
 
-                    //if (!string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
-                    //{
-                    //    var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
-                    //    if (origen is null) { return BadRequest(); }
+                    if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
+                    {
+                        var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);
+                        if (origen is null) { return BadRequest(); }
 
-                    //    activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
-                    //}
+                        activo_Fijo.Nro_Etiqueta = $"{conjunto.Abreviacion}-OF. OPER-{activo_Fijo.Nro_Activo}";
+                    }
 
                     context.Update(activo_Fijo);
                 }
@@ -316,14 +317,36 @@ namespace GComFuelManager.Server.Controllers
 
                 package.Workbook.Worksheets.Add("Registros");
 
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Datos");
+                worksheet.Hidden = OfficeOpenXml.eWorkSheetHidden.Hidden;
+
                 ExcelWorksheet ws = package.Workbook.Worksheets.First();
+
                 ws.Cells["A1"].LoadFromCollection(activos, c =>
                 {
                     c.PrintHeaders = true;
                     c.TableStyle = TableStyles.Medium15;
                 });
 
+                //ws.Cells[1,8,ws.Dimension.End.Row,8].Style.Numberformat.Format = "";
+
+                var catalogo = context.Accion.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Origen"));
+                if (catalogo is null) { return BadRequest("No existe el catalogo para origen"); }
+
+                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).Select(x => new { x.Valor, x.Abreviacion}).ToList();
+
+                worksheet.Cells["A1"].LoadFromCollection(catalogo_fijo, c =>
+                {
+                    c.PrintHeaders = true;
+                    c.TableStyle = TableStyles.Medium15;
+                });
+                worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+
+                ws.Cells["H2"].Formula = "=(INDEX(Table2[Abreviacion], MATCH(B2,Table2[Valor],0)))&\"-OF. OPER-\"&C2";
+
                 ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                ws.Calculate();
 
                 ws = Set_Selectores(ws);
 
@@ -508,9 +531,9 @@ namespace GComFuelManager.Server.Controllers
                                         if (id_unidad is null) { return BadRequest($"No se encontro la unidad de medida. (fila: {r}, columna: 7)"); }
 
                                         var etiquetado = string.Empty;
-                                        if (ws.Cells[r, 9].Value is null) { etiquetado = "SI"; }
+                                        if (ws.Cells[r, 9].Value is null) { etiquetado = "PENDIENTE"; }
                                         else { etiquetado = ws.Cells[r, 9].Value.ToString(); }
-                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { etiquetado = "SI"; }
+                                        if (string.IsNullOrEmpty(etiquetado) || string.IsNullOrWhiteSpace(etiquetado)) { etiquetado = "PENDIENTE"; }
                                         var id_etiquetado = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.Equals(etiquetado));
                                         if (id_etiquetado is null) { return BadRequest($"No se encontro el etiquetado. (fila: {r}, columna: 9)"); }
 
@@ -634,6 +657,11 @@ namespace GComFuelManager.Server.Controllers
             var list_etiquetado = excel.DataValidations.AddListValidation(excel.Dimension.End.Row > 2 ? $"I2:I{excel.Dimension.End.Row}" : "I2");
             foreach (var item in catalogo_fijo_etiquetado)
                 list_etiquetado.Formula.Values.Add(item.Valor);
+
+            var catalogo_fijo_dto_responsable = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo_origen.Cod)).ToList();
+            var list_dto_responsable= excel.DataValidations.AddListValidation(excel.Dimension.End.Row > 2 ? $"J2:J{excel.Dimension.End.Row}" : "J2");
+            foreach (var item in catalogo_fijo_dto_responsable)
+                list_dto_responsable.Formula.Values.Add(item.Valor);
 
             return excel;
         }

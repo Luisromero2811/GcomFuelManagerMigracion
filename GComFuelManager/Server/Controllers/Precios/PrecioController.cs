@@ -1093,7 +1093,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                     Pre = item?.Pre ?? 0,
                                     Equibalencia = item?.Equibalencia,
                                     ID_Moneda = item?.ID_Moneda,
-                                    ID_Usuario = item?.ID_Usuario
+                                    ID_Usuario = item?.ID_Usuario,
+                                    Id_Tad = item?.Id_Tad
                                 };
                                 preciosDia.Add(precioN);
                                 //context.Add(precioN);
@@ -1122,7 +1123,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                                 FchActualizacion = item.FchActualizacion,
                                 Equibalencia = item?.Equibalencia,
                                 ID_Moneda = item?.ID_Moneda,
-                                ID_Usuario = item?.ID_Usuario
+                                ID_Usuario = item?.ID_Usuario,
+                                Id_Tad = item?.Id_Tad
                             };
                             precioHistoricos.Add(precioH);
                         }

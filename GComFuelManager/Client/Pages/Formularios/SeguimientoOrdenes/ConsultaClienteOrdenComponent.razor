@@ -41,23 +41,31 @@
         </div>
     </div>
 </div>
-<div class="col-12 mt-4 overflow-scroll ancho" style="height:449px; resize:both;">
-    <table class="table table-hover table-bordered table-sm table-responsive" style="max-height: 600px; overflow: auto; width: 100%">
-        <thead>
-            <tr>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Fecha de carga</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">BOL/Embarque</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Cliente</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Destino</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Producto</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Precio</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Volumen Cargado</th>
-                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Unidad de Negocio</th>
-                @*<th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Tipo de Venta</th>*@
+<div class="col-12 ancho-tabla overflow-scroll mt-4" style="height:450px;resize:both;">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="fila">
+            <tr style="max-height:50px;white-space:nowrap;">
+                <th class="th-resizable">BOL/Embarque</th>
+                <th class="th-resizable">Transportista</th>
+                <th class="th-resizable">Unidad</th>
+                <th class="th-resizable">Operador</th>
+                <th class="th-resizable">Sellos</th>
+                <th class="th-resizable">Cliente</th>
+                <th class="th-resizable">Destino</th>
+                <th class="th-resizable">Volumen Cargado</th>
+                <th class="th-resizable">Producto</th>
+                <th class="th-resizable">Precio</th>
+                <th class="th-resizable">Unidad de Negocio</th>
+                <th class="th-resizable">Folio de Orden</th>
+                <th class="th-resizable">Fecha de carga</th>
+                <th class="th-resizable">Pedimento</th>
             </tr>
         </thead>
         <tbody>
-            <tr style="height:49px;">
+            <tr class="fila">
+                <td></td>
+                <td></td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>
@@ -66,43 +74,90 @@
                 <td>
                     <RadzenTextBox @bind-Value="DestinoSeleccionado" />
                 </td>
+                <td></td>
                 <td>
                     <RadzenTextBox @bind-Value="ProductoSeleccionado" />
                 </td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <Virtualize TItem="PrecioBolDTO" Items="PreciosFiltrados" Context="data">
-                <tr style="height:49px;">
-                    <td>
-                        @data.Fecha_De_Carga
-                    </td>
-                    <td>
-                        @data.BOL
-                    </td>
-                    <td>
-                        @data.Cliente_Original
-                    </td>
-                    <td>
-                        @data.Destino_Original
-                    </td>
-                    <td>
-                        @data.Producto_Original
-                    </td>
-                    <td>
-                        @data.Precio
-                    </td>
-                    <td>
-                        @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)
-
-                    </td>
+                <tr>
+                    <td>@data.BOL</td>
+                    <td>@data.Transportista</td>
+                    <td>@data.Unidad</td>
+                    <td>@data.Operador</td>
+                    <td>@data.Sellos</td>
+                    <td>@data.Cliente_Original</td>
+                    <td>@data.Destino_Original</td>
+                    <td>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)</td>
+                    <td>@data.Producto_Original</td>
+                    <td>@data.Precio</td>
                     <td>@data.Unidad_Negocio</td>
+                    <td>@data.ReferenciaOrden</td>
+                    <td>@data.Fecha_De_Carga</td>
+                    <td>@data.Pedimentos</td>
                 </tr>
             </Virtualize>
         </tbody>
 
     </table>
 </div>
+<style type="text/css">
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
+</style>
 @code {
     CierreDiarioDTO fechas { get; set; } = new CierreDiarioDTO();
     private IEnumerable<Grupo> Grupos { get; set; } = null!;
