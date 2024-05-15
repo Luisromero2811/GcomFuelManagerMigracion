@@ -373,6 +373,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Origen)
                     .Include(x => x.Etiqueta)
                     .Where(x => x.Activo)
+                    .OrderByDescending(x=>x.Numeracion)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(activo.Nombre) || !string.IsNullOrWhiteSpace(activo.Nombre))
