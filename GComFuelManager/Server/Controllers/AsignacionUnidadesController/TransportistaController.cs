@@ -84,7 +84,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     grupoTransportista.GrupoTransportista_Tads = null!;
                     grupoTransportista.Tad = null!;
                     grupoTransportista.Id_Tad = id_terminal;
-           
+
                     context.Update(grupoTransportista);
                     await context.SaveChangesAsync();
                 }
@@ -218,7 +218,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     context.Update(transportista);
                     await context.SaveChangesAsync();
                 }
-               
+
                 return Ok();
 
             }
@@ -613,10 +613,33 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     t.Activo = transportista.Activo;
                                     t.CarrId = string.IsNullOrEmpty(transportista.CarrId) ? string.Empty : transportista.CarrId;
                                     context.Update(t);
+
+                                    if (!context.Transportista_Tad.Any(x => x.Id_Transportista == t.Cod))
+                                    {
+                                        Transportista_Tad _Tad = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Id_Transportista = t.Cod,
+                                            Terminal = null,
+                                            Transportista = null
+                                        };
+                                        context.Add(_Tad);
+                                    }
                                 }
                                 else
+                                {
                                     //Agrega un nuevo transportista 
-                                    context.Add(transportista);
+                                    // context.Add(transportista);
+
+                                    Transportista_Tad _Tad = new()
+                                    {
+                                        Id_Terminal = 1,
+                                        Terminal = null,
+                                        Transportista = transportista
+                                    };
+
+                                    context.Add(_Tad);
+                                }
                             }
                             else
                             {
@@ -624,7 +647,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                 var cod = context.Transportista.Where(x => x.Busentid == transportista.Busentid && string.IsNullOrEmpty(x.CarrId) && x.Id_Tad == 1).DefaultIfEmpty().FirstOrDefault();
                                 if (cod != null)
                                 {
-                                    var tinactivo = context.Transportista.FirstOrDefault(x=>x.Cod == cod.Cod && x.Id_Tad == 1);
+                                    var tinactivo = context.Transportista.FirstOrDefault(x => x.Cod == cod.Cod && x.Id_Tad == 1);
                                     if (tinactivo != null)
                                     {
                                         tinactivo.Activo = false;
