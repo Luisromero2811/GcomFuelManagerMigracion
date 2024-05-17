@@ -397,6 +397,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                     }
                                     TonelesActivos.Add(t);
                                     context.Update(t);
+
+                                    if (!context.Unidad_Tad.Any(x => x.Id_Unidad == t.Cod))
+                                    {
+                                        Unidad_Tad unidad_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Id_Unidad = t.Cod,
+                                            Terminal = null,
+                                            Tonel = null
+                                        };
+
+                                        context.Add(unidad_);
+                                    }
+
                                 }
                                 //Sino le agregamos un nuevo tonel
                                 else
@@ -428,7 +442,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                             tonel.Capcom4 = Convert.ToInt32(com.Capacity.Value);
                                         }
                                     }
-                                    context.Add(tonel);
+                                    // context.Add(tonel);
+                                    Unidad_Tad unidad_ = new()
+                                    {
+                                        Id_Terminal = 1,
+                                        Terminal = null,
+                                        Tonel = tonel
+                                    };
+
+                                    context.Add(unidad_);
                                 }
                             }
 
