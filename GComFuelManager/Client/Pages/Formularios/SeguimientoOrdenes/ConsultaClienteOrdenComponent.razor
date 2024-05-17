@@ -98,7 +98,7 @@
                     <td>@data.Producto_Original</td>
                     <td>@data.Precio</td>
                     <td>@data.Unidad_Negocio</td>
-                    <td>@data.ReferenciaOrden</td>
+                    <td>@data.Folio_Cierre</td>
                     <td>@data.Fecha_De_Carga</td>
                     <td>@data.Pedimentos</td>
                 </tr>
@@ -229,17 +229,21 @@
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 var excel = new ExcelPackage();
                 var worksheet = excel.Workbook.Worksheets.Add("OrdenesPrecios");
-                worksheet.Columns.Width = 60;
+                worksheet.Columns.Width = 30;
                 worksheet.Columns.AutoFit();
+                worksheet.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["H1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["J1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["B1:G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 //Formacion del excel
-                var header = worksheet.Cells["A1:M1"];
+                var header = worksheet.Cells["A1:N1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 
                 var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<PrecioBolDTO>(PrecioBols, true);
                 tablebody.Style.Font.Bold = true;
-                tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
 
                 //Guardado de Excel
                 await js.GuardarComo($"Ordenes_PreciosVenta{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
