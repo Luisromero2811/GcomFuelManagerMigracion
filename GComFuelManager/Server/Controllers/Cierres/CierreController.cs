@@ -803,7 +803,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     precio.Operador = item.Chofer!.Den;
                     precio.Sellos = item.SealNumber;
                     precio.Pedimentos = item.Pedimento;
-                    precio.ReferenciaOrden = item.Ref!;
+                    precio.Folio_Cierre = item.Ref!;
                     precio.Unidad_Negocio = item.Terminal!.Den;
                     if (orden is not null)
                     {

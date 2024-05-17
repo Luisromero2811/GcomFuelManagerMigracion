@@ -36,7 +36,7 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
 
-        [DisplayName("BOL")]
+        [DisplayName("BOL/Embarque")]
         public int? BOL { get; set; } = 0;
         [DisplayName("Transportista")]
         public string? Transportista { get; set; } = string.Empty;
@@ -60,8 +60,8 @@ namespace GComFuelManager.Shared.DTOs
         public string? Unidad_Negocio { get; set; } = string.Empty;
         [DisplayName("Folio")]
         public string Folio_Cierre { get; set; } = string.Empty;
-        [DisplayName("Folio")]
-        public string ReferenciaOrden { get; set; } = string.Empty;
+        //[DisplayName("Folio")]
+        //public string ReferenciaOrden { get; set; } = string.Empty;
         [DisplayName("Fecha de Carga")]
         public string Fechas
         {
