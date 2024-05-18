@@ -206,11 +206,19 @@
                                     <th>
                                         Fecha de llegada estimada
                                     </th>
+                                    <th>
+                                        Sellos
+                                    </th>
+                                    <th>
+                                        Pedimentos
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="sticky-column" style="background-color:white;"></td>
+                                    <td></td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -262,6 +270,8 @@
                                         <td>@data?.Operador</td>
                                         <td>@data?.ETA</td>
                                         <td>@data?.Fecha_llegada</td>
+                                        <td>@data?.Sellos</td>
+                                        <td>@data?.Pedimentos</td>
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -406,7 +416,7 @@
                   , true);
                 tablebody.Style.Font.Bold = true;
                 tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-                var header = worksheet.Cells["A1:R1"];
+                var header = worksheet.Cells["A1:T1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
                 //Guardar Excell
