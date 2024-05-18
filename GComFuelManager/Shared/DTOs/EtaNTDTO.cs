@@ -42,6 +42,11 @@ namespace GComFuelManager.Shared.DTOs
         public string? Fecha_llegada { get; set; } = string.Empty;
         [DisplayName("Unidad de Negocio")]
         public string? Unidad_Negocio { get; set; } = string.Empty;
+        [DisplayName("Sellos")]
+        public string? Sellos { get; set; } = string.Empty;
+        [DisplayName("Pedimentos")]
+        public string? Pedimentos { get; set; } = string.Empty;
+
         [EpplusIgnore]
         public Orden? orden { get; set; }
         [EpplusIgnore]

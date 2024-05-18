@@ -1624,63 +1624,13 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.Den,
                             ETA = e.Eta,
-                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss")
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                            Sellos = e.SealNumber,
+                            Pedimentos = e.Pedimento
                         })
                       .Take(10000)
                       .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
-                    //Órdenes ETA-Cargado
-                    //List<EtaDTO> newOrden = new List<EtaDTO>();
-                    //var Eta = await context.Orden
-                    //      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
-                    //      //Pruebas de Filtro Interno - Externo
-                    //      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                    //      && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Id_Tad == id_terminal)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .Include(x => x.Destino)
-                    //      .ThenInclude(x => x.Cliente)
-                    //      .Include(x => x.Terminal)
-                    //      .Include(x => x.Estado)
-                    //      .Include(x => x.Producto)
-                    //      .Include(x => x.Chofer)
-                    //      .Include(x => x.Tonel)
-                    //      .ThenInclude(x => x.Transportista)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .OrderBy(x => x.Fchcar)
-                    //       .Select(e => new EtaDTO()
-                    //       {
-                    //           Referencia = e.Ref,
-                    //           FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                    //           Unidad_Negocio = e.Terminal.Den,
-                    //           EstatusOrden = e.Estado.den,
-                    //           FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Bol = e.BatchId,
-                    //           DeliveryRack = e.Destino.Cliente.Tipven,
-                    //           Cliente = e.Destino.Cliente.Den,
-                    //           Destino = e.Destino.Den,
-                    //           Producto = e.Producto.Den,
-                    //           VolNat = e.Vol2,
-                    //           VolCar = e.Vol,
-                    //           Transportista = e.Tonel.Transportista.Den,
-                    //           Unidad = e.Tonel.Veh,
-                    //           Operador = e.Chofer.Den,
-                    //           FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm"),
-                    //           FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Trayecto = "ENTREGADO",
-                    //           Observaciones = e.OrdEmbDet!.Obs,
-                    //           FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           LitEnt = e.OrdEmbDet.Litent
-                    //       })
-                    //      .Take(10000)
-                    //      .ToListAsync();
-                    //foreach (var item in Eta)
-                    //    if (!newOrden.Contains(item))
-                    //        newOrden.Add(item);
-
-
-                    //Ordenes.AddRange(newOrden);
-
                     return Ok(Ordenes);
                 }
                 else if (fechas.Estado == 2)
@@ -1851,62 +1801,12 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Transportista = e.Tonel.Transportista.Den,
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
+                              Sellos = e.SealNumber,
+                              Pedimentos = e.Pedimento
                           })
                         .Take(10000)
                         .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
-                    //Órdenes ETA-Trayecto
-                    //List<EtaDTO> newOrden = new List<EtaDTO>();
-                    //var Eta = await context.Orden
-                    //      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
-                    //      //Pruebas de Filtro Interno - Externo
-                    //      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                    //      && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.StartsWith("Interno") && x.Id_Tad == id_terminal
-                    //      )
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .Include(x => x.Destino)
-                    //      .ThenInclude(x => x.Cliente)
-                    //      .Include(x => x.Terminal)
-                    //      .Include(x => x.Estado)
-                    //      .Include(x => x.Producto)
-                    //      .Include(x => x.Chofer)
-                    //      .Include(x => x.Tonel)
-                    //      .ThenInclude(x => x.Transportista)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .OrderBy(x => x.Fchcar)
-                    //       .Select(e => new EtaDTO()
-                    //       {
-                    //           Referencia = e.Ref,
-                    //           FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                    //           Unidad_Negocio = e.Terminal.Den,
-                    //           EstatusOrden = e.Estado.den,
-                    //           FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Bol = e.BatchId,
-                    //           DeliveryRack = e.Destino.Cliente.Tipven,
-                    //           Cliente = e.Destino.Cliente.Den,
-                    //           Destino = e.Destino.Den,
-                    //           Producto = e.Producto.Den,
-                    //           VolNat = e.Vol2,
-                    //           VolCar = e.Vol,
-                    //           Transportista = e.Tonel.Transportista.Den,
-                    //           Unidad = e.Tonel.Veh,
-                    //           Operador = e.Chofer.Den,
-                    //           FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm"),
-                    //           FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Trayecto = "ENTREGADO",
-                    //           Observaciones = e.OrdEmbDet!.Obs,
-                    //           FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           LitEnt = e.OrdEmbDet.Litent
-                    //       })
-                    //      .Take(10000)
-                    //      .ToListAsync();
-                    //foreach (var item in Eta)
-                    //    if (!newOrden.Contains(item))
-                    //        newOrden.Add(item);
-
-
-                    //Ordenes.AddRange(newOrden);
 
                     return Ok(Ordenes);
                 }
@@ -2079,60 +1979,12 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Transportista = e.Tonel.Transportista.Den,
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
+                              Sellos = e.SealNumber,
+                              Pedimentos = e.Pedimento
                           })
                         .Take(10000)
                         .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
-
-                    //Órdenes ETA-Trayecto
-                    //List<EtaDTO> newOrden = new List<EtaDTO>();
-                    //var Eta = await context.Orden
-                    //      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Id_Tad == id_terminal
-                    //      //Pruebas de Filtro Interno - Externo
-                    //      || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                    //      && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo") && x.Id_Tad == id_terminal)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .Include(x => x.Destino)
-                    //      .ThenInclude(x => x.Cliente)
-                    //      .Include(x => x.Terminal)
-                    //      .Include(x => x.Estado)
-                    //      .Include(x => x.Producto)
-                    //      .Include(x => x.Chofer)
-                    //      .Include(x => x.Tonel)
-                    //      .ThenInclude(x => x.Transportista)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .OrderBy(x => x.Fchcar)
-                    //       .Select(e => new EtaDTO()
-                    //       {
-                    //           Referencia = e.Ref,
-                    //           FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                    //           Unidad_Negocio = e.Terminal.Den,
-                    //           EstatusOrden = e.Estado.den,
-                    //           FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Bol = e.BatchId,
-                    //           DeliveryRack = e.Destino.Cliente.Tipven,
-                    //           Cliente = e.Destino.Cliente.Den,
-                    //           Destino = e.Destino.Den,
-                    //           Producto = e.Producto.Den,
-                    //           VolNat = e.Vol2,
-                    //           VolCar = e.Vol,
-                    //           Transportista = e.Tonel.Transportista.Den,
-                    //           Unidad = e.Tonel.Veh,
-                    //           Operador = e.Chofer.Den,
-                    //           FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm"),
-                    //           FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Trayecto = "ENTREGADO",
-                    //           Observaciones = e.OrdEmbDet!.Obs,
-                    //           FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           LitEnt = e.OrdEmbDet.Litent
-                    //       })
-                    //      .Take(10000)
-                    //      .ToListAsync();
-                    //foreach (var item in Eta)
-                    //    if (!newOrden.Contains(item))
-                    //        newOrden.Add(item);
-                    //Ordenes.AddRange(newOrden);
 
                     return Ok(Ordenes);
                 }
@@ -2295,67 +2147,12 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Transportista = e.Tonel.Transportista.Den,
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
+                              Sellos = e.SealNumber,
+                              Pedimentos = e.Pedimento
                           })
                         .Take(10000)
                         .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
-
-                    //Órdenes ETA-Trayecto
-                    //List<EtaDTO> newOrden = new List<EtaDTO>();
-                    //var Eta = await context.Orden
-                    //      .Where(x =>
-                    //          //x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
-                    //          //||
-                    //          x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true && x.Id_Tad == id_terminal
-                    //      //&& string.IsNullOrEmpty(fechas.Estado.ToString())
-                    //      //Pruebas de Filtro Interno - Externo
-                    //      //|| x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel!.Transportista!.Activo == true
-                    //      //&& fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.StartsWith("Externo")
-                    //      )
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .Include(x => x.Destino)
-                    //      .ThenInclude(x => x.Cliente)
-                    //      .Include(x => x.Terminal)
-                    //      .Include(x => x.Estado)
-                    //      .Include(x => x.Producto)
-                    //      .Include(x => x.Chofer)
-                    //      .Include(x => x.Tonel)
-                    //      .ThenInclude(x => x.Transportista)
-                    //      .Include(x => x.OrdEmbDet)
-                    //      .OrderBy(x => x.Fchcar)
-                    //       .Select(e => new EtaDTO()
-                    //       {
-                    //           Referencia = e.Ref,
-                    //           FechaPrograma = e.OrdenEmbarque.Fchcar.Value.ToString("yyyy-MM-dd"),
-                    //           Unidad_Negocio = e.Terminal.Den,
-                    //           EstatusOrden = e.Estado.den,
-                    //           FechaCarga = e.Fchcar.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Bol = e.BatchId,
-                    //           DeliveryRack = e.Destino.Cliente.Tipven,
-                    //           Cliente = e.Destino.Cliente.Den,
-                    //           Destino = e.Destino.Den,
-                    //           Producto = e.Producto.Den,
-                    //           VolNat = e.Vol2,
-                    //           VolCar = e.Vol,
-                    //           Transportista = e.Tonel.Transportista.Den,
-                    //           Unidad = e.Tonel.Veh,
-                    //           Operador = e.Chofer.Den,
-                    //           FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm"),
-                    //           FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           Trayecto = "ENTREGADO",
-                    //           Observaciones = e.OrdEmbDet!.Obs,
-                    //           FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                    //           LitEnt = e.OrdEmbDet.Litent
-                    //       })
-                    //      .Take(10000)
-                    //      .ToListAsync();
-                    //foreach (var item in Eta)
-                    //    if (!newOrden.Contains(item))
-                    //        newOrden.Add(item);
-
-
-                    //Ordenes.AddRange(newOrden);
 
                     return Ok(Ordenes);
                 }
