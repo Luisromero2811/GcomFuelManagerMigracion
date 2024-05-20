@@ -62,7 +62,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var transportistas = context.Chofer.IgnoreAutoIncludes()
-                    .Where(x =>  x.Activo_Permanente == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Where(x => x.Activo_Permanente == true && x.Terminales.Any(y => y.Cod == id_terminal))
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
                     .ToList();
@@ -131,7 +131,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     context.Update(chofer);
                     await context.SaveChangesAsync();
                 }
-           
+
                 return Ok();
             }
             catch (Exception e)
@@ -183,7 +183,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (chofer_tad is null)
                     return NotFound();
 
-                if(context.OrdenEmbarque.Any(x => x.Codtad == chofer_tad.Id_Terminal && x.Codchf == chofer_tad.Id_Chofer) ||
+                if (context.OrdenEmbarque.Any(x => x.Codtad == chofer_tad.Id_Terminal && x.Codchf == chofer_tad.Id_Chofer) ||
                    context.Orden.Any(x => x.Id_Tad == chofer_tad.Id_Terminal && x.Codchf == chofer_tad.Id_Chofer)
                    || context.OrdenCierre.Include(x => x.OrdenEmbarque).Any(x => x.Id_Tad == chofer_tad.Id_Terminal && x.OrdenEmbarque!.Chofer!.Cod == chofer_tad.Id_Chofer))
                 {
@@ -375,11 +375,32 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                         c.Dricod = chofer.Dricod;
                                         c.Activo = chofer.Activo;
                                         context.Update(c);
+
+                                        if (!context.Chofer_Tad.Any(x => x.Id_Chofer == c.Cod))
+                                        {
+                                            Chofer_Tad chofer_ = new()
+                                            {
+                                                Id_Terminal = 1,
+                                                Id_Chofer = c.Cod,
+                                                Chofer = null,
+                                                Terminal = null
+                                            };
+
+                                            context.Add(chofer_);
+                                        }
                                     }
                                     else
                                     {
                                         //Agrega al nuevo chofer
-                                        context.Add(chofer);
+                                        // context.Add(chofer);
+                                        Chofer_Tad chofer_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Chofer = chofer
+                                        };
+
+                                        context.Add(chofer_);
                                     }
                                 }
                                 else
@@ -423,11 +444,32 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                                         c.Dricod = chofer.Dricod;
                                         c.Activo = chofer.Activo;
                                         context.Update(c);
+
+                                        if (!context.Chofer_Tad.Any(x => x.Id_Chofer == c.Cod))
+                                        {
+                                            Chofer_Tad chofer_ = new()
+                                            {
+                                                Id_Terminal = 1,
+                                                Id_Chofer = c.Cod,
+                                                Chofer = null,
+                                                Terminal = null
+                                            };
+
+                                            context.Add(chofer_);
+                                        }
                                     }
                                     else
                                     {
                                         //Agrega al nuevo chofer
-                                        context.Add(chofer);
+                                        // context.Add(chofer);
+                                        Chofer_Tad chofer_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Chofer = chofer
+                                        };
+
+                                        context.Add(chofer_);
                                     }
                                 }
                                 else

@@ -377,6 +377,19 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         {
                             c.Den = cliente.Den;
                             context.Update(c);
+
+                            if(!context.Cliente_Tad.Any(x=> x.Id_Cliente == c.Cod))
+                            {
+                                Cliente_Tad cliente_ = new(){
+                                    Id_Terminal = 1,
+                                    Id_Cliente = c.Cod,
+                                    Terminal = null,
+                                    Cliente = null
+                                };
+
+                                context.Add(cliente_);
+                            }
+
                             foreach (var items in item.BusinessEntity.Destinations)
                             {
                                 //Construcción del objeto del Destino 
@@ -412,11 +425,33 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Codcte = destino.Codcte;
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
+
+                                        if(!context.Destino_Tad.Any(x=>x.Id_Destino == d.Cod))
+                                        {
+                                            Destino_Tad destino_ = new()
+                                            {
+                                                Terminal = null,
+                                                Destino = null,
+                                                Id_Terminal = 1,
+                                                Id_Destino = d.Cod
+                                            };
+
+                                            context.Add(destino_);
+                                        }
+
                                     }
                                     else
                                     {
                                         //Agrega un nuevo destino 
-                                        context.Add(destino);
+                                        // context.Add(destino);
+                                        Destino_Tad destino_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Destino = destino
+                                        };
+
+                                        context.Add(destino_);
                                     }
                                 }
                                 else
@@ -437,7 +472,14 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                         else
                         {
-                            context.Add(cliente);
+                            // context.Add(cliente);
+                            Cliente_Tad cliente_ = new()
+                            {
+                                Cliente = cliente,
+                                Terminal = null,
+                                Id_Terminal = 1
+                            };
+                            context.Add(cliente_);
                             await context.SaveChangesAsync();
                             //Obtención del código del cliente
                             Cliente? cli = context.Cliente.Where(x => x.Codsyn == cliente.Codsyn && x.Id_Tad == 1)
@@ -478,11 +520,33 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Codcte = destino.Codcte;
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
+
+                                        if(!context.Destino_Tad.Any(x=>x.Id_Destino == d.Cod))
+                                        {
+                                            Destino_Tad destino_ = new()
+                                            {
+                                                Terminal = null,
+                                                Destino = null,
+                                                Id_Terminal = 1,
+                                                Id_Destino = d.Cod
+                                            };
+
+                                            context.Add(destino_);
+                                        }
                                     }
                                     else
                                     {
                                         //Agrega un nuevo destino 
-                                        context.Add(destino);
+                                        // context.Add(destino);
+
+                                        Destino_Tad destino_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Destino = destino
+                                        };
+
+                                        context.Add(destino_);
                                     }
                                 }
                                 else
