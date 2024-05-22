@@ -165,7 +165,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, NotMapped] public OrdenPedido? ordenPedido { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Producto? Producto { get; set; } = null!;
         [EpplusIgnore, NotMapped] public VolumenDisponibleDTO? VolumenDisponible { get; set; } = new VolumenDisponibleDTO();
-        [NotMapped, EpplusIgnore] public List<OrdenPedido> OrdenPedidos { get; set; } = new List<OrdenPedido>();
+        [NotMapped, EpplusIgnore] public List<OrdenPedido>? OrdenPedidos { get; set; }
         [EpplusIgnore, NotMapped] public Moneda? Moneda { get; set; } = null!;
         [EpplusIgnore, NotMapped] public OrdenEmbarque? OrdenEmbarque { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Contacto? ContactoN { get; set; } = null!;
