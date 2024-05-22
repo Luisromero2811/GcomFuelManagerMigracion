@@ -59,6 +59,8 @@
                 <th class="th-resizable">Folio de Orden</th>
                 <th class="th-resizable">Fecha de carga</th>
                 <th class="th-resizable">Pedimento</th>
+                <th class="th-resizable"># de Orden</th>
+                <th class="th-resizable">Factura Proveedor</th>
             </tr>
         </thead>
         <tbody>
@@ -84,6 +86,8 @@
                 <td></td>
                 <td></td>
                 <td></td>
+                <td></td>
+                <td></td>
             </tr>
             <Virtualize TItem="PrecioBolDTO" Items="PreciosFiltrados" Context="data">
                 <tr>
@@ -101,6 +105,8 @@
                     <td>@data.Folio_Cierre</td>
                     <td>@data.Fecha_De_Carga</td>
                     <td>@data.Pedimentos</td>
+                    <td>@data.NOrden</td>
+                    <td>@data.Factura</td>
                 </tr>
             </Virtualize>
         </tbody>
@@ -123,7 +129,6 @@
         top: 28px;
         background-color: #f2f2f2;
     }
-
     .sticky-column {
         position: sticky;
         left: 0;
@@ -157,6 +162,13 @@
             width: 8px;
             background: transparent;
         }
+    ::deep th, ::deep td {
+        margin: 0;
+        padding: .3rem .5rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        border: 1px solid #d4d4d4;
+    }
 </style>
 @code {
     CierreDiarioDTO fechas { get; set; } = new CierreDiarioDTO();
@@ -237,7 +249,7 @@
                 worksheet.Cells["B1:G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
 
                 //Formacion del excel
-                var header = worksheet.Cells["A1:N1"];
+                var header = worksheet.Cells["A1:P1"];
                 header.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 

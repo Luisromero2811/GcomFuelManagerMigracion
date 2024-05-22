@@ -1626,7 +1626,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             ETA = e.Eta,
                             Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                             Sellos = e.SealNumber,
-                            Pedimentos = e.Pedimento
+                            Pedimentos = e.Pedimento,
+                            NOrden = e.NOrden,
+                            Factura = e.Factura
                         })
                       .Take(10000)
                       .ToListAsync();
@@ -1802,7 +1804,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
                               Sellos = e.SealNumber,
-                              Pedimentos = e.Pedimento
+                              Pedimentos = e.Pedimento,
+                              NOrden = e.NOrden,
+                              Factura = e.Factura
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -1980,7 +1984,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
                               Sellos = e.SealNumber,
-                              Pedimentos = e.Pedimento
+                              Pedimentos = e.Pedimento,
+                              NOrden = e.NOrden,
+                              Factura = e.Factura
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2148,7 +2154,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Unidad = e.Tonel.Veh,
                               Operador = e.Chofer.Den,
                               Sellos = e.SealNumber,
-                              Pedimentos = e.Pedimento
+                              Pedimentos = e.Pedimento,
+                                                          NOrden = e.NOrden,
+                            Factura = e.Factura
                           })
                         .Take(10000)
                         .ToListAsync();

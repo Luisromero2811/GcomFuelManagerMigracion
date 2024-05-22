@@ -74,7 +74,13 @@ namespace GComFuelManager.Shared.DTOs
         }
         [DisplayName("Pedimentos")]
         public string? Pedimentos { get; set; } = string.Empty;
-     
+
+        [DisplayName("# de Orden")]
+        public string? NOrden { get; set; } = string.Empty;
+
+        [DisplayName("Factura de proveedor")]
+        public string? Factura { get; set; } = string.Empty;
+
 
         //[DisplayName("Tipo de venta")]
         ////public string? TipoVenta { get { return OrdenCierre!.TipoPago; } }

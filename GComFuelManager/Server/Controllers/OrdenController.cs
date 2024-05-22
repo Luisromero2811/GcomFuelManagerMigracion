@@ -28,6 +28,36 @@ namespace GComFuelManager.Server.Controllers
             this.userManager = userManager;
         }
 
+        private record Productos_Grafica(string Producto, double? Volumen);
+
+        [HttpGet("grafico")]
+        public ActionResult Datos_Graficos()
+        {
+            try
+            {
+                DateTime fecha_inicio = new(2023, 12, 1);
+                DateTime fecha_fin = new(2023, 12, 31);
+
+                var ordenes = context.Orden.Where(x => x.Fchcar >= fecha_inicio && x.Fchcar <= fecha_fin && x.Codest != 14).Select(x => new { x.Vol, x.Producto.Den }).ToList();
+
+                var productos = ordenes.DistinctBy(x => x.Den).Select(x => x.Den);
+
+                List<Productos_Grafica> producto_total = new();
+
+                foreach (var product in productos)
+                {
+                    var total = ordenes.Where(x => x.Den == product).Sum(x => x.Vol);
+                    producto_total.Add(new(product, total));
+                }
+
+                return Ok(producto_total);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("{Referencia}")]
         public ActionResult Obtener_Por_Referencia([FromRoute] string Referencia)
         {

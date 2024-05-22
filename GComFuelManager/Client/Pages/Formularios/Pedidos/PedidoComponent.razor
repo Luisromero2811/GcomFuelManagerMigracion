@@ -663,13 +663,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Warning,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = "¿Desea cancelar la orden?"
-                });
+            {
+                Icon = SweetAlertIcon.Warning,
+                ShowCancelButton = true,
+                ConfirmButtonText = "Aceptar",
+                CancelButtonText = "Cancelar",
+                Text = "¿Desea cancelar la orden?"
+            });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -847,12 +847,12 @@
             }
             else
             {
-                loadingAgregar = false;
-                // CancelEdit();
-                // await GetFiltroCierres();
+
                 var index = ordenCierres.IndexOf(ordenCierres.FirstOrDefault(x => x.Cod == response.Response.Cod)!);
                 ordenCierres.RemoveAt(index);
                 ordenCierres.Insert(index, response.Response);
+                loadingAgregar = false;
+                await Swal.FireAsync("Éxito", "La orden fue actualizada correctamente", SweetAlertIcon.Success);
             }
         }
         catch (Exception e)
@@ -1164,12 +1164,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {
@@ -1233,12 +1233,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosCierresComponent>("Folios de cierres", options: new DialogOptions()
-                {
-                    Width = "90%",
-                    Height = "600px",
-                    Resizable = true,
-                    Draggable = false
-                });
+            {
+                Width = "90%",
+                Height = "600px",
+                Resizable = true,
+                Draggable = false
+            });
         }
         catch (Exception e)
         {
