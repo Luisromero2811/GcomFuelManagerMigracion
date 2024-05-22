@@ -54,6 +54,9 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public int? Compartimento { get; set; } = null!;
         [NotMapped] public OrdenCierre? OrdenCierre { get; set; } = null!;
         //[NotMapped] public Redireccionamiento? Redireccionamiento { get; set; } = null!;
+        public string? NOrden { get; set; } = string.Empty;
+        public string? Factura { get; set; } = string.Empty;
+        public string? Pedimento { get; set; } = string.Empty;
 
         [NotMapped]
         public string Obtener_Cliente

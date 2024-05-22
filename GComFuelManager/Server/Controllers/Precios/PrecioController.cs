@@ -179,6 +179,12 @@ namespace GComFuelManager.Server.Controllers.Precios
 
                     precio.Referencia = orden?.Ref ?? item.FolioSyn;
 
+                    precio.Sellos = orden?.SealNumber ?? string.Empty;
+
+                    precio.NOrden = orden?.NOrden ?? string.Empty;
+
+                    precio.Factura = orden?.Factura ?? string.Empty;
+
                     if (orden is not null)
                     {
                         if (orden.Producto is not null)
@@ -218,7 +224,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                         {
                             if (!string.IsNullOrEmpty(item.Tad.Den))
                                 precio.Terminal_Original = item.Tad.Den;
-                            
+
                             if (!string.IsNullOrEmpty(item.Tad.Codigo))
                                 precio.Codigo_Terminal_Original = item.Tad.Codigo;
                         }
@@ -492,6 +498,10 @@ namespace GComFuelManager.Server.Controllers.Precios
             public string Codigo_Terminal_Original { get; set; } = string.Empty;
             public string Terminal_Final { get; set; } = string.Empty;
             public string Codigo_Terminal_Final { get; set; } = string.Empty;
+            public string Pedimento { get; set; } = string.Empty;
+            public string NOrden { get; set; } = string.Empty;
+            public string Factura { get; set; } = string.Empty;
+            public string Sellos { get; set; } = string.Empty;
         }
     }
 }
