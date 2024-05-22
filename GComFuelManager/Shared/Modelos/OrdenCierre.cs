@@ -1,4 +1,4 @@
-﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.DTOs;
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
