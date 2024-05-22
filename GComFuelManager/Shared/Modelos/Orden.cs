@@ -32,6 +32,8 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public long? Codchfsyn { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
         [EpplusIgnore] public string? Pedimento { get; set; } = string.Empty;
+        [EpplusIgnore, MaxLength(50)] public string? NOrden { get; set; } = string.Empty;
+        [EpplusIgnore, MaxLength(50)] public string? Factura { get; set; } = string.Empty;
         public int? Folio { get; set; } = 0;
 
         [DisplayName("Unidad de Negocio"), NotMapped]

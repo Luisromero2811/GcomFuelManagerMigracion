@@ -805,6 +805,8 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     precio.Pedimentos = item.Pedimento;
                     precio.Folio_Cierre = item.Ref!;
                     precio.Unidad_Negocio = item.Terminal!.Den;
+                    precio.NOrden = item.NOrden;
+                    precio.Factura = item.Factura;
                     if (orden is not null)
                     {
                         if (orden.Producto is not null)

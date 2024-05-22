@@ -46,6 +46,10 @@ namespace GComFuelManager.Shared.DTOs
         public string? Sellos { get; set; } = string.Empty;
         [DisplayName("Pedimentos")]
         public string? Pedimentos { get; set; } = string.Empty;
+        [DisplayName("# de orden")]
+        public string? NOrden { get; set; } = string.Empty;
+        [DisplayName("Factura Proveedor")]
+        public string? Factura { get; set; } = string.Empty;
 
         [EpplusIgnore]
         public Orden? orden { get; set; }

@@ -69,18 +69,26 @@
                             <label>ETA</label>
                             @Datos_BOL.Eta
                         </div>
-                        <div class="col-4">
+                        <div class="col-2">
                             <label>Litros cargados</label>
                             <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
                             <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <label>Pedimento</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Pedimento"/>
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <label>Sellos</label>
-                            <InputText class="form-control form-cotrol-sm" @bind-Value="@Datos_BOL.SealNumber"/>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.SealNumber"/>
+                        </div>
+                        <div class="col-2">
+                            <label># de orden</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.NOrden" />
+                        </div>
+                        <div class="col-2">
+                            <label>Factura de Proveedor</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Factura"/>
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
@@ -212,11 +220,19 @@
                                     <th>
                                         Pedimentos
                                     </th>
+                                    <th>
+                                        # de Orden
+                                    </th>
+                                    <th>
+                                        Factura Proveedor
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td class="sticky-column" style="background-color:white;"></td>
+                                    <td></td>
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>
@@ -272,6 +288,8 @@
                                         <td>@data?.Fecha_llegada</td>
                                         <td>@data?.Sellos</td>
                                         <td>@data?.Pedimentos</td>
+                                        <td>@data?.NOrden</td>
+                                        <td>@data?.Factura</td>
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -328,6 +346,10 @@
                     Datos_BOL.Fchcar = ordenEmbarque.Orden.Fchcar;
                     Datos_BOL.BatchId = ordenEmbarque.Orden.BatchId;
                     Datos_BOL.Vol = ordenEmbarque.Orden.Vol;
+                    Datos_BOL.Pedimento = ordenEmbarque.Orden.Pedimento;
+                    Datos_BOL.SealNumber = ordenEmbarque.Orden.SealNumber;
+                    Datos_BOL.NOrden = ordenEmbarque.Orden.NOrden;
+                    Datos_BOL.Factura = ordenEmbarque.Orden.Factura;
                 }
                 else
                 {
