@@ -10,6 +10,8 @@ namespace GComFuelManager.Shared.Filtro
         [NotMapped, EpplusIgnore] public int Total_paginas { get; set; } = 1;
         [NotMapped, EpplusIgnore] public int Registros_por_pagina { get; set; } = 10;
         [NotMapped, EpplusIgnore] public int Total_registros { get; set; }
+        [NotMapped, EpplusIgnore] public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
+        [NotMapped, EpplusIgnore] public DateTime Fecha_Fin { get; set; } = DateTime.Today;
         //public T? Objeto { get; set; }
     }
 }

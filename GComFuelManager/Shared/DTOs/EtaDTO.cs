@@ -59,8 +59,12 @@ namespace GComFuelManager.Shared.DTOs
         public string EntLit { get { return string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", LitEnt); } }
         [DisplayName("Unidad de Negocio")]
         public string? Unidad_Negocio { get; set; } = string.Empty;
+        [DisplayName("Numero de orden")]
+        public string? Numero_Orden { get; set; } = string.Empty;
+        public string? Pedimento { get; set; } = string.Empty;
+        public string? Sellos { get; set; } = string.Empty;
         [EpplusIgnore]
-        public Orden? orden { get; set; } 
+        public Orden? orden { get; set; }
         [EpplusIgnore]
         public OrdenEmbarque? ordenEmbarque { get; set; }
         [EpplusIgnore]

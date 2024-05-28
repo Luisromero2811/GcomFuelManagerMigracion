@@ -2,11 +2,12 @@
 using GComFuelManager.Shared.Modelos;
 using OfficeOpenXml.Attributes;
 using System.ComponentModel;
+using GComFuelManager.Shared.Filtro;
 
 namespace GComFuelManager.Shared.DTOs
 {
-	public class EtaNTDTO
-	{
+    public class EtaNTDTO : Parametros_Busqueda_Gen
+    {
         public string? Referencia { get; set; } = string.Empty;
         [DisplayName("Fecha de Programa")]
         public string? FechaPrograma { get; set; } = string.Empty;
@@ -50,7 +51,8 @@ namespace GComFuelManager.Shared.DTOs
         public string? NOrden { get; set; } = string.Empty;
         [DisplayName("Factura Proveedor")]
         public string? Factura { get; set; } = string.Empty;
-
+        public string? Pedimento { get; set; } = string.Empty;
+        // public string? Numero_Orden { get; set; } = string.Empty;
         [EpplusIgnore]
         public Orden? orden { get; set; }
         [EpplusIgnore]

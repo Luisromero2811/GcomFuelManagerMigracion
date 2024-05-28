@@ -2093,6 +2093,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estatus_Orden)
                     .Include(x => x.HistorialEstados)
                     .ThenInclude(x => x.Estado)
+                    .Include(x => x.Archivos)
                     .FirstOrDefault();
 
                 if (orden is null) { return NotFound(); }

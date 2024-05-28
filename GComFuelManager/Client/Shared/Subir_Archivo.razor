@@ -5,7 +5,7 @@
 @typeparam TResponse
 
 <div class="col-12">
-    <label>Importar:</label>
+    <label>@Texto_Label</label>
     <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" />
     @if (loading_upload)
     {
@@ -14,9 +14,10 @@
 </div>
 @code {
     [Parameter] public string URL { get; set; } = string.Empty;
-    [Parameter] public EventCallback Subida_Completa { get; set; }
+    [Parameter] public EventCallback<TResponse> Subida_Completa { get; set; }
     [Parameter] public string Accept { get; set; } = string.Empty;
     [Parameter] public string Mensaje_Exitoso { get; set; } = "Archivo subido exitosamente";
+    [Parameter] public string Texto_Label {get;set;} = "Importar:";
 
     List<UploadResult> UploadResults = new();
 
