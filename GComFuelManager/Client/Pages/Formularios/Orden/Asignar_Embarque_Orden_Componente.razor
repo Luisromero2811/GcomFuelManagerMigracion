@@ -145,32 +145,36 @@
                         </div>
                     </div>
                     <!--RadioButtons-->
-                    <div class="row col-12 mt-3" style="text-align: center;">
-                        <div style="text-align: center;">
-                            <label style="text-align: center;">Modelos de Venta (Rack, Delivery's Interno-Externo)</label>
+                    <div class="col-12 d-flex mt-2">
+                        <div class="col-6 card mx-auto">
+                            <div class="card-body">
+                                <div class="row col-12 mt-1" style="text-align: center;">
+                                    <div style="text-align: center;">
+                                        <label style="text-align: center;">Modelos de Venta (Rack, Delivery Interno y Externo)</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-1 d-flex justify-content-center">
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                        <label class="form-check-label" for="Ambas">Delivery Interno y Externo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                        <label class="form-check-label" for="Interno">Interno</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                        <label class="form-check-label" for="Externo">Externo</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                        <label class="form-check-label" for="Todos">Delivery y Rack</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="row col-12 mt-3">
-                        <div class="d-flex justify-content-center">
-                            @*<label>Modelos de Venta</label>*@
-                            <div class="form-check form-check-inline">
-                                <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
-                                <label class="form-check-label" for="Ambas">Ambos Delivery's</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
-                                <label class="form-check-label" for="Interno">Interno</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                <label class="form-check-label" for="Externo">Externo</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
-                                <label class="form-check-label" for="Todos">Delivery-Rack</label>
-                            </div>
-                        </div>
-                    </div>
+                    
                 </div>
                 <!--Tabla de muestreo de datos-->
                 <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
