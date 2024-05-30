@@ -12,6 +12,7 @@ namespace GComFuelManager.Shared.Filtro
         [NotMapped, EpplusIgnore] public int Total_registros { get; set; }
         [NotMapped, EpplusIgnore] public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
         [NotMapped, EpplusIgnore] public DateTime Fecha_Fin { get; set; } = DateTime.Today;
+        [NotMapped, EpplusIgnore] public bool Excel { get; set; } = false;
         //public T? Objeto { get; set; }
     }
 }

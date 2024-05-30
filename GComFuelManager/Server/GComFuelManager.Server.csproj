@@ -68,6 +68,7 @@
     <Folder Include="Controllers\Porcentajes\" />
     <Folder Include="Controllers\Tarifas\" />
     <Folder Include="Controllers\Autorizadores\" />
+    <Folder Include="wwwroot\PDF-BOL\" />
     <Folder Include="wwwroot\XML\" />
     <Folder Include="wwwroot\PDF\" />
   </ItemGroup>

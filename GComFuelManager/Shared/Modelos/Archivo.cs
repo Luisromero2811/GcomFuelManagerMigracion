@@ -22,6 +22,9 @@ namespace GComFuelManager.Shared.Modelos
     {
         NONE,
         PDF,
-        XML
+        XML,
+        PDF_FACTURA,
+        ARCHIVO_BOL,
+        XML_FACTURA
     }
 }

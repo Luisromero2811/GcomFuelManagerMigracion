@@ -53,7 +53,7 @@ namespace Server.Controllers
                 {
                     var uploadResult = new UploadResult();
 
-                    var untrustedFileName = file.Name;
+                    var untrustedFileName = file.FileName;
                     uploadResult.FileName = untrustedFileName;
                     var trustFileName = WebUtility.HtmlDecode(untrustedFileName);
 
@@ -76,8 +76,7 @@ namespace Server.Controllers
                             try
                             {
                                 string trustFileNameForSave = Path.GetRandomFileName();
-                                string extension = Path.GetExtension(uploadResult.FileName);
-                                string FileName = Path.ChangeExtension(trustFileNameForSave, extension);
+                                string FileName = Path.ChangeExtension(trustFileNameForSave, ".pdf");
                                 var carpeta = "PDF";
                                 //var path = Path.Combine(environment.WebRootPath, environment.EnvironmentName, "PDF", FileName);
                                 var path = $"{environment.WebRootPath}\\{carpeta}\\{FileName}";
@@ -88,16 +87,16 @@ namespace Server.Controllers
                                 var URL = $"{httpContextAccessor.HttpContext?.Request.Scheme}://{httpContextAccessor.HttpContext?.Request.Host}{httpContextAccessor.HttpContext?.Request.PathBase}";
                                 var URL_BD = Path.Combine(URL, carpeta, FileName);
 
-                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.PDF, URL = URL_BD };
+                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.PDF_FACTURA, URL = URL_BD };
 
-                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF && x.Id_Tad == id_terminal))
+                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA && x.Id_Tad == id_terminal))
                                 {
                                     context.Add(archivo);
                                     await context.SaveChangesAsync();
                                 }
                                 else
                                 {
-                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF && x.Id_Tad == id_terminal);
+                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA && x.Id_Tad == id_terminal);
 
                                     archivo_existente.URL = archivo.URL;
                                     archivo_existente.Directorio = archivo.Directorio;
@@ -156,7 +155,7 @@ namespace Server.Controllers
 
                     orden_factura = new();
 
-                    var untrustedFileName = file.Name;
+                    var untrustedFileName = file.FileName;
                     uploadResult.FileName = untrustedFileName;
                     var trustFileName = WebUtility.HtmlDecode(untrustedFileName);
 
@@ -190,16 +189,16 @@ namespace Server.Controllers
                                 var URL = $"{httpContextAccessor.HttpContext?.Request.Scheme}://{httpContextAccessor.HttpContext?.Request.Host}{httpContextAccessor.HttpContext?.Request.PathBase}";
                                 var URL_BD = Path.Combine(URL, carpeta, FileName);
 
-                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.XML, URL = URL_BD };
+                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.XML_FACTURA, URL = URL_BD };
 
-                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.XML && x.Id_Tad == id_terminal))
+                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA && x.Id_Tad == id_terminal))
                                 {
                                     context.Add(archivo);
                                     await context.SaveChangesAsync();
                                 }
                                 else
                                 {
-                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.XML && x.Id_Tad == id_terminal);
+                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA && x.Id_Tad == id_terminal);
 
                                     archivo_existente.URL = archivo.URL;
                                     archivo_existente.Directorio = archivo.Directorio;
@@ -296,7 +295,7 @@ namespace Server.Controllers
                 {
                     var uploadResult = new UploadResult();
 
-                    var untrustedFileName = file.Name;
+                    var untrustedFileName = file.FileName;
                     uploadResult.FileName = untrustedFileName;
                     var trustFileName = WebUtility.HtmlDecode(untrustedFileName);
 
@@ -319,7 +318,8 @@ namespace Server.Controllers
                             try
                             {
                                 string trustFileNameForSave = Path.GetRandomFileName();
-                                string FileName = Path.ChangeExtension(trustFileNameForSave, ".pdf");
+                                string extension = Path.GetExtension(trustFileName);
+                                string FileName = Path.ChangeExtension(trustFileNameForSave, extension);
                                 var carpeta = "PDF-BOL";
                                 //var path = Path.Combine(environment.WebRootPath, environment.EnvironmentName, "PDF", FileName);
                                 var path = $"{environment.WebRootPath}\\{carpeta}\\{FileName}";
@@ -330,16 +330,16 @@ namespace Server.Controllers
                                 var URL = $"{httpContextAccessor.HttpContext?.Request.Scheme}://{httpContextAccessor.HttpContext?.Request.Host}{httpContextAccessor.HttpContext?.Request.PathBase}";
                                 var URL_BD = Path.Combine(URL, carpeta, FileName);
 
-                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.PDF, URL = URL_BD };
+                                Archivo archivo = new() { Id_Registro = id, Directorio = path, Id_Tad = id_terminal, Tipo_Archivo = Tipo_Archivo.ARCHIVO_BOL, URL = URL_BD };
 
-                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF && x.Id_Tad == id_terminal))
+                                if (!context.Archivos.Any(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL && x.Id_Tad == id_terminal))
                                 {
                                     context.Add(archivo);
                                     await context.SaveChangesAsync();
                                 }
                                 else
                                 {
-                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.PDF && x.Id_Tad == id_terminal);
+                                    var archivo_existente = context.Archivos.Single(x => x.Id_Registro == id && x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL && x.Id_Tad == id_terminal);
 
                                     archivo_existente.URL = archivo.URL;
                                     archivo_existente.Directorio = archivo.Directorio;

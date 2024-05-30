@@ -6,7 +6,16 @@
 
 <div class="col-12">
     <label>@Texto_Label</label>
-    <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" />
+
+    @if(Deshabilitar)
+    {
+        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" disabled="@true"/>
+    }
+    else
+    {    
+        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" />
+    }
+
     @if (loading_upload)
     {
         <SpinnerLoading />
@@ -17,7 +26,9 @@
     [Parameter] public EventCallback<TResponse> Subida_Completa { get; set; }
     [Parameter] public string Accept { get; set; } = string.Empty;
     [Parameter] public string Mensaje_Exitoso { get; set; } = "Archivo subido exitosamente";
-    [Parameter] public string Texto_Label {get;set;} = "Importar:";
+    [Parameter] public string Texto_Label { get; set; } = "Importar:";
+    [Parameter] public bool Mostrar_Mensaje_Exito { get; set; } = false;
+    [Parameter] public bool Deshabilitar { get; set; } = false;
 
     List<UploadResult> UploadResults = new();
 
@@ -70,7 +81,10 @@
                     else
                     {
                         loading_upload = false;
-                        await Swal.FireAsync("Exito", Mensaje_Exitoso, SweetAlertIcon.Success);
+
+                        if (Mostrar_Mensaje_Exito)
+                            await Swal.FireAsync("Exito", Mensaje_Exitoso, SweetAlertIcon.Success);
+
                         await Subida_Completa.InvokeAsync(response.Response);
                     }
                 }

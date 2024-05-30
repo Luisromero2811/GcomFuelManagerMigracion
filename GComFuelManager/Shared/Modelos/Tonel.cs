@@ -47,6 +47,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [EpplusIgnore] public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
         [EpplusIgnore] public string Veh { get { return $"{Tracto} {Placa}"; } }
+        [EpplusIgnore] public string Nombre_Placas { get { return $"{Tracto} {Placa} {Placatracto}"; } }
         [EpplusIgnore]
         public string Tanque
         {

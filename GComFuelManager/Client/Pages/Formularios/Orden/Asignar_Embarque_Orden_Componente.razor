@@ -1,4 +1,5 @@
-﻿@inject IRepositorio http
+﻿@using System.ComponentModel.DataAnnotations
+@inject IRepositorio http
 @inject SweetAlertService swal
 @inject NotificationService ns
 @inject TooltipService ts
@@ -11,44 +12,29 @@
             Asignar bol a orden
         </div>
         <div class="card-body">
-            <div class="col-12 row mb-1">
-                <div class="col-3">
-                    <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
+            <EditForm OnValidSubmit="Obtener_Orden" Model="folio_">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="col-12 row mb-1">
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
+                        <ValidationMessage For="(()=>folio_.Folio)" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-2">
-                    <button class="btn btn-sm gcom-bg-amarillo" @onclick="Obtener_Orden">
-                        <i class="fa fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-            </div>
-            @* <div class="col-12 row my-2">
-                <div class="col-4">
-                    Terminal de origen: @ordenEmbarque?.Tad?.Den
-                </div>
-                <div class="col-4">
-                    Cliente de origen: @ordenEmbarque?.Destino?.Cliente?.Den
-                </div>
-                <div class="col-4">
-                    Destino de origen: @ordenEmbarque?.Destino?.Den
-                </div>
-                <div class="col-4">
-                    Proucto de origen: @ordenEmbarque?.Producto?.Den
-                </div>
-                <div class="col-4">
-                    Unidad de origen: @ordenEmbarque?.Tonel?.Veh
-                </div>
-                <div class="col-4">
-                    Compartimento de origen: @ordenEmbarque?.Compartment
-                </div>
-                <div class="col-4">
-                    Chofer de origen: @ordenEmbarque?.Chofer?.FullName
-                </div>
-                <div class="col-4">
-                    Precio: @ordenEmbarque?.Pre
-                </div>
-            </div> *@
+            </EditForm>
+
             <div class="col-12 row my-2">
                 <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
                     <div class="col-12 row">
                         <div class="col-6">
                             <div class="card">
@@ -56,7 +42,8 @@
                                     <b>Archivos de Bol/Embarque</b>
                                 </div>
                                 <div class="card-body">
-                                    <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:" />
+                                    <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:"
+                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
                                     @* <a class="btn btn-sm gcom-bg-amarillo"><i class="fa fa-solid fa-eye"></i></a> *@
                                 </div>
                             </div>
@@ -68,10 +55,12 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="col-12">
-                                        <Subir_Archivo TResponse="bool" URL="@URL_PDF" Accept=".pdf" Texto_Label="Subir PDF de factura:" />
+                                        <Subir_Archivo TResponse="bool" URL="@URL_PDF" Accept=".pdf" Texto_Label="Subir PDF de factura:"
+                                                       Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
                                     </div>
                                     <div class="col-12">
-                                        <Subir_Archivo TResponse="Orden" URL="@URL_XML" Accept=".xml" Texto_Label="Subir XML de factura:" Subida_Completa="Subida_Exitosa_Xml" />
+                                        <Subir_Archivo TResponse="Orden" URL="@URL_XML" Accept=".xml" Texto_Label="Subir XML de factura:"
+                                                       Subida_Completa="Subida_Exitosa_Xml" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
                                     </div>
                                 </div>
                             </div>
@@ -80,7 +69,7 @@
                     <div class="col-12 row d-flex g-1">
                         <div class="col-3">
                             <label>BOL / Embarque</label>
-                            <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" @ref="inputNumber"/>
+                            <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" @ref="inputNumber" />
                             <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
                         </div>
                         <div class="col-3">
@@ -109,14 +98,17 @@
                         <div class="col-3">
                             <label>Sellos</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.SealNumber" />
+                            <ValidationMessage For="@(()=>Datos_BOL.SealNumber)" />
                         </div>
                         <div class="col-2">
                             <label># de orden</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.NOrden" />
+                            <ValidationMessage For="@(()=>Datos_BOL.NOrden)" />
                         </div>
                         <div class="col-2">
                             <label>Factura de Proveedor</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Factura" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
@@ -186,7 +178,7 @@
                         <table class="table table-sm table-bordered table-hover table-striped" style="font-size:12px;width:2500px;text-align:left;">
                             <thead class="fila" style="position: sticky;">
                                 <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
-                                    <th</th>
+                                    <th></th>
                                     <th>
                                         Referencia
                                     </th>
@@ -253,6 +245,7 @@
                                     <th>
                                         Factura Proveedor
                                     </th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -296,6 +289,7 @@
                                         <td>@data?.Pedimentos</td>
                                         <td>@data?.NOrden</td>
                                         <td>@data?.Factura</td>
+                                        <th></th>
                                     </tr>
                                 </Virtualize>
                             </tbody>
@@ -304,7 +298,7 @@
                 </div>
                 <div class="row justify-content-end me-3 mt-3 mb-3">
                     <div class="col-3 mt-3 mb-3">
-                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><i class="fa fa-solid fa-file-excel" ></i><b>Exportar</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><i class="fa fa-solid fa-file-excel"></i><b>Exportar</b></button>
                     </div>
                 </div>
             </EditForm>
@@ -322,7 +316,7 @@
 
     Folio_Activo_Vigente folio_ { get; set; } = new();
     OrdenEmbarque ordenEmbarque { get; set; } = new();
-    Orden Datos_BOL = new();
+    Orden_BOL Datos_BOL = new();
     bool loading_guardar = false;
     bool loading_buscar = false;
     string URL_PDF = string.Empty;
@@ -386,7 +380,7 @@
         try
         {
             loading_guardar = true;
-            var response = await http.Post<Orden>("api/pedido/asignar/embarque", Datos_BOL);
+            var response = await http.Post<Orden_BOL>("api/pedido/asignar/embarque", Datos_BOL);
             if (response.Error)
             {
                 loading_guardar = false;
@@ -397,7 +391,7 @@
                 loading_guardar = false;
                 folio_.Folio = Datos_BOL.Ref ?? string.Empty;
                 ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de al ta correctamente", Severity = NotificationSeverity.Success });
-                await Obtener_Orden();
+                // await Obtener_Orden();
             }
         }
         catch (Exception e)
@@ -419,7 +413,7 @@
 
             var responseHttp = await http.Get<List<EtaNTDTO>>($"api/Eta/etaexterno?{url}");*/
 
-            var responseHttp = await http.Post<FechasF,List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan", fechas);
+            var responseHttp = await http.Post<FechasF, List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan", fechas);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -473,12 +467,13 @@
         }
     }
 
-    private async Task Subida_Exitosa_Xml(Orden orden)
+    private void Subida_Exitosa_Xml(Orden orden)
     {
         Datos_BOL.Pedimento = orden.Pedimento;
         Datos_BOL.Vol = orden.Vol;
         Datos_BOL.Factura = orden.Factura;
-        await Obtener_Orden();
+        Mostrar_Mensaje_Exito();
+        // await Obtener_Orden();
     }
 
     private async Task Buscar_Orden_De_Tabla(EtaNTDTO orden)
@@ -496,6 +491,38 @@
         catch (Exception e)
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Mostrar_Mensaje_Exito() =>
+        ns.Notify(new() { Severity = NotificationSeverity.Success, Summary = "Archivo subido", Detail = "Archivo subido exitosamente" });
+
+    private class Orden_BOL
+    {
+        public long? Cod { get; set; }
+        public string? Ref { get; set; } = string.Empty;
+        public DateTime? Fchcar { get; set; } = DateTime.Today;
+        public DateTime? Fecha_llegada { get; set; } = DateTime.Today;
+        [Required(ErrorMessage = "El bol/embarque no puede estar vacio")]
+        public int? BatchId { get; set; }
+        [Required(ErrorMessage = "El volumen no puede estar vacio")]
+        public double? Vol { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Los sellos no pueden estar vacios")]
+        public string? SealNumber { get; set; } = string.Empty;
+        public string? Pedimento { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = false, ErrorMessage = "El numero de orden no pueden estar vacio")]
+        public string? NOrden { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = false, ErrorMessage = "La factura de proveedor no pueden estar vacio")]
+        public string? Factura { get; set; } = string.Empty;
+        public string Eta
+        {
+            get
+            {
+                if (Fchcar is not null && Fecha_llegada is not null)
+                    return Fecha_llegada.Value.Subtract((DateTime)Fchcar).ToString("hh\\:mm");
+
+                return string.Empty;
+            }
         }
     }
 }
