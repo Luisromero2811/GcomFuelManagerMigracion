@@ -32,52 +32,54 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
     <Tabla Datos="Ordenes" Cargando="loading_get">
         <Cabeceras>
             <tr>
-                <th class="resizable-column" style="width:70px;">Archivo BOL/Embarque</th>
-                <th class="resizable-column" style="width:70px;">PDF Factura</th>
-                <th class="resizable-column" style="width:70px;">XML Factura</th>
-                <th class="resizable-column" style="width:150px;">Unidad de negocio</th>
-                <th class="resizable-column" style="width:150px;">Fecha de carga</th>
+                <th class="resizable-column" style="width:150px;">Destino</th>
+                <th class="resizable-column" style="width:150px;">Unidad de negocio (Terminal)</th>
+                <th class="resizable-column" style="width:150px;">Producto</th>
+                <th class="resizable-column" style="width:150px;">Volumen cargado</th>
+                <th class="resizable-column" style="width:150px;">Importe</th>
                 <th class="resizable-column" style="width:150px;">BOL/Embarque</th>
+                <th class="resizable-column" style="width:150px;">Factura del proveedor</th>
+                <th class="resizable-column" style="width:150px;">Fecha de carga</th>
+                <th class="resizable-column" style="width:150px;">Transportista</th>
+                <th class="resizable-column" style="width:150px;">Unidades / Placas</th>
+                <th class="resizable-column" style="width:150px;">Operador</th>
                 <th class="resizable-column" style="width:150px;">Precio</th>
                 <th class="resizable-column" style="width:150px;">Tipo de venta</th>
                 <th class="resizable-column" style="width:150px;">Cliente</th>
-                <th class="resizable-column" style="width:150px;">Destino</th>
-                <th class="resizable-column" style="width:150px;">Producto</th>
-                <th class="resizable-column" style="width:150px;">Volumen cargado</th>
-                <th class="resizable-column" style="width:150px;">Transportista</th>
-                <th class="resizable-column" style="width:150px;">Unidad</th>
-                <th class="resizable-column" style="width:150px;">Operador</th>
                 <th class="resizable-column" style="width:150px;">Sellos</th>
                 <th class="resizable-column" style="width:150px;">Pedimento</th>
                 <th class="resizable-column" style="width:150px;">No de orden</th>
-                <th class="resizable-column" style="width:150px;">Factura del proveedor</th>
+                <th class="resizable-column" style="width:70px;">Archivo BOL/Embarque</th>
+                <th class="resizable-column" style="width:70px;">PDF Factura</th>
+                <th class="resizable-column" style="width:70px;">XML Factura</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>
-                    <input type="text" @bind="param.Terminal" class="form-control form-control-sm" @oninput="Filtrar_Terminal" placeholder="Buscar terminal..." />
-                </td>
-                <td></td>
-                <td>
-                    <input type="text" @bind="param.BOL" class="form-control form-control-sm" @oninput="Filtrar_Bol" placeholder="Buscar bol/embarque..." />
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                    <input type="text" @bind="param.Cliente" class="form-control form-control-sm" @oninput="Filtrar_Cliente" placeholder="Buscar cliente..." />
-                </td>
                 <td>
                     <input type="text" @bind="param.Destino" class="form-control form-control-sm" @oninput="Filtrar_Destino" placeholder="Buscar destino..." />
+                </td>
+                <td>
+                    <input type="text" @bind="param.Terminal" class="form-control form-control-sm" @oninput="Filtrar_Terminal" placeholder="Buscar terminal..." />
                 </td>
                 <td>
                     <input type="text" @bind="param.Producto" class="form-control form-control-sm" @oninput="Filtrar_Producto" placeholder="Buscar producto..." />
                 </td>
                 <td></td>
                 <td></td>
+                <td>
+                    <input type="text" @bind="param.BOL" class="form-control form-control-sm" @oninput="Filtrar_Bol" placeholder="Buscar bol/embarque..." />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <input type="text" @bind="param.Cliente" class="form-control form-control-sm" @oninput="Filtrar_Cliente" placeholder="Buscar cliente..." />
+                </td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -88,6 +90,24 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
         </Filtros>
         <Columnas Context="orden">
             <tr>
+                <td>@orden.Obtener_Destino_De_Orden</td>
+                <td>@orden.Terminal?.Den</td>
+                <td>@orden.Obtener_Nombre_Producto</td>
+                <td>@orden.Vol</td>
+                <td>@orden.Importe</td>
+                <td>@orden.BatchId</td>
+                <td>@orden.Factura</td>
+                <td>@orden.Fchcar</td>
+                <td>@orden.Tonel?.Transportista?.Den</td>
+                <td>@orden.Tonel?.Nombre_Placas</td>
+                <td>@orden.Chofer?.FullName</td>
+                <td>@orden.OrdenEmbarque?.Pre</td>
+                <td>@orden.Destino?.Cliente?.Tipven</td>
+                <td>@orden.Obtener_Cliente_De_Orden</td>
+                <td>@orden.SealNumber</td>
+                <td>@orden.Pedimento</td>
+                <td>@orden.NOrden</td>
+
                 <td>
                     @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL) == true)
                     {
@@ -109,23 +129,6 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
                            target="_blank"><i class="fa fa-solif fa-eye"></i></a>
                     }
                 </td>
-                <td>@orden.Terminal?.Den</td>
-                <td>@orden.Fchcar</td>
-                <td>@orden.BatchId</td>
-                <td>@orden.OrdenEmbarque?.Pre</td>
-                <td>@orden.Destino?.Cliente?.Tipven</td>
-                <td>@orden.Obtener_Cliente_De_Orden</td>
-                <td>@orden.Obtener_Destino_De_Orden</td>
-                <td>@orden.Obtener_Nombre_Producto</td>
-                <td>@orden.Vol</td>
-                <td>@orden.Tonel?.Transportista?.Den</td>
-                <td>@orden.Tonel?.Nombre_Placas</td>
-                <td>@orden.Chofer?.FullName</td>
-                <td>@orden.SealNumber</td>
-                <td>@orden.Pedimento</td>
-                <td>@orden.NOrden</td>
-                <td>@orden.Factura</td>
-
             </tr>
         </Columnas>
     </Tabla>
