@@ -43,8 +43,7 @@
                                 </div>
                                 <div class="card-body">
                                     <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:"
-                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
-                                    @* <a class="btn btn-sm gcom-bg-amarillo"><i class="fa fa-solid fa-eye"></i></a> *@
+                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)"/>
                                 </div>
                             </div>
                         </div>
@@ -91,7 +90,7 @@
                             <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
                             <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
                         </div>
-                        <div class="col-3">
+                        <div class="col-2">
                             <label>Pedimento</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Pedimento" />
                         </div>
@@ -105,11 +104,15 @@
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.NOrden" />
                             <ValidationMessage For="@(()=>Datos_BOL.NOrden)" />
                         </div>
-                        <div class="col-2">
+                        <div class="col-3">
                             <label>Factura de Proveedor</label>
                             <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Factura" />
                             <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
+                        @*<div class="col-2">
+                            <label>Importe Total:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                        </div>*@
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
                         <div class="col-4">
@@ -249,6 +252,9 @@
                                     <th>
                                         Factura Proveedor
                                     </th>
+                                    @*<th>
+                                        Importe Total
+                                    </th>*@
                                     <th></th>
                                 </tr>
                             </thead>
@@ -293,6 +299,7 @@
                                         <td>@data?.Pedimentos</td>
                                         <td>@data?.NOrden</td>
                                         <td>@data?.Factura</td>
+                                        @*<td>@data?.Importe</td>*@
                                         <th></th>
                                     </tr>
                                 </Virtualize>
@@ -364,6 +371,7 @@
                     Datos_BOL.SealNumber = ordenEmbarque.Orden.SealNumber;
                     Datos_BOL.NOrden = ordenEmbarque.Orden.NOrden;
                     Datos_BOL.Factura = ordenEmbarque.Orden.Factura;
+                    Datos_BOL.Importe = ordenEmbarque.Orden.Importe;
                 }
                 else
                 {
@@ -394,7 +402,7 @@
             {
                 loading_guardar = false;
                 folio_.Folio = Datos_BOL.Ref ?? string.Empty;
-                ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de al ta correctamente", Severity = NotificationSeverity.Success });
+                ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de alta correctamente", Severity = NotificationSeverity.Success });
                 // await Obtener_Orden();
             }
         }
@@ -476,6 +484,7 @@
         Datos_BOL.Pedimento = orden.Pedimento;
         Datos_BOL.Vol = orden.Vol;
         Datos_BOL.Factura = orden.Factura;
+        Datos_BOL.Importe = orden.Importe;
         Mostrar_Mensaje_Exito();
         // await Obtener_Orden();
     }
@@ -518,6 +527,7 @@
         public string? NOrden { get; set; } = string.Empty;
         [Required(AllowEmptyStrings = false, ErrorMessage = "La factura de proveedor no pueden estar vacio")]
         public string? Factura { get; set; } = string.Empty;
+        public string? Importe { get; set; } = string.Empty;
         public string Eta
         {
             get

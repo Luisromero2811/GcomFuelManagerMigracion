@@ -1631,7 +1631,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Pedimentos = e.Pedimento,
                             NOrden = e.NOrden,
                             Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Importe = e.Importe
                         })
                       .Take(10000)
                       .ToListAsync();
@@ -1810,7 +1811,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Importe = e.Importe
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -1991,7 +1993,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Importe = e.Importe
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2162,7 +2165,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Importe = e.Importe
                           })
                         .Take(10000)
                         .ToListAsync();

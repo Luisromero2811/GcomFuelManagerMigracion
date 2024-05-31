@@ -18,7 +18,7 @@
     ViewData["EmailTitle"] = "Orden autorizada!";
 }
 <p>
-  Hola, @Model.Lista?.FirstOrDefault()?.OrdenCierre?.Cliente?.Den, se han autorizado las siguientes ordenes.
+    Hola, @Model.Lista?.FirstOrDefault()?.OrdenCierre?.Cliente?.Den, se han autorizado las siguientes ordenes.
 </p>
 
 <br />
@@ -44,12 +44,12 @@
                     <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
                         Litros
                     </th>
-                    <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Precio por litro
-                    </th>
-                    <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
-                        Subtotal
-                    </th>
+                    @*<th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                            Precio por litro
+                        </th>
+                        <th width="10%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 10px;">
+                            Subtotal
+                        </th>*@
                 </tr>
             </thead>
             <tbody>
@@ -87,12 +87,12 @@
                         <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
                             @(Convert.ToDouble(item.Vol).ToString("N"))
                         </td>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @(Convert.ToDouble(item.Pre).ToString("N4"))
-                        </td>
-                        <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
-                            @((Convert.ToDouble(item.Vol) * item.Pre)?.ToString("N"))
-                        </td>
+                        @*<td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                @(Convert.ToDouble(item.Pre).ToString("N4"))
+                            </td>
+                            <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 300; line-height: 24px; padding: 15px 10px 5px 10px;">
+                                @((Convert.ToDouble(item.Vol) * item.Pre)?.ToString("N"))
+                            </td>*@
                     </tr>
                 }
                 <tr>
@@ -101,12 +101,22 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td>
-                        <b>Total</b>
-                    </td>
-                    <td>
-                        @GetTotal()?.ToString("N")
-                    </td>
+                    @*<td>
+                            <b>Nota:</b>
+                        </td>
+                        <td>
+                            <h6>
+                                Por la presente, nos dirigimos a ustedes para solicitar información importante sobre sus envíos en caso de tener un modelo de venta RACK.
+
+                                Para optimizar la logística y garantizar una entrega eficiente, les solicitamos que nos proporcionen la siguiente información:
+
+                                Línea transportista: Indique el nombre de la empresa de transporte que se encargará de la entrega.
+                                Chofer: Indique el nombre del conductor responsable del transporte.
+                                Unidades: Indique el número de unidades que serán utilizadas para el envío.
+
+                                <b> En caso de tener un modelo de venta Delivery, favor de omitir esta solicitud.</b>
+                            </h6>
+                        </td>*@
                 </tr>
                 <tr>
                     <td>
@@ -117,6 +127,22 @@
                 </tr>
             </tbody>
         </table>
+        <p>
+            <b>Nota:</b>
+            <br>
+            Estimado cliente,
+        </p>
+        <p>
+            Si el producto solicitado está bajo el modelo de venta RACK (Cliente Recoge) envíenos la siguiente información:
+        </p>
+        <ul>
+            <li><b>Nombre de la línea transportista</b></li>
+            <li><b>Equipos (Unidades) que utilizará para recoger el producto,</b></li>
+            <li><b>Nombre del operador asignado a cada equipo que recogerá su producto</b></li>
+        </ul>
+        <p>
+            <b>Gracias,</b>
+        </p>
     }
 }
 <br />

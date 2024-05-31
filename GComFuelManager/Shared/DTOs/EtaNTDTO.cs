@@ -52,6 +52,8 @@ namespace GComFuelManager.Shared.DTOs
         [DisplayName("Factura Proveedor")]
         public string? Factura { get; set; } = string.Empty;
         public string? Pedimento { get; set; } = string.Empty;
+        [DisplayName("Importe Total")]
+        public string? Importe { get; set; } = string.Empty;
         // public string? Numero_Orden { get; set; } = string.Empty;
         [EpplusIgnore]
         public Orden? orden { get; set; }

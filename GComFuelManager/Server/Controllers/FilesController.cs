@@ -219,6 +219,11 @@ namespace Server.Controllers
                                     {
                                         orden_factura.Factura = xml_folio;
                                     }
+                                    var xml_importe = xml_comprobante[0]?.Attributes?["Total"]?.Value;
+                                    if (!string.IsNullOrEmpty(xml_folio))
+                                    {
+                                        orden_factura.Importe = xml_importe;
+                                    }
                                 }
 
                                 var xml_concepto = doc.GetElementsByTagName("cfdi:Concepto");

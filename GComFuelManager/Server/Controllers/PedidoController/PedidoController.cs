@@ -42,7 +42,7 @@ namespace GComFuelManager.Server.Controllers
         //            .Include(x => x.Tonel)
         //            .Take(10000)
         //            .ToListAsync();
-        //        return Ok(pedidos);
+        //        return Ok(pedidos);s
         //    }
         //    catch (Exception e)
         //    {
@@ -2130,7 +2130,7 @@ namespace GComFuelManager.Server.Controllers
                 if (string.IsNullOrEmpty(orden.Ref)) { return BadRequest("Fecha de carga invalida"); }
 
 
-                var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
+                var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().Include(x => x.Archivos).FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
                 if (ordenembarque is null) { return NotFound(); }
 
                 orden.Codchf = ordenembarque.Codchf;
@@ -2138,6 +2138,28 @@ namespace GComFuelManager.Server.Controllers
                 orden.Coduni = ordenembarque.Codton;
                 orden.Codprd = ordenembarque.Codprd;
                 orden.Codest = 20;
+                if (ordenembarque.Archivos != null)
+                {
+                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL && x.Id_Registro == ordenembarque.Cod))
+                    {
+                        return BadRequest($"El archivo BOL / Embarque no ha sido seleccionado");
+                    }
+
+                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA && x.Id_Registro == ordenembarque.Cod))
+                    {
+                        return BadRequest($"El archivo PDF de Factura no ha sido seleccionado");
+                    }
+
+                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA && x.Id_Registro == ordenembarque.Cod))
+                    {
+                        return BadRequest($"El archivo XML de Factura no ha sido seleccionado");
+                    }
+
+                }
+                else
+                {
+                    return BadRequest("Debe de subir archivos");
+                }
 
                 ordenembarque.Codest = 20;
 
@@ -2186,6 +2208,7 @@ namespace GComFuelManager.Server.Controllers
                         orden_existente.Pedimento = orden.Pedimento;
                         orden_existente.NOrden = orden.NOrden;
                         orden_existente.Factura = orden.Factura;
+                        orden_existente.Importe = orden.Importe;
                         context.Update(orden_existente);
                     }
                 }

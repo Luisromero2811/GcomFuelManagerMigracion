@@ -414,6 +414,33 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             }
         }
 
+        [HttpGet("listado")]
+        public async Task<ActionResult> GetCliente([FromQuery] ParametrosBusquedaCatalogo grupo)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var grupos = context.Transportista
+                    .Include(x => x.Terminales)
+                    .Where(x => x.Terminales.Any(x => x.Cod == id_terminal))
+                    .OrderBy(x => x.Den)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(grupo.nombretransportista))
+                    grupos = grupos.Where(x => x.Den != null && !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(grupo.nombretransportista.ToLower()));
+
+                return Ok(grupos);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet]
         public ActionResult Get()
         {

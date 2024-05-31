@@ -19,7 +19,7 @@ namespace RazorHtmlEmails.Common
             this.razorView = razorView;
         }
 
-        public async Task Denegar(EmailContent<OrdenCierre> content)
+        public async Task Denegar(EmailContent<OrdenEmbarque> content)
         {
             string body = await razorView.RenderViewToStringAsync("./Views/Emails/DenegarCreacionOrdenes/DenegarCreacionOrdenes.cshtml", content);
             var message = new MimeMessage();
@@ -37,6 +37,6 @@ namespace RazorHtmlEmails.Common
 
     public interface IDenegarCreacionOrdenes
     {
-        Task Denegar(EmailContent<OrdenCierre> cierre);
+        Task Denegar(EmailContent<OrdenEmbarque> cierre);
     }
 }
