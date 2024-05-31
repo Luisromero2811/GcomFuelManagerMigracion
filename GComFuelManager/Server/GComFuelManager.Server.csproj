@@ -10,6 +10,7 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.0" />
+    <PackageReference Include="itext" Version="8.0.2" />
     <PackageReference Include="MailKit" Version="4.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="7.0.4" />
@@ -67,5 +68,8 @@
     <Folder Include="Controllers\Porcentajes\" />
     <Folder Include="Controllers\Tarifas\" />
     <Folder Include="Controllers\Autorizadores\" />
+    <Folder Include="wwwroot\PDF-BOL\" />
+    <Folder Include="wwwroot\XML\" />
+    <Folder Include="wwwroot\PDF\" />
   </ItemGroup>
 </Project>

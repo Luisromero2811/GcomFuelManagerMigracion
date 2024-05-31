@@ -65,6 +65,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public OrdenPedido? OrdenPedido { get; set; } = null!;
         [NotMapped] public int? Compartimento { get; set; } = null!;
         [NotMapped] public Datos_Facturas? Datos_Facturas { get; set; } = null!;
+        [NotMapped] public List<Archivo>? Archivos { get; set; } = null!;
 
         public OrdenEmbarque ShallowCopy()
         {
@@ -222,7 +223,7 @@ namespace GComFuelManager.Shared.Modelos
                     gestion_.Proceso_descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8_En proceso de descarga").Fecha_Actualizacion.ToString();
 
                 if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
-                    gestion_.Descargado  = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
+                    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
 
                 if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
                     gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
@@ -325,6 +326,24 @@ namespace GComFuelManager.Shared.Modelos
                         return Tonel.Veh;
 
                 return "Si unidad asignada";
+            }
+        }
+        public string Obtener_Modelo_Venta_Orden
+        {
+            get
+            {
+                if (Orden is not null)
+                    if (Orden.Destino is not null)
+                        if (Orden.Destino.Cliente is not null)
+                            if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Tipven))
+                                return Orden.Destino.Cliente.Tipven;
+                                
+                if (Destino is not null)
+                    if (Destino.Cliente is not null)
+                        if (!string.IsNullOrEmpty(Destino.Cliente.Tipven))
+                            return Destino.Cliente.Tipven;
+
+                return string.Empty;
             }
         }
     }

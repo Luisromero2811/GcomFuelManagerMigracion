@@ -2093,6 +2093,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estatus_Orden)
                     .Include(x => x.HistorialEstados)
                     .ThenInclude(x => x.Estado)
+                    .Include(x => x.Archivos)
                     .FirstOrDefault();
 
                 if (orden is null) { return NotFound(); }
@@ -2181,6 +2182,10 @@ namespace GComFuelManager.Server.Controllers
                         orden_existente.Vol = orden.Vol;
                         orden_existente.BatchId = orden.BatchId;
                         orden_existente.Fchcar = orden.Fchcar;
+                        orden_existente.SealNumber = orden.SealNumber;
+                        orden_existente.Pedimento = orden.Pedimento;
+                        orden_existente.NOrden = orden.NOrden;
+                        orden_existente.Factura = orden.Factura;
                         context.Update(orden_existente);
                     }
                 }
