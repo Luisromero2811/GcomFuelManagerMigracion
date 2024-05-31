@@ -354,6 +354,13 @@
             });
             if (!string.IsNullOrEmpty(confirm.Value))
             {
+                ns.Notify(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando correos",
+                    Detail = "Se estan enviando los correos de denegación. Permanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 10000
+                });
                 var response = await http.Get<OrdenEmbarque>($"api/cierre/cancelarordencliente/{orden.Cod}");
                 if (response.Error)
                 {
@@ -369,6 +376,26 @@
                         OrdenEmbarques.Remove(orden);
 
                     grid!.Reload();
+                    var responseEmail = await http.Post<IList<OrdenEmbarque>>("api/email/denegarorden", OrdenesSeleccionadas);
+                    if (responseEmail.Error)
+                    {
+                        loading = false;
+                        var message = await responseEmail.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        ClearGridData();
+                        grid!.Reload();
+                        loading = false;
+                        ns.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Éxito",
+                            Detail = "Correos enviados con éxito.",
+                            Duration = 10000
+                        });
+                    }
                     StateHasChanged();
                     await Swal.FireAsync("Exito", "La orden(es) fueron canceladas con éxito", SweetAlertIcon.Success);
                 }

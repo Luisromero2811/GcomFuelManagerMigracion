@@ -20,6 +20,9 @@ namespace GComFuelManager.Shared.DTOs
 		//Destino
 		public string nombredestino { get; set; } = string.Empty!;
 		public int codcte { get; set; } = 0;
+
+		//Transportista
+		public string nombretransportista { get; set; } = string.Empty!;
      }
 }
 

@@ -410,6 +410,51 @@ namespace GComFuelManager.Server.Controllers.Emails
             }
         }
 
+        [HttpPost("denegarorden")]
+        public async Task<ActionResult> SendEmailDenegarCreacionOrdenes([FromBody] List<OrdenEmbarque> ordenEmbarques)
+        {
+            try
+            {
+                var clientes = ordenEmbarques.DistinctBy(x => x.OrdenCierre.CodCte).Select(x => x.OrdenCierre.CodCte);
+                foreach (var item in clientes)
+                {
+                    var list = ordenEmbarques.Where(x => x.OrdenCierre.CodCte == item);
+
+                    EmailContent<OrdenEmbarque> emailContent = new EmailContent<OrdenEmbarque>();
+
+                    var cc = context.Contacto.Where(x => x.CodCte == 0 && x.Estado == true).Select(x => new MailboxAddress(x.Nombre, x.Correo)).AsEnumerable();
+                    emailContent.CC = cc;
+
+                    var ToList = context.AccionCorreo.Where(x => x.Contacto.CodCte == ordenEmbarques.FirstOrDefault().OrdenCierre.CodCte && x.Contacto.Estado == true
+                        && x.Accion.Nombre.Equals("Denegar Creacion Ordenes"))
+                            .Include(x => x.Accion)
+                            .Include(x => x.Contacto)
+                            .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo))
+                            .AsEnumerable();
+
+                    var contacto = context.Contacto.FirstOrDefault(x => x.CodCte == ordenEmbarques.FirstOrDefault()!.OrdenCierre.CodCte && x.Estado == true);
+                    if (contacto is null)
+                        return BadRequest($"{ordenEmbarques.FirstOrDefault(x => x.OrdenCierre.CodCte == item).Cliente.Den} No tiene un contacto asignado");
+
+                    //emailContent.Nombre = contacto.Nombre;
+                    //emailContent.Email = contacto.Correo;
+                    emailContent.Subject = "Denegacion de orden";
+                    emailContent.Lista = list;
+                    emailContent.ToList = ToList;
+
+                    await denegarCreacion.Denegar(emailContent);
+
+                }
+
+                return Ok(true);
+            }
+                
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost("confirmpedido")]
         public async Task<ActionResult> SendEmailConfirmPedido([FromBody] List<OrdenCierre> ordenCierres)
         {
@@ -517,34 +562,6 @@ namespace GComFuelManager.Server.Controllers.Emails
                 emailContent.Item = cierre;
 
                 await confirmarCreacion.Confirmar(emailContent);
-
-                return Ok(true);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
-
-        [HttpPost("denegar/creacion/ordenes")]
-        public async Task<ActionResult> SendEmailDenegarCreacionOrdenes(OrdenCierre cierre)
-        {
-            try
-            {
-                EmailContent<OrdenCierre> emailContent = new EmailContent<OrdenCierre>();
-
-                var cc = context.AccionCorreo.Where(x => x.Contacto != null && x.Accion != null && x.Contacto.CodCte == 0 && x.Contacto.Estado == true
-                && x.Accion.Nombre.Equals("Denegar Creacion Ordenes"))
-                    .Include(x => x.Contacto)
-                    .Include(x => x.Accion)
-                    .Select(x => new MailboxAddress(x.Contacto.Nombre, x.Contacto.Correo)).AsEnumerable();
-
-                emailContent.CC = new List<MailboxAddress>();
-                emailContent.ToList = cc;
-                emailContent.Subject = "Cierre pendiente";
-                emailContent.Item = cierre;
-
-                await denegarCreacion.Denegar(emailContent);
 
                 return Ok(true);
             }
