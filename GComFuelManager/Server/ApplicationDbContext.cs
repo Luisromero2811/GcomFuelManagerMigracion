@@ -604,6 +604,11 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Origen).WithMany().HasForeignKey(x => x.Origen_Activo);
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Etiqueta).WithMany().HasForeignKey(x => x.Etiquetado_Activo);
             modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Departamento_Responsable).WithMany().HasForeignKey(x => x.Dto_Responsable);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasMany(x => x.Archivos)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey(x => x.Id_Registro);
         }
 
 
@@ -673,5 +678,6 @@ namespace GComFuelManager.Server
         public DbSet<Datos_Facturas> Datos_Facturas { get; set; }
         public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
         public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
+        public DbSet<Archivo> Archivos { get; set; }
     }
 }
