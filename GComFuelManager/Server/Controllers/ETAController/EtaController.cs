@@ -2376,7 +2376,21 @@ namespace GComFuelManager.Server.Controllers.ETAController
                       .Take(10000)
                       .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
-                    return Ok(Ordenes);
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        Ordenes, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
                 }
                 else if (fechas.Estado == 2)
                 {
@@ -2556,7 +2570,21 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
 
-                    return Ok(Ordenes);
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        Ordenes, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
                 }
                 else if (fechas.Estado == 3)
                 {
@@ -2737,7 +2765,21 @@ namespace GComFuelManager.Server.Controllers.ETAController
                         .ToListAsync();
                     Ordenes.AddRange(pedidosDate2);
 
-                    return Ok(Ordenes);
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("ETA");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        Ordenes, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excel.GetAsByteArray());
                 }
                 else if (fechas.Estado == 4)
                 {
@@ -2914,7 +2956,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     var worksheet = excel.Workbook.Worksheets.Add("ETA");
                     //Formación de Excel
                     var tablebody = worksheet.Cells["A1"].LoadFromCollection(
-                        ordens, c =>
+                        Ordenes, c =>
                         {
                             c.PrintHeaders = true;
                             c.TableStyle = TableStyles.Medium2;
