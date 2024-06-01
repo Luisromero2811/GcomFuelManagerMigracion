@@ -517,39 +517,39 @@
         });
 
         //tarifario
-        Menus.Add(new Menu()
-        {
-            name = "Tarifario",
-            icon = "file-invoice-dollar",
-            roles = "Admin, Administrador Sistema, Tarifas",
-            isMenu = true,
-            Menus = new()
-        {
-                    new()
-                    {
-                        name = "Tarifas",
-                        icon = "file-invoice",
-                        roles = "Admin, Administrador Sistema",
-                        path = "tarifario"
-                    },
-                    new()
-                    {
-                        name = "Historial de Tarifas",
-                        icon = "file-invoice-dollar",
-                        roles = "Admin, Administrador Sistema",
-                        path = "tarifa/historial"
-                    },
-                }
-        });
+        //Menus.Add(new Menu()
+        //{
+        //    name = "Tarifario",
+        //    icon = "file-invoice-dollar",
+        //    roles = "Admin, Administrador Sistema, Tarifas",
+        //    isMenu = true,
+        //    Menus = new()
+        //{
+        //            new()
+        //            {
+        //                name = "Tarifas",
+        //                icon = "file-invoice",
+        //                roles = "Admin, Administrador Sistema",
+        //                path = "tarifario"
+        //            },
+        //            new()
+        //            {
+        //                name = "Historial de Tarifas",
+        //                icon = "file-invoice-dollar",
+        //                roles = "Admin, Administrador Sistema",
+        //                path = "tarifa/historial"
+        //            },
+        //        }
+        //});
 
         Menus.Add(new Menu()
-            {
-                name = "Activos fijos",
-                icon = "chart-line",
-                roles = "Admin, Administrador Sistema, Activos Fijos",
-                isMenu = false,
-                path = "activos"
-            });
+        {
+            name = "Activos fijos",
+            icon = "chart-line",
+            roles = "Admin, Administrador Sistema, Activos Fijos",
+            isMenu = false,
+            path = "activos"
+        });
 
     }
 
