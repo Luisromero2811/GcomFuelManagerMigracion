@@ -109,7 +109,7 @@ namespace Server.Controllers
                             catch (IOException ex)
                             {
                                 uploadResult.ErrorCode = 3;
-                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : Error al leer al archivo.";
+                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : {ex.Message}";
                                 return BadRequest(uploadResult.ErrorMessage);
                             }
                         }
@@ -258,7 +258,7 @@ namespace Server.Controllers
                             catch (IOException ex)
                             {
                                 uploadResult.ErrorCode = 3;
-                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : Error al leer al archivo.";
+                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : {ex.Message}";
                                 return BadRequest(uploadResult.ErrorMessage);
                             }
                         }
@@ -357,7 +357,7 @@ namespace Server.Controllers
                             catch (IOException ex)
                             {
                                 uploadResult.ErrorCode = 3;
-                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : Error al leer al archivo.";
+                                uploadResult.ErrorMessage = $"(Error: {uploadResult.ErrorCode}) {trustFileName} : {ex.Message}";
                                 return BadRequest(uploadResult.ErrorMessage);
                             }
                         }
