@@ -30,7 +30,7 @@
             </EditForm>
 
             <div class="col-12 row my-2">
-                <EditForm Model="Datos_BOL" OnValidSubmit="Abrir_Modal_Confirmacion">
+                <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
 
                     <DataAnnotationsValidator />
                     <ValidationSummary />
@@ -309,7 +309,7 @@
         </div>
     </div>
 </AuthorizeView>
-
+@* 
 <Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
     <Contenido>
         <div class="col-12 row">
@@ -355,7 +355,7 @@
             </div>
         </div>
     </Inferior_Personalizado>
-</Modal_Custom>
+</Modal_Custom> *@
 
 @code {
     InputNumber<int?> inputNumber;
