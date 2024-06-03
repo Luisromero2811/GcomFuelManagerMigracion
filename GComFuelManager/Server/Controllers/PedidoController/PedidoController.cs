@@ -304,6 +304,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenEmbarque)
                     .Include(x => x.Terminal)
+                    .Include(x => x.OrdenEmbarque)
                      .OrderBy(x => x.Fchcar)
                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
                     //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
@@ -333,6 +334,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estado)
                     .Include(x => x.Chofer)
                     .Include(x => x.Terminal)
+                    .Include(x => x.OrdenEmbarque)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .AsQueryable();
@@ -354,6 +356,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estado)
                         .Include(x => x.Chofer)
                         .Include(x => x.Terminal)
+                        .Include(x => x.OrdenEmbarque)
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
                         .AsQueryable();
