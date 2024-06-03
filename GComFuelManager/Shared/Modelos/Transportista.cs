@@ -29,7 +29,7 @@ namespace GComFuelManager.Shared.Modelos
 
         [JsonProperty("gru")]
         public string? Gru { get; set; } = string.Empty;
-
+        public string? RFC { get; set; } = string.Empty;
     }
 }
 

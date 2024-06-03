@@ -26,6 +26,7 @@ namespace GComFuelManager.Shared.Modelos
 
 		[JsonProperty("activo")]
 		public bool? Activo { get; set; } = true;
+		public string? RFC { get; set; } = string.Empty;
 
 		[NotMapped] public Transportista? Transportista { get; set; } = null!;
 		[NotMapped] public Tonel? Tonel { get; set; } = null!;

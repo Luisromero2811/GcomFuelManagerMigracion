@@ -403,6 +403,8 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.CodCte);
+
+            modelBuilder.Entity<OrdenEmbarque>().HasMany(x => x.Archivos).WithOne(x => x.OrdenEmbarque).HasForeignKey(x => x.Id_Registro);
         }
 
         public DbSet<Chofer> Chofer { get; set; }
@@ -433,5 +435,6 @@ namespace GComFuelManager.Server
         public DbSet<PrecioHistorico> PreciosHistorico { get; set; }
         public DbSet<Consecutivo> Consecutivo { get; set; }
         public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
+        public DbSet<Archivo> Archivos { get; set; }
     }
 }

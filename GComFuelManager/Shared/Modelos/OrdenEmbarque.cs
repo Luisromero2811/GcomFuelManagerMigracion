@@ -42,6 +42,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore]
         public int? Bol { get; set; }
 
+        [NotMapped] public List<Archivo>? Archivos { get; set; } = null!;
         [NotMapped] public Destino? Destino { get; set; } = null!;
         [NotMapped] public Tad? Tad { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;
