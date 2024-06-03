@@ -304,6 +304,7 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenEmbarque)
                     .Include(x => x.Terminal)
+                    .Include(x => x.OrdenEmbarque)
                      .OrderBy(x => x.Fchcar)
                     //.GroupBy(x => new { x.Destino.Den, x.Tonel.Tracto, x.Ref, x.Codprd2, x.BatchId, x.Fchcar, x.Tonel.Placa })
                     //Falta agrupar producto.den, cliente.den, chofer.den-shortden, transportista.den
@@ -333,6 +334,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Estado)
                     .Include(x => x.Chofer)
                     .Include(x => x.Terminal)
+                    .Include(x => x.OrdenEmbarque)
                     .OrderBy(x => x.Fchcar)
                     .Take(10000)
                     .AsQueryable();
@@ -354,6 +356,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Estado)
                         .Include(x => x.Chofer)
                         .Include(x => x.Terminal)
+                        .Include(x => x.OrdenEmbarque)
                         .OrderBy(x => x.Fchcar)
                         .Take(10000)
                         .AsQueryable();
@@ -2110,6 +2113,8 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var codigo_accion = 46;
+
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
@@ -2185,12 +2190,25 @@ namespace GComFuelManager.Server.Controllers
                 if (ordenembarque.Compartment == 3) { orden.CompartmentId = tonel.Idcom3; }
                 if (ordenembarque.Compartment == 4) { orden.CompartmentId = tonel.Idcom4; }
 
+                if (context.Orden.Any(x => x.BatchId == orden.BatchId && x.Cod != orden.Cod && x.Id_Tad == id_terminal))
+                {
+                    return BadRequest($"Ya existe una orden con el bol/embarque: {orden.BatchId}.");
+                }
+                if (context.Orden.Any(x => x.Factura == orden.Factura && x.Cod != orden.Cod && x.Id_Tad == id_terminal))
+                {
+                    return BadRequest($"Ya existe una orden con la factura de proveedor: {orden.Factura}.");
+                }
+
                 context.Update(ordenembarque);
 
                 if (orden.Cod is null)
+                {
+                    codigo_accion = 46;
                     context.Add(orden);
+                }
                 else
                 {
+                    codigo_accion = 50;
                     var orden_existente = context.Orden.FirstOrDefault(x => x.Cod == orden.Cod);
                     if (orden_existente is not null)
                     {
@@ -2212,7 +2230,7 @@ namespace GComFuelManager.Server.Controllers
                         context.Update(orden_existente);
                     }
                 }
-                await context.SaveChangesAsync(id, 46);
+                await context.SaveChangesAsync(id, codigo_accion);
 
                 OrdEmbDet ordEmbDet = new()
                 {

@@ -11,6 +11,7 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
@@ -378,6 +379,20 @@ namespace Server.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Obtener_Archivos_De_Orden([FromRoute] int id)
+        {
+            try
+            {
+                var archivos = await context.Archivos.Where(x => x.Id_Registro == id).ToListAsync();
+                return Ok(archivos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

@@ -48,9 +48,9 @@
                                     <label class="form-check-label" for="Cargadas">Cargadas</label>
                                 </div>
                                 @*<div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                    <label class="form-check-label" for="Trayecto">En Trayecto</label>
-                                    </div>*@
+                                <input class="form-check-input" type="radio" id="Trayecto" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                <label class="form-check-label" for="Trayecto">En Trayecto</label>
+                                </div>*@
                                 <div class="form-check form-check-inline">
                                     <input class="form-check-input" type="radio" id="Canceladas" name="estatus" checked="@(busquedaOrdenes.Estado == 4)" @onchange="@(()=>busquedaOrdenes.Estado = 4)" />
                                     <label class="form-check-label" for="Canceladas">Canceladas</label>
@@ -66,12 +66,12 @@
                             <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportHist"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Historial de órdenes</b></button>
                         </div>
                         @*<div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
-                            </div>
-                            <div class="col-3">
-                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportTraffic"><img src="img/sobresalir.png" class="img-fluid" style="width:16px; height:auto;" /> <b>Exportar Tráfico</b></button>
+                        </div>
+                        <div class="col-3">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarTraffic"><i class="fa fa-solid fa-eye"></i> <b>Tráfico</b></button>
 
-                            </div>*@
+                        </div>*@
                     </div>
                 </EditForm>
             </div>
@@ -148,15 +148,14 @@
                         <tr>
                             @if (!Esta_En_Tuxpan)
                             {
-                                @if (item.OrdenEmbarque is not null)
-                                {
-                                    <td>
+                                <td>
+                                    @if (item.OrdenEmbarque is not null)
+                                    {
                                         <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(() => Descargar_Pdf(item.OrdenEmbarque))" type="button">
                                             <i class="fa fa-solid fa-download"></i>Vale
                                         </button>
-                                    </td>
-                                }
-
+                                    }
+                                </td>
                             }
                             <td>
                                 <RadzenText Text="@item.Ref" TextStyle="TextStyle.Body2" />
@@ -452,23 +451,23 @@
                             && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                             && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                             SeguimientoOrden.Add(new OrdenesDTO
-                            {
-                                Referencia = item?.Ref,
-                                FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                                Unidad_Negocio = item?.Terminal?.Den,
-                                EstatusOrden = item?.Estado.den,
-                                //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
-                                Bol = item?.BatchId,
-                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                Cliente = item?.Destino?.Cliente?.Den,
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
-                                VolCar = null!,
-                                Transportista = item?.Tonel?.Transportista?.Den,
-                                Unidad = item?.Tonel?.Veh,
-                                Operador = item?.Chofer?.Den,
-                            });
+                                {
+                                    Referencia = item?.Ref,
+                                    FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                                    Unidad_Negocio = item?.Terminal?.Den,
+                                    EstatusOrden = item?.Estado.den,
+                                    //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd"),
+                                    Bol = item?.BatchId,
+                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                    Cliente = item?.Destino?.Cliente?.Den,
+                                    Destino = item?.Destino?.Den,
+                                    Producto = item?.Producto?.Den,
+                                    VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
+                                    VolCar = null!,
+                                    Transportista = item?.Tonel?.Transportista?.Den,
+                                    Unidad = item?.Tonel?.Veh,
+                                    Operador = item?.Chofer?.Den,
+                                });
                     }
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     var excel = new ExcelPackage();
@@ -497,23 +496,23 @@
                             && (item.Destino!.Den == DestinosSeleccionado || string.IsNullOrEmpty(DestinosSeleccionado))
                             && (item.Producto!.Den == ProductosSeleccionado || string.IsNullOrEmpty(ProductosSeleccionado)))
                             SeguimientoOrden.Add(new OrdenesDTO
-                            {
-                                Referencia = item?.Ref,
-                                FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                                Unidad_Negocio = item?.Terminal?.Den,
-                                EstatusOrden = item?.Estado.den,
-                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                                Bol = item?.BatchId,
-                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                                Cliente = item?.Destino?.Cliente?.Den,
-                                Destino = item?.Destino?.Den,
-                                Producto = item?.Producto?.Den,
-                                VolNat = item?.Vol2,
-                                VolCar = item?.Vol,
-                                Transportista = item?.Tonel?.Transportista?.Den,
-                                Unidad = item?.Tonel?.Veh,
-                                Operador = item?.Chofer?.Den
-                            });
+                                {
+                                    Referencia = item?.Ref,
+                                    FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                    Unidad_Negocio = item?.Terminal?.Den,
+                                    EstatusOrden = item?.Estado.den,
+                                    FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                    Bol = item?.BatchId,
+                                    //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                    Cliente = item?.Destino?.Cliente?.Den,
+                                    Destino = item?.Destino?.Den,
+                                    Producto = item?.Producto?.Den,
+                                    VolNat = item?.Vol2,
+                                    VolCar = item?.Vol,
+                                    Transportista = item?.Tonel?.Transportista?.Den,
+                                    Unidad = item?.Tonel?.Veh,
+                                    Operador = item?.Chofer?.Den
+                                });
                     }
                     ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                     var excel = new ExcelPackage();
@@ -664,57 +663,57 @@
                     if (item.BatchId == null)
                     {
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
-                            Unidad_Negocio = item?.Terminal?.Den,
-                            EstatusOrden = item?.Estado.den,
-                            Bol = item?.BatchId,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
-                            VolCar = null!,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den,
-                        });
+                            {
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.Fchcar?.ToString("dd/MM/yyyy"),
+                                Unidad_Negocio = item?.Terminal?.Den,
+                                EstatusOrden = item?.Estado.den,
+                                Bol = item?.BatchId,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item?.Tonel?.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item?.Tonel?.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item?.Tonel?.Capcom3) : item.Compartimento == 4 ? item?.Tonel?.Capcom4 : item?.Vol,
+                                VolCar = null!,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den,
+                            });
                     }
                     else
                     {
                         //Cambio de seguridad
                         SeguimientoOrden.Add(new OrdenesDTO
-                        {
-                            //Referencia = item?.Ref,
-                            //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
-                            //EstatusOrden = item?.Estado.den,
-                            //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
-                            //Bol = item?.BatchId,
-                            ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
-                            //Cliente = item?.Destino?.Cliente?.Den,
-                            //Destino = item?.Destino?.Den,
-                            //Producto = item?.Producto?.Den,
-                            //VolNat = item?.Vol2,
-                            //VolCar = item?.Vol,
-                            //Transportista = item?.Tonel?.Transportista?.Den,
-                            //Unidad = item?.Tonel?.Veh,
-                            //Operador = item?.Chofer?.Den
-                            Referencia = item?.Ref,
-                            FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
-                            Unidad_Negocio = item?.Terminal?.Den,
-                            EstatusOrden = item?.Estado.den,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
-                            Bol = item?.BatchId,
-                            //DeliveryRack = item?.Destino?.Cliente?.Tipven,
-                            Cliente = item?.Destino?.Cliente?.Den,
-                            Destino = item?.Destino?.Den,
-                            Producto = item?.Producto?.Den,
-                            VolNat = item?.Vol2,
-                            VolCar = item?.Vol,
-                            Transportista = item?.Tonel?.Transportista?.Den,
-                            Unidad = item?.Tonel?.Veh,
-                            Operador = item?.Chofer?.Den
-                        });
+                            {
+                                //Referencia = item?.Ref,
+                                //FechaPrograma = item?.Fchcar?.ToString("yyyy-MM-dd"),
+                                //EstatusOrden = item?.Estado.den,
+                                //FechaCarga = item?.Fch?.ToString("yyyy-MM-dd HH:mm:ss"),
+                                //Bol = item?.BatchId,
+                                ////DeliveryRack = o?.Destino?.Cliente?.Tipven,
+                                //Cliente = item?.Destino?.Cliente?.Den,
+                                //Destino = item?.Destino?.Den,
+                                //Producto = item?.Producto?.Den,
+                                //VolNat = item?.Vol2,
+                                //VolCar = item?.Vol,
+                                //Transportista = item?.Tonel?.Transportista?.Den,
+                                //Unidad = item?.Tonel?.Veh,
+                                //Operador = item?.Chofer?.Den
+                                Referencia = item?.Ref,
+                                FechaPrograma = item?.OrdenEmbarque?.Fchcar?.ToString("dd/MM/yyyy"),
+                                Unidad_Negocio = item?.Terminal?.Den,
+                                EstatusOrden = item?.Estado.den,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy HH:mm:ss"),
+                                Bol = item?.BatchId,
+                                //DeliveryRack = item?.Destino?.Cliente?.Tipven,
+                                Cliente = item?.Destino?.Cliente?.Den,
+                                Destino = item?.Destino?.Den,
+                                Producto = item?.Producto?.Den,
+                                VolNat = item?.Vol2,
+                                VolCar = item?.Vol,
+                                Transportista = item?.Tonel?.Transportista?.Den,
+                                Unidad = item?.Tonel?.Veh,
+                                Operador = item?.Chofer?.Den
+                            });
                     }
                 }
 
