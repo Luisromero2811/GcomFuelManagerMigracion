@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.IO;
 using System.Xml;
+using System.Xml.Linq;
+using System.Text;
 
 namespace GComFuelManager.Server.Controllers.Precios
 {
@@ -376,7 +378,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                         Destino = item?.Destino?.Den,
                         Terminal = item?.Terminal?.Den,
                         BOL = item?.BatchId,
-                        Volumen_Cargado = item?.Vol,
+                        Litros = item?.OrdenEmbarque?.Vol,
+                        Litros_Natural = item?.Vol,
                         RFC_Transportista = item?.Tonel?.Transportista?.RFC,
                         RFC_Operador = item?.Chofer?.RFC
                     };
@@ -478,7 +481,8 @@ namespace GComFuelManager.Server.Controllers.Precios
                     Terminal = orden.Terminal?.Den,
                     BOL = orden.BatchId,
                     Numero_Orden = orden.NOrden,
-                    Volumen_Cargado = orden.Vol,
+                    Litros = orden.OrdenEmbarque?.Vol,
+                    Litros_Natural = orden.Vol,
                     Producto = orden.Producto?.Den,
                     Fecha_De_Carga = orden.Fchcar,
                     Destino = orden.Destino?.Den,
@@ -563,10 +567,11 @@ namespace GComFuelManager.Server.Controllers.Precios
                     var xml = orden.OrdenEmbarque.Archivos.FirstOrDefault(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA);
                     if(xml is not null)
                     {
-                        XmlDocument doc = new();
-                        doc.LoadXml(xml.Directorio);
-
-                        precio.XML = doc.OuterXml;
+                        //XmlDocument doc = new();
+                        XDocument doc = XDocument.Load(xml.Directorio, LoadOptions.None);
+                        var memory = new MemoryStream();
+                        doc.Save(memory);
+                        precio.XML = Encoding.UTF8.GetString(memory.ToArray());
                     }
                 }
 
@@ -751,8 +756,8 @@ namespace GComFuelManager.Server.Controllers.Precios
             public string? Terminal { get; set; } = string.Empty;
             public int? BOL { get; set; } = 0;
             public string? Numero_Orden { get; set; } = string.Empty;
-            public double? Volumen_Cargado { get; set; } = 0;
-            public double? Volumen_Natural { get; set; } = 0;
+            public double? Litros { get; set; } = 0;
+            public double? Litros_Natural { get; set; } = 0;
             public string? Producto { get; set; } = string.Empty;
             public double? Precio { get; set; } = 0;
             public DateTime? Fecha_De_Carga { get; set; } = DateTime.MinValue;
