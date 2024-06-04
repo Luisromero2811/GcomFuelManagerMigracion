@@ -1,0 +1,95 @@
+﻿@inject IJSRuntime js
+
+<div id="myModal" class="modal-custom" style="display: @ModalDisplay;">
+    <div class="modal-custom-content">
+        <div class="modal-custom-header">
+            <span class="close" @onclick="Close">&times;</span>
+            @if (Titulo_Personalizado is null)
+            {
+                <b>@Titulo</b>
+            }
+            else
+            {
+                @Titulo_Personalizado
+            }
+        </div>
+        <div class="modal-custom-body">
+            @Contenido
+        </div>
+        <div class="modal-custom-footer">
+            @if (Inferior_Personalizado is not null)
+            {
+                @Inferior_Personalizado
+            }
+        </div>
+    </div>
+</div>
+
+@* <div class="modal @ModalClass fade" tabindex="-1" role="dialog" style="display:@ModalDisplay;" id="modal-custom">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" id="modal-content">
+            <div class="modal-header">
+                @if (Titulo_Personalizado is null)
+                {
+                    <b>@Titulo</b>
+                }
+                else
+                {
+                    @Titulo_Personalizado
+                }
+            </div>
+            <div class="modal-body">
+                @Contenido
+            </div>
+            <div class="modal-footer">
+                @if (Inferior_Personalizado is not null)
+                {
+                    @Inferior_Personalizado
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ShowBackDrop)
+{
+    <div class="modal-backdrop fade show" id="modal-back" data-dismiss="modal" @onclick="Close"></div>
+} *@
+
+@code {
+    [Parameter] public RenderFragment Titulo_Personalizado { get; set; } = null!;
+    [Parameter] public RenderFragment Contenido { get; set; } = null!;
+    [Parameter] public RenderFragment Inferior_Personalizado { get; set; } = null!;
+    // [Parameter] public RenderFragment Vista_Inferior { get; set; } = null!;
+    [Parameter] public string Titulo { get; set; } = string.Empty;
+    private bool ShowBackDrop = false;
+
+    private string ModalClass = string.Empty;
+    private string ModalDisplay = "none";
+
+    ElementReference MODAL;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // var module = await js.InvokeAsync<IJSObjectReference>("importarScript", "./Shared/Modal_Custom.razor.js");
+        // await module.InvokeVoidAsync("onclick.CloseModal", ModalDisplay);
+    }
+
+    public void Open()
+    {
+        ModalDisplay = "block";
+        // ModalClass = "show";
+        // ShowBackDrop = true;
+        
+        // Console.WriteLine(ModalDisplay);
+        StateHasChanged();
+    }
+
+    public void Close()
+    {
+        ModalDisplay = "none";
+        // ModalClass = string.Empty;
+        // ShowBackDrop = false;
+        StateHasChanged();
+    }
+}

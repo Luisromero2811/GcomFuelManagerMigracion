@@ -316,6 +316,54 @@
         </div>
     </div>
 </AuthorizeView>
+@* 
+<Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
+    <Contenido>
+        <div class="col-12 row">
+            <div class="col">
+                <label><b>BOL: </b> @Datos_BOL.BatchId</label>
+            </div>
+            <div class="col">
+                <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
+            </div>
+            <div class="col">
+                <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
+            </div>
+            <div class="col">
+                <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
+            </div>
+            <div class="col">
+                <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
+            </div>
+            <div class="col">
+                <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
+            </div>
+            <div class="col">
+                <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
+            </div>
+            <div class="col">
+                <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
+            </div>
+        </div>
+        <div class="col-12">
+            @foreach (var archivo in Archivos)
+            {
+                <iframe src="@archivo.URL" style="width: 100%;"></iframe>
+            }
+        </div>
+    </Contenido>
+    <Inferior_Personalizado>
+        <div class="col-12 row">
+            <div class="col-3">
+                <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
+            </div>
+            <div class="col-3">
+                <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
+            </div>
+        </div>
+    </Inferior_Personalizado>
+</Modal_Custom> *@
+
 @code {
     InputNumber<int?> inputNumber;
 
@@ -333,6 +381,9 @@
     string URL_PDF = string.Empty;
     string URL_PDF_BOL = string.Empty;
     string URL_XML = string.Empty;
+
+    Modal_Custom datos_eta { get; set; } = null!;
+    List<Archivo> Archivos = new();
 
     private async Task Obtener_Orden()
     {
@@ -385,6 +436,21 @@
             loading_buscar = false;
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private async Task Abrir_Modal_Confirmacion()
+    {
+        var response = await http.Get<List<Archivo>>($"api/files/{ordenEmbarque.Cod}");
+        if (response.Error)
+        {
+            await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+        }
+        else
+        {
+            Archivos = response.Response;
+        }
+        datos_eta.Open();
+
     }
 
     private async Task Guardar_Orden()
