@@ -350,9 +350,19 @@ namespace GComFuelManager.Server.Controllers.Precios
         {
             try
             {
+                if (!DateTime.TryParse(param.Fecha_Inicio.ToString(), out DateTime Fecha_Inicio)) { return BadRequest("La fecha de inicio no tiene un formato valido."); }
+                if (!DateTime.TryParse(param.Fecha_Fin.ToString(), out DateTime Fecha_Fin)) { return BadRequest("La fecha de fin no tiene un formato valido."); }
+                
+                if(Fecha_Inicio > Fecha_Fin) { return BadRequest("La fecha de inicio no puede ser mayor a la fecha de fin"); }
+
+                var dias = Fecha_Fin - Fecha_Inicio;
+
+                if (dias.Days > 3) { return BadRequest("No puede consultar en un rango mayor a 3 dias"); }
+
                 List<Precio_Listado> precios = new();
 
-                var ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin)
+                var ordenes = context.Orden.IgnoreAutoIncludes().Where(x => x.Fchcar >= Fecha_Inicio && x.Fchcar <= Fecha_Fin
+                && x.Tonel != null && x.Tonel.Transportista != null && x.Tonel.Transportista.Activo == true)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -457,10 +467,12 @@ namespace GComFuelManager.Server.Controllers.Precios
         }
 
         [HttpGet("orden/{id}")]
-        public ActionResult Otener_Orden_Por_Cod([FromRoute] long id)
+        public ActionResult Otener_Orden_Por_Cod([FromRoute] string id)
         {
             try
             {
+                if (!long.TryParse(id, out long id_orden)) { return BadRequest("No se ingreso una orden valida."); }
+
                 var orden = context.Orden
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Archivos)
@@ -471,7 +483,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
                     .Include(x => x.Terminal)
-                    .SingleOrDefault(x => x.Cod == id);
+                    .FirstOrDefault(x => x.Cod == id_orden && x.Tonel != null && x.Tonel.Transportista != null && x.Tonel.Transportista.Activo == true);
 
                 if(orden is null) { return NotFound(); }
 
@@ -554,10 +566,10 @@ namespace GComFuelManager.Server.Controllers.Precios
                     precio.Precio = orden.OrdenEmbarque?.Pre;
                 }
 
-                if(orden is not null && orden.OrdenEmbarque is not null && orden.OrdenEmbarque.Archivos is not null)
+                if (orden is not null && orden.OrdenEmbarque is not null && orden.OrdenEmbarque.Archivos is not null)
                 {
                     var pdf = orden.OrdenEmbarque.Archivos.FirstOrDefault(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA);
-                    if(pdf is not null)
+                    if (pdf is not null)
                     {
                         var pdf_bytes = System.IO.File.ReadAllBytes(pdf.Directorio);
                         string pdf_64 = Convert.ToBase64String(pdf_bytes);
@@ -565,7 +577,7 @@ namespace GComFuelManager.Server.Controllers.Precios
                     }
 
                     var xml = orden.OrdenEmbarque.Archivos.FirstOrDefault(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA);
-                    if(xml is not null)
+                    if (xml is not null)
                     {
                         //XmlDocument doc = new();
                         XDocument doc = XDocument.Load(xml.Directorio, LoadOptions.None);
