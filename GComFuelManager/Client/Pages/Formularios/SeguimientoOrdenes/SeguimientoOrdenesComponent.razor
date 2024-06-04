@@ -96,6 +96,7 @@
                     <th>Fecha Carga</th>
                     <th>BOL / EMBARQUE</th>
                     <th>Tipo de Venta</th>
+                    <th>Grupo</th>
                     <th>Cliente</th>
                     <th>Destino</th>
                     <th>Producto</th>
@@ -120,7 +121,12 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
+                    <td>
+                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.grupo"/>
+                    </td>
+                    <td>
+                        <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.cliente"/>
+                    </td>
                     <td>
                         <RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.destino" />
                     </td>
@@ -178,6 +184,9 @@
                             </td>
                             <td>
                                 <RadzenText Text="@item?.Destino?.Cliente?.Tipven" TextStyle="TextStyle.Body2" />
+                            </td>
+                            <td>
+                                <RadzenText Text="@item?.OrdenEmbarque?.OrdenCierre?.Grupo?.Den" TextStyle="TextStyle.Body2" />
                             </td>
                             <td>
                                 <RadzenText Text="@item?.Destino?.Cliente?.Den" TextStyle="TextStyle.Body2" />
@@ -361,6 +370,7 @@
             query["Estado"] = busquedaOrdenes.Estado.ToString() ?? string.Empty;
             query["producto"] = busquedaOrdenes.producto ?? string.Empty;
             query["cliente"] = busquedaOrdenes.cliente ?? string.Empty;
+            query["grupo"] = busquedaOrdenes.grupo ?? string.Empty;
             query["destino"] = busquedaOrdenes.destino ?? string.Empty;
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             Status = true;
@@ -397,6 +407,8 @@
         if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
         queryStringObject["producto"] = busquedaOrdenes.producto;
         queryStringObject["destino"] = busquedaOrdenes.destino;
+        queryStringObject["cliente"] = busquedaOrdenes.cliente;
+        queryStringObject["grupo"] = busquedaOrdenes.grupo;
 
         var DefaultValues = new List<string>() { "false", "", "0" };
         var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))

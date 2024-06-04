@@ -68,6 +68,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public Tad? Terminal { get; set; } = null!;
         [NotMapped] public Estado? Estado { get; set; } = null!;
         [NotMapped] public Destino? Destino { get; set; } = null!;
+        [NotMapped] public Cliente? Cliente { get; set; } = null!;
         [NotMapped] public Producto? Producto { get; set; } = null!;
         [NotMapped] public Transportista? Transportista { get; set; } = null!;
         [NotMapped] public Tonel? Tonel { get; set; } = null!;

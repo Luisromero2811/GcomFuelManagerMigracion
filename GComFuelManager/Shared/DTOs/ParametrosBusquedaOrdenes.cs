@@ -8,6 +8,7 @@ namespace GComFuelManager.Shared.DTOs
 	{
         public string producto { get; set; } = string.Empty;
         public string destino { get; set; } = string.Empty;
+        public string grupo { get; set; } = string.Empty;
         public string cliente { get; set; } = string.Empty;
         public string zona { get; set; } = string.Empty;
         public int pagina { get; set; } = 1;
