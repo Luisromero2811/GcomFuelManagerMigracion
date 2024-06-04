@@ -248,6 +248,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
                     .Include(x => x.Orden)
+                    .Include(x => x.OrdenCierre)
+                    .ThenInclude(x => x.Grupo)
                     //.OrderBy(x => x.Bin)
                     .OrderByDescending(x => x.Bin)
                     //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
@@ -285,6 +287,10 @@ namespace GComFuelManager.Server.Controllers
                         pedidosDate = pedidosDate.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(fechas.producto.ToLower()));
                     if (!string.IsNullOrEmpty(fechas.destino))
                         pedidosDate = pedidosDate.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(fechas.destino.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.cliente))
+                        pedidosDate = pedidosDate.Where(x => x.Destino.Cliente != null && !string.IsNullOrEmpty(x.Destino.Cliente.Den) && x.Destino.Cliente.Den.ToLower().Contains(fechas.cliente.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.grupo))
+                        pedidosDate = pedidosDate.Where(x => x.OrdenEmbarque.OrdenCierre.Grupo != null && !string.IsNullOrEmpty(x.OrdenEmbarque.OrdenCierre.Grupo.Den) && x.OrdenEmbarque.OrdenCierre.Grupo.Den.ToLower().Contains(fechas.grupo.ToLower()));
 
                     return Ok(pedidosDate);
                 }
@@ -906,6 +912,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
+                    .ThenInclude(x => x.Grupo)
                     .Include(x => x.OrdenPedido)
                     .OrderBy(x => x.Fchpet)
                     .Take(10000)

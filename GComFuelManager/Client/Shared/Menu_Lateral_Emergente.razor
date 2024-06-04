@@ -85,14 +85,17 @@
         //usuarios
         Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
         //configuracion
-        Menus.Add(new Menu()
+        await Checar_Terminal();
+        if (Esta_En_Tuxpan)
         {
-            isMenu = true,
-            name = "Configuracion",
-            icon = "gear",
-            roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
-            Menus = new()
-        {
+            Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Configuracion",
+                icon = "gear",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
+                Menus = new()
+{
                     new()
                     {
                         isMenu = true,
@@ -100,7 +103,7 @@
                         icon = "server",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         Menus = new()
-                {
+    {
                             new()
                             {
                                 name = "Tonel",
@@ -124,30 +127,6 @@
                             }
                         }
                     },
-                //    new()
-                //    {
-                //        isMenu = true,
-                //        name = "Porcentajes",
-                //        icon = "percent",
-                //        roles = "Admin, Administrador Sistema, Direccion, Gerencia",
-                //        Menus = new()
-                //{
-                //            new()
-                //            {
-                //                name = "Calculo de cierre",
-                //                icon = "store-slash",
-                //                roles = "Admin, Administrador Sistema",
-                //                path = "porcentaje/cierre"
-                //            },
-                //            new()
-                //            {
-                //                name = "Clientes por formulacion",
-                //                icon = "business-time",
-                //                roles = "Admin, Administrador Sistema, Ejecutivo de Cuenta Comercial, Direccion, Gerencia",
-                //                path = "porcentaje/clientes"
-                //            },
-                //        }
-                //    },
                     new()
                     {
                         isMenu = true,
@@ -155,8 +134,9 @@
                         icon = "rotate",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                         Menus = new()
-                {
+    {
                             new()
+
                             {
                                 name = "Actualizar datos",
                                 icon = "store-slash",
@@ -222,21 +202,148 @@
                         roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
                     },
                      new()
-                    {
-                        path = "obtencion/catalogos",
-                        name = "Descarga de catalogos",
-                        icon = "file-excel",
-                        roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
-                    },
+                     {
+                         path = "obtencion/catalogos",
+                         name = "Descarga de catalogos",
+                         icon = "file-excel",
+                         roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
+                     },
                       new()
-                    {
-                        path = "autorizadores",
-                        name = "Gestión de Autorizadores",
-                        icon = "person-circle-check",
-                        roles = "Admin, Administrador Sistema, Programador",
-                    },
+                      {
+                          path = "autorizadores",
+                          name = "Gestión de Autorizadores",
+                          icon = "person-circle-check",
+                          roles = "Admin, Administrador Sistema, Programador",
+                      },
                 }
-        });
+            });
+        }
+        else
+        {
+            Menus.Add(new Menu()
+            {
+                isMenu = true,
+                name = "Configuracion",
+                icon = "gear",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
+                Menus = new()
+{
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Datos",
+                        icon = "server",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
+                        Menus = new()
+    {
+                            new()
+                            {
+                                name = "Tonel",
+                                icon = "truck-moving",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Gestion de Transporte",
+                                path = "datos/tonel"
+                            },
+                            new()
+                            {
+                                name = "Chofer",
+                                icon = "id-card",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte",
+                                path = "datos/Catalogo/Chofer"
+                            },
+                            new()
+                            {
+                                name = "Destino",
+                                icon = "location-dot",
+                                roles = "Admin, Administrador Sistema, Direccion, Gerencia",
+                                path = "datos/codigos/destino"
+                            }
+                        }
+                    },
+
+                    new()
+                    {
+                        isMenu = true,
+                        name = "Actualizacion de registros",
+                        icon = "rotate",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                        Menus = new()
+    {
+                            new()
+                            {
+                                name = "Relacionar datos",
+                                icon = "user-tie",
+                                roles = "Admin, Administrador Sistema, Direccion, Programador, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
+                                path = "asignar-cliente-destino"
+                            },
+                            new()
+                            {
+                                name = "Catalogo de Unidades de Negocios",
+                                icon = "user-tie",
+                                roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
+                                path = "catalogoterminales"
+                            }
+                        }
+                    },
+                    new()
+                    {
+                        path = "configuracion-email",
+                        name = "Correo Interno",
+                        icon = "envelope",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/moneda",
+                        name = "Moneda",
+                        icon = "coins",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito",
+                    },
+                    new()
+                    {
+                        path = "configuracion/generacion/folios",
+                        name = "Generacion de folios",
+                        icon = "marker",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/vendedores",
+                        name = "Configurar vendedores",
+                        icon = "id-card",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "configuracion/originador",
+                        name = "Configurar originadores",
+                        icon = "id-card",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                    },
+                    new()
+                    {
+                        path = "terminales",
+                        name = "Unidades de negocio",
+                        icon = "gas-pump",
+                        roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
+                    },
+                     new()
+                     {
+                         path = "obtencion/catalogos",
+                         name = "Descarga de catalogos",
+                         icon = "file-excel",
+                         roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
+                     },
+                      new()
+                      {
+                          path = "autorizadores",
+                          name = "Gestión de Autorizadores",
+                          icon = "person-circle-check",
+                          roles = "Admin, Administrador Sistema, Programador",
+                      },
+                }
+            });
+        }
+
         //precios
         Menus.Add(new Menu()
         {
@@ -245,7 +352,7 @@
             roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
             isMenu = true,
             Menus = new()
-        {
+{
                     new()
                     {
                         name = "Precios", icon = "money-bill-1-wave", path = "precios",
@@ -270,7 +377,7 @@
                     icon = "store-slash",
                     roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Comprador, Lectura de Cierre de Orden, Cierre Pedidos, Revision Precios",
                     Menus = new()
-        {
+{
                     new()
                     {
                         name = "Cierre de pedidos",
@@ -337,7 +444,7 @@
             icon = "rectangle-list",
             roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
             Menus = new()
-        {
+{
                     new()
                     {
                         name = "Órdenes sin pedido",
@@ -447,7 +554,7 @@
             roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
             isMenu = true,
             Menus = new()
-        {
+{
                     new()
                     {
                         name = "Costos",
@@ -472,7 +579,7 @@
             roles = "Admin, Administrador Sistema, Programador",
             isMenu = true,
             Menus = new()
-        {
+{
                     new()
                     {
                         name = "Redireccionar ordenes",
@@ -498,7 +605,7 @@
             roles = "Admin, Administrador Sistema, Reportes De Venta",
             isMenu = true,
             Menus = new()
-        {
+{
                     new()
                     {
                         name = "Desempeño de ventas",
@@ -541,15 +648,23 @@
         //            },
         //        }
         //});
-
-        Menus.Add(new Menu()
+        await Checar_Terminal();
+        if (Esta_En_Tuxpan)
         {
-            name = "Activos fijos",
-            icon = "chart-line",
-            roles = "Admin, Administrador Sistema, Activos Fijos",
-            isMenu = false,
-            path = "activos"
-        });
+            Menus.Add(new Menu()
+            {
+                name = "Activos fijos",
+                icon = "chart-line",
+                roles = "Admin, Administrador Sistema, Activos Fijos",
+                isMenu = false,
+                path = "activos"
+            });
+        }
+        else
+        {
+
+        }
+
 
     }
 
