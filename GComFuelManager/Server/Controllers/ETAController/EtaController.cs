@@ -1462,9 +1462,11 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     //Órdenes sin asignación de transporte-chofer-vehiculo✔
                     //órdenes sin asignar ordenar por BIN
                     var ordensSinAsignar = await context.OrdenEmbarque
-                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                        .Where(x =>
+                        x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
                         && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && string.IsNullOrEmpty(fechas.Estado.ToString()) && x.Codtad == id_terminal
-                        || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
+                        ||
+                        x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
                         && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
@@ -1549,10 +1551,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(ordens);
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-              .Where(x => x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.TipVenta))
+              .Where(x => x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()))
               .Include(x => x.Destino)
               .ThenInclude(x => x.Cliente)
               .Include(x => x.Tad)
@@ -1625,8 +1627,6 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
-                            ETA = e.Eta,
-                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                             Sellos = e.SealNumber,
                             Pedimentos = e.Pedimento,
                             NOrden = e.NOrden,
@@ -2289,10 +2289,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     Ordenes.AddRange(ordens);
                     //Órdenes sin carga-Pedientes de carga
                     var pedidosDate = await context.OrdenEmbarque
-              .Where(x => x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.TipVenta == x.Destino.Cliente.Tipven && !string.IsNullOrEmpty(fechas.TipVenta)
-              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.TipVenta))
+              .Where(x => x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Bolguidid != null && x.FchOrd != null && x.Codest == 3 && x.Tonel!.Transportista!.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString())
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
+              || x.Codtad == id_terminal && x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null && x.Tonel.Transportista.Activo == true && string.IsNullOrEmpty(fechas.Estado.ToString()))
               .Include(x => x.Destino)
               .ThenInclude(x => x.Cliente)
               .Include(x => x.Tad)
@@ -2365,8 +2365,6 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
-                            ETA = e.Eta,
-                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                             Sellos = e.SealNumber,
                             Pedimentos = e.Pedimento,
                             NOrden = e.NOrden,
