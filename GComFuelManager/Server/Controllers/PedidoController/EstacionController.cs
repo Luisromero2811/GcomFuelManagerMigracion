@@ -212,15 +212,18 @@ namespace GComFuelManager.Server.Controllers
                 //Si el destino viene en ceros del front lo agregamos como nuevo sino actualizamos
                 if (destino.Cod == 0)
                 {
-                    //Con Any compruebo si el número aleatorio existe en la BD
-                    var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno);
-                    //Si ya existe, genera un nuevo número Random
-                    if (exist)
+                    if (!string.IsNullOrEmpty(destino.Id_DestinoGobierno) && !string.IsNullOrWhiteSpace(destino.Id_DestinoGobierno))
                     {
-                        return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                        //Con Any compruebo si el número aleatorio existe en la BD
+                        var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Id_Tad == id_terminal);
+                        //Si ya existe, genera un nuevo número Random
+                        if (exist) { return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador"); }
                     }
                     //Se liga de forma directa a la terminal donde fue creada
                     destino.Id_Tad = id_terminal;
+
+                    if (string.IsNullOrEmpty(destino.Codsyn) || string.IsNullOrWhiteSpace(destino.Codsyn))
+                        destino.Codsyn = Codsyn_Random();
 
                     //Agregamos cliente
                     context.Add(destino);
@@ -240,21 +243,26 @@ namespace GComFuelManager.Server.Controllers
                 {
                     destino.Id_Tad = id_terminal;
                     destino.Terminales = null!;
-                    //Verifico si es diferente al ID que ya tenía
-                    if (context.Destino.Any(x => x.Id_DestinoGobierno != destino.Id_DestinoGobierno))
+                    
+                    if (!string.IsNullOrEmpty(destino.Id_DestinoGobierno) && !string.IsNullOrWhiteSpace(destino.Id_DestinoGobierno))
                     {
-                        //Con Any compruebo si el número aleatorio existe en la BD
-                        var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Codciu != destino.Codciu);
-                        //Si ya existe, genera un nuevo número Random
-                        if (exist)
+                        //Verifico si es diferente al ID que ya tenía
+                        if (context.Destino.Any(x => x.Id_DestinoGobierno != destino.Id_DestinoGobierno))
+                        {
+                            //Con Any compruebo si el número aleatorio existe en la BD
+                            var exist = context.Destino.Any(x => x.Id_DestinoGobierno == destino.Id_DestinoGobierno && x.Codciu != destino.Codciu);
+                            //Si ya existe, genera un nuevo número Random
+                            if (exist)
+                            {
+                                return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
+                            }
+                        }
+                        else
                         {
                             return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
                         }
                     }
-                    else
-                    {
-                        return BadRequest("El ID de Gobierno ya existe, por favor ingrese otro identificador");
-                    }
+
                     context.Update(destino);
                     await context.SaveChangesAsync();
                 }
@@ -396,13 +404,21 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var multidestinos = context.Destino.Where(x =>x.Activo && x.Es_Multidestino == true && x.Id_Tad == id_terminal).ToList();
+                var multidestinos = context.Destino.Where(x => x.Activo && x.Es_Multidestino == true && x.Id_Tad == id_terminal).ToList();
                 return Ok(multidestinos);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        private string Codsyn_Random()
+        {
+            var codsyn = new Random().Next(1, 999999).ToString();
+            if (context.Destino.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(codsyn)))
+                Codsyn_Random();
+            return codsyn;
         }
     }
 

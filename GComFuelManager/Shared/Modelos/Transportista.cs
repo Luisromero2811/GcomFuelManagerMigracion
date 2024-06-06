@@ -20,6 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public bool? Activo { get; set; } = true;
         [EpplusIgnore] public bool? Simsa { get; set; } = true;
         [EpplusIgnore] public string? Gru { get; set; } = string.Empty;
+        [EpplusIgnore] public int? Identificacion { get; set; }
 
         //Union con GrupoTransportista
         [NotMapped, EpplusIgnore]
@@ -48,7 +49,8 @@ namespace GComFuelManager.Shared.Modelos
                 Simsa = Simsa,
                 Gru = Gru,
                 Codgru = Codgru,
-                Id_Tad = Id_Tad
+                Id_Tad = Id_Tad,
+                RFC = RFC
             };
         }
     }

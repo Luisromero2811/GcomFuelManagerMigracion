@@ -177,29 +177,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 //Si el cod del transportista viene en ceros se procede a la creación de una empresa transportista con el Id_Tad con la terminal que estamos logueados, el codgru del transportista al grupo y el carrid y busentid random para nuevos registros 
                 if (transportista.Cod == 0)
                 {
-                    //transportista.Codgru = transportista.GrupoTransportista!.cod!;
-                    //Genero el número aleatorio para el Carrid
-                    transportista.CarrId = Convert.ToString(random.Next(1, 50000));
-                    //Con Any compruebo si el número aleatorio existe en la BD
-                    var exist = context.Transportista.Any(x => x.CarrId == transportista.CarrId);
-                    //Si ya existe, genera un nuevo número Random
-                    if (exist)
+                    if ((string.IsNullOrEmpty(transportista.Busentid) || string.IsNullOrWhiteSpace(transportista.Busentid))
+                        && (string.IsNullOrEmpty(transportista.CarrId) || string.IsNullOrWhiteSpace(transportista.CarrId)))
                     {
-                        transportista.CarrId = Convert.ToString(random.Next(1, 50000));
+                        var numero = GetRandomCarid();
+                        transportista.Busentid = numero;
+                        transportista.CarrId = numero;
+                        transportista.Id_Tad = id_terminal;
                     }
 
-                    //Genero el número aleatorio para busentid
-                    transportista.Busentid = Convert.ToString(random.Next(1, 50000));
-                    //Con Any compruebo si el número aleatorio existe en la BD
-                    var existBusentid = context.Transportista.Any(x => x.Busentid == transportista.Busentid);
-                    //Si ya existe, genera un nuevo número random
-                    if (existBusentid)
-                    {
-                        transportista.Busentid = Convert.ToString(random.Next(1, 50000));
-                    }
-                    transportista.Id_Tad = id_terminal;
+
                     context.Add(transportista);
                     await context.SaveChangesAsync();
+
+                    transportista.Identificacion = transportista.Cod;
+
+                    context.Update(transportista);
+                    await context.SaveChangesAsync();
+
                     if (!context.Transportista_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Transportista == transportista.Cod))
                     {
                         Transportista_Tad transportista_Tad = new()
@@ -706,6 +701,16 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 await SaveErrors(e);
                 return BadRequest(e.Message);
             }
+        }
+
+        private string GetRandomCarid()
+        {
+            var random = new Random().Next(1, 999999).ToString();
+
+            if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random) || !string.IsNullOrEmpty(x.Busentid) && x.Busentid.Equals(random)))
+                GetRandomCarid();
+
+            return random;
         }
     }
 

@@ -93,6 +93,9 @@ namespace GComFuelManager.Server.Controllers
                     producto.Terminal = null!;
                     producto.TipoProducto = null!;
 
+                    if (string.IsNullOrEmpty(producto.Codsyn) || string.IsNullOrWhiteSpace(producto.Codsyn))
+                        producto.Codsyn = GetRandomCarid();
+
                     context.Update(producto);
                     await context.SaveChangesAsync(id, 48);
                 }
@@ -123,6 +126,16 @@ namespace GComFuelManager.Server.Controllers
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        private string GetRandomCarid()
+        {
+            var random = new Random().Next(1, 999999).ToString();
+
+            if (context.Producto.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(random)))
+                GetRandomCarid();
+
+            return random;
         }
     }
 }
