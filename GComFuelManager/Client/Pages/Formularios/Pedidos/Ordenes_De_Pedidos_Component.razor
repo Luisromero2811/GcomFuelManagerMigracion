@@ -9,6 +9,9 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+    <div class="card-header">
+        <b>Creación de Órdenes de Pedido</b>
+    </div>
     <div class="col-12 card shadow-sm mb-3">
         <div class="col-12 card-body">
             <div class="col-12 mb-1 row">
@@ -18,23 +21,23 @@
                         <input class="form-control col-12 form-control-sm" @bind="@Folio_Busqueda" maxlength="30" />
                     </div>
                     @*<div class="col-12 d-flex row mb-1">*@
-                        <div class="col-3 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@SearchFolio">
-                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                            </button>
-                        </div>
-                        <div class="col-3 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModal">
-                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                                Ver Folios de pedidos
-                            </button>
-                        </div>
-                        <div class="col-3 mt-auto">
-                            <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModalCierre">
-                                <i class="fa fa-solid fa-magnifying-glass"></i>
-                                Ver folios de cierres
-                            </button>
-                        </div>
+                    <div class="col-3 mt-auto">
+                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@SearchFolio">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <div class="col-3 mt-auto">
+                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModal">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                            Ver Folios de pedidos
+                        </button>
+                    </div>
+                    <div class="col-3 mt-auto">
+                        <button class="col-12 btn gcom-bg-amarillo btn-sm" @onclick="@OpenModalCierre">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                            Ver folios de cierres
+                        </button>
+                    </div>
                     @*</div>*@
                 </div>
             </div>

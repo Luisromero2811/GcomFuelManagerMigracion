@@ -4,27 +4,28 @@
 @inject SweetAlertService swal
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Precios")]
-    <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Precios" Context="Forms">
-        <div class="col-12 card">
-            <div class="card-body">
-                <EditForm Model="Moneda" class="form col-12 row" OnValidSubmit="@Guardar_Moneda">
-                    <DataAnnotationsValidator />
-                    <ValidationSummary />
+<AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito, Precios" Context="Forms">
+    <h3>Registro de Moneda</h3>
+    <div class="col-12 card">
+        <div class="card-body">
+            <EditForm Model="Moneda" class="form col-12 row" OnValidSubmit="@Guardar_Moneda">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-                    <div class="col-4">
-                        <label>Abreviatura de moneda</label>
-                        <InputText class="col-12 form-control form-control-sm" @bind-Value="Moneda.Nombre" />
-                        <ValidationMessage For="()=>Moneda.Nombre" />
-                    </div>
-                    <div class="col-3 d-flex">
-                        <button class="btn btn-sm col-12 gcom-bg-amarillo mt-auto" type="submit">
-                            Guardar
-                        </button>
-                    </div>
-                </EditForm>
-            </div>
+                <div class="col-4">
+                    <label>Abreviatura de moneda</label>
+                    <InputText class="col-12 form-control form-control-sm" @bind-Value="Moneda.Nombre" />
+                    <ValidationMessage For="()=>Moneda.Nombre" />
+                </div>
+                <div class="col-3 d-flex">
+                    <button class="btn btn-sm col-12 gcom-bg-amarillo mt-auto" type="submit">
+                        Guardar
+                    </button>
+                </div>
+            </EditForm>
         </div>
-    </AuthorizeView>
+    </div>
+</AuthorizeView>
     <div class="col-12">
         <table class="table table-hover table-bordered">
             <thead>
