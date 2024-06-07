@@ -91,7 +91,7 @@
             Menus.Add(new Menu()
             {
                 isMenu = true,
-                name = "Configuracion",
+                name = "Configuración",
                 icon = "gear",
                 roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
                 Menus = new()
@@ -130,7 +130,7 @@
                     new()
                     {
                         isMenu = true,
-                        name = "Actualizacion de registros",
+                        name = "Actualización de registros",
                         icon = "rotate",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                         Menus = new()
@@ -150,9 +150,18 @@
                                 roles = "Admin, Administrador Sistema, Direccion, Programador, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                                 path = "asignar-cliente-destino"
                             },
+
                             new()
                             {
-                                name = "Catalogo de Unidades de Negocios",
+                                path = "terminales",
+                                name = "Creación de Unidades de negocio",
+                                icon = "gas-pump",
+                                roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
+                            },
+
+                            new()
+                            {
+                                name = "Asociación de Catálogos UN",
                                 icon = "user-tie",
                                 roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
                                 path = "catalogoterminales"
@@ -176,7 +185,7 @@
                     new()
                     {
                         path = "configuracion/generacion/folios",
-                        name = "Generacion de folios",
+                        name = "Generación de folios",
                         icon = "marker",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                     },
@@ -185,26 +194,19 @@
                         path = "configuracion/vendedores",
                         name = "Configurar vendedores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema",
                     },
                     new()
                     {
                         path = "configuracion/originador",
                         name = "Configurar originadores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
-                    },
-                    new()
-                    {
-                        path = "terminales",
-                        name = "Unidades de negocio",
-                        icon = "gas-pump",
-                        roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema",
                     },
                      new()
                      {
                          path = "obtencion/catalogos",
-                         name = "Descarga de catalogos",
+                         name = "Descarga de Catálogos",
                          icon = "file-excel",
                          roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
                      },
@@ -223,7 +225,7 @@
             Menus.Add(new Menu()
             {
                 isMenu = true,
-                name = "Configuracion",
+                name = "Configuración",
                 icon = "gear",
                 roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
                 Menus = new()
@@ -263,7 +265,7 @@
                     new()
                     {
                         isMenu = true,
-                        name = "Actualizacion de registros",
+                        name = "Actualización de Registros",
                         icon = "rotate",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Gestion de Transporte, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                         Menus = new()
@@ -275,9 +277,18 @@
                                 roles = "Admin, Administrador Sistema, Direccion, Programador, Gerencia, Analista Credito, Contador, Correo de Clientes, Ejecutivo de Cuenta Comercial",
                                 path = "asignar-cliente-destino"
                             },
+
+                            new()
+                           {
+                                path = "terminales",
+                                name = "Creación de Unidades de Negocio",
+                                icon = "gas-pump",
+                                roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
+                            },
+
                             new()
                             {
-                                name = "Catalogo de Unidades de Negocios",
+                                name = "Asociación de Catálogos UN",
                                 icon = "user-tie",
                                 roles = "Admin, Administrador Sistema, Gestion de Transporte, Analista Credito, Programador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Analista Suministros",
                                 path = "catalogoterminales"
@@ -301,7 +312,7 @@
                     new()
                     {
                         path = "configuracion/generacion/folios",
-                        name = "Generacion de folios",
+                        name = "Generación de Folios",
                         icon = "marker",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                     },
@@ -310,26 +321,20 @@
                         path = "configuracion/vendedores",
                         name = "Configurar vendedores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contador, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema",
                     },
                     new()
                     {
                         path = "configuracion/originador",
                         name = "Configurar originadores",
                         icon = "id-card",
-                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
+                        roles = "Admin, Administrador Sistema",
                     },
-                    new()
-                    {
-                        path = "terminales",
-                        name = "Unidades de negocio",
-                        icon = "gas-pump",
-                        roles = "Admin, Administrador Sistema, Analista Credito, Programador, Ejecutivo de Cuenta Comercial",
-                    },
+
                      new()
                      {
                          path = "obtencion/catalogos",
-                         name = "Descarga de catalogos",
+                         name = "Descarga de Catálogos",
                          icon = "file-excel",
                          roles = "Admin, Administrador Sistema, Programador, Analista Credito, Precios, Ejecutivo de Cuenta Comercial, Gestion de Transportes",
                      },
@@ -394,7 +399,7 @@
                     },
                     new()
                     {
-                        name = "Confirmación de cierres de clientes",
+                        name = "Confirmación de Cierres de Clientes",
                         icon = "clipboard-check",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                         path = "confirm-cierre"
@@ -408,14 +413,14 @@
                     },
                     new()
                     {
-                        name = "Estado de pedido",
+                        name = "Estado de Pedido",
                         icon = "truck-ramp-box",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Ejecutivo de Cuenta Comercial, Revision Precios",
                         path = "orden"
                     },
                     new()
                     {
-                        name = "Reporte Cierres",
+                        name = "Reporte cierres",
                         icon = "file-excel",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Revision Precios",
                         path = "reporte/cierres"
@@ -440,7 +445,7 @@
         Menus.Add(new Menu()
         {
             isMenu = true,
-            name = "Ordenes",
+            name = "Órdenes",
             icon = "rectangle-list",
             roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
             Menus = new()
@@ -461,14 +466,14 @@
                     },
                     new()
                     {
-                        name = "Confirmar ordenes copiadas",
+                        name = "Confirmar órdenes copiadas",
                         icon = "rectangle-list",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador",
                         path = "ordenes/copiadas"
                     },
                     new()
                     {
-                        name = "Confirmar ordenes de clientes",
+                        name = "Confirmar órdenes de Clientes",
                         icon = "rectangle-list",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial",
                         path = "confirm-ordenes"
@@ -482,7 +487,7 @@
                     },
                     new()
                     {
-                        name = "Seguimiento de órdenes",
+                        name = "Seguimiento de Órdenes",
                         icon = "clipboard-list",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Credito, Contador, Auditor, Ejecutivo de Cuenta Operativo",
                         path = "seguimiento/ordenes"
@@ -496,7 +501,7 @@
                     },
                     new()
                     {
-                        name = "Reporte de órdenes / precios de venta",
+                        name = "Reporte de Órdenes / Precios de Venta",
                         icon = "list-check",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios",
                         // path = "consulta/ordencliente"
@@ -525,21 +530,21 @@
                     },
                     new()
                     {
-                        name = "Historial de ordenes",
+                        name = "Historial de Órdenes",
                         icon = "file-invoice-dollar",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "historial/asignacion"
                     },
                     new()
                     {
-                        name = "Actualizar ordenes",
+                        name = "Actualizar Órdenes",
                         icon = "repeat",
                         roles = "Admin, Administrador Sistema, Programador, Ejecutivo de Cuenta Operativo",
                         path = "actualizar/pedidos"
                     },
                     new()
                     {
-                        name = "Subir ordenes",
+                        name = "Subir órdenes",
                         icon = "file-arrow-up",
                         roles = "Admin, Administrador Sistema, Programador, Ejecutivo de Cuenta Operativo",
                         path = "subir/ordenes"
@@ -564,7 +569,7 @@
                     },
                     new()
                     {
-                        name = "Listado de pedimentos",
+                        name = "Listado de Pedimentos",
                         icon = "file-circle-check",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
                         path = "listado/pedimentos"
@@ -582,14 +587,14 @@
 {
                     new()
                     {
-                        name = "Redireccionar ordenes",
+                        name = "Redireccionar órdenes",
                         icon = "diamond-turn-right",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "redireccionamiento"
                     },
                     new()
                     {
-                        name = "Listado redireccion",
+                        name = "Listado redirección",
                         icon = "diamond-turn-right",
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador",
                         path = "listado/redireccion"
@@ -608,14 +613,14 @@
 {
                     new()
                     {
-                        name = "Desempeño de ventas",
+                        name = "Desempeño de Ventas",
                         icon = "list-check",
                         roles = "Admin, Administrador Sistema, Reportes De Venta",
                         path = "reporte/ventas"
                     },
                     new()
                     {
-                        name = "Establecimiento de metas",
+                        name = "Establecimiento de Metas",
                         icon = "list-check",
                         roles = "Admin, Administrador Sistema, Reportes De Venta",
                         path = "establecer/meta"

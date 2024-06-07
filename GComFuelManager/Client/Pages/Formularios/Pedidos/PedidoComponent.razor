@@ -9,6 +9,9 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador, Revision Precios")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Ejecutivo de Cuenta Operativo, Programador" Context="Create">
+    <div class="card-header">
+        <b>Creación de Órdenes</b>
+    </div>
     <div class="col-12 card shadow">
         <div class="card-body">
             <div class="col-12 row">
@@ -24,24 +27,24 @@
                 <ValidationSummary />
                 <div class="row col-12">
                     @* <div class="col-4">
-                        <div class="col-12">
-                            <label>Terminal</label>
-                            <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.Id_Tad"
-                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                            AllowVirtualization="true" Style="height:31px;">
-                                <Template Context="data">
-                                    <RadzenText TextStyle="TextStyle.Body2">
-                                        @((data as Tad)?.Den)
-                                    </RadzenText>
-                                </Template>
-                                <ValueTemplate Context="data">
-                                    <RadzenText TextStyle="TextStyle.Body2">
-                                        @((data as Tad)?.Den)
-                                    </RadzenText>
-                                </ValueTemplate>
-                            </RadzenDropDown>
-                        </div>
-                    </div> *@
+                            <div class="col-12">
+                                <label>Terminal</label>
+                                <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.Id_Tad"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" Style="height:31px;">
+                                    <Template Context="data">
+                                        <RadzenText TextStyle="TextStyle.Body2">
+                                            @((data as Tad)?.Den)
+                                        </RadzenText>
+                                    </Template>
+                                    <ValueTemplate Context="data">
+                                        <RadzenText TextStyle="TextStyle.Body2">
+                                            @((data as Tad)?.Den)
+                                        </RadzenText>
+                                    </ValueTemplate>
+                                </RadzenDropDown>
+                            </div>
+                        </div> *@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Grupo</label>

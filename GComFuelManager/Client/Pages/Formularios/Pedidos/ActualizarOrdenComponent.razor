@@ -9,34 +9,37 @@
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+    <div class="card-header">
+        <b>Actualización de Órdenes</b>
+    </div>
     <div class="col-12 row">
         <div class="col-3 row">
-            <InputText class="form-control form-control-sm" @bind-Value="@folio" placeholder="Referencia de orden. ej.ENER-1_1"/>
+            <InputText class="form-control form-control-sm" @bind-Value="@folio" placeholder="Referencia de orden. ej.ENER-1_1" />
         </div>
         <div class="col-3">
             <button class="col-12 btn btn-sm gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
                 <i class="fa fa-solid fa-magnifying-glass"></i>
                 @if (loading)
                 {
-                    <SpinnerLoading/>
+                    <SpinnerLoading />
                 }
             </button>
         </div>
     </div>
 
     @*<div class="col-12 d-flex justify-content-center row">
-        <div class="col-12 my-2">
-            <div class="col-3">
-                <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
-                    <i class="fa fa-solid fa-repeat"></i> Cancelar ordenes
-                    @if (loadingUpdate)
-                    {
-                        <SpinnerLoading />
-                    }
-                </button>
+            <div class="col-12 my-2">
+                <div class="col-3">
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
+                        <i class="fa fa-solid fa-repeat"></i> Cancelar ordenes
+                        @if (loadingUpdate)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
             </div>
-        </div>
-    </div>*@
+        </div>*@
 
     <div class="ancho-tabla" style="overflow:auto;max-height:450px;font-size:12px;resize:both;">
         <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
