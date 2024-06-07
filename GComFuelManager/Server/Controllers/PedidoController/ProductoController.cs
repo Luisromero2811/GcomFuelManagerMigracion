@@ -93,14 +93,14 @@ namespace GComFuelManager.Server.Controllers
                     producto.Terminal = null!;
                     producto.TipoProducto = null!;
 
-                    if (string.IsNullOrEmpty(producto.Codsyn) || string.IsNullOrWhiteSpace(producto.Codsyn))
-                        producto.Codsyn = GetRandomCarid();
-
                     context.Update(producto);
                     await context.SaveChangesAsync(id, 48);
                 }
                 else
                 {
+                    if (string.IsNullOrEmpty(producto.Codsyn) || string.IsNullOrWhiteSpace(producto.Codsyn))
+                        producto.Codsyn = GetRandomCarid();
+
                     context.Add(producto);
                     await context.SaveChangesAsync(id, 47);
                 }

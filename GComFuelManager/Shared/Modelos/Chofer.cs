@@ -25,6 +25,8 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore] public short? Id_Tad { get; set; }
         [StringLength(13)]
         public string? RFC { get; set; } = string.Empty;
+        [NotMapped]
+        public int? Identificador { get; set; }
         [NotMapped, EpplusIgnore] public int? CodTra { get; set; }
         [NotMapped, DisplayName("Nombre completo del Chofer")]
         public string FullName
