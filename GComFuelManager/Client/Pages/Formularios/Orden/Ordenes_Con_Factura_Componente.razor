@@ -14,7 +14,7 @@
         <div class="col-12 row">
             <div class="col-3">
                 <label>De: </label>
-                <input type="date" class="form-control form-control-sm" @bind-value="param.Fecha_Inicio" min="@DateTime.Today.AddDays(-3)" />
+                <input type="date" class="form-control form-control-sm" @bind-value="param.Fecha_Inicio" min="@DateTime.Today.AddDays(-2)" />
             </div>
             <div class="col-3">
                 <label>A:</label>
@@ -147,7 +147,7 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
     protected override async Task OnInitializedAsync()
     {
         param.Fecha_Inicio = DateTime.Today.AddDays(-1);
-        param.Fecha_Fin = DateTime.Today;
+        param.Fecha_Fin = DateTime.Today.AddDays(1);
         await Obtener_Ordenes();
     }
 
