@@ -115,6 +115,9 @@ namespace GComFuelManager.Server.Controllers
                 {
                     cliente.Id_Tad = id_terminal;
                     //Agregamos cliente
+                    if (string.IsNullOrEmpty(cliente.Codsyn) || string.IsNullOrWhiteSpace(cliente.Codsyn))
+                        cliente.Codsyn = Codsyn_Random();
+
                     context.Add(cliente);
                     await context.SaveChangesAsync();
                     if (!context.Cliente_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Cliente == cliente.Cod))
@@ -243,5 +246,14 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        private string Codsyn_Random()
+        {
+            var codsyn = new Random().Next(1, 999999).ToString();
+
+            if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(codsyn)))
+                Codsyn_Random();
+
+            return codsyn;
+        }
     }
 }
