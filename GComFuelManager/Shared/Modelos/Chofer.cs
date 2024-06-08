@@ -57,7 +57,8 @@ namespace GComFuelManager.Shared.Modelos
                 Activo = Activo,
                 Activo_Permanente = Activo_Permanente,
                 Id_Tad = Id_Tad,
-                RFC = RFC
+                RFC = RFC,
+                Identificador = Identificador
             };
         }
 

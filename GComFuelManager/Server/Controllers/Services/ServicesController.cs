@@ -1166,7 +1166,8 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                 for (int j = 0; j < choferes_transpor.Count; j++)
                                 {
-                                    if (!await context.Chofer.AnyAsync(x => x.Id_Tad == terminal_destino && x.Dricod == choferes_transpor[j].Dricod && x.Codtransport == busentid))
+                                    if (!await context.Chofer.AnyAsync(x => x.Id_Tad == terminal_destino && x.Dricod == choferes_transpor[j].Dricod && x.Codtransport == busentid
+                                    && x.Identificador == choferes_transpor[j].Identificador))
                                     {
                                         var new_chofer = choferes_transpor[j].HardCopy();
                                         new_chofer.Cod = 0;

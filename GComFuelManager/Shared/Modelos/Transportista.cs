@@ -50,7 +50,8 @@ namespace GComFuelManager.Shared.Modelos
                 Gru = Gru,
                 Codgru = Codgru,
                 Id_Tad = Id_Tad,
-                RFC = RFC
+                RFC = RFC,
+                Identificacion = Identificacion,
             };
         }
     }

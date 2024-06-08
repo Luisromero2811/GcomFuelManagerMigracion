@@ -102,6 +102,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                     context.Add(chofer);
                     await context.SaveChangesAsync();
+
+                    chofer.Identificador = chofer.Cod;
+
+                    context.Update(chofer);
+                    await context.SaveChangesAsync();
+
                     if (!context.Chofer_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Chofer == chofer.Cod))
                     {
                         Chofer_Tad choferTad = new()
