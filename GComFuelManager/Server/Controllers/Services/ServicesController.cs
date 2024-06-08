@@ -1182,26 +1182,26 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                         chofer_Tads.Add(chofer_Tad);
                                     }
-                                    //else
-                                    //{
-                                    //    if (context.Chofer.Any(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino && x.Codtransport == busentid
-                                    //    && (x.Den != choferes_transpor[j].Den || x.Shortden != choferes_transpor[j].Shortden
-                                    //    || x.RFC != choferes_transpor[j].RFC || x.Activo != choferes_transpor[j].Activo)))
-                                    //    {
-                                    //        var chofer = await context.Chofer.IgnoreAutoIncludes().FirstOrDefaultAsync(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino
-                                    //                                                    && x.Codtransport == busentid);
-                                    //        if (chofer is not null)
-                                    //        {
-                                    //            chofer.Den = choferes_transpor[j].Den;
-                                    //            chofer.Shortden = choferes_transpor[j].Shortden;
-                                    //            chofer.RFC = choferes_transpor[j].RFC;
-                                    //            chofer.Activo = choferes_transpor[j].Activo;
+                                    else
+                                    {
+                                        if (context.Chofer.Any(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino && x.Codtransport == busentid
+                                        && (x.Den != choferes_transpor[j].Den || x.Shortden != choferes_transpor[j].Shortden
+                                        || x.RFC != choferes_transpor[j].RFC || x.Activo != choferes_transpor[j].Activo) && x.Identificador == choferes_transpor[j].Identificador))
+                                        {
+                                            var chofer = await context.Chofer.IgnoreAutoIncludes().FirstOrDefaultAsync(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino
+                                                                                        && x.Codtransport == busentid && x.Identificador == choferes_transpor[j].Identificador);
+                                            if (chofer is not null)
+                                            {
+                                                chofer.Den = choferes_transpor[j].Den;
+                                                chofer.Shortden = choferes_transpor[j].Shortden;
+                                                chofer.RFC = choferes_transpor[j].RFC;
+                                                chofer.Activo = choferes_transpor[j].Activo;
 
-                                    //            Choferes_editados.Add(chofer);
-                                    //        }
-                                    //    }
+                                                Choferes_editados.Add(chofer);
+                                            }
+                                        }
 
-                                    //}
+                                    }
                                 }
                             }
                         }
@@ -1363,7 +1363,7 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).Select(x => new { x.Den, x.Identificacion, x.Busentid }).ToListAsync();
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1 && x.Activo == true).Select(x => new { x.Den, x.Identificacion }).ToListAsync();
                 for (int i = 0; i < transportistas.Count; i++)
                 {
                     var ts = await context.Transportista.IgnoreAutoIncludes()
@@ -1377,6 +1377,57 @@ namespace GComFuelManager.Server.Controllers.Services
                     }
                 }
 
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("identificador/chofer"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Chofer()
+        {
+            try
+            {
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).Select(x => new { x.Den, x.Identificacion, x.Busentid }).ToListAsync();
+                var choferes = await context.Chofer.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).Select(x => new { x.Cod, x.Den, x.Shortden, x.Codtransport, x.Dricod }).ToListAsync();
+                List<Chofer> choferes_editados = new();
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    if (int.TryParse(transportistas[i].Busentid, out int busentid))
+                    {
+                        var choferes_validos = choferes.Where(x => x.Codtransport == busentid).ToList();
+
+                        var ts = await context.Transportista.IgnoreAutoIncludes()
+                                                .Where(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad != 1)
+                                                .Select(x => new {x.Busentid})
+                                                .ToListAsync();
+                        for (int k = 0; k < ts.Count; k++)
+                        {
+                            if (int.TryParse(ts[k].Busentid, out int bsid))
+                            {
+                                for (int j = 0; j < choferes_validos.Count; j++)
+                                {
+                                    var cs = await context.Chofer
+                                        .Where(x =>x.Den == choferes_validos[j].Den && x.Shortden == choferes_validos[j].Shortden &&
+                                        x.Codtransport == bsid && x.Dricod == choferes_validos[j].Dricod && x.Id_Tad != 1)
+                                        .ToListAsync();
+                                    for (int l = 0; l < cs.Count; l++)
+                                    {
+                                        cs[l].Identificador = choferes_validos[j].Cod;
+                                        choferes_editados.Add(cs[l]);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                context.UpdateRange(choferes_editados);
                 await context.SaveChangesAsync();
 
                 return Ok();

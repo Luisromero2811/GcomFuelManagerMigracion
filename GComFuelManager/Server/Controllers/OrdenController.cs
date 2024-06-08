@@ -649,10 +649,12 @@ namespace GComFuelManager.Server.Controllers
                     precio.Precio = precioHis.pre;
 
                 if (orden != null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
-                    precio.Precio = precioVig.Pre;
+                    if (precioVig.FchDia.Date == DateTime.Today.Date)
+                        precio.Precio = precioVig.Pre;
 
                 if (orden != null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
-                    precio.Precio = precioPro.Pre;
+                    if (precioPro.FchDia.Date == DateTime.Today.Date)
+                        precio.Precio = precioPro.Pre;
 
                 if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
                 {
