@@ -448,6 +448,13 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+
+                if (param.Fecha_Inicio > param.Fecha_Fin) { return BadRequest("La fecha de inicio no puede ser mayor a la fecha de fin"); }
+
+                var dias = param.Fecha_Fin - param.Fecha_Inicio;
+
+                if (dias.Days > 3) { return BadRequest("No puede consultar en un rango mayor a 3 dias"); }
+
                 var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin && x.Codest == 20 && x.Bolguiid != null)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
@@ -649,10 +656,12 @@ namespace GComFuelManager.Server.Controllers
                     precio.Precio = precioHis.pre;
 
                 if (orden != null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
-                    precio.Precio = precioVig.Pre;
+                    if (precioVig.FchDia.Date == DateTime.Today.Date)
+                        precio.Precio = precioVig.Pre;
 
                 if (orden != null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
-                    precio.Precio = precioPro.Pre;
+                    if (precioPro.FchDia.Date == DateTime.Today.Date)
+                        precio.Precio = precioPro.Pre;
 
                 if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
                 {
