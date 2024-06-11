@@ -326,6 +326,7 @@ namespace GComFuelManager.Server.Controllers
 
                     return Ok(pedidosDate);
                 }
+
                 else if (fechas.Estado == 3)
                 {
                     List<Orden> newOrden = new();
@@ -348,6 +349,7 @@ namespace GComFuelManager.Server.Controllers
                     //pedidosDate.OrderByDescending(x => x.Fchcar);
                     return Ok(pedidosDate);
                 }
+
                 else if (fechas.Estado == 4)
                 {
                     //Ordenes canceladas
@@ -426,6 +428,64 @@ namespace GComFuelManager.Server.Controllers
 
                     return Ok(ordenes);
                 }
+
+                else if (fechas.Estado == 5)
+                {
+                    //Traerme al bolguid is not null, codest =3 y transportista activo en 1 --Ordenes Sin Cargar--
+                    var pedidosDate = context.OrdenEmbarque.IgnoreAutoIncludes()
+                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 14 && x.Bolguidid != null && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.FchOrd != null && x.Codest == 22 && x.Bolguidid != null
+                    && x.Tonel != null && x.Tonel.Transportista != null && x.Tonel.Transportista.Activo == true && x.Codtad == id_terminal
+                    || x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 20 && x.Codtad == id_terminal)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Estado)
+                    .Include(x => x.Orden)
+                    .Include(x => x.OrdenCierre)
+                    .ThenInclude(x => x.Grupo)
+                    //.OrderBy(x => x.Bin)
+                    .OrderByDescending(x => x.Bin)
+                    //.Select(x => new OrdenesDTO() { Referencia = x.Folio })
+                    .Select(o => new Orden()
+                    {
+                        Cod = o.Cod,
+                        Terminal = o.Tad,
+                        Ref = o.FolioSyn,
+                        Fchcar = o.Orden!.Fchcar,
+                        Estado = o.Estado,
+                        Destino = o.Destino,
+                        Producto = o.Producto,
+                        Vol2 = o.Vol,
+                        Vol = o.Orden.Vol,
+                        Bolguiid = null!,
+                        BatchId = o.Orden!.BatchId,
+                        Tonel = o.Tonel,
+                        Chofer = o.Chofer,
+                        Compartimento = o.Compartment,
+                        OrdenEmbarque = o
+                    })
+                    .OrderBy(x => x.Ref)
+                    .Take(10000)
+                    .AsQueryable();
+                    if (!string.IsNullOrEmpty(fechas.producto))
+                        pedidosDate = pedidosDate.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(fechas.producto.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.destino))
+                        pedidosDate = pedidosDate.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(fechas.destino.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.cliente))
+                        pedidosDate = pedidosDate.Where(x => x.Destino.Cliente != null && !string.IsNullOrEmpty(x.Destino.Cliente.Den) && x.Destino.Cliente.Den.ToLower().Contains(fechas.cliente.ToLower()));
+                    if (!string.IsNullOrEmpty(fechas.grupo))
+                        pedidosDate = pedidosDate.Where(x => x.OrdenEmbarque.OrdenCierre.Grupo != null && !string.IsNullOrEmpty(x.OrdenEmbarque.OrdenCierre.Grupo.Den) && x.OrdenEmbarque.OrdenCierre.Grupo.Den.ToLower().Contains(fechas.grupo.ToLower()));
+
+                    return Ok(pedidosDate);
+
+                }
+
+
                 else
                 {
                     return BadRequest();
