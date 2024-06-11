@@ -1358,13 +1358,13 @@ namespace GComFuelManager.Server.Controllers.Services
 
         #endregion
 
-        #region Igualar identificacion al codigo id
+        #region script utilidad
         [HttpGet("identificador"), Authorize(Roles = "Admin")]
         public async Task<ActionResult> Set_Identificador()
         {
             try
             {
-                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1 && x.Activo == true).Select(x => new { x.Den, x.Identificacion }).ToListAsync();
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 7 && x.Activo == true).Select(x => new { x.Den, x.Identificacion }).ToListAsync();
                 for (int i = 0; i < transportistas.Count; i++)
                 {
                     var ts = await context.Transportista.IgnoreAutoIncludes()
@@ -1404,7 +1404,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         var ts = await context.Transportista.IgnoreAutoIncludes()
                                                 .Where(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad != 1)
-                                                .Select(x => new {x.Busentid})
+                                                .Select(x => new { x.Busentid })
                                                 .ToListAsync();
                         for (int k = 0; k < ts.Count; k++)
                         {
@@ -1413,7 +1413,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                 for (int j = 0; j < choferes_validos.Count; j++)
                                 {
                                     var cs = await context.Chofer
-                                        .Where(x =>x.Den == choferes_validos[j].Den && x.Shortden == choferes_validos[j].Shortden &&
+                                        .Where(x => x.Den == choferes_validos[j].Den && x.Shortden == choferes_validos[j].Shortden &&
                                         x.Codtransport == bsid && x.Dricod == choferes_validos[j].Dricod && x.Id_Tad != 1)
                                         .ToListAsync();
                                     for (int l = 0; l < cs.Count; l++)
@@ -1432,6 +1432,114 @@ namespace GComFuelManager.Server.Controllers.Services
                 await context.SaveChangesAsync();
 
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("identificador/unico"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Unico()
+        {
+            try
+            {
+
+                var trs = await context.Transportista.Where(x => x.Id_Tad == 7).ToListAsync();
+                List<Chofer> choferes = new();
+                foreach (var tran in trs)
+                {
+                    if (int.TryParse(tran.Busentid, out int bst))
+                    {
+                        var t = await context.Transportista.Where(x => x.Id_Tad != 7 && x.Identificacion == tran.Identificacion).ToListAsync();
+                        foreach (var tt in t)
+                        {
+                            if (int.TryParse(tt.Busentid, out int busent))
+                            {
+                                var ctt = await context.Chofer.Where(x => x.Codtransport == bst && x.Id_Tad == 7).ToListAsync();
+                                foreach (var item in ctt)
+                                {
+                                    var chofer = await context.Chofer.Where(x => x.Den == item.Den && x.Shortden == item.Shortden && x.RFC == item.RFC && x.Id_Tad != 7 && x.Codtransport == busent).ToListAsync();
+                                    foreach (var c in chofer)
+                                    {
+                                        c.Identificador = item.Cod;
+                                        choferes.Add(c);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                context.UpdateRange(choferes);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("eliminar/duplicados"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Transportistas()
+        {
+            try
+            {
+                List<Transportista> trans_originales = new();
+                List<Transportista> trans_duplicados = new();
+
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                foreach (var transportista in transprtistas)
+                {
+                    if (!trans_originales.Any(x => x.Identificacion == transportista.Identificacion))
+                        trans_originales.Add(transportista);
+                    else
+                        trans_duplicados.Add(transportista);
+                }
+
+                context.RemoveRange(trans_duplicados);
+                await context.SaveChangesAsync();
+
+                return Ok(trans_duplicados);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("eliminar/duplicados/chofer"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Chofer()
+        {
+            try
+            {
+                List<Transportista> trans_originales = new();
+                List<Transportista> trans_duplicados = new();
+
+                List<Chofer> chf_originales = new();
+                List<Chofer> chf_duplicados = new();
+
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                foreach (var transportista in transprtistas)
+                {
+                    if (int.TryParse(transportista.Busentid, out int busentid))
+                    {
+                        var choferes_originales = await context.Chofer.Where(x => x.Codtransport == busentid && x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                        foreach (var chfori in choferes_originales)
+                        {
+                            if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador))
+                                chf_originales.Add(chfori);
+                            else
+                                chf_duplicados.Add(chfori);
+                        }
+                    }
+                }
+
+                context.RemoveRange(chf_duplicados);
+                await context.SaveChangesAsync();
+
+                return Ok(chf_duplicados);
             }
             catch (Exception e)
             {

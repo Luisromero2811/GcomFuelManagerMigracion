@@ -683,6 +683,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //Guarda los cambios
                     await context.SaveChangesAsync();
 
+                    if (context.Transportista.Any(x => x.Identificacion == null && x.Id_Tad == 1))
+                    {
+                        var trans = await context.Transportista.Where(x => x.Id_Tad == 1 && x.Identificacion == null).ToListAsync();
+                        foreach (var item in trans)
+                        {
+                            item.Identificacion = item.Cod;
+                        }
+
+                        context.UpdateRange(trans);
+                        await context.SaveChangesAsync();
+                    }
+
                 }
                 catch (Exception e)
                 {
