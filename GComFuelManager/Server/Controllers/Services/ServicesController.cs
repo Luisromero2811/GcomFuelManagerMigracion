@@ -880,13 +880,16 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).ToList();
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codgru != null
+                && !string.IsNullOrEmpty(x.Codsyn)).ToList();
 
                 List<Cliente_Tad> Clientes_validos = new();
+                List<Cliente> clientes_editados = new();
 
                 for (int i = 0; i < clientes.Count; i++)
                 {
-                    if (!context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    if (!context.Cliente.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(clientes[i].Codsyn)
+                        && x.Id_Tad == terminal_destino && x.Codgru != null))
                     {
                         var new_cliente = clientes[i].HardCopy();
                         new_cliente.Cod = 0;
@@ -901,9 +904,27 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         Clientes_validos.Add(cliente_Tad);
                     }
+                    else
+                    {
+                        if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(clientes[i].Codsyn) && x.Id_Tad == terminal_destino && x.Codgru != null
+                        && (x.Den != clientes[i].Den || x.CodCte != clientes[i].CodCte || x.Activo != clientes[i].Activo) && !string.IsNullOrEmpty(clientes[i].Codsyn)))
+                        {
+                            var cliente_existente = context.Cliente
+                                .IgnoreAutoIncludes()
+                                .FirstOrDefault(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn.Equals(clientes[i].Codsyn) && x.Id_Tad == terminal_destino && x.Codgru != null);
+                            if (cliente_existente is not null)
+                            {
+                                cliente_existente.Den = clientes[i].Den;
+                                cliente_existente.CodCte = clientes[i].CodCte;
+                                cliente_existente.Activo = clientes[i].Activo;
+                                clientes_editados.Add(cliente_existente);
+                            }
+                        }
+                    }
                 }
 
                 context.AddRange(Clientes_validos);
+                context.UpdateRange(clientes_editados);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -919,29 +940,29 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den }).ToList();
-                var destinos = context.Destino.Where(x => x.Id_Tad == terminal).ToList();
+                var clientes = await context.Cliente.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.Codsyn)).Select(x => new { x.Cod, x.Codsyn }).ToListAsync();
+                var destinos = await context.Destino.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.Codsyn)).ToListAsync();
 
                 List<Destino_Tad> destinos_validos = new();
+                List<Destino> destinos_editados = new();
 
                 for (int i = 0; i < clientes.Count; i++)
                 {
-                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == clientes[i].Codsyn && x.Id_Tad == terminal_destino))
                     {
                         var destinos_cliente = destinos.Where(x => x.Codcte == clientes[i].Cod).ToList();
-                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+                        int? cliente = await context.Cliente.IgnoreAutoIncludes().Where(x => x.Codsyn == clientes[i].Codsyn && x.Id_Tad == terminal_destino).Select(x => x.Cod).FirstOrDefaultAsync();
 
                         for (int j = 0; j < destinos_cliente.Count; j++)
                         {
-                            if (!context.Destino.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == destinos_cliente[j].Den && x.Id_Tad == terminal_destino))
+                            if (!context.Destino.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == destinos_cliente[j].Codsyn && x.Id_Tad == terminal_destino))
                             {
-
-                                if (cliente is not null)
+                                if (cliente != null && cliente != 0)
                                 {
                                     var new_destino = destinos_cliente[j].HardCopy();
                                     new_destino.Cod = 0;
                                     new_destino.Id_Tad = terminal_destino;
-                                    new_destino.Codcte = cliente.Cod;
+                                    new_destino.Codcte = cliente;
 
                                     Destino_Tad destino_Tad = new()
                                     {
@@ -953,11 +974,29 @@ namespace GComFuelManager.Server.Controllers.Services
                                     destinos_validos.Add(destino_Tad);
                                 }
                             }
+                            else
+                            {
+                                if (context.Destino.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == destinos_cliente[j].Codsyn && x.Id_Tad == terminal_destino
+                                && (x.Den != destinos_cliente[j].Den || x.Activo != destinos_cliente[j].Activo)))
+                                {
+                                    var destino_existente = await context.Destino
+                                        .IgnoreAutoIncludes()
+                                        .FirstOrDefaultAsync(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == destinos_cliente[j].Codsyn && x.Id_Tad == terminal_destino);
+
+                                    if (destino_existente is not null)
+                                    {
+                                        destino_existente.Den = destinos_cliente[j].Den;
+                                        destino_existente.Activo = destinos_cliente[j].Activo;
+                                        destinos_editados.Add(destino_existente);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
                 context.AddRange(destinos_validos);
+                context.UpdateRange(destinos_editados);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -973,17 +1012,17 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den }).ToList();
+                var clientes = context.Cliente.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.Codsyn)).Select(x => new { x.Cod, x.Codsyn }).ToList();
                 //var contactos = context.Destino.Where(x => x.Id_Tad == terminal && x.Activo).ToList();
 
                 List<Contacto> contactos_validos = new();
 
                 for (int i = 0; i < clientes.Count; i++)
                 {
-                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == clientes[i].Den && x.Id_Tad == terminal_destino))
+                    if (context.Cliente.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Den == clientes[i].Codsyn && x.Id_Tad == terminal_destino))
                     {
                         var contactos_cliente = context.Contacto.IgnoreAutoIncludes().Where(x => x.CodCte == clientes[i].Cod).Include(x => x.AccionCorreos).IgnoreAutoIncludes().ToList();
-                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Den && x.Id_Tad == terminal_destino);
+                        var cliente = context.Cliente.FirstOrDefault(x => x.Den == clientes[i].Codsyn && x.Id_Tad == terminal_destino);
 
                         for (int j = 0; j < contactos_cliente.Count; j++)
                         {
@@ -1033,14 +1072,16 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).ToList();
+                var transportistas = await context.Transportista
+                    .Where(x => x.Id_Tad == terminal && x.Activo == true)
+                    .ToListAsync();
 
                 List<Transportista_Tad> transportistas_validos = new();
+                List<Transportista> transportistas_editados = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
-                    if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino
-                    && x.Busentid == transportistas[i].Busentid && x.CarrId == transportistas[i].CarrId))
+                    if (!context.Transportista.Any(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino))
                     {
                         var numero = GetRandomCarid(transportistas_validos);
                         var new_transpor = transportistas[i].HardCopy();
@@ -1054,6 +1095,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         new_transpor.CarrId = numero;
                         new_transpor.Busentid = numero;
+                        new_transpor.Identificacion = transportistas[i].Identificacion;
 
                         Transportista_Tad transportista_Tad = new()
                         {
@@ -1064,9 +1106,28 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         transportistas_validos.Add(transportista_Tad);
                     }
+                    else
+                    {
+                        if (context.Transportista.Any(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino
+                        && (x.Den != transportistas[i].Den || x.RFC != transportistas[i].RFC || x.Activo != transportistas[i].Activo)))
+                        {
+                            var transportista = await context.Transportista
+                                .IgnoreAutoIncludes()
+                                .FirstOrDefaultAsync(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino);
+
+                            if (transportista is not null)
+                            {
+                                transportista.Den = transportistas[i].Den;
+                                transportista.RFC = transportistas[i].RFC;
+                                transportista.Activo = transportistas[i].Activo;
+                                transportistas_editados.Add(transportista);
+                            }
+                        }
+                    }
                 }
 
                 context.AddRange(transportistas_validos);
+                context.UpdateRange(transportistas_editados);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1082,46 +1143,74 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Den, x.Busentid }).ToList();
-                var choferes = context.Chofer.Where(x => x.Id_Tad == terminal).ToList();
+                var transportistas = await context.Transportista.Where(x => x.Id_Tad == terminal).Select(x => new { x.Cod, x.Identificacion, x.Busentid }).ToListAsync();
+                var choferes = await context.Chofer.Where(x => x.Id_Tad == terminal).ToListAsync();
 
                 List<Chofer_Tad> chofer_Tads = new();
+                List<Chofer> Choferes_editados = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
-                    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino))
+                    if (await context.Transportista.AnyAsync(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino))
                     {
-                        var transportista = context.Transportista.Where(x => x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino).Select(x => x.Busentid).FirstOrDefault();
+                        var transportista = await context.Transportista
+                            .Where(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino)
+                            .Select(x => x.Busentid)
+                            .FirstOrDefaultAsync();
+
                         if (!string.IsNullOrEmpty(transportista))
                         {
-                            var choferes_transpor = choferes.Where(x => x.Codtransport.ToString() == transportistas[i].Busentid).ToList();
-
-                            for (int j = 0; j < choferes_transpor.Count; j++)
+                            if (int.TryParse(transportista, out int busentid))
                             {
-                                if (!context.Chofer.Any(x => x.Id_Tad == terminal_destino && x.Den == choferes_transpor[j].Den && x.Shortden == choferes_transpor[j].Shortden
-                                && x.Codtransport.ToString() == transportista))
+                                var choferes_transpor = choferes.Where(x => x.Codtransport.ToString() == transportistas[i].Busentid).ToList();
+
+                                for (int j = 0; j < choferes_transpor.Count; j++)
                                 {
-                                    var new_chofer = choferes_transpor[j].HardCopy();
-                                    new_chofer.Cod = 0;
-                                    new_chofer.Id_Tad = terminal_destino;
-                                    new_chofer.Codtransport = Convert.ToInt32(transportista);
-
-                                    Chofer_Tad chofer_Tad = new()
+                                    if (!await context.Chofer.AnyAsync(x => x.Id_Tad == terminal_destino && x.Dricod == choferes_transpor[j].Dricod && x.Codtransport == busentid
+                                    && x.Identificador == choferes_transpor[j].Identificador))
                                     {
-                                        Id_Terminal = terminal_destino,
-                                        Chofer = new_chofer,
-                                        Terminal = null!
-                                    };
+                                        var new_chofer = choferes_transpor[j].HardCopy();
+                                        new_chofer.Cod = 0;
+                                        new_chofer.Id_Tad = terminal_destino;
+                                        new_chofer.Codtransport = busentid;
 
-                                    chofer_Tads.Add(chofer_Tad);
+                                        Chofer_Tad chofer_Tad = new()
+                                        {
+                                            Id_Terminal = terminal_destino,
+                                            Chofer = new_chofer,
+                                            Terminal = null!
+                                        };
+
+                                        chofer_Tads.Add(chofer_Tad);
+                                    }
+                                    else
+                                    {
+                                        if (context.Chofer.Any(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino && x.Codtransport == busentid
+                                        && (x.Den != choferes_transpor[j].Den || x.Shortden != choferes_transpor[j].Shortden
+                                        || x.RFC != choferes_transpor[j].RFC || x.Activo != choferes_transpor[j].Activo) && x.Identificador == choferes_transpor[j].Identificador))
+                                        {
+                                            var chofer = await context.Chofer.IgnoreAutoIncludes().FirstOrDefaultAsync(x => x.Dricod == choferes_transpor[j].Dricod && x.Id_Tad == terminal_destino
+                                                                                        && x.Codtransport == busentid && x.Identificador == choferes_transpor[j].Identificador);
+                                            if (chofer is not null)
+                                            {
+                                                chofer.Den = choferes_transpor[j].Den;
+                                                chofer.Shortden = choferes_transpor[j].Shortden;
+                                                chofer.RFC = choferes_transpor[j].RFC;
+                                                chofer.Activo = choferes_transpor[j].Activo;
+
+                                                Choferes_editados.Add(chofer);
+                                            }
+                                        }
+
+                                    }
                                 }
                             }
                         }
-
                     }
                 }
 
                 context.AddRange(chofer_Tads);
+                context.UpdateRange(Choferes_editados);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1137,26 +1226,28 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                //var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && x.Activo == true).Select(x => new { x.Cod, x.Den, x.CarrId }).ToList();
-                var transportistas = context.Transportista.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToList();
-                var toneles = context.Tonel.Where(x => x.Id_Tad == terminal).ToList();
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToListAsync();
+                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codsyn != 0 && x.Codsyn != null).ToListAsync();
 
                 List<Unidad_Tad> unidad_Tads = new();
+                List<Tonel> unidad_editada = new();
 
                 for (int i = 0; i < transportistas.Count; i++)
                 {
-                    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino))
+                    if (context.Transportista.Any(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino))
                     {
-                        var transportista = context.Transportista.Where(x => x.Den == transportistas[i].Den && x.Id_Tad == terminal_destino).Select(x => x.CarrId).FirstOrDefault();
+                        var transportista = await context.Transportista.IgnoreAutoIncludes()
+                            .Where(x => x.Identificacion != null && x.Identificacion == transportistas[i].Identificacion && x.Id_Tad == terminal_destino)
+                            .Select(x => x.CarrId)
+                            .FirstOrDefaultAsync();
+
                         if (!string.IsNullOrEmpty(transportista))
                         {
                             var toneles_transpor = toneles.Where(x => x.Carid == transportistas[i].CarrId).ToList();
 
                             for (int j = 0; j < toneles_transpor.Count; j++)
                             {
-                                if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && !string.IsNullOrEmpty(x.Tracto) && x.Tracto == toneles_transpor[j].Tracto
-                                && !string.IsNullOrEmpty(x.Placa) && x.Placa == toneles_transpor[j].Placa && !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto == toneles_transpor[j].Placatracto
-                                && x.Carid == transportista))
+                                if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista))
                                 {
                                     var new_unidad = toneles_transpor[j].HardCopy();
                                     new_unidad.Cod = 0;
@@ -1172,6 +1263,31 @@ namespace GComFuelManager.Server.Controllers.Services
 
                                     unidad_Tads.Add(unidad_Tad);
                                 }
+                                else
+                                {
+                                    if (context.Tonel.Any(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista
+                                    && (x.Placa != toneles_transpor[j].Placa || x.Tracto != toneles_transpor[j].Tracto
+                                    || x.Placatracto != toneles_transpor[j].Placatracto || x.Certificado_Calibracion != toneles_transpor[j].Certificado_Calibracion
+                                    || x.Activo != toneles_transpor[j].Activo || x.Capcom != toneles_transpor[j].Capcom || x.Capcom2 != toneles_transpor[j].Capcom2
+                                    || x.Capcom3 != toneles_transpor[j].Capcom3 || x.Capcom4 != toneles_transpor[j].Capcom4)))
+                                    {
+                                        var tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista);
+                                        if (tonel is not null)
+                                        {
+                                            tonel.Placa = toneles_transpor[j].Placa;
+                                            tonel.Tracto = toneles_transpor[j].Tracto;
+                                            tonel.Placatracto = toneles_transpor[j].Placatracto;
+                                            tonel.Certificado_Calibracion = toneles_transpor[j].Certificado_Calibracion;
+                                            tonel.Activo = toneles_transpor[j].Activo;
+                                            tonel.Capcom = toneles_transpor[j].Capcom;
+                                            tonel.Capcom2 = toneles_transpor[j].Capcom2;
+                                            tonel.Capcom3 = toneles_transpor[j].Capcom3;
+                                            tonel.Capcom4 = toneles_transpor[j].Capcom4;
+
+                                            unidad_editada.Add(tonel);
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -1179,6 +1295,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 }
 
                 context.AddRange(unidad_Tads);
+                context.UpdateRange(unidad_editada);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1194,13 +1311,14 @@ namespace GComFuelManager.Server.Controllers.Services
         {
             try
             {
-                var productos = context.Producto.Where(x => x.Id_Tad == terminal).ToList();
+                var productos = context.Producto.Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.Codsyn)).ToList();
 
                 List<Producto> productos_validos = new();
+                List<Producto> productos_editados = new();
 
                 for (int i = 0; i < productos.Count; i++)
                 {
-                    if (!context.Producto.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den == productos[i].Den && x.Id_Tad == terminal_destino))
+                    if (!context.Producto.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == productos[i].Codsyn && x.Id_Tad == terminal_destino))
                     {
                         var new_producto = productos[i].HardCopy();
                         new_producto.Cod = 0;
@@ -1208,9 +1326,26 @@ namespace GComFuelManager.Server.Controllers.Services
 
                         productos_validos.Add(new_producto);
                     }
+                    else
+                    {
+                        if (context.Producto.Any(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == productos[i].Codsyn && x.Id_Tad == terminal_destino
+                        && (x.Den != productos[i].Den || x.Activo != productos[i].Activo || x.Id_Tipo != productos[i].Id_Tipo)))
+                        {
+                            var producto = await context.Producto.FirstOrDefaultAsync(x => !string.IsNullOrEmpty(x.Codsyn) && x.Codsyn == productos[i].Codsyn && x.Id_Tad == terminal_destino);
+                            if (producto is not null)
+                            {
+                                producto.Den = productos[i].Den;
+                                producto.Activo = productos[i].Activo;
+                                producto.Id_Tipo = productos[i].Id_Tipo;
+
+                                productos_editados.Add(producto);
+                            }
+                        }
+                    }
                 }
 
                 context.AddRange(productos_validos);
+                context.UpdateRange(productos_editados);
                 await context.SaveChangesAsync();
 
                 return Ok(true);
@@ -1223,187 +1358,25 @@ namespace GComFuelManager.Server.Controllers.Services
 
         #endregion
 
-        #region Insercion de rfc chofer y certificado de calibracion unidad
-        [HttpPost("default/rf/calibracion")]
-        public async Task<ActionResult> Default_RFC_Certificado([FromForm] IEnumerable<IFormFile> files)
+        #region script utilidad
+        [HttpGet("identificador"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador()
         {
             try
             {
-                var MaxAllowedFiles = 1;
-                var MaxFileSize = 1024 * 1024 * 15;
-                var FilesProceseed = 0;
-
-                List<Chofer> choferes = context.Chofer.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
-                List<Transportista> trans = context.Transportista.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
-                List<Tonel> toneles = context.Tonel.Where(x => x.Id_Tad == 1 && x.Activo == true).ToList();
-
-                List<Chofer> listado_choferes = new();
-                List<Tonel> listado_toneles = new();
-
-                foreach (var file in files)
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 7 && x.Activo == true).Select(x => new { x.Den, x.Identificacion }).ToListAsync();
+                for (int i = 0; i < transportistas.Count; i++)
                 {
-                    if (FilesProceseed < MaxAllowedFiles)
+                    var ts = await context.Transportista.IgnoreAutoIncludes()
+                        .Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(transportistas[i].Den) && x.Identificacion == null && x.Id_Tad != 1)
+                        .ToListAsync();
+
+                    for (int j = 0; j < ts.Count; j++)
                     {
-                        if (file.Length == 0)
-                        {
-
-                        }
-                        else if (file.Length > MaxFileSize)
-                        {
-
-                        }
-                        else
-                        {
-                            using var stream = new MemoryStream();
-                            await file.CopyToAsync(stream);
-
-                            ExcelPackage.LicenseContext = LicenseContext.Commercial;
-                            ExcelPackage excelPackage = new();
-
-                            excelPackage.Load(stream);
-
-                            if (excelPackage.Workbook.Worksheets.Count > 0)
-                            {
-                                using ExcelWorksheet ws = excelPackage.Workbook.Worksheets.First();
-
-                                for (int i = 2; i < 130; i++)
-                                {
-                                    var rows = ws.Cells[i, 34, i, 40].ToList();
-                                    if (rows.Count > 0)
-                                    {
-                                        if (rows[0].Value is not null && rows[5].Value is not null && rows[6].Value is not null)
-                                        {
-                                            if (rows[5].Value.ToString() != "S/D" && rows[5].Value.ToString() != "S/D")
-                                            {
-                                                var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[6].Value.ToString());
-                                                if (trans_validos is not null)
-                                                {
-                                                    if (!string.IsNullOrEmpty(rows[0].Value.ToString()))
-                                                    {
-                                                        var toneles_validos = context.Tonel.Where(x => !string.IsNullOrEmpty(x.Tracto) && x.Tracto.Contains(rows[0].Value.ToString())
-                                                                                                                                       && x.Carid == trans_validos.CarrId).ToList();
-                                                        for (int j = 0; j < toneles_validos.Count; j++)
-                                                        {
-                                                            var tonel = toneles_validos[j];
-
-                                                            tonel.Certificado_Calibracion = rows[5].Value.ToString();
-
-                                                            listado_toneles.Add(tonel);
-                                                        }
-                                                    }
-
-                                                }
-                                            }
-
-
-                                        }
-                                    }
-                                }
-
-                                //List<string> transportistas_excel = new();
-                                //using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
-
-                                //for (int i = 1; i < 117; i++)
-                                //{
-                                //    var rows = ws_c.Cells[i, 4, i, 4].ToList();
-
-                                //    if (rows is not null)
-                                //    {
-                                //        if (!string.IsNullOrEmpty(rows[0].Value.ToString()) && rows[0].Value.ToString() != "S/D")
-                                //        {
-                                //            transportistas_excel.Add(rows[0].Value.ToString());
-                                //        }
-                                //    }
-                                //}
-
-                                //var trasnport = transportistas_excel.Distinct();
-                                //List<Transportista> transportistas = new();
-
-                                //for (int i = 0; i < trasnport.Count(); i++)
-                                //{
-                                //    if (context.Transportista.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trasnport.ElementAt(i)) && x.Id_Tad == 1))
-                                //    {
-                                //        var trans_encontrado = context.Transportista.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(trasnport.ElementAt(i)) && x.Id_Tad == 1);
-                                //        if (trans_encontrado is not null)
-                                //        {
-                                //            transportistas.Add(trans_encontrado);
-                                //        }
-                                //    }
-                                //}
-
-                                //var choferes_bd = context.Chofer.ToList();
-
-                                //for (int i = 1; i < 117; i++)
-                                //{
-                                //    var rows = ws_c.Cells[i, 2, i, 3].ToList();
-
-                                //    if (rows is not null)
-                                //    {
-                                //        if (!string.IsNullOrEmpty(rows[0].Value.ToString()) && rows[0].Value.ToString() != "S/D"
-                                //            && !string.IsNullOrEmpty(rows[1].Value.ToString()) && rows[1].Value.ToString() != "S/D")
-                                //        {
-                                //            var curp = string.Empty;
-
-                                //            if (rows[1].Value.ToString().Contains("-"))
-                                //            {
-                                //                var curp_full = rows[1].Value.ToString().Split("-");
-                                //                for (int y = 0; y < curp_full.Length; y++)
-                                //                {
-                                //                    curp += curp_full[y];
-                                //                }
-                                //            }
-                                //            else
-                                //            {
-                                //                curp = rows[1].Value.ToString();
-                                //            }
-                                //        }
-
-                                //    }
-                                //}
-
-                                //using ExcelWorksheet ws_c = excelPackage.Workbook.Worksheets.First();
-
-                                //for (int i = 1; i < 117; i++)
-                                //{
-                                //    var rows = ws_c.Cells[i, 2, i, 4].ToList();
-                                //    if (rows is not null)
-                                //    {
-                                //        if (rows.Count > 0)
-                                //        {
-                                //            if (rows[0].Value is not null && rows[1].Value is not null && rows[2].Value is not null)
-                                //            {
-                                //                if (rows[0].Value.ToString() != "S/D" && rows[1].Value.ToString() != "S/D" && rows[2].Value.ToString() != "S/D")
-                                //                {
-                                //                    var trans_validos = trans.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den == rows[2].Value.ToString());
-                                //                    if (trans_validos is not null)
-                                //                    {
-                                //                        var choferes_validos = context.Chofer.Where(x => //!string.IsNullOrEmpty(x.Den) && x.Den == rows[0].Value.ToString()&& 
-                                //                                                                    x.Codtransport.ToString() == trans_validos.Busentid).ToList();
-
-                                //                        for (int j = 0; j < choferes_validos.Count; j++)
-                                //                        {
-
-                                //                            var chofer = choferes_validos[j];
-                                //                            chofer.RFC = rows[1].Value.ToString();
-
-                                //                            listado_choferes.Add(chofer);
-                                //                        }
-                                //                    }
-                                //                }
-                                //            }
-                                //        }
-                                //    }
-
-                                //}
-                            }
-                        }
+                        ts[j].Identificacion = transportistas[i].Identificacion;
+                        context.Update(ts[j]);
                     }
-
-                    FilesProceseed++;
                 }
-
-                context.UpdateRange(listado_toneles);
-                //context.UpdateRange(listado_choferes);
 
                 await context.SaveChangesAsync();
 
@@ -1414,17 +1387,176 @@ namespace GComFuelManager.Server.Controllers.Services
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("identificador/chofer"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Chofer()
+        {
+            try
+            {
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).Select(x => new { x.Den, x.Identificacion, x.Busentid }).ToListAsync();
+                var choferes = await context.Chofer.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).Select(x => new { x.Cod, x.Den, x.Shortden, x.Codtransport, x.Dricod }).ToListAsync();
+                List<Chofer> choferes_editados = new();
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    if (int.TryParse(transportistas[i].Busentid, out int busentid))
+                    {
+                        var choferes_validos = choferes.Where(x => x.Codtransport == busentid).ToList();
+
+                        var ts = await context.Transportista.IgnoreAutoIncludes()
+                                                .Where(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad != 1)
+                                                .Select(x => new { x.Busentid })
+                                                .ToListAsync();
+                        for (int k = 0; k < ts.Count; k++)
+                        {
+                            if (int.TryParse(ts[k].Busentid, out int bsid))
+                            {
+                                for (int j = 0; j < choferes_validos.Count; j++)
+                                {
+                                    var cs = await context.Chofer
+                                        .Where(x => x.Den == choferes_validos[j].Den && x.Shortden == choferes_validos[j].Shortden &&
+                                        x.Codtransport == bsid && x.Dricod == choferes_validos[j].Dricod && x.Id_Tad != 1)
+                                        .ToListAsync();
+                                    for (int l = 0; l < cs.Count; l++)
+                                    {
+                                        cs[l].Identificador = choferes_validos[j].Cod;
+                                        choferes_editados.Add(cs[l]);
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+                context.UpdateRange(choferes_editados);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("identificador/unico"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Unico()
+        {
+            try
+            {
+
+                var trs = await context.Transportista.Where(x => x.Id_Tad == 7).ToListAsync();
+                List<Chofer> choferes = new();
+                foreach (var tran in trs)
+                {
+                    if (int.TryParse(tran.Busentid, out int bst))
+                    {
+                        var t = await context.Transportista.Where(x => x.Id_Tad != 7 && x.Identificacion == tran.Identificacion).ToListAsync();
+                        foreach (var tt in t)
+                        {
+                            if (int.TryParse(tt.Busentid, out int busent))
+                            {
+                                var ctt = await context.Chofer.Where(x => x.Codtransport == bst && x.Id_Tad == 7).ToListAsync();
+                                foreach (var item in ctt)
+                                {
+                                    var chofer = await context.Chofer.Where(x => x.Den == item.Den && x.Shortden == item.Shortden && x.RFC == item.RFC && x.Id_Tad != 7 && x.Codtransport == busent).ToListAsync();
+                                    foreach (var c in chofer)
+                                    {
+                                        c.Identificador = item.Cod;
+                                        choferes.Add(c);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+                context.UpdateRange(choferes);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("eliminar/duplicados"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Transportistas()
+        {
+            try
+            {
+                List<Transportista> trans_originales = new();
+                List<Transportista> trans_duplicados = new();
+
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                foreach (var transportista in transprtistas)
+                {
+                    if (!trans_originales.Any(x => x.Identificacion == transportista.Identificacion))
+                        trans_originales.Add(transportista);
+                    else
+                        trans_duplicados.Add(transportista);
+                }
+
+                context.RemoveRange(trans_duplicados);
+                await context.SaveChangesAsync();
+
+                return Ok(trans_duplicados);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("eliminar/duplicados/chofer"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Chofer()
+        {
+            try
+            {
+                List<Transportista> trans_originales = new();
+                List<Transportista> trans_duplicados = new();
+
+                List<Chofer> chf_originales = new();
+                List<Chofer> chf_duplicados = new();
+
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                foreach (var transportista in transprtistas)
+                {
+                    if (int.TryParse(transportista.Busentid, out int busentid))
+                    {
+                        var choferes_originales = await context.Chofer.Where(x => x.Codtransport == busentid && x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                        foreach (var chfori in choferes_originales)
+                        {
+                            if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador))
+                                chf_originales.Add(chfori);
+                            else
+                                chf_duplicados.Add(chfori);
+                        }
+                    }
+                }
+
+                context.RemoveRange(chf_duplicados);
+                await context.SaveChangesAsync();
+
+                return Ok(chf_duplicados);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         #endregion
 
         private string GetRandomCarid(List<Transportista_Tad> transportistas)
         {
-            var random = new Random().Next(1, 999999);
+            var random = new Random().Next(1, 999999).ToString();
 
             if (!context.Transportista.Any(x => !string.IsNullOrEmpty(x.CarrId) && x.CarrId.Equals(random)
                                              || !string.IsNullOrEmpty(x.Busentid) && x.Busentid.Equals(random)))
             {
-                if (!transportistas.Any(x => !string.IsNullOrEmpty(x.Transportista?.CarrId) && x.Transportista.CarrId.Equals(random.ToString())))
-                    return random.ToString();
+                if (!transportistas.Any(x => !string.IsNullOrEmpty(x.Transportista?.CarrId) && x.Transportista.CarrId.Equals(random)))
+                    return random;
                 else
                     GetRandomCarid(transportistas);
             }

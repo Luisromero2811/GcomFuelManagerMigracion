@@ -139,6 +139,10 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     //    return BadRequest("El certificado de calibración ya existe, por favor ingrese otro identificador");
                     //}
                     //tonel.Carid = tonel.Transportista.CarrId;
+
+                    if (tonel.Codsyn == 0 || tonel.Codsyn is null)
+                        tonel.Codsyn = GetRandomCarid();
+
                     context.Add(tonel);
                     await context.SaveChangesAsync();
                     if (!context.Unidad_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Unidad == tonel.Cod))
@@ -567,6 +571,16 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        private int GetRandomCarid()
+        {
+            var random = new Random().Next(1, 999999);
+
+            if (context.Tonel.Any(x => x.Codsyn.Equals(random)))
+                GetRandomCarid();
+
+            return random;
         }
     }
 }

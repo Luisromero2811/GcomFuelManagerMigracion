@@ -90,14 +90,24 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 {
                     chofer.Id_Tad = id_terminal;
                     chofer.Codtransport = Convert.ToInt32(chofer.Id_Transportista);
-                    var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
+                    //var exist = context.Chofer.Any(x => x.RFC == chofer.RFC);
                     //Si ya existe, genera un nuevo número Random
                     //if (exist)
                     //{
                     //    return BadRequest("El RFC ya existe, por favor ingrese otro identificador");
                     //}
+
+                    if (string.IsNullOrEmpty(chofer.Dricod) || string.IsNullOrWhiteSpace(chofer.Dricod))
+                        chofer.Dricod = GetRandomCarid();
+
                     context.Add(chofer);
                     await context.SaveChangesAsync();
+
+                    chofer.Identificador = chofer.Cod;
+
+                    context.Update(chofer);
+                    await context.SaveChangesAsync();
+
                     if (!context.Chofer_Tad.Any(x => x.Id_Terminal == id_terminal && x.Id_Chofer == chofer.Cod))
                     {
                         Chofer_Tad choferTad = new()
@@ -489,6 +499,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         }
 
                         await context.SaveChangesAsync();
+
+                        if(context.Chofer.Any(x=>x.Identificador == null && x.Id_Tad == 1))
+                        {
+                            var choferes = await context.Chofer.Where(x => x.Identificador == null && x.Id_Tad == 1).ToListAsync();
+                            foreach (var item in choferes)
+                            {
+                                item.Identificador = item.Cod;
+                            }
+
+                            context.UpdateRange(choferes);
+                            await context.SaveChangesAsync();
+                        }
                         return Ok(true);
                     }
                     else
@@ -534,6 +556,15 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        private string GetRandomCarid()
+        {
+            var random = new Random().Next(1, 999999).ToString();
+
+            if (context.Chofer.Any(x => x.Dricod != null && x.Dricod.Equals(random)))
+                GetRandomCarid();
+            return random;
         }
     }
 }
