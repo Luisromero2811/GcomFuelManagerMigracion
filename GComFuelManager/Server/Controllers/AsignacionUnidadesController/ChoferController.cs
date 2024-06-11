@@ -499,6 +499,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         }
 
                         await context.SaveChangesAsync();
+
+                        if(context.Chofer.Any(x=>x.Identificador == null && x.Id_Tad == 1))
+                        {
+                            var choferes = await context.Chofer.Where(x => x.Identificador == null && x.Id_Tad == 1).ToListAsync();
+                            foreach (var item in choferes)
+                            {
+                                item.Identificador = item.Cod;
+                            }
+
+                            context.UpdateRange(choferes);
+                            await context.SaveChangesAsync();
+                        }
                         return Ok(true);
                     }
                     else
