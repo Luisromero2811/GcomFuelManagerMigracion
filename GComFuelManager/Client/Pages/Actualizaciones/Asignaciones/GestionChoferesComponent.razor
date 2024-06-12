@@ -23,11 +23,11 @@
                                         FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                         </RadzenDropDown>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <label>Nombre del Chofer:</label>
                         <InputText @bind-Value="chofer.Den" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <label>Apellido del Chofer:</label>
                         <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
                     </div>
@@ -36,6 +36,10 @@
                         <InputText @bind-Value="chofer.RFC_Capitales" class="form-control" MaxLenght="50">
                             <ValidationMessage For="@(()=>chofer.RFC)" />
                         </InputText>
+                    </div>
+                    <div class="col-2">
+                        <label>Licencia:</label>
+                        <InputText @bind-Value="chofer.Licencia" class="form-control" MaxLenght="40"/>
                     </div>
                     <div class="col-3 d-flex mt-2 mx-auto">
                         @if (!isEdit)
@@ -92,6 +96,7 @@
                             <th>Nombre del Chofer</th>
                             <th>Apellido</th>
                             <th>RFC</th>
+                            <th>Licencia</th>
                             <th>Estado</th>
                             <th>Editar</th>
                         </tr>
@@ -107,6 +112,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                         </tr>
                         @if (Choferes.Count > 0)
                         {
@@ -115,6 +121,7 @@
                                     <td>@item.Den</td>
                                     <td>@item.Shortden</td>
                                     <td>@item.RFC</td>
+                                    <td>@item.Licencia</td>
                                     <td>
                                         <div class="form-check form-switch mx-2">
                                             <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo_Permanente"
