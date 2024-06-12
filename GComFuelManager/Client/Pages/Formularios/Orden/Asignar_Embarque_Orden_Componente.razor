@@ -423,6 +423,7 @@
                     Datos_BOL.NOrden = ordenEmbarque.Orden.NOrden;
                     Datos_BOL.Factura = ordenEmbarque.Orden.Factura;
                     Datos_BOL.Importe = ordenEmbarque.Orden.Importe;
+                    Datos_BOL.ValorUnitario = ordenEmbarque.Orden.ValorUnitario;
                 }
                 else
                 {
@@ -551,6 +552,7 @@
         Datos_BOL.Vol = orden.Vol;
         Datos_BOL.Factura = orden.Factura;
         Datos_BOL.Importe = orden.Importe;
+        Datos_BOL.ValorUnitario = orden.ValorUnitario;
         Mostrar_Mensaje_Exito();
         // await Obtener_Orden();
     }
@@ -604,5 +606,6 @@
                 return string.Empty;
             }
         }
+        public double? ValorUnitario { get; set; } = 0;
     }
 }

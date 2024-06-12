@@ -32,39 +32,40 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
     <Tabla Datos="Ordenes" Cargando="loading_get">
         <Cabeceras>
             <tr>
+                <th class="resizable-column" style="width:150px;">Unidad de negocio</th>
                 <th class="resizable-column" style="width:150px;">Destino</th>
-                <th class="resizable-column" style="width:150px;">Unidad de negocio (Terminal)</th>
-                <th class="resizable-column" style="width:150px;">Producto</th>
-                <th class="resizable-column" style="width:150px;">Volumen cargado</th>
-                <th class="resizable-column" style="width:150px;">Importe</th>
-                <th class="resizable-column" style="width:150px;">BOL/Embarque</th>
-                <th class="resizable-column" style="width:150px;">Factura del proveedor</th>
-                <th class="resizable-column" style="width:150px;">Fecha de carga</th>
-                <th class="resizable-column" style="width:150px;">Transportista</th>
-                <th class="resizable-column" style="width:150px;">Unidades / Placas</th>
-                <th class="resizable-column" style="width:150px;">Operador</th>
-                <th class="resizable-column" style="width:150px;">Precio</th>
                 <th class="resizable-column" style="width:150px;">Tipo de venta</th>
+                <th class="resizable-column" style="width:150px;">Producto</th>
+                <th class="resizable-column" style="width:150px;">Volumen</th>
+                <th class="resizable-column" style="width:150px;">Importe compra</th>
+                <th class="resizable-column" style="width:150px;">Precio compra s/impuestos</th>
+                <th class="resizable-column" style="width:150px;">BOL/Remisión</th>
+                <th class="resizable-column" style="width:150px;">Factura proveedor</th>
+                <th class="resizable-column" style="width:70px;">Archivo XML</th>
+                <th class="resizable-column" style="width:70px;">Archivo PDF</th>
+                <th class="resizable-column" style="width:150px;">Fecha carga</th>
+                <th class="resizable-column" style="width:150px;">Transportista</th>
+                <th class="resizable-column" style="width:150px;">Operador</th>
+                <th class="resizable-column" style="width:150px;">Unidades/Placas/Sellos/Pedimento</th>
                 <th class="resizable-column" style="width:150px;">Cliente</th>
-                <th class="resizable-column" style="width:150px;">Sellos</th>
-                <th class="resizable-column" style="width:150px;">Pedimento</th>
-                <th class="resizable-column" style="width:150px;">No de orden</th>
-                <th class="resizable-column" style="width:70px;">Archivo BOL/Embarque</th>
-                <th class="resizable-column" style="width:70px;">PDF Factura</th>
-                <th class="resizable-column" style="width:70px;">XML Factura</th>
+                <th class="resizable-column" style="width:150px;">Precio venta c/impuestos</th>
+                <th class="resizable-column" style="width:150px;">Numero de orden</th>
+                <th class="resizable-column" style="width:70px;">Archivo BOL/Remisión</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
                 <td>
-                    <input type="text" @bind="param.Destino" class="form-control form-control-sm" @oninput="Filtrar_Destino" placeholder="Buscar destino..." />
-                </td>
-                <td>
                     <input type="text" @bind="param.Terminal" class="form-control form-control-sm" @oninput="Filtrar_Terminal" placeholder="Buscar terminal..." />
                 </td>
                 <td>
+                    <input type="text" @bind="param.Destino" class="form-control form-control-sm" @oninput="Filtrar_Destino" placeholder="Buscar destino..." />
+                </td>
+                <td></td>
+                <td>
                     <input type="text" @bind="param.Producto" class="form-control form-control-sm" @oninput="Filtrar_Producto" placeholder="Buscar producto..." />
                 </td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td>
@@ -83,50 +84,48 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
                 <td></td>
                 <td></td>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
             </tr>
         </Filtros>
         <Columnas Context="orden">
             <tr>
-                <td>@orden.Obtener_Destino_De_Orden</td>
                 <td>@orden.Terminal?.Den</td>
+                <td>@orden.Obtener_Destino_De_Orden</td>
+                <td>@orden.Destino?.Cliente?.Tipven</td>
                 <td>@orden.Obtener_Nombre_Producto</td>
                 <td>@orden.Vol</td>
                 <td>@orden.Importe</td>
+                <td>@String.Format(CultureInfo.InvariantCulture, "{0:0.0000}", orden.ValorUnitario)</td>
                 <td>@orden.BatchId</td>
                 <td>@orden.Factura</td>
-                <td>@orden.Fchcar</td>
-                <td>@orden.Tonel?.Transportista?.Den</td>
-                <td>@orden.Tonel?.Nombre_Placas</td>
-                <td>@orden.Chofer?.FullName</td>
-                <td>@orden.OrdenEmbarque?.Pre</td>
-                <td>@orden.Destino?.Cliente?.Tipven</td>
-                <td>@orden.Obtener_Cliente_De_Orden</td>
-                <td>@orden.SealNumber</td>
-                <td>@orden.Pedimento</td>
-                <td>@orden.NOrden</td>
-
-                <td>
-                    @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL) == true)
-                    {
-                        <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL)?.URL"
-                           target="_blank"><i class="fa fa-solif fa-eye"></i></a>
-                    }
-                </td>
                 <td>
                     @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA) == true)
                     {
-                        <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA)?.URL"
-                           target="_blank"><i class="fa fa-solif fa-eye"></i></a>
+                        @*<a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.PDF_FACTURA))"><i class="fa fa-solif fa-eye"></i></a>
                     }
                 </td>
                 <td>
                     @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA) == true)
                     {
-                        <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL"
-                           target="_blank"><i class="fa fa-solif fa-eye"></i></a>
+                        @* <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.XML_FACTURA))"><i class="fa fa-solif fa-eye"></i></a>
+                    }
+                </td>
+                <td>@orden.Fchcar</td>
+                <td>@orden.Tonel?.Transportista?.Den</td>
+                <td>@orden.Chofer?.FullName</td>
+                <td>@orden.Tonel?.Nombre_Placas @orden.SealNumber @orden.Pedimento</td>
+                <td>@orden.Obtener_Cliente_De_Orden</td>
+                <td>@String.Format(CultureInfo.InvariantCulture, "{0:0.0000}", orden.OrdenEmbarque?.Pre)</td>
+                <td>@orden.NOrden</td>
+                <td>
+                    @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL) == true)
+                    {
+                        @* <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.ARCHIVO_BOL))"><i class="fa fa-solif fa-eye"></i></a>
                     }
                 </td>
             </tr>
@@ -235,6 +234,26 @@ selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by
             else
             {
                 await js.GuardarComo($"Ordenes_{DateTime.Now.ToString("ddMMyyyyHH:mm:ss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Download_File(Orden orden, Tipo_Archivo tipo_archivo)
+    {
+        try
+        {
+            var response = await http.Get<FileUploadDTO>($"api/files/download/{orden.OrdenEmbarque?.Cod}/{tipo_archivo}");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"{(tipo_archivo == Tipo_Archivo.ARCHIVO_BOL ? orden.BatchId : orden.Factura)}.{response.Response.Extension}", response.Response.ArrayBytes);
             }
         }
         catch (Exception e)

@@ -36,6 +36,7 @@ namespace GComFuelManager.Shared.Modelos
         [EpplusIgnore, MaxLength(50)] public string? Factura { get; set; } = string.Empty;
         [EpplusIgnore, MaxLength(20)] public string? Importe { get; set; } = string.Empty;
         public int? Folio { get; set; } = 0;
+        [DisplayName("Precio de compra")] public double? ValorUnitario { get; set; } = 0;
 
         [DisplayName("Unidad de Negocio"), NotMapped]
         public string? Unidad_Negocio { get; set; } = string.Empty;

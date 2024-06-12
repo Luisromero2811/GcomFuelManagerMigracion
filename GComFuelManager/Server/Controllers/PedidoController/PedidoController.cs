@@ -2307,6 +2307,7 @@ namespace GComFuelManager.Server.Controllers
                         orden_existente.NOrden = orden.NOrden;
                         orden_existente.Factura = orden.Factura;
                         orden_existente.Importe = orden.Importe;
+                        orden_existente.ValorUnitario = orden.ValorUnitario;
                         context.Update(orden_existente);
                     }
                 }
