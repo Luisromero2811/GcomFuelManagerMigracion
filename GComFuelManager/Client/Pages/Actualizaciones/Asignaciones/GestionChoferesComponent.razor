@@ -1,6 +1,7 @@
 ﻿@inject IRepositorio repositorio
 @inject SweetAlertService Swal
 @inject IJSRuntime js
+@inject TooltipService ts
 @inject NotificationService Ns
 @inject GestionChoferesValidation gestionChofer
 
@@ -31,15 +32,15 @@
                         <label>Apellido del Chofer:</label>
                         <InputText @bind-Value="chofer.Shortden" class="form-control" MaxLenght="80" />
                     </div>
-                    <div class="col-3">
-                        <label>RFC:</label>
+                    <div class="col-3" @onmouseenter="@(args => ShowToolsTip(infosIcon))" @ref="infosIcon">
+                        <label>RFC:<i class="fa-solid fa-circle-info fa-xs"></i></label>
                         <InputText @bind-Value="chofer.RFC_Capitales" class="form-control" MaxLenght="50">
                             <ValidationMessage For="@(()=>chofer.RFC)" />
                         </InputText>
                     </div>
-                    <div class="col-2">
-                        <label>Licencia:</label>
-                        <InputText @bind-Value="chofer.Licencia" class="form-control" MaxLenght="40"/>
+                    <div class="col-2" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
+                        <label>Licencia:<i class="fa-solid fa-circle-info fa-xs"></i></label>
+                        <InputText @bind-Value="chofer.Licencia" class="form-control" MaxLenght="40" />
                     </div>
                     <div class="col-3 d-flex mt-2 mx-auto">
                         @if (!isEdit)
@@ -72,7 +73,7 @@
     <div class="card-body">
         <div class="col-12 row">
             <div class="col-3 mb-2">
-                <label>Empresa Transportista</label> 
+                <label>Empresa Transportista</label>
                 <RadzenDropDown Data="Grupos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="chofer.Codtransport"
                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                 AllowVirtualization="true" Change="@GetCliente" Style="height:20px">
@@ -104,10 +105,10 @@
                     <tbody>
                         <tr class="fila">
                             <td>
-                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.nombrechofer"/>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.nombrechofer" />
                             </td>
                             <td>
-                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.apellidochofer"/>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.apellidochofer" />
                             </td>
                             <td></td>
                             <td></td>
@@ -155,6 +156,7 @@
         cursor: pointer;
         border-radius: 2rem;
     }
+
     .fila th {
         position: -webkit-sticky;
         position: sticky;
@@ -225,6 +227,11 @@
     ParametrosBusquedaCatalogo busquedaCatalogo = new ParametrosBusquedaCatalogo();
 
     bool isEdit = false;
+
+    ElementReference infosIcon;
+    ElementReference infoIcon;
+    void ShowToolsTip(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "RFC Puede ir opcional");
+    void ShowToolTip(ElementReference elementReference, TooltipService optionss = null!) => ts.Open(elementReference, "Licencia Puede ir opcional");
 
     protected override async Task OnInitializedAsync()
     {
