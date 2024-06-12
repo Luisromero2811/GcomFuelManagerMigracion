@@ -38,7 +38,17 @@ namespace GComFuelManager.Shared.DTOs
         public string? Transportista { get; set; } = string.Empty;
         public string? Unidad { get; set; } = string.Empty;
         public string? Operador { get; set; } = string.Empty;
-        public string? ETA { get; set; } = string.Empty;
+        public string? ETA
+        {
+            get
+            {
+                if(DateTime.TryParse(FechaCarga, out DateTime fecha_carga) && DateTime.TryParse(Fecha_llegada, out DateTime fecha_llegada))
+                    return fecha_llegada.Subtract(fecha_carga).ToString("hh\\:mm");
+
+                return string.Empty;
+            }
+        }
+
         [DisplayName("Fecha estimada de llegada")]
         public string? Fecha_llegada { get; set; } = string.Empty;
         [DisplayName("Unidad de Negocio")]

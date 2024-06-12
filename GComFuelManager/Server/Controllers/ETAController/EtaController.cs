@@ -1498,7 +1498,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
-
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -1544,7 +1544,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
-
+                           Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -1563,6 +1563,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
               .ThenInclude(x => x.Transportista)
               .Include(x => x.Chofer)
               .Include(x => x.Estado)
+              .Include(x=>x.OrdenCierre)
               .OrderBy(x => x.Fchcar)
                   //    Vol2 = null!,
                   //    Vol = o.Vol,
@@ -1587,7 +1588,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                       Transportista = e.Tonel.Transportista.Den,
                       Unidad = e.Tonel.Veh,
                       Operador = e.Chofer.FullName,
-
+                      Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                   })
               .Take(10000)
               .ToListAsync();
@@ -1632,7 +1633,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             NOrden = e.NOrden,
                             Factura = e.Factura,
                             Pedimento = e.Pedimento,
-                            Importe = e.Importe
+                            Importe = e.Importe,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                       .Take(10000)
                       .ToListAsync();
@@ -1680,6 +1682,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -1725,7 +1728,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
-
+                           Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -1746,6 +1749,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaNTDTO()
                         {
@@ -1768,6 +1772,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                            Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -1811,8 +1816,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento,
-                            Importe = e.Importe
+                              Pedimento = e.Pedimento,
+                              Importe = e.Importe,
+                              Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -1862,6 +1868,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -1907,6 +1914,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -1927,6 +1935,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
 
                         .Select(e => new EtaNTDTO()
@@ -1950,6 +1959,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                            Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -1994,7 +2004,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               NOrden = e.NOrden,
                               Factura = e.Factura,
                             Pedimento = e.Pedimento,
-                            Importe = e.Importe
+                            Importe = e.Importe,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2041,7 +2052,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
-
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -2085,6 +2096,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                           Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -2103,6 +2115,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaNTDTO()
                         {
@@ -2125,6 +2138,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -2166,7 +2180,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               NOrden = e.NOrden,
                               Factura = e.Factura,
                             Pedimento = e.Pedimento,
-                            Importe = e.Importe
+                            Importe = e.Importe,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2236,7 +2251,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
-
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -2282,6 +2297,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                           Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
 
                        })
                      .Take(10000)
@@ -2301,6 +2317,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
               .ThenInclude(x => x.Transportista)
               .Include(x => x.Chofer)
               .Include(x => x.Estado)
+              .Include(x=>x.OrdenCierre)
               .OrderBy(x => x.Fchcar)
                   //    Vol2 = null!,
                   //    Vol = o.Vol,
@@ -2325,6 +2342,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                       Transportista = e.Tonel.Transportista.Den,
                       Unidad = e.Tonel.Veh,
                       Operador = e.Chofer.FullName,
+                      Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
 
                   })
               .Take(10000)
@@ -2369,7 +2387,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Pedimentos = e.Pedimento,
                             NOrden = e.NOrden,
                             Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                       .Take(10000)
                       .ToListAsync();
@@ -2431,6 +2450,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -2476,6 +2496,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                           Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
 
                        })
                      .Take(10000)
@@ -2497,6 +2518,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaNTDTO()
                         {
@@ -2519,6 +2541,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -2562,7 +2585,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                              Pedimento = e.Pedimento,
+                              Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2626,6 +2650,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                            })
                     .Take(10000)
                     .ToListAsync();
@@ -2671,6 +2696,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -2691,6 +2717,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
 
                         .Select(e => new EtaNTDTO()
@@ -2714,6 +2741,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -2757,7 +2785,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();
@@ -2818,6 +2847,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                Transportista = null!,
                                Unidad = null!,
                                Operador = null!,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
 
                            })
                     .Take(10000)
@@ -2862,6 +2892,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                            Transportista = e.Tonel.Transportista.Den,
                            Unidad = e.Tonel.Veh,
                            Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                        })
                      .Take(10000)
                      .ToListAsync();
@@ -2880,6 +2911,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.Chofer)
                     .Include(x => x.Estado)
+                    .Include(x=>x.OrdenCierre)
                     .OrderBy(x => x.Fchcar)
                         .Select(e => new EtaNTDTO()
                         {
@@ -2902,6 +2934,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                             Transportista = e.Tonel.Transportista.Den,
                             Unidad = e.Tonel.Veh,
                             Operador = e.Chofer.FullName,
+                               Fecha_llegada = e.OrdenCierre.FchLlegada.Value.ToString("dd-MM-yyyy hh:mm:ss")
                         })
                     .Take(10000)
                     .ToListAsync();
@@ -2942,7 +2975,8 @@ namespace GComFuelManager.Server.Controllers.ETAController
                               Pedimentos = e.Pedimento,
                               NOrden = e.NOrden,
                               Factura = e.Factura,
-                            Pedimento = e.Pedimento
+                            Pedimento = e.Pedimento,
+                            Fecha_llegada = e.OrdEmbDet.Fchlleest.Value.ToString("dd-MM-yyyy hh:mm:ss")
                           })
                         .Take(10000)
                         .ToListAsync();

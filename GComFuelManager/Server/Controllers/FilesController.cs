@@ -250,9 +250,10 @@ namespace Server.Controllers
                                         }
 
                                         if (double.TryParse(xml_concepto[0]?.Attributes?["Cantidad"]?.Value, out double volumen))
-                                        {
                                             orden_factura.Vol = volumen;
-                                        }
+
+                                        if (double.TryParse(xml_concepto[0]?.Attributes?["ValorUnitario"]?.Value, out double valorunitario))
+                                            orden_factura.ValorUnitario = valorunitario;
                                     }
                                 }
                             }
@@ -389,6 +390,35 @@ namespace Server.Controllers
             {
                 var archivos = await context.Archivos.Where(x => x.Id_Registro == id).ToListAsync();
                 return Ok(archivos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("download/{id_orden}/{tipo_archivo}")]
+        public async Task<ActionResult> Download_File([FromRoute] int id_orden = 0, [FromRoute] Tipo_Archivo tipo_archivo = Tipo_Archivo.NONE)
+        {
+            try
+            {
+                if(!context.OrdenEmbarque.Any(x => x.Cod == id_orden)) { return NotFound(); }
+
+                var archivo = await context.Archivos.FirstOrDefaultAsync(x => x.Id_Registro == id_orden && x.Tipo_Archivo == tipo_archivo);
+                if(archivo is null) { return NotFound(); }
+
+                var file_bytes = System.IO.File.ReadAllBytes(archivo.Directorio);
+                //string  bytes = Convert.ToBase64String(file_bytes);
+
+                var extension = Path.GetExtension(archivo.Directorio);
+
+                FileUploadDTO file = new()
+                {
+                    Extension = extension,
+                    ArrayBytes = file_bytes
+                };
+                
+                return Ok(file);
             }
             catch (Exception e)
             {
