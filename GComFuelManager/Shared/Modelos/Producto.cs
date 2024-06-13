@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
@@ -16,6 +17,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool? Activo { get; set; } = true;
         public short? Id_Tad { get; set; } = 0;
         public short? Id_Tipo { get; set; } = 0;
+        [DisplayName("Identificador externo"), StringLength(50)]
+        public string? Identificador_Externo { get; set; } = string.Empty;
 
         public string Nombre_Producto { get { return !string.IsNullOrEmpty(Den) ? Den : string.Empty; } }
         public string Obtener_Tipo

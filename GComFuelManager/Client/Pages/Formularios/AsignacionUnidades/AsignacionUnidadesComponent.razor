@@ -14,30 +14,23 @@
 <div class="col-12 row m-0">
     <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Lectura Asignacion" Context="ShowOrden">
         <Authorized>
-            <div class="card-header">
-                <b>Asignación de Unidades</b>
-            </div>
             <div class="col-6 my-1">
                 <div class="d-flex justify-content-center">
                     <div class="col-12">
                         <div class="col-12 card">
+                            <div class="card-header">
+                                <b>Asignación de Unidades</b>
+                            </div>
                             <div class="col-12 card-body">
-                                <div class="col-12 row m-0">
+                                <div class="col-12 row m-0 g-1">
                                     <div class="col-6">
-                                        <label>
-                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                                Del:
-                                            </RadzenText>
-                                        </label>
+                                        <label style="font-size: .75rem;">Del:</label>
                                         <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateInicio" />
+                                        <input type="date" @bind-value="@fechas.DateInicio" class="form-control form-control-sm" />
                                     </div>
                                     <div class="col-6">
-                                        <label>
-                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                                A:
-                                            </RadzenText>
-                                        </label>
-                                        <InputDate class="form-control col-12" Type="InputDateType.DateTimeLocal" @bind-Value:format="yyyy-MM-dd hh:mm:ss" @bind-Value="@fechas.DateFin" />
+                                        <label style="font-size: .75rem;">A:</label>
+                                        <input type="date" @bind-value="@fechas.DateFin" class="form-control form-control-sm" />
                                     </div>
                                     <div class="col-4">
                                         <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@MostrarOrdenFecha">
@@ -63,12 +56,17 @@
                                 <ValidationSummary />
                                 <div class="row mb-1">
                                     <div class="col-4">
-                                        <label>
-                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                                Transportista:
-                                            </RadzenText>
-                                        </label>
-                                        <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
+                                        <label style="font-size: .75rem;">Transportista:</label>
+                                        <DropDownFilter Listado="Transportistas" TListado="Transportista" TValue="int?" Default_Placeholder="Seleccione un transportista" @bind-Valor="asignacion.CodTra"
+                                        On_Change_Method="GetDataSelction">
+                                            <Render Context="item">
+                                                <p style="font-size: .75rem;">@item.Busentid | @item?.Den</p>
+                                            </Render>
+                                            <RenderValue Context="item">
+                                                <p style="font-size: .75rem;">@item.Busentid | @item?.Den</p>
+                                            </RenderValue>
+                                        </DropDownFilter>
+                                        @* <RadzenDropDown Data="Transportistas" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTra"
                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                         AllowVirtualization="true" Change="@GetDataSelction" Style="height:20px">
                                             <Template Context="data">
@@ -81,14 +79,10 @@
                                                     @((data as Transportista)?.Busentid) | @((data as Transportista)?.Den)
                                                 </RadzenText>
                                             </ValueTemplate>
-                                        </RadzenDropDown>
+                                        </RadzenDropDown> *@
                                     </div>
                                     <div class="col-4">
-                                        <label>
-                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                                Chofer:
-                                            </RadzenText>
-                                        </label>
+                                        <label style="font-size: .75rem;">Chofer:</label>
                                         <RadzenDropDown Data="Choferes" class="col-12 form-control-sm" TextProperty="FullName" ValueProperty="Cod" @bind-Value="asignacion.CodChf"
                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                         AllowVirtualization="true" Style="height:20px">
@@ -105,11 +99,7 @@
                                         </RadzenDropDown>
                                     </div>
                                     <div class="col-4">
-                                        <label>
-                                            <RadzenText TextStyle="TextStyle.Body2" class="m-0">
-                                                Vehiculo:
-                                            </RadzenText>
-                                        </label>
+                                        <label style="font-size: .75rem;">Vehiculo:</label>
                                         <RadzenDropDown Data="Vehiculos" class="col-12 form-control-sm" TextProperty="Den" ValueProperty="Cod" @bind-Value="asignacion.CodTon"
                                                         AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                                                         AllowVirtualization="true" Style="height:20px">
@@ -180,13 +170,13 @@
     <table class="table table-sm table-bordered table-hover" id="miTabla">
         <thead class="fila">
             <tr style="max-height:50px;white-space:nowrap;">
-               
-                    <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
-                        <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
-                                        Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
-                        Asignar / cancelar
-                    </th>
-            
+
+                <th class="sticky-column-header" style="background-color:white;max-width:180px;min-width:180px;width:180px;">
+                    <RadzenCheckBox TriState="false" TValue="bool" Value="@(ordenes.Any(i => ordenesSeleccionada != null && ordenesSeleccionada.Contains(i)))"
+                                    Change="@(args => ordenesSeleccionada = args ? ordenes.ToList() : new List<OrdenEmbarque>())" />
+                    Asignar / cancelar
+                </th>
+
                 @if (!Esta_En_Synthesis)
                 {
                     <AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Multisd">
@@ -1064,17 +1054,17 @@ else
             else
             {
                 checkChofer = new CheckChofer()
-                {
-                    Chofer = asignacion.CodChf,
-                    Tonel = asignacion.CodTon,
-                    Compartimento = Vehiculos?.Count == null ? 0 :
-                                                                                                                        (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
-                                                                                                                        : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
-                                                                                                                        : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
-                                                                                                                        : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
-                    //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
-                    FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
-                };
+                    {
+                        Chofer = asignacion.CodChf,
+                        Tonel = asignacion.CodTon,
+                        Compartimento = Vehiculos?.Count == null ? 0 :
+                                                                                                                                (asignacion.Compartimiento == 1) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom
+                                                                                                                                : (asignacion.Compartimiento == 2) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom2
+                                                                                                                                : (asignacion.Compartimiento == 3) ? Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom3
+                                                                                                                                : Vehiculos.FirstOrDefault(x => x.Cod == asignacion.CodTon && asignacion.CodTon != 0)?.Idcom4,
+                        //: (VehiculoSeleccionado == 4) ? Vehiculos.FirstOrDefault(x => x.Cod == VehiculoSeleccionado).Idcom4,
+                        FechaCarga = ordenesSeleccionada.FirstOrDefault()?.Fchcar
+                    };
 
                 ordenEmbarque.Codchf = checkChofer.Chofer;
                 ordenEmbarque.Codton = checkChofer.Tonel;
@@ -1101,13 +1091,13 @@ else
                     else
                     {
                         var confirm = await swal.FireAsync(new SweetAlertOptions
-                        {
-                            Icon = SweetAlertIcon.Warning,
-                            ShowCancelButton = true,
-                            ConfirmButtonText = "Aceptar",
-                            CancelButtonText = "Cancelar",
-                            Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
-                        });
+                            {
+                                Icon = SweetAlertIcon.Warning,
+                                ShowCancelButton = true,
+                                ConfirmButtonText = "Aceptar",
+                                CancelButtonText = "Cancelar",
+                                Text = "Este chofer y esta unidad ya estan asignados a una orden. ¿Desea asignarlos a esta orden?"
+                            });
 
                         if (!string.IsNullOrEmpty(confirm.Value))
                         {
@@ -1199,29 +1189,29 @@ else
                        && (item.Destino != null && item.Destino.Den!.Contains(DestinosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(DestinosSeleccionado))
                        && (item.Producto != null && item.Producto.Den!.Contains(ProductosSeleccionado, StringComparison.OrdinalIgnoreCase) || string.IsNullOrEmpty(ProductosSeleccionado)))
                         asignacionUnidadesDTO.Add(new TablaAsignacionUnidadesDTO
-                        {
-                            OrdenCompra = item?.OrdenCompra?.den ?? "",
-                            Referencia = item?.OrdenCierre?.Folio ?? "",
-                            Cliente = item?.Destino?.Cliente?.Den ?? "",
-                            Destino = item?.Destino?.Den ?? "",
-                            Producto = item?.Producto?.Den ?? "",
-                            //Volumen = item?.Vol,
-                            Volumen = item?.Compartment == 1 && item.Tonel is not null ?
-                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
-                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
-                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
-                                                                                                                    Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
-                            FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
-                            Transportista = item?.Tonel?.Transportista?.Den ?? "",
-                            Unidad = item?.Tonel?.Veh ?? "",
-                            Compartimento = item?.Compartment,
-                            Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
-                            Bin = item?.Bin,
-                            Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
-                            Turno = item?.OrdenCierre?.Turno ?? "",
-                            Unidad_Negocio = item?.Tad?.Den ?? "",
-                            //Status = item?.Estado?.den
-                        });
+                            {
+                                OrdenCompra = item?.OrdenCompra?.den ?? "",
+                                Referencia = item?.OrdenCierre?.Folio ?? "",
+                                Cliente = item?.Destino?.Cliente?.Den ?? "",
+                                Destino = item?.Destino?.Den ?? "",
+                                Producto = item?.Producto?.Den ?? "",
+                                //Volumen = item?.Vol,
+                                Volumen = item?.Compartment == 1 && item.Tonel is not null ?
+                                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom) : item?.Compartment == 2 && item.Tonel is not null ?
+                                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom2) : item?.Compartment == 3 && item.Tonel is not null ?
+                                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom3) : item?.Compartment == 4 && item.Tonel is not null ?
+                                                                                                                            Convert.ToDouble(item?.Tonel?.Capcom4) : item?.Vol,
+                                FechaCarga = item?.Fchcar?.ToString("dd/MM/yyyy") ?? "",
+                                Transportista = item?.Tonel?.Transportista?.Den ?? "",
+                                Unidad = item?.Tonel?.Veh ?? "",
+                                Compartimento = item?.Compartment,
+                                Operador = item?.Chofer?.Den + " " + item?.Chofer?.Shortden ?? "",
+                                Bin = item?.Bin,
+                                Fecha = item?.OrdenCierre?.FechaLlegada ?? "",
+                                Turno = item?.OrdenCierre?.Turno ?? "",
+                                Unidad_Negocio = item?.Tad?.Den ?? "",
+                                //Status = item?.Estado?.den
+                            });
                 }
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 var excel = new ExcelPackage();
@@ -1300,23 +1290,23 @@ else
                 }
 
                 var confirm = await swal.FireAsync(new SweetAlertOptions
-                {
-                    Icon = SweetAlertIcon.Info,
-                    ShowCancelButton = true,
-                    ConfirmButtonText = "Aceptar",
-                    CancelButtonText = "Cancelar",
-                    Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
-                });
+                    {
+                        Icon = SweetAlertIcon.Info,
+                        ShowCancelButton = true,
+                        ConfirmButtonText = "Aceptar",
+                        CancelButtonText = "Cancelar",
+                        Text = $"Se seleccionaron {ordenesSeleccionada.Count} orden/es de {ordenes.Count} para enviar. Tenga en cuenta que solo las ordenes con una unidad asignada seran enviadas.¿Desea continuar?"
+                    });
 
                 if (!string.IsNullOrEmpty(confirm.Value))
                 {
                     Message(new NotificationMessage
-                    {
-                        Severity = NotificationSeverity.Info,
-                        Summary = "Enviando Ordenes a Synthesis",
-                        Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
-                        Duration = 150000
-                    });
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Enviando Ordenes a Synthesis",
+                            Detail = "Las ordenes se entan enviando a synthesis.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                            Duration = 150000
+                        });
 
                     loadingSend = true;
                     AlertVisible = true;
@@ -1417,13 +1407,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Info,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Info,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1460,13 +1450,13 @@ else
         try
         {
             var confirm = await swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Realmente desea desasignar de unidad y chofer a esta orden?"
+                });
             ordenEmbarque = orden;
             if (!string.IsNullOrEmpty(confirm.Value))
             {
