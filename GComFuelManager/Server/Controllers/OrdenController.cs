@@ -465,6 +465,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Archivos)
                     .Include(x => x.Terminal)
+                    .OrderByDescending(x => x.Fchcar)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(param.Terminal) && !string.IsNullOrWhiteSpace(param.Terminal))
