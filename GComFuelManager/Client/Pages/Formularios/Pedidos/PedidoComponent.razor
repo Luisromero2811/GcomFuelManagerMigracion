@@ -26,25 +26,6 @@
                 <FluentValidationValidator Validator="validation" />
                 <ValidationSummary />
                 <div class="row col-12">
-                    @* <div class="col-4">
-                            <div class="col-12">
-                                <label>Terminal</label>
-                                <RadzenDropDown Data="Terminales" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="ordenCierre.Id_Tad"
-                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" Style="height:31px;">
-                                    <Template Context="data">
-                                        <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Tad)?.Den)
-                                        </RadzenText>
-                                    </Template>
-                                    <ValueTemplate Context="data">
-                                        <RadzenText TextStyle="TextStyle.Body2">
-                                            @((data as Tad)?.Den)
-                                        </RadzenText>
-                                    </ValueTemplate>
-                                </RadzenDropDown>
-                            </div>
-                        </div> *@
                     <div class="col-4">
                         <div class="col-12">
                             <label>Grupo</label>
@@ -342,6 +323,9 @@
                         <th class="sticky-column" style="background-color:white;max-width:180px;min-width:180px;width:120px;">
                             editar / cancelar
                         </th>
+                        <th class="th-resizable overflow-hidden" style="min-width:20px;width:100px;">
+                            Modelo de venta de orden
+                        </th>
                         <th class="th-resizable overflow-hidden" style="min-width:20px;width:200px;">
                             Folio
                         </th>
@@ -396,6 +380,19 @@
                                     }
                                 </div>
                             </td>
+                            <td>
+                                <div>
+                                    @if (item.OrdenEmbarque is not null)
+                                    {
+                                        <select class="form-select form-select-sm" @bind="item.OrdenEmbarque.Modelo_Venta_Orden">
+                                            @foreach (var item in Enum.GetValues(typeof(Tipo_Venta)))
+                                            {
+                                                <option>@item</option>
+                                            }
+                                        </select>
+                                    }
+                                </div>
+                            </td>
                             <td class="overflow-hidden">
                                 <div class="rz-text-truncate">
                                     @item?.Folio
@@ -417,13 +414,13 @@
                                 <div class="col-12">
                                     <div class="col-12">
                                         @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                        item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
-                                        item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
-                                        : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
-                                        : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
-                                        : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
-                                        : item?.Volumen
-                                        )
+                                                 item?.OrdenEmbarque?.Orden is not null ? item?.OrdenEmbarque?.Orden?.Vol :
+                                                 item?.OrdenEmbarque?.Compartment == 1 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom
+                                                 : item?.OrdenEmbarque?.Compartment == 2 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom2
+                                                 : item?.OrdenEmbarque?.Compartment == 3 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom3
+                                                 : item?.OrdenEmbarque?.Compartment == 4 && item.OrdenEmbarque?.Tonel is not null ? item?.OrdenEmbarque?.Tonel?.Capcom4
+                                                 : item?.Volumen
+                                                 )
                                     </div>
                                 </div>
                             </td>
@@ -666,13 +663,13 @@
         try
         {
             var confirm = await Swal.FireAsync(new SweetAlertOptions
-            {
-                Icon = SweetAlertIcon.Warning,
-                ShowCancelButton = true,
-                ConfirmButtonText = "Aceptar",
-                CancelButtonText = "Cancelar",
-                Text = "¿Desea cancelar la orden?"
-            });
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = "¿Desea cancelar la orden?"
+                });
 
             if (!string.IsNullOrEmpty(confirm.Value))
             {
@@ -1036,6 +1033,17 @@
             }
             else
             {
+                if(response.Response.Cliente is not null)
+                {
+                    if(response.Response.OrdenEmbarque is not null)
+                    {
+                        if (!string.IsNullOrEmpty(response.Response.Cliente.MdVenta))
+                        {
+                           response.Response.OrdenEmbarque.Modelo_Venta_Orden =
+                           response.Response.Cliente.MdVenta.ToLower().Equals("rack") ? Tipo_Venta.Rack : Tipo_Venta.Delivey; 
+                        }
+                    }
+                }
                 ordenCierres.Add(response.Response);
             }
 
@@ -1167,12 +1175,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
-            {
-                Width = "90%",
-                Height = "600px",
-                Resizable = true,
-                Draggable = false
-            });
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {
@@ -1236,12 +1244,12 @@
         try
         {
             await ds.OpenAsync<ViewFoliosCierresComponent>("Folios de cierres", options: new DialogOptions()
-            {
-                Width = "90%",
-                Height = "600px",
-                Resizable = true,
-                Draggable = false
-            });
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
         }
         catch (Exception e)
         {

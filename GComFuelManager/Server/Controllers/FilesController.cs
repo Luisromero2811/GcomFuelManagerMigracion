@@ -241,11 +241,15 @@ namespace Server.Controllers
                                                 //orden.Pedimento = xml_pedimento?.Attributes?["NumeroPedimento"]?.Value ?? string.Empty;
                                                 var xml_info = xml_concepto[0]?.ChildNodes[1]?.Attributes?["NumeroPedimento"]?.Value.Split(" ");
                                                 string pedimento = string.Empty;
-                                                for (int i = 0; i < xml_info.Length; i++)
+                                                if (xml_info is not null)
                                                 {
-                                                    pedimento += xml_info[i];
+                                                    for (int i = 0; i < xml_info.Length; i++)
+                                                    {
+                                                        pedimento += xml_info[i];
+                                                    }
+                                                    orden_factura.Pedimento = pedimento;
                                                 }
-                                                orden_factura.Pedimento = pedimento;
+
                                             }
                                         }
 
@@ -402,10 +406,10 @@ namespace Server.Controllers
         {
             try
             {
-                if(!context.OrdenEmbarque.Any(x => x.Cod == id_orden)) { return NotFound(); }
+                if (!context.OrdenEmbarque.Any(x => x.Cod == id_orden)) { return NotFound(); }
 
                 var archivo = await context.Archivos.FirstOrDefaultAsync(x => x.Id_Registro == id_orden && x.Tipo_Archivo == tipo_archivo);
-                if(archivo is null) { return NotFound(); }
+                if (archivo is null) { return NotFound(); }
 
                 var file_bytes = System.IO.File.ReadAllBytes(archivo.Directorio);
                 //string  bytes = Convert.ToBase64String(file_bytes);
@@ -417,7 +421,7 @@ namespace Server.Controllers
                     Extension = extension,
                     ArrayBytes = file_bytes
                 };
-                
+
                 return Ok(file);
             }
             catch (Exception e)
