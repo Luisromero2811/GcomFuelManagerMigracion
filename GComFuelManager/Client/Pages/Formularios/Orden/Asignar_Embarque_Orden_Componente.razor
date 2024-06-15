@@ -351,10 +351,16 @@
                 <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
             </div>
         </div>
-        <div class="col-12">
-            @foreach (var archivo in Archivos)
+        <div class="col-12 my-1">
+            @if (Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA))
             {
-                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;"></iframe>
+                <a href="@Archivos.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL" class="btn btn-sm gcom-bg-amarillo" target="_blank">Ver XML</a>
+            }
+        </div>
+        <div class="col-12 my-1">
+            @foreach (var archivo in Archivos.Where(x => x.Tipo_Archivo != Tipo_Archivo.XML_FACTURA))
+            {
+                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;" ></iframe>
             }
         </div>
     </Contenido>
