@@ -15,11 +15,11 @@
                     <DataAnnotationsValidator />
                     <ValidationSummary />
 
-                    <div class="col-3">
+                    <div class="col">
                         <InputText @bind-Value="Producto.Den" class="form-control form-control-sm col-12" placeholder="Nombre del producto" maxLenght="50" />
                         <ValidationMessage For="@(()=>Producto.Den)" />
                     </div>
-                    <div class="col-3">
+                    <div class="col">
                         <InputSelect @bind-Value="Producto.Id_Tipo" class="form-select form-select-sm col-12">
                             <option value="0">Tipo de producto</option>
                             @foreach (var item in TipoProductos)
@@ -29,7 +29,10 @@
                         </InputSelect>
                         <ValidationMessage For="@(()=>Producto.Id_Tipo)" />
                     </div>
-                    <div class="col-4">
+                    <div class="col">
+                        <InputText class="form-control form-control-sm" @bind-Value="Producto.Identificador_Externo" />
+                    </div>
+                    <div class="col">
                         <div class="col-12 row">
                             <div class="col-6">
                                 <button class="col-12 btn btn-sm gcom-bg-amarillo" type="submit">
@@ -55,6 +58,7 @@
             <tr class="fila">
                 <th>Producto</th>
                 <th>Tipo</th>
+                <th>Identificador externo</th>
                 <th>Estado</th>
                 <th>Editar</th>
             </tr>
@@ -68,6 +72,7 @@
                         <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo" @onchange="@((args)=>ChangeStatus(args, producto))">
                     </div>
                 </td>
+                <td>@producto.Identificador_Externo</td>
                 <td>
                     <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = producto)">
                         <i class="fa fa-solid fa-edit"></i>
@@ -78,56 +83,6 @@
     </Tabla>
 </div>
 
-<style>
-    .fila th {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 0;
-        background-color: #f2f2f2;
-    }
-
-    .fila td {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 28px;
-        background-color: #f2f2f2;
-    }
-    .sticky-column {
-        position: sticky;
-        left: 0;
-        z-index: 1;
-        background-color: white;
-    }
-
-    .sticky-column-header {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 2;
-        background-color: white;
-    }
-
-    .sticky-column, .sticky-column + th, .sticky-column + td {
-        min-width: 180px;
-    }
-
-    .th-resizable {
-        position: relative;
-        cursor: col-resize;
-    }
-
-        .th-resizable::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 8px;
-            background: transparent;
-        }
-</style>
 @code {
     Producto Producto { get; set; } = new();
     List<Producto> Productos { get; set; } = new();

@@ -17,20 +17,29 @@
                 <FluentValidationValidator Validator="gestionCliente" />
                 <ValidationSummary />
                 <div class="col-12 row">
-                    <div class="col-2">
+                    <div class="col">
                         <label>Grupo:</label>
-                        <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
-                                        AllowVirtualization="true" AllowFiltering="true"
-                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
-                        </RadzenDropDown>
+                        <DropDownFilter TValue="Int16?" Listado="Grupos" TListado="Grupo" Propiedad_Valor="Cod" @bind-Valor="Cliente.Codgru" Default_Placeholder="Grupos"
+                         FiltrarValor="Obtener_Grupos_Cliente">
+                            <Render>
+                                @context.Den
+                            </Render>
+                            <RenderValue>
+                                @context.Den
+                            </RenderValue>
+                        </DropDownFilter>
+                        @* <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
+                        AllowVirtualization="true" AllowFiltering="true"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown> *@
                     </div>
-                    <div class="col-2">
+                    <div class="col">
                         <label>Nombre del cliente:</label>
-                        <InputText @bind-Value="Cliente.Den" class="form-control" MaxLenght="80" />
+                        <InputText @bind-Value="Cliente.Den" class="form-control form-control-sm" />
                     </div>
-                    <div class="col-2">
+                    <div class="col">
                         <label>Modelo de Venta</label>
-                        <InputSelect @bind-Value="Cliente.MdVenta" class="form-select">
+                        <InputSelect @bind-Value="Cliente.MdVenta" class="form-select form-select-sm">
                             <option>--Selecciona una opción--</option>
                             @if (MdVenta is null)
                             {
@@ -49,9 +58,9 @@
                             }
                         </InputSelect>
                     </div>
-                    <div class="col-2">
+                    <div class="col">
                         <label>Tipo de Venta</label>
-                        <InputSelect @bind-Value="Cliente.Tipven" class="form-select">
+                        <InputSelect @bind-Value="Cliente.Tipven" class="form-select form-select-sm">
                             <option>--Selecciona una opción</option>
                             @if (TpVenta is null)
                             {
@@ -70,39 +79,31 @@
                             }
                         </InputSelect>
                     </div>
+                    <div class="col">
+                        <label>Identificador externo</label>
+                        <InputText @bind-Value="Cliente.Identificador_Externo" class="form-control form-control-sm"/>
+                    </div>
                     <div class="col-2 d-flex mt-auto">
                         @if (!isEdit)
                         {
-                            <button class="col-12 btn gcom-bg-amarillo" type="submit">
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" type="submit">
                                 <i class="fa fa-solid fa-plus"></i> Guardar
                             </button>
                         }
                         else
                         {
-                            <button class="col mx-2 btn gcom-bg-amarillo" type="submit">
+                            <button class="col mx-2 btn gcom-bg-amarillo btn-sm" type="submit">
                                 <i class="fa fa-solid fa-check"></i>
                             </button>
-                                <button class="col mx-2 btn gcom-bg-amarillo" type="button" @onclick="@cancelEdit">
-                                    <i class="fa fa-solid fa-xmark"></i>
-                                </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo btn-sm" type="button" @onclick="@cancelEdit">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
                         }
                     </div>
                 </div>
             </EditForm>
         </div>
     </div>
-    @*     <div class="col-12 d-flex justify-content-center">
-        <div class="col-10 card shadow-sm">
-        <div class="col-12 row card-body">
-        <AuthorizeView Roles="Admin, Administrador Sistema, Analista Credito" Context="Gestion">
-        <h5>Agregar Clientes</h5>
-        <!--Aquí se agregará las validaciones para gestionar a los clientes-->
-
-        </AuthorizeView>
-        <!--Aquí empieza la tabla de muestreo de datos-->
-        </div>
-        </div>
-        </div> *@
     <div class="card mt-2" style="height: 500px; overflow: scroll;">
         <div class="card-header">
             <b>Gestión de Clientes</b>
@@ -112,7 +113,7 @@
                 <div class="col-3 mb-2">
                     <label>Grupo</label>
                     <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
-                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cliente.Codgru">
+                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cod_Gru">
                         <RenderValue>
                             @context.Den
                         </RenderValue>
@@ -121,180 +122,56 @@
                         </Render>
                     </DropDownFilter>
                 </div>
-                @* <div class="col-3">
-                    <label>Unidad de Negocio</label>
-                    <DropDownFilter Listado="Terminales" TListado="Tad" TValue="Int16" Seleccion_Multiple="true" Default_Placeholder="Seleccione una unidad de negocio">
-                    <RenderValue>
-                    <div>@context.Den</div>
-                    </RenderValue>
-                    <Render>
-                    <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="@context.Cod" checked="@(Tads_Seleccionados.Contains(context))" @onchange="args => { CheckTads(context, args?.Value); }" />
-                    <label class="form-check-label" for="@context.Cod">
-                    @if (context is not null)
-                    {
-                    @context.Den
-                    }
-                    else
-                    {
-                    <p>@context.Den</p>
-                    }
-                    </label>
-                    </div>
-                    </Render>
-                    </DropDownFilter>
-                    </div> *@
-                @* <div class="col-3">
-                    <label></label>
-                    <button class="col-12 btn gcom-bg-amarillo mt-auto" type="submit" @onclick="@PostRelacion">
-                    <i class="fa fa-solid fa-plus"></i> Relacionar Cliente-Unidad de negocio
-                    </button>
-                    </div> *@
             </div>
             <div class="col-12">
-                <table class="table table-sm table-striped table-bordered">
-                    <thead class="fila">
+                <Tabla Datos="Clientes">
+                    <Cabeceras>
                         <tr>
-                            @*<th>
-                                <input type="checkbox" checked="@(Clientes.Any(i => Clientes_Seleccionados != null && Clientes_Seleccionados.Contains(i)))"
-                                       @onchange="args => CheckItemAll(args?.Value)" />
-                            </th>*@
-                            @*<th></th>*@
                             <th>Cliente</th>
                             <th>Modelo de Venta</th>
                             <th>Tipo de Venta</th>
+                            <th>Identificador externo</th>
                             <th>Estado</th>
                             <th>Editar</th>
-                            @* <th>Unidades de Negocio</th> *@
                         </tr>
-                    </thead>
-                    <tbody>
+                    </Cabeceras>
+                    <Filtros>
                         <tr class="fila">
                             <td>
-                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.nombrecliente" />
+                                <input class="form-control form-control-sm" @oninput="LoadData" @bind="busquedaCatalogo.nombrecliente" />
                             </td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                         </tr>
-
-                        @if (Clientes.Count > 0)
-                        {
-                            <Virtualize Items="Clientes" TItem="Cliente" Context="item">
-                                <tr>
-                                    @*<th>
-                                            <input class="form-check-input" type="checkbox" checked="@(Clientes_Seleccionados.Contains(item))" @onchange="args => { CheckClient(item, args?.Value); }" />
-                                        </th>*@
-                                    @*<th>
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@(()=>@SetCliente(item))">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                        </button>
-                                        </th>*@
-                                    <td>@item.Den</td>
-                                    <td>@item.MdVenta</td>
-                                    <td>@item.Tipven</td>
-                                    <td>
-                                        <div class="form-check form-switch mx-2">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
-                                                   @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
-                                        </div>
-                                    </td>
-                                    <!--Editar-->
-                                    <td>
-                                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>@SetDestino(item))">
-                                            <i class="fa fa-solid fa-edit"></i>
-                                        </button>
-                                    </td>
-                                    @* <td>
-                                        @if (item.Terminales is not null)
-                                        {
-                                        @foreach (var items in item.Terminales)
-                                        {
-                                        <span class="badge rounded-pill gcom-bg-rojo me-2">
-                                        @items.Den
-
-                                        <button class="button-circle gcom-bg-amarillo" @onclick="@(() => Borrar_Relacion(item, items))">
-                                        <i class="fa fa-solid fa-xmark"></i>
-                                        </button>
-
-                                        </span>
-                                        }
-                                        }
-                                        </td> *@
-                                </tr>
-                            </Virtualize>
-                        }
-                    </tbody>
-                </table>
+                    </Filtros>
+                    <Columnas Context="item">
+                        <tr>
+                            <td>@item.Den</td>
+                            <td>@item.MdVenta</td>
+                            <td>@item.Tipven</td>
+                            <td>@item.Identificador_Externo</td>
+                            <td>
+                                <div class="form-check form-switch mx-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
+                                           @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                </div>
+                            </td>
+                            <!--Editar-->
+                            <td>
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>SetCliente(item))">
+                                    <i class="fa fa-solid fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </Columnas>
+                </Tabla>
             </div>
         </div>
     </div>
 </AuthorizeView>
-@*value="" id="@item.Cod"*@
-<style>
-    .button-circle { /* Green */
-        border: none;
-        color: white;
-        padding: .40rem .60rem;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: .75rem;
-        cursor: pointer;
-        border-radius: 2rem;
-    }
-    .fila th {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 0;
-        background-color: #f2f2f2;
-    }
-
-    .fila td {
-        position: -webkit-sticky;
-        position: sticky;
-        text-align: center;
-        top: 28px;
-        background-color: #f2f2f2;
-    }
-
-    .sticky-column {
-        position: sticky;
-        left: 0;
-        z-index: 1;
-        background-color: white;
-    }
-
-    .sticky-column-header {
-        position: sticky;
-        top: 0;
-        left: 0;
-        z-index: 2;
-        background-color: white;
-    }
-
-    .sticky-column, .sticky-column + th, .sticky-column + td {
-        min-width: 180px;
-    }
-
-    .th-resizable {
-        position: relative;
-        cursor: col-resize;
-    }
-
-        .th-resizable::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            width: 8px;
-            background: transparent;
-        }
-
-</style>
 
 @code {
     //Variables
@@ -324,6 +201,7 @@
     private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
     private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
     bool isEdit = false;
+    short? Cod_Gru = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -406,16 +284,9 @@
         }
     }
 
-    private async Task LoadData()
+    private async Task LoadData(ChangeEventArgs args)
     {
-        Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
-        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
-        queryStringObject["nombrecliente"] = busquedaCatalogo.nombrecliente;
-
-        var DefaultValues = new List<string>() { "false", "", "0" };
-        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
-        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
-
+        busquedaCatalogo.nombrecliente = args.Value?.ToString() ?? string.Empty;
         await GetCliente();
     }
 
@@ -424,8 +295,8 @@
         try
         {
             query = new Dictionary<string, string>();
-            query["nombrecliente"] = busquedaCatalogo.nombrecliente ?? string.Empty;
-            query["codgru"] = Grupos.FirstOrDefault(x => x.Cod == Cliente.Codgru)?.Cod.ToString() ?? string.Empty;
+            query["nombrecliente"] = busquedaCatalogo.nombrecliente;
+            query["codgru"] = Cod_Gru.ToString() ?? string.Empty;
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             var response = await repositorio.Get<List<Cliente>>($"api/cliente/listado?{uri}");
             if (response.Error)
@@ -445,67 +316,31 @@
         }
     }
 
-    private async Task PostRelacion()
-    {
-        try
-        {
-            if (Tads_Seleccionados.Count != 0 && Clientes_Seleccionados.Count != 0)
-            {
-                clienteTadDTO.Tads = Tads_Seleccionados;
-                clienteTadDTO.Clientes = Clientes_Seleccionados;
-                var response = await repositorio.Post<ClienteTadDTO>($"api/cliente/relacion", clienteTadDTO);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
-                else
-                {
-                    await Swal.FireAsync("Exito", $"Cliente relacionado exitosamente", SweetAlertIcon.Success);
-                    Clientes = new();
-                    Clientes_Seleccionados = new();
-                    await GetCliente();
-                }
-            }
-            else
-            {
-                await Swal.FireAsync("Advertencia", "Necesita seleccionar una terminal o cliente", SweetAlertIcon.Warning);
-            }
-
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
-
-    private async Task Borrar_Relacion(Cliente clientes, Tad tads)
-    {
-        try
-        {
-            cliente_tad.Id_Terminal = tads.Cod;
-            cliente_tad.Id_Cliente = clientes.Cod;
-            var response = await repositorio.Post<Cliente_Tad>($"api/cliente/borrar/relacion", cliente_tad);
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await Swal.FireAsync("Exito", "Relacion borrada con éxito", SweetAlertIcon.Success);
-                await GetCliente();
-            }
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
     private async Task Obtener_Grupos(string value)
+    {
+        try
+        {
+            GrupoActivo = await Obtener_Grupos_General(value);
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Grupos_Cliente(string value)
+    {
+        try
+        {
+            Grupos = await Obtener_Grupos_General(value);
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task<List<Grupo>> Obtener_Grupos_General(string value)
     {
         try
         {
@@ -522,76 +357,16 @@
             }
             else
             {
-                GrupoActivo = response.Response;
+                return response.Response;
             }
+
+            return new();
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            return new();
         }
-    }
-
-    private async Task CheckClient(Cliente cliente, object check)
-    {
-        try
-        {
-            if ((bool)check)
-            {
-                if (!Clientes_Seleccionados.Contains(cliente))
-                    Clientes_Seleccionados.Add(cliente);
-            }
-            else
-            {
-                if (Clientes_Seleccionados.Contains(cliente))
-                    Clientes_Seleccionados.Remove(cliente);
-            }
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
-    private async Task CheckTads(Tad terminal, object check)
-    {
-        try
-        {
-            if ((bool)check)
-            {
-                if (!Tads_Seleccionados.Contains(terminal))
-                    Tads_Seleccionados.Add(terminal);
-            }
-            else
-            {
-                if (Tads_Seleccionados.Contains(terminal))
-                    Tads_Seleccionados.Remove(terminal);
-            }
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
-    private async Task CheckItemAll(object check)
-    {
-        try
-        {
-            if ((bool)check)
-                Clientes_Seleccionados = Clientes;
-            else
-                Clientes_Seleccionados = new();
-            StateHasChanged();
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
     }
 
     private async Task HabilitarDeshabilitar(Cliente destino, ChangeEventArgs tp)
@@ -627,20 +402,20 @@
     private async Task Message(string Message, SweetAlertIcon icon)
     {
         await Swal.Mixin(new SweetAlertOptions
-        {
-            Position = "top-end",
-            ShowConfirmButton = false,
-            Timer = 1800,
-            Toast = true,
-        }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+            {
+                Position = "top-end",
+                ShowConfirmButton = false,
+                Timer = 1800,
+                Toast = true,
+            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
     }
 
-    private void SetDestino(Cliente destino)
+    private void SetCliente(Cliente cliente)
     {
         try
         {
             isEdit = true;
-            Cliente = destino;
+            Cliente = cliente;
         }
         catch (Exception e)
         {

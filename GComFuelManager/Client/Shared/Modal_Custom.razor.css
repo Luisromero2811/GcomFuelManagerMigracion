@@ -22,13 +22,15 @@
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px rgba(0,0,0,0.19);
     animation-name: animatetop;
     animation-duration: 0.4s;
+    overflow-y:scroll;
+    max-height:80vh;
 }
 
 .modal-custom-header {
     padding: .4rem 1rem;
     background-color: #fefefe;
     border-bottom: 1px solid #888;
-    color: white;
+    color:black;
 }
 
 .modal-custom-body {
@@ -39,7 +41,9 @@
     padding: .4rem 1rem;
     background-color: #fefefe;
     border-top: 1px solid #888;
-    color: white;
+    color:black;
+    position:sticky;
+    bottom:0;
 }
 
 .close {

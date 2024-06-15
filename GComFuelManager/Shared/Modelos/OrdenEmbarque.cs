@@ -1,4 +1,5 @@
 using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Shared.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using OfficeOpenXml.Attributes;
@@ -46,6 +47,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Id_Autorizador { get; set; }
         public int? Folio_Vale { get; set; }
         public int? Id_Multidestino { get; set; }
+        public Tipo_Venta? Modelo_Venta_Orden { get; set; } = Tipo_Venta.Rack;
 
         [NotMapped] public List<HistorialEstados> HistorialEstados { get; set; } = new();
         [NotMapped] public Destino? Destino { get; set; } = null!;
