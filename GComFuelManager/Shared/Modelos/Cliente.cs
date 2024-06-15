@@ -31,7 +31,7 @@ namespace GComFuelManager.Shared.Modelos
         public string? Codsyn { get; set; } = string.Empty;
         [EpplusIgnore]
         public bool? Esenergas { get; set; } = false;
-        [MaxLength(16), DisplayName("Tipo de Venta")]
+        [MaxLength(16), DisplayName("Tipo de venta")]
         public string? Tipven { get; set; } = string.Empty;
         [EpplusIgnore]
         public string? CodCte { get; set; } = string.Empty;
@@ -48,7 +48,8 @@ namespace GComFuelManager.Shared.Modelos
         public string? MdVenta { get; set; } = string.Empty;
         [EpplusIgnore] DateTime? Fecha_Registro { get; set; } = DateTime.Now;
         [EpplusIgnore] bool? Es_Meta { get; set; } = true;
-
+        [DisplayName("Identificador externo"), StringLength(50)]
+        public string? Identificador_Externo { get; set; } = string.Empty;
 
         [NotMapped, EpplusIgnore] public bool IsEditing { get; set; } = false;
         [NotMapped, EpplusIgnore] public string Nuevo_Codigo { get; set; } = string.Empty;

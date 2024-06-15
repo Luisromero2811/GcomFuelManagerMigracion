@@ -25,37 +25,6 @@
     </div>
 </div>
 
-@* <div class="modal @ModalClass fade" tabindex="-1" role="dialog" style="display:@ModalDisplay;" id="modal-custom">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" id="modal-content">
-            <div class="modal-header">
-                @if (Titulo_Personalizado is null)
-                {
-                    <b>@Titulo</b>
-                }
-                else
-                {
-                    @Titulo_Personalizado
-                }
-            </div>
-            <div class="modal-body">
-                @Contenido
-            </div>
-            <div class="modal-footer">
-                @if (Inferior_Personalizado is not null)
-                {
-                    @Inferior_Personalizado
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-@if (ShowBackDrop)
-{
-    <div class="modal-backdrop fade show" id="modal-back" data-dismiss="modal" @onclick="Close"></div>
-} *@
-
 @code {
     [Parameter] public RenderFragment Titulo_Personalizado { get; set; } = null!;
     [Parameter] public RenderFragment Contenido { get; set; } = null!;

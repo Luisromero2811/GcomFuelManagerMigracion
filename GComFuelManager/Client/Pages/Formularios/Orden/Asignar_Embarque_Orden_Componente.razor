@@ -30,7 +30,7 @@
             </EditForm>
 
             <div class="col-12 row my-2">
-                <EditForm Model="Datos_BOL" OnValidSubmit="Guardar_Orden">
+                <EditForm Model="Datos_BOL" OnValidSubmit="Abrir_Modal_Confirmacion">
 
                     <DataAnnotationsValidator />
                     <ValidationSummary />
@@ -70,7 +70,7 @@
                             <div class="d-flex align-items-center">
                                 <RadzenCheckBox @bind-Value=@Datos_BOL.isEnergas Name="CheckBox1" class="me-2" />
                                 <label for="CheckBox1" class="mb-0">
-                                    ¿Facturar orden?
+                                    Facturar orden
                                 </label>
                             </div>
                         </div>
@@ -118,9 +118,9 @@
                             <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
                         @*<div class="col-2">
-                                <label>Importe Total:</label>
-                                <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
-                            </div>*@
+                        <label>Importe Total:</label>
+                        <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                        </div>*@
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
                         <div class="col-4">
@@ -261,8 +261,8 @@
                                         Factura Proveedor
                                     </th>
                                     @*<th>
-                                            Importe Total
-                                        </th>*@
+                                    Importe Total
+                                    </th>*@
                                     <th></th>
                                 </tr>
                             </thead>
@@ -324,53 +324,73 @@
         </div>
     </div>
 </AuthorizeView>
-@*
-    <Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
-        <Contenido>
-            <div class="col-12 row">
-                <div class="col">
-                    <label><b>BOL: </b> @Datos_BOL.BatchId</label>
-                </div>
-                <div class="col">
-                    <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
-                </div>
-                <div class="col">
-                    <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
-                </div>
-                <div class="col">
-                    <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
-                </div>
-                <div class="col">
-                    <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
-                </div>
-                <div class="col">
-                    <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
-                </div>
-                <div class="col">
-                    <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
-                </div>
-                <div class="col">
-                    <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
-                </div>
+
+<Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
+    <Titulo_Personalizado>
+        <b>Confirmacion de datos</b>
+    </Titulo_Personalizado>
+    <Contenido>
+        <div class="col-12 row g-1">
+            <div class="col-6">
+                <label><b>Referencia: </b> @Datos_BOL.Ref</label>
             </div>
-            <div class="col-12">
-                @foreach (var archivo in Archivos)
+            <div class="col-6">
+                <label><b>BOL: </b> @Datos_BOL.BatchId</label>
+            </div>
+            <div class="col-6">
+                <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
+            </div>
+            <div class="col-6">
+                <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
+            </div>
+            <div class="col-6">
+                <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
+            </div>
+            <div class="col-6">
+                <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
+            </div>
+            <div class="col-6">
+                <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
+            </div>
+            <div class="col-6">
+                <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
+            </div>
+            <div class="col-6">
+                <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
+            </div>
+        </div>
+        <div class="col-12 my-1">
+            @if (Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA))
+            {
+                <a href="@Archivos.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL" class="btn btn-sm gcom-bg-amarillo" target="_blank">Ver XML</a>
+            }
+        </div>
+        <div class="col-12 my-1">
+            @foreach (var archivo in Archivos.Where(x => x.Tipo_Archivo != Tipo_Archivo.XML_FACTURA))
+            {
+                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;" ></iframe>
+            }
+        </div>
+    </Contenido>
+    <Inferior_Personalizado>
+        <div class="col-12 row">
+            <div class="col-3">
+                @if (loading_guardar)
                 {
-                    <iframe src="@archivo.URL" style="width: 100%;"></iframe>
+
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" disabled>Guardar</button>
+                }
+                else
+                {
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
                 }
             </div>
-        </Contenido>
-        <Inferior_Personalizado>
-            <div class="col-12 row">
-                <div class="col-3">
-                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
-                </div>
-                <div class="col-3">
-                    <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
-                </div>
+            <div class="col-3">
+                <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
             </div>
-        </Inferior_Personalizado>
-    </Modal_Custom> *@
+        </div>
+    </Inferior_Personalizado>
+</Modal_Custom>
 
 @code {
     InputNumber<int?> inputNumber;
@@ -479,6 +499,7 @@
                 folio_.Folio = Datos_BOL.Ref ?? string.Empty;
                 ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de alta correctamente", Severity = NotificationSeverity.Success });
                 // await Obtener_Orden();
+                datos_eta.Close();
             }
         }
         catch (Exception e)

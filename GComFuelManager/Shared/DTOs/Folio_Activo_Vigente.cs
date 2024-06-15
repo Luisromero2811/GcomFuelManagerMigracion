@@ -1,8 +1,9 @@
+using GComFuelManager.Shared.Filtro;
 using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Shared.DTOs
 {
-    public class Folio_Activo_Vigente
+    public class Folio_Activo_Vigente : Parametros_Busqueda_Gen
     {
         public string Folio { get; set; } = string.Empty;
         public double Volumen_Disponible { get; set; } = 0;
@@ -33,8 +34,8 @@ namespace GComFuelManager.Shared.DTOs
         public byte? ID_Producto { get; set; } = 0;
         public DateTime ID_FchIni { get; set; } = DateTime.Today.Date;
         public DateTime ID_FchFin { get; set; } = DateTime.Now;
-        public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
-        public DateTime Fecha_Fin { get; set; } = DateTime.Today;
+        //public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
+        //public DateTime Fecha_Fin { get; set; } = DateTime.Today;
         public int? BOL { get; set; }
         public string Cliente_Original { get; set; } = string.Empty;
         public string Destino_Original { get; set; } = string.Empty;
