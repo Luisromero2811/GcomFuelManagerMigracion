@@ -19,13 +19,13 @@
                 <div class="col-12 row">
                     <div class="col">
                         <label>Grupo:</label>
-                        <DropDownFilter TValue="short?" Listado="Grupos" TListado="Grupo" @bind-Valor="Cliente.Codgru" Default_Placeholder="Grupos"
-                         FiltrarValor="Obtener_Grupos_General">
+                        <DropDownFilter TValue="Int16?" Listado="Grupos" TListado="Grupo" Propiedad_Valor="Cod" @bind-Valor="Cliente.Codgru" Default_Placeholder="Grupos"
+                         FiltrarValor="Obtener_Grupos_Cliente">
                             <Render>
-                                <p style="font-size: .75rem;">@context.Den</p>
+                                @context.Den
                             </Render>
                             <RenderValue>
-                                <p style="font-size: .75rem;">@context.Den</p>
+                                @context.Den
                             </RenderValue>
                         </DropDownFilter>
                         @* <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
@@ -130,6 +130,7 @@
                             <th>Cliente</th>
                             <th>Modelo de Venta</th>
                             <th>Tipo de Venta</th>
+                            <th>Identificador externo</th>
                             <th>Estado</th>
                             <th>Editar</th>
                         </tr>
@@ -143,6 +144,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                         </tr>
                     </Filtros>
                     <Columnas Context="item">
@@ -150,6 +152,7 @@
                             <td>@item.Den</td>
                             <td>@item.MdVenta</td>
                             <td>@item.Tipven</td>
+                            <td>@item.Identificador_Externo</td>
                             <td>
                                 <div class="form-check form-switch mx-2">
                                     <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
@@ -329,7 +332,7 @@
     {
         try
         {
-            GrupoActivo = await Obtener_Grupos_General(value);
+            Grupos = await Obtener_Grupos_General(value);
         }
         catch (Exception e)
         {

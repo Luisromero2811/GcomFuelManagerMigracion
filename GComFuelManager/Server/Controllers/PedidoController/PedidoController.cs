@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers
@@ -113,8 +114,8 @@ namespace GComFuelManager.Server.Controllers
 
 
         //Method para obtener pedidos mediante un rango de fechas
-        [HttpPost("filtrar")]//TODO: checar utilidad
-        public async Task<ActionResult> GetDate([FromBody] FechasF fechas)
+        [HttpGet("filtrar")]
+        public ActionResult GetDate([FromQuery] Folio_Activo_Vigente _param)
         {
             try
             {
@@ -122,12 +123,12 @@ namespace GComFuelManager.Server.Controllers
                 if (id_terminal == 0)
                     return BadRequest();
 
-                List<OrdenEmbarque> ordens = new();
-                List<OrdenEmbarque> newOrdens = new();
-                //órdenes asignadas ordenar por orden compartimento 
-                ordens = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && x.Codtad == id_terminal)
+                if (!DateTime.TryParse(_param.Fecha_Inicio.ToString(), out DateTime Fecha_Inicio)) { return BadRequest("La fecha de inicio no tiene un formato valido."); }
+                if (!DateTime.TryParse(_param.Fecha_Fin.ToString(), out DateTime Fecha_Fin)) { return BadRequest("La fecha de fin no tiene un formato valido."); }
+
+
+                var ordenes = context.OrdenEmbarque.Where(x => x.Fchcar >= Fecha_Inicio && x.Fchcar <= Fecha_Fin && x.Codest == 3 && x.FchOrd != null
+                && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Codtad == id_terminal)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -139,39 +140,57 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
                     .Include(x => x.Tad)
-                    .OrderBy(x => x.Fchpet)
-                    .ThenBy(x => x.Tonel!.Tracto)
-                    .Include(x => x.OrdenPedido)
-                    .Take(10000)
-                    .ToListAsync();
-                //órdenes sin asignar ordenar por BIN
-                var ordensSinAsignar = await context.OrdenEmbarque
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Codest == 3 && x.FchOrd != null
-                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && x.Codtad == id_terminal)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Estado)
-                    .Include(x => x.OrdenCompra)
-                    .Include(x => x.Tad)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.OrdenCierre)
-                    .OrderBy(x => x.Fchpet)
-                    .Include(x => x.OrdenPedido)
-                    .Take(10000)
-                    .ToListAsync();
+                    .OrderBy(x => x.Bin)
+                    .AsQueryable();
 
-                ordens.AddRange(ordensSinAsignar);
+                if (!string.IsNullOrEmpty(_param.Cliente_Filtrado) && !string.IsNullOrWhiteSpace(_param.Cliente_Filtrado))
+                    ordenes = ordenes.Where(x => x.Destino != null && x.Destino.Cliente != null && !string.IsNullOrEmpty(x.Destino.Cliente.Den)
+                    && x.Destino.Cliente.Den.ToLower().Contains(_param.Cliente_Filtrado.ToLower()));
+                
+                if (!string.IsNullOrEmpty(_param.Destino_Filtrado) && !string.IsNullOrWhiteSpace(_param.Destino_Filtrado))
+                    ordenes = ordenes.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(_param.Destino_Filtrado.ToLower()));
 
-                ordens.OrderByDescending(x => x.Bin);
+                if (!string.IsNullOrEmpty(_param.Producto_Filtrado) && !string.IsNullOrWhiteSpace(_param.Producto_Filtrado))
+                    ordenes = ordenes.Where(x => x.Producto != null && !string.IsNullOrEmpty(x.Producto.Den) && x.Producto.Den.ToLower().Contains(_param.Producto_Filtrado.ToLower()));
 
-                foreach (var item in ordens)
-                    if (!newOrdens.Contains(item))
-                        newOrdens.Add(item);
+                if (_param.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage package = new();
+                    package.Workbook.Worksheets.Add("Asignacion de unidades");
+                    ExcelWorksheet ws = package.Workbook.Worksheets.First();
+                    var ords = ordenes.ToList();
+                    var ordenes_excel = ords.Select(x => new TablaAsignacionUnidadesDTO
+                    {
+                        OrdenCompra = x.OrdenCompra?.den ?? string.Empty,
+                        Referencia = x.OrdenCierre?.Folio ?? string.Empty,
+                        Cliente = x.Obtener_Cliente_De_Orden,
+                        Destino = x.Obtener_Destino_De_Orden,
+                        Producto = x.Obtener_Producto_De_Orden,
+                        Volumen = x.Obtener_Volumen_De_Orden(),
+                        FechaCarga = x.Fchcar?.ToString("dd/MM/yyyy") ?? string.Empty,
+                        Transportista = x.Tonel?.Transportista?.Den ?? string.Empty,
+                        Unidad = x.Tonel?.Veh ?? string.Empty,
+                        Compartimento = x.Compartment,
+                        Operador = x.Chofer?.FullName ?? string.Empty,
+                        Bin = x.Bin,
+                        Fecha = x.OrdenCierre?.FechaLlegada ?? string.Empty,
+                        Turno = x.OrdenCierre?.Turno ?? string.Empty,
+                        Unidad_Negocio = x.Tad?.Den ?? string.Empty
+                    });
 
-                return Ok(newOrdens);
+                    ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>
+                    {
+                        c.PrintHeaders = true;
+                        c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                    });
+                    
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(package.GetAsByteArray());
+                }
+
+                return Ok(ordenes);
             }
             catch (Exception e)
             {

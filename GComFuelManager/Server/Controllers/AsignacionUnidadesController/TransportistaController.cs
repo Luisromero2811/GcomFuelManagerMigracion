@@ -437,7 +437,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
         }
 
         [HttpGet]
-        public ActionResult Get()
+        public ActionResult Get([FromQuery] Transportista transportista)
         {
             try
             {
@@ -445,10 +445,13 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                var transportistas = context.Transportista.IgnoreAutoIncludes().Where(x => x.Activo == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToList();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(transportista.Den) || !string.IsNullOrWhiteSpace(transportista.Den))
+                    transportistas = transportistas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(transportista.Den.ToLower()));
 
                 return Ok(transportistas);
             }
