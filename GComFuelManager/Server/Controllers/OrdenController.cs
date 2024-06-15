@@ -455,7 +455,7 @@ namespace GComFuelManager.Server.Controllers
 
                 if (dias.Days > 3) { return BadRequest("No puede consultar en un rango mayor a 3 dias"); }
 
-                var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin && x.Codest == 20 && x.Bolguiid != null)
+                var ordenes = context.Orden.Where(x => x.Fchcar != null && x.Fchcar >= param.Fecha_Inicio && x.Fchcar <= param.Fecha_Fin && x.Codest == 20 && x.Bolguiid != null && x.isEnergas == true)
                     .Include(x => x.Producto)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -465,6 +465,7 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.OrdenEmbarque)
                     .ThenInclude(x => x.Archivos)
                     .Include(x => x.Terminal)
+                    .OrderByDescending(x => x.Fchcar)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(param.Terminal) && !string.IsNullOrWhiteSpace(param.Terminal))

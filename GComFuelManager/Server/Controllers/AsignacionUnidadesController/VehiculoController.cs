@@ -39,7 +39,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var vehiculos = context.Tonel.IgnoreAutoIncludes()
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
                     .ToList();

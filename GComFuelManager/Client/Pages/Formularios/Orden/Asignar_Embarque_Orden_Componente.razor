@@ -66,7 +66,15 @@
                         </div>
                     </div>
                     <div class="col-12 row d-flex g-1">
-                        <div class="col-3">
+                        <div class="col-2 d-flex flex-column align-items-center justify-content-center">
+                            <div class="d-flex align-items-center">
+                                <RadzenCheckBox @bind-Value=@Datos_BOL.isEnergas Name="CheckBox1" class="me-2" />
+                                <label for="CheckBox1" class="mb-0">
+                                    Facturar orden
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-2">
                             <label>BOL / Embarque</label>
                             <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" @ref="inputNumber" />
                             <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
@@ -81,7 +89,7 @@
                             <InputDate @bind-Value="@Datos_BOL.Fecha_llegada" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
                             <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
                         </div>
-                        <div class="col-3 mt-auto">
+                        <div class="col-2 mt-auto">
                             <label>ETA</label>
                             @Datos_BOL.Eta
                         </div>
@@ -617,6 +625,7 @@
         [Required(AllowEmptyStrings = false, ErrorMessage = "La factura de proveedor no pueden estar vacio")]
         public string? Factura { get; set; } = string.Empty;
         public string? Importe { get; set; } = string.Empty;
+        public bool? isEnergas { get; set; } = true;
         public string Eta
         {
             get

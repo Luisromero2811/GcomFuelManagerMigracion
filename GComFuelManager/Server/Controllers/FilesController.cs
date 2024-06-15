@@ -243,11 +243,14 @@ namespace Server.Controllers
                                                 string pedimento = string.Empty;
                                                 if (xml_info is not null)
                                                 {
-                                                    for (int i = 0; i < xml_info.Length; i++)
+                                                    if (xml_info.Length > 0)
                                                     {
-                                                        pedimento += xml_info[i];
+                                                        for (int i = 0; i < xml_info.Length; i++)
+                                                        {
+                                                            pedimento += xml_info[i];
+                                                        }
+                                                        orden_factura.Pedimento = pedimento;
                                                     }
-                                                    orden_factura.Pedimento = pedimento;
                                                 }
 
                                             }

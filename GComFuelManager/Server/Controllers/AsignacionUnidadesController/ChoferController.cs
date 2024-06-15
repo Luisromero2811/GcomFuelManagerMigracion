@@ -40,7 +40,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var transportistas = context.Chofer.IgnoreAutoIncludes()
-                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true && x.Terminales.Any(y => y.Cod == id_terminal))
+                    .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
                     .ToList();
@@ -499,6 +499,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                         }
 
                         await context.SaveChangesAsync();
+
+                        if(context.Chofer.Any(x=>x.Identificador == null && x.Id_Tad == 1))
+                        {
+                            var choferes = await context.Chofer.Where(x => x.Identificador == null && x.Id_Tad == 1).ToListAsync();
+                            foreach (var item in choferes)
+                            {
+                                item.Identificador = item.Cod;
+                            }
+
+                            context.UpdateRange(choferes);
+                            await context.SaveChangesAsync();
+                        }
                         return Ok(true);
                     }
                     else
