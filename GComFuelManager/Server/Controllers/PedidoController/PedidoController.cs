@@ -2267,11 +2267,6 @@ namespace GComFuelManager.Server.Controllers
                         return BadRequest("Debe de subir archivos");
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Éxito");
-                }
-                
 
                 ordenembarque.Codest = 20;
 
