@@ -2223,28 +2223,36 @@ namespace GComFuelManager.Server.Controllers
                 orden.Coduni = ordenembarque.Codton;
                 orden.Codprd = ordenembarque.Codprd;
                 orden.Codest = 20;
-                if (ordenembarque.Archivos != null)
+                if (orden.isEnergas is true)
                 {
-                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL && x.Id_Registro == ordenembarque.Cod))
+                    if (ordenembarque.Archivos != null)
                     {
-                        return BadRequest($"El archivo BOL / Embarque no ha sido seleccionado");
-                    }
+                        if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL && x.Id_Registro == ordenembarque.Cod))
+                        {
+                            return BadRequest($"El archivo BOL / Embarque no ha sido seleccionado");
+                        }
 
-                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA && x.Id_Registro == ordenembarque.Cod))
+                        if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA && x.Id_Registro == ordenembarque.Cod))
+                        {
+                            return BadRequest($"El archivo PDF de Factura no ha sido seleccionado");
+                        }
+
+                        if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA && x.Id_Registro == ordenembarque.Cod))
+                        {
+                            return BadRequest($"El archivo XML de Factura no ha sido seleccionado");
+                        }
+
+                    }
+                    else
                     {
-                        return BadRequest($"El archivo PDF de Factura no ha sido seleccionado");
+                        return BadRequest("Debe de subir archivos");
                     }
-
-                    if (!ordenembarque.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA && x.Id_Registro == ordenembarque.Cod))
-                    {
-                        return BadRequest($"El archivo XML de Factura no ha sido seleccionado");
-                    }
-
                 }
                 else
                 {
-                    return BadRequest("Debe de subir archivos");
+                    Console.WriteLine("Éxito");
                 }
+                
 
                 ordenembarque.Codest = 20;
 

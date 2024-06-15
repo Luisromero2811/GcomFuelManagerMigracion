@@ -43,7 +43,7 @@
                                 </div>
                                 <div class="card-body">
                                     <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:"
-                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)"/>
+                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
                                 </div>
                             </div>
                         </div>
@@ -66,7 +66,15 @@
                         </div>
                     </div>
                     <div class="col-12 row d-flex g-1">
-                        <div class="col-3">
+                        <div class="col-2 d-flex flex-column align-items-center justify-content-center">
+                            <div class="d-flex align-items-center">
+                                <RadzenCheckBox @bind-Value=@Datos_BOL.isEnergas Name="CheckBox1" class="me-2" />
+                                <label for="CheckBox1" class="mb-0">
+                                    ¿Facturar orden?
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-2">
                             <label>BOL / Embarque</label>
                             <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" @ref="inputNumber" />
                             <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
@@ -81,7 +89,7 @@
                             <InputDate @bind-Value="@Datos_BOL.Fecha_llegada" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
                             <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
                         </div>
-                        <div class="col-3 mt-auto">
+                        <div class="col-2 mt-auto">
                             <label>ETA</label>
                             @Datos_BOL.Eta
                         </div>
@@ -110,9 +118,9 @@
                             <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
                         @*<div class="col-2">
-                            <label>Importe Total:</label>
-                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
-                        </div>*@
+                                <label>Importe Total:</label>
+                                <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                            </div>*@
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
                         <div class="col-4">
@@ -177,7 +185,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
                 <!--Tabla de muestreo de datos-->
                 <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
@@ -253,8 +261,8 @@
                                         Factura Proveedor
                                     </th>
                                     @*<th>
-                                        Importe Total
-                                    </th>*@
+                                            Importe Total
+                                        </th>*@
                                     <th></th>
                                 </tr>
                             </thead>
@@ -316,53 +324,53 @@
         </div>
     </div>
 </AuthorizeView>
-@* 
-<Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
-    <Contenido>
-        <div class="col-12 row">
-            <div class="col">
-                <label><b>BOL: </b> @Datos_BOL.BatchId</label>
+@*
+    <Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
+        <Contenido>
+            <div class="col-12 row">
+                <div class="col">
+                    <label><b>BOL: </b> @Datos_BOL.BatchId</label>
+                </div>
+                <div class="col">
+                    <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
+                </div>
+                <div class="col">
+                    <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
+                </div>
+                <div class="col">
+                    <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
+                </div>
+                <div class="col">
+                    <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
+                </div>
+                <div class="col">
+                    <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
+                </div>
+                <div class="col">
+                    <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
+                </div>
+                <div class="col">
+                    <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
+                </div>
             </div>
-            <div class="col">
-                <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
+            <div class="col-12">
+                @foreach (var archivo in Archivos)
+                {
+                    <iframe src="@archivo.URL" style="width: 100%;"></iframe>
+                }
             </div>
-            <div class="col">
-                <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
+        </Contenido>
+        <Inferior_Personalizado>
+            <div class="col-12 row">
+                <div class="col-3">
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
+                </div>
+                <div class="col-3">
+                    <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
+                </div>
             </div>
-            <div class="col">
-                <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
-            </div>
-            <div class="col">
-                <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
-            </div>
-            <div class="col">
-                <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
-            </div>
-            <div class="col">
-                <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
-            </div>
-            <div class="col">
-                <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
-            </div>
-        </div>
-        <div class="col-12">
-            @foreach (var archivo in Archivos)
-            {
-                <iframe src="@archivo.URL" style="width: 100%;"></iframe>
-            }
-        </div>
-    </Contenido>
-    <Inferior_Personalizado>
-        <div class="col-12 row">
-            <div class="col-3">
-                <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
-            </div>
-            <div class="col-3">
-                <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
-            </div>
-        </div>
-    </Inferior_Personalizado>
-</Modal_Custom> *@
+        </Inferior_Personalizado>
+    </Modal_Custom> *@
 
 @code {
     InputNumber<int?> inputNumber;
@@ -596,6 +604,7 @@
         [Required(AllowEmptyStrings = false, ErrorMessage = "La factura de proveedor no pueden estar vacio")]
         public string? Factura { get; set; } = string.Empty;
         public string? Importe { get; set; } = string.Empty;
+        public bool? isEnergas { get; set; } = true;
         public string Eta
         {
             get
