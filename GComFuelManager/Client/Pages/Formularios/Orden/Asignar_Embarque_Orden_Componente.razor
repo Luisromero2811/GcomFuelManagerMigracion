@@ -358,6 +358,9 @@
             <div class="col-6">
                 <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
             </div>
+            <div class="col-6">
+                <label><b>Facturar orden: </b> @(Datos_BOL.isEnergas == true ? "SI" : "NO")</label>
+            </div>
         </div>
         <div class="col-12 my-1">
             @if (Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA))
@@ -368,7 +371,7 @@
         <div class="col-12 my-1">
             @foreach (var archivo in Archivos.Where(x => x.Tipo_Archivo != Tipo_Archivo.XML_FACTURA))
             {
-                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;" ></iframe>
+                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;"></iframe>
             }
         </div>
     </Contenido>
@@ -630,9 +633,25 @@
         {
             get
             {
+                TimeSpan time;
+                double hours = 0;
+                double min = 0;
                 if (Fchcar is not null && Fecha_llegada is not null)
-                    return Fecha_llegada.Value.Subtract((DateTime)Fchcar).ToString("hh\\:mm");
+                {
+                    time = TimeSpan.FromHours(Fecha_llegada.Value.Subtract((DateTime)Fchcar).TotalHours);
+                    if(time.Days >= 1)
+                    {
+                        hours = time.Days * 24;
+                        hours += time.Hours;
 
+                        return $"{hours:00}:{min:00}";
+                    }
+                    else
+                    {
+                        
+                        return time.ToString($"hh\\:mm");
+                    }
+                }
                 return string.Empty;
             }
         }

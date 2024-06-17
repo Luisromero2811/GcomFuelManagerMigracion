@@ -2267,11 +2267,6 @@ namespace GComFuelManager.Server.Controllers
                         return BadRequest("Debe de subir archivos");
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Éxito");
-                }
-                
 
                 ordenembarque.Codest = 20;
 
@@ -2335,6 +2330,7 @@ namespace GComFuelManager.Server.Controllers
                         orden_existente.Factura = orden.Factura;
                         orden_existente.Importe = orden.Importe;
                         orden_existente.ValorUnitario = orden.ValorUnitario;
+                        orden_existente.isEnergas = orden.isEnergas;
                         context.Update(orden_existente);
                     }
                 }
