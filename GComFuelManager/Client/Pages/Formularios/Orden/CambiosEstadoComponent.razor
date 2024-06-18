@@ -84,15 +84,15 @@
                     <th>Factura Mexico S</th>
                     <th>Factura DCL</th>
                     <th>Factura Energas</th>
-                    <th>Por Asignar</th>
                     <th>Asignado</th>
-                    <th>Por Cargar</th>
                     <th>Cargado</th>
-                    <th>En ruta a TAS</th>
-                    <th>Fuera de TAS</th>
-                    <th>En espera dentro de TAS</th>
+                    <th>En tránsito a destino</th>
+                    <th>Fuera de destino</th>
+                    <th>Dentro de destino</th>
                     <th>En proceso de descarga</th>
                     <th>Descargado</th>
+                    @*<th>En proceso de descarga</th>
+                    <th>Descargado</th>*@
                     <th>Orden Cancelada</th>
                 </tr>
             </thead>
@@ -126,8 +126,8 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
-                    <td></td>
+                    @*<td></td>
+                    <td></td>*@
                     <td></td>
                 </tr>
                 <Virtualize Items="@ordens" Context="data" TItem="Gestión_EstadosDTO">
@@ -152,16 +152,16 @@
                         <td>@data.Factura_MexicoS</td>
                         <td>@data.Factura_DCL</td>
                         <td>@data.Factura_Energas</td>
-                        <td>@data.Por_Asignar</td>
                         <td>@data.Asignado</td>
-                        <td>@data.Por_Cargar</td>
                         <td>@data.Cargado</td>
-                        <td>@data.Ruta_Tas</td>
-                        <td>@data.Fuera_Tas</td>
-                        <td>@data.Espera_dentro_TAS</td>
-                        <td>@data.Proceso_descarga</td>
+                        <td>@data.Transito_Destino</td>
+                        <td>@data.Fuera_Destino</td>
+                        <td>@data.Dentro_Destino</td>
+                        <td>@data.Proceso_Descarga</td>
                         <td>@data.Descargado</td>
                         <td>@data.Orden_Cancelada</td>
+                        @*<td>@data.Descargado</td>
+                        <td>@data.Orden_Cancelada</td>*@
                     </tr>
                 </Virtualize>
             </tbody>

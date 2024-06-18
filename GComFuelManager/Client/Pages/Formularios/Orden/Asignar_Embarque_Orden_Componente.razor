@@ -516,13 +516,6 @@
     {
         try
         {
-            /* Dictionary<string,string> param = new();
-            param["Fecha_Inicio"] = fechas.DateInicio.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
-            param["Fecha_Fin"] = fechas.DateFin.ToString("MM-dd-yyyy") ?? DateTime.Today.ToString("MM-dd-yyyy");
-            param["Comentarios"] = fechas.TipVenta;
-            var url = Constructor_De_URL_Parametros.Generar_URL(param);
-
-            var responseHttp = await http.Get<List<EtaNTDTO>>($"api/Eta/etaexterno?{url}");*/
 
             var responseHttp = await http.Post<FechasF, List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan", fechas);
             if (responseHttp.Error)
@@ -553,22 +546,6 @@
             }
             else
             {
-                // ordens = responseHttp.Response;
-                // //Licencia para guardado de Excel
-                // ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-                // //Generacion de Excel
-                // var excel = new ExcelPackage();
-                // var worksheet = excel.Workbook.Worksheets.Add("ETA");
-
-                // //Formación de Excel
-                // var tablebody = worksheet.Cells["A1"].LoadFromCollection(
-                //     ordens, c=>{
-                //         c.PrintHeaders = true;
-                //         c.TableStyle = TableStyles.Medium2;
-                //     });
-
-                // worksheet.Cells[1,1,worksheet.Dimension.End.Row,worksheet.Dimension.End.Column].AutoFitColumns();
-                //Guardar Excell
                 await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", responseHttp.Response);
             }
         }
