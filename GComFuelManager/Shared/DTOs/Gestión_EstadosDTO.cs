@@ -10,6 +10,7 @@ namespace GComFuelManager.Shared.DTOs
         //Propiedades para mandar el rango de fechas como filtro
         [EpplusIgnore] public DateTime DateInicio { get; set; } = DateTime.Today.Date;
         [EpplusIgnore] public DateTime DateFin { get; set; } = DateTime.Now;
+        [EpplusIgnore] public int Estado { get; set; } = 1;
         //Propiedades a utilizar en la consulta general y del excel
         public string? Referencia { get; set; } = string.Empty;
         [DisplayName("Fecha de Programa")]
@@ -53,35 +54,35 @@ namespace GComFuelManager.Shared.DTOs
         public string? Factura_DCL { get; set; } = string.Empty;
         [DisplayName("Factura Energas")]
         public string? Factura_Energas { get; set; } = string.Empty;
-        [DisplayName("Por Asignar")]
-        public string? Por_Asignar { get; set; } = string.Empty;
-
         [DisplayName("Asignado")]
         public string? Asignado { get; set; } = string.Empty;
-
-        [DisplayName("Por Cargar")]
-        public string? Por_Cargar { get; set; } = string.Empty;
 
         [DisplayName("Cargado")]
         public string? Cargado { get; set; } = string.Empty;
 
-        [DisplayName("En ruta a TAS")]
-        public string? Ruta_Tas { get; set; } = string.Empty;
+        [DisplayName("En tránsito a destino")]
+        public string? Transito_Destino { get; set; } = string.Empty;
 
-        [DisplayName("Fuera de TAS")]
-        public string? Fuera_Tas { get; set; } = string.Empty;
+        [DisplayName("Fuera de destino")]
+        public string? Fuera_Destino { get; set; } = string.Empty;
 
-        [DisplayName("En espera dentro de TAS")]
-        public string? Espera_dentro_TAS { get; set; } = string.Empty;
+        [DisplayName("Dentro de destino")]
+        public string? Dentro_Destino { get; set; } = string.Empty;
 
         [DisplayName("En proceso de descarga")]
-        public string? Proceso_descarga { get; set; } = string.Empty;
+        public string? Proceso_Descarga { get; set; } = string.Empty;
 
         [DisplayName("Descargado")]
         public string? Descargado { get; set; } = string.Empty;
 
         [DisplayName("Orden Cancelada")]
         public string? Orden_Cancelada { get; set; } = string.Empty;
+
+        //[DisplayName("Descargado")]
+        //public string? Descargado { get; set; } = string.Empty;
+
+        //[DisplayName("Orden Cancelada")]
+        //public string? Orden_Cancelada { get; set; } = string.Empty;
 
         //Propiedades de navegación externas
         [EpplusIgnore]
