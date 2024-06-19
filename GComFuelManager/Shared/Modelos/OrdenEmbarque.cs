@@ -68,7 +68,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public int? Compartimento { get; set; } = null!;
         [NotMapped] public Datos_Facturas? Datos_Facturas { get; set; } = null!;
         [NotMapped] public List<Archivo>? Archivos { get; set; } = null!;
-
         public OrdenEmbarque ShallowCopy()
         {
             return (OrdenEmbarque)this.MemberwiseClone();
@@ -180,6 +179,7 @@ namespace GComFuelManager.Shared.Modelos
 
             gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
             gestion_.Bol = Orden?.BatchId;
+            gestion_.MdVenta = Destino?.Cliente?.MdVenta ?? string.Empty;
             gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
             gestion_.Cliente = Obtener_Cliente_De_Orden;
             gestion_.Destino = Obtener_Destino_De_Orden;
@@ -200,35 +200,35 @@ namespace GComFuelManager.Shared.Modelos
             gestion_.Factura_Energas = Datos_Facturas?.Factura_Energas;
             if (HistorialEstados is not null)
             {
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "1_Por asignar") is not null)
-                    gestion_.Por_Asignar = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "1_Por asignar").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "1. Asignado") is not null)
+                    gestion_.Asignado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "1. Asignado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "2_Asignado") is not null)
-                    gestion_.Asignado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "2_Asignado").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "2. Cargado") is not null)
+                    gestion_.Cargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "2. Cargado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "3_Por cargar") is not null)
-                    gestion_.Por_Cargar = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "3_Por cargar").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino") is not null)
+                    gestion_.Transito_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "4_Cargado") is not null)
-                    gestion_.Cargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "4_Cargado").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "4. Fuera de destino") is not null)
+                    gestion_.Fuera_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "4. Fuera de destino").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "5_En ruta a TAS") is not null)
-                    gestion_.Ruta_Tas = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "5_En ruta a TAS").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "5. Dentro de destino") is not null)
+                    gestion_.Dentro_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "5. Dentro de destino").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "6_Fuera de TAS") is not null)
-                    gestion_.Fuera_Tas = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "6_Fuera de TAS").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga") is not null)
+                    gestion_.Proceso_Descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "7_En espera dentro de TAS") is not null)
-                    gestion_.Espera_dentro_TAS = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "7_En espera dentro de TAS").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "7. Descargado") is not null)
+                    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "7. Descargado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "8_En proceso de descarga") is not null)
-                    gestion_.Proceso_descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8_En proceso de descarga").Fecha_Actualizacion.ToString();
+                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada") is not null)
+                    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
-                    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
+                //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
+                //    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
-                    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
+                //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
+                //    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
 
             }
 
