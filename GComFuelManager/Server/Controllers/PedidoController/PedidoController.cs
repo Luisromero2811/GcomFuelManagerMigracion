@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using SixLabors.ImageSharp;
 using System.Security.Claims;
 
 namespace GComFuelManager.Server.Controllers
@@ -126,9 +127,15 @@ namespace GComFuelManager.Server.Controllers
                 if (!DateTime.TryParse(_param.Fecha_Inicio.ToString(), out DateTime Fecha_Inicio)) { return BadRequest("La fecha de inicio no tiene un formato valido."); }
                 if (!DateTime.TryParse(_param.Fecha_Fin.ToString(), out DateTime Fecha_Fin)) { return BadRequest("La fecha de fin no tiene un formato valido."); }
 
+                var terminal = context.Tad.FirstOrDefault(x => x.Cod == id_terminal);
+                if (terminal is null) { return NotFound(); }
 
-                var ordenes = context.OrdenEmbarque.Where(x => x.Fchcar >= Fecha_Inicio && x.Fchcar <= Fecha_Fin && x.Codest == 3 && x.FchOrd != null
-                && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Codtad == id_terminal)
+                List<OrdenEmbarque> ordens = new();
+                List<OrdenEmbarque> newOrdens = new();
+                //órdenes asignadas ordenar por orden compartimento 
+                ordens = context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= Fecha_Inicio && x.Fchcar <= Fecha_Fin && x.Codest == 3 && x.FchOrd != null
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel != null && x.Codtad == id_terminal)
                     .Include(x => x.Chofer)
                     .Include(x => x.Destino)
                     .ThenInclude(x => x.Cliente)
@@ -140,13 +147,39 @@ namespace GComFuelManager.Server.Controllers
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
                     .Include(x => x.Tad)
-                    .OrderBy(x => x.Bin)
-                    .AsQueryable();
+                    .OrderBy(x => x.Fchpet)
+                    .ThenBy(x => x.Tonel!.Tracto)
+                    .Include(x => x.OrdenPedido)
+                    .Take(10000)
+                    .ToList();
+                //órdenes sin asignar ordenar por BIN
+                var ordensSinAsignar = context.OrdenEmbarque
+                    .Where(x => x.Fchcar >= Fecha_Inicio && x.Fchcar <= Fecha_Fin && x.Codest == 3 && x.FchOrd != null
+                    && x.Bolguidid == null && x.Folio == null && x.CodordCom != null && x.Tonel == null && x.Codtad == id_terminal)
+                    .Include(x => x.Chofer)
+                    .Include(x => x.Destino)
+                    .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Estado)
+                    .Include(x => x.OrdenCompra)
+                    .Include(x => x.Tad)
+                    .Include(x => x.Producto)
+                    .Include(x => x.Tonel)
+                    .ThenInclude(x => x.Transportista)
+                    .Include(x => x.OrdenCierre)
+                    .OrderBy(x => x.Fchpet)
+                    .Include(x => x.OrdenPedido)
+                    .Take(10000)
+                    .ToList();
+
+                ordens.AddRange(ordensSinAsignar);
+                ordens.OrderByDescending(x => x.Bin);
+
+                var ordenes = ordens.AsQueryable();
 
                 if (!string.IsNullOrEmpty(_param.Cliente_Filtrado) && !string.IsNullOrWhiteSpace(_param.Cliente_Filtrado))
                     ordenes = ordenes.Where(x => x.Destino != null && x.Destino.Cliente != null && !string.IsNullOrEmpty(x.Destino.Cliente.Den)
                     && x.Destino.Cliente.Den.ToLower().Contains(_param.Cliente_Filtrado.ToLower()));
-                
+
                 if (!string.IsNullOrEmpty(_param.Destino_Filtrado) && !string.IsNullOrWhiteSpace(_param.Destino_Filtrado))
                     ordenes = ordenes.Where(x => x.Destino != null && !string.IsNullOrEmpty(x.Destino.Den) && x.Destino.Den.ToLower().Contains(_param.Destino_Filtrado.ToLower()));
 
@@ -160,34 +193,72 @@ namespace GComFuelManager.Server.Controllers
                     package.Workbook.Worksheets.Add("Asignacion de unidades");
                     ExcelWorksheet ws = package.Workbook.Worksheets.First();
                     var ords = ordenes.ToList();
-                    var ordenes_excel = ords.Select(x => new TablaAsignacionUnidadesDTO
-                    {
-                        OrdenCompra = x.OrdenCompra?.den ?? string.Empty,
-                        Referencia = x.OrdenCierre?.Folio ?? string.Empty,
-                        Cliente = x.Obtener_Cliente_De_Orden,
-                        Destino = x.Obtener_Destino_De_Orden,
-                        Producto = x.Obtener_Producto_De_Orden,
-                        Volumen = x.Obtener_Volumen_De_Orden(),
-                        FechaCarga = x.Fchcar?.ToString("dd/MM/yyyy") ?? string.Empty,
-                        Transportista = x.Tonel?.Transportista?.Den ?? string.Empty,
-                        Unidad = x.Tonel?.Veh ?? string.Empty,
-                        Compartimento = x.Compartment,
-                        Operador = x.Chofer?.FullName ?? string.Empty,
-                        Bin = x.Bin,
-                        Fecha = x.OrdenCierre?.FechaLlegada ?? string.Empty,
-                        Turno = x.OrdenCierre?.Turno ?? string.Empty,
-                        Unidad_Negocio = x.Tad?.Den ?? string.Empty
-                    });
 
-                    ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>
+                    if (!string.IsNullOrEmpty(terminal.Den) && terminal.Den.ToUpper() == "TAS SAN JOSE ITURBIDE")
                     {
-                        c.PrintHeaders = true;
-                        c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
-                    });
-                    
-                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+                        var ordenes_excel = ords.Select(x => new Reporte_Cargas_Tad_SJI
+                        {
+                            ShipToNo = x.Destino?.Cliente?.Identificador_Externo ?? string.Empty,
+                            ShipToName = x.Destino?.Cliente?.Den ?? string.Empty,
+                            CustPONo = x.Folio_Vale,
+                            SONo = x.Folio_Vale,
+                            SOCreateDt = x.Fchcar,
+                            CustRDD = x.Fchcar,
+                            Material = x.Producto?.Identificador_Externo ?? string.Empty,
+                            MaterialDescriptionName = x.Producto?.Den ?? string.Empty,
+                            SOOrderQty = x.Vol,
+                            StationNameMX = x.Destino?.Den ?? string.Empty,
+                            TankCount = x.Tonel?.Tanque,
+                            EQUIPO = x.Tonel?.Tracto ?? string.Empty,
+                            OPERADOR = x.Chofer?.Den ?? string.Empty,
+                            TRANSPORTISTA = x.Tonel?.Transportista?.Den ?? string.Empty,
+                            LICENCIAOPERADOR = x.Chofer?.Licencia ?? string.Empty
+                        });
 
-                    return Ok(package.GetAsByteArray());
+                        ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        });
+
+                        ws.Cells[1, 13, ws.Dimension.End.Row, 13].Style.Numberformat.Format = "#,##0";
+                        ws.Cells[1, 7, ws.Dimension.End.Row, 8].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                        ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                        return Ok(package.GetAsByteArray());
+                    }
+                    else
+                    {
+                        var ordenes_excel = ords.Select(x => new TablaAsignacionUnidadesDTO
+                        {
+                            OrdenCompra = x.OrdenCompra?.den ?? string.Empty,
+                            Referencia = x.OrdenCierre?.Folio ?? string.Empty,
+                            Cliente = x.Obtener_Cliente_De_Orden,
+                            Destino = x.Obtener_Destino_De_Orden,
+                            Producto = x.Obtener_Producto_De_Orden,
+                            Volumen = x.Obtener_Volumen_De_Orden(),
+                            FechaCarga = x.Fchcar?.ToString("dd/MM/yyyy") ?? string.Empty,
+                            Transportista = x.Tonel?.Transportista?.Den ?? string.Empty,
+                            Unidad = x.Tonel?.Veh ?? string.Empty,
+                            Compartimento = x.Compartment,
+                            Operador = x.Chofer?.FullName ?? string.Empty,
+                            Bin = x.Bin,
+                            Fecha = x.OrdenCierre?.FechaLlegada ?? string.Empty,
+                            Turno = x.OrdenCierre?.Turno ?? string.Empty,
+                            Unidad_Negocio = x.Tad?.Den ?? string.Empty
+                        });
+
+                        ws.Cells["A1"].LoadFromCollection(ordenes_excel, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                        });
+
+                        ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                        return Ok(package.GetAsByteArray());
+                    }
                 }
 
                 return Ok(ordenes);
@@ -2136,6 +2207,21 @@ namespace GComFuelManager.Server.Controllers
                     folio ??= 0;
 
                     folio++;
+
+                    //if (context.Consecutivo.Any(x => x.Id_Tad == id_terminal && x.Nombre == "Consecutivo"))
+                    //{
+                    //    var consecutivo = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == id_terminal && x.Nombre == "Consecutivo");
+                    //    if (consecutivo is not null)
+                    //    {
+                    //        //consecutivo.Numeracion++;
+                    //        //context.Update(consecutivo);
+                    //        //await context.SaveChangesAsync();
+                    //        folio = consecutivo.Numeracion;
+
+                    //        context.Remove(consecutivo);
+                    //        await context.SaveChangesAsync();
+                    //    }
+                    //}
 
                     List<OrdenEmbarque> ordenEmbarques = new List<OrdenEmbarque>();
 

@@ -9,6 +9,9 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'https' " />
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
+    <Content Remove="wwwroot\img\ENERGAS_Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="EPPlus" Version="6.2.0" />
     <PackageReference Include="itext" Version="8.0.2" />
     <PackageReference Include="MailKit" Version="4.0.0" />
@@ -71,5 +74,8 @@
     <Folder Include="wwwroot\PDF-BOL\" />
     <Folder Include="wwwroot\XML\" />
     <Folder Include="wwwroot\PDF\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\img\ENERGAS_Icon.png" />
   </ItemGroup>
 </Project>
