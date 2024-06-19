@@ -8,6 +8,8 @@ public class Reporte_Cargas_Tad_SJI
     public string SoldTo { get; set; } = "ENE01";
     [DisplayName("Cust. Sold-to Name")]
     public string CustSoldToName { get; set; } = "ENERGAS DE MEXICO";
+    [DisplayName("ShipTo No.")]
+    public string? ShipToNo { get; set; } = string.Empty;
     [DisplayName("ShipTo Name")]
     public string? ShipToName { get; set; } = string.Empty;
     [DisplayName("Cust PO No.")]
@@ -26,7 +28,7 @@ public class Reporte_Cargas_Tad_SJI
     [DisplayName("Material Description Name")]
     public string? MaterialDescriptionName { get; set; } = string.Empty;
     [DisplayName("SO Order Qty")]
-    public int? SOOrderQty { get; set; } = 0;
+    public double? SOOrderQty { get; set; } = 0;
     [DisplayName("Sales UoM")]
     public string SaleUoM { get; set; } = "L20";
     [DisplayName("Station Name MX")]

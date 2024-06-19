@@ -30,7 +30,7 @@
                         <ValidationMessage For="@(()=>Producto.Id_Tipo)" />
                     </div>
                     <div class="col">
-                        <InputText class="form-control form-control-sm" @bind-Value="Producto.Identificador_Externo" />
+                        <InputText class="form-control form-control-sm" @bind-Value="Producto.Identificador_Externo" placeholder="Identificador externo"/>
                     </div>
                     <div class="col">
                         <div class="col-12 row">
@@ -67,12 +67,12 @@
             <tr>
                 <td>@producto.Den</td>
                 <td>@producto.Obtener_Tipo</td>
+                <td>@producto.Identificador_Externo</td>
                 <td>
                     <div class="form-check form-switch mx-2">
                         <input class="form-check-input" type="checkbox" role="switch" id="estatus" checked="@producto.Activo" @onchange="@((args)=>ChangeStatus(args, producto))">
                     </div>
                 </td>
-                <td>@producto.Identificador_Externo</td>
                 <td>
                     <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Producto = producto)">
                         <i class="fa fa-solid fa-edit"></i>

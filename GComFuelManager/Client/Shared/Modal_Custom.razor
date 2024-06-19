@@ -1,29 +1,40 @@
-﻿@inject IJSRuntime js
-
-<div id="myModal" class="modal-custom" style="display: @ModalDisplay;">
-    <div class="modal-custom-content">
-        <div class="modal-custom-header">
-            <span class="close" @onclick="Close">&times;</span>
-            @if (Titulo_Personalizado is null)
-            {
-                <b>@Titulo</b>
-            }
-            else
-            {
-                @Titulo_Personalizado
-            }
-        </div>
-        <div class="modal-custom-body">
-            @Contenido
-        </div>
-        <div class="modal-custom-footer">
-            @if (Inferior_Personalizado is not null)
-            {
-                @Inferior_Personalizado
-            }
+﻿@if (Show_Modal)
+{
+    <div id="myModal" class="modal-custom" style="display: block;">
+        <div class="modal-custom-content">
+            <div class="modal-custom-header">
+                <span class="close" @onclick="Close">&times;</span>
+                @if (Titulo_Personalizado is null)
+                {
+                    <b>@Titulo</b>
+                }
+                else
+                {
+                    @Titulo_Personalizado
+                }
+            </div>
+            <div class="modal-custom-body">
+                @if(Contenido is null)
+                {
+                    @if (metaData is not null)
+                    {
+                        <DynamicComponent Type="metaData.Type" Parameters="metaData.Parameters" @ref="dc" />
+                    }
+                }
+                else
+                {
+                    @Contenido
+                }
+            </div>
+            <div class="modal-custom-footer">
+                @if (Inferior_Personalizado is not null)
+                {
+                    @Inferior_Personalizado
+                }
+            </div>
         </div>
     </div>
-</div>
+}
 
 @code {
     [Parameter] public RenderFragment Titulo_Personalizado { get; set; } = null!;
@@ -36,29 +47,53 @@
     private string ModalClass = string.Empty;
     private string ModalDisplay = "none";
 
-    ElementReference MODAL;
+    bool Show_Modal = false;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    Type? Type = default;
+    ComponentMetaData metaData = null!;
+    DynamicComponent? dc;
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     // var module = await js.InvokeAsync<IJSObjectReference>("importarScript", "./Shared/Modal_Custom.razor.js");
+    //     // await module.InvokeVoidAsync("onclick.CloseModal", ModalDisplay);
+    // }
+
+    public void OpenModal<TParam>(string Name, Dictionary<string, object>? Parameters = null)
     {
-        // var module = await js.InvokeAsync<IJSObjectReference>("importarScript", "./Shared/Modal_Custom.razor.js");
-        // await module.InvokeVoidAsync("onclick.CloseModal", ModalDisplay);
+        Show_Modal = true;
+        metaData = new()
+            {
+                Type = typeof(TParam),
+                Parameters = Parameters
+            };
+
+        StateHasChanged();
     }
 
     public void Open()
     {
-        ModalDisplay = "block";
-        // ModalClass = "show";
-        // ShowBackDrop = true;
-        
-        // Console.WriteLine(ModalDisplay);
+        Show_Modal = true;
+        // ModalDisplay = "block";
+        // // ModalClass = "show";
+        // // ShowBackDrop = true;
+
+        // // Console.WriteLine(ModalDisplay);
         StateHasChanged();
     }
 
     public void Close()
     {
-        ModalDisplay = "none";
-        // ModalClass = string.Empty;
-        // ShowBackDrop = false;
+        Show_Modal = false;
+        // ModalDisplay = "none";
+        // // ModalClass = string.Empty;
+        // // ShowBackDrop = false;
         StateHasChanged();
+    }
+
+    private class ComponentMetaData
+    {
+        public required Type Type { get; init; }
+        // public required string Name { get; init; }
+        public Dictionary<string, object>? Parameters { get; init; } = new();
     }
 }
