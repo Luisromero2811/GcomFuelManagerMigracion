@@ -68,7 +68,6 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped] public int? Compartimento { get; set; } = null!;
         [NotMapped] public Datos_Facturas? Datos_Facturas { get; set; } = null!;
         [NotMapped] public List<Archivo>? Archivos { get; set; } = null!;
-
         public OrdenEmbarque ShallowCopy()
         {
             return (OrdenEmbarque)this.MemberwiseClone();
@@ -180,6 +179,7 @@ namespace GComFuelManager.Shared.Modelos
 
             gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
             gestion_.Bol = Orden?.BatchId;
+            gestion_.MdVenta = Destino?.Cliente?.MdVenta ?? string.Empty;
             gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
             gestion_.Cliente = Obtener_Cliente_De_Orden;
             gestion_.Destino = Obtener_Destino_De_Orden;
