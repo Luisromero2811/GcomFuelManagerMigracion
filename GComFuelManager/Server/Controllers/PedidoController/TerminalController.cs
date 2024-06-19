@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace GComFuelManager.Server.Controllers
 {
@@ -19,14 +20,14 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly VerifyUserId verifyUser;
-        private readonly User_Terminal terminal;
+        private readonly User_Terminal _terminal;
 
         public TerminalController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, VerifyUserId verifyUser, User_Terminal _Terminal)
         {
             this.context = context;
             this.userManager = userManager;
             this.verifyUser = verifyUser;
-            terminal = _Terminal;
+            this._terminal = _Terminal;
         }
         [HttpGet]
         public ActionResult Get()
@@ -120,6 +121,9 @@ namespace GComFuelManager.Server.Controllers
                     if (context.Tad.Any(x => !string.IsNullOrEmpty(x.CodigoOrdenes) && x.CodigoOrdenes.ToLower().Equals(terminal.CodigoOrdenes.ToLower())))
                     { return BadRequest("Ya existe una terminal con el mismo identificador de orden"); }
 
+                    var tipo_vale = context.Catalogo_Fijo.FirstOrDefault(x => x.Valor.ToLower() == "pemex");
+                    if (tipo_vale != null) { terminal.Tipo_Vale = tipo_vale.Id; }
+
                     context.Add(terminal);
                     await context.SaveChangesAsync(id, 43);
                 }
@@ -137,7 +141,7 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0)
                     return BadRequest();
 
@@ -151,7 +155,6 @@ namespace GComFuelManager.Server.Controllers
                 return BadRequest(e.Message);
             }
         }
-
 
         [HttpGet("activas")]
         public async Task<ActionResult<List<Tad>>> Obtener_Terminales_De_Login()
@@ -179,5 +182,137 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("configuracion/{id}")]
+        public async Task<ActionResult> Obtener_Configuracion_Terminal([FromRoute] short id)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0) { return BadRequest(); }
+
+                var terminal = await context.Tad.FirstOrDefaultAsync(x => x.Cod == id);
+                if (terminal is null) { return NotFound(); }
+
+                //int? consecutivo = 1;
+                //var folio = context.OrdenEmbarque.Where(x => x.Codtad == id).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
+                //var consecutivo_orden = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == id && x.Nombre == "Consecutivo");
+
+                //if (consecutivo_orden is not null)
+                //{
+                //    consecutivo = consecutivo_orden.Numeracion;
+                //}
+                //else
+                //{
+                //    if (folio is not null)
+                //    {
+                //        consecutivo = folio;
+                //    }
+                //    else
+                //    {
+                //        consecutivo = 1;
+                //    }
+                //}
+
+                var consecutivo_vale = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == id && x.Nombre == "Vale");
+
+                var catalogo = await context.Catalogo_Fijo.FirstOrDefaultAsync(x => x.Id == terminal.Tipo_Vale);
+                if (catalogo is null) { catalogo = new(); }
+
+                Configuracion_Terminal_DTO configuracion_ = new()
+                {
+                    //Consecutivo = consecutivo ?? 1,
+                    Consecutivo_Vale = consecutivo_vale?.Numeracion ?? 1,
+                    Id_Terminal = id,
+                    Tipo_De_Vale = catalogo.Id
+                };
+
+                return Ok(configuracion_);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("configuracion")]
+        public async Task<ActionResult> Guardar_Configuracion_Terminal([FromBody] Configuracion_Terminal_DTO configuracion_)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0) { return BadRequest(); }
+
+                var terminal = await context.Tad.IgnoreAutoIncludes().FirstOrDefaultAsync(x => x.Cod == configuracion_.Id_Terminal);
+                if (terminal is null) { return NotFound(); }
+
+                terminal.Tipo_Vale = configuracion_.Tipo_De_Vale;
+                context.Update(terminal);
+                await context.SaveChangesAsync();
+
+                //var folio = context.OrdenEmbarque.Where(x => x.Codtad == configuracion_.Id_Terminal).OrderByDescending(X => X.Folio).Select(x => x.Folio).FirstOrDefault();
+
+                //var consecutivo = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == configuracion_.Id_Terminal && x.Nombre == "Consecutivo");
+                //if (consecutivo is null)
+                //{
+                //    if (folio is not null)
+                //        if (folio != configuracion_.Consecutivo)
+                //            if (folio > configuracion_.Consecutivo)
+                //                return BadRequest("El consecutivo no puede ser menor al consecutivo actual. Esto podria causar duplicidad de referencias en ordenes.");
+
+                //    Consecutivo Nuevo_Consecutivo = new() { Numeracion = configuracion_.Consecutivo, Nombre = "Consecutivo", Id_Tad = configuracion_.Id_Terminal };
+                //    context.Add(Nuevo_Consecutivo);
+                //    await context.SaveChangesAsync();
+                //}
+                //else
+                //{
+                //    if (folio is not null)
+                //        if (folio != configuracion_.Consecutivo)
+                //            if (folio > configuracion_.Consecutivo)
+                //                return BadRequest("El consecutivo no puede ser menor al consecutivo actual. Esto podria causar duplicidad de referencias en ordenes.");
+
+                //    consecutivo.Numeracion = configuracion_.Consecutivo;
+                //    context.Update(consecutivo);
+                //    await context.SaveChangesAsync();
+                //}
+
+                var consecutivo_vale = await context.Consecutivo.FirstOrDefaultAsync(x => x.Id_Tad == configuracion_.Id_Terminal && x.Nombre == "Vale");
+                if (consecutivo_vale is null)
+                {
+                    Consecutivo Nuevo_Consecutivo = new() { Numeracion = configuracion_.Consecutivo_Vale, Nombre = "Vale", Id_Tad = configuracion_.Id_Terminal };
+                    context.Add(Nuevo_Consecutivo);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    consecutivo_vale.Numeracion = configuracion_.Consecutivo_Vale;
+                    context.Update(consecutivo_vale);
+                    await context.SaveChangesAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo/tipovale")]
+        public ActionResult Obtener_Catalogo_Conjunto()
+        {
+            try
+            {
+                var catalogo = context.Accion.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Formato_Vale"));
+                if (catalogo is null) { return BadRequest("No existe el catalogo para el tipo de vale"); }
+
+                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToList();
+
+                return Ok(catalogo_fijo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

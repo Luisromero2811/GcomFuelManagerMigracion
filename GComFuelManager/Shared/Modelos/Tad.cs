@@ -22,7 +22,8 @@ namespace GComFuelManager.Shared.Modelos
         public string? Codigo { get; set; } = string.Empty;
         [StringLength(5)]
         public string? CodigoOrdenes { get; set; } = string.Empty;
-        [NotMapped] public DateTime? Ultima_Actualizacion_Catalogo { get; set; }
+        public DateTime? Ultima_Actualizacion_Catalogo { get; set; }
+        public int? Tipo_Vale { get; set; } = 0;
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
         [NotMapped, JsonIgnore] public List<Cliente> Clientes { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();

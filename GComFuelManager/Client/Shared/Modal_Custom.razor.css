@@ -29,7 +29,7 @@
 .modal-custom-header {
     padding: .4rem 1rem;
     background-color: #fefefe;
-    border-bottom: 1px solid #888;
+    /*border-bottom: 1px solid #888;*/
     color:black;
 }
 
@@ -40,7 +40,7 @@
 .modal-custom-footer {
     padding: .4rem 1rem;
     background-color: #fefefe;
-    border-top: 1px solid #888;
+    /*border-top: 1px solid #888;*/
     color:black;
     position:sticky;
     bottom:0;
@@ -49,7 +49,7 @@
 .close {
     color: #888;
     float: right;
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
 }
 

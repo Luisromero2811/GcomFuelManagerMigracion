@@ -1481,15 +1481,15 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
-        [HttpGet("eliminar/duplicados"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete_Transportistas()
+        [HttpGet("eliminar/duplicados/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Transportistas([FromRoute] short id)
         {
             try
             {
                 List<Transportista> trans_originales = new();
                 List<Transportista> trans_duplicados = new();
 
-                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
                 foreach (var transportista in transprtistas)
                 {
                     if (!trans_originales.Any(x => x.Identificacion == transportista.Identificacion))
@@ -1509,8 +1509,8 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
-        [HttpGet("eliminar/duplicados/chofer"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete_Chofer()
+        [HttpGet("eliminar/duplicados/chofer/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Chofer([FromRoute] short id)
         {
             try
             {
@@ -1520,15 +1520,15 @@ namespace GComFuelManager.Server.Controllers.Services
                 List<Chofer> chf_originales = new();
                 List<Chofer> chf_duplicados = new();
 
-                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
                 foreach (var transportista in transprtistas)
                 {
                     if (int.TryParse(transportista.Busentid, out int busentid))
                     {
-                        var choferes_originales = await context.Chofer.Where(x => x.Codtransport == busentid && x.Id_Tad == 6).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                        var choferes_originales = await context.Chofer.Where(x => x.Codtransport == busentid && x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
                         foreach (var chfori in choferes_originales)
                         {
-                            if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador))
+                            if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador && x.Codtransport == chfori.Codtransport))
                                 chf_originales.Add(chfori);
                             else
                                 chf_duplicados.Add(chfori);
@@ -1540,6 +1540,39 @@ namespace GComFuelManager.Server.Controllers.Services
                 await context.SaveChangesAsync();
 
                 return Ok(chf_duplicados);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("eliminar/duplicados/tonel/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Delete_Tonel([FromRoute] short id)
+        {
+            try
+            {
+
+                List<Tonel> ton_originales = new();
+                List<Tonel> ton_duplicados = new();
+
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                foreach (var transportista in transprtistas)
+                {
+                    var toneles_originales = await context.Tonel.Where(x => x.Carid == transportista.CarrId && x.Id_Tad == id).OrderBy(x => x.Tracto).ThenBy(x => x.Cod).ToListAsync();
+                    foreach (var tonel in toneles_originales)
+                    {
+                        if (!ton_originales.Any(x => x.Tracto == tonel.Tracto && x.Placa == tonel.Placa && x.Codsyn == tonel.Codsyn && x.Placatracto == tonel.Placatracto && x.Carid == tonel.Carid))
+                            ton_originales.Add(tonel);
+                        else
+                            ton_duplicados.Add(tonel);
+                    }
+                }
+
+                context.RemoveRange(ton_duplicados);
+                await context.SaveChangesAsync();
+
+                return Ok(ton_duplicados);
             }
             catch (Exception e)
             {

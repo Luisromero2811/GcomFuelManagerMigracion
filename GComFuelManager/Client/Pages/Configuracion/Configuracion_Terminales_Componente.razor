@@ -57,6 +57,7 @@
                 <th>Editar</th>
                 <th>Activar / Desactivar</th>
                 <th>Catalogo</th>
+                <th>Configuracion</th>
             </tr>
         </thead>
         <tbody>
@@ -92,16 +93,31 @@
                             }
                         </div>
                     </td>
+                    <td>
+                        <div>
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Abrir_Modal_Configuracion(terminal))"><i class="fa fa-solid fa-gear"></i></button>
+                        </div>
+                    </td>
                 </tr>
             </Virtualize>
         </tbody>
     </table>
 </div>
+
+<Modal_Custom @ref="modal_">
+    <Titulo_Personalizado>
+        <b>Configuracion de terminal: @Terminal.Den</b>
+    </Titulo_Personalizado>
+</Modal_Custom>
+
 @code {
     Tad Terminal { get; set; } = new();
     List<Tad> Terminales { get; set; } = new();
 
+    Modal_Custom modal_ = null!;
+
     bool loading_catalogo = false;
+    bool loading_guardar = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,33 +210,23 @@
         }
     }
 
-    private async Task Copiar_catalogo(short id)
-    {
-        try
-        {
-            loading_catalogo = true;
-            ns.Notify(new() { Summary = "Copiando catalogo", Detail = "Copiando catalogo inicial. Permanesca en este modulo hasta terminar el proceso", Duration = 60000, Severity = NotificationSeverity.Info });
-            var response = await http.Get<bool>($"api/services/default/data/{id}");
-            if (response.Error)
-            {
-                loading_catalogo = false;
-                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
-            }
-            else
-            {
-                loading_catalogo = false;
-                await swal.FireAsync("Catalogo", "Catalogo de terminal completado", SweetAlertIcon.Success);
-            }
-        }
-        catch (Exception e)
-        {
-            loading_catalogo = false;
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
-
     private async Task Abrir_Modulo_Copiado(Tad tad)
     {
         await ds.OpenAsync<Vista_Seleccion_Catalogo_Componente>("Seleccion de catalogo", new() { { "Terminal_Destino", tad.Cod } });
+    }
+
+    private void CloseModal()
+    {
+        Terminal = new();
+        modal_.Close();
+    }
+
+    private void Abrir_Modal_Configuracion(Tad terminal)
+    {
+        Terminal = terminal;
+        modal_.OpenModal<Vista_Configuracion_Terminal_Componente>("Configuracion de terminal", new() {
+            { "Id_Terminal", Terminal.Cod },
+            {nameof(Vista_Configuracion_Terminal_Componente.CloseModal), EventCallback.Factory.Create(this, CloseModal)}
+        });
     }
 }

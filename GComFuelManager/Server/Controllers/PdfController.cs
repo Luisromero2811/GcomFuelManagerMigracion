@@ -125,17 +125,9 @@ namespace GComFuelManager.Server.Controllers
                 if (destino is null) { return BadRequest("No se encontro el destino"); }
 
                 var producto_anterior = producto.Den;
-                //var producto_anterior = string.Empty;
-                //var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment && x.Cod != orden.Cod
-                //&& x.Fchcar < orden.Fchcar).OrderByDescending(x => x.Fchpet).FirstOrDefault();
-                //if (orden_anterior is not null)
-                //{
-                //    var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
-                //    if (prod_anterior is not null)
-                //    {
-                //        producto_anterior = prod_anterior.Den;
-                //    }
-                //}
+
+                var tipo_vale = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == terminal.Tipo_Vale);
+                if (tipo_vale is null) { return BadRequest("No se encontro el tipo de vale de la terminal"); }
 
                 var autorizador = context.Autorizador.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Autorizador);
                 if (autorizador is null) { return BadRequest("No se encontro el autorizador"); }
@@ -143,7 +135,13 @@ namespace GComFuelManager.Server.Controllers
                 #endregion
 
                 #region imagen de mgc
-                string path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/MGC_Icon.png");
+                string path = string.Empty;
+
+                if (tipo_vale.Valor.ToLower() == "pemex")
+                    path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/MGC_Icon.png");
+                else
+                    path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/ENERGAS_Icon.png");
+
                 XImage xImage = XImage.FromFile(path);
                 graphics.DrawImage(xImage, 36, 36);
                 #endregion
@@ -159,7 +157,14 @@ namespace GComFuelManager.Server.Controllers
 
                 #region Datos terminal
                 rect = new(36, 111, 220, 15);
-                tf.DrawString("Pemex Transformacion Industrial", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                var leyenda = string.Empty;
+
+                if (tipo_vale.Valor.ToLower() == "pemex")
+                    leyenda = "Pemex Transformacion Industrial";
+                else
+                    leyenda = "ENERGAS DE MÉXICO, S.A. DE C.V.";
+
+                tf.DrawString(leyenda, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                 rect = new(36, 121, 220, 13);
                 tf.DrawString(terminal.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
@@ -458,17 +463,9 @@ namespace GComFuelManager.Server.Controllers
                     if (destino is null) { return BadRequest("No se encontro el destino"); }
 
                     var producto_anterior = producto.Den;
-                    //var producto_anterior = string.Empty;
-                    //var orden_anterior = context.OrdenEmbarque.Where(x => x.Codton == ordenEmbarque.Codton && x.Compartment == ordenEmbarque.Compartment && x.Cod != orden[i].Cod
-                    //&& x.Fchcar < orden[i].Fchcar).OrderByDescending(x => x.Fchpet).FirstOrDefault();
-                    //if (orden_anterior is not null)
-                    //{
-                    //    var prod_anterior = context.Producto.FirstOrDefault(x => x.Cod == orden_anterior.Codprd);
-                    //    if (prod_anterior is not null)
-                    //    {
-                    //        producto_anterior = prod_anterior.Den;
-                    //    }
-                    //}
+
+                    var tipo_vale = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == terminal.Tipo_Vale);
+                    if (tipo_vale is null) { return BadRequest("No se encontro el tipo de vale de la terminal"); }
 
                     var autorizador = context.Autorizador.FirstOrDefault(x => x.Cod == ordenEmbarque.Id_Autorizador);
                     if (autorizador is null) { return BadRequest("No se encontro el autorizador"); }
@@ -476,7 +473,13 @@ namespace GComFuelManager.Server.Controllers
                     #endregion
 
                     #region imagen de mgc
-                    string path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/MGC_Icon.png");
+                    string path = string.Empty;
+
+                    if (tipo_vale.Valor.ToLower() == "pemex")
+                        path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/MGC_Icon.png");
+                    else
+                        path = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "wwwroot/img/ENERGAS_Icon.png");
+
                     XImage xImage = XImage.FromFile(path);
                     graphics.DrawImage(xImage, 36, 36);
                     #endregion
@@ -492,7 +495,14 @@ namespace GComFuelManager.Server.Controllers
 
                     #region Datos terminal
                     rect = new(36, 111, 220, 15);
-                    tf.DrawString("Pemex Transformacion Industrial", font, XBrushes.Black, rect, XStringFormats.TopLeft);
+                    var leyenda = string.Empty;
+
+                    if (tipo_vale.Valor.ToLower() == "pemex")
+                        leyenda = "Pemex Transformacion Industrial";
+                    else
+                        leyenda = "ENERGAS DE MÉXICO, S.A. DE C.V.";
+
+                    tf.DrawString(leyenda, font, XBrushes.Black, rect, XStringFormats.TopLeft);
 
                     rect = new(36, 121, 220, 13);
                     tf.DrawString(terminal.Den, font, XBrushes.Black, rect, XStringFormats.TopLeft);
