@@ -1227,7 +1227,7 @@ namespace GComFuelManager.Server.Controllers.Services
             try
             {
                 var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && !string.IsNullOrEmpty(x.CarrId)).ToListAsync();
-                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codsyn != 0 && x.Codsyn != null).ToListAsync();
+                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == terminal && x.Codsyn != null).ToListAsync();
 
                 List<Unidad_Tad> unidad_Tads = new();
                 List<Tonel> unidad_editada = new();
@@ -1247,7 +1247,7 @@ namespace GComFuelManager.Server.Controllers.Services
 
                             for (int j = 0; j < toneles_transpor.Count; j++)
                             {
-                                if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista))
+                                if (!context.Tonel.Any(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista && x.Tracto == toneles_transpor[j].Tracto))
                                 {
                                     var new_unidad = toneles_transpor[j].HardCopy();
                                     new_unidad.Cod = 0;
