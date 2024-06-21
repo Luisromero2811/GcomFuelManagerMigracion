@@ -45,6 +45,7 @@ namespace GComFuelManager.Shared.Modelos
         [NotMapped, EpplusIgnore] public Transportista? Transportista { get; set; } = null!;
         [NotMapped, EpplusIgnore] public Chofer? Chofer { get; set; } = null!;
 
+        [EpplusIgnore] public string Capacidad { get { return $"{Capcom!} {Capcom2!} {Capcom3!} {Capcom4!}"; } }
         [EpplusIgnore] public string Den { get { return $"{Tracto} {Placatracto} {Placa} {Capcom!} {Capcom2!} {Capcom3!} {Capcom4!} {Codsyn!}"; } }
         [EpplusIgnore] public string Veh { get { return $"{Tracto} {Placa}"; } }
         [EpplusIgnore] public string Nombre_Placas { get { return $"{Tracto} {Placa} {Placatracto}"; } }
