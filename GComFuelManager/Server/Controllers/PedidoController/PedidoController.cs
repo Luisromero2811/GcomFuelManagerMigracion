@@ -2436,6 +2436,15 @@ namespace GComFuelManager.Server.Controllers
 
                 context.Add(ordEmbDet);
                 await context.SaveChangesAsync();
+                HistorialEstados historialEstados = new()
+                {
+                    Id_Estado = 43,
+                    Id_Orden = ordenembarque.Cod,
+                    Id_Usuario = id,
+                    Fecha_Actualizacion = orden.Fchcar ?? DateTime.Now
+                };
+                context.Add(historialEstados);
+                await context.SaveChangesAsync();
 
                 return Ok(true);
             }

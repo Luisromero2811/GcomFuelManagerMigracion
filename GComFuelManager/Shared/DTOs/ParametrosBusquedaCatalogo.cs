@@ -11,6 +11,8 @@ namespace GComFuelManager.Shared.DTOs
 
 		//Unidad-Tonel
 		public string placatonel { get; set; } = string.Empty!;
+		public string tracto { get; set; } = string.Empty!;
+		public string placatracto { get; set; } = string.Empty!;
 		public int carrid { get; set; } = 0;
 
 		//Cliente

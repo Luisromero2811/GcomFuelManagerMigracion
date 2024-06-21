@@ -129,7 +129,10 @@
                 <table class="table table-sm table-striped table-bordered table-hover" id="miTabla">
                     <thead class="fila">
                         <tr>
-                            <th>Vehiculos</th>
+                            <th>Placa Tonel:</th>
+                            <th>Tracto:</th>
+                            <th>Placa-Tracto:</th>
+                            <th>Capacidades</th>
                             <th>Certificado de Calibración</th>
                             <th>Estado</th>
                             <th>Editar</th>
@@ -140,6 +143,13 @@
                             <th>
                                 <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.placatonel" Placeholder="Filtrar por placa tonel" />
                             </th>
+                            <th>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.tracto" Placeholder="Filtrar por tracto"/>
+                            </th>
+                            <th>
+                                <RadzenTextBox Change="@LoadData" @bind-Value="busquedaCatalogo.placatracto" Placeholder="Filtrar por tracto" />
+                            </th>
+                            <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -148,7 +158,10 @@
                         {
                             <Virtualize Items="Toneles" TItem="Tonel" Context="item">
                                 <tr>
-                                    <td>@item.Den</td>
+                                    <td>@item.Placa</td>
+                                    <td>@item.Tracto</td>
+                                    <td>@item.Placatracto</td>
+                                    <td>@item.Capacidad</td>
                                     <td>@item.Certificado_Calibracion</td>
                                     <td>
                                         <div class="form-check form-switch mx-2">
@@ -360,6 +373,8 @@
         Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
         if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
         queryStringObject["placatonel"] = busquedaCatalogo.placatonel;
+        queryStringObject["tracto"] = busquedaCatalogo.tracto;
+        queryStringObject["placatracto"] = busquedaCatalogo.placatracto;
 
         var DefaultValues = new List<string>() { "false", "", "0" };
         var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
@@ -374,6 +389,8 @@
         {
             query = new Dictionary<string, string>();
             query["placatonel"] = busquedaCatalogo.placatonel ?? string.Empty;
+            query["tracto"] = busquedaCatalogo.tracto ?? string.Empty;
+            query["placatracto"] = busquedaCatalogo.placatracto ?? string.Empty;
             query["carrid"] = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId ?? string.Empty;
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             //string? carrid = Grupos.FirstOrDefault(x => x.Cod == Unidad.CodTra)?.CarrId;

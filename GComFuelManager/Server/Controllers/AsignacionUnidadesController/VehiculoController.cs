@@ -88,6 +88,12 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (!string.IsNullOrEmpty(transportista.placatonel))
                     vehiculos = vehiculos.Where(x => x.Placa != null && !string.IsNullOrEmpty(x.Placa) && x.Placa.ToLower().Contains(transportista.placatonel.ToLower()));
 
+                if (!string.IsNullOrEmpty(transportista.tracto))
+                    vehiculos = vehiculos.Where(x => x.Tracto != null && !string.IsNullOrEmpty(x.Tracto) && x.Tracto.ToLower().Contains(transportista.tracto.ToLower()));
+
+                if (!string.IsNullOrEmpty(transportista.placatracto))
+                    vehiculos = vehiculos.Where(x => x.Placatracto != null && !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto.ToLower().Contains(transportista.placatracto.ToLower()));
+
                 return Ok(vehiculos);
             }
             catch (Exception e)
