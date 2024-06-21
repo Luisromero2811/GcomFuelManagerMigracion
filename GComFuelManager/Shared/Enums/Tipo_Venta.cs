@@ -8,7 +8,7 @@ namespace GComFuelManager.Shared.Enums
 {
     public enum Tipo_Venta
     {
-        Delivey,
+        Delivery,
         Rack
     }
 
