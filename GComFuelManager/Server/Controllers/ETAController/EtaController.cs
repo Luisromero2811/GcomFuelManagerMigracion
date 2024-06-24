@@ -1174,10 +1174,10 @@ namespace GComFuelManager.Server.Controllers.ETAController
                                FechaDoc = e.OrdEmbDet.FchDoc.Value.ToString("yyyy-MM-dd HH:mm:ss"),
                                Eta = e.OrdEmbDet.FchDoc!.Value.Subtract(e.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm"),
                                FechaEst = e.OrdEmbDet.Fchlleest.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                               Trayecto = "ENTREGADO",
-                               Observaciones = e.OrdEmbDet!.Obs,
-                               FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
-                               LitEnt = e.OrdEmbDet.Litent
+                               //Trayecto = "ENTREGADO",
+                               //Observaciones = e.OrdEmbDet!.Obs,
+                               //FechaRealEta = e.OrdEmbDet.Fchrealledes.Value.ToString("yyyy-MM-dd HH:mm:ss"),
+                               //LitEnt = e.OrdEmbDet.Litent
                            })
                           .Take(10000)
                           .ToListAsync();
