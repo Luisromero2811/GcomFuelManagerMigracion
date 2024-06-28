@@ -38,6 +38,7 @@ namespace GComFuelManager.Shared.Modelos
         [DisplayName("Capacidad de Compartimento 4")] public int? Capcom4 { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; }
         [StringLength(50), DisplayName("Certificado de Calibración")] public string? Certificado_Calibracion { get; set; } = string.Empty;
+        [EpplusIgnore] public int? Identificador { get; set; }
 
         [NotMapped, JsonIgnore, EpplusIgnore] public Tad? Tad { get; set; }
         [NotMapped, EpplusIgnore] public List<Tad> Terminales { get; set; } = new();

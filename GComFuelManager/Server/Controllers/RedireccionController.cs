@@ -220,18 +220,6 @@ namespace GComFuelManager.Server.Controllers
                     }
                 }
 
-                //if (redireccionamiento.Id != 0)
-                //{
-                //    context.Update(redireccionamiento);
-                //    await context.SaveChangesAsync(id, 36);
-
-                //}
-                //else
-                //{
-                //    context.Add(redireccionamiento);
-                //    await context.SaveChangesAsync(id, 35);
-                //}
-
                 return Ok();
             }
             catch (Exception e)
