@@ -1495,7 +1495,10 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!trans_originales.Any(x => x.Identificacion == transportista.Identificacion))
                         trans_originales.Add(transportista);
                     else
-                        trans_duplicados.Add(transportista);
+                    {
+                        if (!context.Orden.Include(x => x.Tonel).Any(x => x.Tonel != null && x.Tonel.Carid == transportista.CarrId))
+                            trans_duplicados.Add(transportista);
+                    }
                 }
 
                 context.RemoveRange(trans_duplicados);
@@ -1531,7 +1534,10 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador && x.Codtransport == chfori.Codtransport))
                                 chf_originales.Add(chfori);
                             else
-                                chf_duplicados.Add(chfori);
+                            {
+                                if (!context.Orden.Any(x => x.Codchf == chfori.Cod))
+                                    chf_duplicados.Add(chfori);
+                            }
                         }
                     }
                 }
@@ -1556,7 +1562,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 List<Tonel> ton_originales = new();
                 List<Tonel> ton_duplicados = new();
 
-                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id && x.Activo == true).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
                 foreach (var transportista in transprtistas)
                 {
                     var toneles_originales = await context.Tonel.Where(x => x.Carid == transportista.CarrId && x.Id_Tad == id).OrderBy(x => x.Tracto).ThenBy(x => x.Cod).ToListAsync();
@@ -1565,11 +1571,16 @@ namespace GComFuelManager.Server.Controllers.Services
                         if (!ton_originales.Any(x => x.Tracto == tonel.Tracto && x.Placa == tonel.Placa && x.Codsyn == tonel.Codsyn && x.Placatracto == tonel.Placatracto && x.Carid == tonel.Carid))
                             ton_originales.Add(tonel);
                         else
+                        {
+                            tonel.Activo = false;
                             ton_duplicados.Add(tonel);
+                        }
                     }
                 }
 
-                context.RemoveRange(ton_duplicados);
+
+                //context.RemoveRange(ton_duplicados);
+                context.UpdateRange(ton_duplicados);
                 await context.SaveChangesAsync();
 
                 return Ok(ton_duplicados);

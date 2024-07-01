@@ -272,49 +272,23 @@ namespace GComFuelManager.Shared.Modelos
             return gestion_;
         }
 
-        //public EtaDTO Obtener_OrdenesETATuxpan()
-        //{
-        //    EtaDTO gestion_ = new();
-        //    gestion_.Referencia = FolioSyn;
-        //    gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
-
-        //    if (Tad is not null)
-        //        if (!string.IsNullOrEmpty(Tad.Den))
-        //            gestion_.Unidad_Negocio = Tad.Den;
-
-        //    gestion_.EstatusOrden = Obtener_Estado_De_Orden;
-
-        //    gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
-        //    gestion_.Bol = Orden?.BatchId;
-        //    gestion_.MdVenta = Modelo_Venta_Orden.ToString();
-        //    gestion_.Cliente = Obtener_Cliente_De_Orden;
-        //    gestion_.Destino = Obtener_Destino_De_Orden;
-        //    gestion_.Producto = Obtener_Producto_De_Orden;
-        //    if (Tonel is not null)
-        //        gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
-        //                Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
-        //                Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
-        //                Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
-        //    gestion_.VolCar = Orden?.Vol;
-        //    gestion_.Transportista = Tonel?.Transportista?.Den;
-        //    gestion_.Unidad = Obtener_Tonel_De_Orden;
-        //    gestion_.Operador = Chofer?.FullName;
-        //    gestion_.FechaDoc = Orden?.OrdEmbDet?.FchDoc.ToString();
-        //    gestion_.Eta = Orden?.OrdEmbDet?.FchDoc!.Value.Subtract(Orden.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm");
-        //    gestion_.FechaEst = Orden?.OrdEmbDet?.Fchlleest.ToString();
-        //    return gestion_;
-        //}
-
 
         public string Obtener_Cliente_De_Orden
         {
             get
             {
                 if (Orden is not null)
+                {
+                    if (Orden.Redireccionamiento is not null)
+                        if (Orden.Redireccionamiento.Cliente is not null)
+                            if (!string.IsNullOrEmpty(Orden.Redireccionamiento.Cliente.Den))
+                                return Orden.Redireccionamiento.Cliente.Den;
+
                     if (Orden.Destino is not null)
                         if (Orden.Destino.Cliente is not null)
                             if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Den))
                                 return Orden.Destino.Cliente.Den;
+                }
 
                 if (OrdenCierre is not null)
                     if (OrdenCierre.Cliente is not null)
@@ -329,9 +303,16 @@ namespace GComFuelManager.Shared.Modelos
             get
             {
                 if (Orden is not null)
+                {
+                    if (Orden.Redireccionamiento is not null)
+                        if (Orden.Redireccionamiento.Destino is not null)
+                            if (!string.IsNullOrEmpty(Orden.Redireccionamiento.Destino.Den))
+                                return Orden.Redireccionamiento.Destino.Den;
+
                     if (Orden.Destino is not null)
                         if (!string.IsNullOrEmpty(Orden.Destino.Den))
                             return Orden.Destino.Den;
+                }
 
                 if (Destino is not null)
                     if (!string.IsNullOrEmpty(Destino.Den))
@@ -411,7 +392,7 @@ namespace GComFuelManager.Shared.Modelos
                         if (Orden.Destino.Cliente is not null)
                             if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Tipven))
                                 return Orden.Destino.Cliente.Tipven;
-                                
+
                 if (Destino is not null)
                     if (Destino.Cliente is not null)
                         if (!string.IsNullOrEmpty(Destino.Cliente.Tipven))
