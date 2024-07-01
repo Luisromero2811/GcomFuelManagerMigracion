@@ -1659,13 +1659,15 @@ namespace GComFuelManager.Server.Controllers.Services
                             ton_originales.Add(tonel);
                         else
                         {
-                            if (!context.Orden.Any(x => x.Coduni == tonel.Cod))
-                                ton_duplicados.Add(tonel);
+                            tonel.Activo = false;
+                            ton_duplicados.Add(tonel);
                         }
                     }
                 }
 
-                context.RemoveRange(ton_duplicados);
+
+                //context.RemoveRange(ton_duplicados);
+                context.UpdateRange(ton_duplicados);
                 await context.SaveChangesAsync();
 
                 return Ok(ton_duplicados);
