@@ -179,8 +179,8 @@ namespace GComFuelManager.Shared.Modelos
 
             gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
             gestion_.Bol = Orden?.BatchId;
-            gestion_.MdVenta = Destino?.Cliente?.MdVenta ?? string.Empty;
-            gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
+            gestion_.MdVenta = Modelo_Venta_Orden.ToString();
+            //gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
             gestion_.Cliente = Obtener_Cliente_De_Orden;
             gestion_.Destino = Obtener_Destino_De_Orden;
             gestion_.Producto = Obtener_Producto_De_Orden;
@@ -269,6 +269,39 @@ namespace GComFuelManager.Shared.Modelos
             gestion_.Fecha_llegada = Orden?.OrdEmbDet?.Fchlleest?.ToString("dd-MM-yyyy hh:mm:ss");
             gestion_.Precio = Pre;
 
+            return gestion_;
+        }
+
+        public EtaDTO Obtener_OrdenesETATuxpan()
+        {
+            EtaDTO gestion_ = new();
+            gestion_.Referencia = FolioSyn;
+            gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
+
+            if (Tad is not null)
+                if (!string.IsNullOrEmpty(Tad.Den))
+                    gestion_.Unidad_Negocio = Tad.Den;
+
+            gestion_.EstatusOrden = Obtener_Estado_De_Orden;
+
+            gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
+            gestion_.Bol = Orden?.BatchId;
+            gestion_.MdVenta = Modelo_Venta_Orden.ToString();
+            gestion_.Cliente = Obtener_Cliente_De_Orden;
+            gestion_.Destino = Obtener_Destino_De_Orden;
+            gestion_.Producto = Obtener_Producto_De_Orden;
+            if (Tonel is not null)
+                gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
+                        Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
+                        Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
+                        Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
+            gestion_.VolCar = Orden?.Vol;
+            gestion_.Transportista = Tonel?.Transportista?.Den;
+            gestion_.Unidad = Obtener_Tonel_De_Orden;
+            gestion_.Operador = Chofer?.FullName;
+            gestion_.FechaDoc = Orden?.OrdEmbDet?.FchDoc.ToString();
+            gestion_.Eta = Orden?.OrdEmbDet?.FchDoc!.Value.Subtract(Orden.OrdEmbDet.Fchlleest.Value!).ToString("hh\\:mm");
+            gestion_.FechaEst = Orden?.OrdEmbDet?.Fchlleest.ToString();
             return gestion_;
         }
 
@@ -361,8 +394,8 @@ namespace GComFuelManager.Shared.Modelos
                     if (Orden.Fchcar is not null)
                         return (DateTime)Orden.Fchcar;
 
-                if (Fchcar is not null)
-                    return (DateTime)Fchcar;
+                //if (Fchcar is not null)
+                //    return (DateTime)Fchcar;
 
                 return DateTime.MinValue;
             }

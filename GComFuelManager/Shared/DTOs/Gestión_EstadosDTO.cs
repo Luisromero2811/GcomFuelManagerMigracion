@@ -22,7 +22,7 @@ namespace GComFuelManager.Shared.DTOs
         public int? Bol { get; set; } = 0;
 
         [DisplayName("Modelo de Venta")]
-        public string MdVenta { get; set; } = string.Empty;
+        public string? MdVenta { get; set; } = string.Empty;
         [DisplayName("Tipo de Venta")]
         public string DeliveryRack { get; set; } = string.Empty;
 
