@@ -63,7 +63,7 @@
                     <div class="col-4">
                         <label>Destino</label>
                         <DropDownFilter Listado="Destinos" TListado="CodDenDTO" @bind-Valor="@Redireccion.Destino_Red" Propiedad_Valor="Cod" TValue="int" FiltrarValor="@GetEstaciones"
-                                        Default_Placeholder="-- Seleccione un destino --">
+                                        Default_Placeholder="-- Seleccione un destino --" On_Change_Method="GetPrecioEstacion">
                             <RenderValue Context="destino">
                                 @destino.Den
                             </RenderValue>
@@ -201,7 +201,7 @@
                             </td>
                             <td class="overflow-hidden">
                                 <div class="text-hidden-overflow">
-                                    @item.Vol?.ToString("N",CultureInfo.InvariantCulture)
+                                    @item.Vol?.ToString("N", CultureInfo.InvariantCulture)
                                 </div>
                             </td>
                             <td class="overflow-hidden">
@@ -348,27 +348,6 @@
         await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
     }
 
-    protected override async Task OnAfterRenderAsync(bool first)
-    {
-        if (first)
-        {
-            var cm = await js.GetItemLocalStorage("CloseMenu");
-            if (!string.IsNullOrEmpty(cm))
-                isClose = bool.Parse(cm);
-
-            if (isClose)
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
-            else
-                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-
-            if (width < 0)
-                width = 500;
-            TotalWidth = $"{width}px";
-            // await js.InvokeVoidAsync("columnSize.SetTable","miTabla", DotNetObjectReference.Create(this));
-            // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/ColumnsSize.js");
-        }
-    }
-
     public async Task GetGrupos(string value)
     {
         try
@@ -414,6 +393,15 @@
             else
             {
                 Ordenes_Synthesis = response.Response;
+
+                if (Ordenes_Synthesis.Count > 0)
+                {
+                    var first_orden = Ordenes_Synthesis.FirstOrDefault();
+                    if (first_orden is not null)
+                        if (first_orden.Cod is not null)
+                            Redireccion.Id_Orden = (long)first_orden.Cod;
+                }
+
                 Loading_Buscar = false;
                 var response_Precio = await http.Get<PrecioBolDTO>($"api/precio/bol/{filtroDTO.Bol}");
                 if (response_Precio.Error)
@@ -460,7 +448,6 @@
             }
             else
             {
-
                 if (!response.Response)
                 {
                     Loading_Guardar = true;
@@ -483,44 +470,7 @@
                         await Buscar_Ordenes();
                         Loading_Guardar = false;
                     }
-
-                    // var confirm = await swal.FireAsync(new SweetAlertOptions
-                    //     {
-                    //         Icon = SweetAlertIcon.Warning,
-                    //         ShowCancelButton = true,
-                    //         ConfirmButtonText = "Aceptar",
-                    //         CancelButtonText = "Cancelar",
-                    //         Text = "Esta orden ya fue redireccionada,¿Desea editar la anterir redireccion con los datos introducidos?"
-                    //     });
-
-                    // if (!string.IsNullOrEmpty(confirm.Value))
-                    // {
-                    //     Loading_Guardar = true;
-                    //     var responseSave = await http.Post<Redireccionamiento>("api/redireccion", Redireccion);
-                    //     if (responseSave.Error)
-                    //     {
-                    //         var message = await responseSave.ObtenerMensajeError();
-                    //         await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    //         Loading_Guardar = false;
-                    //     }
-                    //     else
-                    //     {
-                    //         ms.Notify(new NotificationMessage()
-                    //             {
-                    //                 Summary = "Redireccion registrada",
-                    //                 Detail = "Se ha registrado la redireccion de la orden.",
-                    //                 Duration = 5000,
-                    //                 Severity = NotificationSeverity.Success
-                    //             });
-                    //         await Buscar_Ordenes();
-                    //         Loading_Guardar = false;
-                    //     }
-                    // }
                 }
-                // else
-                // {
-
-                // }
             }
         }
         catch (Exception e)
@@ -628,6 +578,28 @@
                 header.Style.Font.Bold = true;
 
                 await js.GuardarComo($"Costos_{DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss")}.xlsx", excel.GetAsByteArray());
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetPrecioEstacion()
+    {
+        try
+        {
+            var response = await http.Get<PrecioBolDTO>($"api/precio/destino/{Redireccion.Destino_Red}/{Redireccion.Id_Orden}");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (response.Response is not null && response.Response.Precio is not null)
+                    Redireccion.Precio_Red = (double)response.Response.Precio;
             }
         }
         catch (Exception e)

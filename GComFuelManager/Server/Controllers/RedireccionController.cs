@@ -111,126 +111,114 @@ namespace GComFuelManager.Server.Controllers
                     var orden_enviada = context.OrdenEmbarque.IgnoreAutoIncludes().FirstOrDefault(x => x.FolioSyn == orden_synthesis.Ref && x.Codest != 14);
                     if (orden_enviada is not null)
                     {
-                        var pertenece_a_cierre = context.OrdenPedido.Any(x => x.CodPed == orden_enviada.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia));
-                        if (pertenece_a_cierre)
-                        {
-                            var orden_pedido = context.OrdenPedido.IgnoreAutoIncludes().FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
+                        //var pertenece_a_cierre = context.OrdenPedido.Any(x => x.CodPed == orden_enviada.Cod && x.Pedido_Original == 0 && string.IsNullOrEmpty(x.Folio_Cierre_Copia));
+                        //if (pertenece_a_cierre)
+                        //{
+                        //    var orden_pedido = context.OrdenPedido.IgnoreAutoIncludes().FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
 
-                            if (orden_pedido is not null && !string.IsNullOrEmpty(orden_pedido.Folio))
-                            {
-                                var cierre = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => x.Folio == orden_pedido.Folio && x.CodPrd == orden_enviada.Codprd && x.Estatus == true && x.Activa == true);
+                        //    if (orden_pedido is not null && !string.IsNullOrEmpty(orden_pedido.Folio))
+                        //    {
+                        //        var cierre = context.OrdenCierre.IgnoreAutoIncludes().FirstOrDefault(x => x.Folio == orden_pedido.Folio && x.CodPrd == orden_enviada.Codprd && x.Estatus == true && x.Activa == true);
 
-                                var cierre_destino_redireccionado = context.OrdenCierre.Where(x => x.CodPed == 0 && x.CodGru == redireccionamiento.Grupo_Red && x.Estatus == true && x.Activa == true)
-                                    .OrderByDescending(x => x.FchCierre).IgnoreAutoIncludes().ToList();
+                        //        var cierre_destino_redireccionado = context.OrdenCierre.Where(x => x.CodPed == 0 && x.CodGru == redireccionamiento.Grupo_Red && x.Estatus == true && x.Activa == true)
+                        //            .OrderByDescending(x => x.FchCierre).IgnoreAutoIncludes().ToList();
 
-                                if (cierre_destino_redireccionado is not null)
-                                {
-                                    var cierre_destino_redireccionado_individual = cierre_destino_redireccionado.FirstOrDefault(x => x.CodDes == redireccionamiento.Destino_Red && x.CodCte == redireccionamiento.Cliente_Red);
+                        //        if (cierre_destino_redireccionado is not null)
+                        //        {
+                        //            var cierre_destino_redireccionado_individual = cierre_destino_redireccionado.FirstOrDefault(x => x.CodDes == redireccionamiento.Destino_Red && x.CodCte == redireccionamiento.Cliente_Red);
 
-                                    if (cierre_destino_redireccionado_individual is not null)
-                                    {
-                                        OrdenEmbarque nueva_orden_embarque = orden_enviada.HardCopy();
+                        //            if (cierre_destino_redireccionado_individual is not null)
+                        //            {
+                        //                OrdenEmbarque nueva_orden_embarque = orden_enviada.HardCopy();
 
-                                        nueva_orden_embarque.Cod = 0;
-                                        nueva_orden_embarque.Fchpet = DateTime.Now;
-                                        nueva_orden_embarque.Coddes = redireccionamiento.Destino_Red;
+                        //                nueva_orden_embarque.Cod = 0;
+                        //                nueva_orden_embarque.Fchpet = DateTime.Now;
+                        //                nueva_orden_embarque.Coddes = redireccionamiento.Destino_Red;
 
-                                        context.Add(nueva_orden_embarque);
+                        //                context.Add(nueva_orden_embarque);
 
-                                        await context.SaveChangesAsync(id, 35);
+                        //                await context.SaveChangesAsync(id, 35);
 
-                                        var cierre_orden_embarque = context.OrdenCierre.FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
-                                        if (cierre_orden_embarque is not null)
-                                        {
-                                            OrdenCierre nuevo_cierre_orden_embarque = cierre_orden_embarque.HardCopy();
-                                            nuevo_cierre_orden_embarque.Cod = 0;
-                                            nuevo_cierre_orden_embarque.CodPed = nueva_orden_embarque.Cod;
-                                            nuevo_cierre_orden_embarque.CodGru = redireccionamiento.Grupo_Red;
-                                            nuevo_cierre_orden_embarque.CodCte = redireccionamiento.Cliente_Red;
-                                            nuevo_cierre_orden_embarque.CodDes = redireccionamiento.Destino_Red;
+                        //                var cierre_orden_embarque = context.OrdenCierre.FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
+                        //                if (cierre_orden_embarque is not null)
+                        //                {
+                        //                    OrdenCierre nuevo_cierre_orden_embarque = cierre_orden_embarque.HardCopy();
+                        //                    nuevo_cierre_orden_embarque.Cod = 0;
+                        //                    nuevo_cierre_orden_embarque.CodPed = nueva_orden_embarque.Cod;
+                        //                    nuevo_cierre_orden_embarque.CodGru = redireccionamiento.Grupo_Red;
+                        //                    nuevo_cierre_orden_embarque.CodCte = redireccionamiento.Cliente_Red;
+                        //                    nuevo_cierre_orden_embarque.CodDes = redireccionamiento.Destino_Red;
 
-                                            context.Add(nuevo_cierre_orden_embarque);
-                                            await context.SaveChangesAsync(id, 35);
+                        //                    context.Add(nuevo_cierre_orden_embarque);
+                        //                    await context.SaveChangesAsync(id, 35);
 
-                                            OrdenPedido nueva_orden_pedido = new()
-                                            {
-                                                Folio = cierre_destino_redireccionado_individual.Folio,
-                                                CodCierre = cierre_destino_redireccionado_individual.Cod,
-                                                CodPed = nueva_orden_embarque.Cod
-                                            };
+                        //                    OrdenPedido nueva_orden_pedido = new()
+                        //                    {
+                        //                        Folio = cierre_destino_redireccionado_individual.Folio,
+                        //                        CodCierre = cierre_destino_redireccionado_individual.Cod,
+                        //                        CodPed = nueva_orden_embarque.Cod
+                        //                    };
 
-                                            context.Add(nueva_orden_pedido);
-                                            await context.SaveChangesAsync(id, 35);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        var cierre_destino_redireccionado_grupal = cierre_destino_redireccionado.OrderByDescending(x => x.FchCierre).FirstOrDefault();
-                                        if (cierre_destino_redireccionado_grupal is not null)
-                                        {
-                                            OrdenEmbarque nueva_orden_embarque = orden_enviada.ShallowCopy();
+                        //                    context.Add(nueva_orden_pedido);
+                        //                    await context.SaveChangesAsync(id, 35);
+                        //                }
+                        //            }
+                        //            else
+                        //            {
+                        //                var cierre_destino_redireccionado_grupal = cierre_destino_redireccionado.OrderByDescending(x => x.FchCierre).FirstOrDefault();
+                        //                if (cierre_destino_redireccionado_grupal is not null)
+                        //                {
+                        //                    OrdenEmbarque nueva_orden_embarque = orden_enviada.ShallowCopy();
 
-                                            nueva_orden_embarque.Cod = 0;
-                                            nueva_orden_embarque.Coddes = redireccionamiento.Grupo_Red;
-                                            nueva_orden_embarque.Coddes = redireccionamiento.Cliente_Red;
-                                            nueva_orden_embarque.Coddes = redireccionamiento.Destino_Red;
+                        //                    nueva_orden_embarque.Cod = 0;
+                        //                    nueva_orden_embarque.Coddes = redireccionamiento.Grupo_Red;
+                        //                    nueva_orden_embarque.Coddes = redireccionamiento.Cliente_Red;
+                        //                    nueva_orden_embarque.Coddes = redireccionamiento.Destino_Red;
 
-                                            context.Add(nueva_orden_embarque);
+                        //                    context.Add(nueva_orden_embarque);
 
-                                            await context.SaveChangesAsync(id, 35);
+                        //                    await context.SaveChangesAsync(id, 35);
 
-                                            var cierre_orden_embarque = context.OrdenCierre.FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
-                                            if (cierre_orden_embarque is not null)
-                                            {
-                                                OrdenCierre nuevo_cierre_orden_embarque = cierre_orden_embarque.ShallowCopy();
-                                                nuevo_cierre_orden_embarque.Cod = 0;
-                                                nuevo_cierre_orden_embarque.CodPed = nueva_orden_embarque.Cod;
-                                                nuevo_cierre_orden_embarque.CodGru = redireccionamiento.Grupo_Red;
-                                                nuevo_cierre_orden_embarque.CodCte = redireccionamiento.Cliente_Red;
-                                                nuevo_cierre_orden_embarque.CodDes = redireccionamiento.Destino_Red;
+                        //                    var cierre_orden_embarque = context.OrdenCierre.FirstOrDefault(x => x.CodPed == orden_enviada.Cod);
+                        //                    if (cierre_orden_embarque is not null)
+                        //                    {
+                        //                        OrdenCierre nuevo_cierre_orden_embarque = cierre_orden_embarque.ShallowCopy();
+                        //                        nuevo_cierre_orden_embarque.Cod = 0;
+                        //                        nuevo_cierre_orden_embarque.CodPed = nueva_orden_embarque.Cod;
+                        //                        nuevo_cierre_orden_embarque.CodGru = redireccionamiento.Grupo_Red;
+                        //                        nuevo_cierre_orden_embarque.CodCte = redireccionamiento.Cliente_Red;
+                        //                        nuevo_cierre_orden_embarque.CodDes = redireccionamiento.Destino_Red;
 
-                                                context.Add(nuevo_cierre_orden_embarque);
-                                                await context.SaveChangesAsync(id, 35);
+                        //                        context.Add(nuevo_cierre_orden_embarque);
+                        //                        await context.SaveChangesAsync(id, 35);
 
-                                                OrdenPedido nueva_orden_pedido = new()
-                                                {
-                                                    Folio = cierre_destino_redireccionado_grupal.Folio,
-                                                    CodCierre = cierre_destino_redireccionado_grupal.Cod,
-                                                    CodPed = nueva_orden_embarque.Cod
-                                                };
+                        //                        OrdenPedido nueva_orden_pedido = new()
+                        //                        {
+                        //                            Folio = cierre_destino_redireccionado_grupal.Folio,
+                        //                            CodCierre = cierre_destino_redireccionado_grupal.Cod,
+                        //                            CodPed = nueva_orden_embarque.Cod
+                        //                        };
 
-                                                context.Add(nueva_orden_pedido);
-                                                await context.SaveChangesAsync(id, 35);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        //                        context.Add(nueva_orden_pedido);
+                        //                        await context.SaveChangesAsync(id, 35);
+                        //                    }
+                        //                }
+                        //            }
+                        //        }
+                        //    }
+                        //}
 
                         orden_enviada.Codest = 41;
-                        orden_enviada.FolioSyn = string.Empty;
+                        //orden_enviada.FolioSyn = string.Empty;
                         orden_enviada.Bol = orden_synthesis.BatchId;
                         orden_enviada.Vol = orden_synthesis.Vol;
-
-                        context.Update(orden_enviada);
+                        orden_synthesis.Codest = 41;
+                        //context.Update(orden_enviada);
 
                         context.Add(redireccionamiento);
                         await context.SaveChangesAsync(id, 35);
                     }
                 }
-
-                //if (redireccionamiento.Id != 0)
-                //{
-                //    context.Update(redireccionamiento);
-                //    await context.SaveChangesAsync(id, 36);
-
-                //}
-                //else
-                //{
-                //    context.Add(redireccionamiento);
-                //    await context.SaveChangesAsync(id, 35);
-                //}
 
                 return Ok();
             }

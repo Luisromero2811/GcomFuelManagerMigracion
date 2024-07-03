@@ -311,10 +311,17 @@ namespace GComFuelManager.Shared.Modelos
             get
             {
                 if (Orden is not null)
+                {
+                    if (Orden.Redireccionamiento is not null)
+                        if (Orden.Redireccionamiento.Cliente is not null)
+                            if (!string.IsNullOrEmpty(Orden.Redireccionamiento.Cliente.Den))
+                                return Orden.Redireccionamiento.Cliente.Den;
+
                     if (Orden.Destino is not null)
                         if (Orden.Destino.Cliente is not null)
                             if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Den))
                                 return Orden.Destino.Cliente.Den;
+                }
 
                 if (OrdenCierre is not null)
                     if (OrdenCierre.Cliente is not null)
@@ -329,9 +336,16 @@ namespace GComFuelManager.Shared.Modelos
             get
             {
                 if (Orden is not null)
+                {
+                    if (Orden.Redireccionamiento is not null)
+                        if (Orden.Redireccionamiento.Destino is not null)
+                            if (!string.IsNullOrEmpty(Orden.Redireccionamiento.Destino.Den))
+                                return Orden.Redireccionamiento.Destino.Den;
+
                     if (Orden.Destino is not null)
                         if (!string.IsNullOrEmpty(Orden.Destino.Den))
                             return Orden.Destino.Den;
+                }
 
                 if (Destino is not null)
                     if (!string.IsNullOrEmpty(Destino.Den))
@@ -411,7 +425,7 @@ namespace GComFuelManager.Shared.Modelos
                         if (Orden.Destino.Cliente is not null)
                             if (!string.IsNullOrEmpty(Orden.Destino.Cliente.Tipven))
                                 return Orden.Destino.Cliente.Tipven;
-                                
+
                 if (Destino is not null)
                     if (Destino.Cliente is not null)
                         if (!string.IsNullOrEmpty(Destino.Cliente.Tipven))

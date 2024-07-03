@@ -1269,7 +1269,7 @@ namespace GComFuelManager.Server.Controllers.Services
                                     && (x.Placa != toneles_transpor[j].Placa || x.Tracto != toneles_transpor[j].Tracto
                                     || x.Placatracto != toneles_transpor[j].Placatracto || x.Certificado_Calibracion != toneles_transpor[j].Certificado_Calibracion
                                     || x.Activo != toneles_transpor[j].Activo || x.Capcom != toneles_transpor[j].Capcom || x.Capcom2 != toneles_transpor[j].Capcom2
-                                    || x.Capcom3 != toneles_transpor[j].Capcom3 || x.Capcom4 != toneles_transpor[j].Capcom4)))
+                                    || x.Capcom3 != toneles_transpor[j].Capcom3 || x.Capcom4 != toneles_transpor[j].Capcom4) && x.Identificador == toneles_transpor[j].Identificador))
                                     {
                                         var tonel = await context.Tonel.FirstOrDefaultAsync(x => x.Id_Tad == terminal_destino && x.Codsyn == toneles_transpor[j].Codsyn && x.Carid == transportista);
                                         if (tonel is not null)
@@ -1439,27 +1439,77 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
-        [HttpGet("identificador/unico"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Set_Identificador_Unico()
+        [HttpGet("identificador/tonel"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Tonel()
+        {
+            try
+            {
+                var transportistas = await context.Transportista.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1 && x.Activo == true).Select(x => new { x.Den, x.Identificacion, x.CarrId }).ToListAsync();
+                var toneles = await context.Tonel.IgnoreAutoIncludes().Where(x => x.Id_Tad == 1).ToListAsync();
+
+                List<Tonel> choferes_editados = new();
+
+                for (int i = 0; i < transportistas.Count; i++)
+                {
+                    var toneles_validos = toneles.Where(x => x.Carid == transportistas[i].CarrId).ToList();
+
+                    var ts = await context.Transportista.IgnoreAutoIncludes()
+                                            .Where(x => x.Identificacion == transportistas[i].Identificacion && x.Id_Tad != 1)
+                                            .Select(x => new { x.CarrId })
+                                            .ToListAsync();
+                    for (int k = 0; k < ts.Count; k++)
+                    {
+                        for (int j = 0; j < toneles_validos.Count; j++)
+                        {
+                            var cs = await context.Tonel.Where(x => x.Tracto == toneles_validos[j].Tracto && x.Carid == ts[k].CarrId
+                                && x.Codsyn == toneles_validos[j].Codsyn && x.Placa == toneles_validos[j].Placa && x.Id_Tad != 1
+                                && x.Placatracto == toneles_validos[j].Placatracto && x.Capcom == toneles_validos[j].Capcom && x.Capcom2 == toneles_validos[j].Capcom2
+                                && x.Capcom3 == toneles_validos[j].Capcom3 && x.Capcom4 == toneles_validos[j].Capcom4)
+                                .ToListAsync();
+
+                            for (int l = 0; l < cs.Count; l++)
+                            {
+                                //var t = cs[l].Tracto;
+                                cs[l].Identificador = toneles_validos[j].Cod;
+                                choferes_editados.Add(cs[l]);
+                            }
+                        }
+                    }
+                }
+                var toneles_editados = choferes_editados.DistinctBy(x => x.Cod);
+                context.UpdateRange(toneles_editados);
+                await context.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
+        [HttpGet("identificador/unico/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Unico([FromRoute] short? id)
         {
             try
             {
 
-                var trs = await context.Transportista.Where(x => x.Id_Tad == 7).ToListAsync();
+                var trs = await context.Transportista.Where(x => x.Id_Tad == id).ToListAsync();
                 List<Chofer> choferes = new();
                 foreach (var tran in trs)
                 {
                     if (int.TryParse(tran.Busentid, out int bst))
                     {
-                        var t = await context.Transportista.Where(x => x.Id_Tad != 7 && x.Identificacion == tran.Identificacion).ToListAsync();
+                        var t = await context.Transportista.Where(x => x.Id_Tad != id && x.Identificacion == tran.Identificacion).ToListAsync();
                         foreach (var tt in t)
                         {
                             if (int.TryParse(tt.Busentid, out int busent))
                             {
-                                var ctt = await context.Chofer.Where(x => x.Codtransport == bst && x.Id_Tad == 7).ToListAsync();
+                                var ctt = await context.Chofer.Where(x => x.Codtransport == bst && x.Id_Tad == id).ToListAsync();
                                 foreach (var item in ctt)
                                 {
-                                    var chofer = await context.Chofer.Where(x => x.Den == item.Den && x.Shortden == item.Shortden && x.RFC == item.RFC && x.Id_Tad != 7 && x.Codtransport == busent).ToListAsync();
+                                    var chofer = await context.Chofer.Where(x => x.Den == item.Den && x.Shortden == item.Shortden && x.RFC == item.RFC && x.Id_Tad != id && x.Codtransport == busent).ToListAsync();
                                     foreach (var c in chofer)
                                     {
                                         c.Identificador = item.Cod;
@@ -1481,6 +1531,43 @@ namespace GComFuelManager.Server.Controllers.Services
             }
         }
 
+        [HttpGet("identificador/unico/tonel/{id}"), Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Set_Identificador_Unico_Toneles([FromRoute] short? id)
+        {
+            try
+            {
+
+                var trs = await context.Transportista.Where(x => x.Id_Tad == id && x.Activo == true).Select(x => new { x.Id_Tad, x.Identificacion, x.CarrId }).ToListAsync();
+                List<Tonel> toneles = new();
+                foreach (var tran in trs)
+                {
+                    var t = await context.Transportista.Where(x => x.Id_Tad != id && x.Identificacion == tran.Identificacion).Select(x => new { x.Id_Tad, x.Identificacion, x.CarrId }).ToListAsync();
+                    foreach (var tt in t)
+                    {
+                        var ctt = await context.Tonel.Where(x => x.Carid == tran.CarrId && x.Id_Tad == id).ToListAsync();
+                        foreach (var item in ctt)
+                        {
+                            var chofer = await context.Tonel.Where(x => x.Codsyn == item.Codsyn && x.Carid == tt.CarrId && x.Tracto == item.Tracto && x.Identificador == null).ToListAsync();
+                            foreach (var c in chofer)
+                            {
+                                c.Identificador = item.Cod;
+                                toneles.Add(c);
+                            }
+                        }
+                    }
+                }
+
+                context.UpdateRange(toneles);
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         [HttpGet("eliminar/duplicados/{id}"), Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete_Transportistas([FromRoute] short id)
         {
@@ -1495,7 +1582,10 @@ namespace GComFuelManager.Server.Controllers.Services
                     if (!trans_originales.Any(x => x.Identificacion == transportista.Identificacion))
                         trans_originales.Add(transportista);
                     else
-                        trans_duplicados.Add(transportista);
+                    {
+                        if (!context.Orden.Include(x => x.Tonel).Any(x => x.Tonel != null && x.Tonel.Carid == transportista.CarrId))
+                            trans_duplicados.Add(transportista);
+                    }
                 }
 
                 context.RemoveRange(trans_duplicados);
@@ -1531,7 +1621,10 @@ namespace GComFuelManager.Server.Controllers.Services
                             if (!chf_originales.Any(x => x.Den == chfori.Den && x.Shortden == chfori.Shortden && x.Identificador == chfori.Identificador && x.Codtransport == chfori.Codtransport))
                                 chf_originales.Add(chfori);
                             else
-                                chf_duplicados.Add(chfori);
+                            {
+                                if (!context.Orden.Any(x => x.Codchf == chfori.Cod))
+                                    chf_duplicados.Add(chfori);
+                            }
                         }
                     }
                 }
@@ -1556,7 +1649,7 @@ namespace GComFuelManager.Server.Controllers.Services
                 List<Tonel> ton_originales = new();
                 List<Tonel> ton_duplicados = new();
 
-                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
+                var transprtistas = await context.Transportista.Where(x => x.Id_Tad == id && x.Activo == true).OrderBy(x => x.Den).ThenBy(x => x.Cod).ToListAsync();
                 foreach (var transportista in transprtistas)
                 {
                     var toneles_originales = await context.Tonel.Where(x => x.Carid == transportista.CarrId && x.Id_Tad == id).OrderBy(x => x.Tracto).ThenBy(x => x.Cod).ToListAsync();
@@ -1565,11 +1658,16 @@ namespace GComFuelManager.Server.Controllers.Services
                         if (!ton_originales.Any(x => x.Tracto == tonel.Tracto && x.Placa == tonel.Placa && x.Codsyn == tonel.Codsyn && x.Placatracto == tonel.Placatracto && x.Carid == tonel.Carid))
                             ton_originales.Add(tonel);
                         else
+                        {
+                            tonel.Activo = false;
                             ton_duplicados.Add(tonel);
+                        }
                     }
                 }
 
-                context.RemoveRange(ton_duplicados);
+
+                //context.RemoveRange(ton_duplicados);
+                context.UpdateRange(ton_duplicados);
                 await context.SaveChangesAsync();
 
                 return Ok(ton_duplicados);
