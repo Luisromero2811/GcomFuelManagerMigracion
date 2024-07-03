@@ -20,6 +20,9 @@ namespace GComFuelManager.Shared.DTOs
         public string? FechaCarga { get; set; } = string.Empty;
         public int? Bol { get; set; } = 0;
 
+        [DisplayName("Modelo de Venta"), EpplusIgnore]
+        public string? MdVenta { get; set; } = string.Empty;
+
         [DisplayName("Tipo de Venta")]
         public string DeliveryRack { get; set; } = string.Empty;
 
