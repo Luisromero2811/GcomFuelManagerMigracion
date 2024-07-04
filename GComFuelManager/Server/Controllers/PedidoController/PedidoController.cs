@@ -166,8 +166,8 @@ namespace GComFuelManager.Server.Controllers
                     .Include(x => x.Tonel)
                     .ThenInclude(x => x.Transportista)
                     .Include(x => x.OrdenCierre)
-                    .OrderBy(x => x.Fchpet)
                     .Include(x => x.OrdenPedido)
+                     .OrderBy(x => x.Fchpet)
                     .Take(10000)
                     .ToList();
 
@@ -897,7 +897,7 @@ namespace GComFuelManager.Server.Controllers
 
                 orden.Chofer = null;
                 orden.Tonel = null;
-                orden.Tad = null;
+                //orden.Tad = null;
                 orden.Codchf = null;
                 orden.Codton = null;
                 orden.Compartment = null;
