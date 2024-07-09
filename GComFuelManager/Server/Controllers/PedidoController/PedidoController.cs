@@ -417,28 +417,28 @@ namespace GComFuelManager.Server.Controllers
                     return Ok(pedidosDate);
                 }
 
-                else if (fechas.Estado == 3)
-                {
-                    List<Orden> newOrden = new();
-                    //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
-                    var pedidosDate = context.Orden.IgnoreAutoIncludes()
-                    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel != null && x.Tonel.Transportista != null
-                    && x.Tonel.Transportista.Activo == true && x.Codest == 26 && x.Id_Tad == id_terminal)
-                    .Include(x => x.Destino)
-                    .ThenInclude(x => x.Cliente)
-                    .Include(x => x.Producto)
-                    .Include(x => x.Tonel)
-                    .ThenInclude(x => x.Transportista)
-                    .Include(x => x.Estado)
-                    .Include(x => x.Chofer)
-                    .Include(x => x.Terminal)
-                    .Include(x => x.OrdenEmbarque)
-                    .OrderBy(x => x.Fchcar)
-                    .Take(10000)
-                    .AsQueryable();
-                    //pedidosDate.OrderByDescending(x => x.Fchcar);
-                    return Ok(pedidosDate);
-                }
+                //else if (fechas.Estado == 3)
+                //{
+                //    List<Orden> newOrden = new();
+                //    //Traerme al transportista activo en 1 --Ordenes en trayecto-- 
+                //    var pedidosDate = context.Orden.IgnoreAutoIncludes()
+                //    .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Tonel != null && x.Tonel.Transportista != null
+                //    && x.Tonel.Transportista.Activo == true && x.Codest == 26 && x.Id_Tad == id_terminal)
+                //    .Include(x => x.Destino)
+                //    .ThenInclude(x => x.Cliente)
+                //    .Include(x => x.Producto)
+                //    .Include(x => x.Tonel)
+                //    .ThenInclude(x => x.Transportista)
+                //    .Include(x => x.Estado)
+                //    .Include(x => x.Chofer)
+                //    .Include(x => x.Terminal)
+                //    .Include(x => x.OrdenEmbarque)
+                //    .OrderBy(x => x.Fchcar)
+                //    .Take(10000)
+                //    .AsQueryable();
+                //    //pedidosDate.OrderByDescending(x => x.Fchcar);
+                //    return Ok(pedidosDate);
+                //}
 
                 else if (fechas.Estado == 4)
                 {
