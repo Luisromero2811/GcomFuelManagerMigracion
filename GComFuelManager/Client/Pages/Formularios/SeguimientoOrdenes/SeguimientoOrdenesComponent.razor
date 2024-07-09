@@ -103,7 +103,7 @@
                     <th>Fecha Carga</th>
                     <th>BOL / EMBARQUE</th>
                     <th>Modelo de Venta</th>
-                    <th>Tipo de Venta</th>
+                    @*<th>Tipo de Venta</th>*@
                     <th class="resizable-column" style="width:300px !important;">Grupo</th>
                     <th class="resizable-column" style="width:300px !important;">Cliente</th>
                     <th class="resizable-column" style="width:300px !important;">Destino</th>
@@ -129,7 +129,7 @@
                     <td></td>
                     <td></td>
                     <td></td>
-                    <td></td>
+                    @*<td></td>*@
                     <td>
                         @*<RadzenTextBox Change="@LoadData" @bind-Value="@busquedaOrdenes.grupo" />*@
                         <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Grupos(args))" />
@@ -195,11 +195,11 @@
                                 <RadzenText Text="@item?.BatchId.ToString()" TextStyle="TextStyle.Body2" />
                             </td>
                             <td>
-                                <RadzenText Text="@item?.Destino?.Cliente?.MdVenta" TextStyle="TextStyle.Body2" />
+                                <RadzenText Text="@item?.OrdenEmbarque?.Modelo_Venta_Orden.ToString()" TextStyle="TextStyle.Body2" />
                             </td>
-                            <td>
+                            @*<td>
                                 <RadzenText Text="@item?.Destino?.Cliente?.Tipven" TextStyle="TextStyle.Body2" />
-                            </td>
+                            </td>*@
                             <td>
                                 <RadzenText Text="@item?.OrdenEmbarque?.OrdenCierre?.Grupo?.Den" TextStyle="TextStyle.Body2" />
                             </td>
@@ -228,9 +228,19 @@
                                 }
                                 else
                                 {
+                                    @*<div class="col-12">
+                                            @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
+                                                     item?.Vol2
+                                                     )
+                                        </div>*@
                                     <div class="col-12">
                                         @string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}",
-                                                 item?.Vol2
+
+                                                 item?.Compartimento == 1 ? item?.Tonel?.Capcom
+                                                 : item?.Compartimento == 2 ? item?.Tonel?.Capcom2
+                                                 : item?.Compartimento == 3 ? item?.Tonel?.Capcom3
+                                                 : item?.Compartimento == 4 ? item?.Tonel?.Capcom4
+                                                 : item?.Vol
                                                  )
                                     </div>
                                 }
@@ -571,7 +581,7 @@
                                 Cliente = item?.Destino?.Cliente?.Den,
                                 Destino = item?.Destino?.Den,
                                 Producto = item?.Producto?.Den,
-                                VolNat = item?.Vol2,
+                                VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
                                 VolCar = item?.Vol,
                                 Transportista = item?.Tonel?.Transportista?.Den,
                                 Unidad = item?.Tonel?.Veh,
@@ -772,7 +782,7 @@
                             Cliente = item?.Destino?.Cliente?.Den,
                             Destino = item?.Destino?.Den,
                             Producto = item?.Producto?.Den,
-                            VolNat = item?.Vol2,
+                            VolNat = item.Compartimento == 1 ? Convert.ToDouble(item.Tonel.Capcom) : item.Compartimento == 2 ? Convert.ToDouble(item.Tonel.Capcom2) : item.Compartimento == 3 ? Convert.ToDouble(item.Tonel.Capcom3) : item.Compartimento == 4 ? item.Tonel.Capcom4 : item?.Vol,
                             VolCar = item?.Vol,
                             Transportista = item?.Tonel?.Transportista?.Den,
                             Unidad = item?.Tonel?.Veh,

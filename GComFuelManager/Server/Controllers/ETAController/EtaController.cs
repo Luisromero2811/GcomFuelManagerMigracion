@@ -444,9 +444,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 if (fechas.Estado == 1)
                 {
                     List<EtaDTO> Ordenes = new List<EtaDTO>();
-
+                    //&& fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno")
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && fechas.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
+                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Delivery && x.Codtad == id_terminal)
                         .Include(x => x.Orden)
                         .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Orden)
@@ -475,7 +475,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     List<EtaDTO> Ordenes = new List<EtaDTO>();
 
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && fechas.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno") && x.Codtad == id_terminal)
+                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Rack && x.Codtad == id_terminal)
                         .Include(x => x.Orden)
                         .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Orden)
@@ -499,36 +499,36 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     return Ok(Ordenes);
                 }
+                //else if (fechas.Estado == 3)
+                //{
+                //    List<EtaDTO> Ordenes = new List<EtaDTO>();
+
+                //    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                //       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
+                //        .Include(x => x.Orden)
+                //        .ThenInclude(x => x.OrdEmbDet)
+                //        .Include(x => x.Orden)
+                //        .Include(x => x.Destino)
+                //        .ThenInclude(x => x.Cliente)
+                //        .Include(x => x.Estado)
+                //        .Include(x => x.Orden)
+                //        .ThenInclude(x => x.Estado)
+                //        .Include(x => x.Tad)
+                //        .Include(x => x.Producto)
+                //        .Include(x => x.Tonel)
+                //        .ThenInclude(x => x.Transportista)
+                //        .Include(x => x.Chofer)
+                //        .Include(x => x.OrdenCierre)
+                //       .OrderBy(x => x.Fchpet)
+                //       .Select(x => x.Obtener_OrdenesETATuxpan())
+                //       .Take(10000)
+                //       .ToListAsync();
+                //    Ordenes.AddRange(ordenesTotales);
+
+
+                //    return Ok(Ordenes);
+                //}
                 else if (fechas.Estado == 3)
-                {
-                    List<EtaDTO> Ordenes = new List<EtaDTO>();
-
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                       .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && fechas.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
-                        .Include(x => x.Orden)
-                        .ThenInclude(x => x.OrdEmbDet)
-                        .Include(x => x.Orden)
-                        .Include(x => x.Destino)
-                        .ThenInclude(x => x.Cliente)
-                        .Include(x => x.Estado)
-                        .Include(x => x.Orden)
-                        .ThenInclude(x => x.Estado)
-                        .Include(x => x.Tad)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Tonel)
-                        .ThenInclude(x => x.Transportista)
-                        .Include(x => x.Chofer)
-                        .Include(x => x.OrdenCierre)
-                       .OrderBy(x => x.Fchpet)
-                       .Select(x => x.Obtener_OrdenesETATuxpan())
-                       .Take(10000)
-                       .ToListAsync();
-                    Ordenes.AddRange(ordenesTotales);
-
-
-                    return Ok(Ordenes);
-                }
-                else if (fechas.Estado == 4)
                 {
                     List<EtaDTO> Ordenes = new List<EtaDTO>();
 
@@ -1595,9 +1595,9 @@ namespace GComFuelManager.Server.Controllers.ETAController
                 if (fechas.Estado == 1)
                 {
                     List<EtaNTDTO> Ordenes = new List<EtaNTDTO>();
-
+                    //&& x.Destino!.Cliente!.Tipven!.Contains("terno")
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
+                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Delivery && x.Codtad == id_terminal)
                       .Include(x => x.Datos_Facturas)
                       .Include(x => x.Orden)
                       .ThenInclude(x => x.OrdEmbDet)
@@ -1629,7 +1629,7 @@ namespace GComFuelManager.Server.Controllers.ETAController
                     List<EtaNTDTO> Ordenes = new List<EtaNTDTO>();
 
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Destino!.Cliente!.Tipven!.Contains("Interno") && x.Codtad == id_terminal)
+                      .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Rack && x.Codtad == id_terminal)
                       .Include(x => x.Datos_Facturas)
                       .Include(x => x.Orden)
                       .ThenInclude(x => x.OrdEmbDet)
@@ -1656,39 +1656,39 @@ namespace GComFuelManager.Server.Controllers.ETAController
 
                     return Ok(Ordenes);
                 }
+                //else if (fechas.Estado == 3)
+                //{
+                //    List<EtaNTDTO> Ordenes = new List<EtaNTDTO>();
+
+                //    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                //        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
+                //        .Include(x => x.Datos_Facturas)
+                //        .Include(x => x.Orden)
+                //        .ThenInclude(x => x.OrdEmbDet)
+                //        .Include(x => x.Chofer)
+                //        .Include(x => x.Destino)
+                //        .ThenInclude(x => x.Cliente)
+                //        .Include(x => x.Estado)
+                //        .Include(x => x.OrdenCompra)
+                //        .Include(x => x.Tad)
+                //        .Include(x => x.Producto)
+                //        .Include(x => x.Tonel)
+                //        .ThenInclude(x => x.Transportista)
+                //        .Include(x => x.OrdenCierre)
+                //        .Include(x => x.OrdenPedido)
+                //        .Include(x => x.HistorialEstados)
+                //        .ThenInclude(x => x.Estado)
+                //        .Include(x => x.Orden)
+                //        .ThenInclude(x => x.Redireccionamiento)
+                //        .OrderBy(x => x.Fchpet)
+                //        .Select(x => x.Obtener_OrdenesETA())
+                //        .Take(10000)
+                //        .ToListAsync();
+                //    Ordenes.AddRange(ordenesTotales);
+
+                //    return Ok(Ordenes);
+                //}
                 else if (fechas.Estado == 3)
-                {
-                    List<EtaNTDTO> Ordenes = new List<EtaNTDTO>();
-
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= fechas.DateInicio && x.Fchcar <= fechas.DateFin && x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
-                        .Include(x => x.Datos_Facturas)
-                        .Include(x => x.Orden)
-                        .ThenInclude(x => x.OrdEmbDet)
-                        .Include(x => x.Chofer)
-                        .Include(x => x.Destino)
-                        .ThenInclude(x => x.Cliente)
-                        .Include(x => x.Estado)
-                        .Include(x => x.OrdenCompra)
-                        .Include(x => x.Tad)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Tonel)
-                        .ThenInclude(x => x.Transportista)
-                        .Include(x => x.OrdenCierre)
-                        .Include(x => x.OrdenPedido)
-                        .Include(x => x.HistorialEstados)
-                        .ThenInclude(x => x.Estado)
-                        .Include(x => x.Orden)
-                        .ThenInclude(x => x.Redireccionamiento)
-                        .OrderBy(x => x.Fchpet)
-                        .Select(x => x.Obtener_OrdenesETA())
-                        .Take(10000)
-                        .ToListAsync();
-                    Ordenes.AddRange(ordenesTotales);
-
-                    return Ok(Ordenes);
-                }
-                else if (fechas.Estado == 4)
                 {
                     List<EtaNTDTO> Ordenes = new List<EtaNTDTO>();
 

@@ -102,9 +102,9 @@ namespace GComFuelManager.Server.Controllers
                 if (gestión_Estados.Estado == 1)
                 {
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
-
+                    //x.Destino!.Cliente!.Tipven!.Contains("terno") DELIVERY'S
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && gestión_Estados.Estado.Equals(1) == x.Destino!.Cliente!.Tipven!.Contains("terno") && x.Codtad == id_terminal)
+                        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin  && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Delivery && x.Codtad == id_terminal)
                         .Include(x => x.Datos_Facturas)
                           .Include(x => x.Orden)
                         .Include(x => x.Chofer)
@@ -134,7 +134,7 @@ namespace GComFuelManager.Server.Controllers
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
 
                     var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && gestión_Estados.Estado.Equals(2) == x.Destino!.Cliente!.Tipven!.Contains("Interno") && x.Codtad == id_terminal)
+                        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Rack && x.Codtad == id_terminal)
                         .Include(x => x.Datos_Facturas)
                           .Include(x => x.Orden)
                         .Include(x => x.Chofer)
@@ -159,37 +159,37 @@ namespace GComFuelManager.Server.Controllers
 
                     return Ok(Ordenes);
                 }
+                //else if (gestión_Estados.Estado == 3)
+                //{
+                //    List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
+
+                //    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                //        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && gestión_Estados.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
+                //        .Include(x => x.Datos_Facturas)
+                //          .Include(x => x.Orden)
+                //        .Include(x => x.Chofer)
+                //        .Include(x => x.Destino)
+                //        .ThenInclude(x => x.Cliente)
+                //        .Include(x => x.Estado)
+                //        .Include(x => x.OrdenCompra)
+                //        .Include(x => x.Tad)
+                //        .Include(x => x.Producto)
+                //        .Include(x => x.Tonel)
+                //        .ThenInclude(x => x.Transportista)
+                //        .Include(x => x.OrdenCierre)
+                //         .Include(x => x.OrdenPedido)
+                //         .Include(x => x.HistorialEstados)
+                //         .ThenInclude(x => x.Estado)
+                //        .OrderBy(x => x.Fchpet)
+                //        .Select(x => x.Obtener_Orden_Gestion_Estado())
+                //        .Take(10000)
+                //        .ToListAsync();
+                //    Ordenes.AddRange(ordenesTotales);
+
+
+                //    return Ok(Ordenes);
+                //}
                 else if (gestión_Estados.Estado == 3)
-                {
-                    List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
-
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
-                        .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && gestión_Estados.Estado.Equals(3) == x.Destino!.Cliente!.Tipven!.Contains("Externo") && x.Codtad == id_terminal)
-                        .Include(x => x.Datos_Facturas)
-                          .Include(x => x.Orden)
-                        .Include(x => x.Chofer)
-                        .Include(x => x.Destino)
-                        .ThenInclude(x => x.Cliente)
-                        .Include(x => x.Estado)
-                        .Include(x => x.OrdenCompra)
-                        .Include(x => x.Tad)
-                        .Include(x => x.Producto)
-                        .Include(x => x.Tonel)
-                        .ThenInclude(x => x.Transportista)
-                        .Include(x => x.OrdenCierre)
-                         .Include(x => x.OrdenPedido)
-                         .Include(x => x.HistorialEstados)
-                         .ThenInclude(x => x.Estado)
-                        .OrderBy(x => x.Fchpet)
-                        .Select(x => x.Obtener_Orden_Gestion_Estado())
-                        .Take(10000)
-                        .ToListAsync();
-                    Ordenes.AddRange(ordenesTotales);
-
-
-                    return Ok(Ordenes);
-                }
-                else if (gestión_Estados.Estado == 4)
                 {
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
 
