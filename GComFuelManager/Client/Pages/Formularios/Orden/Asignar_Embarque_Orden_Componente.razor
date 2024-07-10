@@ -4,6 +4,7 @@
 @inject NotificationService ns
 @inject TooltipService ts
 @inject IJSRuntime JS
+@inject NavigationManager nm
 @attribute [Authorize]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Programador" Context="Filter">
@@ -416,6 +417,19 @@
     Modal_Custom datos_eta { get; set; } = null!;
     List<Archivo> Archivos = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        var queries = nm.ObtenerQueryString(nm.Uri);
+        if (queries is not null)
+        {
+            if (queries.ContainsKey("Folio"))
+            {
+                folio_.Folio = queries["Folio"];
+                await Obtener_Orden();
+            }
+        }
+    }
+
     private async Task Obtener_Orden()
     {
 
@@ -616,7 +630,7 @@
                 if (Fchcar is not null && Fecha_llegada is not null)
                 {
                     time = TimeSpan.FromHours(Fecha_llegada.Value.Subtract((DateTime)Fchcar).TotalHours);
-                    if(time.Days >= 1)
+                    if (time.Days >= 1)
                     {
                         hours = time.Days * 24;
                         hours += time.Hours;
@@ -625,7 +639,7 @@
                     }
                     else
                     {
-                        
+
                         return time.ToString($"hh\\:mm");
                     }
                 }

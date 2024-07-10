@@ -450,8 +450,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     .OrderBy(x => x.Den)
                     .AsQueryable();
 
-                if (!string.IsNullOrEmpty(transportista.Den) || !string.IsNullOrWhiteSpace(transportista.Den))
-                    transportistas = transportistas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(transportista.Den.ToLower()));
+                if (!string.IsNullOrEmpty(transportista.Den) && !string.IsNullOrWhiteSpace(transportista.Den))
+                    transportistas = transportistas.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(transportista.Den.ToLower()));
 
                 return Ok(transportistas);
             }

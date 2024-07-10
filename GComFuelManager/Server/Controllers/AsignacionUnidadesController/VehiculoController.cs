@@ -29,8 +29,8 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             this.verifyUser = verifyUser;
             this._terminal = _Terminal;
         }
-        [HttpGet("{transportista:int}")]
-        public ActionResult Get(int transportista)
+        [HttpGet("{transportista}")]
+        public ActionResult Get(string transportista, [FromQuery] Tonel tonel)
         {
             try
             {
@@ -39,10 +39,20 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                     return BadRequest();
 
                 var vehiculos = context.Tonel.IgnoreAutoIncludes()
-                    .Where(x => Convert.ToInt32(x.Carid) == transportista && x.Activo == true && x.Id_Tad == id_terminal)
+                    .Where(x => x.Carid == transportista && x.Activo == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Terminales)
                     .OrderBy(x => x.Tracto)
-                    .ToList();
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(tonel.Tracto) && !string.IsNullOrWhiteSpace(tonel.Tracto))
+                    vehiculos = vehiculos.Where(x => !string.IsNullOrEmpty(x.Tracto) && x.Tracto.ToLower().Contains(tonel.Tracto.ToLower()));
+
+                if (!string.IsNullOrEmpty(tonel.Placatracto) && !string.IsNullOrWhiteSpace(tonel.Placatracto))
+                    vehiculos = vehiculos.Where(x => !string.IsNullOrEmpty(x.Placatracto) && x.Placatracto.ToLower().Contains(tonel.Placatracto.ToLower()));
+
+                if (!string.IsNullOrEmpty(tonel.Placa) && !string.IsNullOrWhiteSpace(tonel.Placa))
+                    vehiculos = vehiculos.Where(x => !string.IsNullOrEmpty(x.Placa) && x.Placa.ToLower().Contains(tonel.Placa.ToLower()));
+
                 return Ok(vehiculos);
             }
             catch (Exception e)

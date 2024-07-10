@@ -31,7 +31,7 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
             this._terminal = _Terminal;
         }
         [HttpGet("{transportista:int}")]
-        public ActionResult Get(int transportista)
+        public ActionResult Get(int transportista, [FromQuery] Chofer chofer)
         {
             try
             {
@@ -39,12 +39,17 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
                 if (id_terminal == 0)
                     return BadRequest();
 
-                var transportistas = context.Chofer.IgnoreAutoIncludes()
+                var choferes = context.Chofer.IgnoreAutoIncludes()
                     .Where(x => x.Codtransport == transportista && x.Activo_Permanente == true && x.Id_Tad == id_terminal)
                     .Include(x => x.Terminales).IgnoreAutoIncludes()
                     .OrderBy(x => x.Den)
-                    .ToList();
-                return Ok(transportistas);
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(chofer.Den) && !string.IsNullOrWhiteSpace(chofer.Den))
+                    choferes = choferes.Where(x => (!string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(chofer.Den.ToLower()) || 
+                    (!string.IsNullOrEmpty(x.Shortden) && x.Shortden.ToLower().Contains(chofer.Den.ToLower()))));
+
+                return Ok(choferes);
             }
             catch (Exception e)
             {
