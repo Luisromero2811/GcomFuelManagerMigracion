@@ -41,7 +41,7 @@
             @if (Puede_Filtrar)
             {
                 <li style="position:sticky; top:0; background-color:white;">
-                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" />
+                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" placeholder="@Default_Placeholder_Filter" />
                 </li>
             }
             <Virtualize Items="Listado" Context="Item" TItem="TListado">
@@ -68,6 +68,7 @@
 
 @code {
     [Parameter] public string Default_Placeholder { get; set; } = string.Empty;
+    [Parameter] public string Default_Placeholder_Filter { get; set; } = string.Empty;
     private bool ShowDropDown { get; set; } = false;
     [Parameter] public List<TListado> Listado { get; set; } = new();
     [Parameter] public RenderFragment<TListado>? Render { get; set; } = null!;
@@ -91,28 +92,6 @@
     [Parameter] public bool Seleccion_Multiple { get; set; } = false;
     private List<TListado> Listado_Seleccionado { get; set; } = new();
 
-    // private ElementReference elementReference;
-
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //         await js.InvokeVoidAsync("closedropdown", DotNetObjectReference.Create(this), elementReference);
-    // }
-
-    // private async void OpenDropDown()
-    // {
-    //     ShowDropDown = true;
-    //     await js.InvokeVoidAsync("closedropdown", DotNetObjectReference.Create(this), elementReference);
-    // }
-
-    // [JSInvokable]
-    // public void OutsideClick()
-    // {
-    //     Console.WriteLine("cerrando");
-    //     ShowDropDown = false;
-    //     StateHasChanged();
-    // }
-
     private async Task ValorChange(TListado item)
     {
         ShowDropDown = false;
@@ -125,15 +104,26 @@
             if (prop_name is not null)
             {
 
-                Valor = (TValue)prop_name.GetValue(item);
-                await ValorChanged.InvokeAsync(Valor);
+                TValue newValor = (TValue)prop_name.GetValue(item);
+                // await ValorChanged.InvokeAsync(Valor);
+                if(!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
+                {
+                    Valor = newValor;
+                    await ValorChanged.InvokeAsync(newValor);
+                }
                 // ValorChangedCustom.InvokeAsync(Valor);
             }
         }
         else
         {
             var nuevo_valor = Convert.ChangeType(Valor_Seleleccionado, typeof(TValue));
-            Valor = (TValue)nuevo_valor;
+            TValue newValor = (TValue)nuevo_valor;
+            if (!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
+            {
+                Valor = newValor;
+                await ValorChanged.InvokeAsync(newValor);
+            }
+            // await ValorChanged.InvokeAsync(Valor);
         }
 
         await On_Change_Method.InvokeAsync();

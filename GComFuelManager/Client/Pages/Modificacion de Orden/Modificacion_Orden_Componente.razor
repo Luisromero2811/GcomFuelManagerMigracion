@@ -1,0 +1,612 @@
+﻿@page "/modificacion/orden"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject IJSRuntime js
+@inject NotificationService ns
+@inject NavigationManager nm
+
+<div class="card my-2">
+    <div class="card-header">
+        <b>Modificar orden</b>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <b>Buscar orden</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3">
+                <input type="text" class="form-control form-control-sm" placeholder="Referencia" @bind-value="dTO.Referencia" />
+            </div>
+            <div class="col-1">
+                <button class="btn btn-sm gcom-bg-amarillo" @onclick="BuscarOrden">
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center my-2">
+    <div class="ancho-tabla">
+        <Tabla Datos="Ordenes">
+            <Cabeceras>
+                <tr>
+                    <th class="resizable-column" style="width:150px;"></th>
+                    <th class="resizable-column" style="width:150px;">Recarpturar carga</th>
+                    <th class="resizable-column" style="width:150px;">Referencia</th>
+                    <th class="resizable-column" style="width:150px;">Bin</th>
+                    <th class="resizable-column" style="width:150px;">Cliente</th>
+                    <th class="resizable-column" style="width:150px;">Destino</th>
+                    <th class="resizable-column" style="width:150px;">Producto</th>
+                    <th class="resizable-column" style="width:150px;">Volumen</th>
+                    <th class="resizable-column" style="width:150px;">Precio</th>
+                    <th class="resizable-column" style="width:150px;">Fecha de peticion</th>
+                    <th class="resizable-column" style="width:150px;">Fecha de programa</th>
+                    <th class="resizable-column" style="width:150px;">Transportista</th>
+                    <th class="resizable-column" style="width:150px;">Chofer</th>
+                    <th class="resizable-column" style="width:150px;">Unidad</th>
+                    <th class="resizable-column" style="width:150px;">Compartimiento</th>
+                    <th class="resizable-column" style="width:150px;">Estado</th>
+                    <th class="resizable-column" style="width:150px;">PDF factura</th>
+                    <th class="resizable-column" style="width:150px;">XML factura</th>
+                    <th class="resizable-column" style="width:150px;">Archivo BOL</th>
+                </tr>
+            </Cabeceras>
+            <Columnas Context="item">
+                <tr>
+                    <td>
+                        <div>
+                            <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrden(item.Id_Orden))">
+                                <i class="fa fa-solid fa-cancel"></i>
+                            </button>
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>item.Mostrar_Detalle = !item.Mostrar_Detalle)">
+                                <i class="fa fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Recapturar_Orden(item))">
+                                <i class="fa fa-solid fa-rotate"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td>@item.Referencia</td>
+                    <td>@item.Bin</td>
+                    <td>@item.Cliente</td>
+                    <td>@item.Destino</td>
+                    <td>@item.Producto</td>
+                    <td>@item.Volumen?.ToString("N2", CultureInfo.InvariantCulture)</td>
+                    <td>@item.Precio?.ToString("N4", CultureInfo.InvariantCulture)</td>
+                    <td>@item.Fecha_Peticion</td>
+                    <td>@item.Fecha_Programa</td>
+                    <td>@item.Transportista</td>
+                    <td>@item.Chofer</td>
+                    <td>@item.Unidad</td>
+                    <td>@item.Compartimiento</td>
+                    <td>@item.Estado</td>
+                    <td>
+                        <a href="@item.Url_PDF_Facturacion" target="_blank" class="btn btn-sm gcom-bg-amarillo">
+                            <i class="fa fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@item.Url_XML_Facturacion" target="_blank" class="btn btn-sm gcom-bg-amarillo">
+                            <i class="fa fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@item.Url_Archivo_BOL" target="_blank" class="btn btn-sm gcom-bg-amarillo">
+                            <i class="fa fa-solid fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                @if (item.Mostrar_Detalle)
+                {
+                    <tr>
+                        <td colspan="19">
+                            @if (item.OrdenesCargadas.Count > 0)
+                            {
+                                <div style="width:100%; overflow:auto;">
+                                    <Tabla Datos="item.OrdenesCargadas">
+                                        <Cabeceras>
+                                            <tr>
+                                                <th class="resizable-column" style="width:150px;"></th>
+                                                <th class="resizable-column" style="width:150px;">Referencia</th>
+                                                <th class="resizable-column" style="width:150px;">Bol</th>
+                                                <th class="resizable-column" style="width:150px;">Pedimento</th>
+                                                <th class="resizable-column" style="width:150px;">Sellos</th>
+                                                <th class="resizable-column" style="width:150px;">Numero orden</th>
+                                                <th class="resizable-column" style="width:150px;">Factura</th>
+                                                <th class="resizable-column" style="width:150px;">Cliente</th>
+                                                <th class="resizable-column" style="width:150px;">Destino</th>
+                                                <th class="resizable-column" style="width:150px;">Producto</th>
+                                                <th class="resizable-column" style="width:150px;">Volumen cargado</th>
+                                                <th class="resizable-column" style="width:150px;">Precio</th>
+                                                <th class="resizable-column" style="width:150px;">Fecha de carga</th>
+                                                <th class="resizable-column" style="width:150px;">Transportista</th>
+                                                <th class="resizable-column" style="width:150px;">Chofer</th>
+                                                <th class="resizable-column" style="width:150px;">Unidad</th>
+                                                <th class="resizable-column" style="width:150px;">Estado</th>
+                                            </tr>
+                                        </Cabeceras>
+                                        <Columnas Context="ordencargada">
+                                            <tr>
+                                                <td>
+                                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrdenSynthesis(ordencargada.Id_Orden))">
+                                                        <i class="fa fa-solid fa-cancel"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>DeleteOrden(ordencargada.Id_Orden))">
+                                                        <i class="fa fa-solid fa-trash"></i>
+                                                    </button> <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Set_Orden(ordencargada, item))">
+                                                        <i class="fa fa-solid fa-edit"></i>
+                                                    </button>
+                                                </td>
+                                                <td>@ordencargada.Referencia</td>
+                                                <td>@ordencargada.Bol</td>
+                                                <td>@ordencargada.Pedimento</td>
+                                                <td>@ordencargada.Sellos</td>
+                                                <td>@ordencargada.NOrden</td>
+                                                <td>@ordencargada.Factura</td>
+                                                <td>@ordencargada.Cliente</td>
+                                                <td>@ordencargada.Destino</td>
+                                                <td>@ordencargada.Producto</td>
+                                                <td>@ordencargada.Volumen?.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                                <td>@ordencargada.Precio</td>
+                                                <td>@ordencargada.Fecha_Carga</td>
+                                                <td>@ordencargada.Transportista</td>
+                                                <td>@ordencargada.Chofer</td>
+                                                <td>@ordencargada.Unidad</td>
+                                                <td>@ordencargada.Estado</td>
+                                            </tr>
+                                        </Columnas>
+                                    </Tabla>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </Columnas>
+        </Tabla>
+
+    </div>
+</div>
+
+
+<div class="card">
+    <div class="card-header">
+        <b>Modificar ETA</b>
+    </div>
+    <div class="card-body">
+        <EditForm Model="dTOPost" OnValidSubmit="GuardarOrden">
+
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="card my-2">
+                <div class="card-header">
+                    <b>Datos de transportista</b>
+                </div>
+                <div class="card-body">
+                    <div class="col-12 row">
+                        <div class="col-4">
+                            <label>Transportista</label>
+                            <DropDownFilter Listado="Transportistas" TListado="Transportista" TValue="Transportista" @bind-Valor="Transportista"
+                                            FiltrarValor="GetTransportista" On_Change_Method="GetChoferTonel" Default_Placeholder="Seleccionar nuevo transportista"
+                                            Default_Placeholder_Filter="Nombre transportista">
+                                <Render Context="item">
+                                    @item.Den
+                                </Render>
+                                <RenderValue Context="item">
+                                    @item.Den
+                                </RenderValue>
+                            </DropDownFilter>
+                        </div>
+                        <div class="col-4">
+                            <label>Chofer</label>
+                            <DropDownFilter Listado="Choferes" TListado="Chofer" TValue="int" @bind-Valor="dTOPost.Id_Chofer" Propiedad_Valor="Cod"
+                                            FiltrarValor="GetChoferes" Default_Placeholder="Seleccionar nuevo chofer"
+                                            Default_Placeholder_Filter="Nombre chofer">
+                                <Render Context="item">
+                                    @item.FullName
+                                </Render>
+                                <RenderValue Context="item">
+                                    @item.FullName
+                                </RenderValue>
+                            </DropDownFilter>
+                        </div>
+                        <div class="col-4">
+                            <label>Unidad</label>
+                            <DropDownFilter Listado="Toneles" TListado="Tonel" TValue="int" @bind-Valor="dTOPost.Id_Tonel" Propiedad_Valor="Cod"
+                                            FiltrarValor="GetVehiculo" Default_Placeholder="Seleccionar nueva unidad"
+                                            Default_Placeholder_Filter="Tracto de unidad">
+                                <Render Context="item">
+                                    @item.Nombre_Placas
+                                </Render>
+                                <RenderValue Context="item">
+                                    @item.Nombre_Placas
+                                </RenderValue>
+                            </DropDownFilter>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 row">
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <b>Archivos de Bol/Embarque</b>
+                        </div>
+                        <div class="card-body">
+                            <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:"
+                                           Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(Id_Orden == 0)" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <b>Archivos de factura</b>
+                        </div>
+                        <div class="card-body">
+                            <div class="col-12">
+                                <Subir_Archivo TResponse="bool" URL="@URL_PDF" Accept=".pdf" Texto_Label="Subir PDF de factura:"
+                                               Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(Id_Orden == 0)" />
+                            </div>
+                            <div class="col-12">
+                                <Subir_Archivo TResponse="ModificarOrdenDTO" URL="@URL_XML" Accept=".xml" Texto_Label="Subir XML de factura:"
+                                               Subida_Completa="Subida_Exitosa_Xml" Mostrar_Mensaje_Exito="false" Deshabilitar="@(Id_Orden == 0)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 row d-flex g-1">
+                <div class="col-2 d-flex flex-column align-items-center justify-content-center">
+                    <div class="d-flex align-items-center">
+                        <RadzenCheckBox @bind-Value=@dTOPost.Facturar Name="CheckBox1" class="me-2" />
+                        <label for="CheckBox1" class="mb-0">
+                            Facturar orden
+                        </label>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <label>BOL / Embarque</label>
+                    <InputNumber @bind-Value="@dTOPost.Bol" class="form-control form-control-sm" />
+                    <ValidationMessage For="@(()=>dTOPost.Bol)" />
+                </div>
+                <div class="col-3">
+                    <label>Fecha de carga</label>
+                    <InputDate @bind-Value="@dTOPost.Fecha_Carga" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                    <ValidationMessage For="@(()=>dTOPost.Fecha_Carga)" />
+                </div>
+                <div class="col-3">
+                    <label>Fecha de llegada estimada</label>
+                    <InputDate @bind-Value="@dTOPost.Fecha_LLegada" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                    <ValidationMessage For="@(()=>dTOPost.Fecha_LLegada)" />
+                </div>
+                <div class="col-2 mt-auto">
+                    <label>ETA</label>
+                    @dTOPost.Eta
+                </div>
+                <div class="col-2">
+                    <label>Litros cargados</label>
+                    <InputNumber step="0.01" @bind-Value="@dTOPost.Litros" class="form-control form-control-sm" />
+                    <ValidationMessage For="@(()=>dTOPost.Litros)" />
+                </div>
+                <div class="col-2">
+                    <label>Pedimento</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="@dTOPost.Pedimento" />
+                </div>
+                <div class="col-3">
+                    <label>Sellos</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="@dTOPost.Sellos" />
+                    <ValidationMessage For="@(()=>dTOPost.Sellos)" />
+                </div>
+                <div class="col-2">
+                    <label># de orden</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="@dTOPost.NOrden" />
+                    <ValidationMessage For="@(()=>dTOPost.NOrden)" />
+                </div>
+                <div class="col-3">
+                    <label>Factura de Proveedor</label>
+                    <InputText class="form-control form-control-sm" @bind-Value="@dTOPost.Factura" />
+                    <ValidationMessage For="@(()=>dTOPost.Factura)" />
+                </div>
+            </div>
+            <div class="col-12 d-flex justify-content-center mt-2">
+                <div class="col-4">
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                        Guardar
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    List<ModificarOrdenDTO> Ordenes = new();
+    ModificarOrdenDTO dTO = new();
+    ModificarOrdenDTOPost dTOPost = new();
+
+    int? Id_Orden = 0;
+    string URL_PDF_BOL = string.Empty;
+    string URL_PDF = string.Empty;
+    string URL_XML = string.Empty;
+
+    List<Transportista> Transportistas = new();
+    Transportista Transportista = new();
+    List<Tonel> Toneles = new();
+    List<Chofer> Choferes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTransportista();
+    }
+
+    private async Task BuscarOrden()
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query[nameof(dTO.Referencia)] = dTO.Referencia ?? string.Empty;
+            var url = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<ModificarOrdenDTO>>($"api/orden/modificacion?{url}");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Ordenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Mostrar_Mensaje_Exito() =>
+    ns.Notify(new() { Severity = NotificationSeverity.Success, Summary = "Archivo subido", Detail = "Archivo subido exitosamente" });
+
+    private void Subida_Exitosa_Xml(ModificarOrdenDTO orden)
+    {
+        // dTOPost.Pedimento = orden.OrdenCargadaDTO?.Pedimento;
+        // dTOPost.Litros = orden.OrdenCargadaDTO?.Volumen;
+        // dTOPost.Factura = orden.OrdenCargadaDTO?.Factura;
+        Mostrar_Mensaje_Exito();
+    }
+
+    private void Set_Orden(ModificarOrdenCargadaDTO dTO, ModificarOrdenDTO ordenDTO)
+    {
+        dTOPost.Factura = dTO.Factura;
+        dTOPost.Fecha_Carga = ordenDTO.Fecha_Programa;
+        dTOPost.Bol = dTO.Bol;
+        dTOPost.Litros = dTO.Volumen;
+        dTOPost.Pedimento = dTO.Pedimento;
+        dTOPost.Sellos = dTO.Sellos;
+        dTOPost.NOrden = dTO.NOrden;
+        dTOPost.Factura = dTO.Factura;
+        dTOPost.Fecha_LLegada = dTO.Fecha_Llegada;
+        dTOPost.Id_Transportista = dTO.Id_Transportista;
+        dTOPost.Id_Tonel = dTO.Id_Tonel;
+        dTOPost.Id_Chofer = dTO.Id_Chofer;
+        dTOPost.ID = ordenDTO.Id_Orden;
+        dTOPost.Id_Orden = dTO.Id_Orden;
+        dTOPost.Id_Bol = dTO.Id_Bol;
+        Id_Orden = ordenDTO.Id_Orden;
+        dTOPost.Id_Destino = dTO.Id_Destino;
+        dTOPost.Id_Cliente = dTO.Id_Cliente;
+        dTOPost.Id_Producto = dTO.Id_Producto;
+        URL_PDF = $"api/files/upload/pdf/{ordenDTO.Id_Orden}";
+        URL_PDF_BOL = $"api/files/upload/pdf/bol/{ordenDTO.Id_Orden}";
+        URL_XML = $"api/files/upload/xml/{ordenDTO.Id_Orden}";
+
+    }
+
+    private async Task GetTransportista(string value = "")
+    {
+        Dictionary<string, string> query = new();
+        query["Den"] = value;
+        var url = Constructor_De_URL_Parametros.Generar_URL(query);
+        var response = await http.Get<List<Transportista>>($"api/transportista?{url}");
+        if (response.Error)
+        {
+            var responseHttp = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+        }
+        else
+        {
+            Transportistas = response.Response;
+        }
+    }
+
+    private async Task GetChoferTonel()
+    {
+        // if (Transportistas.Any(x => x.Cod == dTOPost.Id_Transportista))
+        //     Transportista = Transportistas.First(x => x.Cod == dTOPost.Id_Transportista);
+
+        await GetChoferes();
+        await GetVehiculo();
+    }
+
+    private async Task GetChoferes(string value = "")
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Transportista.Busentid))
+            {
+                Dictionary<string, string> query = new();
+                query["Den"] = value;
+                var url = Constructor_De_URL_Parametros.Generar_URL(query);
+                var response = await http.Get<List<Chofer>>($"api/chofer/{Transportista.Busentid}?{url}");
+                if (response.Error)
+                {
+                    var repositorioHttp = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Choferes = response.Response;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GetVehiculo(string value = "")
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(Transportista.CarrId))
+            {
+                Dictionary<string, string> query = new();
+                query["Tracto"] = value;
+                var url = Constructor_De_URL_Parametros.Generar_URL(query);
+                var response = await http.Get<List<Tonel>>($"api/vehiculo/{Transportista.CarrId}?{url}");
+                if (response.Error)
+                {
+                    var repositorioHttp = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    Toneles = response.Response;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task DeleteOrden(long? id)
+    {
+        try
+        {
+            var response = await http.Delete($"api/orden/eliminar/{id}");
+            if (response.Error)
+            {
+                var repositorioHttp = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await BuscarOrden();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ActualizarOrden(int? id)
+    {
+        try
+        {
+            var response = await http.Delete($"api/pedido/cancel/orden/{id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await BuscarOrden();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ActualizarOrdenSynthesis(long? id)
+    {
+        try
+        {
+            var response = await http.Delete($"api/pedido/cancel/orden/synthesis/{id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+
+                await BuscarOrden();
+                await swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+
+                //gridOC?.Reload();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GuardarOrden()
+    {
+        try
+        {
+            var response = await http.Post<ModificarOrdenDTOPost>("api/orden/modificacion", dTOPost);
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await swal.FireAsync("Exito", "Orden modificada", SweetAlertIcon.Success);
+                await BuscarOrden();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Recapturar_Orden(ModificarOrdenDTO orden)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar",
+                    Text = $"¿Desea volver a capturar la carga de la orden? \nTenga en cuanta que al volver a capturar la carga las ordenes cargadas relacionadas a {orden.Referencia} se eliminaran, y la orden original volverra a estar pendiente de carga."
+                });
+
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var response = await http.Delete($"api/orden/recaptura/{orden.Id_Orden}");
+                if (response.Error)
+                {
+                    await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                }
+                else
+                {
+                    nm.NavigateTo($"/gestionordenes?Folio={orden.Referencia}");
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}
