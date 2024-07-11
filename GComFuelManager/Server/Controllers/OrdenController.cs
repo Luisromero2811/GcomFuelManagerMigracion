@@ -967,9 +967,11 @@ namespace GComFuelManager.Server.Controllers
                 var id = await verifyUser.GetId(HttpContext, userManager);
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
-
+                
                 var ordenembarque = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == id_orden);
                 if (ordenembarque is null) { return NotFound(); }
+                
+                string referencia = ordenembarque.FolioSyn;
 
                 var ordenescargadas = await context.Orden.Where(x => x.Ref == ordenembarque.FolioSyn).ToListAsync();
 
@@ -982,8 +984,12 @@ namespace GComFuelManager.Server.Controllers
                 context.RemoveRange(ordenescargadas);
 
                 ordenembarque.Codest = 22;
-                context.Update(ordenembarque);
 
+                context.Update(ordenembarque);
+                await context.SaveChangesAsync();
+
+                ordenembarque.FolioSyn = referencia;
+                context.Update(ordenembarque);
                 await context.SaveChangesAsync(id, 60);
 
                 return NoContent();
