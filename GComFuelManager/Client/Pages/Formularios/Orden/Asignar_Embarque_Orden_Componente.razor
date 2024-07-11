@@ -162,26 +162,26 @@
                             <div class="card-body">
                                 <div class="row col-12 mt-1" style="text-align: center;">
                                     <div style="text-align: center;">
-                                        <label style="text-align: center;">Modelos de Venta (Rack, Delivery Interno y Externo)</label>
+                                        <label style="text-align: center;">Modelos de Venta (Rack y Delivery)</label>
                                     </div>
                                 </div>
                                 <div class="col-12 mt-1 d-flex justify-content-center">
                                     <div class="form-check form-check-inline">
-                                        <input type="radio" class="form-check-input" id="Ambas" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
-                                        <label class="form-check-label" for="Ambas">Delivery Interno y Externo</label>
+                                        <input type="radio" class="form-check-input" id="Delivery" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                        <label class="form-check-label" for="Delivery">Delivery</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="Interno" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
-                                        <label class="form-check-label" for="Interno">Interno</label>
+                                        <input class="form-check-input" type="radio" id="Rack" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                        <label class="form-check-label" for="Rack">Rack</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="Externo" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
-                                        <label class="form-check-label" for="Externo">Externo</label>
+                                        <input class="form-check-input" type="radio" id="Ambas" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                        <label class="form-check-label" for="Ambas">Ambos modelos de venta</label>
                                     </div>
-                                    <div class="form-check form-check-inline">
+                                    @*<div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
                                         <label class="form-check-label" for="Todos">Delivery y Rack</label>
-                                    </div>
+                                    </div>*@
                                 </div>
                             </div>
                         </div>
