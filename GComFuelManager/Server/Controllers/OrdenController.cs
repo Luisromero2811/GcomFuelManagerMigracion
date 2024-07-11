@@ -859,6 +859,10 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
+                var id_user = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id_user))
+                    return BadRequest();
+
                 var orden = await context.Orden.FirstOrDefaultAsync(x => x.Cod == id);
 
                 if (orden is not null)
@@ -867,11 +871,11 @@ namespace GComFuelManager.Server.Controllers
                     if (ordemb is not null)
                     {
                         context.Remove(ordemb);
-                        await context.SaveChangesAsync();
+                        await context.SaveChangesAsync(id_user, 57);
                     }
 
                     context.Remove(orden);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id_user, 57);
                 }
 
                 return NoContent();
@@ -911,7 +915,7 @@ namespace GComFuelManager.Server.Controllers
                         if (ordemb.Fchlleest != dTO.Fecha_LLegada || ordemb.Bol != dTO.Bol)
                         {
                             context.Remove(ordemb);
-                            await context.SaveChangesAsync();
+                            await context.SaveChangesAsync(id, 58);
 
                             OrdEmbDet ordEmbDet = new()
                             {
@@ -926,7 +930,7 @@ namespace GComFuelManager.Server.Controllers
                             };
 
                             await context.AddAsync(ordEmbDet);
-                            await context.SaveChangesAsync();
+                            await context.SaveChangesAsync(id,58);
                         }
 
                     }
@@ -945,7 +949,7 @@ namespace GComFuelManager.Server.Controllers
                     orden.Factura = dTO.Factura;
 
                     context.Update(orden);
-                    await context.SaveChangesAsync();
+                    await context.SaveChangesAsync(id, 58);
                 }
                 return Ok();
             }
@@ -955,12 +959,16 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpDelete("recaptura/{id}")]
-        public async Task<IActionResult> Recapturar_Orden(int id)
+        [HttpDelete("recaptura/{id_orden}")]
+        public async Task<IActionResult> Recapturar_Orden(int id_orden)
         {
             try
             {
-                var ordenembarque = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == id);
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var ordenembarque = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == id_orden);
                 if (ordenembarque is null) { return NotFound(); }
 
                 var ordenescargadas = await context.Orden.Where(x => x.Ref == ordenembarque.FolioSyn).ToListAsync();
@@ -976,7 +984,7 @@ namespace GComFuelManager.Server.Controllers
                 ordenembarque.Codest = 22;
                 context.Update(ordenembarque);
 
-                await context.SaveChangesAsync();
+                await context.SaveChangesAsync(id, 60);
 
                 return NoContent();
             }

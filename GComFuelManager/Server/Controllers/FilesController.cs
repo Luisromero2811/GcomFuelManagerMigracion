@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using System.Xml;
 using GComFuelManager.Server;
 using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -26,11 +28,16 @@ namespace Server.Controllers
         private readonly User_Terminal terminal;
         private readonly IWebHostEnvironment environment;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly VerifyUserToken verifyUser;
 
-        public FilesController(ILogger<FilesController> logger, ApplicationDbContext context, User_Terminal terminal, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+        public FilesController(ILogger<FilesController> logger, ApplicationDbContext context, User_Terminal terminal, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, 
+            UserManager<IdentityUsuario> userManager, VerifyUserToken verifyUser)
         {
             this.environment = environment;
             this.httpContextAccessor = httpContextAccessor;
+            this.userManager = userManager;
+            this.verifyUser = verifyUser;
             this.terminal = terminal;
             this.context = context;
             _logger = logger;
@@ -42,6 +49,10 @@ namespace Server.Controllers
         {
             try
             {
+                var id_user = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id_user))
+                    return BadRequest();
+
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0) { return BadRequest(); }
 
@@ -103,7 +114,7 @@ namespace Server.Controllers
                                     archivo_existente.Directorio = archivo.Directorio;
 
                                     context.Update(archivo_existente);
-                                    await context.SaveChangesAsync();
+                                    await context.SaveChangesAsync(id_user, 59);
                                 }
 
                             }
@@ -140,6 +151,10 @@ namespace Server.Controllers
         {
             try
             {
+                var id_user = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id_user))
+                    return BadRequest();
+
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0) { return BadRequest(); }
 
@@ -205,7 +220,7 @@ namespace Server.Controllers
                                     archivo_existente.Directorio = archivo.Directorio;
 
                                     context.Update(archivo_existente);
-                                    await context.SaveChangesAsync();
+                                    await context.SaveChangesAsync(id_user, 59);
                                 }
 
                                 XmlDocument doc = new();
@@ -297,6 +312,10 @@ namespace Server.Controllers
         {
             try
             {
+                var id_user = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id_user))
+                    return BadRequest();
+
                 var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
                 if (id_terminal == 0) { return BadRequest(); }
 
@@ -359,7 +378,7 @@ namespace Server.Controllers
                                     archivo_existente.Directorio = archivo.Directorio;
 
                                     context.Update(archivo_existente);
-                                    await context.SaveChangesAsync();
+                                    await context.SaveChangesAsync(id_user, 59);
                                 }
 
                             }
