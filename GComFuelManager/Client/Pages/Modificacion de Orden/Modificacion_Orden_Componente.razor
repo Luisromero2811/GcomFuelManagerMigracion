@@ -135,9 +135,9 @@
                                         <Columnas Context="ordencargada">
                                             <tr>
                                                 <td>
-                                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrdenSynthesis(ordencargada.Id_Orden))">
+                                                    @* <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrdenSynthesis(ordencargada.Id_Orden))">
                                                         <i class="fa fa-solid fa-cancel"></i>
-                                                    </button>
+                                                    </button> *@
                                                     <button class="btn btn-sm btn-danger" @onclick="@(()=>DeleteOrden(ordencargada.Id_Orden))">
                                                         <i class="fa fa-solid fa-trash"></i>
                                                     </button> <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Set_Orden(ordencargada, item))">
@@ -185,7 +185,7 @@
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <div class="card my-2">
+            @* <div class="card my-2">
                 <div class="card-header">
                     <b>Datos de transportista</b>
                 </div>
@@ -232,7 +232,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> *@
             <div class="col-12 row">
                 <div class="col-6">
                     <div class="card">
@@ -274,7 +274,7 @@
                 </div>
                 <div class="col-2">
                     <label>BOL / Embarque</label>
-                    <InputNumber @bind-Value="@dTOPost.Bol" class="form-control form-control-sm" />
+                    <InputNumber @bind-Value="@dTOPost.Bol" class="form-control form-control-sm" disabled/>
                     <ValidationMessage For="@(()=>dTOPost.Bol)" />
                 </div>
                 <div class="col-3">
@@ -586,7 +586,7 @@
                     ShowCancelButton = true,
                     ConfirmButtonText = "Aceptar",
                     CancelButtonText = "Cancelar",
-                    Text = $"¿Desea volver a capturar la carga de la orden? \nTenga en cuanta que al volver a capturar la carga las ordenes cargadas relacionadas a {orden.Referencia} se eliminaran, y la orden original volverra a estar pendiente de carga."
+                    Text = $"¿Desea volver a capturar la carga de la orden? \nTenga en cuanta que al volver a capturar la carga la orden {orden.Referencia}, esta pasara a estar en pendiente de carga."
                 });
 
             if (!string.IsNullOrEmpty(confirm.Value))
