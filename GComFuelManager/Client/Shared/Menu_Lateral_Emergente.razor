@@ -89,12 +89,12 @@
         if (Esta_En_Tuxpan)
         {
             Menus.Add(new Menu()
-            {
-                isMenu = true,
-                name = "Configuración",
-                icon = "gear",
-                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
-                Menus = new()
+                {
+                    isMenu = true,
+                    name = "Configuración",
+                    icon = "gear",
+                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
+                    Menus = new()
 {
                     new()
                     {
@@ -218,17 +218,17 @@
                           roles = "Admin, Administrador Sistema, Programador",
                       },
                 }
-            });
+                });
         }
         else
         {
             Menus.Add(new Menu()
-            {
-                isMenu = true,
-                name = "Configuración",
-                icon = "gear",
-                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
-                Menus = new()
+                {
+                    isMenu = true,
+                    name = "Configuración",
+                    icon = "gear",
+                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo, Precios",
+                    Menus = new()
 {
                     new()
                     {
@@ -346,17 +346,17 @@
                           roles = "Admin, Administrador Sistema, Programador",
                       },
                 }
-            });
+                });
         }
 
         //precios
         Menus.Add(new Menu()
-        {
-            name = "Precios",
-            icon = "money-bill-1-wave",
-            roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
-            isMenu = true,
-            Menus = new()
+            {
+                name = "Precios",
+                icon = "money-bill-1-wave",
+                roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios",
+                isMenu = true,
+                Menus = new()
 {
                     new()
                     {
@@ -369,13 +369,13 @@
                         roles = "Admin, Administrador Sistema, Direccion, Gerencia, Precios, Analista Credito, Contador, Revision Precios"
                     }
                 }
-        });
+            });
+
+        await Checar_Terminal();
+        if (Esta_En_Tuxpan)
         {
-            await Checar_Terminal();
-            if (Esta_En_Tuxpan)
-            {
-                //cierres
-                Menus.Add(new Menu()
+            //cierres
+            Menus.Add(new Menu()
                 {
                     isMenu = true,
                     name = "Cierres",
@@ -435,20 +435,16 @@
                 }
 
                 });
-            }
-            else
-            {
-
-            }
         }
+
         //ordenes
         Menus.Add(new Menu()
-        {
-            isMenu = true,
-            name = "Órdenes",
-            icon = "rectangle-list",
-            roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
-            Menus = new()
+            {
+                isMenu = true,
+                name = "Órdenes",
+                icon = "rectangle-list",
+                roles = "Admin, Administrador Sistema, Direccion, Lectura Asignacion, Gerencia, Ejecutivo de Cuenta Comercial, Ejecutivo de Cuenta Operativo , Programador, Revision Precios , Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Analista Credito, Contador, Auditor , Comprador, Revision Precios",
+                Menus = new()
 {
                     new()
                     {
@@ -528,13 +524,13 @@
                 //    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Coordinador, Analista Suministros, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
                 //    path = "gestionEstados"
                 //},
-                new()
-                {
-                    name = "Gestión de Orden(es) Cargada(s)",
-                    icon = "bars-progress",
-                    roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Coordinador, Analista Suministros, Analista Credito, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
-                    path = "gestionordenes"
-                },
+                    new()
+                    {
+                        name = "Gestión de Orden(es) Cargada(s)",
+                        icon = "bars-progress",
+                        roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Coordinador, Analista Suministros, Analista Credito, Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo, Comprador",
+                        path = "gestionordenes"
+                    },
                     new()
                     {
                         name = "Historial de Órdenes",
@@ -547,7 +543,7 @@
                         name = "Actualizar Órdenes",
                         icon = "repeat",
                         roles = "Admin, Administrador Sistema, Programador, Ejecutivo de Cuenta Operativo",
-                        path = "actualizar/pedidos"
+                        path = "modificacion/orden"
                     },
                     new()
                     {
@@ -557,15 +553,15 @@
                         path = "subir/ordenes"
                     },
                 }
-        });
+            });
         //pedimentos
         Menus.Add(new Menu()
-        {
-            name = "Pedimentos",
-            icon = "file-circle-check",
-            roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
-            isMenu = true,
-            Menus = new()
+            {
+                name = "Pedimentos",
+                icon = "file-circle-check",
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Contraloria",
+                isMenu = true,
+                Menus = new()
 {
                     new()
                     {
@@ -582,15 +578,15 @@
                         path = "listado/pedimentos"
                     },
                 }
-        });
+            });
         //redirecciones
         Menus.Add(new Menu()
-        {
-            name = "Redireccionamientos",
-            icon = "diamond-turn-right",
-            roles = "Admin, Administrador Sistema, Programador",
-            isMenu = true,
-            Menus = new()
+            {
+                name = "Redireccionamientos",
+                icon = "diamond-turn-right",
+                roles = "Admin, Administrador Sistema, Programador",
+                isMenu = true,
+                Menus = new()
 {
                     new()
                     {
@@ -607,16 +603,16 @@
                         path = "listado/redireccion"
                     },
                 }
-        });
+            });
 
         //ventas
         Menus.Add(new Menu()
-        {
-            name = "Ventas",
-            icon = "file-circle-check",
-            roles = "Admin, Administrador Sistema, Reportes De Venta",
-            isMenu = true,
-            Menus = new()
+            {
+                name = "Ventas",
+                icon = "file-circle-check",
+                roles = "Admin, Administrador Sistema, Reportes De Venta",
+                isMenu = true,
+                Menus = new()
 {
                     new()
                     {
@@ -633,7 +629,7 @@
                         path = "establecer/meta"
                     },
                 }
-        });
+            });
 
         //tarifario
         //Menus.Add(new Menu()
@@ -664,13 +660,13 @@
         if (Esta_En_Tuxpan)
         {
             Menus.Add(new Menu()
-            {
-                name = "Activos fijos",
-                icon = "chart-line",
-                roles = "Admin, Administrador Sistema, Activos Fijos",
-                isMenu = false,
-                path = "activos"
-            });
+                {
+                    name = "Activos fijos",
+                    icon = "chart-line",
+                    roles = "Admin, Administrador Sistema, Activos Fijos",
+                    isMenu = false,
+                    path = "activos"
+                });
         }
         else
         {

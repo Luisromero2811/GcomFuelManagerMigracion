@@ -624,12 +624,82 @@ namespace GComFuelManager.Server.Controllers
 
                 return precio;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new PrecioBolDTO();
             }
         }
+        private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden_Por_Id(int? id)
+        {
+            try
+            {
+                var orden = context.OrdenEmbarque.Where(x => x.Cod == id)
+                    .Include(x => x.Orden)
+                    .Include(x => x.OrdenCierre)
+                    .IgnoreAutoIncludes()
+                    .FirstOrDefault();
 
+                if (orden is null)
+                    return new PrecioBolDTO();
+
+                PrecioBolDTO precio = new();
+
+                var precioVig = context.Precio.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Codtad)
+                    .Select(x => new { x.Pre, x.FchDia })
+                    .OrderByDescending(x => x.FchDia)
+                    .FirstOrDefault();
+
+                var precioPro = context.PrecioProgramado.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd && x.Id_Tad == orden.Codtad)
+                    .Select(x => new { x.Pre, x.FchDia })
+                    .OrderByDescending(x => x.FchDia)
+                    .FirstOrDefault();
+
+                var precioHis = context.PreciosHistorico.Where(x => orden != null && x.CodDes == orden.Coddes && x.CodPrd == orden.Codprd
+                    && orden.Fchcar != null && x.FchDia <= DateTime.Today && x.Id_Tad == orden.Codtad)
+                    .Select(x => new { x.pre, x.FchDia })
+                    .OrderByDescending(x => x.FchDia)
+                    .FirstOrDefault();
+
+                if (precioHis is not null)
+                    precio.Precio = precioHis.pre;
+
+                if (orden != null && precioVig is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today)
+                    precio.Precio = precioVig.Pre;
+
+                if (orden != null && precioPro is not null && orden.Fchcar is not null && orden.Fchcar.Value.Date == DateTime.Today && context.PrecioProgramado.Any())
+                    precio.Precio = precioPro.Pre;
+
+                if (orden != null && context.OrdenPedido.Any(x => x.CodPed == orden.Cod))
+                {
+                    var ordenepedido = context.OrdenPedido.Where(x => x.CodPed == orden.Cod && !string.IsNullOrEmpty(x.Folio)).Select(x => x.Folio).FirstOrDefault();
+
+                    if (!string.IsNullOrEmpty(ordenepedido) && !string.IsNullOrWhiteSpace(ordenepedido))
+                    {
+                        var cierre = context.OrdenCierre.Where(x => x.Folio == ordenepedido && x.Id_Tad == orden.Codtad
+                         && x.CodPrd == orden.Codprd).FirstOrDefault();
+
+                        if (cierre is not null)
+                            precio.Precio = cierre.Precio;
+                    }
+                }
+
+                if (orden is not null && precioHis is null && precioPro is null && precioVig is null && !precio.Es_Cierre)
+                {
+                    precio.Precio = orden.Pre;
+
+                    if (orden.OrdenCierre is not null)
+                        precio.Fecha_De_Precio = orden.OrdenCierre.fchPrecio;
+                }
+
+                precio.Moneda = !string.IsNullOrEmpty(precio.Moneda) ? precio.Moneda : "MXN";
+
+                return precio;
+            }
+            catch (Exception)
+            {
+                return new PrecioBolDTO();
+            }
+        }
         private PrecioBolDTO Obtener_Precio_Del_Dia_De_Orden_Cargada(long? id_orden)
         {
             try
@@ -691,9 +761,242 @@ namespace GComFuelManager.Server.Controllers
 
                 return precio;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new PrecioBolDTO();
+            }
+        }
+
+        [HttpGet("modificacion")]
+        public async Task<ActionResult> Obtener_Orden_A_Modificar([FromQuery] ModificarOrdenDTO dTO)
+        {
+            try
+            {
+                var ordenes = await context.OrdenEmbarque
+                    .Where(x => x.FolioSyn == dTO.Referencia)
+                    .Select(x => new ModificarOrdenDTO()
+                    {
+                        Id_Orden = x.Cod,
+                        Referencia = x.FolioSyn,
+                        Bin = x.Bin,
+                        Cliente = x.Destino == null ? null : x.Destino.Cliente == null ? null : x.Destino.Cliente.Den,
+                        Destino = x.Destino == null ? null : x.Destino.Den,
+                        Producto = x.Producto == null ? null : x.Producto.Den,
+                        Volumen = x.Vol,
+                        Precio = x.Pre,
+                        Fecha_Peticion = x.Fchpet,
+                        Fecha_Programa = x.Fchcar,
+                        Transportista = x.Tonel == null ? null : x.Tonel.Transportista == null ? null : x.Tonel.Transportista.Den,
+                        Unidad = x.Tonel == null ? null : x.Tonel.Nombre_Placas,
+                        Chofer = x.Chofer == null ? null : x.Chofer.Den,
+                        Compartimiento = x.Compartment,
+                        Url_PDF_Facturacion = x.Archivos == null ? null : !x.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA) ? null : x.Archivos.First(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA).URL,
+                        Url_XML_Facturacion = x.Archivos == null ? null : !x.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA) ? null : x.Archivos.First(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA).URL,
+                        Url_Archivo_BOL = x.Archivos == null ? null : !x.Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL) ? null : x.Archivos.First(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL).URL,
+                        Estado = x.Estado == null ? null : x.Estado.den,
+                    })
+                    .ToListAsync();
+
+                foreach (var item in ordenes)
+                {
+                    if (item != null)
+                    {
+                        var ordenescargadas = await context.Orden.Where(x => x.Ref == item.Referencia)
+                            .Select(x => new ModificarOrdenCargadaDTO()
+                            {
+                                Id_Orden = x.Cod,
+                                Referencia = x.Ref,
+                                Bol = x.BatchId,
+                                Fecha_Carga = x.Fchcar,
+                                Cliente = x.Destino == null ? null : x.Destino.Cliente == null ? null : x.Destino.Cliente.Den,
+                                Id_Cliente = x.Destino == null ? 0 : x.Destino.Cliente == null ? 0 : x.Destino.Cliente.Cod,
+                                Id_Grupo = x.Destino == null ? 0 : x.Destino.Cliente == null ? 0 : x.Destino.Cliente.Codgru,
+                                Destino = x.Destino == null ? null : x.Destino.Den,
+                                Id_Destino = x.Destino == null ? 0 : x.Destino.Cod,
+                                Producto = x.Producto == null ? null : x.Producto.Den,
+                                Id_Producto = x.Producto == null ? (byte)0 : x.Producto.Cod,
+                                Volumen = x.Vol,
+                                Transportista = x.Tonel == null ? null : x.Tonel.Transportista == null ? null : x.Tonel.Transportista.Den,
+                                Id_Transportista = x.Tonel == null ? 0 : x.Tonel.Transportista == null ? 0 : x.Tonel.Transportista.Cod,
+                                Chofer = x.Chofer == null ? null : x.Chofer.Den,
+                                Id_Chofer = x.Chofer == null ? 0 : x.Chofer.Cod,
+                                Unidad = x.Tonel == null ? null : x.Tonel.Nombre_Placas,
+                                Id_Tonel = x.Tonel == null ? 0 : x.Tonel.Cod,
+                                Estado = x.Estado == null ? null : x.Estado.den,
+                                Pedimento = x.Pedimento,
+                                Sellos = x.SealNumber,
+                                NOrden = x.NOrden,
+                                Factura = x.Factura,
+                                Fecha_Llegada = x.OrdEmbDet == null ? null : x.OrdEmbDet.Fchlleest,
+                                Id_Bol = x.OrdEmbDet == null ? null : x.OrdEmbDet.Cod,
+                            })
+                            .ToListAsync();
+
+                        if (ordenescargadas is not null)
+                        {
+                            item.OrdenesCargadas.AddRange(ordenescargadas);
+
+                            foreach (var orden in ordenescargadas)
+                            {
+                                orden.Precio = Obtener_Precio_Del_Dia_De_Orden_Cargada(orden.Id_Orden).Precio;
+                            }
+                        }
+
+                        item.Precio = Obtener_Precio_Del_Dia_De_Orden_Por_Id(item.Id_Orden).Precio;
+                    }
+                }
+
+                return Ok(ordenes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("eliminar/{id}")]
+        public async Task<IActionResult> Elimiar_Orden(long id)
+        {
+            try
+            {
+                var id_user = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id_user))
+                    return BadRequest();
+
+                var orden = await context.Orden.FirstOrDefaultAsync(x => x.Cod == id);
+
+                if (orden is not null)
+                {
+                    var ordemb = await context.OrdEmbDet.FirstOrDefaultAsync(x => x.Bol == orden.BatchId);
+                    if (ordemb is not null)
+                    {
+                        context.Remove(ordemb);
+                        await context.SaveChangesAsync(id_user, 57);
+                    }
+
+                    context.Remove(orden);
+                    await context.SaveChangesAsync(id_user, 57);
+                }
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("modificacion")]
+        public async Task<ActionResult> Modificar_Orden([FromBody] ModificarOrdenDTOPost dTO)
+        {
+            try
+            {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+
+                var id_terminal = terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var usuario = await userManager.FindByIdAsync(id);
+                if (usuario is null) { return NotFound(); }
+
+                var user = context.Usuario.Find(usuario.UserCod);
+                if (user is null) { return NotFound(); }
+
+                var orden = await context.Orden.FirstOrDefaultAsync(x => x.Cod == dTO.Id_Orden);
+                if (orden is not null)
+                {
+
+                    var ordemb = await context.OrdEmbDet.FirstOrDefaultAsync(x => x.Cod == dTO.Id_Bol);
+                    if (ordemb is not null)
+                    {
+                        if (ordemb.Fchlleest != dTO.Fecha_LLegada || ordemb.Bol != dTO.Bol)
+                        {
+                            context.Remove(ordemb);
+                            await context.SaveChangesAsync(id, 58);
+
+                            OrdEmbDet ordEmbDet = new()
+                            {
+                                Fch = ordemb.Fch,
+                                FchDoc = ordemb.FchDoc,
+                                Codusu = user.Cod,
+                                Codusumod = user.Cod,
+                                Fchmod = DateTime.Now,
+                                Bol = dTO.Bol,
+                                Id_Tad = id_terminal,
+                                Fchlleest = dTO.Fecha_LLegada
+                            };
+
+                            await context.AddAsync(ordEmbDet);
+                            await context.SaveChangesAsync(id,58);
+                        }
+
+                    }
+
+                    orden.Codchf = dTO.Id_Chofer;
+                    orden.Coduni = dTO.Id_Tonel;
+                    orden.Coddes = dTO.Id_Destino;
+                    orden.Codchf = dTO.Id_Chofer;
+                    orden.Codchf = dTO.Id_Chofer;
+                    orden.Fchcar = dTO.Fecha_Carga;
+                    orden.BatchId = dTO.Bol;
+                    orden.Vol = dTO.Litros;
+                    orden.Pedimento = dTO.Pedimento;
+                    orden.SealNumber = dTO.Sellos;
+                    orden.NOrden = dTO.NOrden;
+                    orden.Factura = dTO.Factura;
+
+                    context.Update(orden);
+                    await context.SaveChangesAsync(id, 58);
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("recaptura/{id_orden}")]
+        public async Task<IActionResult> Recapturar_Orden(int id_orden)
+        {
+            try
+            {
+                var id = await verifyUser.GetId(HttpContext, userManager);
+                if (string.IsNullOrEmpty(id))
+                    return BadRequest();
+                
+                var ordenembarque = await context.OrdenEmbarque.FirstOrDefaultAsync(x => x.Cod == id_orden);
+                if (ordenembarque is null) { return NotFound(); }
+                
+                string referencia = ordenembarque.FolioSyn;
+
+                var ordenescargadas = await context.Orden.Where(x => x.Ref == ordenembarque.FolioSyn).ToListAsync();
+
+                foreach (var item in ordenescargadas)
+                {
+                    var ordembdets = await context.OrdEmbDet.Where(x => x.Bol == item.BatchId).ToListAsync();
+                    context.RemoveRange(ordembdets);
+                }
+
+                context.RemoveRange(ordenescargadas);
+
+                ordenembarque.Codest = 22;
+
+                context.Update(ordenembarque);
+                await context.SaveChangesAsync();
+
+                ordenembarque.FolioSyn = referencia;
+                context.Update(ordenembarque);
+                await context.SaveChangesAsync(id, 60);
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
             }
         }
     }

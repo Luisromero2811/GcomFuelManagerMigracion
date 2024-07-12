@@ -2323,6 +2323,9 @@ namespace GComFuelManager.Server.Controllers
                 var ordenembarque = context.OrdenEmbarque.IgnoreAutoIncludes().Include(x => x.Archivos).FirstOrDefault(x => !string.IsNullOrEmpty(x.FolioSyn) && x.FolioSyn.Equals(orden.Ref) && x.Codtad == id_terminal);
                 if (ordenembarque is null) { return NotFound(); }
 
+                if (context.Orden.Any(x => x.Ref == ordenembarque.FolioSyn && x.Cod != orden.Cod))
+                    return BadRequest($"La orden con referencia: {ordenembarque.FolioSyn}, ya cuenta con datos registrados.");
+
                 orden.Codchf = ordenembarque.Codchf;
                 orden.Coddes = ordenembarque.Coddes;
                 orden.Coduni = ordenembarque.Codton;
