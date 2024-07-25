@@ -1,36 +1,18 @@
 ﻿@inject IJSRuntime js
 @inject IRepositorio http
 @implements IDisposable
-@* @using ChartJs.Blazor.PieChart *@
 
 <h3>Grafico</h3>
 
-@* <Chart Config="_config"></Chart> *@
-@* <Chart Config="_config"></Chart> *@
 <canvas id="myChart" style="width:100%; max-width:700px;"></canvas>
-@* <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> *@
-@* <script src="js/Grafico.js" type="module"></script> *@
+
 
 @code {
     private DotNetObjectReference<Grafico> objRef;
     private List<Productos_Grafica> productos_ = new();
-    // private PieConfig _config = new();
 
     protected override async Task OnInitializedAsync()
     {
-        // _config = new PieConfig
-        //     {
-        //         Options = new PieOptions
-        //         {
-        //             Responsive = true,
-        //             Title = new OptionsTitle
-        //             {
-        //                 Display = true,
-        //                 Text = "Grafico de pastel"
-        //             }
-        //         }
-        //     };
-
         await Data();
     }
 
@@ -42,10 +24,6 @@
             await Data();
 
             await js.InvokeVoidAsync("initializeChart", productos_.Select(x => x.Producto), productos_.Select(x => x.Volumen));
-
-            // js.InvokeVoidAsync("Graficar");
-            // await js.InvokeVoidAsync("initializeChart");z
-            // await js.InvokeVoidAsync("importarScript", "js/Grafico.js");
         }
     }
 

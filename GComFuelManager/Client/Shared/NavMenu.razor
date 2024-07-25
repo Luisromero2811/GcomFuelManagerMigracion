@@ -446,7 +446,7 @@
             </RadzenPanelMenuItem>
         </AuthorizeView>
 
-        <AuthorizeView Roles="Admin, Administrador Sistema">
+        <AuthorizeView Roles="Admin, Administrador Sistema, Programador, Analista Credito">
             <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                 <Template>
                     <div class="text-white">
@@ -454,7 +454,7 @@
                     </div>
                 </Template>
                 <ChildContent>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_Page">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Red_Page">
                         <RadzenPanelMenuItem Path="redireccionamiento" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
@@ -463,7 +463,7 @@
                             </Template>
                         </RadzenPanelMenuItem>
                     </AuthorizeView>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo" Context="Red_List_Page">
+                    <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Analista Credito" Context="Red_List_Page">
                         <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
