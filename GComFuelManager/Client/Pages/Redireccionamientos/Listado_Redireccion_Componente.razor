@@ -6,9 +6,9 @@
 @inject IJSRuntime js
 @inject NotificationService ms
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Programador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Programador, Analista Credito")]
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Programador" Context="Redireccion_page">
+<AuthorizeView Roles="Admin, Administrador Sistema, Programador, Analista Credito" Context="Redireccion_page">
     <div class="col-12 card">
         <div class="card-header">
             <b>Listado de redirecciones</b>
