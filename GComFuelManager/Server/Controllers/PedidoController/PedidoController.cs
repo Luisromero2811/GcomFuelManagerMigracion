@@ -2237,7 +2237,7 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.Producto)
                         .ToList();
 
-                    foreach (var item in ordenEmbarques.DistinctBy(x => new { x.Compartment, x.Codchf, x.Fchcar, x.Codton}))
+                    foreach (var item in ordenEmbarques.Where(x => ordens.Any(y => y.Cod == x.Cod)).DistinctBy(x => new { x.Compartment, x.Codchf, x.Fchcar, x.Codton }))
                     {
                         item.Bolguidid = guid;
                         item.FolioSyn = $"{codigo_terminal}-{folio}_{item.Compartment}";
