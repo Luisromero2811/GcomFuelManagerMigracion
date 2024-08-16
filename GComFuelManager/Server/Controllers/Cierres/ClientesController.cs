@@ -63,6 +63,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
                     clientes_filtrados = clientes_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Cliente_Filtrado));
 
+                if (filtro_.Id_Vendedor != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Id_Vendedor == filtro_.Id_Vendedor);
+
+                if (filtro_.Id_Originador != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Id_Originador == filtro_.Id_Originador);
                 //var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
 
                 var clientes = clientes_filtrados.Include(x => x.Vendedor).IgnoreAutoIncludes().Include(x => x.Originador).IgnoreAutoIncludes().OrderBy(x => x.Den);
@@ -378,9 +383,10 @@ namespace GComFuelManager.Server.Controllers.Cierres
                             c.Den = cliente.Den;
                             context.Update(c);
 
-                            if(!context.Cliente_Tad.Any(x=> x.Id_Cliente == c.Cod))
+                            if (!context.Cliente_Tad.Any(x => x.Id_Cliente == c.Cod))
                             {
-                                Cliente_Tad cliente_ = new(){
+                                Cliente_Tad cliente_ = new()
+                                {
                                     Id_Terminal = 1,
                                     Id_Cliente = c.Cod,
                                     Terminal = null,
@@ -426,7 +432,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
 
-                                        if(!context.Destino_Tad.Any(x=>x.Id_Destino == d.Cod))
+                                        if (!context.Destino_Tad.Any(x => x.Id_Destino == d.Cod))
                                         {
                                             Destino_Tad destino_ = new()
                                             {
@@ -521,7 +527,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
 
-                                        if(!context.Destino_Tad.Any(x=>x.Id_Destino == d.Cod))
+                                        if (!context.Destino_Tad.Any(x => x.Id_Destino == d.Cod))
                                         {
                                             Destino_Tad destino_ = new()
                                             {
