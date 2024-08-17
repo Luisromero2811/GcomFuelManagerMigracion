@@ -1,0 +1,55 @@
+﻿@page "/crm/contactos"
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <b>Contactos</b>
+                </div>
+                <div>
+                    <NavLink class="g-1" href="../" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 my-2">
+    <div class="col-md-2 col">
+        <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/contactos/formulario" Match="NavLinkMatch.All">
+            <i class="fa fa-solid fa-plus"/>Agregar
+        </NavLink>
+    </div>
+</div>
+<div class="ancho-tabla">
+    <Tabla Datos="contactos">
+        <Cabeceras>
+            <tr>
+                <th></th>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Nombre de cuenta</th>
+                <th>Tel. oficina</th>
+                <th>Encargado</th>
+                <th>Fecha creacion</th>
+            </tr>
+        </Cabeceras>
+        <Columnas Context="item">
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+@code {
+    List<CRMContacto> contactos = new();
+
+}

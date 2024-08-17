@@ -679,5 +679,7 @@ namespace GComFuelManager.Server
         public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
         public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<CRMContacto> CRMContactos { get; set; }
+        public DbSet<CRMCliente> CRMClientes { get; set; }
     }
 }

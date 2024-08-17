@@ -61,7 +61,6 @@
     <Folder Include="Auth\" />
     <Folder Include="Componentes\" />
     <Folder Include="Pages\Auth\" />
-    <Folder Include="Pages\CRM\Prospectos\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\Formularios\ETA\" />
     <Folder Include="Pages\Tarifario\" />
