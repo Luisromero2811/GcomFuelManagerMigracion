@@ -39,5 +39,7 @@ namespace GComFuelManager.Shared.DTOs
         public int? BOL { get; set; }
         public string Cliente_Original { get; set; } = string.Empty;
         public string Destino_Original { get; set; } = string.Empty;
+        public int Id_Vendedor { get; set; } = 0;
+        public int Id_Originador { get; set; } = 0;
     }
 }

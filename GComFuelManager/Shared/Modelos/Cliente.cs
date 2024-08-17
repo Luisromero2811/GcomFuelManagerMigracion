@@ -41,8 +41,8 @@ namespace GComFuelManager.Shared.Modelos
         public bool Activo { get; set; } = true;
         [EpplusIgnore]
         public bool? precioSemanal { get; set; } = false;
-        [EpplusIgnore] public int? Id_Vendedor { get; set; } = 0;
-        [EpplusIgnore] public int? Id_Originador { get; set; } = 0;
+        [EpplusIgnore] public int Id_Vendedor { get; set; } = 0;
+        [EpplusIgnore] public int Id_Originador { get; set; } = 0;
         [EpplusIgnore] public short? Id_Tad { get; set; } = 0;
         [DisplayName("Modelo de venta")]
         public string? MdVenta { get; set; } = string.Empty;

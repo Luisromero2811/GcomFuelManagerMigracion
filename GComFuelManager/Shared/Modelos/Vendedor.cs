@@ -72,4 +72,20 @@ namespace GComFuelManager.Shared.Modelos
         public List<Dictionary<string, object>> Diccionario_Litros { get; set; } = new();
         public List<Dictionary<string, object>> Diccionario_Ventas { get; set; } = new();
     }
+
+    public record Monto_Venta_Cliente(double Monto_Lts, double Monto_Mxn, int Nro_Mes)
+    {
+        public string Nombre_Mes
+        {
+            get
+            {
+                if (Nro_Mes != 0)
+                    return new DateTime(1, Nro_Mes, 1).ToString("MMM");
+                return string.Empty;
+            }
+        }
+    };
+
+    public record Venta_Cliente(string Cliente, List<Monto_Venta_Cliente> Montos);
+    public record Detalle_Venta_Cliente(List<int> Meses, List<Venta_Cliente> Ventas);
 }
