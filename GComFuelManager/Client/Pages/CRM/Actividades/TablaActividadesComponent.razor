@@ -1,0 +1,42 @@
+﻿@page "/tablaActividades"
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+<!--Tabla de muestreo de datos de actividades-->
+<div class="card mt-2" style="height: 500px; overflow: scroll;">
+    <div class="card-header">
+        <b>Actividades</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3 mb-2">
+                    <NavLink class="btn gcom-bg-amarillo" href="gestionActividades">Crear Nueva Actividad</NavLink>
+            </div>
+        </div>
+        <div class="col-12">
+            <Tabla Datos="Actividades">
+                <Cabeceras>
+                    <tr>
+                        <th>Asunto</th>
+                        <th>Estado</th>
+                        <th>Contacto</th>
+                        <th>Fecha de Creación</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Asignado A:</th>
+                        <th>Habilitar / Deshabilitar</th>
+                        <th>Editar</th>
+                    </tr>
+                </Cabeceras>
+                <Columnas Context="item">
+                    <tr>
+                        <td></td>
+                    </tr>
+                </Columnas>
+            </Tabla>
+        </div>
+    </div>
+</div>
+
+@code {
+    List<CRMActividad> Actividades { get; set; } = new();
+}
+

@@ -1,0 +1,297 @@
+﻿@page "/gestionActividades"
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+<!--Formulario de registro-->
+<div class="card mt-2" style="height: 500px; overflow: scroll; ">
+    <div class="card-header">
+        <b>Creación de Actividades</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@Actividad" class="form col-12" OnValidSubmit="CreateActividad">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-12 row g-1">
+                    <!--Asunto-->
+                    <div class="col-4 my-1">
+                        <label>Asunto:</label>
+                        <InputSelect @bind-Value="@Actividad.Asunto" class="form-select form-select-sm">
+                            <option>-- Seleccione un Asunto --</option>
+                            @foreach (var asunto in Cat_Asunto)
+                            {
+                                <option value="@asunto.Id">@asunto.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <!--Fecha de Inicio-->
+                    <div class="col-4 my-1">
+                        <label>Fecha de Inicio:</label>
+                        <InputDate @bind-Value="@Actividad.Fecha_Inicio" class="form-control form-control-sm col-12" />
+                    </div>
+                    <!--Fecha de Vencimiento-->
+                    <div class="col-4 my-1">
+                        <label>Fecha de Vencimiento:</label>
+                        <InputDate @bind-Value="@Actividad.Fecha_Ven" class="form-control form-control-sm col-12" />
+                    </div>
+                    <!--Prioridad-->
+                    <div class="col-4 my-1">
+                        <label>Prioridad:</label>
+                        <InputSelect @bind-Value="@Actividad.Prioridad" class="form-select form-select-sm">
+                            <option>-- Seleccione un Asunto --</option>
+                            @foreach (var asunto in Cat_Prioridad)
+                            {
+                                <option value="@asunto.Id">@asunto.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <!--Asignado A-->
+                    <div class="col-4 my-1">
+                        <label>Asignado a:</label>
+                        <InputSelect @bind-Value="@Actividad.Asignado" class="form-select form-select-sm">
+                            <option>-- Seleccione un Vendedor --</option>
+                            @if (Vendedores == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else if (Vendedores.Count == 0)
+                            {
+                                <option>No hay vendedores.</option>
+                            }
+                            else
+                            {
+                                @foreach (var item in Vendedores)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <!--Descripción-->
+                    <div class="col-4 my-1">
+                        <label>Descripción:</label>
+                        <InputTextArea @bind-Value="@Actividad.Descripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                    </div>
+                    <!--Estatus-->
+                    <div class="col-4 my-1">
+                        <label>Estatus:</label>
+                        <InputSelect @bind-Value="@Actividad.Estatus" class="form-select form-select-sm">
+                            <option>-- Seleccione un Estatus --</option>
+                            @foreach (var asunto in Cat_Estatus)
+                            {
+                                <option value="@asunto.Id">@asunto.Valor</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <!--Relacionada con:-->
+                    <div class="col-4 my-1">
+                        <label>Relacionada Con:</label>
+                        <InputSelect @bind-Value="@Actividad.Contacto_Rel" class="form-select form-select-sm">
+                            <option>-- Seleccione un Contacto --</option>
+                            @if (Contactos == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else if (Contactos.Count == 0)
+                            {
+                                <option>No hay Contactos.</option>
+                            }
+                            else
+                            {
+                                @foreach (var item in Contactos)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+        <!--Boton de creación y edición-->
+        <div class="col-4 d-flex mt-3 mx-auto">
+            @if (!isEdit)
+            {
+                <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                    <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
+                    @if (loading_guardar)
+                    {
+                        <SpinnerLoading />
+                    }
+                </button>
+            }
+            else
+            {
+                <div class="col-12 btn-group">
+                    <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                        <i class="fa fa-solid fa-floppy-disk"></i> Editar
+                        @if (loading_guardar)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                    <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
+                        <i class="fa fa-solid fa-cancel"></i> Cancelar
+                    </button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    bool loading_guardar = false;
+    bool isEdit = false;
+    CRMActividad Actividad = new();
+    List<CRMActividad> Actividades = new();
+
+    List<Catalogo_Fijo> Cat_Asunto = new();
+    List<Catalogo_Fijo> Cat_Prioridad = new();
+    List<Catalogo_Fijo> Cat_Estatus = new();
+    List<Vendedor> Vendedores { get; set; } = new List<Vendedor>();
+    List<CRMContacto> Contactos { get; set; } = new List<CRMContacto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+                Obtener_Catalogo_Asunto(),
+                Obtener_Catalogo_Prioridad(),
+                Obtener_Catalogo_Estatus(),
+                Obtener_Vendedores()
+            );
+    }
+
+    public async Task CreateActividad()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<CRMActividad>($"api/actividades/create", Actividad);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Éxito", "La actividad fue registrada exitosamente", SweetAlertIcon.Success);
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Asunto()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/asunto");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Asunto = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Prioridad()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/prioridad");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Prioridad = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Estatus()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/estatus");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Estatus = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Vendedores()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<Vendedor>>($"api/vendedor/list");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_ContactosCRM()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMContacto>>($"api/actividades/contactlist");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Cancel_Activity()
+    {
+        Actividad = new();
+        isEdit = false;
+    }
+
+}
+

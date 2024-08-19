@@ -16,5 +16,9 @@
         public int Contacto_Rel { get; set; }
         public int Recordatorio { get; set; }
         public bool Activo { get; set; } = true;
+
+        public Catalogo_Fijo? catalogo_Fijo { get; set; } = null!;
+        public Vendedor? vendedor { get; set; } = null!;
+        public CRMContacto? contacto { get; set; } = null!;
     }
 }

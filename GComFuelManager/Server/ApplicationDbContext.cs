@@ -312,7 +312,6 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.OrdenCierre)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenCierre>(x => x.CodPed);
-
             //Precio - Zona
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Zona)
@@ -609,6 +608,34 @@ namespace GComFuelManager.Server
                 .HasMany(x => x.Archivos)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey(x => x.Id_Registro);
+
+            //Relaciones de tabla actividad
+
+            //Actividad a Catalogo Fijo Asunto
+            modelBuilder.Entity<CRMActividad>()
+                .HasOne(x => x.catalogo_Fijo)
+                .WithMany()
+                .HasForeignKey(x => x.Asunto);
+            //Actividad a Catalogo Fijo Prioridad
+            modelBuilder.Entity<CRMActividad>()
+                .HasOne(x => x.catalogo_Fijo)
+                .WithMany()
+                .HasForeignKey(x => x.Prioridad);
+            //Actividad a Catalogo Fijo Estatus
+            modelBuilder.Entity<CRMActividad>()
+                .HasOne(x => x.catalogo_Fijo)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
+            //Actividad a Catalogo Fijo Asignado A
+            modelBuilder.Entity<CRMActividad>()
+                .HasOne(x => x.vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.Asignado);
+            //Actividad a Catalogo Fijo Relacionada Con
+            modelBuilder.Entity<CRMActividad>()
+                .HasOne(x => x.contacto)
+                .WithMany()
+                .HasForeignKey(x => x.Contacto_Rel);
         }
 
 

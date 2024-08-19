@@ -57,6 +57,7 @@
     <None Remove="Controllers\Porcentajes\" />
     <None Remove="Controllers\Tarifas\" />
     <None Remove="Controllers\Autorizadores\" />
+    <None Remove="Controllers\CRM\" />
   </ItemGroup>
 
 
@@ -75,6 +76,7 @@
     <Folder Include="wwwroot\PDF-BOL\" />
     <Folder Include="wwwroot\XML\" />
     <Folder Include="wwwroot\PDF\" />
+    <Folder Include="Controllers\CRM\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\img\ENERGAS_Icon.png" />
