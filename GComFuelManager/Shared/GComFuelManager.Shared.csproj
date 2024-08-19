@@ -27,7 +27,4 @@
     <PackageReference Include="Blazored.Typeahead" Version="4.7.0" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="7.0.5" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="DTOs\CRM\" />
-  </ItemGroup>
 </Project>

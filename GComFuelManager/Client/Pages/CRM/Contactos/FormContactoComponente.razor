@@ -1,0 +1,294 @@
+﻿@page "/crm/contactos/formulario"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMContactoPostValidator validator
+@attribute [Authorize]
+
+<div class="card col-12">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Formulario de contacto</b>
+            </div>
+            <div>
+                <NavLink class="g-1" href="crm/contactos" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="CRMContacto" class="col-12 row gy-2 gx-3" OnValidSubmit="GuardarContacto">
+            <FluentValidationValidator Validator="validator" />
+            <ValidationSummary />
+            <div class="col-md-6 col col">
+                <label>Nombre/s</label>
+                <InputText @bind-Value="CRMContacto.Nombre" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Nombre)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Apellido/s</label>
+                <InputText @bind-Value="CRMContacto.Apellidos" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Apellidos)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Titulo</label>
+                <InputText @bind-Value="CRMContacto.Titulo" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Titulo)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Departamento</label>
+                <InputText @bind-Value="CRMContacto.Departamento" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Departamento)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Cuenta</label>
+                <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                @bind-Valor="@CRMContacto.CuentaId" Propiedad_Valor="Id">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                @* <InputSelect @bind-Value="CRMContacto.Cuenta" class="d-none" /> *@
+                @* <ValidationMessage For="@(()=>CRMContacto.CuentaId)" /> *@
+            </div>
+            <div class="col-md-6 col">
+                <label>Tel. oficina</label>
+                <InputText @bind-Value="CRMContacto.Tel_Oficina" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Tel_Oficina)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Tel. móvil</label>
+                <InputText @bind-Value="CRMContacto.Tel_Movil" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Tel_Movil)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>SitioWeb</label>
+                <InputText @bind-Value="CRMContacto.SitioWeb" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.SitioWeb)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Correo</label>
+                <InputText @bind-Value="CRMContacto.Correo" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Correo)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Calle</label>
+                <InputTextArea @bind-Value="CRMContacto.Calle" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Calle)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Colonia</label>
+                <InputText @bind-Value="CRMContacto.Colonia" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Colonia)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Ciudad</label>
+                <InputText @bind-Value="CRMContacto.Ciudad" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Ciudad)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>C.P.</label>
+                <InputText @bind-Value="CRMContacto.CP" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.CP)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>País</label>
+                <InputText @bind-Value="CRMContacto.Pais" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Pais)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Estatus</label>
+                <InputSelect @bind-Value="CRMContacto.EstatusId" class="form-control">
+                    <option>-- seleccione un estado --</option>
+                    @foreach (var item in Catalogo_Estados)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6 col">
+                <label>Descripción de estatus</label>
+                <InputTextArea @bind-Value="CRMContacto.Estatus_Desc" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Estatus_Desc)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Importe de oportunidad</label>
+                <InputNumber @bind-Value="CRMContacto.Importe_Oportunidad" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Importe_Oportunidad)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Origen de contacto</label>
+                <InputSelect @bind-Value="CRMContacto.OrigenId" class="form-control">
+                    <option>-- seleccione un origen --</option>
+                    @foreach (var item in Catalogo_Origen)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="col-md-6 col">
+                <label>Recomendación</label>
+                <InputText @bind-Value="CRMContacto.Recomen" class="form-control" />
+                <ValidationMessage For="@(()=>CRMContacto.Recomen)" />
+            </div>
+            <div class="col-md-6 col">
+                <label>Asignado a</label>
+                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                @bind-Valor="@CRMContacto.VendedorId" Propiedad_Valor="Id">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                @* <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" /> *@
+                @* <ValidationMessage For="@(()=>CRMContacto.VendedorId)" /> *@
+            </div>
+            <div class="col-md-6 col">
+                <button type="submit" class="btn gcom-bg-amarillo col-12">
+                    Guardar
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+@code {
+    CRMContactoPostDTO CRMContacto = new();
+
+    List<CRMCliente> Clientes = new();
+    List<Catalogo_Fijo> Catalogo_Estados = new();
+    List<Catalogo_Fijo> Catalogo_Origen = new();
+    List<Vendedor> Vendedores = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerClientes();
+        await ObtenerCatalogoStatus();
+        await ObtenerCatalogoOrigen();
+        await ObtenerVendedores();
+    }
+
+    private async Task ObtenerVendedores(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoStatus()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/status");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Catalogo_Estados = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoOrigen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/origen");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Catalogo_Origen = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerClientes(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMCliente>>($"api/crmcliente?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GuardarContacto()
+    {
+        try
+        {
+
+            var response = await http.Post<CRMContactoPostDTO>($"api/crmcontactos", CRMContacto);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                CRMContacto = new();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

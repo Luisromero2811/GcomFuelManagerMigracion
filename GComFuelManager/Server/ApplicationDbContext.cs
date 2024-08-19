@@ -636,6 +636,26 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.contacto)
                 .WithMany()
                 .HasForeignKey(x => x.Contacto_Rel);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Estatus)
+                .WithMany()
+                .HasForeignKey(x => x.EstatusId);
+
+            modelBuilder.Entity<CRMContacto>()
+                        .HasOne(x => x.Vendedor)
+                        .WithMany()
+                        .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<CRMContacto>()
+                        .HasOne(x => x.Origen)
+                        .WithMany()
+                        .HasForeignKey(x => x.OrigenId);
+
+            modelBuilder.Entity<CRMContacto>()
+                        .HasOne(x => x.Cliente)
+                        .WithMany()
+                        .HasForeignKey(x => x.CuentaId);
         }
 
 
@@ -706,5 +726,7 @@ namespace GComFuelManager.Server
         public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
         public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
         public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<CRMContacto> CRMContactos { get; set; }
+        public DbSet<CRMCliente> CRMClientes { get; set; }
     }
 }

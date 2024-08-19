@@ -668,12 +668,22 @@
                     path = "activos"
                 });
         }
-        else
-        {
 
-        }
-
-
+        Menus.Add(new Menu()
+            {
+                name = "CRM",
+                icon = "address-book",
+                roles = "Admin, Administrador Sistema, CRM, CRM_Lider",
+                isMenu = true,
+                Menus = new()
+                {
+                    new()
+                    {
+                        name = "Contactos", icon = "address-card", path = "crm/contactos",
+                        roles = "Admin, Administrador Sistema, CRM, CRM_Lider"
+                    },
+                }
+            });
     }
 
     bool Esta_En_Tuxpan = true;
