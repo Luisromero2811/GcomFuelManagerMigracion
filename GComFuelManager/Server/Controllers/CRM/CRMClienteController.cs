@@ -37,7 +37,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
-        [HttpGet]
+        [HttpGet("default/data")]
         public async Task<IActionResult> SetClientesGcom()
         {
             try

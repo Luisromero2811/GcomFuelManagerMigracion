@@ -23,11 +23,18 @@ namespace GComFuelManager.Server.Controllers.CRM
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] CRMContacto contacto)
+        public async Task<ActionResult> Get([FromQuery] CRMContactoDTO contacto)
         {
             try
             {
-                return Ok();
+                var contactos = context.CRMContactos
+                    .Include(x => x.Estatus)
+                    .Include(x => x.Origen)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Vendedor)
+                    .Select(x => mapper.Map<CRMContactoDTO>(x)).AsQueryable();
+
+                return Ok(contactos);
             }
             catch (Exception e)
             {

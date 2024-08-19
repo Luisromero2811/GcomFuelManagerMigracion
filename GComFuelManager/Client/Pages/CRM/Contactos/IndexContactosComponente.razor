@@ -1,4 +1,7 @@
 ﻿@page "/crm/contactos"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize]
 
 <div class="col-12">
     <div class="card">
@@ -19,7 +22,7 @@
 <div class="col-12 my-2">
     <div class="col-md-2 col">
         <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/contactos/formulario" Match="NavLinkMatch.All">
-            <i class="fa fa-solid fa-plus"/>Agregar
+            <i class="fa fa-solid fa-plus" />Agregar
         </NavLink>
     </div>
 </div>
@@ -31,7 +34,7 @@
                 <th>Nombre</th>
                 <th>Estado</th>
                 <th>Nombre de cuenta</th>
-                <th>Tel. oficina</th>
+                <th>Tel. movil</th>
                 <th>Encargado</th>
                 <th>Fecha creacion</th>
             </tr>
@@ -39,17 +42,48 @@
         <Columnas Context="item">
             <tr>
                 <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>@item.FullName</td>
+                <td>@item.Estatus</td>
+                <td>@item.Cuenta</td>
+                <td>@item.Tel_Movil</td>
+                <td>@item.Vendedor</td>
+                <td>@item.Fecha_Creacion.ToShortDateString()</td>
             </tr>
         </Columnas>
     </Tabla>
 </div>
 @code {
-    List<CRMContacto> contactos = new();
+    List<CRMContactoDTO> contactos = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerContactos();
+    }
+
+    private async Task ObtenerContactos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
 }
