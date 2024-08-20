@@ -611,31 +611,31 @@ namespace GComFuelManager.Server
 
             //Relaciones de tabla actividad
 
-            //Actividad a Catalogo Fijo Asunto
-            modelBuilder.Entity<CRMActividad>()
-                .HasOne(x => x.catalogo_Fijo)
-                .WithMany()
-                .HasForeignKey(x => x.Asunto);
-            //Actividad a Catalogo Fijo Prioridad
-            modelBuilder.Entity<CRMActividad>()
-                .HasOne(x => x.catalogo_Fijo)
-                .WithMany()
-                .HasForeignKey(x => x.Prioridad);
-            //Actividad a Catalogo Fijo Estatus
-            modelBuilder.Entity<CRMActividad>()
-                .HasOne(x => x.catalogo_Fijo)
-                .WithMany()
-                .HasForeignKey(x => x.Estatus);
-            //Actividad a Catalogo Fijo Asignado A
-            modelBuilder.Entity<CRMActividad>()
+            //Actividad a Asignado a Vendedor
+            modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.vendedor)
                 .WithMany()
                 .HasForeignKey(x => x.Asignado);
-            //Actividad a Catalogo Fijo Relacionada Con
-            modelBuilder.Entity<CRMActividad>()
+            //Actividad Relacionada Con CRMContacto
+            modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.contacto)
                 .WithMany()
                 .HasForeignKey(x => x.Contacto_Rel);
+            //Actividad a Catalogo Fijo de Asunto
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.asuntos)
+                .WithMany()
+                .HasForeignKey(x => x.Asunto);
+            //Actividad a Catalogo Fijo de Estado
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.Estados)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
+            //Actividad a Catalogo Fijo de prioridades
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.prioridades)
+                .WithMany()
+                .HasForeignKey(x => x.Prioridad);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Estatus)
@@ -728,5 +728,6 @@ namespace GComFuelManager.Server
         public DbSet<Archivo> Archivos { get; set; }
         public DbSet<CRMContacto> CRMContactos { get; set; }
         public DbSet<CRMCliente> CRMClientes { get; set; }
+        public DbSet<CRMActividades> CRMActividades { get; set; }
     }
 }

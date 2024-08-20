@@ -9,7 +9,7 @@
     <div class="card-body">
         <div class="col-12 row">
             <div class="col-3 mb-2">
-                    <NavLink class="btn gcom-bg-amarillo" href="gestionActividades">Crear Nueva Actividad</NavLink>
+                <NavLink class="btn gcom-bg-amarillo" href="gestionActividades">Crear Nueva Actividad</NavLink>
             </div>
         </div>
         <div class="col-12">
@@ -19,6 +19,7 @@
                         <th>Asunto</th>
                         <th>Estado</th>
                         <th>Contacto</th>
+                        <th>Fecha de Modificación</th>
                         <th>Fecha de Creación</th>
                         <th>Fecha de Vencimiento</th>
                         <th>Asignado A:</th>
@@ -28,6 +29,14 @@
                 </Cabeceras>
                 <Columnas Context="item">
                     <tr>
+                        <td>@item.asuntos?.Valor</td>
+                        <td>@item.Estados?.Valor</td>
+                        <td>@item.contacto?.Nombre @item.contacto?.Apellidos</td>
+                        <td>@item.Fecha_Mod.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>@item.Fecha_Creacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>@item.Fecha_Ven.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>@item.vendedor?.Nombre</td>
+                        <td></td>
                         <td></td>
                     </tr>
                 </Columnas>
@@ -37,6 +46,36 @@
 </div>
 
 @code {
-    List<CRMActividad> Actividades { get; set; } = new();
+    List<CRMActividades> Actividades { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Actividades();
+    }
+
+    private async Task Obtener_Actividades()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMActividades>>($"api/actividades/listadoActividades");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Actividades = responseHttp.Response!;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
 
+@*//.Include(x => x.asunto)
+    //.Include(x => x.prioridad)
+    //.Include(x => x.estatus)*@

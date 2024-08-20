@@ -26,12 +26,12 @@
                     <!--Fecha de Inicio-->
                     <div class="col-4 my-1">
                         <label>Fecha de Inicio:</label>
-                        <InputDate @bind-Value="@Actividad.Fecha_Inicio" class="form-control form-control-sm col-12" />
+                        <InputDate @bind-Value="@Actividad.Fecha_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
                     </div>
                     <!--Fecha de Vencimiento-->
                     <div class="col-4 my-1">
                         <label>Fecha de Vencimiento:</label>
-                        <InputDate @bind-Value="@Actividad.Fecha_Ven" class="form-control form-control-sm col-12" />
+                        <InputDate @bind-Value="@Actividad.Fecha_Ven" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
                     </div>
                     <!--Prioridad-->
                     <div class="col-4 my-1">
@@ -69,7 +69,7 @@
                     <!--Descripción-->
                     <div class="col-4 my-1">
                         <label>Descripción:</label>
-                        <InputTextArea @bind-Value="@Actividad.Descripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                        <InputTextArea @bind-Value="@Actividad.Desccripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
                     </div>
                     <!--Estatus-->
                     <div class="col-4 my-1">
@@ -99,41 +99,46 @@
                             {
                                 @foreach (var item in Contactos)
                                 {
-                                    <option value="@item.Id">@item.Nombre</option>
+                                    <option value="@item.Id">@item.Nombre @item.Apellidos</option>
                                 }
                             }
                         </InputSelect>
                     </div>
                 </div>
-            </EditForm>
-        </div>
-        <!--Boton de creación y edición-->
-        <div class="col-4 d-flex mt-3 mx-auto">
-            @if (!isEdit)
-            {
-                <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
-                    <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
-                    @if (loading_guardar)
+                <!--Boton de creación y edición-->
+                <div class="col-12 d-flex mt-3 justify-content-center">
+                    @if (!isEdit)
                     {
-                        <SpinnerLoading />
+                            <div class="col-4 px-2">
+                                <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                    <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
+                                    @if (loading_guardar)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                            </div>
+                            <div class="col-4 px-2">
+                                <NavLink class="btn btn-sm col-12 gcom-bg-amarillo" href="tablaActividades">Ir a Actividades</NavLink>
+                            </div>
                     }
-                </button>
-            }
-            else
-            {
-                <div class="col-12 btn-group">
-                    <button class="btn btn-sm gcom-bg-amarillo" type="submit">
-                        <i class="fa fa-solid fa-floppy-disk"></i> Editar
-                        @if (loading_guardar)
-                        {
-                            <SpinnerLoading />
-                        }
-                    </button>
-                    <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
-                        <i class="fa fa-solid fa-cancel"></i> Cancelar
-                    </button>
+                    else
+                    {
+                        <div class="col-12 btn-group">
+                            <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                                <i class="fa fa-solid fa-floppy-disk"></i> Editar
+                                @if (loading_guardar)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                            <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activity">
+                                <i class="fa fa-solid fa-cancel"></i> Cancelar
+                            </button>
+                        </div>
+                    }
                 </div>
-            }
+            </EditForm>
         </div>
     </div>
 </div>
@@ -141,8 +146,8 @@
 @code {
     bool loading_guardar = false;
     bool isEdit = false;
-    CRMActividad Actividad = new();
-    List<CRMActividad> Actividades = new();
+    CRMActividades Actividad = new();
+    List<CRMActividades> Actividades = new();
 
     List<Catalogo_Fijo> Cat_Asunto = new();
     List<Catalogo_Fijo> Cat_Prioridad = new();
@@ -156,7 +161,8 @@
                 Obtener_Catalogo_Asunto(),
                 Obtener_Catalogo_Prioridad(),
                 Obtener_Catalogo_Estatus(),
-                Obtener_Vendedores()
+                Obtener_Vendedores(),
+                Obtener_ContactosCRM()
             );
     }
 
@@ -164,7 +170,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post<CRMActividad>($"api/actividades/create", Actividad);
+            var responseHttp = await repositorio.Post<CRMActividades>($"api/actividades/create", Actividad);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -173,6 +179,7 @@
             else
             {
                 await Swal.FireAsync("Éxito", "La actividad fue registrada exitosamente", SweetAlertIcon.Success);
+                Actividad = new();
             }
 
         }

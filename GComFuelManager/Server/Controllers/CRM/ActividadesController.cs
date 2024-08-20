@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,7 +22,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult> Create_Actividad([FromBody] CRMActividad cRMActividades)
+        public async Task<ActionResult> Create_Actividad([FromBody] CRMActividades cRMActividades)
         {
             try
             {
@@ -36,13 +37,17 @@ namespace GComFuelManager.Server.Controllers
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
                 if (cRMActividades.Id == 0)
                 {
-
+                    cRMActividades.prioridades = null!;
+                    cRMActividades.vendedor = null!;
+                    cRMActividades.contacto = null!;
+                    cRMActividades.Estados = null!;
+                    cRMActividades.asuntos = null!;
 
                     context.Add(cRMActividades);
                 }
                 else
                 {
-
+                    cRMActividades.Fecha_Mod = DateTime.Now;
 
                     context.Update(cRMActividades);
                 }
@@ -125,9 +130,10 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                //var contactocrm = context.crmco.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Estatus"));
-                //return Ok(contactocrm);
-                return Ok();
+                var contactocrm = context.CRMContactos
+                    //.Where(x => x.Activo == true)
+                    .ToList();
+                return Ok(contactocrm);
             }
             catch (Exception e)
             {
@@ -135,6 +141,25 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("listadoActividades")]
+        public async Task<ActionResult> GetListActivities()
+        {
+            try
+            {
+                var activos = context.CRMActividades
+                    .Include(x => x.vendedor)
+                    .Include(x => x.contacto)
+                    .Include(x => x.asuntos)
+                    .Include(x => x.Estados)
+                    .ToList();
+
+                return Ok(activos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
 
