@@ -23,6 +23,8 @@
         public int OrigenId { get; set; }
         public string Recomen { get; set; } = string.Empty;
         public int VendedorId { get; set; }
+        public DateTime Fecha_Creacion { get; set; } = DateTime.Now;
+        public DateTime Fecha_Mod { get; set; } = DateTime.Now;
         public bool Activo { get; set; } = true;
     }
 }

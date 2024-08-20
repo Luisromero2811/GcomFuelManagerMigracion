@@ -1,6 +1,8 @@
-﻿namespace GComFuelManager.Shared.Modelos
+﻿using GComFuelManager.Shared.Modelos;
+
+namespace GComFuelManager.Shared.DTOs.CRM
 {
-    public class CRMContacto
+    public class CRMContactoDetalleDTO
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
