@@ -1,6 +1,8 @@
-﻿namespace GComFuelManager.Shared.DTOs.CRM
+﻿using GComFuelManager.Shared.Filtro;
+
+namespace GComFuelManager.Shared.DTOs.CRM
 {
-    public class CRMContactoDTO
+    public class CRMContactoDTO: Parametros_Busqueda_Gen
     {
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
@@ -22,7 +24,7 @@
         {
             get
             {
-                return $"{Apellidos} {Nombre}";
+                return $"{Nombre} {Apellidos}";
             }
         }
     }

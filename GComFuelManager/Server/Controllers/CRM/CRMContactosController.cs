@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -27,14 +29,57 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var contactos = context.CRMContactos
+                var contactos = context.CRMContactos.Where(x => x.Activo)
                     .Include(x => x.Estatus)
                     .Include(x => x.Origen)
                     .Include(x => x.Cliente)
                     .Include(x => x.Vendedor)
-                    .Select(x => mapper.Map<CRMContactoDTO>(x)).AsQueryable();
+                    .AsQueryable();
 
-                return Ok(contactos);
+                if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
+                    contactos = contactos.Where(x => x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(contacto.Nombre.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Cuenta) && !string.IsNullOrWhiteSpace(contacto.Cuenta))
+                    contactos = contactos.Where(x => x.Cliente != null && x.Cliente.Nombre.ToLower().Contains(contacto.Cuenta.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Vendedor) && !string.IsNullOrWhiteSpace(contacto.Vendedor))
+                    contactos = contactos.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(contacto.Vendedor.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Correo) && !string.IsNullOrWhiteSpace(contacto.Correo))
+                    contactos = contactos.Where(x => x.Correo.ToLower().Contains(contacto.Correo.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Tel_Movil) && !string.IsNullOrWhiteSpace(contacto.Tel_Movil))
+                    contactos = contactos.Where(x => x.Tel_Movil.ToLower().Contains(contacto.Tel_Movil.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Estatus) && !string.IsNullOrWhiteSpace(contacto.Estatus))
+                    contactos = contactos.Where(x => x.Estatus != null && x.Estatus.Valor.ToLower().Contains(contacto.Estatus.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
+
+                if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
+                    if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != contacto.Pagina)
+                        contacto.Pagina = int.Parse(value!);
+
+                //var contactos_filtrados = await contactos.Select(x => mapper.Map<CRMContactoDTO>(x)).ToListAsync();
+                contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
+
+                var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
+
+                return Ok(contactosdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{Id:int}")]
+        public async Task<ActionResult> ObtenerCatalogoStatus([FromRoute] int Id)
+        {
+            try
+            {
+                var contacto = await context.CRMContactos.Where(x => x.Id == Id).Select(x => mapper.Map<CRMContactoPostDTO>(x)).FirstOrDefaultAsync();
+                return Ok(contacto);
             }
             catch (Exception e)
             {
@@ -50,8 +95,37 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var result = await validator.ValidateAsync(contactodto);
                 if (!result.IsValid) { return BadRequest(result.Errors); }
                 var contacto = mapper.Map<CRMContactoPostDTO, CRMContacto>(contactodto);
-                await context.AddAsync(contacto);
+
+                if (contacto.Id != 0)
+                {
+                    contacto.Fecha_Mod = DateTime.Now;
+                    context.Update(contacto);
+                }
+                else
+                    await context.AddAsync(contacto);
+
                 await context.SaveChangesAsync();
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<IActionResult> EliminarContacto([FromRoute] int Id)
+        {
+            try
+            {
+                var contacto = await context.CRMContactos.FindAsync(Id);
+                if (contacto is null) { return NotFound(); }
+
+                contacto.Activo = false;
+                contacto.Fecha_Mod = DateTime.Now;
+                context.Update(contacto);
+                await context.SaveChangesAsync();
+
                 return NoContent();
             }
             catch (Exception e)
