@@ -52,6 +52,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAutoMapper(typeof(MapperProfile));
 
 builder.Services.AddScoped<IValidator<CRMContactoPostDTO>, CRMContactoPostValidator>();
+builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

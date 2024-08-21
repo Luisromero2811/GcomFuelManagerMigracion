@@ -185,13 +185,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ObtenerClientes();
-        await ObtenerCatalogoStatus();
-        await ObtenerCatalogoOrigen();
-        await ObtenerVendedores();
+        await Task.WhenAll(
+        ObtenerClientes(),
+        ObtenerCatalogoStatus(),
+        ObtenerCatalogoOrigen(),
+        ObtenerVendedores());
 
-        // if (Id != 0)
-        await ObtenerContacto();
+        if (Id != 0)
+            await ObtenerContacto();
     }
 
     private async Task ObtenerVendedores(string value = "")

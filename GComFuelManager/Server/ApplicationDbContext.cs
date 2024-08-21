@@ -629,6 +629,36 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.CuentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Origen)
+                .WithMany()
+                .HasForeignKey(x => x.OrigenId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.CRMCliente)
+                .WithMany()
+                .HasForeignKey(x => x.CuentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.EtapaVenta)
+                .WithMany()
+                .HasForeignKey(x => x.EtapaVentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Tipo)
+                .WithMany()
+                .HasForeignKey(x => x.TipoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.UnidadMedida)
+                .WithMany()
+                .HasForeignKey(x => x.UnidadMedidaId);
         }
 
 
@@ -701,5 +731,6 @@ namespace GComFuelManager.Server
         public DbSet<Archivo> Archivos { get; set; }
         public DbSet<CRMContacto> CRMContactos { get; set; }
         public DbSet<CRMCliente> CRMClientes { get; set; }
+        public DbSet<CRMOportunidad> CRMOportunidades { get; set; }
     }
 }

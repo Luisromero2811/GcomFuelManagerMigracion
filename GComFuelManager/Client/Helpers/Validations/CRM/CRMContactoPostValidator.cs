@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using GComFuelManager.Shared.DTOs.CRM;
 
-namespace GComFuelManager.Client.Helpers.Validations
+namespace GComFuelManager.Client.Helpers.Validations.CRM
 {
     public class CRMContactoPostValidator : AbstractValidator<CRMContactoPostDTO>
     {
@@ -50,8 +50,8 @@ namespace GComFuelManager.Client.Helpers.Validations
             RuleFor(x => x.Recomen)
                 .MaximumLength(250).WithMessage("La descripcion del estado no debe tener mas de 200 caracteres");
             //RuleFor(x => x.Asignado)
-                //.NotEmpty().WithMessage("El encargado del contacto es obligatorio")
-                //.GreaterThan(0).WithMessage("Debe seleccionar un encargado del contacto");
+            //.NotEmpty().WithMessage("El encargado del contacto es obligatorio")
+            //.GreaterThan(0).WithMessage("Debe seleccionar un encargado del contacto");
         }
     }
 }

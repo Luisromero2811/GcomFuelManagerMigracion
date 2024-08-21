@@ -3,6 +3,8 @@ using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
@@ -11,6 +13,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, CRM, CRM_Lider")]
     public class CRMContactosController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -29,7 +32,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var contactos = context.CRMContactos.Where(x => x.Activo)
+                var contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
                     .Include(x => x.Estatus)
                     .Include(x => x.Origen)
                     .Include(x => x.Cliente)
@@ -78,7 +81,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var contacto = await context.CRMContactos.Where(x => x.Id == Id).Select(x => mapper.Map<CRMContactoPostDTO>(x)).FirstOrDefaultAsync();
+                var contacto = await context.CRMContactos.AsNoTracking().Where(x => x.Id == Id).Select(x => mapper.Map<CRMContactoPostDTO>(x)).FirstOrDefaultAsync();
                 return Ok(contacto);
             }
             catch (Exception e)
@@ -140,7 +143,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Status"));
-                if (catalogo is null) { return BadRequest("No existe el catalogo para conjuntos"); }
+                if (catalogo is null) { return BadRequest("No existe el catalogo para estatus"); }
 
                 var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
@@ -158,7 +161,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Origen"));
-                if (catalogo is null) { return BadRequest("No existe el catalogo para conjuntos"); }
+                if (catalogo is null) { return BadRequest("No existe el catalogo para origenes"); }
 
                 var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 

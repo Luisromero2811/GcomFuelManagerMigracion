@@ -15,6 +15,13 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Estatus, y => y.MapFrom(c => c.Estatus.Valor))
                 .ForMember(x => x.Cuenta, y => y.MapFrom(c => c.Cliente.Nombre))
                 .ForMember(x => x.Vendedor, y => y.MapFrom(c => c.Vendedor.Nombre));
+
+            CreateMap<CRMOportunidadPostDTO, CRMOportunidad>();
+            CreateMap<CRMOportunidad, CRMOportunidadPostDTO>();
+            CreateMap<CRMOportunidad, CRMOportunidadDTO>()
+                .ForMember(x => x.EtapaVenta, y => y.MapFrom(o => o.EtapaVenta.Valor))
+                .ForMember(x => x.Vendedor, y => y.MapFrom(o => o.Vendedor.Nombre))
+                .ForMember(x => x.Cuenta, y => y.MapFrom(o => o.CRMCliente.Nombre));
         }
     }
 }
