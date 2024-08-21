@@ -1,6 +1,7 @@
 ﻿@page "/crm/listado/actividades"
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
+@inject NotificationService ns
 <!--Tabla de muestreo de datos de actividades-->
 <div class="card mt-2" style="height: 500px; overflow: scroll;">
     <div class="card-header">
@@ -29,6 +30,7 @@
                 <Cabeceras>
                     <tr>
                         <th>Asunto</th>
+                        <th>Prioridad</th>
                         <th>Estado</th>
                         <th>Contacto</th>
                         <th>Fecha de Modificación</th>
@@ -44,12 +46,19 @@
                         <td>
                             <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
                         </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
+                        </td>
                         <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td></td>
-                        <td></td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
+                        </td>
                         <td></td>
                         <td></td>
                     </tr>
@@ -57,13 +66,19 @@
                 <Columnas Context="item">
                     <tr>
                         <td>@item.Asunto</td>
+                        <td>@item.Prioridad</td>
                         <td>@item.Estatus</td>
                         <td>@item.Contacto_Rel</td>
                         <td>@item.Fecha_Mod.ToString()</td>
                         <td>@item.Fecha_Creacion.ToString()</td>
                         <td>@item.Fecha_Ven.ToString()</td>
                         <td>@item.Asignado</td>
-                        <td></td>
+                        <td>
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
+                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
+                            </div>
+                        </td>
                         <td>
                             <div class="col-12">
                                 <a class="btn gcom-bg-amarillo" href="crm/gestion/actividades/@item.Id">
@@ -124,26 +139,9 @@
             {
                 CRMActividades = responseHttp.Response;
 
-                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("paginas", out IEnumerable<string>? paginas_header))
-                {
-                    if (paginas_header is not null)
-                        if (paginas_header.Count() > 0)
-                            filtro_actividad.Total_paginas = int.Parse(paginas_header.First().ToString());
-                }
-
-                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("conteo", out IEnumerable<string>? conteo_header))
-                {
-                    if (conteo_header is not null)
-                        if (conteo_header.Count() > 0)
-                            filtro_actividad.Total_registros = int.Parse(conteo_header.First().ToString());
-                }
-
-                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("pagina", out IEnumerable<string>? pagina_header))
-                {
-                    if (pagina_header is not null)
-                        if (pagina_header.Count() > 0)
-                            filtro_actividad.Pagina_ACtual = int.Parse(pagina_header.First().ToString());
-                }
+                filtro_actividad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
+                filtro_actividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
+                filtro_actividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
             }
         }
         catch (Exception e)
@@ -158,12 +156,64 @@
         await Obtener_Actividades();
     }
 
+    private async Task FiltrarPrioridad(ChangeEventArgs args)
+    {
+        filtro_actividad.Prioridad = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
+
+    private async Task FiltrarEstados(ChangeEventArgs args)
+    {
+        filtro_actividad.Estatus = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
+
+    private async Task FiltrarVendedor(ChangeEventArgs args)
+    {
+        filtro_actividad.Asignado = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
+
     private async Task Pagina_Seleccionada(int pagina)
     {
         filtro_actividad.Pagina_ACtual = pagina;
         filtro_actividad.Pagina = pagina;
 
         await Obtener_Actividades();
+    }
+
+    private void Message(NotificationMessage message)
+    {
+        ns.Notify(message);
+    }
+
+    private async Task ChangeStatus(CRMActividadDTO actividades, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/actividades/changeStatus/{actividades.Id}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actividad habilitado", Detail = "La actividad ha sido habilitada." });
+                }
+                else
+                {
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actividad deshabilitado", Detail = "La actividad ha sido deshabilitada." });
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
 }

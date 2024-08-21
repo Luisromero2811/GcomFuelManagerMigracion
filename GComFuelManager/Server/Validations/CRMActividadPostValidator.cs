@@ -10,6 +10,8 @@ namespace GComFuelManager.Server.Validations
 		{
 			RuleFor(x => x.Asunto)
 				.NotEmpty().WithMessage("El asunto debe ser obligatorio");
+			RuleFor(x => x.Prioridad)
+				.NotEmpty().WithMessage("La prioridad debe ser obligatoria");
 		}
 	}
 }

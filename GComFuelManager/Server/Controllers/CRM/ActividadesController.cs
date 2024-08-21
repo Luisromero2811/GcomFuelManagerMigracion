@@ -42,7 +42,7 @@ namespace GComFuelManager.Server.Controllers
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
                 if (actividad.Id == 0)
                 {
-                   await context.AddAsync(actividad);
+                    await context.AddAsync(actividad);
                 }
                 else
                 {
@@ -54,6 +54,36 @@ namespace GComFuelManager.Server.Controllers
 
                 return Ok();
 
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut("changeStatus/{Id:int}")]
+        public async Task<ActionResult> ChangeStatus([FromRoute] int Id, [FromBody] bool status)
+        {
+            try
+            {
+                if (Id == 0)
+                {
+                    return BadRequest();
+                }
+
+                var actividad = await context.CRMActividades.FindAsync(Id);
+
+                if (actividad is null)
+                {
+                    return NotFound();
+                }
+
+                actividad.Activo = status;
+                actividad.Fecha_Mod = DateTime.Now;
+                context.Update(actividad);
+                await context.SaveChangesAsync();
+
+                return Ok();
             }
             catch (Exception e)
             {
@@ -157,7 +187,16 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(activo.Asunto) && !string.IsNullOrWhiteSpace(activo.Asunto))
                     activos = activos.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(activo.Asunto.ToLower()));
 
-                await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
+                if (!string.IsNullOrEmpty(activo.Prioridad) && !string.IsNullOrWhiteSpace(activo.Prioridad))
+                    activos = activos.Where(x => x.prioridades != null && x.prioridades.Valor.ToLower().Contains(activo.Prioridad.ToLower()));
+
+                if (!string.IsNullOrEmpty(activo.Estatus) && !string.IsNullOrWhiteSpace(activo.Estatus))
+                    activos = activos.Where(x => x.Estados != null && x.Estados.Valor.ToLower().Contains(activo.Estatus.ToLower()));
+
+                if (!string.IsNullOrEmpty(activo.Asignado) && !string.IsNullOrWhiteSpace(activo.Asignado))
+                    activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.Asignado.ToLower()));
+
+                    await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
 
                 if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
                     if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != activo.Pagina)

@@ -177,9 +177,11 @@
                 Obtener_Catalogo_Prioridad(),
                 Obtener_Catalogo_Estatus(),
                 Obtener_Vendedores(),
-                Obtener_ContactosCRM(),
-                ObtenerActividad()
-            );
+                Obtener_ContactosCRM());
+        if (Id != 0)
+        {
+            await ObtenerActividad();
+        }
     }
 
     public async Task CreateActividad()
