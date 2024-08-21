@@ -3,6 +3,7 @@ using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
 using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
+using GComFuelManager.Client.Helpers.Validations.CRM;
 using GComFuelManager.Client.Repositorios;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -68,7 +69,9 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<GestionChoferesValidation>();
     services.AddScoped<GestionUnidadValidation>();
     services.AddScoped<AutorizadoresValidation>();
+    //CRM
     services.AddScoped<CRMContactoPostValidator>();
+    services.AddScoped<CRMOportunidadPostValidator>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 

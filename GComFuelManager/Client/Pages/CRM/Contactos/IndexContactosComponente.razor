@@ -138,26 +138,9 @@
                 loading_info = false;
                 contactos = response.Response;
 
-                if (response.HttpResponseMessage.Headers.TryGetValues("paginas", out IEnumerable<string>? paginas_header))
-                {
-                    if (paginas_header is not null)
-                        if (paginas_header.Count() > 0)
-                            filtro_contacto.Total_paginas = int.Parse(paginas_header.First().ToString());
-                }
-
-                if (response.HttpResponseMessage.Headers.TryGetValues("conteo", out IEnumerable<string>? conteo_header))
-                {
-                    if (conteo_header is not null)
-                        if (conteo_header.Count() > 0)
-                            filtro_contacto.Total_registros = int.Parse(conteo_header.First().ToString());
-                }
-
-                if (response.HttpResponseMessage.Headers.TryGetValues("pagina", out IEnumerable<string>? pagina_header))
-                {
-                    if (pagina_header is not null)
-                        if (pagina_header.Count() > 0)
-                            filtro_contacto.Pagina_ACtual = int.Parse(pagina_header.First().ToString());
-                }
+                filtro_contacto.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro_contacto.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro_contacto.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
             }
         }
         catch (Exception e)

@@ -1,0 +1,234 @@
+﻿@page "/crm/oportunidades/formulario"
+@page "/crm/oportunidades/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMOportunidadPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <b>Formulario oportunidades</b>
+        <NavLink class="g-1" href="crm/oportunidades" Match="NavLinkMatch.All">
+            <i class="fa fa-solid fa-arrow-left" /> Volver
+        </NavLink>
+    </div>
+    <div class="card-body">
+        <EditForm Model="Oportunidad" class="col-12 row gy-2 gx-3">
+            <FluentValidationValidator Validator="validator" />
+            <ValidationSummary />
+            <div class="col-md-4 col-12">
+                <label>Nombre de oportunidad</label>
+                <InputText @bind-Value="Oportunidad.Nombre_Opor" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Importe de oportunidad</label>
+                <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Unidad de medida</label>
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Cuenta</label>
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Proximo paso</label>
+                <InputTextArea class="form-control" @bind-Value="Oportunidad.Prox_Paso" />
+                <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Origen</label>
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Vendedor</label>
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Tipo</label>
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Fecha de cierre</label>
+                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCierre" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.FechaCierre)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Etapa de venta</label>
+
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Probabilidad</label>
+                <InputNumber @bind-Value="Oportunidad.Probabilidad" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Probabilidad)" />
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    CRMOportunidadPostDTO Oportunidad = new();
+
+    List<Catalogo_Fijo> Tipos = new();
+    List<Catalogo_Fijo> Origen = new();
+    List<Catalogo_Fijo> Etapas = new();
+    List<Catalogo_Fijo> Medida = new();
+
+    List<Vendedor> Vendedores = new();
+    List<CRMCliente> Clientes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+        ObtenerCatalogoEtapa(),
+        ObtenerCatalogoMedida(),
+        ObtenerCatalogoOrigen(),
+        ObtenerCatalogoTipo(),
+        ObtenerVendedores(),
+        ObtenerClientes());
+    }
+
+    private async Task ObtenerVendedores(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoTipo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/tipo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Tipos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoMedida()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/medida");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Medida = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoEtapa()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/etapa");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Tipos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoOrigen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/origen");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Origen = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerClientes(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMCliente>>($"api/crmcliente?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}
