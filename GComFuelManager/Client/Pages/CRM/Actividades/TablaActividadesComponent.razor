@@ -1,19 +1,31 @@
-﻿@page "/tablaActividades"
+﻿@page "/crm/listado/actividades"
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 <!--Tabla de muestreo de datos de actividades-->
 <div class="card mt-2" style="height: 500px; overflow: scroll;">
     <div class="card-header">
-        <b>Actividades</b>
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Actividades</b>
+            </div>
+            <div>
+                <NavLink class="g-1" href="../" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+            </div>
+        </div>
+
     </div>
     <div class="card-body">
         <div class="col-12 row">
             <div class="col-3 mb-2">
-                <NavLink class="btn gcom-bg-amarillo" href="gestionActividades">Crear Nueva Actividad</NavLink>
+                <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/actividades">
+                    <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
+                </NavLink>
             </div>
         </div>
         <div class="col-12">
-            <Tabla Datos="Actividades">
+            <Tabla Datos="CRMActividades">
                 <Cabeceras>
                     <tr>
                         <th>Asunto</th>
@@ -27,37 +39,82 @@
                         <th>Editar</th>
                     </tr>
                 </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </Filtros>
                 <Columnas Context="item">
                     <tr>
-                        <td>@item.asuntos?.Valor</td>
-                        <td>@item.Estados?.Valor</td>
-                        <td>@item.contacto?.Nombre @item.contacto?.Apellidos</td>
-                        <td>@item.Fecha_Mod.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                        <td>@item.Fecha_Creacion.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                        <td>@item.Fecha_Ven.ToString("dd/MM/yyyy HH:mm:ss")</td>
-                        <td>@item.vendedor?.Nombre</td>
+                        <td>@item.Asunto</td>
+                        <td>@item.Estatus</td>
+                        <td>@item.Contacto_Rel</td>
+                        <td>@item.Fecha_Mod.ToString()</td>
+                        <td>@item.Fecha_Creacion.ToString()</td>
+                        <td>@item.Fecha_Ven.ToString()</td>
+                        <td>@item.Asignado</td>
                         <td></td>
-                        <td></td>
+                        <td>
+                            <div class="col-12">
+                                <a class="btn gcom-bg-amarillo" href="crm/gestion/actividades/@item.Id">
+                                    <i class="fa fa-solid fa-edit" />
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 </Columnas>
             </Tabla>
         </div>
     </div>
 </div>
-
+<div class="col-12">
+    <PaginacionComponent PaginaActual="filtro_actividad.Pagina_ACtual" PaginasTotales="filtro_actividad.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @filtro_actividad.Total_registros</p>
+    </div>
+</div>
 @code {
-    List<CRMActividades> Actividades { get; set; } = new();
+    CRMActividadDTO filtro_actividad = new();
+    List<CRMActividadDTO> CRMActividades = new();
+
+    Dictionary<string, string> query = new();
 
     protected override async Task OnInitializedAsync()
     {
+        filtro_actividad.Registros_por_pagina = 15;
         await Obtener_Actividades();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtro_actividad.Asunto)}"] = filtro_actividad.Asunto;
+        query[$"{nameof(filtro_actividad.Prioridad)}"] = filtro_actividad.Prioridad;
+        query[$"{nameof(filtro_actividad.Asignado)}"] = filtro_actividad.Asignado;
+        query[$"{nameof(filtro_actividad.Desccripcion)}"] = filtro_actividad.Desccripcion;
+        query[$"{nameof(filtro_actividad.Estatus)}"] = filtro_actividad.Estatus;
+        query[$"{nameof(filtro_actividad.Contacto_Rel)}"] = filtro_actividad.Contacto_Rel;
+        query[$"{nameof(filtro_actividad.Pagina)}"] = filtro_actividad.Pagina.ToString();
+        query[$"{nameof(filtro_actividad.Registros_por_pagina)}"] = filtro_actividad.Registros_por_pagina.ToString();
+        return query;
     }
 
     private async Task Obtener_Actividades()
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<CRMActividades>>($"api/actividades/listadoActividades");
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var responseHttp = await repositorio.Get<List<CRMActividadDTO>>($"api/actividades?{uri}");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -65,7 +122,28 @@
             }
             else
             {
-                Actividades = responseHttp.Response!;
+                CRMActividades = responseHttp.Response;
+
+                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("paginas", out IEnumerable<string>? paginas_header))
+                {
+                    if (paginas_header is not null)
+                        if (paginas_header.Count() > 0)
+                            filtro_actividad.Total_paginas = int.Parse(paginas_header.First().ToString());
+                }
+
+                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("conteo", out IEnumerable<string>? conteo_header))
+                {
+                    if (conteo_header is not null)
+                        if (conteo_header.Count() > 0)
+                            filtro_actividad.Total_registros = int.Parse(conteo_header.First().ToString());
+                }
+
+                if (responseHttp.HttpResponseMessage.Headers.TryGetValues("pagina", out IEnumerable<string>? pagina_header))
+                {
+                    if (pagina_header is not null)
+                        if (pagina_header.Count() > 0)
+                            filtro_actividad.Pagina_ACtual = int.Parse(pagina_header.First().ToString());
+                }
             }
         }
         catch (Exception e)
@@ -74,8 +152,18 @@
         }
     }
 
-}
+    private async Task FiltrarAsunto(ChangeEventArgs args)
+    {
+        filtro_actividad.Asunto = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Actividades();
+    }
 
-@*//.Include(x => x.asunto)
-    //.Include(x => x.prioridad)
-    //.Include(x => x.estatus)*@
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro_actividad.Pagina_ACtual = pagina;
+        filtro_actividad.Pagina = pagina;
+
+        await Obtener_Actividades();
+    }
+
+}

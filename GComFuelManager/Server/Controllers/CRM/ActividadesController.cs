@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
+using GComFuelManager.Shared.DTOs.CRM;
+using FluentValidation;
+using AutoMapper;
+using GComFuelManager.Server.Helpers;
+using Microsoft.Extensions.Primitives;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,41 +20,35 @@ namespace GComFuelManager.Server.Controllers
     public class ActividadesController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IValidator<CRMActividadPostDTO> validator;
+        private readonly IMapper mapper;
 
-        public ActividadesController(ApplicationDbContext context)
+        public ActividadesController(ApplicationDbContext context, IValidator<CRMActividadPostDTO> validator, IMapper mapper)
         {
             this.context = context;
+            this.validator = validator;
+            this.mapper = mapper;
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult> Create_Actividad([FromBody] CRMActividades cRMActividades)
+        public async Task<IActionResult> Create_Actividad([FromBody] CRMActividadPostDTO cRMActividades)
         {
             try
             {
-                //Si la actividad viene nula del front regresamos un badrequest
-                if (cRMActividades is null)
-                {
-                    return BadRequest();
-                }
-                //Propiedades de navegación por defecto se dejan en nulo
-
+                var result = await validator.ValidateAsync(cRMActividades);
+                if (!result.IsValid) { return BadRequest(result.Errors); }
+                var actividad = mapper.Map<CRMActividadPostDTO, CRMActividades>(cRMActividades);
 
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
-                if (cRMActividades.Id == 0)
+                if (actividad.Id == 0)
                 {
-                    cRMActividades.prioridades = null!;
-                    cRMActividades.vendedor = null!;
-                    cRMActividades.contacto = null!;
-                    cRMActividades.Estados = null!;
-                    cRMActividades.asuntos = null!;
-
-                    context.Add(cRMActividades);
+                   await context.AddAsync(actividad);
                 }
                 else
                 {
-                    cRMActividades.Fecha_Mod = DateTime.Now;
+                    actividad.Fecha_Mod = DateTime.Now;
 
-                    context.Update(cRMActividades);
+                    context.Update(actividad);
                 }
                 await context.SaveChangesAsync();
 
@@ -141,25 +140,55 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("listadoActividades")]
-        public async Task<ActionResult> GetListActivities()
+        [HttpGet]
+        public async Task<ActionResult> GetListActivities([FromQuery] CRMActividadDTO activo)
         {
             try
             {
                 var activos = context.CRMActividades
+                    .Where(x => x.Activo)
                     .Include(x => x.vendedor)
                     .Include(x => x.contacto)
                     .Include(x => x.asuntos)
                     .Include(x => x.Estados)
-                    .ToList();
+                    .Include(x => x.prioridades)
+                    .AsQueryable();
 
-                return Ok(activos);
+                if (!string.IsNullOrEmpty(activo.Asunto) && !string.IsNullOrWhiteSpace(activo.Asunto))
+                    activos = activos.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(activo.Asunto.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
+
+                if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
+                    if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != activo.Pagina)
+                        activo.Pagina = int.Parse(value!);
+
+                activos = activos.Skip((activo.Pagina - 1) * activo.Registros_por_pagina).Take(activo.Registros_por_pagina);
+
+                var actividadesdto = activos.Select(x => mapper.Map<CRMActividadDTO>(x));
+
+                return Ok(actividadesdto);
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("{Id:int}")]
+        public async Task<ActionResult> ObtenerCatalogoStatus([FromRoute] int Id)
+        {
+            try
+            {
+                var actividad = await context.CRMActividades.Where(x => x.Id == Id).Select(x => mapper.Map<CRMActividadPostDTO>(x)).FirstOrDefaultAsync();
+                return Ok(actividad);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
     }
 }
 

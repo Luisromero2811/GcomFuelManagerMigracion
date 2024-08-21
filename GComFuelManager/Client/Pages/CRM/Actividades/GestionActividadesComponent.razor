@@ -1,21 +1,33 @@
-﻿@page "/gestionActividades"
+﻿@page "/crm/gestion/actividades"
+@page "/crm/gestion/actividades/{Id:int}"
+
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 <!--Formulario de registro-->
 <div class="card mt-2" style="height: 500px; overflow: scroll; ">
     <div class="card-header">
-        <b>Creación de Actividades</b>
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Creación de Actividades</b>
+            </div>
+            <div>
+                <NavLink class="g-1" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </NavLink>
+            </div>
+        </div>
+
     </div>
     <div class="card-body">
         <div class="col-12">
-            <EditForm Model="@Actividad" class="form col-12" OnValidSubmit="CreateActividad">
+            <EditForm Model="@CRMActividad" class="form col-12" OnValidSubmit="CreateActividad">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="col-12 row g-1">
                     <!--Asunto-->
                     <div class="col-4 my-1">
                         <label>Asunto:</label>
-                        <InputSelect @bind-Value="@Actividad.Asunto" class="form-select form-select-sm">
+                        <InputSelect @bind-Value="@CRMActividad.Asunto" class="form-select form-select-sm">
                             <option>-- Seleccione un Asunto --</option>
                             @foreach (var asunto in Cat_Asunto)
                             {
@@ -26,17 +38,17 @@
                     <!--Fecha de Inicio-->
                     <div class="col-4 my-1">
                         <label>Fecha de Inicio:</label>
-                        <InputDate @bind-Value="@Actividad.Fecha_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
+                        <InputDate @bind-Value="@CRMActividad.Fecha_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
                     </div>
                     <!--Fecha de Vencimiento-->
                     <div class="col-4 my-1">
                         <label>Fecha de Vencimiento:</label>
-                        <InputDate @bind-Value="@Actividad.Fecha_Ven" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
+                        <InputDate @bind-Value="@CRMActividad.Fecha_Ven" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
                     </div>
                     <!--Prioridad-->
                     <div class="col-4 my-1">
                         <label>Prioridad:</label>
-                        <InputSelect @bind-Value="@Actividad.Prioridad" class="form-select form-select-sm">
+                        <InputSelect @bind-Value="@CRMActividad.Prioridad" class="form-select form-select-sm">
                             <option>-- Seleccione un Asunto --</option>
                             @foreach (var asunto in Cat_Prioridad)
                             {
@@ -47,7 +59,7 @@
                     <!--Asignado A-->
                     <div class="col-4 my-1">
                         <label>Asignado a:</label>
-                        <InputSelect @bind-Value="@Actividad.Asignado" class="form-select form-select-sm">
+                        <InputSelect @bind-Value="@CRMActividad.Asignado" class="form-select form-select-sm">
                             <option>-- Seleccione un Vendedor --</option>
                             @if (Vendedores == null)
                             {
@@ -69,12 +81,13 @@
                     <!--Descripción-->
                     <div class="col-4 my-1">
                         <label>Descripción:</label>
-                        <InputTextArea @bind-Value="@Actividad.Desccripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                        <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
                     </div>
                     <!--Estatus-->
                     <div class="col-4 my-1">
                         <label>Estatus:</label>
-                        <InputSelect @bind-Value="@Actividad.Estatus" class="form-select form-select-sm">
+                        <InputSelect @bind-Value="@CRMActividad.Estatus" class="form-select form-select-sm">
                             <option>-- Seleccione un Estatus --</option>
                             @foreach (var asunto in Cat_Estatus)
                             {
@@ -85,7 +98,7 @@
                     <!--Relacionada con:-->
                     <div class="col-4 my-1">
                         <label>Relacionada Con:</label>
-                        <InputSelect @bind-Value="@Actividad.Contacto_Rel" class="form-select form-select-sm">
+                        <InputSelect @bind-Value="@CRMActividad.Contacto_Rel" class="form-select form-select-sm">
                             <option>-- Seleccione un Contacto --</option>
                             @if (Contactos == null)
                             {
@@ -109,18 +122,15 @@
                 <div class="col-12 d-flex mt-3 justify-content-center">
                     @if (!isEdit)
                     {
-                            <div class="col-4 px-2">
-                                <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
-                                    <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
-                                    @if (loading_guardar)
-                                    {
-                                        <SpinnerLoading />
-                                    }
-                                </button>
-                            </div>
-                            <div class="col-4 px-2">
-                                <NavLink class="btn btn-sm col-12 gcom-bg-amarillo" href="tablaActividades">Ir a Actividades</NavLink>
-                            </div>
+                        <div class="col-4 px-2">
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                <i class="fa fa-solid fa-floppy-disk"></i> Crear Actividad
+                                @if (loading_guardar)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
                     }
                     else
                     {
@@ -144,9 +154,14 @@
 </div>
 
 @code {
+    [Parameter] public int Id { get; set; }
+
     bool loading_guardar = false;
     bool isEdit = false;
     CRMActividades Actividad = new();
+    CRMActividadPostDTO CRMActividad = new();
+
+    List<CRMActividadPostDTO> Activities = new();
     List<CRMActividades> Actividades = new();
 
     List<Catalogo_Fijo> Cat_Asunto = new();
@@ -162,7 +177,8 @@
                 Obtener_Catalogo_Prioridad(),
                 Obtener_Catalogo_Estatus(),
                 Obtener_Vendedores(),
-                Obtener_ContactosCRM()
+                Obtener_ContactosCRM(),
+                ObtenerActividad()
             );
     }
 
@@ -170,7 +186,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Post<CRMActividades>($"api/actividades/create", Actividad);
+            var responseHttp = await repositorio.Post<CRMActividadPostDTO>($"api/actividades/create", CRMActividad);
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -179,7 +195,7 @@
             else
             {
                 await Swal.FireAsync("Éxito", "La actividad fue registrada exitosamente", SweetAlertIcon.Success);
-                Actividad = new();
+                CRMActividad = new();
             }
 
         }
@@ -298,6 +314,27 @@
     {
         Actividad = new();
         isEdit = false;
+    }
+
+    private async Task ObtenerActividad()
+    {
+        try
+        {
+            var response = await repositorio.Get<CRMActividadPostDTO>($"api/actividades/{Id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                CRMActividad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
 }
