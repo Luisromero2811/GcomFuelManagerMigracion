@@ -7,6 +7,12 @@
 @inject NavigationManager navigation
 @attribute [Authorize]
 
+@if (loading_info)
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+}
 <div class="card">
     <div class="card-header d-flex justify-content-between">
         <b>Formulario oportunidades</b>
@@ -15,7 +21,7 @@
         </NavLink>
     </div>
     <div class="card-body">
-        <EditForm Model="Oportunidad" class="col-12 row gy-2 gx-3">
+        <EditForm Model="Oportunidad" class="col-12 row gy-2 gx-3" OnValidSubmit="GuardarOportunidad">
             <FluentValidationValidator Validator="validator" />
             <ValidationSummary />
             <div class="col-md-4 col-12">
@@ -30,9 +36,28 @@
             </div>
             <div class="col-md-4 col-12">
                 <label>Unidad de medida</label>
+                <InputSelect @bind-Value="Oportunidad.UnidadMedidaId" class="form-select">
+                    <option>-- seleccione una medida --</option>
+                    @foreach (var item in Medida)
+                    {
+                        <option value="@item.Id">@item.Abreviacion</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Cuenta</label>
+                <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
+                <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Proximo paso</label>
@@ -40,13 +65,40 @@
                 <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
             </div>
             <div class="col-md-4 col-12">
-                <label>Origen</label>
+                <label>Origen de contacto</label>
+                <InputSelect @bind-Value="Oportunidad.OrigenId" class="form-select">
+                    <option>-- seleccione un origen --</option>
+                    @foreach (var item in Origen)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
             </div>
             <div class="col-md-4 col-12">
-                <label>Vendedor</label>
+                <label>Asignado a</label>
+                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
+                <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Tipo</label>
+                <InputSelect @bind-Value="Oportunidad.TipoId" class="form-select">
+                    <option>-- seleccione un tipo --</option>
+                    @foreach (var item in Tipos)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.TipoId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Fecha de cierre</label>
@@ -55,12 +107,31 @@
             </div>
             <div class="col-md-4 col-12">
                 <label>Etapa de venta</label>
-
+                <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select">
+                    <option>-- seleccione una etapa de venta--</option>
+                    @foreach (var item in Etapas)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.EtapaVentaId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Probabilidad</label>
                 <InputNumber @bind-Value="Oportunidad.Probabilidad" class="form-control" />
                 <ValidationMessage For="@(()=>Oportunidad.Probabilidad)" />
+            </div>
+            <div class="col-12">
+                <div class="col-3">
+                    <button type="submit" class="btn gcom-bg-amarillo col-12">
+                        <i class="fa fa-solid fa-floppy-disk" />
+                        Guardar
+                        @if (loading_save)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
             </div>
         </EditForm>
     </div>
@@ -79,6 +150,9 @@
     List<Vendedor> Vendedores = new();
     List<CRMCliente> Clientes = new();
 
+    bool loading_info = false;
+    bool loading_save = false;
+
     protected override async Task OnInitializedAsync()
     {
         await Task.WhenAll(
@@ -88,6 +162,9 @@
         ObtenerCatalogoTipo(),
         ObtenerVendedores(),
         ObtenerClientes());
+
+        if (Id != 0)
+            await ObtenerOportunidad();
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -173,7 +250,7 @@
             }
             else
             {
-                Tipos = response.Response;
+                Etapas = response.Response;
             }
         }
         catch (Exception e)
@@ -229,6 +306,60 @@
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
+    }
+
+    private async Task GuardarOportunidad()
+    {
+        try
+        {
+            loading_save = true;
+            var response = await http.Post<CRMOportunidadPostDTO>($"api/crmoportunidad", Oportunidad);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/oportunidades", false);
+                else
+                    Oportunidad = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerOportunidad()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMOportunidadPostDTO>($"api/crmoportunidad/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Oportunidad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 
 }

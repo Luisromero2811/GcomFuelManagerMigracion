@@ -77,7 +77,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var oportunidad = await context.CRMOportunidades.AsNoTracking().Select(x => mapper.Map<CRMOportunidadDetalleDTO>(x)).FirstOrDefaultAsync(x => x.Id == id);
+                var oportunidad = await context.CRMOportunidades.AsNoTracking().Where(x => x.Id == id).Select(x => mapper.Map<CRMOportunidadPostDTO>(x)).FirstOrDefaultAsync();
                 if (oportunidad is null) { return NotFound(); }
 
                 return Ok(oportunidad);

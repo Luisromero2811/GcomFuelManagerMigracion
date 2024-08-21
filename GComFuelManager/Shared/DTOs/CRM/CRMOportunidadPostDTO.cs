@@ -12,7 +12,7 @@
         public int CuentaId { get; set; }
         public int TipoId { get; set; }
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
-        public DateTime FechaCierre { get; set; }
+        public DateTime FechaCierre { get; set; } = DateTime.Today;
         public int EtapaVentaId { get; set; }
         public decimal Probabilidad { get; set; }
         public bool Activo { get; set; } = true;
