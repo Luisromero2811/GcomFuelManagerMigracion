@@ -67,6 +67,22 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
+        [HttpGet("list")]
+        public async Task<ActionResult> GetListV()
+        {
+            try
+            {
+                var vendedores = context.Vendedores
+                    .Where(x => x.Activo == true)
+                    .ToList();
+                return Ok(vendedores);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("filtrar")]
         public ActionResult Obtener_Vendedores_Filtrados([FromQuery] Vendedor vendedor)
         {

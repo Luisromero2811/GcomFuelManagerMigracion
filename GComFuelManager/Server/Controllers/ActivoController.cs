@@ -135,10 +135,10 @@ namespace GComFuelManager.Server.Controllers
 
                     var conjunto = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Conjunto_Activo);
                     if (conjunto is null) { return BadRequest(); }
-
+                    //Número de activo
                     activo_Fijo.Nro_Activo = $"{conjunto.Valor.Trim()}{consecutivo.Numeracion:00000}";
                     activo_Fijo.Numeracion = consecutivo.Numeracion;
-
+                    //Número de etiquera
                     if (string.IsNullOrEmpty(activo_Fijo.Nro_Etiqueta) || string.IsNullOrWhiteSpace(activo_Fijo.Nro_Etiqueta))
                     {
                         var origen = context.Catalogo_Fijo.FirstOrDefault(x => x.Id == activo_Fijo.Origen_Activo);

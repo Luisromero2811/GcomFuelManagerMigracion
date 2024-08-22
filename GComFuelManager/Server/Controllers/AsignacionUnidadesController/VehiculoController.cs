@@ -488,6 +488,18 @@ namespace GComFuelManager.Server.Controllers.AsignacionUnidadesController
 
                         await context.SaveChangesAsync();
 
+                        if (context.Tonel.Any(x => x.Identificador == null && x.Id_Tad == 1))
+                        {
+                            var unidades = await context.Tonel.Where(x => x.Identificador == null && x.Id_Tad == 1).ToListAsync();
+                            foreach (var item in unidades)
+                            {
+                                item.Identificador = item.Cod;
+                            }
+
+                            context.UpdateRange(unidades);
+                            await context.SaveChangesAsync();
+                        }
+
                         return Ok(true);
                     }
                     else

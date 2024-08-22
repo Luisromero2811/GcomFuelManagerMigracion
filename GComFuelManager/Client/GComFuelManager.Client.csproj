@@ -56,6 +56,8 @@
     <None Remove="Pages\Tarifario\" />
     <None Remove="Pages\Obtencion de Catalogos\" />
     <None Remove="Pages\Formularios\Autorizadores\" />
+    <None Remove="Pages\CRM\Actividades\" />
+    <None Remove="Pages\CRM\Historiales\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -66,6 +68,8 @@
     <Folder Include="Pages\Tarifario\" />
     <Folder Include="Pages\Obtencion de Catalogos\" />
     <Folder Include="Pages\Formularios\Autorizadores\" />
+    <Folder Include="Pages\CRM\Actividades\" />
+    <Folder Include="Pages\CRM\Historiales\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />

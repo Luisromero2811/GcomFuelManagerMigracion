@@ -473,8 +473,8 @@
                                     </RadzenMenuItem>
                                 </AuthorizeView>
 
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo">
-                                    <RadzenPanelMenuItem Path="actualizar/pedidos" class="gcom-bg-rojo col-12" Style="border:hidden">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo, Coordinador">
+                                    <RadzenPanelMenuItem Path="modificacion/orden" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">
                                                 <i class="fa fa-solid fa-repeat" aria-hidden="true"></i> Actualizar ordenes
@@ -527,7 +527,7 @@
                         </RadzenMenuItem>
                     </AuthorizeView>
 
-                    <AuthorizeView Roles="Programador">
+                    <AuthorizeView Roles="Programador, Analista Credito">
                         <RadzenMenuItem class="gcom-bg-rojo col-12 text-white" Style="border:hidden">
                             <Template>
                                 <div class="text-white">
@@ -544,7 +544,7 @@
                                         </Template>
                                     </RadzenPanelMenuItem>
                                 </AuthorizeView>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador" Context="Red_List_Page">
+                                <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Programador, Analista Credito" Context="Red_List_Page">
                                     <RadzenPanelMenuItem Path="listado/redireccion" class="gcom-bg-rojo col-12" Style="border:hidden">
                                         <Template>
                                             <div class="text-white">

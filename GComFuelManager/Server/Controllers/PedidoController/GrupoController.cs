@@ -19,12 +19,14 @@ namespace GComFuelManager.Server.Controllers
         private readonly ApplicationDbContext context;
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly User_Terminal user_Terminal;
 
-        public GrupoController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager)
+        public GrupoController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> userManager, User_Terminal user_Terminal)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             this.userManager = userManager;
+            this.user_Terminal = user_Terminal;
         }
 
         [HttpGet]
@@ -130,11 +132,17 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                if (cliente == null)
-                {
-                    return NotFound();
-                }
+                var id_terminal = user_Terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
 
+                if (cliente is null)
+                {
+                    return BadRequest();
+                }
+                cliente.Id_Tad = id_terminal;
+                cliente.Tad = null!;
+                cliente.Terminales = null!;
                 context.Update(cliente);
                 await context.SaveChangesAsync();
 
