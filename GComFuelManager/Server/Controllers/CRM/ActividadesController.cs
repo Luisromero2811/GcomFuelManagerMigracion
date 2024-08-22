@@ -160,7 +160,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var contactocrm = context.CRMContactos
-                    //.Where(x => x.Activo == true)
+                    .Where(x => x.Activo == true)
                     .ToList();
                 return Ok(contactocrm);
             }

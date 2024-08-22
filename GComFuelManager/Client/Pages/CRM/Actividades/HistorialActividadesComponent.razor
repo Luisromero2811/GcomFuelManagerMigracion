@@ -1,0 +1,48 @@
+﻿@page "/crm/historial/actividades"
+
+<div class="card col-12">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Historial de Actividades</b>
+            </div>
+            <div>
+                <NavLink class="g-1" href="../" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 my-2">
+    <!--Calendarios y boton para filtrar-->
+
+</div>
+<!--Tabla de muestreo de datos para mostrar el historial de actividades-->
+<div class="ancho-tabla">
+    <Tabla Datos="ListadoActividad">
+        <Cabeceras>
+            <tr>
+                <th></th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td></td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+
+</div>
+
+@code {
+    List<CRMActividades> ListadoActividad { get; set; } = new();
+}
+
