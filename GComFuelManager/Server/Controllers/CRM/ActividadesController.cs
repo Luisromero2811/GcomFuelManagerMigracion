@@ -156,7 +156,7 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("contactlist")]
-        public ActionResult Obtener_Catalogo_Contacto([FromBody] CRMContacto contacto)
+        public ActionResult Obtener_Catalogo_Contacto()
         {
             try
             {
@@ -216,7 +216,7 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpGet("")]
+        [HttpGet("historial")]
         public async Task<ActionResult> Historial_Actividades([FromQuery] CRMActividadDTO actividadDTO)
         {
             try

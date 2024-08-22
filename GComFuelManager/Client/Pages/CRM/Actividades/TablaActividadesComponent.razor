@@ -29,10 +29,10 @@
             <Tabla Datos="CRMActividades">
                 <Cabeceras>
                     <tr>
+                        <th>Contacto</th>
                         <th>Asunto</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
-                        <th>Contacto</th>
                         @*<th>Fecha de Modificación</th>*@
                         <th>Fecha de Inicio</th>
                         <th>Fecha de Vencimiento</th>
@@ -43,6 +43,7 @@
                 </Cabeceras>
                 <Filtros>
                     <tr>
+                        <td></td>
                         <td>
                             <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
                         </td>
@@ -52,7 +53,6 @@
                         <td>
                             <input class="form-control form-control-sm" @bind-value="filtro_actividad.Estatus" @oninput="FiltrarEstados" />
                         </td>
-                        <td></td>
                         @*<td></td>*@
                         <td></td>
                         <td></td>
@@ -65,10 +65,10 @@
                 </Filtros>
                 <Columnas Context="item">
                     <tr>
+                        <td>@item.Contacto_Rel</td>
                         <td>@item.Asunto</td>
                         <td>@item.Prioridad</td>
                         <td>@item.Estatus</td>
-                        <td>@item.Contacto_Rel</td>
                         @*<td>@item.Fecha_Mod.ToString()</td>*@
                         <td>@item.Fecha_Inicio.ToString()</td>
                         <td>@item.Fecha_Ven.ToString()</td>
