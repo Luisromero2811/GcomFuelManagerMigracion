@@ -1,10 +1,154 @@
 ﻿@page "/crm/contacto/{id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize]
+
 <div class="card">
     <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Detalle contacto</b>
+            </div>
+            <div>
+                <div class="btn-group">
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/contactos" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                    <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                        Actividades
+                    </NavLink>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-4 row">
+                <label><b>Nombre/s: </b></label>
+                <p>@detalle.Nombre</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Apellidos: </b></label>
+                <p>@detalle.Apellidos</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Titulo: </b></label>
+                <p>@detalle.Titulo</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Departamento: </b></label>
+                <p>@detalle.Departamento</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Cuenta: </b></label>
+                <p>@detalle.Cliente?.Nombre</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Teléfono de oficina: </b></label>
+                <p>@detalle.Departamento</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Teléfono móvil: </b></label>
+                <p>@detalle.Departamento</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Sitio Web: </b></label>
+                <a href="@detalle.SitioWeb" target="_blank">@detalle.SitioWeb</a>
+            </div>
+            <div class="col-4 row">
+                <label><b>Correo: </b></label>
+                <p>@detalle.Correo</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Estatus: </b></label>
+                <p>@detalle.Estatus?.Valor</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Descripcion de estatus: </b></label>
+                <p>@detalle.Estatus_Desc</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Importe de la oportunidad: </b></label>
+                <p>@detalle.Importe_Oportunidad.ToString("N2", CultureInfo.InvariantCulture)</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Origen de contacto: </b></label>
+                <p>@detalle.Origen?.Valor</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Recomendado por: </b></label>
+                <p>@detalle.Recomen</p>
+            </div>
+            <div class="col-4 row">
+                <label><b>Asignado a: </b></label>
+                <p>@detalle.Vendedor?.Nombre</p>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                Dirección
+            </div>
+            <div class="card-body">
+                <div class="col-12 row">
+                    <div class="col-4 row">
+                        <label><b>Calle: </b></label>
+                        <p>@detalle.Calle</p>
+                    </div>
+                    <div class="col-4 row">
+                        <label><b>Colonia: </b></label>
+                        <p>@detalle.Colonia</p>
+                    </div>
+                    <div class="col-4 row">
+                        <label><b>Ciudad: </b></label>
+                        <p>@detalle.Ciudad</p>
+                    </div>
+                    <div class="col-4 row">
+                        <label><b>C.P.: </b></label>
+                        <p>@detalle.CP</p>
+                    </div>
+                    <div class="col-4 row">
+                        <label><b>Pais: </b></label>
+                        <p>@detalle.Pais</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @code {
+    [Parameter] public int Id { get; set; }
     CRMContactoDetalleDTO detalle = new();
+    bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerContacto();
+    }
+
+    private async Task ObtenerContacto()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMContactoDetalleDTO>($"api/crmcontactos/{Id}/detalle");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                detalle = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
 }
