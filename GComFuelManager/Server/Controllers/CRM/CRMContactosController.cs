@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
@@ -19,12 +21,14 @@ namespace GComFuelManager.Server.Controllers.CRM
         private readonly ApplicationDbContext context;
         private readonly IValidator<CRMContactoPostDTO> validator;
         private readonly IMapper mapper;
+        private readonly UserManager<IdentityUsuario> manager;
 
-        public CRMContactosController(ApplicationDbContext context, IValidator<CRMContactoPostDTO> validator, IMapper mapper)
+        public CRMContactosController(ApplicationDbContext context, IValidator<CRMContactoPostDTO> validator, IMapper mapper, UserManager<IdentityUsuario> manager)
         {
             this.context = context;
             this.validator = validator;
             this.mapper = mapper;
+            this.manager = manager;
         }
 
         [HttpGet]
@@ -32,12 +36,26 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
+                //if (HttpContext.User.Identity is null) { return NotFound(); }
+                //if (string.IsNullOrEmpty(HttpContext.User.Identity.Name) || string.IsNullOrWhiteSpace(HttpContext.User.Identity.Name)) { return NotFound(); }
+
+                //var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
+                //if (user is null) { return NotFound(); }
+
                 var contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
                     .Include(x => x.Estatus)
                     .Include(x => x.Origen)
                     .Include(x => x.Cliente)
                     .Include(x => x.Vendedor)
                     .AsQueryable();
+
+                //if ((!await manager.IsInRoleAsync(user, "Admin") ||
+                //     !await manager.IsInRoleAsync(user, "Administrador Sistema") ||
+                //     !await manager.IsInRoleAsync(user, "CRM_LIDER")) && 
+                //      await manager.IsInRoleAsync(user, "CRM"))
+                //{
+                //    contactos = contactos.Where(x => x.VendedorId == 0);
+                //}
 
                 if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
                     contactos = contactos.Where(x => x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(contacto.Nombre.ToLower()));
@@ -77,7 +95,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         }
 
         [HttpGet("{Id:int}")]
-        public async Task<ActionResult> ObtenerCatalogoStatus([FromRoute] int Id)
+        public async Task<ActionResult> GetById([FromRoute] int Id)
         {
             try
             {
@@ -89,6 +107,28 @@ namespace GComFuelManager.Server.Controllers.CRM
                 return BadRequest(e.Message);
             }
         }
+
+        [HttpGet("{Id:int}/detalle")]
+        public async Task<ActionResult> GetByIdDetail([FromRoute] int Id)
+        {
+            try
+            {
+                var contacto = await context.CRMContactos
+                    .AsNoTracking()
+                    .Where(x => x.Id == Id)
+                    .Include(x=>x.Vendedor)
+                    .Include(x=>x.Cliente)
+                    .Include(x=>x.Estatus)
+                    .Include(x=>x.Origen)
+                    .Select(x => mapper.Map<CRMContactoDetalleDTO>(x)).FirstOrDefaultAsync();
+                return Ok(contacto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CRMContactoPostDTO contactodto)

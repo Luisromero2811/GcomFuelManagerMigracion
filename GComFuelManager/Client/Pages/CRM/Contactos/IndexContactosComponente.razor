@@ -11,9 +11,14 @@
                     <b>Contactos</b>
                 </div>
                 <div>
-                    <NavLink class="g-1" href="../" Match="NavLinkMatch.All">
-                        <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
+                    <div class="btn-group">
+                        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-arrow-left" /> Volver
+                        </NavLink>
+                        <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                            Actividades
+                        </NavLink>
+                    </div>
                 </div>
             </div>
         </div>
@@ -30,7 +35,7 @@
     <Tabla Datos="contactos" Cargando="loading_info">
         <Cabeceras>
             <tr>
-                <th style="width:100px;"></th>
+                <th style="width:150px;"></th>
                 <th>Nombre</th>
                 <th>Estado</th>
                 <th>Nombre de cuenta</th>
@@ -70,6 +75,9 @@
                     <div class="btn-group" role="group">
                         <a class="btn gcom-bg-amarillo" href="crm/contactos/formulario/@item.Id">
                             <i class="fa fa-solid fa-edit" />
+                        </a>
+                        <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
+                            <i class="fa fa-solid fa-eye" />
                         </a>
                         <button class="btn btn-danger" @onclick="@(()=>EliminarContacto(item.Id))">
                             <i class="fa fa-solid fa-trash" />
