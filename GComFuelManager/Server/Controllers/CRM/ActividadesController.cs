@@ -10,6 +10,7 @@ using FluentValidation;
 using AutoMapper;
 using GComFuelManager.Server.Helpers;
 using Microsoft.Extensions.Primitives;
+using iText.Commons.Utils;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -155,12 +156,13 @@ namespace GComFuelManager.Server.Controllers
         }
 
         [HttpGet("contactlist")]
-        public ActionResult Obtener_Catalogo_Contacto()
+        public ActionResult Obtener_Catalogo_Contacto([FromBody] CRMContacto contacto)
         {
             try
             {
                 var contactocrm = context.CRMContactos
                     .Where(x => x.Activo == true)
+                    .Include(x => x.Vendedor)
                     .ToList();
                 return Ok(contactocrm);
             }
@@ -196,7 +198,7 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(activo.Asignado) && !string.IsNullOrWhiteSpace(activo.Asignado))
                     activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.Asignado.ToLower()));
 
-                    await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
+                await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
 
                 if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
                     if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != activo.Pagina)
@@ -205,6 +207,39 @@ namespace GComFuelManager.Server.Controllers
                 activos = activos.Skip((activo.Pagina - 1) * activo.Registros_por_pagina).Take(activo.Registros_por_pagina);
 
                 var actividadesdto = activos.Select(x => mapper.Map<CRMActividadDTO>(x));
+
+                return Ok(actividadesdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("")]
+        public async Task<ActionResult> Historial_Actividades([FromQuery] CRMActividadDTO actividadDTO)
+        {
+            try
+            {
+                //Consulta a la entidad CRMActividades
+                var actividades = context.CRMActividades
+                    .Where(x => x.Activo)
+                    .Include(x => x.asuntos)
+                    .Include(x => x.Estados)
+                    .Include(x => x.contacto)
+                    .Include(x => x.prioridades)
+                .AsQueryable();
+
+                //Filtros
+
+                //Paginacion
+                await HttpContext.InsertarParametrosPaginacion(actividades, actividadDTO.Registros_por_pagina, actividadDTO.Pagina);
+
+                if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
+                    if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != actividadDTO.Pagina)
+                        actividadDTO.Pagina = int.Parse(value!);
+                actividades = actividades.Skip((actividadDTO.Pagina - 1) * actividadDTO.Registros_por_pagina).Take(actividadDTO.Registros_por_pagina);
+                var actividadesdto = actividades.Select(x => mapper.Map<CRMActividadDTO>(x));
 
                 return Ok(actividadesdto);
             }

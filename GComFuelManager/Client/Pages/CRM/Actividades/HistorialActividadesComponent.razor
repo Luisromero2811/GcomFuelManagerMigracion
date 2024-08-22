@@ -1,6 +1,9 @@
-﻿@page "/crm/historial/actividades"
+﻿@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject IRepositorio repositorio
+@page "/crm/historial/actividades"
 
-<div class="card col-12">
+<div class="card mt-2" style="height: 500px; overflow: scroll; ">
     <div class="card-header">
         <div class="d-flex justify-content-between">
             <div>
@@ -13,36 +16,108 @@
             </div>
         </div>
     </div>
-</div>
-<div class="col-12 my-2">
-    <!--Calendarios y boton para filtrar-->
+    <div class="card-body">
+        <div class="col-12 row">
+            <!--Calendarios y boton para filtrar-->
+            <div class="col-3">
+                <label>De:</label>
+                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Creacion" />
+            </div>
+            <div class="col-3">
+                <label>A:</label>
+                <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
+            </div>
+            <div class="col-3 d-flex">
+                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities">Buscar</button>
+            </div>
+        </div>
+        <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
+        <div class="col-12 row my-2">
+            <div class="ancho-tabla">
+                <Tabla Datos="ListadoActividad">
+                    <Cabeceras>
+                        <tr>
+                            <th>Asunto</th>
+                            <th>Estatus</th>
+                            <th>Contacto</th>
+                            <th>Fecha de creación</th>
+                            <th>Fecha de Vencimiento</th>
+                            <th>Fecha de Modificación</th>
+                            <th>Prioridad</th>
+                        </tr>
+                    </Cabeceras>
+                    <Filtros>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </Filtros>
+                    <Columnas Context="item">
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </Columnas>
+                </Tabla>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
 
-</div>
-<!--Tabla de muestreo de datos para mostrar el historial de actividades-->
-<div class="ancho-tabla">
-    <Tabla Datos="ListadoActividad">
-        <Cabeceras>
-            <tr>
-                <th></th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td></td>
-            </tr>
-        </Columnas>
-    </Tabla>
-</div>
-<div class="col-12">
-
+    </div>
 </div>
 
 @code {
-    List<CRMActividades> ListadoActividad { get; set; } = new();
+    CRMActividadDTO Listado_Actividad = new();
+    List<CRMActividadDTO> ListadoActividad { get; set; } = new();
+
+    Dictionary<string, string> query = new();
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(Listado_Actividad.Fecha_Creacion)}"] = Listado_Actividad.Fecha_Creacion.ToString();
+        query[$"{nameof(Listado_Actividad.Fecha_Creacion)}"] = Listado_Actividad.Fecha_Ven.ToString();
+        query[$"{nameof(Listado_Actividad.Pagina)}"] = Listado_Actividad.Pagina.ToString();
+        query[$"{nameof(Listado_Actividad.Registros_por_pagina)}"] = Listado_Actividad.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    public async Task Get_Activities()
+    {
+        try
+        {
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var responseHttp = await repositorio.Get<List<CRMActividadDTO>>($"api/actividades/historial?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ListadoActividad = responseHttp.Response;
+
+                Listado_Actividad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
+                Listado_Actividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
+                Listado_Actividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 }
 
