@@ -27,5 +27,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public CRMCliente? CRMCliente { get; set; } = null!;
         public Catalogo_Fijo? Tipo { get; set; } = null!;
         public Catalogo_Fijo? EtapaVenta { get; set; } = null!;
+        public CRMContacto? Contacto { get; set; } = null!;
+        public Catalogo_Fijo? Periodo { get; set; } = null!;
     }
 }

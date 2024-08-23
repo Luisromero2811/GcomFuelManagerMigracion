@@ -92,6 +92,28 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
+        [HttpGet("{Id:int}/detalle")]
+        public async Task<ActionResult> GetByIdDetail([FromRoute] int Id)
+        {
+            try
+            {
+                var contacto = await context.CRMOportunidades
+                    .AsNoTracking()
+                    .Where(x => x.Id == Id)
+                    .Include(x => x.Vendedor)
+                    .Include(x => x.Contacto)
+                    .Include(x=>x.UnidadMedidaId)
+                    .Include(x=>x.EtapaVenta)
+                    .Include(x=>x.Periodo)
+                    .Select(x => mapper.Map<CRMOportunidadDetalleDTO>(x)).FirstOrDefaultAsync();
+                return Ok(contacto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CRMOportunidadPostDTO dto)
         {
