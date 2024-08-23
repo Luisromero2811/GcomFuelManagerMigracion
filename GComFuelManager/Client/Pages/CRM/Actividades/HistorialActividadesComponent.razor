@@ -28,7 +28,7 @@
                 <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
             </div>
             <div class="col-3 d-flex">
-                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities">Buscar</button>
+                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
             </div>
         </div>
         <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
@@ -42,8 +42,9 @@
                             <th>Prioridad</th>
                             <th>Estatus</th>
                             <th>Fecha de creación</th>
+                            <th>Fecha de Inicio</th>
                             <th>Fecha de Vencimiento</th>
-                            <th>Fecha de Modificación</th>
+                            <th>Fecha de Finalización</th>
 
                         </tr>
                     </Cabeceras>
@@ -56,17 +57,19 @@
                             <td></td>
                             <td></td>
                             <td></td>
+                            <td></td>
                         </tr>
                     </Filtros>
                     <Columnas Context="item">
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td>@item.Contacto_Rel</td>
+                            <td>@item.Asunto</td>
+                            <td>@item.Prioridad</td>
+                            <td>@item.Estatus</td>
+                            <td>@item.Fecha_Creacion</td>
+                            <td>@item.Fecha_Inicio</td>
+                            <td>@item.Fecha_Ven</td>
+                            <td>@item.Fecha_Mod</td>
                         </tr>
                     </Columnas>
                 </Tabla>
@@ -82,15 +85,14 @@
     CRMActividadDTO Listado_Actividad = new();
     List<CRMActividadDTO> ListadoActividad { get; set; } = new();
 
-    Dictionary<string, string> query = new();
+    Dictionary<string, string> keys = new();
 
     private Dictionary<string, string> SetFiltro()
     {
-        query[$"{nameof(Listado_Actividad.Fecha_Creacion)}"] = Listado_Actividad.Fecha_Creacion.ToString();
-        query[$"{nameof(Listado_Actividad.Fecha_Creacion)}"] = Listado_Actividad.Fecha_Ven.ToString();
-        query[$"{nameof(Listado_Actividad.Pagina)}"] = Listado_Actividad.Pagina.ToString();
-        query[$"{nameof(Listado_Actividad.Registros_por_pagina)}"] = Listado_Actividad.Registros_por_pagina.ToString();
-        return query;
+        keys = new();
+        keys["Fecha_Creacion"] = Listado_Actividad.Fecha_Creacion.ToString("MM-dd-yyyy");
+        keys["Fecha_Ven"] = Listado_Actividad.Fecha_Ven.ToString("MM-dd-yyyy");
+        return keys;
     }
 
     public async Task Get_Activities()

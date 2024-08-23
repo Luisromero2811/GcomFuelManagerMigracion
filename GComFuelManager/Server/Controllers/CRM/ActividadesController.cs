@@ -178,7 +178,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var activos = context.CRMActividades
-                    .Where(x => x.Activo)
+                    .Where(x => x.Activo && x.Estados.Valor != "Finalizada")
                     .Include(x => x.vendedor)
                     .Include(x => x.contacto)
                     .Include(x => x.asuntos)
@@ -223,7 +223,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 //Consulta a la entidad CRMActividades
                 var actividades = context.CRMActividades
-                    .Where(x => x.Activo)
+                    .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Finalizada"))
                     .Include(x => x.asuntos)
                     .Include(x => x.Estados)
                     .Include(x => x.contacto)

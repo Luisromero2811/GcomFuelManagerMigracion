@@ -14,29 +14,41 @@
             <div class="col-12 row">
                 <div class="col-3">
                     <NavLink class="card text-dark" Match="NavLinkMatch.All" href="crm/contactos">
-                        <div class="card-header">
-                            <i class="fa fa-solid fa-contact-book" /> <b>Contactos</b>
+                        <div class="card d-flex justify-content-center">
+                            <img class="card-img-top mx-auto mt-2" src="img/crm.png" alt="Card image" style="width:50%;">
+                            <div class="card-body">
+                                <h4 class="card-title text-center"><b>Contactos</b></h4>
+                            </div>
                         </div>
                     </NavLink>
                 </div>
                 <div class="col-3">
                     <NavLink class="card text-dark" Match="NavLinkMatch.All" href="crm/oportunidades">
-                        <div class="card-header">
-                            <i class="fa fa-solid fa-money-bill" /> <b>Oportunidades</b>
+                        <div class="card d-flex justify-content-center">
+                            <img class="card-img-top mx-auto mt-2" src="img/salary.png" alt="Card image" style="width:50%;">
+                            <div class="card-body">
+                                <h4 class="card-title text-center"><b>Oportunidades</b></h4>
+                            </div>
                         </div>
                     </NavLink>
                 </div>
                 <div class="col-3">
                     <NavLink class="card text-dark" Match="NavLinkMatch.All" href="/crm/listado/actividades">
-                        <div class="card-header">
-                            <i class="fas fa-tasks"></i> <b>Actividades</b>
+                        <div class="card d-flex justify-content-center">
+                            <img class="card-img-top mx-auto mt-2" src="img/clock.png" alt="Card image" style="width:50%;">
+                            <div class="card-body">
+                                <h4 class="card-title text-center"><b>Actividades</b></h4>
+                            </div>
                         </div>
                     </NavLink>
                 </div>
                 <div class="col-3">
-                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="/crm/historial/actividades"> 
-                        <div class="card-header">
-                            <i class="fa-solid fa-clock-rotate-left"></i> <b>Historial de Actividades</b>
+                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="/crm/historial/actividades">
+                        <div class="card d-flex justify-content-center">
+                            <img class="card-img-top mx-auto mt-2" src="img/clipbboard.png" alt="Card image" style="width:50%;">
+                            <div class="card-body">
+                                <h4 class="card-title text-center"><b>Historial de Actividades</b></h4>
+                            </div>
                         </div>
                     </NavLink>
                 </div>
@@ -44,3 +56,10 @@
         </div>
     </Authorized>
 </AuthorizeView>
+<style>
+    .card-img-custom {
+        width: 100%; /* Ajusta el ancho al 100% del contenedor de la tarjeta */
+        height: 200px; /* Fija la altura a 200px */
+        object-fit: cover; /* Recorta la imagen para llenar el contenedor */
+    }
+</style>
