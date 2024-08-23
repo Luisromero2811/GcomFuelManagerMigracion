@@ -12,6 +12,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int OrigenId { get; set; }
         public int VendedorId { get; set; }
         public int CuentaId { get; set; }
+        public int ContactoId { get; set; }
+        public int PeriodoId { get; set; }
         public int TipoId { get; set; }
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
         public DateTime FechaCierre { get; set; }

@@ -686,6 +686,11 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.UnidadMedida)
                 .WithMany()
                 .HasForeignKey(x => x.UnidadMedidaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Contacto)
+                .WithMany()
+                .HasForeignKey(x => x.ContactoId);
         }
 
 

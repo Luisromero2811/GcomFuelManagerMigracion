@@ -29,7 +29,9 @@
                 <th></th>
                 <th>Oportunidad</th>
                 <th>Cuenta</th>
+                <th>Contacto</th>
                 <th>Etapa de venta</th>
+                <th>Valor</th>
                 <th>Vendedor</th>
                 <th>Probabilidad</th>
             </tr>
@@ -39,7 +41,9 @@
                 <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" /></td>
                 <td><input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" /></td>
+                <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
+                <td></td>
                 <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
                 <td></td>
             </tr>
@@ -51,6 +55,9 @@
                         <a class="btn gcom-bg-amarillo" href="crm/oportunidades/formulario/@item.Id">
                             <i class="fa fa-solid fa-edit" />
                         </a>
+                        <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
+                            <i class="fa fa-solid fa-eye" />
+                        </a>
                         <button class="btn btn-danger">
                             <i class="fa fa-solid fa-trash" />
                         </button>
@@ -58,9 +65,11 @@
                 </td>
                 <td>@item.Nombre_Opor</td>
                 <td>@item.Cuenta</td>
+                <td>@item.Contacto</td>
                 <td>@item.EtapaVenta</td>
+                <td>@item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture) @item.Medida</td>
                 <td>@item.Vendedor</td>
-                <td>@item.Probabilidad</td>
+                <td>@item.Probabilidad %</td>
             </tr>
         </Columnas>
     </Tabla>

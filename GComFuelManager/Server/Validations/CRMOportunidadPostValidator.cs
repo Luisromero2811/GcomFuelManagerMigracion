@@ -25,9 +25,9 @@ namespace GComFuelManager.Server.Validations
             RuleFor(x => x.VendedorId)
                 .NotEmpty().WithMessage("El vendedor es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un vendedor");
-            RuleFor(x => x.CuentaId)
-                .NotEmpty().WithMessage("La cuenta es obligatoria")
-                .GreaterThan(0).WithMessage("Debe seleccionar una cuenta");
+            //RuleFor(x => x.CuentaId)
+            //    .NotEmpty().WithMessage("La cuenta es obligatoria")
+            //    .GreaterThan(0).WithMessage("Debe seleccionar una cuenta");
             RuleFor(x => x.TipoId)
                 .NotEmpty().WithMessage("El tipo es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un tipo");

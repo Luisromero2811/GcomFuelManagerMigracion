@@ -1,0 +1,76 @@
+﻿@page "/crm/oportunidad/{Id:int}"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize]
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Detalle oportunidad</b>
+            </div>
+            <div>
+                <div class="btn-group">
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/oportunidades" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-4">
+                <label><b>Nombre de oportunidad:</b></label>
+                <p>@detalle.Nombre_Opor</p>
+            </div>
+            <div class="col-4">
+                <label><b>Unidad de medida:</b></label>
+                <p>@detalle.UnidadMedida</p>
+            </div>
+            <div class="col-4">
+                <label><b>Importe:</b></label>
+                <p>@detalle.ValorOportunidad</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    CRMOportunidadDetalleDTO detalle = new();
+
+    bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerOportunidad();
+    }
+
+    private async Task ObtenerOportunidad()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMOportunidadDetalleDTO>($"api/crmoportunidad/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                detalle = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+}

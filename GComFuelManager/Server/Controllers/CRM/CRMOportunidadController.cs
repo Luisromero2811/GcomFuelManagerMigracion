@@ -40,6 +40,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .Include(x => x.EtapaVenta)
                     .Include(x => x.Origen)
                     .Include(x => x.Vendedor)
+                    .Include(x => x.Contacto)
                     .AsQueryable();
 
                 if (!string.IsNullOrEmpty(dTO.Nombre_Opor) || !string.IsNullOrWhiteSpace(dTO.Nombre_Opor))
@@ -77,7 +78,10 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var oportunidad = await context.CRMOportunidades.AsNoTracking().Where(x => x.Id == id).Select(x => mapper.Map<CRMOportunidadPostDTO>(x)).FirstOrDefaultAsync();
+                var oportunidad = await context.CRMOportunidades.AsNoTracking()
+                    .Where(x => x.Id == id)
+                    .Select(x => mapper.Map<CRMOportunidadPostDTO>(x))
+                    .FirstOrDefaultAsync();
                 if (oportunidad is null) { return NotFound(); }
 
                 return Ok(oportunidad);
@@ -120,7 +124,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var oportunidad = await context.CRMOportunidades.FindAsync(Id);
-                if(oportunidad is null) { return NotFound(); }
+                if (oportunidad is null) { return NotFound(); }
 
                 oportunidad.Activo = false;
 
@@ -178,6 +182,24 @@ namespace GComFuelManager.Server.Controllers.CRM
             {
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Etapa"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para etapa de venta"); }
+
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+
+                return Ok(catalogo_fijo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("catalogo/periodo")]
+        public async Task<ActionResult> ObtenerPeriodo()
+        {
+            try
+            {
+                var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Periodo"));
+                if (catalogo is null) { return BadRequest("No existe el catalogo para el periodo"); }
 
                 var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 

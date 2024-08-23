@@ -13,9 +13,6 @@ namespace GComFuelManager.Client.Helpers.Validations.CRM
             RuleFor(x => x.ValorOportunidad)
                 .NotEmpty().WithMessage("El valor de la oportunidad es obligatoria")
                 .GreaterThan(0).WithMessage("El valor de la oportunidad no puede ser menor a 0");
-            RuleFor(x => x.ValorOportunidad)
-                .NotEmpty().WithMessage("El valor de la oportunidad es obligatoria")
-                .GreaterThan(0).WithMessage("El valor de la oportunidad no puede ser menor a 0");
             RuleFor(x => x.UnidadMedidaId)
                 .NotEmpty().WithMessage("La unidad de medida de la oportunidad es obligatoria")
                 .GreaterThan(0).WithMessage("Debe seleccionar una unidad de medida");
@@ -28,9 +25,9 @@ namespace GComFuelManager.Client.Helpers.Validations.CRM
             RuleFor(x => x.VendedorId)
                 .NotEmpty().WithMessage("El vendedor es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un vendedor");
-            RuleFor(x => x.CuentaId)
-                .NotEmpty().WithMessage("La cuenta es obligatoria")
-                .GreaterThan(0).WithMessage("Debe seleccionar una cuenta");
+            //RuleFor(x => x.CuentaId)
+            //    .NotEmpty().WithMessage("La cuenta es obligatoria")
+            //    .GreaterThan(0).WithMessage("Debe seleccionar una cuenta");
             RuleFor(x => x.TipoId)
                 .NotEmpty().WithMessage("El tipo es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un tipo");
@@ -39,6 +36,9 @@ namespace GComFuelManager.Client.Helpers.Validations.CRM
             RuleFor(x => x.EtapaVentaId)
                 .NotEmpty().WithMessage("La etapa de venta es obligatoria")
                 .GreaterThan(0).WithMessage("Debe seleccionar una etapa de venta");
+            RuleFor(x => x.ContactoId)
+                .NotEmpty().WithMessage("El contacto es obligatorio")
+                .GreaterThan(0).WithMessage("Debe seleccionar un contacto");
             RuleFor(x => x.Probabilidad)
                 .GreaterThanOrEqualTo(0).WithMessage("La probabilidad no puede ser menor a 0")
                 .LessThanOrEqualTo(100).WithMessage("La probabilidad no puede ser mayor a 100");

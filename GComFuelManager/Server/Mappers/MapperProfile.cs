@@ -22,7 +22,9 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMOportunidad, CRMOportunidadDTO>()
                 .ForMember(x => x.EtapaVenta, y => y.MapFrom(o => o.EtapaVenta.Valor))
                 .ForMember(x => x.Vendedor, y => y.MapFrom(o => o.Vendedor.Nombre))
-                .ForMember(x => x.Cuenta, y => y.MapFrom(o => o.CRMCliente.Nombre));
+                .ForMember(x => x.Cuenta, y => y.MapFrom(o => o.CRMCliente.Nombre))
+                .ForMember(x => x.Contacto, y => y.MapFrom(o => $"{o.Contacto.Nombre} {o.Contacto.Apellidos}"))
+                .ForMember(x => x.Medida, y => y.MapFrom(o => o.UnidadMedida.Abreviacion));
 
             CreateMap<CRMActividades, CRMActividadPostDTO>();
             CreateMap<CRMActividadDTO, CRMActividades>();

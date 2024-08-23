@@ -108,6 +108,24 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
+        [HttpGet("cuenta/{Id:int}")]
+        public async Task<ActionResult> GetByCuenta([FromRoute] int Id)
+        {
+            try
+            {
+                var contacto = await context.CRMContactos.AsNoTracking()
+                    .Where(x => x.CuentaId == Id)
+                    .Select(x => mapper.Map<CRMContactoDTO>(x))
+                    .ToListAsync();
+
+                return Ok(contacto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("{Id:int}/detalle")]
         public async Task<ActionResult> GetByIdDetail([FromRoute] int Id)
         {
@@ -116,10 +134,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var contacto = await context.CRMContactos
                     .AsNoTracking()
                     .Where(x => x.Id == Id)
-                    .Include(x=>x.Vendedor)
-                    .Include(x=>x.Cliente)
-                    .Include(x=>x.Estatus)
-                    .Include(x=>x.Origen)
+                    .Include(x => x.Vendedor)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Estatus)
+                    .Include(x => x.Origen)
                     .Select(x => mapper.Map<CRMContactoDetalleDTO>(x)).FirstOrDefaultAsync();
                 return Ok(contacto);
             }
