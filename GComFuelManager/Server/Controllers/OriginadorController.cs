@@ -69,7 +69,7 @@ namespace GComFuelManager.Server.Controllers
                 if (!string.IsNullOrEmpty(originador.Nombre))
                     originadores = originadores.Where(x => x.Nombre.ToLower().Contains(originador.Nombre.ToLower()));
 
-                return Ok(originadores);
+                return Ok(originadores.OrderBy(x => x.Nombre));
             }
             catch (Exception e)
             {

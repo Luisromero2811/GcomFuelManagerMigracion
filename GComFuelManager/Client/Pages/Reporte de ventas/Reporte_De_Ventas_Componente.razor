@@ -49,7 +49,7 @@
             {
                 <div class="col-2">
                     <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="Obtener_Vendedores"
-                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
+                                    @bind-Valor="@Vendedor.Id" Propiedad_Valor="Id">
                         <RenderValue>
                             @context.Nombre
                         </RenderValue>
@@ -110,12 +110,12 @@
                 </button>
             </div>
 
-            <div class="col-2">
+            @* <div class="col-2">
                 <button class="btn btn-sm gcom-bg-amarillo" @onclick="@Exportar_Excel">
                     <b>Exportar excel</b>
                     <i class="fa fa-solid fa-file-excel"></i>
                 </button>
-            </div>
+            </div> *@
 
         </div>
     </div>
@@ -142,6 +142,7 @@
     <table class="table table-sm table-striped table-bordered">
         <thead>
             <tr>
+                <th>Detalle</th>
                 @if (!Vendedor_Originador)
                 {
                     <th>Vendedor</th>
@@ -167,23 +168,42 @@
             }
             <Virtualize Items="Vendedores_Tabla" TItem="Vendedor" Context="item">
                 <tr>
+                    <td>
+                        <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Obtener_Reporte_Cliente(item.Id))">
+                            <i class="fa fa-solid fa-eye" />
+                        </button>
+                    </td>
                     <td>@item.Nombre</td>
-                    @foreach (var venta_mes in item.Venta_Por_Meses)
+                    @foreach (var mes in Meses_Tabla)
                     {
                         <td>
                             @if (Show_Venta)
                             {
-                                <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
+                                <p>$@item.Venta_Por_Meses.FirstOrDefault(x => x.Nro_Mes == mes)?.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
                             }
                             else
                             {
-                                <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                                <p>@item.Venta_Por_Meses.FirstOrDefault(x => x.Nro_Mes == mes)?.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
                             }
                         </td>
+                        @* @foreach (var venta_mes in item.Venta_Por_Meses)
+                    {
+                    <td>
+                    @if (Show_Venta)
+                    {
+                    <p>$@venta_mes.Venta.ToString("N4", CultureInfo.InvariantCulture)</p>
+                    }
+                    else
+                    {
+                    <p>@venta_mes.Litros_Vendidos.ToString("N2", CultureInfo.InvariantCulture)</p>
+                    }
+                    </td>
+                    } *@
                     }
                 </tr>
             </Virtualize>
             <tr style="background-color:white; position: sticky; bottom: 0;">
+                <td></td>
                 <td>Total</td>
                 @foreach (var total in Totales)
                 {
@@ -202,6 +222,48 @@
         </tbody>
     </table>
 </div>
+<Modal_Custom @ref="modal_" Titulo="Detalle de venta">
+    <Contenido>
+        @if (!Loading_Reporte_Cliente)
+        {
+            <div class="ancho-tabla overflow-scroll" style="width:100%;height:500px;">
+                <Tabla Datos="Venta_Clientes">
+                    <Cabeceras>
+                        <tr>
+                            <th class="resizable-column" style="width:200px;">Cliente</th>
+                            @foreach (var mes in Meses_Tabla_Cliente)
+                            {
+                                <th colspan="2" class="resizable-column" style="width:200px;">@(new DateTime(DateTime.Today.Year, mes, 1).ToString("MMM").ToUpper())</th>
+                            }
+                        </tr>
+                        <tr>
+                            <th></th>
+                            @foreach (var mes in Meses_Tabla_Cliente)
+                            {
+                                <th>Litros</th>
+                                <th>Venta</th>
+                            }
+                        </tr>
+                    </Cabeceras>
+                    <Columnas Context="item">
+                        <tr>
+                            <td>@item.Cliente</td>
+                            @foreach (var mes in Meses_Tabla_Cliente)
+                            {
+                                <td>@item.Montos.FirstOrDefault(x => x.Nro_Mes == mes)?.Monto_Lts.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                <td>$@item.Montos.FirstOrDefault(x => x.Nro_Mes == mes)?.Monto_Mxn.ToString("N4", CultureInfo.InvariantCulture)</td>
+                            }
+                        </tr>
+                    </Columnas>
+                </Tabla>
+            </div>
+        }
+        else
+        {
+            <SpinnerLoading />
+        }
+    </Contenido>
+</Modal_Custom>
 @code {
     List<Vendedor> Vendedores_Tabla { get; set; } = new();
 
@@ -213,14 +275,20 @@
 
     List<Mes_Venta> Totales { get; set; } = new();
 
+    List<Venta_Cliente> Venta_Clientes = new();
+
     List<int> Años { get; set; } = new();
     List<int> Meses = new() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
     List<int> Meses_Tabla = new() { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+    List<int> Meses_Tabla_Cliente = new();
     List<int> Meses_Seleccionados { get; set; } = new();
 
     bool Vendedor_Originador = false;
     bool Show_Venta = false;
     bool Loading_Reporte = false;
+    bool Loading_Reporte_Cliente = false;
+
+    Modal_Custom modal_ = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -239,6 +307,7 @@
     {
         try
         {
+
             Dictionary<string, string> query = new();
 
             if (!Vendedor_Originador)
@@ -249,41 +318,27 @@
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
             Loading_Reporte = true;
+            string url = string.Empty;
+
             if (!Vendedor_Originador)
+                url = "api/vendedor/reporte";
+            else
+                url = "api/vendedor/reporte/originador";
+
+            var response = await http.Post<List<int>, Reporte_Venta>($"{url}?{uri}", Meses_Seleccionados);
+            if (response.Error)
             {
-                var response = await http.Post<List<int>, Reporte_Venta>($"api/vendedor/reporte?{uri}", Meses_Seleccionados);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    Loading_Reporte = false;
-                }
-                else
-                {
-                    Vendedores_Tabla = response.Response.Vendedores;
-                    Meses_Tabla = response.Response.Meses_Venta;
-                    Totales = response.Response.Totales;
-                    Loading_Reporte = false;
-                }
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Reporte = false;
             }
             else
             {
-                var response = await http.Post<List<int>, Reporte_Venta>($"api/vendedor/reporte/originador?{uri}", Meses_Seleccionados);
-                if (response.Error)
-                {
-                    var message = await response.ObtenerMensajeError();
-                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                    Totales = response.Response.Totales;
-                    Loading_Reporte = false;
-                }
-                else
-                {
-                    Vendedores_Tabla = response.Response.Vendedores;
-                    Meses_Tabla = response.Response.Meses_Venta;
-                    Loading_Reporte = false;
-                }
+                Vendedores_Tabla = response.Response.Vendedores;
+                Meses_Tabla = response.Response.Meses_Venta;
+                Totales = response.Response.Totales;
+                Loading_Reporte = false;
             }
-
         }
         catch (Exception e)
         {
@@ -413,6 +468,50 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Reporte_Cliente(int id)
+    {
+        try
+        {
+            modal_.Open();
+
+            Dictionary<string, string> query = new();
+
+            query["Id"] = id.ToString();
+            query["Id_Originador"] = Vendedor.Id_Originador.ToString();
+            query["Fecha_Registro"] = Vendedor.Fecha_Registro.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            Loading_Reporte_Cliente = true;
+            string url = string.Empty;
+
+            if (!Vendedor_Originador)
+                url = "api/vendedor/reporte/clientes";
+            else
+                url = "api/vendedor/reporte/originador/clientes";
+
+            var response = await http.Post<List<int>, Detalle_Venta_Cliente>($"{url}?{uri}", Meses_Seleccionados);
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                Loading_Reporte_Cliente = false;
+            }
+            else
+            {
+                Venta_Clientes = response.Response.Ventas;
+                Meses_Tabla_Cliente = response.Response.Meses;
+                Loading_Reporte_Cliente = false;
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Reporte_Cliente = false;
         }
     }
 
