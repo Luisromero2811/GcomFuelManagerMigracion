@@ -1,0 +1,10 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+
+<p style="color:black;">@Desccripcion</p>
+
+@code {
+    [Parameter] public string Desccripcion { get; set; } = string.Empty;
+}
+
