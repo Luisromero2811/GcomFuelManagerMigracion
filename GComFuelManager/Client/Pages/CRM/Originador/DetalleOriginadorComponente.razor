@@ -1,0 +1,99 @@
+﻿@page "/crm/originador/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMOriginadorPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="col-12 d-flex justify-content-between">
+                    <b>Detalle de Originador</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/originadores" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <div class="col-12 row">
+                    <div class="col-4">
+                        <label><b>Nombre</b></label>
+                        <p>@Originador.Nombre</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Apellidos</b></label>
+                        <p>@Originador.Apellidos</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>División</b></label>
+                        <p>@Originador.Division?.Nombre</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Titulo</b></label>
+                        <p>@Originador.Titulo</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Departamento</b></label>
+                        <p>@Originador.Departamento</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Teléfono de oficina</b></label>
+                        <p>@Originador.Tel_Oficina</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Teléfono de móvil</b></label>
+                        <p>@Originador.Tel_Movil</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Correo electrónico</b></label>
+                        <p>@Originador.Correo</p>
+                    </div>
+                </div>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <p>No tiene permitido ver este contenido. Contacte con un administrador para solicitar acceso.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; } = 0;
+
+    CRMOriginadorDetalleDTO Originador = new();
+    bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerOriginador();
+    }
+
+    private async Task ObtenerOriginador()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMOriginadorDetalleDTO>($"api/crmoriginador/{Id}/detalle");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Originador = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

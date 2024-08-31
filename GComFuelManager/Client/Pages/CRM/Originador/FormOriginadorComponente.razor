@@ -1,0 +1,178 @@
+﻿@page "/crm/originadores/formulario"
+@page "/crm/originadores/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMOriginadorPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="col-12 d-flex justify-content-between">
+                    <b>Formulario de originador</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/originadores" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <EditForm class="col-12 row gy-2 gx-3" Model="Originador" OnValidSubmit="GuardarOriginador" Context="FormOriginador">
+
+                    <ValidationSummary />
+                    <FluentValidationValidator Validator="validator" />
+
+                    <div class="col-md-4 col-12">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="Originador.Nombre" class="form-control" />
+                        <ValidationMessage For="@(()=> Originador.Nombre)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Apellidos</label>
+                        <InputText @bind-Value="Originador.Apellidos" class="form-control" />
+                        <ValidationMessage For="@(()=> Originador.Apellidos)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Teléfono de oficina</label>
+                        <InputText @bind-Value="Originador.Tel_Oficina" class="form-control" />
+                        <ValidationMessage For="@(()=> Originador.Tel_Oficina)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Teléfono móvil</label>
+                        <InputText @bind-Value="Originador.Tel_Movil" class="form-control" />
+                        <ValidationMessage For="@(()=> Originador.Tel_Movil)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Correo electrónico</label>
+                        <InputText @bind-Value="Originador.Correo" class="form-control" />
+                        <ValidationMessage For="@(()=> Originador.Correo)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>División</label>
+                        <InputSelect @bind-Value="Originador.DivisionId" class="form-select">
+                            <option>-- seleccione una división --</option>
+                            @foreach (var item in Divisiones)
+                            {
+                                <option value="@item.Id">@item.Nombre</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-md-4 col-12 d-flex">
+                        <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                            <i class="fa fa-solid fa-floppy-disk" />
+                            Guardar
+                            @if (loading_save)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <p>No tiene permitido ver este contenido. Contacte con un administrador para solicitar acceso.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    CRMOriginadorPostDTO Originador = new();
+    List<CRMDivision> Divisiones = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerDivisiones();
+
+        if (Id != 0)
+            await ObtenerOriginador();
+    }
+
+    private async Task ObtenerDivisiones()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMDivision>>($"api/crmdivision");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Divisiones = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task GuardarOriginador()
+    {
+        try
+        {
+            loading_save = true;
+            var response = await http.Post<CRMOriginadorPostDTO>($"api/crmoriginador", Originador);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/originadores", false);
+                else
+                    Originador = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerOriginador()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMOriginadorPostDTO>($"api/crmoriginador/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Originador = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

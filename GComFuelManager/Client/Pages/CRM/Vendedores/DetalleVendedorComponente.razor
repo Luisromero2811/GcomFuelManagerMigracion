@@ -1,0 +1,126 @@
+﻿@page "/crm/vendedor/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMVendedorPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="col-12 d-flex justify-content-between">
+                    <b>Detalle de vendedor</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/vendedores" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <div class="col-12 row">
+                    <div class="col-4">
+                        <label><b>Nombre</b></label>
+                        <p>@Vendedor.Nombre</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Apellidos</b></label>
+                        <p>@Vendedor.Apellidos</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>División</b></label>
+                        <p>@Vendedor.Division?.Nombre</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Titulo</b></label>
+                        <p>@Vendedor.Titulo</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Departamento</b></label>
+                        <p>@Vendedor.Departamento</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Teléfono de oficina</b></label>
+                        <p>@Vendedor.Tel_Oficina</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Teléfono de móvil</b></label>
+                        <p>@Vendedor.Tel_Movil</p>
+                    </div>
+                    <div class="col-4">
+                        <label><b>Correo electrónico</b></label>
+                        <p>@Vendedor.Correo</p>
+                    </div>
+                    <Card HeaderText="Originadores">
+                        <Body>
+                            <Tabla Datos="Vendedor.Originadores">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Telefono oficina</th>
+                                        <th>Telefono movil</th>
+                                        <th>Correo</th>
+                                    </tr>
+                                </Cabeceras>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>@item.Nombre @item.Apellidos</td>
+                                        <td>@item.Tel_Movil</td>
+                                        <td>@item.Tel_Oficina</td>
+                                        <td>@item.Correo</td>
+                                        @* <td>
+                                            <button class="btn btn-danger" @onclick="@(()=>DeleteOriginador(item))">
+                                                <i class="fa fa-solid fa-trash" />
+                                            </button>
+                                        </td> *@
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </Body>
+                    </Card>
+                </div>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <p>No tiene permitido ver este contenido. Contacte con un administrador para solicitar acceso.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; } = 0;
+
+    CRMVendedorDetalleDTO Vendedor = new();
+    bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerVendedor();
+    }
+
+    private async Task ObtenerVendedor()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMVendedorDetalleDTO>($"api/crmvendedor/{Id}/detalle");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Vendedor = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

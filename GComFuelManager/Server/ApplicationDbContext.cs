@@ -696,6 +696,26 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Periodo)
                 .WithMany()
                 .HasForeignKey(x => x.PeriodoId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMOriginador>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMVendedorOriginador>().HasKey(x => new { x.VendedorId, x.OriginadorId });
+
+            modelBuilder.Entity<CRMVendedor>()
+                .HasMany(x => x.Originadores)
+                .WithMany(x => x.Vendedores)
+                .UsingEntity<CRMVendedorOriginador>(
+                l => l.HasOne(x => x.Originador).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.OriginadorId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Vendedor).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict)
+                );
         }
 
 
@@ -770,5 +790,9 @@ namespace GComFuelManager.Server
         public DbSet<CRMCliente> CRMClientes { get; set; }
         public DbSet<CRMActividades> CRMActividades { get; set; }
         public DbSet<CRMOportunidad> CRMOportunidades { get; set; }
+        public DbSet<CRMDivision> CRMDivisiones { get; set; }
+        public DbSet<CRMVendedor> CRMVendedores { get; set; }
+        public DbSet<CRMOriginador> CRMOriginadores { get; set; }
+        public DbSet<CRMVendedorOriginador> CRMVendedorOriginadores { get; set; }
     }
 }

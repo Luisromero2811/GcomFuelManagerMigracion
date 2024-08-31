@@ -54,6 +54,8 @@ builder.Services.AddAutoMapper(typeof(MapperProfile));
 builder.Services.AddScoped<IValidator<CRMContactoPostDTO>, CRMContactoPostValidator>();
 builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPostValidator>();
 builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostValidator>();
+builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValidator>();
+builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

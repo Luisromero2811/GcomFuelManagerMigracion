@@ -77,9 +77,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
 
-                if (HttpContext.Response.Headers.TryGetValue("pagina", out StringValues value))
-                    if (!string.IsNullOrEmpty(value) || !string.IsNullOrWhiteSpace(value) && value != contacto.Pagina)
-                        contacto.Pagina = int.Parse(value!);
+                contacto.Pagina = HttpContext.ObtenerPagina();
 
                 //var contactos_filtrados = await contactos.Select(x => mapper.Map<CRMContactoDTO>(x)).ToListAsync();
                 contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
@@ -149,7 +147,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CRMContactoPostDTO contactodto)
+        public async Task<ActionResult> Post([FromBody] CRMContactoPostDTO contactodto)
         {
             try
             {
