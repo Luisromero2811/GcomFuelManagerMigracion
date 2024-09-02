@@ -713,8 +713,8 @@ namespace GComFuelManager.Server
                 .HasMany(x => x.Originadores)
                 .WithMany(x => x.Vendedores)
                 .UsingEntity<CRMVendedorOriginador>(
-                l => l.HasOne(x => x.Originador).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.OriginadorId).OnDelete(DeleteBehavior.Restrict),
-                r => r.HasOne(x => x.Vendedor).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict)
+                l => l.HasOne(x => x.Originador).WithMany(x => x.VendedorOriginadores).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Vendedor).WithMany(x => x.VendedorOriginadores).OnDelete(DeleteBehavior.Restrict)
                 );
         }
 

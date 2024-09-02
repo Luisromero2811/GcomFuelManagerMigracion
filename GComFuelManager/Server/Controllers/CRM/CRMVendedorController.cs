@@ -119,12 +119,23 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!validate.IsValid) { return BadRequest(validate.Errors); }
 
                 var vendedor = mapper.Map<CRMVendedorPostDTO, CRMVendedor>(dTO);
-                var originadores = dTO.OriginadoresDTO.Select(x => mapper.Map<CRMOriginadorDTO, CRMOriginador>(x)).ToList();
+                //var originadores = dTO.OriginadoresDTO.Select(x => mapper.Map<CRMOriginadorDTO, CRMOriginador>(x)).ToList();
 
-                vendedor.Originadores = originadores;
+                //vendedor.Originadores = originadores;
 
                 if (vendedor.Id != 0)
+                {
+                    var relations = dTO.OriginadoresDTO.Select(x => new CRMVendedorOriginador { VendedorId = vendedor.Id, OriginadorId = x.Id }).ToList();
+                    var relations_actual = await context.CRMVendedorOriginadores.Where(x => x.VendedorId == vendedor.Id).ToListAsync();
+
+                    if (!relations_actual.SequenceEqual(relations))
+                    {
+                        context.RemoveRange(relations_actual);
+                        await context.AddRangeAsync(relations);
+                    }
+
                     context.Update(vendedor);
+                }
                 else
                     await context.AddAsync(vendedor);
 

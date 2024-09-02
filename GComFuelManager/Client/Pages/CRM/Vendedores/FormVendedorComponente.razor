@@ -69,40 +69,31 @@
                         </InputSelect>
                     </div>
                     <div class="col-md-4 col-12">
+                        <label>Comerciales</label>
+                        <DropDownFilter Listado="Originadores" TListado="CRMOriginadorDTO" TValue="CRMOriginadorDTO" Default_Placeholder="Comerciales"
+                                        Puede_Filtrar="false" Seleccion_Multiple="true" On_Cancel_Method="CancelOriginadorSelector">
+                            <RenderValue Context="itemValue">
+                                @if (OriginadoresSeleccionados.Count > 0)
+                                {
+                                    <div>
+                                        @(OriginadoresSeleccionados.Count()) seleccionados
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>Comerciales</div>
+                                }
+                            </RenderValue>
+                            <Render Context="item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(OriginadoresSeleccionados.Any(x=>x.Id == item.Id))" @onchange="@((e)=>SelectOriginador(e,item))" />
+                                    <label class="form-check-label" for="@item.Id">
+                                        @item.Nombre @item.Apellidos
+                                    </label>
+                                </div>
 
-                    <Card HeaderText="Originadores">
-                        <Body>
-                            <div class="d-flex g-2">
-                                <DropDownFilter Listado="Originadores" TListado="CRMOriginadorDTO" TValue="CRMOriginadorDTO" FiltrarValor="ObtenerOriginadores"
-                                                Default_Placeholder="Seleccione un originador" On_Change_Method="AddOriginador" @bind-Valor="Originador">
-                                    <RenderValue Context="item_table">
-                                        @item_table.Nombre @item_table.Apellidos
-                                    </RenderValue>
-                                    <Render Context="item_table">
-                                        @item_table.Nombre @item_table.Apellidos
-                                    </Render>
-                                </DropDownFilter>
-                            </div>
-                            <Tabla Datos="Vendedor.OriginadoresDTO">
-                                <Cabeceras>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th></th>
-                                    </tr>
-                                </Cabeceras>
-                                <Columnas Context="item">
-                                    <tr>
-                                        <td>@item.Nombre @item.Apellidos</td>
-                                        <td>
-                                            <button class="btn btn-danger" @onclick="@(()=>DeleteOriginador(item))" type="button">
-                                                <i class="fa fa-solid fa-trash" />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </Columnas>
-                            </Tabla>
-                        </Body>
-                    </Card>
+                            </Render>
+                        </DropDownFilter>
                     </div>
                     <div class="col-12">
 
@@ -133,6 +124,7 @@
     List<CRMDivision> Divisiones = new();
 
     List<CRMOriginadorDTO> Originadores = new();
+    List<CRMOriginadorDTO> OriginadoresSeleccionados = new();
     CRMOriginadorDTO Originador = new();
 
     bool loading_info = false;
@@ -214,6 +206,7 @@
             {
                 loading_info = false;
                 Vendedor = response.Response;
+                OriginadoresSeleccionados = Vendedor.OriginadoresDTO;
             }
         }
         catch (Exception e)
@@ -280,5 +273,28 @@
         {
             await ObtenerVendedor();
         }
+    }
+
+    void CancelOriginadorSelector()
+    {
+        OriginadoresSeleccionados = new();
+    }
+
+    void SelectOriginador(ChangeEventArgs args, CRMOriginadorDTO dTO)
+    {
+        if (args.Value is null) { return; }
+
+        if ((bool)args.Value)
+        {
+            if (!OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
+                OriginadoresSeleccionados.Add(dTO);
+        }
+        else
+        {
+            if (OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
+                OriginadoresSeleccionados.RemoveAt(OriginadoresSeleccionados.IndexOf(OriginadoresSeleccionados.First(x => x.Id == dTO.Id)));
+        }
+
+        Vendedor.OriginadoresDTO = OriginadoresSeleccionados;
     }
 }
