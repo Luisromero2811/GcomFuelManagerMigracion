@@ -30,11 +30,6 @@
                 <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
             </div>
             <div class="col-md-4 col-12">
-                <label>Importe de oportunidad</label>
-                <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" />
-                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
-            </div>
-            <div class="col-md-4 col-12">
                 <label>Unidad de medida</label>
                 <InputSelect @bind-Value="Oportunidad.UnidadMedidaId" class="form-select">
                     <option>-- seleccione una medida --</option>
@@ -46,9 +41,25 @@
                 <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
             </div>
             <div class="col-md-4 col-12">
+                <label>Importe</label>
+                <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Periodo</label>
+                <InputSelect @bind-Value="Oportunidad.PeriodoId" class="form-select">
+                    <option>-- seleccione un periodo --</option>
+                    @foreach (var item in Periodos)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
+            </div>
+            <div class="col-md-4 col-12">
                 <label>Cuenta</label>
                 <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
-                                @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id">
+                                @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id" On_Change_Method="ObtenerContacto">
                     <RenderValue Context="item">
                         @item.Nombre
                     </RenderValue>
@@ -58,6 +69,21 @@
                 </DropDownFilter>
                 <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
                 <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Contacto</label>
+                <InputSelect @bind-Value="Oportunidad.ContactoId" class="form-select">
+                    <option>-- seleccione un contacto --</option>
+                    @foreach (var item in Contactos)
+                    {
+                        <option value="@item.Id">
+                            @item.Nombre @item.Apellidos
+                            @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                            @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                        </option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
             </div>
             <div class="col-md-4 col-12">
                 <label>Proximo paso</label>
@@ -146,25 +172,29 @@
     List<Catalogo_Fijo> Origen = new();
     List<Catalogo_Fijo> Etapas = new();
     List<Catalogo_Fijo> Medida = new();
+    List<Catalogo_Fijo> Periodos = new();
 
     List<Vendedor> Vendedores = new();
     List<CRMCliente> Clientes = new();
+    List<CRMContactoDTO> Contactos = new();
 
     bool loading_info = false;
     bool loading_save = false;
 
     protected override async Task OnInitializedAsync()
     {
+        if (Id != 0)
+            await ObtenerOportunidad();
+
         await Task.WhenAll(
         ObtenerCatalogoEtapa(),
         ObtenerCatalogoMedida(),
         ObtenerCatalogoOrigen(),
         ObtenerCatalogoTipo(),
         ObtenerVendedores(),
-        ObtenerClientes());
-
-        if (Id != 0)
-            await ObtenerOportunidad();
+        ObtenerClientes(),
+        ObtenerCatalogoPeriodo(),
+        ObtenerContacto());
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -282,6 +312,28 @@
 
     }
 
+    private async Task ObtenerCatalogoPeriodo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/periodo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Periodos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
     private async Task ObtenerClientes(string value = "")
     {
         try
@@ -362,4 +414,24 @@
 
     }
 
+    private async Task ObtenerContacto()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos/cuenta/{Oportunidad.CuentaId}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }

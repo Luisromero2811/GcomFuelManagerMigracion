@@ -72,7 +72,16 @@ void ConfigureServices(IServiceCollection services)
     //CRM
     services.AddScoped<CRMContactoPostValidator>();
     services.AddScoped<CRMOportunidadPostValidator>();
+    services.AddScoped<CRMVendedorPostValidator>();
+    services.AddScoped<CRMOriginadorPostValidator>();
+    services.AddScoped<CRMRolPostValidator>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
 
+    services.AddAuthorizationCore(config =>
+    {
+        config.AddPolicy("IsAdmin", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole("Admin", "Administrador Sistema"));
+    });
 }

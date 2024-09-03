@@ -7,7 +7,7 @@ using GComFuelManager.Shared.DTOs;
 
 namespace GComFuelManager.Server
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario, IdentityRol, string>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -686,6 +686,45 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.UnidadMedida)
                 .WithMany()
                 .HasForeignKey(x => x.UnidadMedidaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Contacto)
+                .WithMany()
+                .HasForeignKey(x => x.ContactoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Periodo)
+                .WithMany()
+                .HasForeignKey(x => x.PeriodoId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMOriginador>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMVendedorOriginador>().HasKey(x => new { x.VendedorId, x.OriginadorId });
+
+            modelBuilder.Entity<CRMVendedor>()
+                .HasMany(x => x.Originadores)
+                .WithMany(x => x.Vendedores)
+                .UsingEntity<CRMVendedorOriginador>(
+                l => l.HasOne(x => x.Originador).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.OriginadorId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Vendedor).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<CRMRolPermiso>().HasKey(x => new { x.RolId, x.PermisoId });
+            modelBuilder.Entity<CRMRolUsuario>().HasKey(x => new { x.RolId, x.UserId });
+
+            modelBuilder.Entity<CRMRol>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
         }
 
 
@@ -760,5 +799,12 @@ namespace GComFuelManager.Server
         public DbSet<CRMCliente> CRMClientes { get; set; }
         public DbSet<CRMActividades> CRMActividades { get; set; }
         public DbSet<CRMOportunidad> CRMOportunidades { get; set; }
+        public DbSet<CRMDivision> CRMDivisiones { get; set; }
+        public DbSet<CRMVendedor> CRMVendedores { get; set; }
+        public DbSet<CRMOriginador> CRMOriginadores { get; set; }
+        public DbSet<CRMVendedorOriginador> CRMVendedorOriginadores { get; set; }
+        public DbSet<CRMRol> CRMRoles { get; set; }
+        public DbSet<CRMRolPermiso> CRMRolPermisos { get; set; }
+        public DbSet<CRMRolUsuario> CRMRolUsuarios { get; set; }
     }
 }

@@ -6,52 +6,25 @@
     <Authorized>
         <div class="card text-black bg-white">
             <div class="card-header">
-                <h3 align="center">Bienvenido @context.User.Identity?.Name a la unidad de negocio @context.User.FindFirstValue("Terminal")</h3>
+                <h3 align="center">Bienvenido @context.User.Identity?.Name</h3>
             </div>
         </div>
         <div class="col-12 my-3">
             @* <img class="mx-auto d-block w-50" src="https://i.postimg.cc/Z57T1QGJ/Triptico-Energas-EDITABLE-03.png" alt="Card image cap"> *@
-            <div class="col-12 row">
-                <div class="col-3">
-                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="crm/contactos">
-                        <div class="card d-flex justify-content-center">
-                            <img class="card-img-top mx-auto mt-2" src="img/crm.png" alt="Card image" style="width:50%;">
-                            <div class="card-body">
-                                <h4 class="card-title text-center"><b>Contactos</b></h4>
+            <div class="col-12 row g-2">
+                @foreach (var menu in Menus)
+                {
+                    <div class="col-md-3 col-6">
+                        <NavLink class="card text-dark" Match="NavLinkMatch.All" href="@menu.Url">
+                            <div class="card d-flex justify-content-center">
+                                <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
+                                <div class="card-body">
+                                    <h4 class="card-title text-center"><b>@menu.Titulo</b></h4>
+                                </div>
                             </div>
-                        </div>
-                    </NavLink>
-                </div>
-                <div class="col-3">
-                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="crm/oportunidades">
-                        <div class="card d-flex justify-content-center">
-                            <img class="card-img-top mx-auto mt-2" src="img/salary.png" alt="Card image" style="width:50%;">
-                            <div class="card-body">
-                                <h4 class="card-title text-center"><b>Oportunidades</b></h4>
-                            </div>
-                        </div>
-                    </NavLink>
-                </div>
-                <div class="col-3">
-                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="/crm/listado/actividades">
-                        <div class="card d-flex justify-content-center">
-                            <img class="card-img-top mx-auto mt-2" src="img/clock.png" alt="Card image" style="width:50%;">
-                            <div class="card-body">
-                                <h4 class="card-title text-center"><b>Actividades</b></h4>
-                            </div>
-                        </div>
-                    </NavLink>
-                </div>
-                <div class="col-3">
-                    <NavLink class="card text-dark" Match="NavLinkMatch.All" href="/crm/historial/actividades">
-                        <div class="card d-flex justify-content-center">
-                            <img class="card-img-top mx-auto mt-2" src="img/clipbboard.png" alt="Card image" style="width:50%;">
-                            <div class="card-body">
-                                <h4 class="card-title text-center"><b>Historial de Actividades</b></h4>
-                            </div>
-                        </div>
-                    </NavLink>
-                </div>
+                        </NavLink>
+                    </div>
+                }
             </div>
         </div>
     </Authorized>
@@ -63,3 +36,18 @@
         object-fit: cover; /* Recorta la imagen para llenar el contenedor */
     }
 </style>
+
+@code {
+    List<Menu> Menus = new()
+    {
+        new("crm/contactos","img/crm.png","Contactos"),
+        new("crm/oportunidades","img/salary.png","Oportunidades"),
+        new("crm/listado/actividades","img/clock.png","Actividades"),
+        new("crm/historial/actividades","img/clipbboard.png","Historial de Actividades"),
+        new("crm/vendedores","img/trader.png","Vendedores"),
+        new("crm/originadores","img/people.png","Originadores"),
+        new("crm/roles","img/management.png","Roles"),
+    };
+
+    record Menu(string Url, string Img, string Titulo);
+}

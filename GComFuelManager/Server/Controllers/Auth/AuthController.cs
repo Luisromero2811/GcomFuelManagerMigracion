@@ -18,13 +18,13 @@ namespace GComFuelManager.Server.Controllers.Auth
     {
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly SignInManager<IdentityUsuario> signInManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly RoleManager<IdentityRol> roleManager;
         private readonly IConfiguration configuration;
         private readonly ApplicationDbContext context;
 
         public AuthController(UserManager<IdentityUsuario> userManager,
             SignInManager<IdentityUsuario> signInManager,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<IdentityRol> roleManager,
             IConfiguration configuration,
             ApplicationDbContext context)
         {
@@ -113,7 +113,7 @@ namespace GComFuelManager.Server.Controllers.Auth
 
         private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
-            if (!context.Tad.Any(x =>!string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
+            if (!context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
                 return new UserTokenDTO();
 
             var claims = new List<Claim>()

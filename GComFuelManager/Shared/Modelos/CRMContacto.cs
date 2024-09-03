@@ -26,10 +26,12 @@
         public DateTime Fecha_Creacion { get; set; } = DateTime.Now;
         public DateTime Fecha_Mod { get; set; } = DateTime.Now;
         public bool Activo { get; set; } = true;
+        public int DivisionId { get; set; }
 
         public Catalogo_Fijo? Estatus { get; set; } = null!;
         public Catalogo_Fijo? Origen { get; set; } = null!;
         public Vendedor? Vendedor { get; set; } = null!;
         public CRMCliente? Cliente { get; set; } = null!;
+        public CRMDivision Division { get; set; } = null!;
     }
 }

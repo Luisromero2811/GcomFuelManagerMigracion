@@ -220,6 +220,6 @@ a, .btn-link {
 }
 
 .ancho-tabla {
-    width: calc(100vw - 100px);
+    max-width:fit-content;
     overflow: scroll;
 }
