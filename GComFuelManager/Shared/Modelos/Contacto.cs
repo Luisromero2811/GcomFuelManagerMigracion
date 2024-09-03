@@ -19,22 +19,5 @@ namespace GComFuelManager.Shared.Modelos
         public bool Estado { get; set; } = true;
         [NotMapped]
         public Cliente? Cliente { get; set; } = null!;
-        [NotMapped]
-        public List<AccionCorreo>? AccionCorreos { get; set; } = null!;
-        [NotMapped]
-        public List<Accion>? Accions { get; set; } = new List<Accion>();
-
-        public Contacto HardCopy()
-        {
-            return new()
-            {
-                Cod = Cod,
-                Nombre = Nombre,
-                Correo = Correo,
-                CodCte = CodCte,
-                Estado = Estado,
-                AccionCorreos = AccionCorreos
-            };
-        }
     }
 }

@@ -52,24 +52,17 @@
     <None Remove="Repositorios\" />
     <None Remove="Shared\DropdownMenuComponents\DropDownMenuButton.razor.css" />
     <None Remove="Shared\Layouts\" />
-    <None Remove="Pages\Formularios\ETA\" />
-    <None Remove="Pages\Tarifario\" />
-    <None Remove="Pages\Obtencion de Catalogos\" />
-    <None Remove="Pages\Formularios\Autorizadores\" />
     <None Remove="Pages\CRM\Actividades\" />
     <None Remove="Pages\CRM\Historiales\" />
+    <None Remove="Pages\CRM\Usuarios\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
-    <Folder Include="Componentes\" />
     <Folder Include="Pages\Auth\" />
     <Folder Include="Repositorios\" />
-    <Folder Include="Pages\Formularios\ETA\" />
-    <Folder Include="Pages\Tarifario\" />
-    <Folder Include="Pages\Obtencion de Catalogos\" />
-    <Folder Include="Pages\Formularios\Autorizadores\" />
     <Folder Include="Pages\CRM\Actividades\" />
     <Folder Include="Pages\CRM\Historiales\" />
+    <Folder Include="Pages\CRM\Usuarios\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />
@@ -77,7 +70,6 @@
     <Content Remove="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Pages\Formularios\Cierres\ViewComentariosComponent.razor" />
     <None Include="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
     <None Include="wwwroot\js\Grafico.js" />
   </ItemGroup>

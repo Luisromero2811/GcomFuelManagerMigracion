@@ -1,66 +1,66 @@
-﻿using MimeKit.Text;
-using MimeKit;
-using RazorHtmlEmails.GComFuelManagerMigracion.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RazorHtmlEmails.GComFuelManagerMigracion.Views.Emails.ConfirmationAccount;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using GComFuelManager.Shared.DTOs;
-using MimeKit.Utils;
-using System.Net.Mail;
-using System.Net.Mime;
-using GComFuelManager.Shared.Modelos;
+﻿//using MimeKit.Text;
+//using MimeKit;
+//using RazorHtmlEmails.GComFuelManagerMigracion.Services;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Text;
+//using System.Threading.Tasks;
+//using RazorHtmlEmails.GComFuelManagerMigracion.Views.Emails.ConfirmationAccount;
+//using MailKit.Net.Smtp;
+//using MailKit.Security;
+//using GComFuelManager.Shared.DTOs;
+//using MimeKit.Utils;
+//using System.Net.Mail;
+//using System.Net.Mime;
+//using GComFuelManager.Shared.Modelos;
 
-namespace RazorHtmlEmails.Common
-{
-    public class RegisterAccountService : EmailSendService, IRegisterAccountService
-    {
-        private readonly IRazorViewToStringRenderer razorView;
+//namespace RazorHtmlEmails.Common
+//{
+//    public class RegisterAccountService : EmailSendService, IRegisterAccountService
+//    {
+//        private readonly IRazorViewToStringRenderer razorView;
 
-        public RegisterAccountService(IRazorViewToStringRenderer razorView)
-        {
-            this.razorView = razorView;
-        }
+//        public RegisterAccountService(IRazorViewToStringRenderer razorView)
+//        {
+//            this.razorView = razorView;
+//        }
 
-        public async Task Register(EmailContent<OrdenCierre> content)
-        {
+//        public async Task Register(EmailContent<OrdenCierre> content)
+//        {
 
-            string body = await razorView.RenderViewToStringAsync("./Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
-            var message = new MimeMessage();
+//            string body = await razorView.RenderViewToStringAsync("./Views/Emails/ConfirmationAccount/ConfirmaAccount.cshtml", content);
+//            var message = new MimeMessage();
 
-            //AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
+//            //AlternateView alternate = AlternateView.CreateAlternateViewFromString(body, null, MediaTypeNames.Text.Html);
 
-            message.From.Add(new MailboxAddress("Gcom Fuel Management", "admon@energasmx.mx"));
-            //message.To.Add(new MailboxAddress(content.Nombre, content.Email));
-            message.To.AddRange(content.ToList);
-            message.Cc.AddRange(content.CC);
-            message.Subject = content.Subject;
+//            message.From.Add(new MailboxAddress("Gcom Fuel Management", "admon@energasmx.mx"));
+//            //message.To.Add(new MailboxAddress(content.Nombre, content.Email));
+//            message.To.AddRange(content.ToList);
+//            message.Cc.AddRange(content.CC);
+//            message.Subject = content.Subject;
 
-            //var image = ("./imgs/gcom_unilogo.png");
+//            //var image = ("./imgs/gcom_unilogo.png");
 
-            //LinkedResource img = new LinkedResource(image);
-            //img.ContentId = "logo";
+//            //LinkedResource img = new LinkedResource(image);
+//            //img.ContentId = "logo";
 
-            //alternate.LinkedResources.Add(img);
-            //var m = new MailMessage();
+//            //alternate.LinkedResources.Add(img);
+//            //var m = new MailMessage();
 
-            //m.AlternateViews.Add(alternate);
+//            //m.AlternateViews.Add(alternate);
 
-            //message.Body = new TextPart(TextFormat.Html) { Text = m.AlternateViews.ToString() };
+//            //message.Body = new TextPart(TextFormat.Html) { Text = m.AlternateViews.ToString() };
 
-            message.Body = new TextPart(TextFormat.Html) { Text = body };
+//            message.Body = new TextPart(TextFormat.Html) { Text = body };
             
-            SendEmail(message);
-        }
+//            SendEmail(message);
+//        }
 
-    }
+//    }
 
-    public interface IRegisterAccountService
-    {
-        Task Register(EmailContent<OrdenCierre> content);
-    }
-}
+//    public interface IRegisterAccountService
+//    {
+//        Task Register(EmailContent<OrdenCierre> content);
+//    }
+//}

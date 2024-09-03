@@ -1,16 +1,10 @@
-﻿using GComFuelManager.Shared.Modelos;
+﻿using System;
 using MimeKit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.DTOs
 {
-    public class EmailContent<T>
-    {
+	public class EmailContent<T>
+	{
         public string Nombre { get; set; } = string.Empty;
 
         public string Email { get; set; } = string.Empty;
@@ -24,3 +18,4 @@ namespace GComFuelManager.Shared.DTOs
         public T Item { get; set; } = default!;
     }
 }
+

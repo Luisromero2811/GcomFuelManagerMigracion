@@ -9,7 +9,6 @@ namespace GComFuelManager.Client.Helpers.Validations
 	{
 		public AsignarGrupoClienteValidation()
 		{
-			RuleFor(x => x.grupo).NotEmpty().WithName("Grupo");
 			RuleFor(x => x.cliente).NotEmpty().WithName("Cliente");
 			RuleFor(x => x.Mdpven).NotEmpty().WithName("Modelo de Venta");
 			RuleFor(x => x.Tipven).NotEmpty().WithName("Tipo de Venta");

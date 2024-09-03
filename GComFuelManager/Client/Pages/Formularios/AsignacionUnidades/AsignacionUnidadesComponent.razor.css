@@ -1,9 +1,0 @@
-﻿.table-width {
-    height: 500px;
-}
-
-@media (min-width: 1400px) {
-    .table-width {
-        width: 1200px !important;
-    }
-}

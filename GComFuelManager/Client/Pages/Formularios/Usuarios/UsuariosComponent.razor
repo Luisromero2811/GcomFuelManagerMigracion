@@ -23,7 +23,7 @@
                                 <label>Nombre Completo:</label>
                             </div>
                             <div class="mt-2">
-                                <InputText class="form-control" @bind-Value="info.Nombre" MaxLenght="60"/>
+                                <InputText class="form-control" @bind-Value="info.Nombre" MaxLenght="60" />
                             </div>
 
                         </div>
@@ -82,9 +82,9 @@
                                             <option value="@item.Cod">@item.Den</option>
                                         }
                                     }*@
-                                    <RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="info.CodGru"
-                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    AllowVirtualization="true" AllowClear="true" Change="@GetClientes"/>
+                                @*<RadzenDropDown Data="Grupos" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="info.CodGru"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowVirtualization="true" AllowClear="true" Change="@GetClientes" />*@
                                 @*</InputSelect>*@
                             </div>
                         </div>
@@ -92,26 +92,26 @@
                             <div class="col-12">
                                 <label class="form-label">Cliente</label>
                                 @*<InputSelect @bind-Value="info.CodCte" class="form-select">
-                                    <option>-- Selecciona una opcion --</option>
-                                    @if (Clientes is null)
-                                    {
-                                        <option disabled> Cargando ...</option>
-                                    }
-                                    else if (Clientes.Count == 0)
-                                    {
-                                        <option disabled> No hay capacidades</option>
-                                    }
-                                    else
-                                    {
-                                        foreach (var item in Clientes)
+                                        <option>-- Selecciona una opcion --</option>
+                                        @if (Clientes is null)
                                         {
-                                            <option value="@item.Cod">@item.Den</option>
+                                            <option disabled> Cargando ...</option>
                                         }
-                                    }
-                                </InputSelect>*@
+                                        else if (Clientes.Count == 0)
+                                        {
+                                            <option disabled> No hay capacidades</option>
+                                        }
+                                        else
+                                        {
+                                            foreach (var item in Clientes)
+                                            {
+                                                <option value="@item.Cod">@item.Den</option>
+                                            }
+                                        }
+                                    </InputSelect>*@
                                 <RadzenDropDown Data="Clientes" class="col-12" TextProperty="Den" ValueProperty="Cod" @bind-Value="info.CodCte"
                                                 AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                AllowVirtualization="true" AllowClear="true"/>
+                                                AllowVirtualization="true" AllowClear="true" />
                             </div>
                         </div>
                     }
@@ -121,14 +121,14 @@
                         <label>Roles:</label>
                         <!--Selector multiple de Radzen-->
                         <RadzenDropDown @bind-Value="info.Roles" Data="Roles" TextProperty="NombreRol" ValueProperty="NombreRol"
-                                        Multiple=true Placeholder="Seleccione los roles" Chips=true class="col-12" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"/>
+                                        Multiple=true Placeholder="Seleccione los roles" Chips=true class="col-12" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
                     </div>
                 </div>
                 <div class="col-12 row p-2">
                     <div class="col-12">
                         <label>Unidades de negocio:</label>
                         <!--Selector multiple de Radzen-->
-                        <RadzenDropDown @bind-Value="info.Terminales_Seleccionadas" Data="Terminales" TextProperty="Den" ValueProperty="Cod" 
+                        <RadzenDropDown @bind-Value="info.Terminales_Seleccionadas" Data="Terminales" TextProperty="Den" ValueProperty="Cod"
                                         Multiple=true Placeholder="Seleccione las terminales" Chips=true class="col-12" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
                     </div>
                 </div>
@@ -167,7 +167,7 @@
     <!--Maquetación de Tabla con Radzen-->
     <div class="col-12 d-flex justify-content-center mb-2">
         <RadzenDataGrid TItem="UsuarioInfo" Data="@Usuarios" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true" AllowPaging="true"
-                        GridLines="DataGridGridLines.Both" Style="height:500px;" class="mb-3" ColumnResized="@(()=>grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        GridLines="DataGridGridLines.Both" Style="height:500px;" class="mb-3" ColumnResized="@(() => grid.Reset())" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                         IsLoading="@loadingEdit" @ref="@grid" AllowSorting="true" AllowColumnPicking="false" ShowPagingSummary="true" PageSizeOptions="@pageSizeOptions" FilterMode="FilterMode.Simple" AllowFiltering="true">
             <Columns>
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="Acciones">
@@ -183,8 +183,8 @@
                         </RadzenDataGridColumn>
                     </Authorized>
                 </AuthorizeView>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" OrderIndex="2" Filterable="true"/>
-                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" OrderIndex="3" Filterable="true"/>
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Nombre" Property="Nombre" Width="200px" OrderIndex="2" Filterable="true" />
+                <RadzenDataGridColumn TItem="UsuarioInfo" Title="Usuario" Property="UserName" Width="200px" OrderIndex="3" Filterable="true" />
                 <AuthorizeView Roles="Admin, Administrador Sistema, Administrador de Usuarios" Context="WatchPassword">
                     <RadzenDataGridColumn TItem="UsuarioInfo" Title="Contraseña" Property="Password" Width="200px" OrderIndex="4" Filterable="false">
                         <Template Context="user">
@@ -262,7 +262,7 @@
     private int? clienteSeleccioado { get; set; }
 
     //private List<CodDenDTO> Grupos { get; set; } = null!;
-    private IEnumerable<Grupo> Grupos { get; set; } = new List<Grupo>();
+    //private IEnumerable<Grupo> Grupos { get; set; } = new List<Grupo>();
     private Int16? GrupoSeleccionadoB = 0;
 
     //Usuario seleccionado
@@ -287,7 +287,7 @@
         await GetRoles();
         await GetTerminales();
         await GetUsers();
-        await GetGrupos();
+        //await GetGrupos();
     }
 
     void ShowToolTip(ElementReference elementReference, TooltipOptions options = null!) => ts.Open(elementReference, "Mínimo 8 y máximo 16 caracteres, al menos una letra mayúscula, una minúscula, un número y un carácter especial. Ej: Angel2023+", options);
@@ -496,54 +496,55 @@
         }).FireAsync(new SweetAlertOptions { Icon = icon, Text = message });
     }
 
-    public async Task GetGrupos()
-    {
-        try
-        {
-            var response = await repositorio.Get<IEnumerable<Grupo>>("api/grupo/all");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Grupos = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
+    //public async Task GetGrupos()
+    //{
+    //    try
+    //    {
+    //        var response = await repositorio.Get<IEnumerable<Grupo>>("api/grupo/all");
+    //        if (response.Error)
+    //        {
+    //            var message = await response.ObtenerMensajeError();
+    //            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            Grupos = response.Response;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //        throw e;
+    //    }
+    //}
 
-    public async Task GetClientes()
-    {
-        try
-        {
-            if (info.CodGru != null && info.CodGru != GrupoSeleccionadoB)
+    @*public async Task GetClientes()
             {
-                var response = await repositorio.Get<List<CodDenDTO>>($"api/cliente/{info.CodGru}");
-                if (response.Error)
+                try
                 {
-                    var message = await response.ObtenerMensajeError();
-                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                    if (info.CodGru != null && info.CodGru != GrupoSeleccionadoB)
+                    {
+                        var response = await repositorio.Get<List<CodDenDTO>>($"api/cliente/{info.CodGru}");
+                        if (response.Error)
+                        {
+                            var message = await response.ObtenerMensajeError();
+                            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        }
+                        else
+                        {
+                            GrupoSeleccionadoB = info.CodGru;
+                            Clientes = response.Response;
+                            StateHasChanged();
+                        }
+                    }
                 }
-                else
+                catch (Exception e)
                 {
-                    GrupoSeleccionadoB = info.CodGru;
-                    Clientes = response.Response;
-                    StateHasChanged();
+                    await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                    throw e;
                 }
             }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
+
+        }*@
 
 }
-

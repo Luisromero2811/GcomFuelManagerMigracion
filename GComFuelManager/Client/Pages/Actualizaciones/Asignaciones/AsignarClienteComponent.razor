@@ -2,12 +2,10 @@
 @inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject NotificationService ms
-@inject AsignarGrupoValidation validation
-@inject AsignarGrupoClienteValidation validate
 
 @attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador")]
 
-<h4><b>Grupo - Cliente</b></h4>
+<!--<h4><b>Grupo - Cliente</b></h4>
 <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
@@ -95,9 +93,9 @@
                                                 AllowVirtualization="true" AllowFiltering="true"
                                                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
                                 </RadzenDropDown>
-                            </div>
+                            </div>-->
                             <!--Modelo de Venta-->
-                            <div class="col">
+                            <!--<div class="col">
                                 <label class="">Modelo de Venta</label>
                                 <InputSelect @bind-Value="CliGru.Mdpven" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
@@ -117,9 +115,9 @@
                                         }
                                     }
                                 </InputSelect>
-                            </div>
+                            </div>-->
                             <!--Tipo de Venta-->
-                            <div class="col">
+                            <!--<div class="col">
                                 <label class="">Tipo de Venta</label>
                                 <InputSelect @bind-Value="CliGru.Tipven" class="form-select">
                                     <option>-- Selecciona una opcion --</option>
@@ -141,10 +139,10 @@
                                 </InputSelect>
                             </div>
                         </AuthorizeView>
-                    </div>
+                    </div>-->
 
                     <!--Botones de funciones-->
-                    <div class="col-12 mb-3 d-flex justify-content-center">
+                    <!--<div class="col-12 mb-3 d-flex justify-content-center">
                         <AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador" Context="BuscarClientes">
                             <div class="col d-flex mt-auto">
                                 <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@GetClientes" type="button">
@@ -449,4 +447,4 @@
         }
     }
 
-}
+}-->

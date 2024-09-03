@@ -59,13 +59,6 @@ builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostVa
 builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
-builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
-builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
-builder.Services.AddScoped<IPreciosService, PreciosService>();
-builder.Services.AddScoped<IConfirmOrden, ConfirmOrden>();
-builder.Services.AddScoped<IConfirmarCreacionOrdenes, ConfirmarCreacionOrdenesService>();
-builder.Services.AddScoped<IDenegarCreacionOrdenes, DenegarCreacionOrdenesService>();
-builder.Services.AddScoped<IConfirmPedido, ConfirmPedido>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();

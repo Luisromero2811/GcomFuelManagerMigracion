@@ -1,11 +1,7 @@
-﻿using GComFuelManager.Shared.Modelos;
+﻿using System;
+using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GComFuelManager.Shared.DTOs
 {
@@ -43,3 +39,4 @@ namespace GComFuelManager.Shared.DTOs
         }
     }
 }
+

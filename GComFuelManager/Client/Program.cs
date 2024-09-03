@@ -46,29 +46,10 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<RenovadorToken>();
     services.AddSingleton(new CultureInfo("es-MX"));
-    services.AddScoped<OrdenCierreAdminValidation>();
-    services.AddScoped<OrdenCierreClientValidation>();
-    services.AddScoped<PedidoOrdenValidation>();
-    services.AddScoped<AsignacionUnidadValidation>();
     services.AddScoped<UsuarioInfoValidation>();
     services.AddScoped<CodigoClienteValidation>();
-    services.AddScoped<ContactoInternoValidation>();
     services.AddScoped<AsignarGrupoClienteValidation>();
-    services.AddScoped<AsignarGrupoValidation>();
-    services.AddScoped<AsignacionZonaValidation>();
-    services.AddScoped<AsignarContactoValidation>();
-    services.AddScoped<AsignarZonaClienteValidation>();
-    services.AddScoped<ClienteDestinoValidation>();
-    services.AddScoped<AsignarContactoClienteValidation>();
-    services.AddScoped<CierreGrupoValidation>();
-    services.AddScoped<PreciosValidation>();
     services.AddScoped<GestionClienteValidation>();
-    services.AddScoped<GestionDestinoValidation>();
-    services.AddScoped<GestionGrupoTransportesValidation>();
-    services.AddScoped<GestionEmpresaTransportesValidation>();
-    services.AddScoped<GestionChoferesValidation>();
-    services.AddScoped<GestionUnidadValidation>();
-    services.AddScoped<AutorizadoresValidation>();
     //CRM
     services.AddScoped<CRMContactoPostValidator>();
     services.AddScoped<CRMOportunidadPostValidator>();
