@@ -4,6 +4,7 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CRMVendedorController : ControllerBase
     {
         private readonly ApplicationDbContext context;

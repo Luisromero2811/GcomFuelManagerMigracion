@@ -50,6 +50,11 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMOriginador, CRMOriginadorPostDTO>();
             CreateMap<CRMOriginador, CRMOriginadorDetalleDTO>();
             CreateMap<CRMOriginadorDTO, CRMOriginador>();
+
+            CreateMap<CRMRol, CRMRolDTO>();
+            CreateMap<CRMRol, CRMRolDetalleDTO>();
+            CreateMap<CRMRol, CRMRolPostDTO>();
+            CreateMap<CRMRolPostDTO, CRMRol>();
         }
     }
 }

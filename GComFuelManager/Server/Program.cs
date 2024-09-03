@@ -32,7 +32,7 @@ builder.Services.AddControllersWithViews()
     });
 builder.Services.AddRazorPages();
 
-builder.Services.AddIdentity<IdentityUsuario, IdentityRole>()
+builder.Services.AddIdentity<IdentityUsuario, IdentityRol>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -56,6 +56,7 @@ builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPost
 builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostValidator>();
 builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValidator>();
 builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostValidator>();
+builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
