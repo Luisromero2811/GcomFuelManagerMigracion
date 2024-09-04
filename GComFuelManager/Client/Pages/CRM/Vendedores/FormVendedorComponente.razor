@@ -1,0 +1,300 @@
+﻿@page "/crm/vendedores/formulario"
+@page "/crm/vendedores/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMVendedorPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        @if (loading_info)
+        {
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        }
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <b>Formulario de vendedor</b>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/vendedores" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </NavLink>
+            </div>
+            <div class="card-body">
+                <EditForm class="col-12 row gy-2 gx-3" Model="Vendedor" OnValidSubmit="GuardarVendedor" Context="FormVendedor">
+
+                    <ValidationSummary />
+                    <FluentValidationValidator Validator="validator" />
+
+                    <div class="col-md-4 col-12">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="Vendedor.Nombre" class="form-control" />
+                        <ValidationMessage For="@(()=> Vendedor.Nombre)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Apellidos</label>
+                        <InputText @bind-Value="Vendedor.Apellidos" class="form-control" />
+                        <ValidationMessage For="@(()=> Vendedor.Apellidos)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Teléfono de oficina</label>
+                        <InputText @bind-Value="Vendedor.Tel_Oficina" class="form-control" />
+                        <ValidationMessage For="@(()=> Vendedor.Tel_Oficina)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Teléfono móvil</label>
+                        <InputText @bind-Value="Vendedor.Tel_Movil" class="form-control" />
+                        <ValidationMessage For="@(()=> Vendedor.Tel_Movil)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>Correo electrónico</label>
+                        <InputText @bind-Value="Vendedor.Correo" class="form-control" />
+                        <ValidationMessage For="@(()=> Vendedor.Correo)" />
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label>División</label>
+                        <InputSelect @bind-Value="Vendedor.DivisionId" class="form-select">
+                            <option>-- seleccione una división --</option>
+                            @foreach (var item in Divisiones)
+                            {
+                                <option value="@item.Id">@item.Nombre</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Comerciales</label>
+                        <DropDownFilter Listado="Originadores" TListado="CRMOriginadorDTO" TValue="CRMOriginadorDTO" Default_Placeholder="Comerciales"
+                                        Puede_Filtrar="false" Seleccion_Multiple="true" On_Cancel_Method="CancelOriginadorSelector">
+                            <RenderValue Context="itemValue">
+                                @if (OriginadoresSeleccionados.Count > 0)
+                                {
+                                    <div>
+                                        @(OriginadoresSeleccionados.Count()) seleccionados
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div>Comerciales</div>
+                                }
+                            </RenderValue>
+                            <Render Context="item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(OriginadoresSeleccionados.Any(x=>x.Id == item.Id))" @onchange="@((e)=>SelectOriginador(e,item))" />
+                                    <label class="form-check-label" for="@item.Id">
+                                        @item.Nombre @item.Apellidos
+                                    </label>
+                                </div>
+
+                            </Render>
+                        </DropDownFilter>
+                    </div>
+                    <div class="col-12">
+
+                        <div class="col-md-4 col-12 d-flex">
+                            <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                                @if (loading_save)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    CRMVendedorPostDTO Vendedor = new();
+
+    List<CRMDivision> Divisiones = new();
+
+    List<CRMOriginadorDTO> Originadores = new();
+    List<CRMOriginadorDTO> OriginadoresSeleccionados = new();
+    CRMOriginadorDTO Originador = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    CRMVendedorOriginador vendedorOriginador = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerDivisiones();
+        await ObtenerOriginadores();
+        if (Id != 0)
+            await ObtenerVendedor();
+    }
+
+    private async Task ObtenerDivisiones()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMDivision>>($"api/crmdivision");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Divisiones = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task GuardarVendedor()
+    {
+        try
+        {
+            loading_save = true;
+            var response = await http.Post<CRMVendedorPostDTO>($"api/crmvendedor", Vendedor);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/vendedores", false);
+                else
+                    Vendedor = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerVendedor()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMVendedorPostDTO>($"api/crmvendedor/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Vendedor = response.Response;
+                OriginadoresSeleccionados = Vendedor.OriginadoresDTO;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerOriginadores(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            query["Nombre"] = value;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<CRMOriginadorDTO>>($"api/crmoriginador?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+
+    void AddOriginador()
+    {
+        if (Originador is not null)
+        {
+            if (Originador.Id != 0)
+            {
+                Vendedor.OriginadoresDTO.Add(Originador);
+            }
+        }
+    }
+
+    async Task DeleteOriginador(CRMOriginadorDTO dTO)
+    {
+        Dictionary<string, string> query = new();
+        query[nameof(vendedorOriginador.VendedorId)] = Id.ToString();
+        query[nameof(vendedorOriginador.OriginadorId)] = dTO.Id.ToString();
+
+        var url = Constructor_De_URL_Parametros.Generar_URL(query);
+
+        var response = await http.Delete($"api/crmvendedor/relation?{url}");
+        if (response.Error)
+        {
+            var message = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await ObtenerVendedor();
+        }
+    }
+
+    void CancelOriginadorSelector()
+    {
+        OriginadoresSeleccionados = new();
+    }
+
+    void SelectOriginador(ChangeEventArgs args, CRMOriginadorDTO dTO)
+    {
+        if (args.Value is null) { return; }
+
+        if ((bool)args.Value)
+        {
+            if (!OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
+                OriginadoresSeleccionados.Add(dTO);
+        }
+        else
+        {
+            if (OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
+                OriginadoresSeleccionados.RemoveAt(OriginadoresSeleccionados.IndexOf(OriginadoresSeleccionados.First(x => x.Id == dTO.Id)));
+        }
+
+        Vendedor.OriginadoresDTO = OriginadoresSeleccionados;
+    }
+}

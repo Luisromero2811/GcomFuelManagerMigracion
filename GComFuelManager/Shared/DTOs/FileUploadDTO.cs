@@ -18,6 +18,8 @@ namespace GComFuelManager.Shared.DTOs
         public string? FileName { get; set; }
         public string? StoredFileName { get; set; }
         public int ErrorCode { get; set; }
-
+        public string Extension { get; set;} = string.Empty;
+        public string StringBytes { get; set; } = string.Empty;
+        public byte[] ArrayBytes { get; set; } = null!;
     }
 }

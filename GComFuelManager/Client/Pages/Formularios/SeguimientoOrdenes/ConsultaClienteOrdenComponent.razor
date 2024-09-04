@@ -1,0 +1,328 @@
+﻿@page "/consulta/ordencliente"
+@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios")]
+
+<h4>Reporte de órdenes / precios de venta</h4>
+
+<div class="row">
+    <div class="col-12 card shadow-sm">
+        <div class="col-12 card-body">
+            <label><b>Mostrar Órdenes</b></label>
+            <div class="col-12 row">
+                <div class="col-2 mb-2">
+                    <label>Del:</label>
+                    <input type="date" @bind="@fechaPrecio.FchInicio" class="form-control col-12" />
+                </div>
+                <div class="col-2 mb-2">
+                    <label>Al:</label>
+                    <input type="date" @bind="@fechaPrecio.FchFin" class="form-control col-12" />
+                </div>
+                <div class="col-2 mb-2">
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@GetOrders">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Buscar
+                        @if (Loading_Busqueda)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+                <div class="col-2 mb-2">
+                    <label></label>
+                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@ExportExcel">
+                        <i class="fa fa-solid fa-file-excel"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="col-12 ancho-tabla overflow-scroll mt-4" style="height:450px;resize:both;">
+    <table class="table table-sm table-bordered table-hover">
+        <thead class="fila">
+            <tr style="max-height:50px;white-space:nowrap;">
+                <th class="th-resizable">BOL/Embarque</th>
+                <th class="th-resizable">Transportista</th>
+                <th class="th-resizable">Unidad</th>
+                <th class="th-resizable">Operador</th>
+                <th class="th-resizable">Sellos</th>
+                <th class="th-resizable">Cliente</th>
+                <th class="th-resizable">Destino</th>
+                <th class="th-resizable">Volumen Cargado</th>
+                <th class="th-resizable">Producto</th>
+                <th class="th-resizable">Precio</th>
+                <th class="th-resizable">Unidad de Negocio</th>
+                <th class="th-resizable">Folio de Orden</th>
+                <th class="th-resizable">Fecha de carga</th>
+                <th class="th-resizable">Pedimento</th>
+                <th class="th-resizable"># de Orden</th>
+                <th class="th-resizable">Factura Proveedor</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="fila">
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <RadzenTextBox @bind-Value="ClienteSeleccionado" />
+                </td>
+                <td>
+                    <RadzenTextBox @bind-Value="DestinoSeleccionado" />
+                </td>
+                <td></td>
+                <td>
+                    <RadzenTextBox @bind-Value="ProductoSeleccionado" />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <Virtualize TItem="PrecioBolDTO" Items="PreciosFiltrados" Context="data">
+                <tr>
+                    <td>@data.BOL</td>
+                    <td>@data.Transportista</td>
+                    <td>@data.Unidad</td>
+                    <td>@data.Operador</td>
+                    <td>@data.Sellos</td>
+                    <td>@data.Cliente_Original</td>
+                    <td>@data.Destino_Original</td>
+                    <td>@string.Format(new System.Globalization.CultureInfo("en-US"), "{0:N2}", @data.Volumen_Cargado)</td>
+                    <td>@data.Producto_Original</td>
+                    <td>@data.Precio</td>
+                    <td>@data.Unidad_Negocio</td>
+                    <td>@data.Folio_Cierre</td>
+                    <td>@data.Fecha_De_Carga</td>
+                    <td>@data.Pedimentos</td>
+                    <td>@data.NOrden</td>
+                    <td>@data.Factura</td>
+                </tr>
+            </Virtualize>
+        </tbody>
+
+    </table>
+</div>
+<style type="text/css">
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+
+    .fila td {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 28px;
+        background-color: #f2f2f2;
+    }
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+    .sticky-column-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        z-index: 2;
+        background-color: white;
+    }
+
+    .sticky-column, .sticky-column + th, .sticky-column + td {
+        min-width: 180px;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px;
+            background: transparent;
+        }
+    ::deep th, ::deep td {
+        margin: 0;
+        padding: .3rem .5rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        border: 1px solid #d4d4d4;
+    }
+</style>
+@code {
+    CierreDiarioDTO fechas { get; set; } = new CierreDiarioDTO();
+    private IEnumerable<Grupo> Grupos { get; set; } = null!;
+    private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
+    private short? GrupoSeleccionadoB = 0;
+    CierreDiarioDTO fechaPrecio { get; set; } = new CierreDiarioDTO();
+
+    private IList<PrecioBolDTO> PrecioBols { get; set; } = new List<PrecioBolDTO>();
+    List<PrecioBolDTO> Listado { get; set; } = new List<PrecioBolDTO>();
+    private string ProductoSeleccionado = string.Empty;
+    private string ClienteSeleccionado = string.Empty;
+    private string DestinoSeleccionado = string.Empty;
+
+    private IList<PrecioBolDTO> PreciosFiltrados => PrecioBols.Where(x =>
+     (string.IsNullOrEmpty(ProductoSeleccionado) || x.Producto_Original != null && x.Producto_Original != null && x.Producto_Original.Contains(ProductoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+    (string.IsNullOrEmpty(DestinoSeleccionado) || x.Destino_Original != null && x.Destino_Original.Contains(DestinoSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+      (string.IsNullOrEmpty(ClienteSeleccionado) || x.Cliente_Original != null && x.Cliente_Original.Contains(ClienteSeleccionado, StringComparison.OrdinalIgnoreCase))
+    ).ToList();
+
+    private bool Loading_Busqueda = false;
+
+    private async Task GetOrders()
+    {
+        try
+        {
+            Loading_Busqueda = true;
+            var responseHttp = await repositorio.Post<CierreDiarioDTO, IList<PrecioBolDTO>>($"api/cierre/fechasGroup", fechaPrecio);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                PrecioBols = responseHttp.Response;
+                Loading_Busqueda = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Loading_Busqueda = false;
+        }
+    }
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            if (PrecioBols.Count != 0)
+            {
+                //foreach (var item in PrecioBols!)
+                //{
+                //    if ((item.Producto_Original == ProductoSeleccionado || string.IsNullOrEmpty(ProductoSeleccionado))
+                //        && (item.Destino_Original == DestinoSeleccionado || string.IsNullOrEmpty(DestinoSeleccionado))
+                //        && (item.Cliente_Original == ClienteSeleccionado || string.IsNullOrEmpty(ClienteSeleccionado)))
+                //        PrecioBols.Add(new PrecioBolDTO
+                //        {
+                //            Fecha_De_Carga = item.Fecha_De_Carga,
+                //            BOL = item.BOL,
+                //            Cliente_Original = item.Cliente_Original,
+                //            Destino_Original = item.Destino_Original,
+                //            Producto_Original = item.Producto_Original,
+                //            // Precio = item.Precio,
+                //            Volumen_Cargado = item.Volumen_Cargado
+                //        });
+                //}
+
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                var excel = new ExcelPackage();
+                var worksheet = excel.Workbook.Worksheets.Add("OrdenesPrecios");
+                worksheet.Columns.Width = 30;
+                worksheet.Columns.AutoFit();
+                worksheet.Cells["A1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["H1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["J1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                worksheet.Cells["B1:G1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
+
+                //Formacion del excel
+                var header = worksheet.Cells["A1:P1"];
+                header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+                var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<PrecioBolDTO>(PrecioBols, true);
+                tablebody.Style.Font.Bold = true;
+                //tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                //Guardado de Excel
+                await js.GuardarComo($"Ordenes_PreciosVenta{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+            }
+            else
+            {
+                await Swal.FireAsync("Alerta", "Debe de tener datos filtrados para poder exportar", SweetAlertIcon.Warning);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    //protected override async Task OnInitializedAsync()
+    //{
+    //    //  await GetGrupos();
+    //}
+
+    //private async Task GetGrupos()
+    //{
+    //    try
+    //    {
+    //        var httpResponse = await repositorio.Get<IEnumerable<Grupo>>("api/grupo/all");
+    //        if (httpResponse.Error)
+    //        {
+    //            var message = await httpResponse.ObtenerMensajeError();
+    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            Grupos = httpResponse.Response;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+
+    //}
+
+    //private async Task GetClientes()
+    //{
+    //    try
+    //    {
+    //        if (fechas.codGru != null && GrupoSeleccionadoB != fechas.codGru)
+    //        {
+    //            var responseHttp = await repositorio.Get<List<CodDenDTO>>($"api/cliente/{fechas.codGru}");
+    //            if (responseHttp.Error)
+    //            {
+    //                var message = await responseHttp.ObtenerMensajeError();
+    //                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //            }
+    //            else
+    //            {
+    //                GrupoSeleccionadoB = fechas.codGru;
+    //                ClientesFiltro = responseHttp.Response;
+    //                StateHasChanged();
+    //            }
+    //        }
+
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
+}
+

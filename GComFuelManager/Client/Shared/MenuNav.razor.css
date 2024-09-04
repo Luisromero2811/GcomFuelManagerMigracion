@@ -1,0 +1,20 @@
+﻿@media (min-width: 641px) {
+    .navbar-toggler {
+        display: none;
+    }
+
+    .collapse {
+        /* Never collapse the sidebar for wide screens */
+        display: block;
+    }
+
+    .nav-scrollable {
+        /* Allow sidebar to scroll for tall menus */
+        width: calc(90vw - 10rem);
+        overflow-x: auto;
+    }
+}
+::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+}

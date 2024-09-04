@@ -1,0 +1,99 @@
+﻿
+.sidepanel {
+    width: 0;
+    position: fixed;
+    z-index: 10;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: #BA1C15;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+    overflow-y: scroll;
+}
+
+.sidepanel-item {
+    width: 100%;
+    text-align: left;
+    padding: 5px;
+    text-decoration: none;
+    color: white;
+    display: block;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+    /*.sidepanel-item a:active {
+        background-color: #d3231c;
+    }*/
+
+    .sidepanel-item .sidepanel-item-active {
+        background-color: #d3231c;
+    }
+
+.sidepanel a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 16px;
+    color: white;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidepanel .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+}
+
+.openbtn {
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #BA1C15;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+}
+
+    .openbtn:hover {
+        background-color: #A90B04;
+    }
+
+.dropdown-menu-side {
+    color: white;
+    padding: 5px;
+    width: 100%;
+    display: block;
+    cursor: pointer;
+}
+
+.dropdown-menu-side-item {
+    padding: 0px 0px 0px 5px;
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: white;
+    display: block;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.dropdown-menu-content {
+    width: 100%;
+    display: block;
+    padding: 0px 0px 0px 5px;
+    background-color: #A90B04;
+    border-top: 2px white solid;
+    border-bottom: 2px white solid;
+}
+
+.dropdown-menu-side:hover, .dropdown-menu-side-item:hover, .sidepanel:hover, .sidepanel-item:hover {
+    color: #EBBF1A;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+    background-color: transparent;
+}

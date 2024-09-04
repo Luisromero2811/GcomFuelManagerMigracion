@@ -13,6 +13,15 @@ namespace GComFuelManager.Shared.DTOs
 	{
 		public Cliente? cliente { get; set; }
 		public Grupo? grupo { get; set; }
-	}
+        public string? Tipven { get; set; } 
+        public string? Mdpven { get; set; }
+        public string? Den { get; set; } = string.Empty;
+
+        [NotMapped]
+        public string? MdVenta { get; set; } = string.Empty;
+        [NotMapped]
+        public string? MVenta { get { return Tipven == "Rack" ? "Rack" : "Delivery"; } }
+
+    }
 }
 

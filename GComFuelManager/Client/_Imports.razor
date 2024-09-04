@@ -14,8 +14,10 @@
 @using GComFuelManager.Shared.Modelos
 @using GComFuelManager.Client.Repositorios
 @using GComFuelManager.Shared.DTOs
+@using GComFuelManager.Shared.DTOs.CRM
 @using Newtonsoft.Json
 @using GComFuelManager.Client.Helpers
+@using GComFuelManager.Client.Helpers.Validations.CRM
 @using Radzen
 @using Radzen.Blazor
 @using OfficeOpenXml;
@@ -34,3 +36,13 @@
 @using System.Text.Json;
 @using Blazored.FluentValidation;
 @using Helpers.Validations;
+@using GComFuelManager.Client.Pages.Formularios.Cierres;
+@using GComFuelManager.Client.Pages.Formularios.Pedidos;
+@using GComFuelManager.Client.Shared.Tabla;
+@using GComFuelManager.Client.Shared.DropdownMenuComponents;
+@using GComFuelManager.Client.Shared.Tab;
+@using GComFuelManager.Shared.Enums;
+@using System.Dynamic;
+@using OfficeOpenXml.Table;
+@using Microsoft.JSInterop.Implementation
+@using GComFuelManager.Shared.Filtro;

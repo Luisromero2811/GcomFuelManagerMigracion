@@ -1,0 +1,314 @@
+﻿@page "/datos/Catalogo/Chofer"
+@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject DialogService ds
+@inject TooltipService ts
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador")]
+
+<h3>Listado de Choferes</h3>
+
+<div class="col-12 card">
+    <div class="col-12 row card-body">
+        <div class="col-12">
+            <div class="col-12 row">
+                <div class="col-6">
+                    <label>Transportista</label>
+                    <RadzenDropDown Data="Transportistas" class="col-12" TextProperty="Den" @bind-Value="Transportista"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowVirtualization="true" />
+                </div>
+                <div class="col-4 d-flex">
+                    <button class="btn gcom-bg-amarillo col-12 mt-auto" @onclick="@GetChoferes">
+                        <i class="fa fa-solid fa-magnifying-glass"></i> Buscar Choferes
+                    </button>
+                </div>
+            </div>
+        </div>
+        @*<div class="col-12 d-flex justify-content-center my-2">
+                <RadzenDataGrid TItem="Chofer" Data="@Choferes" AllowColumnResize="true" AllowPickAllColumns="true" FilterMode="FilterMode.Simple"
+                                GridLines="DataGridGridLines.Both" class="rz-my-2" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                IsLoading="loading" @ref="grid" AllowSorting="true" AllowFiltering="true" Culture="CultureInfo.CurrentCulture">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="Chofer" Title="Nombre" Property="Den" Filterable="true" OrderIndex="1" />
+                        <RadzenDataGridColumn TItem="Chofer" Title="Apellidos" Property="Shortden" Filterable="true" OrderIndex="2" />
+                        <RadzenDataGridColumn TItem="Chofer" Title="Cod Transporte" Property="Codtransport" Filterable="false" OrderIndex="3" />
+                        <RadzenDataGridColumn TItem="Chofer" Title="Activar/Desactivar" Filterable="false" OrderIndex="4">
+                            <Template Context="data">
+                                <div class="col-12">
+                                    <div class="form-check form-switch m-2">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo_Permanente"
+                                               @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                                    </div>
+                                </div>
+                            </Template>
+                        </RadzenDataGridColumn>
+                    </Columns>
+                </RadzenDataGrid>
+            </div>*@
+    </div>
+</div>
+
+<div class="col-12 mt-4 overflow-scroll ancho" style="height:449px; resize:both;">
+    <table class="table table-hover table-bordered table-sm table-responsive" style="max-height: 600px; overflow: auto; width: 100%">
+        <thead>
+            <tr>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Nombre</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Apellidos</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Cod Transporte</th>
+                <th class="th-resizable overflow-hidden" style="min-width:20px;width:400px;">Activar/Desactivar</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr style="height:49px;">
+                <td>
+                    <RadzenTextBox @bind-Value="ChoferSeleccionado" />
+                </td>
+                <td>
+                    <RadzenTextBox @bind-Value="ChoferShortSeleccionado" />
+                </td>
+                <td></td>
+                <td></td>
+            </tr>
+            <Virtualize Items="choferesFiltrados" TItem="Chofer" Context="data">
+                <tr style="height:49px;">
+                    <td>
+                        <RadzenText Text="@data.Den" TextStyle="TextStyle.Body2" />
+                    </td>
+                    <td>
+                        <RadzenText Text="@data.Shortden" TextStyle="TextStyle.Body2" />
+                    </td>
+                    <td>
+                        <RadzenText Text="@data.Codtransport.ToString()" TextStyle="TextStyle.Body2" />
+                    </td>
+                    <td>
+                        <div class="col-12">
+                            <div class="form-check form-switch m-2">
+                                <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo_Permanente"
+                                       @onchange="@((ChangeEventArgs e) => HabilitarDeshabilitar(data, e))">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </Virtualize>
+        </tbody>
+        @*<tfoot>
+            <tr>
+                <td colspan="8">
+                    <div class="col-12 row">
+                        <div class="text-muted col-2">
+                            <p>Total de choferes: @Choferes.Count</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tfoot>*@
+    </table>
+</div>
+<p>Total de choferes: @Choferes.Count</p>
+
+
+<style type="text/css">
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        font-size: 12px;
+        text-align: left;
+        table-layout: fixed;
+    }
+
+    table, th, td {
+        background-color: white;
+    }
+    .fila th {
+        position: -webkit-sticky;
+        position: sticky;
+        text-align: center;
+        top: 0;
+        background-color: #f2f2f2;
+    }
+    .ancho {
+        width: @TotalWidth;
+    }
+
+    tr:hover {
+        background-color: #FFF633;
+    }
+
+    tr:active {
+        background-color: #FFF633;
+    }
+
+    .asignar {
+        table-layout: auto;
+        width: auto;
+    }
+
+    .sticky-column {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        background-color: white;
+    }
+
+        .sticky-column, .sticky-column + th, .sticky-column + td {
+            min-width: 180px;
+        }
+
+    .table-container {
+        overflow: auto;
+        width: 100%;
+        border: 1px solid #ccc;
+        max-height: 400px; /* Establece una altura máxima si es necesario */
+    }
+
+    th, td {
+        padding: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .th-resizable {
+        position: relative;
+        cursor: col-resize;
+    }
+
+        .th-resizable::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 8px; /* Ancho del área de redimensionamiento */
+            background: transparent;
+        }
+</style>
+
+@code {
+
+    List<Transportista> Transportistas { get; set; } = new List<Transportista>();
+    List<Chofer> Choferes { get; set; } = new List<Chofer>();
+
+    Transportista Transportista { get; set; } = new Transportista();
+    Chofer Chofer { get; set; } = new Chofer();
+
+    RadzenDataGrid<Chofer> grid { get; set; } = new RadzenDataGrid<Chofer>();
+    bool loading = false;
+
+    string TotalWidth = string.Empty;
+
+    AsignacionDTO asignacion { get; set; } = new AsignacionDTO();
+    private int? TransportistaSeleccionadoB = 0;
+
+    private Chofer choferes { get; set; } = null!;
+    private IList<Chofer> choferSeleccionada { get; set; } = new List<Chofer>();
+
+    private string ChoferSeleccionado = string.Empty;
+    private string ChoferShortSeleccionado = string.Empty;
+
+    private IList<Chofer> choferesFiltrados => Choferes.Where(x =>
+      (string.IsNullOrEmpty(ChoferSeleccionado) || x.Den != null && x.Den != null && x.Den.Contains(ChoferSeleccionado, StringComparison.OrdinalIgnoreCase)) &&
+      (string.IsNullOrEmpty(ChoferShortSeleccionado) || x.Shortden != null && x.Shortden!.Contains(ChoferShortSeleccionado, StringComparison.OrdinalIgnoreCase))
+  ).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetTransportista();
+    }
+
+    public async Task GetTransportista()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Transportista>>("api/transportista");
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Transportistas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+    public async Task GetChoferes()
+    {
+        try
+        {
+            if (Transportista.Busentid != null)
+            {
+                if (!string.IsNullOrEmpty(Transportista.Busentid))
+                {
+                    var response = await repositorio.Get<List<Chofer>>($"api/chofer/lista/{Transportista.Busentid}");
+                    if (response.Error)
+                    {
+                        var repositorioHttp = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", repositorioHttp, SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        Choferes = response.Response;
+                    }
+                }
+            }
+        }
+
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task HabilitarDeshabilitar(Chofer chofer, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var response = await repositorio.Put<bool>($"api/chofer/status/{chofer.Cod}", status);
+
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                grid?.Reload();
+                if (status)
+                {
+                    await Message($"{chofer.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{chofer.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+        {
+            Position = "top-end",
+            ShowConfirmButton = false,
+            Timer = 1700,
+            TimerProgressBar = true,
+            Toast = true,
+        }).FireAsync(new SweetAlertOptions
+        {
+            Icon = icon,
+            Text = message
+        });
+    }
+
+}

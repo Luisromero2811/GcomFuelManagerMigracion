@@ -1,0 +1,264 @@
+﻿@page "/ordenes/facturacion"
+@inject SweetAlertService Swal
+@inject IRepositorio http
+@inject DialogService ds
+@inject IJSRuntime js
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Revision Precios")]
+
+<div class="card shadow-sm">
+    <div class="card-header">
+        <b>Ordenes</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3">
+                <label>De: </label>
+                <input type="date" class="form-control form-control-sm" @bind-value="param.Fecha_Inicio" min="@DateTime.Today.AddDays(-2)" />
+            </div>
+            <div class="col-3">
+                <label>A:</label>
+                <input type="date" class="form-control form-control-sm" @bind-value="param.Fecha_Fin" max="@DateTime.Today" />
+            </div>
+            <div class="col-3 d-flex">
+                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Obtener_Ordenes">Buscar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--selecT * from orden where ref = 'ENER-106355_1'
+selecT SUM(vol), bolguiid, fchcar from orden where ref = 'ENER-106355_1'group by bolguiid, fchcar-->
+<div class="ancho-tabla overflow-scroll" style="max-height: 450px; resize:both;">
+    <Tabla Datos="Ordenes" Cargando="loading_get">
+        <Cabeceras>
+            <tr>
+                <th class="resizable-column" style="width:150px;">Unidad de negocio</th>
+                <th class="resizable-column" style="width:150px;">Destino</th>
+                <th class="resizable-column" style="width:150px;">Tipo de venta</th>
+                <th class="resizable-column" style="width:150px;">Producto</th>
+                <th class="resizable-column" style="width:150px;">Volumen</th>
+                <th class="resizable-column" style="width:150px;">Importe compra</th>
+                <th class="resizable-column" style="width:150px;">Precio compra s/impuestos</th>
+                <th class="resizable-column" style="width:150px;">BOL/Remisión</th>
+                <th class="resizable-column" style="width:150px;">Factura proveedor</th>
+                <th class="resizable-column" style="width:70px;">Archivo XML</th>
+                <th class="resizable-column" style="width:70px;">Archivo PDF</th>
+                <th class="resizable-column" style="width:150px;">Fecha carga</th>
+                <th class="resizable-column" style="width:150px;">Transportista</th>
+                <th class="resizable-column" style="width:150px;">Operador</th>
+                <th class="resizable-column" style="width:150px;">Unidades/Placas/Sellos/Pedimento</th>
+                <th class="resizable-column" style="width:150px;">Cliente</th>
+                <th class="resizable-column" style="width:150px;">Precio venta c/impuestos</th>
+                <th class="resizable-column" style="width:150px;">Numero de orden</th>
+                <th class="resizable-column" style="width:70px;">Archivo BOL/Remisión</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td>
+                    <input type="text" @bind="param.Terminal" class="form-control form-control-sm" @oninput="Filtrar_Terminal" placeholder="Buscar terminal..." />
+                </td>
+                <td>
+                    <input type="text" @bind="param.Destino" class="form-control form-control-sm" @oninput="Filtrar_Destino" placeholder="Buscar destino..." />
+                </td>
+                <td></td>
+                <td>
+                    <input type="text" @bind="param.Producto" class="form-control form-control-sm" @oninput="Filtrar_Producto" placeholder="Buscar producto..." />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <input type="text" @bind="param.BOL" class="form-control form-control-sm" @oninput="Filtrar_Bol" placeholder="Buscar bol/embarque..." />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    <input type="text" @bind="param.Cliente" class="form-control form-control-sm" @oninput="Filtrar_Cliente" placeholder="Buscar cliente..." />
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="orden">
+            <tr>
+                <td>@orden.Terminal?.Den</td>
+                <td>@orden.Obtener_Destino_De_Orden</td>
+                <td>@orden.Destino?.Cliente?.Tipven</td>
+                <td>@orden.Obtener_Nombre_Producto</td>
+                <td>@orden.Vol</td>
+                <td>@orden.Importe</td>
+                <td>@String.Format(CultureInfo.InvariantCulture, "{0:0.0000}", orden.ValorUnitario)</td>
+                <td>@orden.BatchId</td>
+                <td>@orden.Factura</td>
+                <td>
+                    @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA) == true)
+                    {
+                        @*<a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.PDF_FACTURA)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.PDF_FACTURA))"><i class="fa fa-solif fa-eye"></i></a>
+                    }
+                </td>
+                <td>
+                    @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA) == true)
+                    {
+                        @* <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.XML_FACTURA))"><i class="fa fa-solif fa-eye"></i></a>
+                    }
+                </td>
+                <td>@orden.Fchcar</td>
+                <td>@orden.Tonel?.Transportista?.Den</td>
+                <td>@orden.Chofer?.FullName</td>
+                <td>@orden.Tonel?.Nombre_Placas @orden.SealNumber @orden.Pedimento</td>
+                <td>@orden.Obtener_Cliente_De_Orden</td>
+                <td>@String.Format(CultureInfo.InvariantCulture, "{0:0.0000}", orden.OrdenEmbarque?.Pre)</td>
+                <td>@orden.NOrden</td>
+                <td>
+                    @if (orden.OrdenEmbarque?.Archivos?.Any(x => x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL) == true)
+                    {
+                        @* <a class="btn btn-sm gcom-bg-amarillo col-12" href="@orden.OrdenEmbarque?.Archivos?.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.ARCHIVO_BOL)?.URL"
+                    target="_blank"><i class="fa fa-solif fa-eye"></i></a> *@
+                        <a class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>Download_File(orden, Tipo_Archivo.ARCHIVO_BOL))"><i class="fa fa-solif fa-eye"></i></a>
+                    }
+                </td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <div class="col-2">
+        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="Exportar_Excel"><i class="fa fa-solid fa-file-excel"></i> Exportar</button>
+    </div>
+</div>
+@code {
+    Orden_Facturacion param = new();
+    List<Orden> Ordenes = new();
+    bool loading_get = false;
+    Dictionary<string, string> keys = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        param.Fecha_Inicio = DateTime.Today.AddDays(-1);
+        param.Fecha_Fin = DateTime.Today.AddDays(1);
+        await Obtener_Ordenes();
+    }
+
+    private Dictionary<string, string> Set_Parametros()
+    {
+        keys = new();
+        keys["Fecha_Inicio"] = param.Fecha_Inicio.ToString("MM-dd-yyyy");
+        keys["Fecha_Fin"] = param.Fecha_Fin.ToString("MM-dd-yyyy");
+        keys["Terminal"] = param.Terminal ?? string.Empty;
+        keys["Cliente"] = param.Cliente ?? string.Empty;
+        keys["Destino"] = param.Destino ?? string.Empty;
+        keys["Producto"] = param.Producto ?? string.Empty;
+        keys["BOL"] = param.BOL.ToString() ?? string.Empty;
+        keys["Excel"] = param.Excel.ToString();
+        return keys;
+    }
+
+    private async Task Obtener_Ordenes()
+    {
+        try
+        {
+            loading_get = true;
+            param.Excel = false;
+            var parametros = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros());
+            var response = await http.Get<List<Orden>>($"api/orden/facturacion?{parametros}");
+            if (response.Error)
+            {
+                loading_get = false;
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_get = false;
+                Ordenes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_get = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Filtrar_Terminal(ChangeEventArgs e)
+    {
+        param.Terminal = e.Value?.ToString();
+        await Obtener_Ordenes();
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs e)
+    {
+        param.Cliente = e.Value?.ToString();
+        await Obtener_Ordenes();
+    }
+
+    private async Task Filtrar_Destino(ChangeEventArgs e)
+    {
+        param.Destino = e.Value?.ToString();
+        await Obtener_Ordenes();
+    }
+
+    private async Task Filtrar_Producto(ChangeEventArgs e)
+    {
+        param.Producto = e.Value?.ToString();
+        await Obtener_Ordenes();
+    }
+
+    private async Task Filtrar_Bol(ChangeEventArgs e)
+    {
+        param.BOL = e.Value?.ToString();
+        await Obtener_Ordenes();
+    }
+
+    private async Task Exportar_Excel()
+    {
+        try
+        {
+            param.Excel = true;
+            var parametros = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros());
+            var response = await http.Get<byte[]>($"api/orden/facturacion?{parametros}");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Ordenes_{DateTime.Now.ToString("ddMMyyyyHH:mm:ss")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Download_File(Orden orden, Tipo_Archivo tipo_archivo)
+    {
+        try
+        {
+            var response = await http.Get<FileUploadDTO>($"api/files/download/{orden.OrdenEmbarque?.Cod}/{tipo_archivo}");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"{(tipo_archivo == Tipo_Archivo.ARCHIVO_BOL ? orden.BatchId : orden.Factura)}.{response.Response.Extension}", response.Response.ArrayBytes);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

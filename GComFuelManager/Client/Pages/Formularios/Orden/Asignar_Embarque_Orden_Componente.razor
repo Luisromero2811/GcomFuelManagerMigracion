@@ -1,0 +1,651 @@
+﻿@using System.ComponentModel.DataAnnotations
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+@inject TooltipService ts
+@inject IJSRuntime JS
+@inject NavigationManager nm
+@attribute [Authorize]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Coordinador, Programador" Context="Filter">
+    <div class="col-12 card shadow-sm my-1">
+        <div class="card-header">
+            Asignar bol a orden
+        </div>
+        <div class="card-body">
+            <EditForm OnValidSubmit="Obtener_Orden" Model="folio_">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="col-12 row mb-1">
+                    <div class="col-3">
+                        <input type="text" class="form-control form-control-sm col-12" @bind="folio_.Folio" placeholder="Identificador de orden" />
+                        <ValidationMessage For="(()=>folio_.Folio)" />
+                    </div>
+                    <div class="col-2">
+                        <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                            <i class="fa fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+            </EditForm>
+
+            <div class="col-12 row my-2">
+                <EditForm Model="Datos_BOL" OnValidSubmit="Abrir_Modal_Confirmacion">
+
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="col-12 row">
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <b>Archivos de Bol/Embarque</b>
+                                </div>
+                                <div class="card-body">
+                                    <Subir_Archivo TResponse="bool" URL="@URL_PDF_BOL" Accept=".pdf, .png, .jpg" Texto_Label="Subir PDF de Bol/Embarque:"
+                                                   Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <b>Archivos de factura</b>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col-12">
+                                        <Subir_Archivo TResponse="bool" URL="@URL_PDF" Accept=".pdf" Texto_Label="Subir PDF de factura:"
+                                                       Subida_Completa="Mostrar_Mensaje_Exito" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
+                                    </div>
+                                    <div class="col-12">
+                                        <Subir_Archivo TResponse="Orden" URL="@URL_XML" Accept=".xml" Texto_Label="Subir XML de factura:"
+                                                       Subida_Completa="Subida_Exitosa_Xml" Mostrar_Mensaje_Exito="false" Deshabilitar="@(ordenEmbarque.Cod == 0)" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row d-flex g-1">
+                        <div class="col-2 d-flex flex-column align-items-center justify-content-center">
+                            <div class="d-flex align-items-center">
+                                <RadzenCheckBox @bind-Value=@Datos_BOL.isEnergas Name="CheckBox1" class="me-2" />
+                                <label for="CheckBox1" class="mb-0">
+                                    Facturar orden
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <label>BOL / Embarque</label>
+                            <InputNumber @bind-Value="@Datos_BOL.BatchId" class="form-control form-control-sm" @ref="inputNumber" />
+                            <ValidationMessage For="@(()=>Datos_BOL.BatchId)" />
+                        </div>
+                        <div class="col-3">
+                            <label>Fecha de carga</label>
+                            <InputDate @bind-Value="@Datos_BOL.Fchcar" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
+                        </div>
+                        <div class="col-3">
+                            <label>Fecha de llegada estimada</label>
+                            <InputDate @bind-Value="@Datos_BOL.Fecha_llegada" class="form-control form-control-sm" Type="InputDateType.DateTimeLocal" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Fchcar)" />
+                        </div>
+                        <div class="col-2 mt-auto">
+                            <label>ETA</label>
+                            @Datos_BOL.Eta
+                        </div>
+                        <div class="col-2">
+                            <label>Litros cargados</label>
+                            <InputNumber step="0.01" @bind-Value="@Datos_BOL.Vol" class="form-control form-control-sm" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Vol)" />
+                        </div>
+                        <div class="col-2">
+                            <label>Pedimento</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Pedimento" />
+                        </div>
+                        <div class="col-3">
+                            <label>Sellos</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.SealNumber" />
+                            <ValidationMessage For="@(()=>Datos_BOL.SealNumber)" />
+                        </div>
+                        <div class="col-2">
+                            <label># de orden</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.NOrden" />
+                            <ValidationMessage For="@(()=>Datos_BOL.NOrden)" />
+                        </div>
+                        <div class="col-3">
+                            <label>Factura de Proveedor</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Factura" />
+                            <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
+                        </div>
+                        @*<div class="col-2">
+                        <label>Importe Total:</label>
+                        <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                        </div>*@
+                    </div>
+                    <div class="col-12 d-flex justify-content-center mt-2">
+                        <div class="col-4">
+                            <button class="col-12 btn btn-sm gcom-bg-amarillo">
+                                Guardar
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Comercial, Programador, Coordinador, Analista Suministros, Analista Credito , Auditor, Capturista Recepcion Producto, Ejecutivo de Cuenta Operativo" Context="Exportar">
+    <!--Segundo formulario para exportación de ETA-->
+    <div class="col-12 card shadow mt-3 mb-5">
+        <div class="card-body">
+            <EditForm Model="@ordenEmbarque">
+                <div class="row g3 d-flex">
+                    <div class="row justify-content-center">
+                        <label><b>Reporte</b></label>
+                        <div class="col-md-4" @onmouseenter="@(args => ShowToolsTips(infosIcon))" @ref="infosIcon">
+                            <label>Fecha de inicio:</label><i class="fa-solid fa-circle-info fa-xs"></i>
+                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateInicio" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha final</label>
+                            <InputDate class="form-control col-12" @bind-Value="@fechas.DateFin" />
+                        </div>
+                        <div class="col-md-4">
+                            <label></label>
+                            <button class="btn gcom-bg-amarillo col-12" @onclick="@MostrarEtaFecha"><i class="fa fa-solid fa-eye"></i> <b>Mostrar órdenes</b></button>
+                        </div>
+                    </div>
+                    <!--RadioButtons-->
+                    <div class="col-12 d-flex mt-2">
+                        <div class="col-6 card mx-auto">
+                            <div class="card-body">
+                                <div class="row col-12 mt-1" style="text-align: center;">
+                                    <div style="text-align: center;">
+                                        <label style="text-align: center;">Modelos de Venta (Rack y Delivery)</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 mt-1 d-flex justify-content-center">
+                                    <div class="form-check form-check-inline">
+                                        <input type="radio" class="form-check-input" id="Delivery" name="estatus" checked="@(fechas.Estado == 1)" @onchange="@(()=>fechas.Estado = 1)" />
+                                        <label class="form-check-label" for="Delivery">Delivery</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Rack" name="estatus" checked="@(fechas.Estado == 2)" @onchange="@(()=>fechas.Estado = 2)" />
+                                        <label class="form-check-label" for="Rack">Rack</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Ambas" name="estatus" checked="@(fechas.Estado == 3)" @onchange="@(()=>fechas.Estado = 3)" />
+                                        <label class="form-check-label" for="Ambas">Ambos modelos de venta</label>
+                                    </div>
+                                    @*<div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                        <label class="form-check-label" for="Todos">Delivery y Rack</label>
+                                    </div>*@
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!--Tabla de muestreo de datos-->
+                <div class="col-12 mt-4 table-responsive ancho-tabla" style="height:450px;resize:both;">
+                    <div class="table table-sm table-bordered table-hover" style="font-size:12px;width:2500px;text-align:left;">
+                        <table class="table table-sm table-bordered table-hover table-striped" style="font-size:12px;width:2500px;text-align:left;">
+                            <thead class="fila" style="position: sticky;">
+                                <tr style="max-height:50px;white-space:nowrap; position: sticky;" class="sticky-column">
+                                    <th></th>
+                                    <th>
+                                        Referencia
+                                    </th>
+                                    <th>
+                                        Fecha de Programa
+                                    </th>
+                                    <th>
+                                        Unidad de Negocio
+                                    </th>
+                                    <th>
+                                        Estatus de Orden
+                                    </th>
+                                    <th>
+                                        Fecha de Carga
+                                    </th>
+                                    <th>
+                                        BOL
+                                    </th>
+                                    <th>
+                                        Precio
+                                    </th>
+                                    <th>
+                                        Modelo de Venta
+                                    </th>
+                                    <th>
+                                        Cliente
+                                    </th>
+                                    <th>
+                                        Destino
+                                    </th>
+                                    <th>
+                                        Producto
+                                    </th>
+                                    <th>
+                                        Volumen Natural
+                                    </th>
+                                    <th>
+                                        Volumen Cargado
+                                    </th>
+                                    <th>
+                                        Transportista
+                                    </th>
+                                    <th>
+                                        Unidad
+                                    </th>
+                                    <th>
+                                        Operador
+                                    </th>
+                                    <th>
+                                        ETA
+                                    </th>
+                                    <th>
+                                        Fecha de llegada estimada
+                                    </th>
+                                    <th>
+                                        Sellos
+                                    </th>
+                                    <th>
+                                        Pedimentos
+                                    </th>
+                                    <th>
+                                        # de Orden
+                                    </th>
+                                    <th>
+                                        Factura Proveedor
+                                    </th>
+                                    @*<th>
+                                    Importe Total
+                                    </th>*@
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <Virtualize Items="@ordens" Context="data" TItem="EtaNTDTO">
+                                    <tr style="white-space:nowrap;@(etaDto == data ? "background-color: #FFF633;" : string.Empty)">
+
+                                        <td>
+                                            <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>Buscar_Orden_De_Tabla(data))">
+                                                <i class="fa fa-solid fa-table-cells"></i>
+                                            </button>
+                                        </td>
+                                        <td>@data?.Referencia</td>
+                                        <td>
+                                            <p class="text-break">
+                                                @data?.FechaPrograma
+                                            </p>
+                                        </td>
+                                        <td>@data?.Unidad_Negocio</td>
+                                        <td>@data?.EstatusOrden</td>
+                                        <td>
+                                            @(data?.FechaCarga is not null && data?.Bol is not null ? data?.FechaCarga : "")
+                                        </td>
+                                        <td>@data?.Bol</td>
+                                        <td>@data?.Precio</td>
+                                        <td>
+                                            @data?.MdVenta
+                                        </td>
+                                        <td>@data?.Cliente</td>
+                                        <td>@data?.Destino</td>
+                                        <td>@data?.Producto</td>
+                                        <td>
+                                            @data?.Volms
+                                        </td>
+                                        <td>@data?.Vols</td>
+                                        <td>@data?.Transportista</td>
+                                        <td>@data?.Unidad</td>
+                                        <td>@data?.Operador</td>
+                                        <td>@data?.ETA</td>
+                                        <td>@data?.Fecha_llegada</td>
+                                        <td>@data?.Sellos</td>
+                                        <td>@data?.Pedimentos</td>
+                                        <td>@data?.NOrden</td>
+                                        <td>@data?.Factura</td>
+                                        @*<td>@data?.Importe</td>*@
+                                        <th></th>
+                                    </tr>
+                                </Virtualize>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row justify-content-end me-3 mt-3 mb-3">
+                    <div class="col-3 mt-3 mb-3">
+                        <button class="btn gcom-bg-amarillo col-12" @onclick="@ExportExcel"><i class="fa fa-solid fa-file-excel"></i><b>Exportar</b></button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</AuthorizeView>
+
+<Modal_Custom Titulo="Confirmacion de datos" @ref="datos_eta">
+    <Titulo_Personalizado>
+        <b>Confirmacion de datos</b>
+    </Titulo_Personalizado>
+    <Contenido>
+        <div class="col-12 row g-1">
+            <div class="col-6">
+                <label><b>Referencia: </b> @Datos_BOL.Ref</label>
+            </div>
+            <div class="col-6">
+                <label><b>BOL: </b> @Datos_BOL.BatchId</label>
+            </div>
+            <div class="col-6">
+                <label><b>Fecha de carga: </b> @Datos_BOL.Fchcar</label>
+            </div>
+            <div class="col-6">
+                <label><b>Fecha de llegada: </b> @Datos_BOL.Fecha_llegada</label>
+            </div>
+            <div class="col-6">
+                <label><b>Litros cargados: </b> @Datos_BOL.Vol</label>
+            </div>
+            <div class="col-6">
+                <label><b>Pedimento: </b> @Datos_BOL.Pedimento</label>
+            </div>
+            <div class="col-6">
+                <label><b>Sellos: </b> @Datos_BOL.SealNumber</label>
+            </div>
+            <div class="col-6">
+                <label><b>Numero de orden: </b> @Datos_BOL.NOrden</label>
+            </div>
+            <div class="col-6">
+                <label><b>Factura de proveedor: </b> @Datos_BOL.Factura</label>
+            </div>
+            <div class="col-6">
+                <label><b>Facturar orden: </b> @(Datos_BOL.isEnergas == true ? "SI" : "NO")</label>
+            </div>
+        </div>
+        <div class="col-12 my-1">
+            @if (Archivos.Any(x => x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA))
+            {
+                <a href="@Archivos.FirstOrDefault(x=>x.Tipo_Archivo == Tipo_Archivo.XML_FACTURA)?.URL" class="btn btn-sm gcom-bg-amarillo" target="_blank">Ver XML</a>
+            }
+        </div>
+        <div class="col-12 my-1">
+            @foreach (var archivo in Archivos.Where(x => x.Tipo_Archivo != Tipo_Archivo.XML_FACTURA))
+            {
+                <iframe src="@archivo.URL" style="width: 100%; min-height:450px;resize:both;"></iframe>
+            }
+        </div>
+    </Contenido>
+    <Inferior_Personalizado>
+        <div class="col-12 row">
+            <div class="col-3">
+                @if (loading_guardar)
+                {
+
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" type="button" disabled>Guardar</button>
+                }
+                else
+                {
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="Guardar_Orden" type="submit">Guardar</button>
+                }
+            </div>
+            <div class="col-3">
+                <button class="col-12 btn btn-sm gcom-bg-rojo" @onclick="datos_eta.Close" type="button">Cancelar</button>
+            </div>
+        </div>
+    </Inferior_Personalizado>
+</Modal_Custom>
+
+@code {
+    InputNumber<int?> inputNumber;
+
+    EtaNTDTO etaDto = new EtaNTDTO();
+    private List<EtaNTDTO> ordens { get; set; } = new List<EtaNTDTO>();
+    FechasF fechas = new FechasF();
+    ElementReference infosIcon;
+    void ShowToolsTips(ElementReference elementReference, TooltipOptions optionss = null!) => ts.Open(elementReference, "En caso de obtener órdenes con Tipo de Venta RACK, solo filtre entre un rango de fechas", optionss);
+
+    Folio_Activo_Vigente folio_ { get; set; } = new();
+    OrdenEmbarque ordenEmbarque { get; set; } = new();
+    Orden_BOL Datos_BOL = new();
+    bool loading_guardar = false;
+    bool loading_buscar = false;
+    string URL_PDF = string.Empty;
+    string URL_PDF_BOL = string.Empty;
+    string URL_XML = string.Empty;
+
+    Modal_Custom datos_eta { get; set; } = null!;
+    List<Archivo> Archivos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var queries = nm.ObtenerQueryString(nm.Uri);
+        if (queries is not null)
+        {
+            if (queries.ContainsKey("Folio"))
+            {
+                folio_.Folio = queries["Folio"];
+                await Obtener_Orden();
+            }
+        }
+    }
+
+    private async Task Obtener_Orden()
+    {
+
+        try
+        {
+            loading_buscar = true;
+            Datos_BOL.Ref = folio_.Folio;
+
+            Dictionary<string, string> query = new();
+            query["Folio"] = folio_.Folio;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<OrdenEmbarque>($"api/pedido/orden?{uri}");
+            if (response.Error)
+            {
+                loading_buscar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_buscar = false;
+                ordenEmbarque = response.Response;
+
+                URL_PDF = $"api/files/upload/pdf/{ordenEmbarque.Cod}";
+                URL_PDF_BOL = $"api/files/upload/pdf/bol/{ordenEmbarque.Cod}";
+                URL_XML = $"api/files/upload/xml/{ordenEmbarque.Cod}";
+
+                if (ordenEmbarque.Orden is not null)
+                {
+                    Datos_BOL.Cod = ordenEmbarque.Orden.Cod;
+                    Datos_BOL.Fchcar = ordenEmbarque.Orden.Fchcar;
+                    Datos_BOL.BatchId = ordenEmbarque.Orden.BatchId;
+                    Datos_BOL.Vol = ordenEmbarque.Orden.Vol;
+                    Datos_BOL.Pedimento = ordenEmbarque.Orden.Pedimento;
+                    Datos_BOL.SealNumber = ordenEmbarque.Orden.SealNumber;
+                    Datos_BOL.NOrden = ordenEmbarque.Orden.NOrden;
+                    Datos_BOL.Factura = ordenEmbarque.Orden.Factura;
+                    Datos_BOL.Importe = ordenEmbarque.Orden.Importe;
+                    Datos_BOL.ValorUnitario = ordenEmbarque.Orden.ValorUnitario;
+                }
+                else
+                {
+                    ns.Notify(new() { Summary = "Bol / embarque", Detail = "Esta orden no cuenta con un bol / embarque", Severity = NotificationSeverity.Warning });
+                    Datos_BOL.Cod = null!;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading_buscar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Abrir_Modal_Confirmacion()
+    {
+        var response = await http.Get<List<Archivo>>($"api/files/{ordenEmbarque.Cod}");
+        if (response.Error)
+        {
+            await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+        }
+        else
+        {
+            Archivos = response.Response;
+        }
+        datos_eta.Open();
+
+    }
+
+    private async Task Guardar_Orden()
+    {
+        try
+        {
+            loading_guardar = true;
+            var response = await http.Post<Orden_BOL>("api/pedido/asignar/embarque", Datos_BOL);
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                folio_.Folio = Datos_BOL.Ref ?? string.Empty;
+                ns.Notify(new() { Summary = "Registro guardado", Detail = "Bol / Embarque dato de alta correctamente", Severity = NotificationSeverity.Success });
+                // await Obtener_Orden();
+                datos_eta.Close();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task MostrarEtaFecha()
+    {
+        try
+        {
+
+            var responseHttp = await http.Post<FechasF, List<EtaNTDTO>>($"api/Eta/Reportesnotuxpan", fechas);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ordens = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task ExportExcel()
+    {
+        try
+        {
+            var responseHttp = await http.Post<FechasF, byte[]>($"api/Eta/Reportesnotuxpan/excel", fechas);
+            if (responseHttp.Error)
+            {
+                var respuestaHttp = await responseHttp.ObtenerMensajeError();
+                await swal.FireAsync("Error", respuestaHttp, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await JS.GuardarComo($"ETA_{DateTime.Now.ToString("yyyyy-MM-dd hh:mm:ss")}.xlsx", responseHttp.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Subida_Exitosa_Xml(Orden orden)
+    {
+        Datos_BOL.Pedimento = orden.Pedimento;
+        Datos_BOL.Vol = orden.Vol;
+        Datos_BOL.Factura = orden.Factura;
+        Datos_BOL.Importe = orden.Importe;
+        Datos_BOL.ValorUnitario = orden.ValorUnitario;
+        Mostrar_Mensaje_Exito();
+        // await Obtener_Orden();
+    }
+
+    private async Task Buscar_Orden_De_Tabla(EtaNTDTO orden)
+    {
+        try
+        {
+            etaDto = orden;
+            if (!string.IsNullOrEmpty(orden.Referencia))
+            {
+                folio_.Folio = orden.Referencia;
+                await Obtener_Orden();
+                await inputNumber.Element.Value.FocusAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Mostrar_Mensaje_Exito() =>
+        ns.Notify(new() { Severity = NotificationSeverity.Success, Summary = "Archivo subido", Detail = "Archivo subido exitosamente" });
+
+    private class Orden_BOL
+    {
+        public long? Cod { get; set; }
+        public string? Ref { get; set; } = string.Empty;
+        public DateTime? Fchcar { get; set; } = DateTime.Today;
+        public DateTime? Fecha_llegada { get; set; } = DateTime.Today;
+        [Required(ErrorMessage = "El bol/embarque no puede estar vacio")]
+        public int? BatchId { get; set; }
+        [Required(ErrorMessage = "El volumen no puede estar vacio")]
+        public double? Vol { get; set; }
+        [Required(AllowEmptyStrings = false, ErrorMessage = "Los sellos no pueden estar vacios")]
+        public string? SealNumber { get; set; } = string.Empty;
+        public string? Pedimento { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = false, ErrorMessage = "El numero de orden no pueden estar vacio")]
+        public string? NOrden { get; set; } = string.Empty;
+        [Required(AllowEmptyStrings = false, ErrorMessage = "La factura de proveedor no pueden estar vacio")]
+        public string? Factura { get; set; } = string.Empty;
+        public string? Importe { get; set; } = string.Empty;
+        public bool? isEnergas { get; set; } = true;
+        public string Eta
+        {
+            get
+            {
+                TimeSpan time;
+                double hours = 0;
+                double min = 0;
+                if (Fchcar is not null && Fecha_llegada is not null)
+                {
+                    time = TimeSpan.FromHours(Fecha_llegada.Value.Subtract((DateTime)Fchcar).TotalHours);
+                    if (time.Days >= 1)
+                    {
+                        hours = time.Days * 24;
+                        hours += time.Hours;
+
+                        return $"{hours:00}:{min:00}";
+                    }
+                    else
+                    {
+
+                        return time.ToString($"hh\\:mm");
+                    }
+                }
+                return string.Empty;
+            }
+        }
+        public double? ValorUnitario { get; set; } = 0;
+    }
+}

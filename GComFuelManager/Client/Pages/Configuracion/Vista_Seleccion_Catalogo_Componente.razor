@@ -1,0 +1,192 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject NotificationService ns
+@attribute [Authorize]
+
+<div class="card">
+    <div class="card-header">
+        <b>Catalogo</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 my-2">
+            <p>
+                Copiar desde Unidad de negocio:
+                <select @bind="@Terminal.Cod" class="form-select form-select-sm">
+                    <option>Unidad de negocio</option>
+                    @foreach (var terminal in Terminales)
+                    {
+                        <option value="@terminal.Cod">@terminal.Den</option>
+                    }
+                </select>
+            </p>
+        </div>
+        <Tabla Datos="Acciones">
+            <Cabeceras>
+                <tr>
+                    <th></th>
+                    <th>Catalogo</th>
+                </tr>
+            </Cabeceras>
+            <Columnas Context="catalogo">
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="@catalogo.Catalogo"
+                                   checked="@(Acciones_Seleccionadas.Any(x=>x.Catalogo.Equals(catalogo.Catalogo)))" @onchange="@((args)=>Seleccionar_Catalogo(args, catalogo))">
+                        </div>
+                    </td>
+                    <td>@catalogo.Catalogo</td>
+                </tr>
+            </Columnas>
+        </Tabla>
+        <div class="col-12">
+            <div class="col-4">
+                @if (copiando_catalogos)
+                {
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" disabled>
+                        <i class="fa fa-solid fa-check"></i> Copiar catalogo
+                        <SpinnerLoading />
+                    </button>
+                }
+                else
+                {
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@Copiar_Catalogo">
+                        <i class="fa fa-solid fa-check"></i> Copiar catalogo
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    List<AccionesCatalogo> Acciones = new();
+    List<AccionesCatalogo> Acciones_Seleccionadas = new();
+    List<Tad> Terminales { get; set; } = new();
+    Tad Terminal { get; set; } = new();
+
+    [Parameter] public short Terminal_Destino { get; set; } = 0;
+
+    bool copiando_catalogos = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Acciones = new()
+        {
+            new(){Catalogo = "Clientes",URL = "api/services/copiar/cliente", Orden = 1},
+            new(){Catalogo = "Contactos de cliente",URL = "api/services/copiar/contacto", Orden = 2},
+            new(){Catalogo = "Destinos",URL = "api/services/copiar/destino", Orden = 3},
+            new(){Catalogo = "Transportistas",URL = "api/services/copiar/transportista", Orden = 4},
+            new(){Catalogo = "Choferes",URL = "api/services/copiar/chofer", Orden = 5},
+            new(){Catalogo = "Toneles",URL = "api/services/copiar/tonel", Orden = 6},
+            new(){Catalogo = "Productos",URL = "api/services/copiar/producto", Orden = 7},
+        };
+        await Obtener_Terminal();
+    }
+
+    private async Task Obtener_Terminal()
+    {
+        try
+        {
+            var response = await http.Get<List<Tad>>("api/terminal/all");
+            if (response.Error)
+            {
+                await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void Seleccionar_Catalogo(ChangeEventArgs e, AccionesCatalogo catalogo)
+    {
+        if (e.Value is null) { return; }
+
+        if ((bool)e.Value)
+            Acciones_Seleccionadas.Add(catalogo);
+        else
+            Acciones_Seleccionadas.Remove(catalogo);
+    }
+
+    private async Task Copiar_Catalogo()
+    {
+        try
+        {
+            if (Acciones_Seleccionadas.Count == 0) { return; }
+            if (Terminal.Cod == 0) { return; }
+
+            copiando_catalogos = true;
+
+            var acciones_totales = Acciones_Seleccionadas.Count;
+            var acciones_procesadas = 0;
+
+            ns.Notify(new()
+                {
+                    Severity = NotificationSeverity.Info,
+                    Detail = "Comenzo el proceso de copia de catalogo, mantenga esta ventana hasta terminar el proceso.",
+                    Summary = "Copiando catalogo",
+                    Duration = 10000
+                });
+
+            foreach (var accion in Acciones_Seleccionadas.OrderBy(x => x.Orden))
+            {
+                var responseOC = await http.Get<bool>($"{accion.URL}/{Terminal.Cod}/{Terminal_Destino}");
+                if (responseOC.Error)
+                {
+                    var responseHttp = await responseOC.ObtenerMensajeError();
+                    // await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+                    ns.Notify(new()
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Detail = $"{responseHttp}",
+                            Summary = "Erro de catalogo",
+                            Duration = 30000
+                        });
+                    ns.Notify(new()
+                        {
+                            Severity = NotificationSeverity.Error,
+                            Detail = $"Ha ocurrido un error al copiar el catalogo {accion.Catalogo}, se continuara con el copiado de los demas catalogos seleccionados.",
+                            Summary = "Erro de catalogo",
+                            Duration = 15000
+                        });
+                }
+                else
+                {
+                    if (responseOC.Response)
+                    {
+                        acciones_procesadas++;
+                        ns.Notify(new()
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Detail = $"Catalogo {accion.Catalogo} copiado con exito. Se continuara con los demas catalogos seleccionados.",
+                                Summary = "Copiando catalogo",
+                                Duration = 10000
+                            });
+                    }
+                }
+            }
+
+            copiando_catalogos = false;
+            await Swal.FireAsync("Catalogos copiados", $"Se han copiado {acciones_procesadas} de {acciones_totales} catalogo/s seleccionado/s", SweetAlertIcon.Success);
+        }
+        catch (Exception e)
+        {
+            copiando_catalogos = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private class AccionesCatalogo
+    {
+        public bool Es_Seleccionado { get; set; } = false;
+        public string Catalogo { get; set; } = string.Empty;
+        public string URL { get; set; } = string.Empty;
+        public int Orden { get; set; } = 0;
+    }
+}

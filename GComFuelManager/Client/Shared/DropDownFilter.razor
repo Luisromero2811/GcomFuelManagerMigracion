@@ -1,0 +1,146 @@
+﻿@typeparam TListado
+@typeparam TValue
+
+@* @inject IJSRuntime js *@
+<div class="dropdown-com" @onclick="@(()=>ShowDropDown = ShowDropDown)">
+    <div class="dropdown-com-btn-container">
+        <button @onclick="@(()=>ShowDropDown = !ShowDropDown)" class="dropdown-com-btn" type="button" data-toggle="dropdown">
+            @if (RenderValue is null || Valor_Seleleccionado is null)
+            {
+                @if (!string.IsNullOrEmpty(Default_Placeholder))
+                {
+                    @Default_Placeholder
+                }
+                else
+                {
+                    <p>Seleccione un valor</p>
+                }
+
+            }
+            else
+            {
+                @if (Valor_Seleleccionado is not null)
+                {
+                    @RenderValue(Valor_Seleleccionado)
+                }
+            }
+        </button>
+
+        @if (Valor_Seleleccionado is not null)
+        {
+
+            <div style="cursor:pointer;padding: .14rem;border: 1px solid #ced4da;" @onclick="ClearValue">
+                <i class="fa fa-solid fa-xmark"></i>
+            </div>
+        }
+    </div>
+
+    @if (ShowDropDown)
+    {
+        <ul class="dropdown-com-content" id="dropdown-list" @onmouseleave="@(()=>ShowDropDown = false)">
+            @if (Puede_Filtrar)
+            {
+                <li style="position:sticky; top:0; background-color:white;">
+                    <input class="dropdown-com-input" type="search" @bind="Valor_Filtrado" @oninput="@On_Change_Filter_Value" placeholder="@Default_Placeholder_Filter" />
+                </li>
+            }
+            <Virtualize Items="Listado" Context="Item" TItem="TListado">
+                @if (Render is not null)
+                {
+
+                    @if (Seleccion_Multiple)
+                    {
+                        <li>
+                            @Render(Item)
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="dropdown-com-content-item" style="cursor:pointer;" @onclick="@(()=>ValorChange(Item))">
+                            @Render(Item)
+                        </li>
+                    }
+                }
+            </Virtualize>
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public string Default_Placeholder { get; set; } = string.Empty;
+    [Parameter] public string Default_Placeholder_Filter { get; set; } = string.Empty;
+    private bool ShowDropDown { get; set; } = false;
+    [Parameter] public List<TListado> Listado { get; set; } = new();
+    [Parameter] public RenderFragment<TListado>? Render { get; set; } = null!;
+    [Parameter] public RenderFragment<TListado>? RenderValue { get; set; } = null!;
+    private string Valor_Filtrado = string.Empty;
+
+    [Parameter] public EventCallback<string> FiltrarValor { get; set; }
+    [Parameter] public EventCallback On_Change_Method { get; set; }
+    [Parameter] public EventCallback On_Cancel_Method { get; set; }
+
+    private TListado? Valor_Seleleccionado { get; set; } = default(TListado);
+
+    [Parameter] public string Propiedad_Valor { get; set; } = string.Empty;
+    [Parameter] public string Propiedad_Filtro { get; set; } = string.Empty;
+
+    [Parameter] public TValue? Valor { get; set; } = default(TValue);
+    [Parameter] public EventCallback<TValue> ValorChanged { get; set; }
+    [Parameter] public EventCallback<TValue> ValorChangedCustom { get; set; }
+
+    [Parameter] public bool Puede_Filtrar { get; set; } = true;
+    [Parameter] public bool Seleccion_Multiple { get; set; } = false;
+    private List<TListado> Listado_Seleccionado { get; set; } = new();
+
+    private async Task ValorChange(TListado item)
+    {
+        ShowDropDown = false;
+
+        Valor_Seleleccionado = item;
+
+        if (!string.IsNullOrEmpty(Propiedad_Valor) || !string.IsNullOrWhiteSpace(Propiedad_Valor))
+        {
+            var prop_name = item.GetType().GetProperty(Propiedad_Valor);
+            if (prop_name is not null)
+            {
+
+                TValue newValor = (TValue)prop_name.GetValue(item);
+                // await ValorChanged.InvokeAsync(Valor);
+                if(!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
+                {
+                    Valor = newValor;
+                    await ValorChanged.InvokeAsync(newValor);
+                }
+                // ValorChangedCustom.InvokeAsync(Valor);
+            }
+        }
+        else
+        {
+            var nuevo_valor = Convert.ChangeType(Valor_Seleleccionado, typeof(TValue));
+            TValue newValor = (TValue)nuevo_valor;
+            if (!EqualityComparer<TValue>.Default.Equals(Valor, newValor))
+            {
+                Valor = newValor;
+                await ValorChanged.InvokeAsync(newValor);
+            }
+            // await ValorChanged.InvokeAsync(Valor);
+        }
+
+        await On_Change_Method.InvokeAsync();
+    }
+
+    private async Task ClearValue()
+    {
+        Valor = default(TValue);
+        Valor_Seleleccionado = default(TListado);
+        await ValorChanged.InvokeAsync(Valor);
+        await On_Cancel_Method.InvokeAsync();
+    }
+
+    private async Task On_Change_Filter_Value(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+
+        await FiltrarValor.InvokeAsync(value);
+    }
+}

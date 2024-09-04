@@ -1,0 +1,104 @@
+﻿@using System.Net.Http.Headers
+@inject IRepositorio http
+@inject ILogger<Subir_Archivo<TResponse>> Logger
+@inject SweetAlertService Swal
+@typeparam TResponse
+
+<div class="col-12">
+    <label>@Texto_Label</label>
+
+    @if(Deshabilitar)
+    {
+        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" disabled="@true"/>
+    }
+    else
+    {    
+        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" />
+    }
+
+    @if (loading_upload)
+    {
+        <SpinnerLoading />
+    }
+</div>
+@code {
+    [Parameter] public string URL { get; set; } = string.Empty;
+    [Parameter] public EventCallback<TResponse> Subida_Completa { get; set; }
+    [Parameter] public string Accept { get; set; } = string.Empty;
+    [Parameter] public string Mensaje_Exitoso { get; set; } = "Archivo subido exitosamente";
+    [Parameter] public string Texto_Label { get; set; } = "Importar:";
+    [Parameter] public bool Mostrar_Mensaje_Exito { get; set; } = false;
+    [Parameter] public bool Deshabilitar { get; set; } = false;
+
+    List<UploadResult> UploadResults = new();
+
+    List<File> files = new();
+
+    bool loading_upload = false;
+
+    private async Task UploadFile(InputFileChangeEventArgs args)
+    {
+        long MaxAllowedSize = 1024 * 15 * 1024;
+        bool upload = false;
+        int MaxAllowedFiles = 10;
+
+        files = new();
+
+        using var content = new MultipartFormDataContent();
+        foreach (var file in args.GetMultipleFiles(MaxAllowedFiles))
+        {
+            try
+            {
+                files.Add(new() { Name = file.Name });
+                var filecontent = new StreamContent(file.OpenReadStream(MaxAllowedSize));
+                filecontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: filecontent, name: "\"files\"", fileName: file.Name);
+                upload = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogInformation("{FileName} no se ha subido. (Err: 1) {Message}", file.Name, ex.Message);
+                UploadResults.Add(new()
+                    {
+                        FileName = file.Name,
+                        ErrorCode = 1,
+                        Upload = false
+                    });
+            }
+
+            if (upload)
+            {
+                loading_upload = true;
+                try
+                {
+                    var response = await http.PostFile<TResponse>(URL, content);
+                    if (response.Error)
+                    {
+                        loading_upload = false;
+                        await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loading_upload = false;
+
+                        if (Mostrar_Mensaje_Exito)
+                            await Swal.FireAsync("Exito", Mensaje_Exitoso, SweetAlertIcon.Success);
+
+                        await Subida_Completa.InvokeAsync(response.Response);
+                    }
+                }
+                catch (Exception e)
+                {
+                    loading_upload = false;
+                    await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                }
+            }
+        }
+    }
+
+    private class File
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+}

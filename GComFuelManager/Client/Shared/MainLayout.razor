@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@inject GComFuelManager.Client.Auth.RenovadorToken renovadorToken 
+@inject GComFuelManager.Client.Auth.RenovadorToken renovadorToken
+@inject IJSRuntime js
+@inject NavigationManager navigationManager
 
 <AuthorizeView>
     <Authorized>
@@ -9,38 +11,35 @@
         <RadzenTooltip />
 
         <div class="page">
-            @if (!isClosed)
-            {
-                <div class="sidebar">
-                    @*<MenuLateral />*@
-                    <NavMenu></NavMenu>
-                </div>
-            }
+            <Menu_Lateral_Emergente />
 
             <main>
                 <div>
-                    <MenuNav close=@isClosed closeMenu="CloseMenu" />
+                    <MenuNav />
                 </div>
 
-                <article class="content px-4">
-                    @Body
+                <article class="content px-2">
+                    <ErrorBoundary @ref="errorBoundary">
+                        <ChildContent>
+                            @Body
+                        </ChildContent>
+                    </ErrorBoundary>
                 </article>
             </main>
         </div>
     </Authorized>
 </AuthorizeView>
 
-@code{
-    public bool isClosed = false;
-
-    public void CloseMenu()
-    {
-        isClosed = !isClosed;
-    }
+@code {
+    private ErrorBoundary? errorBoundary;
 
     protected override void OnInitialized()
     {
         renovadorToken.Iniciar();
     }
 
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
+    }
 }

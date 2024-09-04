@@ -1,37 +1,82 @@
-﻿@inject ILoginService login
+@inject ILoginService login
 @inject SweetAlertService swal
 @inject NavigationManager navigate
+@inject IJSRuntime js
+@inject IRepositorio repositorio
 
-<div class="col-12 py-2 @(close?"gcom-bg-rojo text-white":"gcom-bg-blanco text-black") d-flex">
-    <div class="col">
-        @if (close)
-        {
-            <div class="col-4 mx-4" style="cursor:pointer" @onclick="CloseMenuLateral">
-                <img src="img/bar-de-hamburguesas(1).png" style="width:32px;" class="img-fluid"/>
+<AuthorizeView Context="MenuGeneral">
+    <Authorized>
+
+        <div class="col-12 gcom-bg-rojo text-white row m-0 justify-content-between">
+
+            <div class="col-md-1 col-2 d-flex">
+                <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral" id="buttonSidepanel">
+                    <i class="fa fa-solid fa-bars"></i>
+                </button>
             </div>
-        }
-        else
-        {
-            <div class="col-4 mx-2" style="cursor:pointer" @onclick="CloseMenuLateral">
-                <img src="img/bar-de-hamburguesas.png" style="width:32px;" class="img-fluid" />
+            <div class="col-md-4 col-10 d-flex gcom-bg-rojo-dark">
+                <div class="col d-flex justify-content-start" style="text-overflow:ellipsis; flex-wrap:nowrap;">
+                    @if (MenuGeneral.User.Identity is not null)
+                    {
+                        <p class="my-auto">
+                            @MenuGeneral.User.Identity.Name
+                        </p>
+                    }
+                </div>
+                <div class="col">
+                    <button class="btn text-white col-12" @onclick="@CerrarSesion">Cerrar sesion</button>
+                </div>
             </div>
-        }
-    </div>
-    <div class="col-11 d-flex justify-content-end">
-        <div class="col-2 text-center my-auto">
-            <button class="btn" @onclick="@CerrarSesion">Cerrar sesion</button>
         </div>
-    </div>
-</div>
+
+    </Authorized>
+</AuthorizeView>
+
+@* <script>
+        function openNav() {
+            document.getElementById("mySidepanel").style.width = "250px";
+        }
+
+        function closeNav() {
+            document.getElementById("mySidepanel").style.width = "0";
+        }
+    </script> *@
 
 
 @code {
-    [Parameter] public bool close { get; set; } = false;
-    [Parameter] public EventCallback closeMenu { get; set; }
 
-    private void CloseMenuLateral()
+    protected override async Task OnInitializedAsync()
     {
-        closeMenu.InvokeAsync();
+        await Checar_Terminal();
+    }
+
+    bool Esta_En_Tuxpan = true;
+    private async Task Checar_Terminal()
+    {
+        try
+        {
+            var response = await repositorio.Get<Tad>($"api/terminal/check");
+            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
+
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Esta_En_Tuxpan = response.Response.Cod == 1;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async void OpenMenuLateral()
+    {
+        await js.InvokeVoidAsync("OpenMenu");
     }
 
     private async void CerrarSesion()

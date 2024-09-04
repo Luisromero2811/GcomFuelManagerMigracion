@@ -1,93 +1,60 @@
-﻿@page "/precios"
+@page "/precios"
 @inject IJSRuntime js
 @inject IRepositorio http
 @inject SweetAlertService Swal
 @inject DialogService ds
 @inject NotificationService ns
 @inject PreciosValidation validation
+@inject TooltipService ts
+@inject ILogger<PreciosComponent> Logger
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Envio Precios, Revision Precios, Auditor")]
 
 <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
     <Authorized>
-        <h3>Precios</h3>
 
         <div class="d-flex justify-content-center col-12 shadow-sm mt-3">
             <div class="col-12 card">
+                <div class="card-header">
+                    <b>Precios</b>
+                </div>
                 <div class="col-12 row card-body">
 
                     <div class="col-12 row  mb-3">
                         <div class="col-6">
                             <div class="form-label">
                                 <label class="form-label">Importar:</label>
+                                <InputFile accept=".xlsx,.xls" class="form-control form-control-sm" OnChange="Subir_Precios" multiple />
+                                @if (loading_upload)
+                                {
+                                    <SpinnerLoading />
+                                }
                             </div>
-                            @if (radzenUpload.HasValue)
-                            {
-                                <p>Progreso: @Progress %</p>
-                            }
-                            <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload" Complete="@CompleteUpload"
-                                          Accept=".xlsx" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
-                                <RadzenUploadHeader Name="Authorization" Value="@Token" />
-                            </RadzenUpload>
-                        </div>
-                        <div class="col-2 d-flex">
-                            <button class="btn gcom-bg-amarillo mt-auto col-12" @onclick="@UploadFile"> <i class="fa-solid fa-upload"></i> subir</button>
+                            @* <RadzenUpload class="col-12" @ref="radzenUpload" Auto="false" Multiple="false" Url="api/precio/upload" Complete="@CompleteUpload"
+                            Accept=".xlsx,.xls" Change="@OnChangeFile" Progress="@OnProgress" ChooseText="Elegir" Error="@HandlerErrorUpload">
+                            <RadzenUploadHeader Name="Authorization" Value="@Token" />
+                            </RadzenUpload> *@
 
                         </div>
-                        <div class="col-12 mt-3">
-                            @if (preciosExcel.Count() > 0)
-                            {
-
-                                <RadzenPanel AllowCollapse="true" Collapsed="true">
-                                    <HeaderTemplate>
-                                        Vista previa de precios
-                                    </HeaderTemplate>
-                                    <ChildContent>
-                                        <RadzenDataGrid TItem="PreciosDTO" Data="@preciosExcel" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                                                    GridLines="DataGridGridLines.Both" class="rz-my-12" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                                    IsLoading="loading" @ref="@gridExcel" AllowSorting="true" AllowFiltering="true">
-                                            <Columns>
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Fecha" Filterable="false" Property="Fecha" FormatString="{0:d}" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Precio" Property="Precio" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto">
-                                                    <FilterTemplate Context="filter">
-                                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                                    </FilterTemplate>
-                                                    <Template Context="data">
-                                                        <div class="col-12 d-flex">
-                                                            <div class="col-11">
-                                                                @data.Producto
-                                                            </div>
-                                                        </div>
-                                                    </Template>
-                                                </RadzenDataGridColumn>
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Zona" Property="Zona" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Destino" Property="Destino" Filterable="false" />
-                                                <RadzenDataGridColumn TItem="PreciosDTO" Title="Cliente" Property="Cliente" Filterable="false" />
-                                            </Columns>
-                                        </RadzenDataGrid>
-                                    </ChildContent>
-                                </RadzenPanel>
-                                <div class="col-12 d-flex justify-content-center mt-3">
-                                    <div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" @onclick="@SendPrecios">
-                                            <i class="fa fa-solid fa-floppy-disk"></i>
-                                            Guardar
-                                        </button>
-                                    </div>
-                                </div>
-                            }
+                        <div class="col-3 d-flex">
+                            <button class="btn btn-sm gcom-bg-amarillo mt-auto col-12" @onclick="@DownloadFile">
+                                <i class="fa-solid fa-download"></i> Descargar formato <i class="fa fa-solid fa-file-excel"></i>
+                                @if (loading_download)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
                         </div>
                     </div>
                     <hr />
                     <div class="col-12">
                         <EditForm Model="Precio" class="form col-12 row" Context="FORM" OnValidSubmit="@SavePrecio">
                             @*<DataAnnotationsValidator />*@
-                            <FluentValidationValidator Validator="validation"/>
+                            <FluentValidationValidator Validator="validation" />
                             <ValidationSummary />
                             <div class="col-4 mb-2">
-                                <label class="form-label">Zona</label>
-                                <InputSelect @bind-Value="Precio.codZona" class="form-select col-12">
+                                <label>Zona</label>
+                                <InputSelect @bind-Value="Precio.CodZona" class="form-select form-select-sm col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Zonas == null)
                                     {
@@ -107,8 +74,8 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Grupo</label>
-                                <InputSelect @bind-Value="Precio.codGru" class="form-select col-12" onchange="@GetClientes()">
+                                <label>Grupo</label>
+                                <InputSelect @bind-Value="Precio.CodGru" class="form-select form-select-sm col-12" onchange="@GetClientes()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Grupos == null)
                                     {
@@ -128,8 +95,8 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Cliente</label>
-                                <InputSelect @bind-Value="Precio.codCte" class="form-select col-12" onchange="@GetEstaciones()">
+                                <label>Cliente</label>
+                                <InputSelect @bind-Value="Precio.CodCte" class="form-select form-select-sm col-12" onchange="@GetEstaciones()">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Clientes == null)
                                     {
@@ -150,8 +117,8 @@
                             </div>
                             <div class="col-4 mb-1">
                                 <div class="col-12">
-                                    <label class="form-label">Destino</label>
-                                    <InputSelect @bind-Value="Precio.codDes" class="form-select col-12">
+                                    <label>Destino</label>
+                                    <InputSelect @bind-Value="Precio.CodDes" class="form-select form-select-sm col-12">
                                         <option>-- Seleccione una opcion</option>
                                         @if (Destinos == null)
                                         {
@@ -172,8 +139,8 @@
                                 </div>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Producto</label>
-                                <InputSelect @bind-Value="Precio.codPrd" class="form-select col-12">
+                                <label>Producto</label>
+                                <InputSelect @bind-Value="Precio.CodPrd" class="form-select form-select-sm col-12">
                                     <option>-- Seleccione una opcion</option>
                                     @if (Productos == null)
                                     {
@@ -193,16 +160,31 @@
                                 </InputSelect>
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Fecha</label>
-                                <InputDate @bind-Value="Precio.FchDia" class="form-control col-12" />
+                                <label>Fecha</label>
+                                <InputDate @bind-Value="Precio.FchDia" class="form-control form-control-sm col-12" />
                             </div>
                             <div class="col-4 mb-2">
-                                <label class="form-label">Precio</label>
-                                <InputNumber TValue="double?" @bind-Value="Precio.Pre" class="form-control col-12" />
+                                <label>Precio</label>
+                                <InputNumber TValue="double" @bind-Value="Precio.Pre" class="form-control form-control-sm col-12" />
                             </div>
-                            <div class="col-12 d-flex justify-content-center row">
+                            <div class="col-4">
+                                <div class="col-12">
+                                    <label>Moneda</label>
+                                    <select @bind="@Precio.ID_Moneda" class="form-select">
+                                        @foreach (var item in Monedas)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-4 mb-2">
+                                <label>Tipo de cambio</label>
+                                <InputNumber TValue="double?" @bind-Value="Precio.Equibalencia" class="form-control form-control-sm col-12" />
+                            </div>
+                            <div class="col-12 d-flex ms-2 mt-2 justify-content-center row">
                                 <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" type="submit">
+                                    <button class="btn btn-sm col-12 gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-floppy-disk"></i>
                                         Guardar
                                         @if (loadingSave)
@@ -211,16 +193,34 @@
                                         }
                                     </button>
                                 </div>
-                                <div class="col-4">
-                                    <button class="btn col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
-                                        <i class="fa fa-solid fa-paper-plane"></i>
-                                        Enviar Precios
-                                        @if (loadingSend)
-                                        {
-                                            <SpinnerLoading />
-                                        }
-                                    </button>
-                                </div>
+                                <AuthorizeView Roles="Envio Precios, Admin, Administrador Sistema" Context="SendPrecios">
+                                    <Authorized>
+                                        <div class="col-4" @onmouseenter="@(args => ShowToolTip(infoIcon))" @ref="infoIcon">
+                                            <button class="btn btn-sm col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailPrecios">
+                                                <i class="fa fa-solid fa-paper-plane"></i>
+                                                Enviar precios por cliente
+                                                @if (loadingSend)
+                                                {
+                                                    <SpinnerLoading />
+                                                }
+                                            </button>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <AuthorizeView Roles="Admin, Administrador Sistema" Context="SendPrecioGrupal">
+                                    <Authorized>
+                                        <div class="col-4" @onmouseenter="@(args => ShowGroupTip(infosIcon))" @ref="infosIcon">
+                                            <button class="btn btn-sm col-12 gcom-bg-amarillo" type="button" @onclick="@SendEmailGroupPrecio">
+                                                <i class="fa fa-solid fa-paper-plane"></i>
+                                                Enviar precios grupal
+                                                @if (loadingSend)
+                                                {
+                                                    <SpinnerLoading />
+                                                }
+                                            </button>
+                                        </div>
+                                    </Authorized>
+                                </AuthorizeView>
                             </div>
                         </EditForm>
                     </div>
@@ -231,171 +231,229 @@
     </Authorized>
 </AuthorizeView>
 
-<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador" Context="Grid">
+<AuthorizeView Roles="Admin, Administrador Sistema, Precios, Direccion, Gerencia, Analista Credito, Contador, Revision Precios, Auditor" Context="Grid">
     <Authorized>
-        <RadzenTabs RenderMode="TabRenderMode.Client" SelectedIndex="SelectedTab">
+        <RadzenTabs RenderMode="TabRenderMode.Client" TabPosition="TabPosition" Change="@OnChangeIndex">
             <Tabs>
-                <RadzenTabsItem Text="Precios">
-                    <div class="col-12 d-flex justify-content-center">
-            <RadzenDataGrid TItem="Precio" Data="@precios" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
-                            GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                            IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                            @bind-Settings="@Settings">
-                <Columns>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                        <Authorized>
-                            <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
-                                <Template Context="item">
-                                    <div class="col-12 row">
-                                        <div class="col">
-                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                        </div>
-                                    </div>
-                                </Template>
-                            </RadzenDataGridColumn>
-                        </Authorized>
-                    </AuthorizeView>
-                    <RadzenDataGridColumn TItem="Precio" Title="Fecha" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Ultima fecha de actualizacion" Property="FchActualizacion" FormatString="{0:d}" Filterable="false" OrderIndex="3"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4" Width="100px"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
-                        <FilterTemplate Context="filter">
-                            <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                        </FilterTemplate>
-                        <Template Context="data">
-                            <div class="col-12 d-flex row">
-                                <div class="col-1">
-                                    @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
-                                    {
-                                        <div class="badge rounded-pill regular me-1">&nbsp;</div>
-                                    }
-                                    else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
-                                    {
-                                        <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
-                                    }
-                                    else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
-                                    {
-                                        <div class="badge rounded-pill premium me-1">&nbsp;</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="badge rounded-pill diesel me-1">&nbsp;</div>
-                                    }
-                                </div>
-                                <div class="col-11">
-                                    @data.Producto?.Den
-                                </div>
+                <RadzenTabsItem Text="Precios Vigentes">
+                    <div class="col-12 ancho-tabla overflow-scroll">
+                        <Tabla Datos="precios">
+                            <Cabeceras>
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Cabeceras>
+                            <Filtros>
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,false))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,false))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,false))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,false))" />
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Filtros>
+                            <Columnas Context="precio">
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
+                                            </div>
+                                        </td>
+                                    </AuthorizeView>
+                                </tr>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotal</p>
                             </div>
-                        </Template>
-                    </RadzenDataGridColumn>
-                    <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7" Width="100px"/>
-                    <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8"/>
-                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                        <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
-                            <Template Context="data">
-                                <div class="col-12">
-                                    <div class="form-check form-switch m-2">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                               @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
-                                    </div>
-                                </div>
-                            </Template>
-                        </RadzenDataGridColumn>
-                    </AuthorizeView>
-                </Columns>
-            </RadzenDataGrid>
-        </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActual" PaginaSeleccionada="PaginasSeleccionadas" PaginasTotales="PaginasTotales" />
+                            </div>
+                        </div>
+                    </div>
                 </RadzenTabsItem>
                 <RadzenTabsItem Text="Precios Programados">
-                    <div class="col-12 d-flex justify-content-center">
-                        <RadzenDataGrid TItem="Precio" Data="@preciosPro" AllowColumnResize="true" AllowVirtualization="false" AllowPickAllColumns="true"
-                                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:600px;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
-                                        IsLoading="loading" @ref="@grid" AllowSorting="true" AllowFiltering="true" ColumnWidth="200px" AllowColumnPicking="true"
-                        @bind-Settings="@Settings">
-                            <Columns>
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
-                                    <Authorized>
-                                        <RadzenDataGridColumn TItem="Precio" Title="Acciones" Visible="true" Filterable="false" OrderIndex="1" Width="110px">
-                                            <Template Context="item">
-                                                <div class="col-12 row">
-                                                    <div class="col">
-                                                        <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(item))"><i class="fa fa-solid fa-pen-to-square"></i></button>
-                                                    </div>
-                                                </div>
-                                            </Template>
-                                        </RadzenDataGridColumn>
-                                    </Authorized>
-                                </AuthorizeView>
-                                <RadzenDataGridColumn TItem="Precio" Title="Fecha de aplicacion" Property="FchDia" FormatString="{0:d}" Filterable="false" OrderIndex="2" Width="140px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Precio" Property="Pre" Filterable="false" OrderIndex="4" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Producto" FilterValue="ProductoSeleccionado" Property="Producto.Den" OrderIndex="5">
-                                    <FilterTemplate Context="filter">
-                                        <RadzenDropDown Data="ProductList" @bind-Value="ProductoSeleccionado" AllowClear="true"></RadzenDropDown>
-                                    </FilterTemplate>
-                                    <Template Context="data">
-                                        <div class="col-12 d-flex row">
-                                            <div class="col-1">
-                                                @if (data.codPrd == 25 || data.codPrd == 26 || data.codPrd == 27)
-                                                {
-                                                    <div class="badge rounded-pill regular me-1">&nbsp;</div>
-                                                }
-                                                else if (data.codPrd == 11 || data.codPrd == 12 || data.codPrd == 116)
-                                                {
-                                                    <div class="badge rounded-pill regular-vdm me-1">&nbsp;</div>
-                                                }
-                                                else if (data.codPrd == 19 || data.codPrd == 20 || data.codPrd == 21)
-                                                {
-                                                    <div class="badge rounded-pill premium me-1">&nbsp;</div>
-                                                }
-                                                else
-                                                {
-                                                    <div class="badge rounded-pill diesel me-1">&nbsp;</div>
-                                                }
+                    <div class="col-12 ancho-tabla overflow-scroll">
+                        <Tabla Datos="preciosPro">
+                            <Cabeceras>
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th class="resizable-column" style="width:100px !important;">Editar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <th class="resizable-column" style="width:100px !important;">Fechas</th>
+                                    <th class="resizable-column" style="width:150px !important;">Unidad de negocio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Precio de compra</th>
+                                    <th class="resizable-column" style="width:150px !important;">Producto</th>
+                                    <th class="resizable-column" style="width:200px !important;">Destino</th>
+                                    <th class="resizable-column" style="width:100px !important;">Zona</th>
+                                    <th class="resizable-column" style="width:200px !important;">Cliente</th>
+                                    <th class="resizable-column" style="width:90px !important;">Moneda</th>
+                                    <th class="resizable-column" style="width:50px !important;">Cambio</th>
+                                    <th class="resizable-column" style="width:100px !important;">Usuario</th>
+                                    <th class="resizable-column" style="width:100px !important;">Fecha de carga</th>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <th class="resizable-column" style="width:100px !important;">Habilitar / Deshabilitar</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Cabeceras>
+                            <Filtros>
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Producto(args,true))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Destino(args,true))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Zona(args,true))" />
+                                    </td>
+                                    <td>
+                                        <input type="text" class="form-control form-control-sm" @oninput="@((args)=>Filtrar_Cliente(args,true))" />
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios">
+                                        <Authorized>
+                                            <td></td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Filtros>
+                            <Columnas Context="precio">
+                                <tr>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <button class="btn btn-primary col-12" @onclick="@(()=>setEdit(precio))"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                                        </td>
+                                    </AuthorizeView>
+                                    <td>@precio.FchDia.ToString("dd/MM/yyyy")</td>
+                                    <td>@precio.Terminal?.Den</td>
+                                    <td>@precio.Pre</td>
+                                    <td>@precio.Precio_Compra</td>
+                                    <td>@precio.Producto?.Den</td>
+                                    <td>@precio.Destino?.Den</td>
+                                    <td>@precio.Zona?.Nombre</td>
+                                    <td>@precio.Cliente?.Den</td>
+                                    <td>@precio.Moneda?.Nombre</td>
+                                    <td>@precio.Equibalencia</td>
+                                    <td>@precio.Usuario?.Den</td>
+                                    <td>@precio.FchActualizacion.ToString("dd/MM/yyyy hh:mm:ss")</td>
+                                    <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="Acciones">
+                                        <td>
+                                            <div class="form-check form-switch m-2">
+                                                <input class="form-check-input" type="checkbox" role="switch" id="@precio?.Cod" checked="@precio?.Activo"
+                                                       @onchange="@((ChangeEventArgs e) => ChangeStatus(precio, e))">
                                             </div>
-                                            <div class="col-11">
-                                                @data.Producto?.Den
-                                            </div>
-                                        </div>
-                                    </Template>
-                                </RadzenDataGridColumn>
-                                <RadzenDataGridColumn TItem="Precio" Title="Destino" Property="NombreDestino" Filterable="false" OrderIndex="6" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Zona" Property="NombreZona" Filterable="false" OrderIndex="7" Width="100px" />
-                                <RadzenDataGridColumn TItem="Precio" Title="Cliente" Property="NombreCliente" Filterable="false" OrderIndex="8" />
-                                <AuthorizeView Roles="Admin, Administrador Sistema, Precios" Context="EditPrice">
-                                    <RadzenDataGridColumn TItem="Precio" Title="Habilitar / Deshabilitar" OrderIndex="9">
-                                        <Template Context="data">
-                                            <div class="col-12">
-                                                <div class="form-check form-switch m-2">
-                                                    <input class="form-check-input" type="checkbox" role="switch" id="@data.Cod" checked="@data.Activo"
-                                                    @onchange="@((ChangeEventArgs e) => ChangeStatus(data, e))">
-                                                </div>
-                                            </div>
-                                        </Template>
-                                    </RadzenDataGridColumn>
-                                </AuthorizeView>
-                            </Columns>
-                        </RadzenDataGrid>
+                                        </td>
+                                    </AuthorizeView>
+                                </tr>
+                            </Columnas>
+                        </Tabla>
+                        <div class="col-12 row mt-1">
+                            <div class="text-muted col-2">
+                                <p>total de registros: @ConteoTotalPro</p>
+                            </div>
+                            <div class="col-6 offset-4">
+                                <PaginacionComponent PaginaActual="PaginaActualPro" PaginaSeleccionada="PaginasSeleccionadasPro" PaginasTotales="PaginasTotalesPro" />
+                            </div>
+                        </div>
                     </div>
                 </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
-        
     </Authorized>
 </AuthorizeView>
 
-<style type="text/css">
-    .ancho {
-        width: @TotalWidth;
-    }
-</style>
-
 @code {
-
+    ElementReference infoIcon;
+    ElementReference infosIcon;
     private string ProductoSeleccionado = string.Empty;
     private string CurrentCliente = string.Empty;
     RadzenAlert alert = new RadzenAlert();
     List<Precio> precios { get; set; } = new List<Precio>();
+    List<FormatoExcelPrecioDTO> formato { get; set; } = new List<FormatoExcelPrecioDTO>();
     List<Precio> preciosPro { get; set; } = new List<Precio>();
     IEnumerable<PreciosDTO> preciosExcel { get; set; } = new List<PreciosDTO>();
 
@@ -408,13 +466,13 @@
     List<CodDenDTO> Clientes { get; set; } = new List<CodDenDTO>();
     List<Grupo> Grupos { get; set; } = new List<Grupo>();
     List<CodDenDTO> Destinos { get; set; } = new List<CodDenDTO>();
-
-    private string Token { get; set; } = string.Empty;
+    List<Moneda> Monedas { get; set; } = new List<Moneda>();
 
     private short? GrupoSeleccionado = 0;
     private int? ClienteSeleccionado = 0;
 
     int SelectedTab = 0;
+    TabPosition TabPosition = 0;
     private int Progress = 0;
     private int TotalEmails = 0;
     private int CurrentEmails = 0;
@@ -423,69 +481,175 @@
     bool loading = false;
     bool loadingSave = false;
     bool loadingSend = false;
+    bool loading_download = false;
+    bool loading_upload = false;
 
     private IEnumerable<string> ProductList { get; set; } = new List<string>();
     private IEnumerable<string?> ClientesSeleccionados { get; set; } = new List<string>();
+    private IEnumerable<string?> GruposSeleccionados { get; set; } = new List<string>();
 
     RadzenDataGrid<Precio> grid { get; set; } = new RadzenDataGrid<Precio>();
     RadzenDataGrid<PreciosDTO> gridExcel { get; set; } = new RadzenDataGrid<PreciosDTO>();
 
     int width = 0;
     string TotalWidth = string.Empty;
+    bool isClose = false;
 
-    DataGridSettings _settings;
-    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+    IEnumerable<int> pageSizeOptions = new int[] { 10, 20, 30 };
+
+    ParametrosBusquedaPrecios busquedaPrecios = new ParametrosBusquedaPrecios();
+    int PaginasTotales;
+    int PaginaActual = 1;
+    int ConteoTotal;
+
+    ParametrosBusquedaPrecios busquedaPreciosPro = new ParametrosBusquedaPrecios();
+    int PaginasTotalesPro;
+    int PaginaActualPro = 1;
+    int ConteoTotalPro;
+
+    Dictionary<string, string> queryStringObject = new Dictionary<string, string>();
+    Dictionary<string, string> queryStringObjectPro = new Dictionary<string, string>();
+    Dictionary<string, string> queryStringObjectPre = new Dictionary<string, string>();
+
+    void ShowToolTip(ElementReference elementReference, TooltipService option = null!) => ts.Open(elementReference, "Opcion para solo mandar correo a clientes de manera individual");
+    void ShowGroupTip(ElementReference elementReference, TooltipService service = null!) => ts.Open(elementReference, "Opcion para mandar correos a clientes ligados a grupos empresariales. NOTA: Tener para cada cliente un correo asignado");
+
+    private List<File> files = new();
+    private List<UploadResult> UploadResults = new();
+
+    private class File
+    {
+        public string Name { get; set; } = string.Empty;
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
-        if (width < 0)
-            width = 500;
-        TotalWidth = $"{width}px";
-
         await GetProductos();
         await GetGrupos();
         await GetZonas();
-        await GetPrecios();
-        await GetPreciosProgramados();
+        await Obtener_Monedas();
+        await LoadData();
+        await LoadDataProgramados();
+    }
 
-        Token = "Bearer " + await js.GetItemLocalStorage("TOKENKEY");
+    private async Task Filtrar_Producto(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.producto = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.producto = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Cliente(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.cliente = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.cliente = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Destino(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.destino = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.destino = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task Filtrar_Zona(ChangeEventArgs e, bool es_programado)
+    {
+        if (e.Value is not null)
+        {
+            if (!es_programado)
+            {
+                busquedaPrecios.zona = e.Value.ToString();
+                await LoadData();
+            }
+            else
+            {
+                busquedaPreciosPro.zona = e.Value.ToString();
+                await LoadDataProgramados();
+            }
+        }
+    }
+
+    private async Task LoadData()
+    {
+        if (queryStringObject is null) { queryStringObject = new Dictionary<string, string>(); }
+        queryStringObject["producto"] = busquedaPrecios.producto;
+        queryStringObject["destino"] = busquedaPrecios.destino;
+        queryStringObject["cliente"] = busquedaPrecios.cliente;
+        queryStringObject["zona"] = busquedaPrecios.zona;
+        queryStringObject["pagina"] = busquedaPrecios.pagina.ToString();
+        queryStringObject["tamanopagina"] = busquedaPrecios.tamanopagina.ToString();
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObject.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await GetPreciosFiltro(uri);
+    }
+
+    private async Task LoadDataProgramados()
+    {
+        if (queryStringObjectPro is null) { queryStringObjectPro = new Dictionary<string, string>(); }
+        queryStringObjectPro["producto"] = busquedaPreciosPro.producto;
+        queryStringObjectPro["destino"] = busquedaPreciosPro.destino;
+        queryStringObjectPro["cliente"] = busquedaPreciosPro.cliente;
+        queryStringObjectPro["zona"] = busquedaPreciosPro.zona;
+        queryStringObjectPro["pagina"] = busquedaPreciosPro.pagina.ToString();
+        queryStringObjectPro["tamanopagina"] = busquedaPreciosPro.tamanopagina.ToString();
+
+        var DefaultValues = new List<string>() { "false", "", "0" };
+        var uri = string.Join("&", queryStringObjectPro.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+        .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+        await GetPreciosFiltroPro(uri);
     }
 
     protected override async Task OnAfterRenderAsync(bool first)
     {
         if (first)
         {
-            await LoadStateAsync();
-            StateHasChanged();
-        }
-    }
+            var cm = await js.GetItemLocalStorage("CloseMenu");
+            if (!string.IsNullOrEmpty(cm))
+                isClose = bool.Parse(cm);
 
-    private void OnProgress(UploadProgressArgs e)
-    {
-        try
-        {
-            //Console.WriteLine($"{e.Progress}% / {e.Loaded} of {e.Total}");
-            Progress = e.Progress;
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
+            if (isClose)
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+            else
+                width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
 
-    private void OnChangeFile(UploadChangeEventArgs e)
-    {
-        try
-        {
-            foreach (var item in e.Files)
-            {
-                Console.WriteLine(JsonConvert.SerializeObject(item));
-            }
-        }
-        catch (Exception)
-        {
-            throw;
+            if (width < 0)
+                width = 500;
+            TotalWidth = $"{width}px";
         }
     }
 
@@ -514,6 +678,31 @@
 
     }
 
+    private async Task DownloadFile()
+    {
+
+        try
+        {
+            loading_download = true;
+            var response = await http.Get<byte[]>("api/precio/formato");
+            if (response.Error)
+            {
+                loading_download = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_download = false;
+                await js.GuardarComo($"FormatoPrecios_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_download = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 
     private async Task GetProductos()
     {
@@ -523,6 +712,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -537,56 +727,6 @@
         }
     }
 
-    private async Task GetPrecios()
-    {
-        try
-        {
-            loading = true;
-            var response = await http.Get<List<Precio>>("api/precio");
-            if (response.Error)
-            {
-                loading = false;
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-            {
-                loading = false;
-                precios = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            loading = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
-    private async Task GetPreciosProgramados()
-    {
-        try
-        {
-            loading = true;
-            var response = await http.Get<List<Precio>>("api/precio/programados/lista");
-            if (response.Error)
-            {
-                loading = false;
-                var message = await response.ObtenerMensajeError();
-            }
-            else
-            {
-                loading = false;
-                preciosPro = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            loading = false;
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task GetZonas()
     {
         try
@@ -595,6 +735,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -616,6 +757,7 @@
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -633,9 +775,9 @@
     {
         try
         {
-            if (Precio.codGru != null && Precio.codGru != GrupoSeleccionado)
+            if (Precio.CodGru != null && Precio.CodGru != GrupoSeleccionado)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.codGru}");
+                var response = await http.Get<List<CodDenDTO>>($"api/cliente/{Precio.CodGru}");
                 if (response.Error)
                 {
                     var message = await response.ObtenerMensajeError();
@@ -643,7 +785,7 @@
                 }
                 else
                 {
-                    GrupoSeleccionado = Precio.codGru;
+                    GrupoSeleccionado = Precio.CodGru;
                     Clientes = response.Response;
                     StateHasChanged();
                 }
@@ -660,9 +802,9 @@
     {
         try
         {
-            if (Precio.codCte != 0 && ClienteSeleccionado != Precio.codCte)
+            if (Precio.CodCte != null && ClienteSeleccionado != Precio.CodCte)
             {
-                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.codCte}");
+                var response = await http.Get<List<CodDenDTO>>($"api/estacion/{Precio.CodCte}");
                 if (response.Error)
                 {
                     var responseHttp = await response.ObtenerMensajeError();
@@ -672,7 +814,7 @@
                 {
                     Destinos = response.Response;
                     StateHasChanged();
-                    ClienteSeleccionado = Precio.codCte;
+                    ClienteSeleccionado = Precio.CodCte;
                 }
             }
         }
@@ -699,7 +841,8 @@
         try
         {
             loadingSave = true;
-            if(SelectedTab == 0){
+            if (SelectedTab == 0)
+            {
                 var response = await http.Post<Precio>("api/precio", Precio);
                 if (response.Error)
                 {
@@ -710,7 +853,7 @@
                 else
                 {
                     loadingSave = false;
-                    await GetPrecios();
+                    await LoadData();
                 }
             }
             else
@@ -725,7 +868,7 @@
                 else
                 {
                     loadingSave = false;
-                    await GetPreciosProgramados();
+                    await LoadDataProgramados();
                 }
             }
         }
@@ -772,20 +915,6 @@
         }
     }
 
-    private async Task HandlerErrorUpload(Radzen.UploadErrorEventArgs ex)
-    {
-        try
-        {
-            await Swal.FireAsync("Error", ex.Message, SweetAlertIcon.Error);
-            Progress = 0;
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-            throw e;
-        }
-    }
-
     private async Task SendPrecios()
     {
         try
@@ -801,19 +930,53 @@
                 await Swal.FireAsync("Alerta", "La lista no puede estar vacia", SweetAlertIcon.Warning);
                 return;
             }
-
-            var response = await http.Post<IEnumerable<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
+            ns.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Subiendo precios", Detail = $"Los precios se estan subiendo, esto podria tardar unos minutos. Permanesca en esta pantalla hasta terminar el proceso.", Duration = 10000 });
+            loadingSend = true;
+            var response = await http.Post<IEnumerable<PreciosDTO>, List<PreciosDTO>>("api/precio/confirm/upload", preciosExcel);
             if (response.Error)
             {
-                loadingSave = false;
+                loadingSend = false;
                 var message = await response.ObtenerMensajeError();
                 await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
-                loadingSave = false;
+                loadingSend = false;
+
+                if (response.Response.Count > 0)
+                {
+                    ns.Notify(new NotificationMessage
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Summary = "Generando reporte",
+                            Detail = $"Se encontraron destinos sin precios, se generara un reporte con los datos encontrados.",
+                            Duration = 15000
+                        });
+
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    var excel = new ExcelPackage();
+
+                    var ws = excel.Workbook.Worksheets.Add("Precios");
+                    var header = ws.Cells["A1:H1"];
+
+                    var tablebody = ws.Cells["A1:A1"].LoadFromCollection<PreciosDTO>(response.Response, true);
+
+                    tablebody.Style.Font.Size = 14;
+                    header.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    header.Style.Font.Size = 14;
+                    header.Style.Font.Bold = true;
+                    header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    header.Style.Fill.BackgroundColor.SetColor(Color.Black);
+                    header.Style.Font.Color.SetColor(Color.White);
+
+                    ws.Columns.AutoFit();
+
+                    await js.GuardarComo($"Destinos_sin_precio_{DateTime.Now.ToString("dd MM yyyy HH mm ss")}.xlsx", excel.GetAsByteArray());
+                }
+
                 await Swal.FireAsync("Exito", "Se han guardado los precios exitosamente.", SweetAlertIcon.Success);
-                await GetPrecios();
+                await LoadData();
+                await LoadDataProgramados();
             }
 
         }
@@ -829,63 +992,103 @@
         try
         {
             loadingSend = true;
-            if (precios is null)
-            {
-                loadingSend = false;
-
-                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
-                return;
-            }
-
-            if (precios.Count is 0)
-            {
-                loadingSend = false;
-
-                await Swal.FireAsync("Alerta", "La lista no puede estar vacia.", SweetAlertIcon.Error);
-                return;
-            }
-
+            var count = 0;
+            var totalcount = 0;
             ClientesSeleccionados = precios.DistinctBy(x => x.NombreCliente).Select(x => x.NombreCliente);
 
-            var clientes = await ds.OpenAsync<SelectionComponent>($"Clientes",
-            new Dictionary<string, object>() { { "lista", ClientesSeleccionados } },
-            new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            EnvioTipoPreciosEmailDtoClass1 clientes = new EnvioTipoPreciosEmailDtoClass1();
 
-            if (clientes is null || clientes.Count == 0)
+            var clientesPre = await ds.OpenAsync<SelectionComponent>($"Clientes",
+            options: new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+
+            if (clientesPre is not null)
+                clientes = clientesPre;
+
+            if (clientes.Clientes is null || clientes.Clientes.Count == 0)
             {
                 loadingSend = false;
                 return;
             }
-
+            totalcount = clientes.Clientes.Count;
             Message(new NotificationMessage
-            {
-                Severity = NotificationSeverity.Info,
-                Summary = "Enviando Correos",
-                Detail = "Los correos se estan enviando.\nPermanesca en esta pantalla hasta terminar el proceso.",
-                Duration = 15000
-            });
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
 
             List<Precio> listaPrecios = new List<Precio>();
 
-            foreach (var cliente in clientes)
+            foreach (var cliente in clientes.Clientes)
             {
-                listaPrecios.AddRange(precios.Where(x => x.NombreCliente!.Equals(cliente) && x.Pre != 0 && x.Activo == true));
-            }
+                count++;
 
-            var response = await http.Post<IEnumerable<Precio>>("api/email/precios", listaPrecios);
-            if (response.Error)
-            {
-                loadingSend = false;
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-                return;
-            }
-            else
-            {
-                await Swal.FireAsync("Exito", "Los correos han sido enviados", SweetAlertIcon.Success);
+                Message(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
+
+                if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
+                queryStringObjectPre["den"] = cliente;
+                queryStringObjectPre["cod"] = clientes.TipoEnvio.ToString();
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+
+                var uri = string.Join("&", queryStringObjectPre.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+
+                if (clientes.TipoEnvio == 1)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/precios?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
+                    }
+                }
+                else if (clientes.TipoEnvio == 2)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/precios/programados?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al cliente {cliente}",
+                                Duration = 15000
+                            });
+                    }
+                }
             }
 
             alert.Dispose();
+
+            await Swal.FireAsync("Correos enviados", $"Se enviaron {count} de {totalcount}.", SweetAlertIcon.Info);
+
             loadingSend = false;
 
         }
@@ -893,6 +1096,124 @@
         {
             loadingSend = false;
 
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SendEmailGroupPrecio()
+    {
+        try
+        {
+            loadingSend = true;
+            var count = 0;
+            var totalcount = 0;
+            //Hacemos el match de los grupos seleccionados en la tablas
+            GruposSeleccionados = precios.DistinctBy(x => x.NombreGrupo).Select(x => x.NombreGrupo);
+
+            EnvioTipoPreciosEmailDtoClass1 grupos = new EnvioTipoPreciosEmailDtoClass1();
+            //Abrimos el modal
+            var gruposPre = await ds.OpenAsync<SelectionGroupComponent>($"Grupos",
+                options: new DialogOptions() { Height = "600px", Width = "75%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+            //Si existen grupos les damos valor
+            if (gruposPre is not null)
+            {
+                grupos = gruposPre;
+            }
+            //Si no existen nada de grupo, no se hace nada
+            if (grupos.Grupos is null || grupos.Grupos.Count == 0)
+            {
+                loadingSend = false;
+                return;
+            }
+            //Conteo total de los grupos
+            totalcount = grupos.Grupos.Count;
+            //Alerta de que los correos se estan enviando
+            Message(new NotificationMessage
+                {
+                    Severity = NotificationSeverity.Info,
+                    Summary = "Enviando Correos",
+                    Detail = "Los correos se estan enviando.\nPermanezca en esta pantalla hasta terminar el proceso.",
+                    Duration = 15000
+                });
+
+            List<Precio> listaPrecios = new List<Precio>();
+            //Por cada grupo seleccionado, se realiza la accion de mostrar las alertas y hacer la peticion para mandar el correo
+            foreach (var grupo in grupos.Grupos)
+            {
+                count++;
+                //Enviando correo # de #...
+                Message(new NotificationMessage
+                    {
+                        Severity = NotificationSeverity.Info,
+                        Summary = "Enviando Correos",
+                        Detail = $"Enviando {count} de {totalcount}",
+                        Duration = 15000
+                    });
+
+                if (queryStringObjectPre is null) { queryStringObjectPre = new Dictionary<string, string>(); }
+                queryStringObjectPre["den"] = grupo;
+                queryStringObjectPre["cod"] = grupos.TipoEnvio.ToString();
+
+                var DefaultValues = new List<string>() { "false", "", "0" };
+                //Toma un objeto, filtra el contenido, mapea para poder utilizar la clave en la uri,, convierte en arreglo y los une en una cadena valida (Para poderlo utilizar en uri)
+                var uri = string.Join("&", queryStringObjectPre.Where(x => !DefaultValues.Contains(x.Value.ToLower()))
+                .Select(x => $"{x.Key}={System.Web.HttpUtility.UrlEncode(x.Value)}").ToArray());
+                //Peticion para mandar el precio vigente
+                if (grupos.TipoEnvio == 1)
+                {
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/preciosGroup?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"Se ha enviado correo a clientes del grupo {grupo}",
+                                Duration = 15000
+                            });
+                    }
+                }
+                else if (grupos.TipoEnvio == 2)
+                {
+                    //Peticion para mandar el precio programado
+                    var response = await http.Post<IEnumerable<Precio>, List<Precio>>($"api/email/preciosgroup/programados?{uri}", listaPrecios);
+                    if (response.Error)
+                    {
+                        loadingSend = false;
+                        var message = await response.ObtenerMensajeError();
+                        await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                        count--;
+                    }
+                    else
+                    {
+                        Message(new NotificationMessage
+                            {
+                                Severity = NotificationSeverity.Info,
+                                Summary = "Correo enviado",
+                                Detail = $"El correo se ha enviado al grupo {grupo}",
+                                Duration = 15000
+                            });
+                    }
+                }
+            }
+
+            alert.Dispose();
+            //Alerta final de correos enviados
+            await Swal.FireAsync("Correos enviados", $"Se enviaron {count} de {totalcount}.", SweetAlertIcon.Info);
+
+            loadingSend = false;
+
+
+        }
+        catch (Exception e)
+        {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
@@ -907,19 +1228,39 @@
         try
         {
             precio.Activo = (bool)ea.Value;
-            var response = await http.Post<Precio>($"api/precio", precio);
-            if (response.Error)
+            if (SelectedTab == 0)
             {
-                var message = await response.ObtenerMensajeError();
-                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                var response = await http.Post<Precio>($"api/precio", precio);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    grid?.Reload();
+                    if (precio.Activo)
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                    else
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                }
             }
             else
             {
-                grid?.Reload();
-                if (precio.Activo)
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                var response = await http.Post<Precio>($"api/precio/programado", precio);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
                 else
-                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                {
+                    grid?.Reload();
+                    if (precio.Activo)
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio habilitado", Detail = "El precio ha sido habilitado." });
+                    else
+                        Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Precio deshabilitado", Detail = "El precio ha sido deshabilitado." });
+                }
             }
         }
         catch (Exception e)
@@ -928,33 +1269,157 @@
         }
     }
 
-    private async Task SaveStateAsync()
+    private void OnChangeIndex(int index)
     {
-        try
-        {
-            await Task.CompletedTask;
-            await js.SetItemLocalStorage("settingsPrecios", JsonConvert.SerializeObject(Settings));
-        }
-        catch (Exception e)
-        {
-            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
+        SelectedTab = index;
     }
 
-    private async Task LoadStateAsync()
+    private async Task GetPreciosFiltro(string uri)
     {
         try
         {
-            await Task.CompletedTask;
-            var result = await js.GetItemLocalStorage("settingsPrecios");
-            if (!string.IsNullOrEmpty(result))
+            loading = true;
+            var response = await http.Get<List<Precio>>($"api/precio/filtro?{uri}");
+            if (response.Error)
             {
-                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                PaginasTotales = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
+                ConteoTotal = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                PaginaActual = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
+                precios = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task PaginasSeleccionadas(int pagina)
+    {
+        PaginaActual = pagina;
+        busquedaPrecios.pagina = PaginaActual;
+        await LoadData();
+    }
+
+    private async Task GetPreciosFiltroPro(string uri)
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<List<Precio>>($"api/precio/programado/filtro?{uri}");
+            if (response.Error)
+            {
+                loading = false;
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                loading = false;
+                PaginasTotalesPro = int.Parse(response.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
+                ConteoTotalPro = int.Parse(response.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                PaginaActualPro = int.Parse(response.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
+                preciosPro = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            throw e;
+        }
+    }
+
+    private async Task PaginasSeleccionadasPro(int pagina)
+    {
+        PaginaActualPro = pagina;
+        busquedaPreciosPro.pagina = PaginaActualPro;
+        await LoadDataProgramados();
+    }
+
+    private async Task Obtener_Monedas()
+    {
+        try
+        {
+            var response = await http.Get<List<Moneda>>($"api/moneda");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+            }
+            else
+            {
+                Monedas = response.Response;
             }
         }
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Subir_Precios(InputFileChangeEventArgs args)
+    {
+        long MaxAllowedSize = 1024 * 15 * 1024;
+        bool upload = false;
+        int MaxAllowedFiles = 10;
+
+        files = new();
+
+        using var content = new MultipartFormDataContent();
+        foreach (var file in args.GetMultipleFiles(MaxAllowedFiles))
+        {
+            try
+            {
+                files.Add(new() { Name = file.Name });
+                var filecontent = new StreamContent(file.OpenReadStream(MaxAllowedSize));
+                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+                content.Add(content: filecontent, name: "\"files\"", fileName: file.Name);
+                upload = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogInformation("{FileName} no se ha subido. (Err: 1) {Message}", file.Name, ex.Message);
+                UploadResults.Add(new()
+                    {
+                        FileName = file.Name,
+                        ErrorCode = 1,
+                        Upload = false
+                    });
+            }
+
+            if (upload)
+            {
+                loading_upload = true;
+                try
+                {
+                    var response = await http.PostFile("api/precio/file", content);
+                    if (response.Error)
+                    {
+                        loading_upload = false;
+                        await Swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+                    }
+                    else
+                    {
+                        loading_upload = false;
+                        await Swal.FireAsync("Exito", "Los precios fueron guardados con exito", SweetAlertIcon.Success);
+                        await LoadData();
+                        await LoadDataProgramados();
+                    }
+                }
+                catch (Exception e)
+                {
+                    loading_upload = false;
+                    await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+                }
+            }
         }
     }
 }

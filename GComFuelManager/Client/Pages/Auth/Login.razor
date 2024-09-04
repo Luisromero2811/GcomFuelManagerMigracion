@@ -6,9 +6,7 @@
 @inject IRepositorio http
 @inject ILoginService login
 
-<div class="col-12 card shadow">
-
-
+<div class="col-12">
     <section class="vh-100" style="background-color: #ffffff;">
         <div class="container py-5 h-100">
             <div class="row d-flex justify-content-center align-items-center h-100">
@@ -16,18 +14,29 @@
                     <div class="card shadow-lg" style="border-radius: 1rem; ">
                         <div class="row g-0">
                             <div class="col-md-6 d-flex justify-content-center align-items-center gcom-bg-rojo" style="border-radius:4px;">
-                                <div class="col-6">
-                                    <img src="img/gcom_unilogo.png"
-                                         alt="login form" class=" img-fluid" />
+                                <div>
+                                    <img src="img/LOGO GCOM.png"
+                                         alt="login form" class="img-fluid" />
                                 </div>
                             </div>
                             <div class="col-6 d-flex align-items-center">
                                 <div class="card-body p-4 p-lg-5 text-black">
 
-                                    <EditForm Model="usuario">
+                                    <EditForm Model="usuario" OnValidSubmit="LoguearUsuario">
                                         <DataAnnotationsValidator />
-                                        <div class="d-flex align-items-center mb-3 pb-1">
-                                            <i class="fas fa-cubes fa-2x me-3" style="color: #ff6219;"></i>
+                                        <div class="col-12 mb-2">
+                                            <label>Unidad de negocio</label>
+                                            <select @bind="@usuario.Terminal" class="form-select form-select-sm">
+                                                <option>-- seleccione una terminal --</option>
+                                                @foreach (var terminal in Terminales)
+                                                {
+                                                    <option value="@terminal">@terminal</option>
+                                                }
+                                            </select>
+                                            @if (loading_terminales)
+                                            {
+                                                <SpinnerLoading />
+                                            }
                                         </div>
                                         <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example17">Ingrese su Usuario:</label>
@@ -41,7 +50,7 @@
                                             <ValidationMessage For="@(()=>usuario.Password)" />
                                         </div>
                                         <div class="col-12 mt-4 d-flex justify-content-center">
-                                            <button class="btn gcom-bg-amarillo btn-lg px-5" type="button" @onclick="@LoguearUsuario">
+                                            <button class="btn gcom-bg-amarillo btn-lg px-5" type="submit">
                                                 Ingresar
                                                 @if (loading)
                                                 {
@@ -65,8 +74,43 @@
 
 @code {
     private UserLogin usuario { get; set; } = new UserLogin();
-    private bool loading = false;
 
+    List<string> Terminales { get; set; } = new();
+
+    private bool loading = false;
+    private bool loading_terminales = false;
+
+    [CascadingParameter] public ErrorHandleComponent? Error { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Terminales_Validas();
+    }
+
+    private async Task Obtener_Terminales_Validas()
+    {
+        try
+        {
+            loading_terminales = true;
+            var response = await http.Get<List<string>>("api/terminal/login");
+            if (response.Error)
+            {
+                loading_terminales = false;
+                string? message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_terminales = false;
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_terminales = false;
+            Error?.ProcessError(e);
+        }
+    }
 
     private async Task LoguearUsuario()
     {
@@ -78,7 +122,7 @@
             {
                 loading = false;
                 string? message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", "Verifique e ingrese bien sus datos.", SweetAlertIcon.Error);
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
             }
             else
             {
@@ -90,7 +134,7 @@
         catch (Exception e)
         {
             loading = false;
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            Error?.ProcessError(e);
         }
     }
 }

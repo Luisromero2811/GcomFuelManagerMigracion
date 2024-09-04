@@ -1,0 +1,81 @@
+﻿@typeparam Type
+@inject IJSRuntime js
+
+<table id="Custom_Table">
+    <thead>
+        @if (Cabeceras is not null)
+        {
+            @* <tr>
+        @Cabeceras
+        </tr> *@
+            @Cabeceras
+        }
+    </thead>
+    <tbody>
+        @if (Cargando is not null)
+        {
+            @if (Cargando == true)
+            {
+                <tr>
+                    <SpinnerLoading />
+                </tr>
+            }
+        }
+        @if(Filtros is not null)
+        {
+            @Filtros
+        }
+        @if (Datos is not null)
+        {
+            <CascadingValue Value="this">
+                <Virtualize TItem="Type" Items="Datos" Context="item">
+                    @if (Columnas is not null)
+                    {
+                        @Columnas(item)
+                    }
+                </Virtualize>
+            </CascadingValue>
+        }
+        else
+        {
+            <tr>
+                <td>No hay registros</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            @if (Inferior is not null)
+            {
+                @Inferior
+            }
+        </tr>
+    </tfoot>
+</table>
+
+@code {
+    [Parameter] public List<Type> Datos { get; set; } = new List<Type>();
+    [Parameter] public RenderFragment<Type> Columnas { get; set; } = null!;
+    [Parameter] public RenderFragment Cabeceras { get; set; } = null!;
+    [Parameter] public RenderFragment Inferior { get; set; } = null!;
+    [Parameter] public RenderFragment Filtros { get; set; } = null!;
+    [Parameter] public bool? Cargando { get; set; }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //         await js.InvokeVoidAsync("SetResizeTable");
+
+    // }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // await js.InvokeVoidAsync("makeTableResizable");
+            await js.InvokeVoidAsync("importarScript", "js/resizableTable.js");
+        }
+        // importedJs = await js.InvokeAsync<IJSObjectReference>("import", "./js/resizableTable.js");
+
+    }
+}

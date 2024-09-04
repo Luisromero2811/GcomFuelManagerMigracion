@@ -1,0 +1,46 @@
+﻿@inject IJSRuntime js
+@inject IRepositorio http
+@implements IDisposable
+
+<h3>Grafico</h3>
+
+<canvas id="myChart" style="width:100%; max-width:700px;"></canvas>
+
+
+@code {
+    private DotNetObjectReference<Grafico> objRef;
+    private List<Productos_Grafica> productos_ = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Data();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await Data();
+
+            await js.InvokeVoidAsync("initializeChart", productos_.Select(x => x.Producto), productos_.Select(x => x.Volumen));
+        }
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
+    }
+
+    private async Task Data()
+    {
+        var response = await http.Get<List<Productos_Grafica>>("api/orden/grafico");
+        if (!response.Error)
+        {
+            productos_ = response.Response;
+        }
+    }
+
+    private record Productos_Grafica(string Producto, double? Volumen);
+
+}

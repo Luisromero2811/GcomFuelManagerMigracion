@@ -1,0 +1,728 @@
+﻿@page "/activos"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NotificationService ns
+@inject IJSRuntime js
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Activos Fijos")]
+
+<div class="card">
+    <div class="card-header">
+        <b>Activo Fijo</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-6">
+                <Subir_Archivo Accept=".xlsx,.xls" TResponse="bool" Mensaje_Exitoso="Activos subidos exitosamente" URL="api/activo/file" Subida_Completa="Obtener_Activos_Fijos" />
+            </div>
+            <div class="col-2 d-flex">
+                <button class="btn btn-sm gcom-bg-amarillo col-12 mt-auto" @onclick="Descargar_Formato">
+                    Descargar formato
+                </button>
+            </div>
+        </div>
+        <br />
+        <div class="col-12 row g-1">
+            <EditForm Model="Activo_Fijo" OnValidSubmit="@Guardar_Activo">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-12 row g-1">
+                    <div class="col-4 my-1">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="@Activo_Fijo.Nombre" class="form-control form-control-sm" placeholder="Nombre de activo" />
+                        <ValidationMessage For="@(()=>Activo_Fijo.Nombre)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Origen</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Origen_Activo" class="form-select form-select-sm">
+                            <option>-- seleccione un origen --</option>
+                            @foreach (var conjunto in Cat_Origen)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Origen_Activo)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Conjunto de activo</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Conjunto_Activo" class="form-select form-select-sm">
+                            <option>-- seleccione un conjunto --</option>
+                            @foreach (var conjunto in Cat_Conjunto)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Conjunto_Activo)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Condición del activo</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Condicion_Activo" class="form-select form-select-sm">
+                            <option>-- seleccione un condicion --</option>
+                            @foreach (var conjunto in Cat_Condicion)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Condicion_Activo)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Tipo</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Tipo_Activo" class="form-select form-select-sm">
+                            <option>-- seleccione un tipo --</option>
+                            @foreach (var conjunto in Cat_Tipo)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Tipo_Activo)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Unidad de medida</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Unidad_Medida" class="form-select form-select-sm">
+                            <option>-- seleccione un unidad de medida --</option>
+                            @foreach (var conjunto in Cat_Unidad)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Unidad_Medida)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Número de etiqueta</label>
+                        <InputText @bind-Value="@Activo_Fijo.Nro_Etiqueta" class="form-control form-control-sm" placeholder="Número de etiqueta" />
+                        <ValidationMessage For="@(()=>Activo_Fijo.Nro_Etiqueta)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Etiquetado</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Etiquetado_Activo" class="form-select form-select-sm">
+                            <option>-- seleccione un estado de etiqueta --</option>
+                            @foreach (var conjunto in Cat_Etiqueta)
+                            {
+                                <option value="@conjunto.Id">@conjunto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Unidad_Medida)" />
+                    </div>
+                    <div class="col-4 my-1">
+                        <label>Dto. Responsable</label>
+                        <InputSelect @bind-Value="@Activo_Fijo.Dto_Responsable" class="form-select form-select-sm">
+                            <option>-- seleccione un dto. responsable --</option>
+                            @foreach (var dto in Cat_Dto_Responsable)
+                            {
+                                <option value="@dto.Id">@dto.Valor</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="@(()=>Activo_Fijo.Dto_Responsable)" />
+                    </div>
+                    <div class="col-4 d-flex mt-auto">
+                        @if (!is_edit)
+                        {
+                            <button class="btn btn-sm gcom-bg-amarillo col-12" type="submit">
+                                <i class="fa fa-solid fa-floppy-disk"></i> Guardar
+                                @if (loading_guardar)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        }
+                        else
+                        {
+                            <div class="col-12 btn-group">
+                                <button class="btn btn-sm gcom-bg-amarillo" type="submit">
+                                    <i class="fa fa-solid fa-floppy-disk"></i> Editar
+                                    @if (loading_guardar)
+                                    {
+                                        <SpinnerLoading />
+                                    }
+                                </button>
+                                <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="Cancel_Activo">
+                                    <i class="fa fa-solid fa-cancel"></i> Cancelar
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 card">
+    <div class="card-header"> 
+         <button class="col-2 btn btn-sm gcom-bg-amarillo" @onclick="Descargar_Exportacion">
+             Exportar
+         </button>
+    </div>
+</div>
+<div class="ancho-tabla overflow-scroll my-1">
+    <Tabla Datos="Activo_Fijos">
+        <Cabeceras>
+            <tr>
+                <th style="width:80px;"></th>
+                <th class="resizable-column" style="width:150px;">Nombre</th>
+                <th class="resizable-column" style="width:150px;">Origen</th>
+                <th class="resizable-column" style="width:150px;">Número de activo fijo</th>
+                <th class="resizable-column" style="width:150px;">Conjunto de activos fijos</th>
+                <th class="resizable-column" style="width:150px;">Condicion de activo</th>
+                <th class="resizable-column" style="width:150px;">Tipo</th>
+                <th class="resizable-column" style="width:150px;">Unidad de medida</th>
+                <th class="resizable-column" style="width:150px;">Número de etiqueta</th>
+                <th class="resizable-column" style="width:150px;">Etiquetado</th>
+                <th class="resizable-column" style="width:150px;">Dto. Responsable</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" @bind="Activo_Fijo_Filtro.Nombre" @oninput="Filtro_Nombre" />
+                </td>
+                <td>
+                    <select @onchange="Filtro_Origen" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Origen)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" @bind="Activo_Fijo_Filtro.Nro_Activo" @oninput="Filtro_Nro_Activo" />
+                </td>
+                <td>
+                    <select @onchange="Filtro_Conjunto" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Conjunto)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @onchange="Filtro_Condicion" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Condicion)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @onchange="Filtro_Tipo" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Tipo)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @onchange="Filtro_Unidad" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Unidad)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control form-control-sm" @bind="Activo_Fijo_Filtro.Nro_Etiqueta" @oninput="Filtro_Nro_Etiqueta" />
+                </td>
+                <td>
+                    <select @onchange="Filtro_Etiqueta" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Etiqueta)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+                <td>
+                    <select @onchange="Filtro_Dto_Responsable" class="form-select form-select-sm">
+                        <option value="0" selected>Todos</option>
+                        @foreach (var item in Cat_Origen)
+                        {
+                            <option value="@item.Id">@item.Valor</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+        </Filtros>
+        <Columnas Context="activo">
+            <tr>
+                <td>
+                    <div class="btn-group" role="group" aria-label="Editar / Eliminar">
+                        <button class="btn btn-sm gcom-bg-amarillo" type="button" @onclick="@(()=>Set_Activo(activo))">
+                            <i class="fa fa-solid fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm gcom-bg-rojo" type="button" @onclick="@(()=>Eliminar_Activo(activo.Id))">
+                            <i class="fa fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+                <td>@activo.Nombre</td>
+                <td>@activo.Origen?.Valor</td>
+                <td>@activo.Nro_Activo</td>
+                <td>@activo.Conjunto?.Valor</td>
+                <td>@activo.Condicion?.Valor</td>
+                <td>@activo.Tipo?.Valor</td>
+                <td>@activo.Unidad?.Valor</td>
+                <td>@activo.Nro_Etiqueta</td>
+                <td>@activo.Etiqueta?.Valor</td>
+                <td>@activo.Departamento_Responsable?.Valor</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="Activo_Fijo_Filtro.Pagina_ACtual" PaginasTotales="Activo_Fijo_Filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @Activo_Fijo_Filtro.Total_registros</p>
+    </div>
+</div>
+
+@code {
+    Dictionary<string, string> query = new();
+
+    Activo_Fijo Activo_Fijo = new();
+    Activo_Fijo Activo_Fijo_Filtro = new();
+    List<Activo_Fijo> Activo_Fijos = new();
+
+    List<Catalogo_Fijo> Cat_Conjunto = new();
+    List<Catalogo_Fijo> Cat_Condicion = new();
+    List<Catalogo_Fijo> Cat_Tipo = new();
+    List<Catalogo_Fijo> Cat_Unidad = new();
+    List<Catalogo_Fijo> Cat_Origen = new();
+    List<Catalogo_Fijo> Cat_Dto_Responsable = new();
+    List<Catalogo_Fijo> Cat_Etiqueta = new();
+
+    bool loading_guardar = false;
+    bool is_edit = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Catalogo_Conjunto();
+        await Obtener_Catalogo_Condicion();
+        await Obtener_Catalogo_Tipo();
+        await Obtener_Catalogo_Unidad();
+        await Obtener_Catalogo_Origen();
+        await Obtener_Catalogo_Etiqueta();
+        await Obtener_Activos_Fijos();
+    }
+
+    private async Task Obtener_Catalogo_Conjunto()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/conjunto");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Conjunto = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Condicion()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/condicion");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Condicion = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Tipo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/tipo");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Tipo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Unidad()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/unidad");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Unidad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Origen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/origen");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Origen = response.Response;
+                Cat_Dto_Responsable = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Catalogo_Etiqueta()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>("api/activo/catalogo/etiqueta");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Cat_Etiqueta = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Activo()
+    {
+        try
+        {
+            loading_guardar = true;
+            var response = await http.Post<Activo_Fijo>("api/activo", Activo_Fijo);
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                ns.Notify(new() { Summary = "Activo registrado", Duration = 5000, Severity = NotificationSeverity.Success });
+
+                await Obtener_Activos_Fijos();
+
+                if (is_edit)
+                {
+                    Activo_Fijo = new();
+                    is_edit = false;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Eliminar_Activo(int id)
+    {
+        try
+        {
+            loading_guardar = true;
+            var response = await http.Delete($"api/activo/{id}");
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                ns.Notify(new() { Summary = "Activo eliminado", Duration = 5000, Severity = NotificationSeverity.Info });
+
+                await Obtener_Activos_Fijos();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Activos_Fijos()
+    {
+        try
+        {
+            var url = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros_Busqueda());
+
+            var response = await http.Get<List<Activo_Fijo>>($"api/activo?{url}");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                Activo_Fijos = response.Response;
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("paginas", out IEnumerable<string>? paginas_header))
+                {
+                    if (paginas_header is not null)
+                        if (paginas_header.Count() > 0)
+                            Activo_Fijo_Filtro.Total_paginas = int.Parse(paginas_header.First().ToString());
+                }
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("conteo", out IEnumerable<string>? conteo_header))
+                {
+                    if (conteo_header is not null)
+                        if (conteo_header.Count() > 0)
+                            Activo_Fijo_Filtro.Total_registros = int.Parse(conteo_header.First().ToString());
+                }
+
+                if (response.HttpResponseMessage.Headers.TryGetValues("pagina", out IEnumerable<string>? pagina_header))
+                {
+                    if (pagina_header is not null)
+                        if (pagina_header.Count() > 0)
+                            Activo_Fijo_Filtro.Pagina_ACtual = int.Parse(pagina_header.First().ToString());
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private Dictionary<string, string> Set_Parametros_Busqueda()
+    {
+        query["Nombre"] = Activo_Fijo_Filtro.Nombre;
+        query["Conjunto_Activo"] = Activo_Fijo_Filtro.Conjunto_Activo.ToString();
+        query["Condicion_Activo"] = Activo_Fijo_Filtro.Condicion_Activo.ToString();
+        query["Tipo_Activo"] = Activo_Fijo_Filtro.Tipo_Activo.ToString();
+        query["Unidad_Medida"] = Activo_Fijo_Filtro.Unidad_Medida.ToString();
+        query["Origen_Activo"] = Activo_Fijo_Filtro.Origen_Activo.ToString();
+        query["Nro_Etiqueta"] = Activo_Fijo_Filtro.Nro_Etiqueta.ToString();
+        query["Etiquetado_Activo"] = Activo_Fijo_Filtro.Etiquetado_Activo.ToString();
+        query["Dto_Responsable"] = Activo_Fijo_Filtro.Dto_Responsable.ToString();
+        query["Nro_Activo"] = Activo_Fijo_Filtro.Nro_Activo.ToString();
+        query["Pagina"] = Activo_Fijo_Filtro.Pagina.ToString();
+        query["Registros_por_pagina"] = Activo_Fijo_Filtro.Registros_por_pagina.ToString();
+
+        return query;
+    }
+
+    #region Parametros
+    private async Task Filtro_Nombre(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            Activo_Fijo_Filtro.Nombre = e.Value.ToString() ?? string.Empty;
+            await Obtener_Activos_Fijos();
+        }
+    }
+
+    private async Task Filtro_Nro_Activo(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            Activo_Fijo_Filtro.Nro_Activo = e.Value.ToString() ?? string.Empty;
+            await Obtener_Activos_Fijos();
+        }
+    }
+
+    private async Task Filtro_Nro_Etiqueta(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            Activo_Fijo_Filtro.Nro_Etiqueta = e.Value.ToString() ?? string.Empty;
+            await Obtener_Activos_Fijos();
+        }
+    }
+
+    private async Task Filtro_Origen(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int origen))
+            {
+                Activo_Fijo_Filtro.Origen_Activo = origen;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Conjunto(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int conjunto))
+            {
+                Activo_Fijo_Filtro.Conjunto_Activo = conjunto;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Condicion(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int condicion))
+            {
+                Activo_Fijo_Filtro.Condicion_Activo = condicion;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Tipo(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int tipo))
+            {
+                Activo_Fijo_Filtro.Tipo_Activo = tipo;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Unidad(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int unidad))
+            {
+                Activo_Fijo_Filtro.Unidad_Medida = unidad;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Etiqueta(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int etiqueta))
+            {
+                Activo_Fijo_Filtro.Etiquetado_Activo = etiqueta;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    private async Task Filtro_Dto_Responsable(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            if (int.TryParse(e.Value.ToString(), out int origen))
+            {
+                Activo_Fijo_Filtro.Dto_Responsable = origen;
+                await Obtener_Activos_Fijos();
+            }
+        }
+    }
+
+    #endregion
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        Activo_Fijo_Filtro.Pagina_ACtual = pagina;
+        Activo_Fijo_Filtro.Pagina = pagina;
+
+        await Obtener_Activos_Fijos();
+    }
+
+    private void Set_Activo(Activo_Fijo activo_Fijo)
+    {
+        Activo_Fijo = activo_Fijo;
+        is_edit = true;
+    }
+
+    private void Cancel_Activo()
+    {
+        Activo_Fijo = new();
+        is_edit = false;
+    }
+
+    private async Task Descargar_Formato()
+    {
+        try
+        {
+            var response = await http.Get<byte[]>($"api/activo/formato");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"FormatoActivos{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Descargar_Exportacion()
+    {
+        try
+        {
+            var url = Constructor_De_URL_Parametros.Generar_URL(Set_Parametros_Busqueda());
+            var response = await http.Get<byte[]>($"api/activo/exportar?{url}");
+            if (response.Error)
+            {
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Activos_Fijos_{DateTime.Now.ToString("dd-MM-yyyy")}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+}

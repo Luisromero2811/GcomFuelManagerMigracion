@@ -1,0 +1,167 @@
+﻿@page "/crm/oportunidades"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize]
+
+<div class="col-12">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between">
+            <b>Oportunidades</b>
+            <NavLink Match="NavLinkMatch.All" href="../" class="g-1 btn gcom-bg-amarillo">
+                <i class="fa fa fa-arrow-left" /> Volver
+            </NavLink>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 my-2">
+    <div class="col-md-2 col">
+        <NavLink Match="NavLinkMatch.All" href="crm/oportunidades/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
+            <i class="fa fa-solid fa-plus" /> Agregar
+        </NavLink>
+    </div>
+</div>
+
+<div class="ancho-tabla">
+    <Tabla Datos="Oportunidades" Cargando="loading_info">
+        <Cabeceras>
+            <tr>
+                <th></th>
+                <th>Oportunidad</th>
+                <th>Cuenta</th>
+                <th>Contacto</th>
+                <th>Etapa de venta</th>
+                <th>Valor</th>
+                <th>Vendedor</th>
+                <th>Probabilidad</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" /></td>
+                <td><input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" /></td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
+                <td></td>
+                <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn gcom-bg-amarillo" href="crm/oportunidades/formulario/@item.Id">
+                            <i class="fa fa-solid fa-edit" />
+                        </a>
+                        <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
+                            <i class="fa fa-solid fa-eye" />
+                        </a>
+                        <button class="btn btn-danger">
+                            <i class="fa fa-solid fa-trash" />
+                        </button>
+                    </div>
+                </td>
+                <td>@item.Nombre_Opor</td>
+                <td>@item.Cuenta</td>
+                <td>@item.Contacto</td>
+                <td>@item.EtapaVenta</td>
+                <td>@item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture) @item.Medida</td>
+                <td>@item.Vendedor</td>
+                <td>@item.Probabilidad %</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @filtro.Total_registros</p>
+    </div>
+</div>
+
+@code {
+    bool loading_info = false;
+    List<CRMOportunidadDTO> Oportunidades = new();
+    CRMOportunidadDTO filtro = new();
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerOportunidades();
+    }
+
+    private async Task ObtenerOportunidades()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParameter());
+
+            var response = await http.Get<List<CRMOportunidadDTO>>($"api/crmoportunidad?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Oportunidades = response.Response;
+
+                filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro.Pagina_ACtual = pagina;
+        filtro.Pagina = pagina;
+
+        await ObtenerOportunidades();
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro.Nombre_Opor = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
+    private async Task FiltrarVendedor(ChangeEventArgs args)
+    {
+        filtro.Vendedor = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
+    private async Task FiltrarEtapa(ChangeEventArgs args)
+    {
+        filtro.EtapaVenta = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
+    private async Task FiltrarCuenta(ChangeEventArgs args)
+    {
+        filtro.Cuenta = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
+    private Dictionary<string, string> SetParameter()
+    {
+        query[$"{nameof(filtro.Nombre_Opor)}"] = filtro.Nombre_Opor;
+        query[$"{nameof(filtro.Vendedor)}"] = filtro.Vendedor;
+        query[$"{nameof(filtro.EtapaVenta)}"] = filtro.EtapaVenta;
+        query[$"{nameof(filtro.Cuenta)}"] = filtro.Cuenta;
+        return query;
+    }
+}

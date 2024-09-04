@@ -1,0 +1,437 @@
+﻿@page "/crm/oportunidades/formulario"
+@page "/crm/oportunidades/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMOportunidadPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+@if (loading_info)
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-warning progress-bar-animated" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+}
+<div class="card">
+    <div class="card-header d-flex justify-content-between">
+        <b>Formulario oportunidades</b>
+        <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/oportunidades" Match="NavLinkMatch.All">
+            <i class="fa fa-solid fa-arrow-left" /> Volver
+        </NavLink>
+    </div>
+    <div class="card-body">
+        <EditForm Model="Oportunidad" class="col-12 row gy-2 gx-3" OnValidSubmit="GuardarOportunidad">
+            <FluentValidationValidator Validator="validator" />
+            <ValidationSummary />
+            <div class="col-md-4 col-12">
+                <label>Nombre de oportunidad</label>
+                <InputText @bind-Value="Oportunidad.Nombre_Opor" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Unidad de medida</label>
+                <InputSelect @bind-Value="Oportunidad.UnidadMedidaId" class="form-select">
+                    <option>-- seleccione una medida --</option>
+                    @foreach (var item in Medida)
+                    {
+                        <option value="@item.Id">@item.Abreviacion</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Importe</label>
+                <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Periodo</label>
+                <InputSelect @bind-Value="Oportunidad.PeriodoId" class="form-select">
+                    <option>-- seleccione un periodo --</option>
+                    @foreach (var item in Periodos)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Cuenta</label>
+                <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id" On_Change_Method="ObtenerContacto">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
+                <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Contacto</label>
+                <InputSelect @bind-Value="Oportunidad.ContactoId" class="form-select">
+                    <option>-- seleccione un contacto --</option>
+                    @foreach (var item in Contactos)
+                    {
+                        <option value="@item.Id">
+                            @item.Nombre @item.Apellidos
+                            @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                            @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                        </option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Proximo paso</label>
+                <InputTextArea class="form-control" @bind-Value="Oportunidad.Prox_Paso" />
+                <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Origen de contacto</label>
+                <InputSelect @bind-Value="Oportunidad.OrigenId" class="form-select">
+                    <option>-- seleccione un origen --</option>
+                    @foreach (var item in Origen)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Asignado a</label>
+                <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
+                    <RenderValue Context="item">
+                        @item.Nombre
+                    </RenderValue>
+                    <Render Context="item">
+                        @item.Nombre
+                    </Render>
+                </DropDownFilter>
+                <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
+                <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Tipo</label>
+                <InputSelect @bind-Value="Oportunidad.TipoId" class="form-select">
+                    <option>-- seleccione un tipo --</option>
+                    @foreach (var item in Tipos)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.TipoId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Fecha de cierre</label>
+                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCierre" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.FechaCierre)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Etapa de venta</label>
+                <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select">
+                    <option>-- seleccione una etapa de venta--</option>
+                    @foreach (var item in Etapas)
+                    {
+                        <option value="@item.Id">@item.Valor</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(()=>Oportunidad.EtapaVentaId)" />
+            </div>
+            <div class="col-md-4 col-12">
+                <label>Probabilidad</label>
+                <InputNumber @bind-Value="Oportunidad.Probabilidad" class="form-control" />
+                <ValidationMessage For="@(()=>Oportunidad.Probabilidad)" />
+            </div>
+            <div class="col-12">
+                <div class="col-3">
+                    <button type="submit" class="btn gcom-bg-amarillo col-12">
+                        <i class="fa fa-solid fa-floppy-disk" />
+                        Guardar
+                        @if (loading_save)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    CRMOportunidadPostDTO Oportunidad = new();
+
+    List<Catalogo_Fijo> Tipos = new();
+    List<Catalogo_Fijo> Origen = new();
+    List<Catalogo_Fijo> Etapas = new();
+    List<Catalogo_Fijo> Medida = new();
+    List<Catalogo_Fijo> Periodos = new();
+
+    List<Vendedor> Vendedores = new();
+    List<CRMCliente> Clientes = new();
+    List<CRMContactoDTO> Contactos = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != 0)
+            await ObtenerOportunidad();
+
+        await Task.WhenAll(
+        ObtenerCatalogoEtapa(),
+        ObtenerCatalogoMedida(),
+        ObtenerCatalogoOrigen(),
+        ObtenerCatalogoTipo(),
+        ObtenerVendedores(),
+        ObtenerClientes(),
+        ObtenerCatalogoPeriodo(),
+        ObtenerContacto());
+    }
+
+    private async Task ObtenerVendedores(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoTipo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/tipo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Tipos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoMedida()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/medida");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Medida = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoEtapa()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/etapa");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Etapas = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoOrigen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/origen");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Origen = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoPeriodo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/periodo");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Periodos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerClientes(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMCliente>>($"api/crmcliente?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task GuardarOportunidad()
+    {
+        try
+        {
+            loading_save = true;
+            var response = await http.Post<CRMOportunidadPostDTO>($"api/crmoportunidad", Oportunidad);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/oportunidades", false);
+                else
+                    Oportunidad = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerOportunidad()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMOportunidadPostDTO>($"api/crmoportunidad/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Oportunidad = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerContacto()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos/cuenta/{Oportunidad.CuentaId}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

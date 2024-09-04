@@ -1,0 +1,71 @@
+﻿<div class="modal-gcom @(Mostrar ? "block":"none")">
+    <div class="modal-body-gcom">
+        <span class="close" @onclick="@Cerrar">&times;</span>
+        @if (render is not null)
+        {
+            @render
+        }
+    </div>
+</div>
+
+<style>
+    /* The Modal (background) */
+    .modal-gcom { /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-body-gcom {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+</style>
+@code {
+    [Parameter] public RenderFragment? render { get; set; }
+    [Parameter] public bool Mostrar { get; set; } = false;
+    ElementReference Modal;
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Console.WriteLine("iniciando modal");
+    }
+
+    protected override void OnParametersSet()
+    {
+        Console.WriteLine(Mostrar);
+        base.OnParametersSet();
+    }
+
+    private void Cerrar()
+    {
+        Mostrar = !Mostrar;
+        StateHasChanged();
+    }
+}

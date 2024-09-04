@@ -1,13 +1,13 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using GComFuelManager.Client;
 using GComFuelManager.Client.Auth;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Client.Helpers.Validations;
+using GComFuelManager.Client.Helpers.Validations.CRM;
 using GComFuelManager.Client.Repositorios;
-using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Radzen;
 using System.Globalization;
 
@@ -18,7 +18,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddSingleton(sp => new HttpClient
 {
     BaseAddress = new Uri(builder.HostEnvironment.BaseAddress),
-    Timeout = TimeSpan.FromMinutes(5),
+    Timeout = TimeSpan.FromMinutes(15),
 });
 ConfigureServices(builder.Services);
 
@@ -45,7 +45,7 @@ void ConfigureServices(IServiceCollection services)
     proveedor.GetRequiredService<ProveedorAutenticacionJWT>());
 
     services.AddScoped<RenovadorToken>();
-    services.AddSingleton(new CultureInfo("es-Mx"));
+    services.AddSingleton(new CultureInfo("es-MX"));
     services.AddScoped<OrdenCierreAdminValidation>();
     services.AddScoped<OrdenCierreClientValidation>();
     services.AddScoped<PedidoOrdenValidation>();
@@ -59,6 +59,29 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<AsignarContactoValidation>();
     services.AddScoped<AsignarZonaClienteValidation>();
     services.AddScoped<ClienteDestinoValidation>();
-
+    services.AddScoped<AsignarContactoClienteValidation>();
+    services.AddScoped<CierreGrupoValidation>();
     services.AddScoped<PreciosValidation>();
+    services.AddScoped<GestionClienteValidation>();
+    services.AddScoped<GestionDestinoValidation>();
+    services.AddScoped<GestionGrupoTransportesValidation>();
+    services.AddScoped<GestionEmpresaTransportesValidation>();
+    services.AddScoped<GestionChoferesValidation>();
+    services.AddScoped<GestionUnidadValidation>();
+    services.AddScoped<AutorizadoresValidation>();
+    //CRM
+    services.AddScoped<CRMContactoPostValidator>();
+    services.AddScoped<CRMOportunidadPostValidator>();
+    services.AddScoped<CRMVendedorPostValidator>();
+    services.AddScoped<CRMOriginadorPostValidator>();
+    services.AddScoped<CRMRolPostValidator>();
+
+    services.AddScoped<Constructor_De_URL_Parametros>();
+
+    services.AddAuthorizationCore(config =>
+    {
+        config.AddPolicy("IsAdmin", policy => policy
+        .RequireAuthenticatedUser()
+        .RequireRole("Admin", "Administrador Sistema"));
+    });
 }

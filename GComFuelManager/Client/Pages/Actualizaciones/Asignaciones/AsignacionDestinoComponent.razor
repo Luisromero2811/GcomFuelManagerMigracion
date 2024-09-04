@@ -4,10 +4,10 @@
 @inject NotificationService ms
 @inject ClienteDestinoValidation validation
 
-@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador")]
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador")]
 
 <h4><b>Cliente - Destino</b></h4>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador" Context="Groups">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador" Context="Groups">
     <div class="col-12 d-flex justify-content-center">
         <div class="col-10 card shadow-sm">
             <div class="col-12 row card-body">
@@ -32,7 +32,7 @@
                                 </RadzenDropDown>
                             </div>
                             @*</AuthorizeView>*@
-                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                 <div class="col">
                                     <label>Destino:</label>
                                     <RadzenDropDown @bind-Value="ClienteDestinoDTO.destino" Data="DestinoClientes" TValue="CodDenDTO" TextProperty="Den"
@@ -57,14 +57,18 @@
                                 </button>
                             </div>
                             @*</AuthorizeView>*@
-                            <AuthorizeView Roles="Admin, Administrador Sistema">
+                            <AuthorizeView Roles="Admin, Administrador Sistema, Programador">
                                 <div class="col d-flex mt-auto">
                                     <button class="col-6 mx-auto btn gcom-bg-amarillo" type="submit">
                                         <i class="fa fa-solid fa-plus"></i> Agregar Destino
                                     </button>
                                 </div>
                             </AuthorizeView>
-
+                            <div class="col d-flex mt-auto">
+                                <button class="col-6 mx-auto btn gcom-bg-amarillo" @onclick="@ExportarExcell" type="submit">
+                                    <i class="fa fa-solid fa-file-excel"></i> Exportar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </EditForm>
@@ -72,10 +76,10 @@
         </div>
     </div>
 </AuthorizeView>
-<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador">
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Programador">
     <div class="col-12 d-flex justify-content-center">
         <RadzenDataGrid TItem="CodDenDTO" Data="@Destinos" AllowColumnResize="true" AllowVirtualization="true" AllowPickAllColumns="true"
-                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho" Style="height:500px;"
+                        GridLines="DataGridGridLines.Both" class="rz-my-12 ancho-tabla" Style="height:500px;"
                         IsLoading="loading" @ref="@gridDestino" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="CodDenDTO" Title="Destino" Property="Den" OrderIndex="1" />
@@ -254,6 +258,34 @@
             Timer = 1800,
             Toast = true,
         }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    public async Task ExportarExcell()
+    {
+        try
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var excel = new ExcelPackage();
+            var worksheet = excel.Workbook.Worksheets.Add("Clientes");
+            worksheet.Columns.Width = 60;
+            worksheet.Columns.AutoFit();
+
+            //Formación del excel
+            var header = worksheet.Cells["A1:A1"];
+            header.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            header.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+
+            var tablebody = worksheet.Cells["A1:A1"].LoadFromCollection<CodDenDTO>(Destinos, true);
+            tablebody.Style.Font.Bold = true;
+            tablebody.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+            //Guardado de Excell
+            await js.GuardarComo($"Destinos_Cliente_{ClienteDestinoDTO.cliente!.Den}_{DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")}.xlsx", excel.GetAsByteArray());
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
     }
 
 }

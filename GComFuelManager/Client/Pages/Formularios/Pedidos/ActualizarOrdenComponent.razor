@@ -1,0 +1,405 @@
+﻿@page "/actualizar/pedidos"
+@inject IRepositorio http
+@inject SweetAlertService Swal
+@inject TooltipService ts
+@inject IJSRuntime js
+@inject AuthenticationStateProvider auth
+@inject DialogService ds
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Ejecutivo de Cuenta Operativo")]
+
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Ejecutivo de Cuenta Operativo, Programador">
+    <div class="card-header">
+        <b>Actualización de Órdenes</b>
+    </div>
+    <div class="col-12 row">
+        <div class="col-3 row">
+            <InputText class="form-control form-control-sm" @bind-Value="@folio" placeholder="Referencia de orden. ej.ENER-1_1" />
+        </div>
+        <div class="col-3">
+            <button class="col-12 btn btn-sm gcom-bg-amarillo px-0" @onclick="@BuscarOrdenes">
+                <i class="fa fa-solid fa-magnifying-glass"></i>
+                @if (loading)
+                {
+                    <SpinnerLoading />
+                }
+            </button>
+        </div>
+    </div>
+
+    @*<div class="col-12 d-flex justify-content-center row">
+            <div class="col-12 my-2">
+                <div class="col-3">
+                    <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@ActualizarOrdenes" disabled="@loadingUpdate">
+                        <i class="fa fa-solid fa-repeat"></i> Cancelar ordenes
+                        @if (loadingUpdate)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>*@
+
+    <div class="ancho-tabla" style="overflow:auto;max-height:450px;font-size:12px;resize:both;">
+        <table class="table table-bordered table-striped table-sm" style="max-width:100%;border-collapse:collapse;">
+            <thead>
+                <tr>
+                    <th>ver ordenes</th>
+                    <th>Folio</th>
+                    <th>Destino</th>
+                    <th>Producto</th>
+                    <th>Volumen</th>
+                    <th>Precio</th>
+                    <th>Fecha de carga programada</th>
+                    <th>Chofer</th>
+                    <th>Unidad</th>
+                    <th>Compartimento</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (loading)
+                {
+                    <SpinnerLoading />
+                }
+                @if (ordens is not null || ordens?.Count > 0)
+                {
+                    <Virtualize Items="ordens" Context="item" TItem="OrdenEmbarque">
+                        <tr>
+                            <td style="min-width:150px;">
+                                <div class="col-12 row">
+                                    <div class="col-6">
+                                        <button class="btn btn-sm gcom-bg-amarillo col-12" @onclick="@(()=>item.Mostrar_Detalle_Orden = !item.Mostrar_Detalle_Orden)">
+                                            <i class="fa fa-solid fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button class="btn btn-sm btn-danger col-12" @onclick="@(()=>ActualizarOrden(item))">
+                                            <i class="fa fa-solid fa-cancel"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="min-width:100px;">@item.Folio</td>
+                            <td style="min-width:200px;">@item.Destino?.Den</td>
+                            <td style="min-width:200px;">@item.Producto?.Den</td>
+                            <td style="min-width:120px;">@item.Obtener_Volumen_De_Orden_En_Formato()</td>
+                            <td style="min-width:100px;">@item.Pre</td>
+                            <td style="min-width:120px;">@item.Fchcar?.ToString("d")</td>
+                            <td style="min-width:120px;">@item.Chofer?.FullName</td>
+                            <td style="min-width:120px;">@item.Tonel?.Veh</td>
+                            <td style="min-width:120px;">@item.Compartment</td>
+                            <td style="min-width:120px;">@item.Estado?.den</td>
+                        </tr>
+                        @if (item.Mostrar_Detalle_Orden)
+                        {
+                            <tr>
+                                <td colspan="9">
+                                    @if (item.Ordenes_Synthesis.Count > 0)
+                                    {
+                                        <div style="max-width:900%;overflow:auto;">
+                                            <table class="table table-bordered table-striped" style="max-width:95%;border-collapse:collapse;box-sizing:border-box;white-space:nowrap;">
+                                                <thead>
+                                                    <tr>
+                                                        <th>cancelar</th>
+                                                        <th>Bol</th>
+                                                        <th>Destino</th>
+                                                        <th>Producto</th>
+                                                        <th>Volumen cargado</th>
+                                                        <th>Fecha de carga</th>
+                                                        <th>Chofer</th>
+                                                        <th>Unidad</th>
+                                                        <th>Compartimento</th>
+                                                        <th>Estado</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @if (item.Ordenes_Synthesis is not null || item?.Ordenes_Synthesis?.Count > 0)
+                                                    {
+                                                        <Virtualize Items="item.Ordenes_Synthesis" Context="orden" TItem="Orden">
+                                                            <tr>
+                                                                <td style="min-width:80px;">
+                                                                    <button class="btn btn-sm btn-danger" @onclick="@(()=>ActualizarOrdenSynthesis(orden))">
+                                                                        <i class="fa fa-solid fa-cancel"></i>
+                                                                    </button>
+                                                                </td>
+                                                                <td style="max-width:100px;">@orden.BatchId</td>
+                                                                <td style="max-width:300px;">@orden?.Destino?.Den</td>
+                                                                <td style="max-width:300px;">@orden?.Producto?.Den</td>
+                                                                <td style="max-width:120px;">@orden?.Vol</td>
+                                                                <td style="max-width:120px;">@orden?.Fchcar</td>
+                                                                <td style="max-width:300px;">@orden?.Chofer?.Den</td>
+                                                                <td style="max-width:200px;">@orden?.Tonel?.Veh</td>
+                                                                <td style="max-width:50px;">@item.Compartment</td>
+                                                                <td style="max-width:150px;">@orden?.Estado?.den</td>
+                                                            </tr>
+                                                        </Virtualize>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <p>No hay registros</p>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </Virtualize>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</AuthorizeView>
+<style type="text/css">
+    .ancho {
+        width: @TotalWidth;
+    }
+</style>
+
+@code {
+
+    //grid
+    private RadzenDataGrid<OrdenEmbarque> gridOC = new RadzenDataGrid<OrdenEmbarque>();
+
+    private OrdenEmbarque ordenEmbarque { get; set; } = new OrdenEmbarque();
+    private List<OrdenEmbarque> ordens { get; set; } = new List<OrdenEmbarque>();
+
+    private List<Orden> ordenCierres { get; set; } = new List<Orden>();
+    private OrdenCierre ordenCierre { get; set; } = new OrdenCierre() { OrdenEmbarque = new OrdenEmbarque() { Producto = new Producto() } };
+
+    private float Precio = 0;
+
+    private string folio { get; set; } = string.Empty;
+
+    bool loading = false;
+    bool loadingUpdate = false;
+
+    private Cliente Cliente { get; set; } = new Cliente();
+    private List<CodDenDTO> ClientesFiltro { get; set; } = null!;
+
+    private ClaimsPrincipal User { get; set; } = null!;
+    int width = 0;
+    string TotalWidth = string.Empty;
+    bool isClose = false;
+
+    int count = 0;
+
+    DataGridSettings _settings;
+    DataGridSettings Settings { get { return _settings; } set { if (_settings != value) { _settings = value; InvokeAsync(SaveStateAsync); } } }
+
+    CierreFiltroDTO fechas { get; set; } = new CierreFiltroDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var cm = await js.GetItemLocalStorage("CloseMenu");
+        if (!string.IsNullOrEmpty(cm))
+            isClose = bool.Parse(cm);
+
+        if (isClose)
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 110;
+        else
+            width = await js.InvokeAsync<int>("eval", "window.innerWidth") - 360;
+
+        if (width < 0)
+            width = 500;
+        TotalWidth = $"{width}px";
+        var authState = await auth.GetAuthenticationStateAsync();
+        if (authState is not null)
+            User = authState.User;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool first)
+    {
+        if (first)
+        {
+            await LoadStateAsync();
+            StateHasChanged();
+        }
+    }
+
+
+
+    private async Task PutClientes()
+    {
+        try
+        {
+            var response = await http.Put<Cliente>("api/clientes", Cliente);
+            if (response.Error)
+            {
+                var responseHttp = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", responseHttp, SweetAlertIcon.Error);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SaveStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            await js.SetItemLocalStorage("settingPedido", JsonConvert.SerializeObject(Settings));
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadStateAsync()
+    {
+        try
+        {
+            await Task.CompletedTask;
+            var result = await js.GetItemLocalStorage("settingsPedido");
+            if (!string.IsNullOrEmpty(result))
+            {
+                _settings = JsonConvert.DeserializeObject<DataGridSettings>(result)!;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task OpenModal()
+    {
+        try
+        {
+            await ds.OpenAsync<ViewFoliosPedidosComponent>("Folios de pedidos", options: new DialogOptions()
+                {
+                    Width = "90%",
+                    Height = "600px",
+                    Resizable = true,
+                    Draggable = false
+                });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task BuscarOrdenes()
+    {
+        try
+        {
+            loading = true;
+            var response = await http.Get<List<OrdenEmbarque>>($"api/pedido/orden/{folio}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                loading = false;
+            }
+            else
+            {
+                ordens = response.Response;
+                loading = false;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            loading = false;
+        }
+    }
+
+    private async Task ActualizarOrden(OrdenEmbarque orden)
+    {
+        try
+        {
+            loadingUpdate = true;
+            var response = await http.Delete($"api/pedido/cancel/orden/{orden.Cod}");
+            if (response.Error)
+            {
+                loadingUpdate = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingUpdate = false;
+                await BuscarOrdenes();
+                await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ActualizarOrdenSynthesis(Orden orden)
+    {
+        try
+        {
+            loadingUpdate = true;
+            var response = await http.Delete($"api/pedido/cancel/orden/synthesis/{orden.Cod}");
+            if (response.Error)
+            {
+                loadingUpdate = false;
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loadingUpdate = false;
+
+                await BuscarOrdenes();
+                await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+
+                //gridOC?.Reload();
+            }
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ActualizarOrdenes()
+    {
+        try
+        {
+            loadingUpdate = true;
+            foreach (var item in ordens)
+            {
+                loadingUpdate = true;
+                var response = await http.Get<List<OrdenEmbarque>>($"api/services/cancelar/{folio}");
+                if (response.Error)
+                {
+                    loadingUpdate = false;
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    if (response.Response is null)
+                        return;
+
+                    ordens = response.Response;
+                    loadingUpdate = false;
+
+                }
+            }
+            await Swal.FireAsync("Actualizacion", "Orden actualizada exitosamente", SweetAlertIcon.Success);
+            loadingUpdate = false;
+        }
+        catch (Exception e)
+        {
+            loadingUpdate = false;
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

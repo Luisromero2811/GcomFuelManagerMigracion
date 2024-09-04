@@ -1,0 +1,195 @@
+﻿<AuthorizeView Context="Menu_User">
+    <Authorized>
+        <nav class="nav-total">
+            <div class="nav-menu">
+                <div class="dropdown">
+                    <button @onclick="@(()=>show = !show)" class="dropdown-toggle">
+                        dropdown
+                    </button>
+                    @if (show)
+                    {
+                        <div class="dropdown-menu">
+                            <NavLink ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                <div class="dropdown-item">
+                                    <i class="fa fa-solid"></i>
+                                    link 1
+                                </div>
+                            </NavLink>
+                            <NavLink ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                <div class="dropdown-item">
+                                    <i class="fa fa-solid "></i>
+                                    link 2
+                                </div>
+                            </NavLink>
+                            <NavLink ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                <div class="dropdown-item">
+                                    <i class="fa fa-solid "></i>
+                                    link 3
+                                </div>
+                            </NavLink>
+                        </div>
+                    }
+                </div>
+                @foreach (var item in Menus)
+                {
+                    <AuthorizeView Roles="@item.roles">
+                        <Authorized>
+                            @if (!item.isMenu)
+                            {
+                                <NavLink href="@item.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                    <div class="nav-menu-top-item">
+                                        <i class="fa fa-solid fa-@item.icon"></i>
+                                        @item.name
+                                    </div>
+                                </NavLink>
+                            }
+                            else
+                            {
+                                <div class="nav-menu-top-item nav-dropdown">
+                                    <button class="nav-menu-top-item" @onclick="@item.ToggleShow">
+                                        <i class="fa fa-solid fa-@item.icon"></i>
+                                        @item.name
+                                    </button>
+                                    <div class="nav-dropdown-content">
+                                        @foreach (var level_1 in item.Menus)
+                                        {
+                                            <AuthorizeView Roles="@item.roles" Context="context_level_1">
+                                                <Authorized>
+                                                    <NavLink href="@level_1.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                                        <div class="nav-menu-top-item">
+                                                            <i class="fa fa-solid fa-@level_1.icon"></i>
+                                                            @level_1.name
+                                                        </div>
+                                                    </NavLink>
+                                                    @* @if (!level_1.isMenu)
+                                                    {
+                                                        <NavLink href="@level_1.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                                            <div class="nav-menu-top-item">
+                                                                <i class="fa fa-solid fa-@level_1.icon"></i>
+                                                                @level_1.name
+                                                            </div>
+                                                        </NavLink>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="nav-menu-top-item nav-dropdown">
+                                                            <button class="nav-menu-top-item" @onclick="@level_1.ToggleShow">
+                                                                <i class="fa fa-solid fa-@level_1.icon"></i>
+                                                                @level_1.name
+                                                            </button>
+                                                            @if (level_1.showDropDown)
+                                                            {
+                                                                <div class="nav-dropdown-content">
+                                                                    @foreach (var level_2 in level_1.Menus)
+                                                                    {
+                                                                        <AuthorizeView Roles="@item.roles" Context="context_level_2">
+                                                                            <Authorized>
+                                                                                @if (!level_2.isMenu)
+                                                                                {
+                                                                                    <NavLink href="@level_2.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                                                                        <div class="nav-menu-top-item">
+                                                                                            <i class="fa fa-solid fa-@level_2.icon"></i>
+                                                                                            @level_2.name
+                                                                                        </div>
+                                                                                    </NavLink>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <div class="nav-menu-top-item nav-dropdown">
+                                                                                        <button class="nav-menu-top-item" @onclick="@level_2.ToggleShow">
+                                                                                            <i class="fa fa-solid fa-@level_2.icon"></i>
+                                                                                            @level_2.name
+                                                                                        </button>
+                                                                                        @if (level_2.showDropDown)
+                                                                                        {
+                                                                                            <div class="nav-dropdown-content">
+                                                                                                @foreach (var level_3 in level_2.Menus)
+                                                                                                {
+                                                                                                    <AuthorizeView Roles="@item.roles" Context="context_level_3">
+                                                                                                        <Authorized>
+                                                                                                            <NavLink href="@level_3.path" ActiveClass="nav-menu-top-item-active" Match="NavLinkMatch.All">
+                                                                                                                <div class="nav-menu-top-item">
+                                                                                                                    <i class="fa fa-solid fa-@level_3.icon"></i>
+                                                                                                                    @level_3.name
+                                                                                                                </div>
+                                                                                                            </NavLink>
+                                                                                                        </Authorized>
+                                                                                                    </AuthorizeView>
+                                                                                                }
+                                                                                            </div>
+                                                                                        }
+                                                                                    </div>
+                                                                                }
+                                                                            </Authorized>
+                                                                        </AuthorizeView>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    } *@
+                                                </Authorized>
+                                            </AuthorizeView>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </Authorized>
+                    </AuthorizeView>
+                }
+            </div>
+            <div class="nav-usuario">
+                @if (Menu_User.User.Identity is not null)
+                {
+                    @Menu_User.User.Identity.Name
+                }
+            </div>
+        </nav>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    List<Menu> Menus { get; set; } = new();
+    bool show = false;
+    protected override void OnInitialized()
+    {
+        Menus.Add(new Menu() { name = "Usuarios", icon = "user", path = "/usuarios", roles = "Admin, Administrador Sistema, Administrador de Usuarios, Direccion, Gerencia" });
+
+        Menus.Add(new Menu()
+            {
+                name = "Configuracion",
+                icon = "gear",
+                isMenu = true,
+                roles = "Admin, Administrador Sistema, Direccion, Gerencia, Programador, Gestion de Transporte, Correo de Clientes, Analista Credito, Contador, Ejecutivo de Cuenta Comercial",
+                Menus = new() {
+                    new Menu() {
+                        name = "Datos",
+                        icon = "server",
+                        isMenu = true, Menus = new()
+                        {
+                          new Menu()
+                          {
+                              name = "Tonel"
+                          }
+                        } }
+
+                              }
+            });
+    }
+
+    public class Menu
+    {
+        public string name { get; set; } = string.Empty;
+        public string path { get; set; } = string.Empty;
+        public string icon { get; set; } = string.Empty;
+        public string roles { get; set; } = string.Empty;
+        public string context_item { get; set; } = string.Empty;
+        public bool isMenu { get; set; } = false;
+        public bool showDropDown { get; set; } = false;
+        public List<Menu> Menus { get; set; } = new();
+
+        public void ToggleShow()
+        {
+            showDropDown = !showDropDown;
+        }
+    }
+}

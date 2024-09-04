@@ -1,0 +1,434 @@
+﻿@inject IRepositorio repositorio
+@inject SweetAlertService Swal
+@inject IJSRuntime js
+@inject NotificationService Ns
+@inject GestionClienteValidation gestionCliente
+
+
+@attribute [Authorize(Roles = "Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Programador")]
+@* <h4>Catalogo de clientes</h4> *@
+<AuthorizeView Roles="Admin, Administrador Sistema, Direccion, Gerencia, Analista Credito, Contador, Ejecutivo de Cuenta Operativo, Ejecutivo de Cuenta Comercial, Programador" Context="GestionClientes">
+    <div class="card">
+        <div class="card-header">
+            <b>Agregar cliente</b>
+        </div>
+        <div class="card-body">
+            <EditForm Model="@Cliente" class="form col-12" OnValidSubmit="@CreateClientes" Context="Validations">
+                <FluentValidationValidator Validator="gestionCliente" />
+                <ValidationSummary />
+                <div class="col-12 row">
+                    <div class="col">
+                        <label>Grupo:</label>
+                        <DropDownFilter TValue="Int16?" Listado="Grupos" TListado="Grupo" Propiedad_Valor="Cod" @bind-Valor="Cliente.Codgru" Default_Placeholder="Grupos"
+                         FiltrarValor="Obtener_Grupos_Cliente">
+                            <Render>
+                                @context.Den
+                            </Render>
+                            <RenderValue>
+                                @context.Den
+                            </RenderValue>
+                        </DropDownFilter>
+                        @* <RadzenDropDown @bind-Value="Cliente.Codgru" TValue="Int16?" Data="Grupos" TextProperty="Den" ValueProperty="Cod"
+                        AllowVirtualization="true" AllowFiltering="true"
+                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" class="col-12">
+                        </RadzenDropDown> *@
+                    </div>
+                    <div class="col">
+                        <label>Nombre del cliente:</label>
+                        <InputText @bind-Value="Cliente.Den" class="form-control form-control-sm" />
+                    </div>
+                    <div class="col">
+                        <label>Modelo de Venta</label>
+                        <InputSelect @bind-Value="Cliente.MdVenta" class="form-select form-select-sm">
+                            <option>--Selecciona una opción--</option>
+                            @if (MdVenta is null)
+                            {
+                                <option disabled>Cargando ...</option>
+                            }
+                            else if (MdVenta.Count == 0)
+                            {
+                                <option disabled> No hay Modelo de Venta</option>
+                            }
+                            else
+                            {
+                                foreach (var item in MdVenta)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col">
+                        <label>Tipo de Venta</label>
+                        <InputSelect @bind-Value="Cliente.Tipven" class="form-select form-select-sm">
+                            <option>--Selecciona una opción</option>
+                            @if (TpVenta is null)
+                            {
+                                <option disabled> Cargando...</option>
+                            }
+                            else if (TpVenta.Count == 0)
+                            {
+                                <option disabled> No hay Tipo de Venta</option>
+                            }
+                            else
+                            {
+                                foreach (var item in TpVenta)
+                                {
+                                    <option value="@item">@item</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col">
+                        <label>Identificador externo</label>
+                        <InputText @bind-Value="Cliente.Identificador_Externo" class="form-control form-control-sm"/>
+                    </div>
+                    <div class="col-2 d-flex mt-auto">
+                        @if (!isEdit)
+                        {
+                            <button class="col-12 btn gcom-bg-amarillo btn-sm" type="submit">
+                                <i class="fa fa-solid fa-plus"></i> Guardar
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="col mx-2 btn gcom-bg-amarillo btn-sm" type="submit">
+                                <i class="fa fa-solid fa-check"></i>
+                            </button>
+                            <button class="col mx-2 btn gcom-bg-amarillo btn-sm" type="button" @onclick="@cancelEdit">
+                                <i class="fa fa-solid fa-xmark"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+    <div class="card mt-2" style="height: 500px; overflow: scroll;">
+        <div class="card-header">
+            <b>Gestión de Clientes</b>
+        </div>
+        <div class="card-body">
+            <div class="col-12 row">
+                <div class="col-3 mb-2">
+                    <label>Grupo</label>
+                    <DropDownFilter Listado="GrupoActivo" TListado="Grupo" TValue="Int16?" Default_Placeholder="Seleccione un Grupo" FiltrarValor="Obtener_Grupos"
+                                    Propiedad_Valor="Cod" On_Change_Method="@GetCliente" @bind-Valor="Cod_Gru">
+                        <RenderValue>
+                            @context.Den
+                        </RenderValue>
+                        <Render>
+                            @context.Den
+                        </Render>
+                    </DropDownFilter>
+                </div>
+            </div>
+            <div class="col-12">
+                <Tabla Datos="Clientes">
+                    <Cabeceras>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Modelo de Venta</th>
+                            <th>Tipo de Venta</th>
+                            <th>Identificador externo</th>
+                            <th>Estado</th>
+                            <th>Editar</th>
+                        </tr>
+                    </Cabeceras>
+                    <Filtros>
+                        <tr class="fila">
+                            <td>
+                                <input class="form-control form-control-sm" @oninput="LoadData" @bind="busquedaCatalogo.nombrecliente" />
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </Filtros>
+                    <Columnas Context="item">
+                        <tr>
+                            <td>@item.Den</td>
+                            <td>@item.MdVenta</td>
+                            <td>@item.Tipven</td>
+                            <td>@item.Identificador_Externo</td>
+                            <td>
+                                <div class="form-check form-switch mx-2">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="@item.Cod" checked="@item.Activo"
+                                           @onchange="((ChangeEventArgs e) => HabilitarDeshabilitar(item, e))">
+                                </div>
+                            </td>
+                            <!--Editar-->
+                            <td>
+                                <button class="btn btn-sm gcom-bg-amarillo" @onclick="@(()=>SetCliente(item))">
+                                    <i class="fa fa-solid fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </Columnas>
+                </Tabla>
+            </div>
+        </div>
+    </div>
+</AuthorizeView>
+
+@code {
+    //Variables
+    private short? GrupoSeleccionado = 0;
+
+    //Listas
+    List<Tad> Tads_Seleccionados { get; set; } = new();
+    List<Cliente> Clientes_Seleccionados { get; set; } = new();
+
+    List<Tad> Terminales { get; set; } = new List<Tad>();
+    List<Cliente> Clientes { get; set; } = new();
+    List<Grupo> Grupos { get; set; } = new List<Grupo>();
+    List<Grupo> GrupoActivo { get; set; } = new();
+
+    //Instancias
+    ClienteTadDTO clienteTadDTO { get; set; } = new ClienteTadDTO();
+    public Cliente Cliente { get; set; } = new Cliente();
+    public Cliente_Tad cliente_tad { get; set; } = new Cliente_Tad();
+
+    Cliente clientes { get; set; } = new();
+    Tad tads { get; set; } = new();
+    Grupo Grupo { get; set; } = new();
+
+    Dictionary<string, string> query = new Dictionary<string, string>();
+    ParametrosBusquedaCatalogo busquedaCatalogo = new ParametrosBusquedaCatalogo();
+
+    private List<string> MdVenta { get; set; } = new List<string> { "Delivery", "Rack" };
+    private List<string> TpVenta { get; set; } = new List<string> { "Interno", "Externo", "Rack" };
+    bool isEdit = false;
+    short? Cod_Gru = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener_Terminales_Validas();
+        await Obtener_Grupos(string.Empty);
+        await GetGrupos();
+    }
+
+    private async Task CreateClientes()
+    {
+        try
+        {
+            if (Cliente.Codgru == null)
+            {
+                await Swal.FireAsync("Alerta", "Seleccione un grupo.", SweetAlertIcon.Warning);
+            }
+            else
+            {
+                var response = await repositorio.Post<Cliente>($"api/cliente/crear", Cliente);
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Swal.FireAsync("Exito", $"Cliente {Cliente.Den} asignado al grupo seleccionado", SweetAlertIcon.Success);
+                    StateHasChanged();
+                    await GetCliente();
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Terminales_Validas()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Tad>>("api/terminal/activas");
+            if (response.Error)
+            {
+                string? message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Terminales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+    }
+
+    public async Task GetGrupos()
+    {
+        try
+        {
+            var response = await repositorio.Get<List<Grupo>>("api/grupo/allactives");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Grupos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task LoadData(ChangeEventArgs args)
+    {
+        busquedaCatalogo.nombrecliente = args.Value?.ToString() ?? string.Empty;
+        await GetCliente();
+    }
+
+    private async Task GetCliente()
+    {
+        try
+        {
+            query = new Dictionary<string, string>();
+            query["nombrecliente"] = busquedaCatalogo.nombrecliente;
+            query["codgru"] = Cod_Gru.ToString() ?? string.Empty;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await repositorio.Get<List<Cliente>>($"api/cliente/listado?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                StateHasChanged();
+                Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Grupos(string value)
+    {
+        try
+        {
+            GrupoActivo = await Obtener_Grupos_General(value);
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Grupos_Cliente(string value)
+    {
+        try
+        {
+            Grupos = await Obtener_Grupos_General(value);
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    public async Task<List<Grupo>> Obtener_Grupos_General(string value)
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Den"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await repositorio.Get<List<Grupo>>($"api/grupo/filtraractivos?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                return response.Response;
+            }
+
+            return new();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+            return new();
+        }
+    }
+
+    private async Task HabilitarDeshabilitar(Cliente destino, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/cliente/{destino.Cod}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    await Message($"{destino.Den} ha sido habilitado", SweetAlertIcon.Info);
+                }
+                else
+                {
+                    await Message($"{destino.Den} ha sido deshabilitado", SweetAlertIcon.Info);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Message(string Message, SweetAlertIcon icon)
+    {
+        await Swal.Mixin(new SweetAlertOptions
+            {
+                Position = "top-end",
+                ShowConfirmButton = false,
+                Timer = 1800,
+                Toast = true,
+            }).FireAsync(new SweetAlertOptions { Icon = icon, Text = Message });
+    }
+
+    private void SetCliente(Cliente cliente)
+    {
+        try
+        {
+            isEdit = true;
+            Cliente = cliente;
+        }
+        catch (Exception e)
+        {
+            throw e;
+        }
+    }
+
+    private async void cancelEdit()
+    {
+        isEdit = false;
+        Cliente = new Cliente();
+    }
+
+}
+
+

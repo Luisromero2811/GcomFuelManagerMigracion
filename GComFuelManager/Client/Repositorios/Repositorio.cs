@@ -54,6 +54,38 @@ namespace GComFuelManager.Client.Repositorios
             }
             return new HttpResponseWrapper<TResponse>(default!, !responseHttp.IsSuccessStatusCode, responseHttp);
         }
+
+        public async Task<HttpResponseWrapper<TResponse>> PostFile<TResponse>(string url, MultipartFormDataContent enviar)
+        {
+            //Serializamos el objeto que vamos a mandar
+            //var enviarJSON = JsonSerializer.Serialize(enviar);
+            //Enviamos la informacion del objeto
+            //var enviarContent = new StringContent(enviarJSON, Encoding.UTF8, "multipart/form-data");
+            //Enviamos la peticion por method Post
+            var responseHttp = await httpClient.PostAsync(url, enviar);
+
+            //Condicion, si el response is success, deserializamos la respuesta, sino encapsulamos la respuesta del servidor
+            if (responseHttp.IsSuccessStatusCode)
+            {
+                var response = await DeserializarRespuesta<TResponse>(responseHttp, OpcionesPorDefectoJson);
+                return new HttpResponseWrapper<TResponse>(response, Error: false, responseHttp);
+            }
+            return new HttpResponseWrapper<TResponse>(default!, !responseHttp.IsSuccessStatusCode, responseHttp);
+        }
+
+                public async Task<HttpResponseWrapper<object>> PostFile(string url, MultipartFormDataContent enviar)
+        {
+            //Serializamos el objeto que vamos a mandar
+            //var enviarJSON = JsonSerializer.Serialize(enviar);
+            //Enviamos la informacion del objeto
+            //var enviarContent = new StringContent(enviarJSON, Encoding.UTF8, "multipart/form-data");
+            //Enviamos la peticion por method Post
+            var responseHttp = await httpClient.PostAsync(url, enviar);
+
+            //Condicion, si el response is success, deserializamos la respuesta, sino encapsulamos la respuesta del servidor
+            return new HttpResponseWrapper<object>(null!, !responseHttp.IsSuccessStatusCode, responseHttp);
+        }
+
         public async Task<T> DeserializarRespuesta<T>(HttpResponseMessage httpResponse, JsonSerializerOptions jsonSerializerOptions)
         {
             var respuestaString = await httpResponse.Content.ReadAsStringAsync();

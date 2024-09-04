@@ -1,0 +1,180 @@
+﻿@page "/crm/roles/formulario"
+@page "/crm/roles/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMRolPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <b>Formulario de rol</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/roles" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <EditForm class="col-12 row gy-2 gx-3" Model="Rol" Context="FormRol" OnValidSubmit="Guardar">
+                    <FluentValidationValidator Validator="validator" />
+                    <ValidationSummary />
+
+                    <div class="col-md-4 col-12">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="Rol.Nombre" class="form-control" />
+                        <ValidationMessage For="@(()=>Rol.Nombre)" />
+                    </div>
+                    <div class="col-12 d-md-inline d-none">
+                        <SelectorMultiple T="CRMPermisoDTO" NoSeleccionado="PermisosNoSeleccionados" Seleccionados="PermisosSeleccionados">
+                            <ItemNoSeleccionado Context="item">
+                                @item.Nombre
+                            </ItemNoSeleccionado>
+                            <ItemSeleccionado Context="item">
+                                @item.Nombre
+                            </ItemSeleccionado>
+                        </SelectorMultiple>
+                    </div>
+                    <div class="col-12">
+                        <div class="col-md-4 col-12 d-flex">
+                            <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                                @if (loading_save)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    CRMRolPostDTO Rol = new();
+    List<CRMPermisoDTO> PermisosNoSeleccionados = new();
+    List<CRMPermisoDTO> PermisosSeleccionados = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerPermisosNoSeleccionados();
+        await ObtenerPermisosSeleccionados();
+
+        if (Id != 0)
+            await Obtener();
+    }
+
+    private async Task ObtenerPermisosNoSeleccionados()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMPermisoDTO>>($"api/crmpermiso/no/{Id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                PermisosNoSeleccionados = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerPermisosSeleccionados()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMPermisoDTO>>($"api/crmpermiso/{Id}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                PermisosSeleccionados = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            Rol.Permisos = PermisosSeleccionados;
+
+            loading_save = true;
+            var response = await http.Post<CRMRolPostDTO>($"api/crmrol", Rol);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/roles", false);
+                else
+                    Rol = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMRolPostDTO>($"api/crmrol/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Rol = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

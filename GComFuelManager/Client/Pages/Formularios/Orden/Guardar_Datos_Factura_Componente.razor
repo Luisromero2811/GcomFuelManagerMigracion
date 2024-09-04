@@ -1,0 +1,128 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService swal
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager navigationManager
+@inject TooltipService ts
+@inject NotificationService ns
+@attribute [Authorize]
+
+<div class="card my-1">
+    <div class="card-header">
+        <b>Seguimiento de facturas</b>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <div class="col-12 row">
+                <div class="col-4">
+                    <input class="form-control form-control-sm" type="text" placeholder="Referenia de orden" @bind="@Referencia" />
+                </div>
+                <div class="col-1">
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="@Buscar_Orden">
+                        <i class="fa fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-12 row my-2">
+                <div class="col-4 my-1">
+                    <input class="form-control form-control-sm" type="text" placeholder="Numero de orden" @bind-value="Datos_Facturas.Numero_Orden" maxlength="15" />
+                </div>
+                <div class="col-4 my-1">
+                    <input class="form-control form-control-sm" type="text" placeholder="Factura MGC" @bind-value="Datos_Facturas.Factura_MGC" maxlength="20" />
+                </div>
+                <div class="col-4 my-1">
+                    <input class="form-control form-control-sm" type="text" placeholder="Factura México S" @bind-value="Datos_Facturas.Factura_MexicoS" maxlength="20" />
+                </div>
+                <div class="col-4 my-1">
+                    <input class="form-control form-control-sm" type="text" placeholder="Factura DCL" @bind-value="Datos_Facturas.Factura_DCL" maxlength="15" />
+                </div>
+                <div class="col-4 my-1">
+                    <input class="form-control form-control-sm" type="text" placeholder="Factura Energas" @bind-value="Datos_Facturas.Factura_Energas" maxlength="20" />
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="col-3">
+                    <button class="col-12 btn btn-sm gcom-bg-amarillo" @onclick="@Guardar_Factura">
+                        Guardar
+                        @if (loading_guardar)
+                        {
+                            <SpinnerLoading />
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    Datos_Facturas Datos_Facturas = new();
+    OrdenEmbarque OrdenEmbarque = new();
+
+    string Referencia = string.Empty;
+    bool loading_guardar = false;
+
+    private async Task Buscar_Orden()
+    {
+        try
+        {
+            loading_guardar = true;
+            var response = await http.Get<OrdenEmbarque>($"api/orden/{Referencia}");
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                OrdenEmbarque = response.Response;
+
+                if (OrdenEmbarque.Datos_Facturas is not null)
+                {
+                    Datos_Facturas = OrdenEmbarque.Datos_Facturas;
+                }
+                else
+                {
+                    ns.Notify(new() { Severity = NotificationSeverity.Warning, Summary = "Datos de facturas", Detail = "Esta orden no cuenta con datos de factura relacionados.", Duration = 10000 });
+                    Datos_Facturas = new();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Guardar_Factura()
+    {
+        try
+        {
+            loading_guardar = true;
+
+            if (Datos_Facturas.Id_Orden == 0)
+            {
+                Datos_Facturas.Id_Orden = OrdenEmbarque.Cod;
+            }
+
+            var response = await http.Post<Datos_Facturas>("api/orden/factura", Datos_Facturas);
+            if (response.Error)
+            {
+                loading_guardar = false;
+                await swal.FireAsync("Error", await response.ObtenerMensajeError(), SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_guardar = false;
+                ns.Notify(new() { Severity = NotificationSeverity.Success, Detail = "Datos de factura guardados", Summary = "Factura" });
+                await Buscar_Orden();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_guardar = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+}

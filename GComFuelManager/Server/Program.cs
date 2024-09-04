@@ -1,10 +1,13 @@
-﻿using GComFuelManager.Server;
+using FluentValidation;
+using GComFuelManager.Server;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Server.Mappers;
+using GComFuelManager.Server.Validations;
+using GComFuelManager.Shared.DTOs.CRM;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.IdentityModel.Tokens;
 using RazorHtmlEmails.Common;
 using RazorHtmlEmails.GComFuelManagerMigracion.Services;
@@ -29,7 +32,7 @@ builder.Services.AddControllersWithViews()
     });
 builder.Services.AddRazorPages();
 
-builder.Services.AddIdentity<IdentityUsuario, IdentityRole>()
+builder.Services.AddIdentity<IdentityUsuario, IdentityRol>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
@@ -46,24 +49,39 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     });
 
+builder.Services.AddAutoMapper(typeof(MapperProfile));
+
+builder.Services.AddScoped<IValidator<CRMContactoPostDTO>, CRMContactoPostValidator>();
+builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPostValidator>();
+builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostValidator>();
+builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValidator>();
+builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostValidator>();
+builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
+
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();
 builder.Services.AddScoped<IVencimientoService, VencimientoEmailService>();
 builder.Services.AddScoped<IPreciosService, PreciosService>();
+builder.Services.AddScoped<IConfirmOrden, ConfirmOrden>();
+builder.Services.AddScoped<IConfirmarCreacionOrdenes, ConfirmarCreacionOrdenesService>();
+builder.Services.AddScoped<IDenegarCreacionOrdenes, DenegarCreacionOrdenesService>();
+builder.Services.AddScoped<IConfirmPedido, ConfirmPedido>();
 builder.Services.AddSingleton<RequestToFile>();
 builder.Services.AddSingleton<VerifyUserToken>();
 builder.Services.AddSingleton<VerifyUserId>();
+builder.Services.AddSingleton<User_Terminal>();
 builder.Services.AddSingleton(new CultureInfo("es-Mx"));
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.Always;
     options.Secure = CookieSecurePolicy.Always;
+
 });
 
 var app = builder.Build();
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     applicationDbContext.Database.Migrate();
@@ -80,6 +98,12 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+//Politica CRS para evitar ataques XSS
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; upgrade-insecure-requests; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: https: data:; connect-src 'self'");
+    await next();
+});
 
 app.UseHttpsRedirection();
 

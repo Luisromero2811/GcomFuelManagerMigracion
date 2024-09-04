@@ -1,20 +1,16 @@
-﻿using GComFuelManager.Shared.DTOs;
+using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ServiceReference8;//prod
+//using ServiceReference6;//qa
 using System.Diagnostics;
-using System.ServiceModel;
-//using ServiceReference6;
-using ServiceReference8;
-using System.Drawing;
-using System;
-using GComFuelManager.Server.Helpers;
-using Microsoft.AspNetCore.Identity;
-using GComFuelManager.Server.Identity;
 
 namespace GComFuelManager.Server.Controllers.Cierres
 {
@@ -26,20 +22,55 @@ namespace GComFuelManager.Server.Controllers.Cierres
         private readonly ApplicationDbContext context;
         private readonly VerifyUserId verifyUser;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly User_Terminal _terminal;
 
-        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager)
+        public ClientesController(ApplicationDbContext context, VerifyUserId verifyUser, UserManager<IdentityUsuario> UserManager, User_Terminal _Terminal)
         {
             this.context = context;
             this.verifyUser = verifyUser;
             userManager = UserManager;
+            this._terminal = _Terminal;
+        }
+
+        private async Task SaveErrors(Exception e)
+        {
+            context.Add(new Errors()
+            {
+                Error = JsonConvert.SerializeObject(new Error()
+                {
+                    Inner = JsonConvert.SerializeObject(e.InnerException),
+                    Message = JsonConvert.SerializeObject(e.Message)
+                }),
+                Accion = "Obtener cargadas"
+            });
+            await context.SaveChangesAsync();
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get()
+        public async Task<ActionResult> Get([FromQuery] Folio_Activo_Vigente filtro_)
         {
             try
             {
-                var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes_filtrados = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
+
+                if (filtro_.ID_Grupo != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Codgru == filtro_.ID_Grupo);
+
+                if (!string.IsNullOrEmpty(filtro_.Cliente_Filtrado))
+                    clientes_filtrados = clientes_filtrados.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(filtro_.Cliente_Filtrado));
+
+                if (filtro_.Id_Vendedor != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Id_Vendedor == filtro_.Id_Vendedor);
+
+                if (filtro_.Id_Originador != 0)
+                    clientes_filtrados = clientes_filtrados.Where(x => x.Id_Originador == filtro_.Id_Originador);
+                //var clientes = context.Cliente.AsEnumerable().Select(x => new CodDenDTO { Cod = x.Cod, Den = x.Den! }).OrderBy(x => x.Den);
+
+                var clientes = clientes_filtrados.Include(x => x.Vendedor).IgnoreAutoIncludes().Include(x => x.Originador).IgnoreAutoIncludes().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -49,11 +80,12 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("{cod:int}")]
-        public async Task<ActionResult> GetByCod([FromRoute] int cod)
+        public ActionResult GetByCod([FromRoute] int cod)
         {
             try
             {
-                var clientes = context.Cliente.Find(cod);
+                //activar todos los clientes cuando se borren y vuelvan a insertar los registros
+                Cliente? clientes = context.Cliente.FirstOrDefault(x => x.Cod == cod);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -63,11 +95,55 @@ namespace GComFuelManager.Server.Controllers.Cierres
         }
 
         [HttpGet("all")]
-        public async Task<ActionResult> GetAll()
+        public ActionResult GetAll()
         {
             try
             {
-                var clientes = context.Cliente.AsEnumerable().OrderBy(x => x.Den);
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.Den);
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("allactives")]
+        public async Task<ActionResult> GetAllActives()
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = await context.Cliente.Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).OrderBy(x => x.Den).ToListAsync();
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("filtraractivos")]
+        public ActionResult Obtener_Grupos_Activos([FromQuery] Cliente cliente)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = context.Cliente.Where(x => x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal)).IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(cliente.Den))
+                    clientes = clientes.Where(x => x.Den!.ToLower().Contains(cliente.Den.ToLower()) && x.Activo == true && x.Terminales.Any(x => x.Cod == id_terminal));
+
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -81,7 +157,13 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var clientes = context.Cliente.Where(x => x.codgru == cod).AsEnumerable().OrderBy(x => x.Den);
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Codgru == cod && x.Terminales.Any(x => x.Cod == id_terminal))
+                    .Include(x => x.Vendedor).IgnoreAutoIncludes()
+                    .Include(x => x.Terminales).IgnoreAutoIncludes().OrderBy(x => x.Den);
                 return Ok(clientes);
             }
             catch (Exception e)
@@ -137,31 +219,31 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
         }
 
-        [HttpGet("folio/{cod:int}")]
-        public async Task<ActionResult> GetFolio([FromRoute] int cod)
-        {
-            try
-            {
-                var cliente = await context.Cliente.FindAsync(cod);
-                if (cliente == null)
-                    return NotFound();
+        //[HttpGet("folio/{cod:int}")]
+        //public async Task<ActionResult> GetFolio([FromRoute] int cod)
+        //{
+        //    try
+        //    {
+        //        var cliente = await context.Cliente.FindAsync(cod);
+        //        if (cliente == null)
+        //            return NotFound();
 
-                cliente.Consecutivo = cliente.Consecutivo != null ? cliente.Consecutivo + 1 : 1;
+        //        cliente.Consecutivo = cliente.Consecutivo != null ? cliente.Consecutivo + 1 : 1;
 
-                var folio = cliente.CodCte != null ? cliente.CodCte + Convert.ToString(cliente.Consecutivo) : string.Empty;
+        //        var folio = cliente.CodCte != null ? cliente.CodCte + Convert.ToString(cliente.Consecutivo) : string.Empty;
 
-                //cliente.Grupo = null!;
+        //        //cliente.Grupo = null!;
 
-                context.Update(cliente);
-                await context.SaveChangesAsync();
+        //        context.Update(cliente);
+        //        await context.SaveChangesAsync();
 
-                return Ok(folio);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        return Ok(folio);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpPut("{cod:int}")]
         public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)
@@ -188,7 +270,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                 if (string.IsNullOrEmpty(id))
                     return BadRequest();
 
-                await context.SaveChangesAsync(id,state);
+                await context.SaveChangesAsync(id, state);
 
                 return Ok();
             }
@@ -232,11 +314,23 @@ namespace GComFuelManager.Server.Controllers.Cierres
         {
             try
             {
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
+                if (HttpContext.User.Identity is null)
+                    return NotFound();
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name))
+                    return NotFound();
+
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                    return NotFound();
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
                     return BadRequest();
 
-                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService);
+                if (id_terminal != 1 && !await userManager.IsInRoleAsync(user, "Obtencion de Ordenes"))
+                    return BadRequest("No esta permitida esta accion en esta terminal");
+
+                BusinessEntityServiceClient client = new BusinessEntityServiceClient(BusinessEntityServiceClient.EndpointConfiguration.BasicHttpBinding_BusinessEntityService2);
                 client.ClientCredentials.UserName.UserName = "energasws";
                 client.ClientCredentials.UserName.Password = "Energas23!";
                 client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(10);
@@ -268,7 +362,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                     var respuesta = await svc.GetBusinessEntityAssociationsAsync(getReq);
 
                     //Debug.WriteLine(JsonConvert.SerializeObject(respuesta.BusinessEntityAssociations));
-
+                    //return Ok(respuesta.BusinessEntityAssociations);
                     foreach (var item in respuesta.BusinessEntityAssociations)
                     {
                         //var clienteId = respuesta.BusinessEntityAssociations.FirstOrDefault(x => x.BusinessEntity.BusinessEntityId.Id.Value == item.BusinessEntity.BusinessEntityId.Id.Value);
@@ -276,16 +370,32 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         Cliente cliente = new Cliente()
                         {
                             Den = item.BusinessEntity.BusinessEntityName != null ? item.BusinessEntity.BusinessEntityName : item.BusinessEntity.BusinessEntityShortName,
-                            Codsyn = item.BusinessEntity.BusinessEntityId.Id.Value.ToString()
+                            Codsyn = item.BusinessEntity.BusinessEntityId.Id.Value.ToString(),
+                            Id_Tad = 1
                         };
                         //Obtención de código del cliente
-                        Cliente? c = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                        Cliente? c = context.Cliente.Where(x => x.Codsyn == cliente.Codsyn && x.Id_Tad == 1)
                             .DefaultIfEmpty()
                             .FirstOrDefault();
                         //Si el cliente no es nulo 
                         if (c != null)
                         {
+                            c.Den = cliente.Den;
                             context.Update(c);
+
+                            if (!context.Cliente_Tad.Any(x => x.Id_Cliente == c.Cod))
+                            {
+                                Cliente_Tad cliente_ = new()
+                                {
+                                    Id_Terminal = 1,
+                                    Id_Cliente = c.Cod,
+                                    Terminal = null,
+                                    Cliente = null
+                                };
+
+                                context.Add(cliente_);
+                            }
+
                             foreach (var items in item.BusinessEntity.Destinations)
                             {
                                 //Construcción del objeto del Destino 
@@ -298,9 +408,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Dir = items.Address.Address1,
                                     Ciu = items.Address.City,
                                     Est = items.Address.State != null ? items.Address.State : "N/A",
+                                    CodGamo = long.Parse(string.IsNullOrEmpty(items.DestinationCode) ? "0" : items.DestinationCode),
+                                    Id_Tad = 1
                                 };
                                 //Obtención del Cod del Destino 
-                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
+                                Destino? d = context.Destino.Where(x => x.Codsyn == destino.Codsyn && x.Id_Tad == 1)
                                     .DefaultIfEmpty()
                                     .FirstOrDefault();
                                 //Si el destino esta activo 
@@ -309,7 +421,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -318,19 +429,42 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
+                                        d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
+
+                                        if (!context.Destino_Tad.Any(x => x.Id_Destino == d.Cod))
+                                        {
+                                            Destino_Tad destino_ = new()
+                                            {
+                                                Terminal = null,
+                                                Destino = null,
+                                                Id_Terminal = 1,
+                                                Id_Destino = d.Cod
+                                            };
+
+                                            context.Add(destino_);
+                                        }
+
                                     }
                                     else
                                     {
                                         //Agrega un nuevo destino 
-                                        context.Add(destino);
+                                        // context.Add(destino);
+                                        Destino_Tad destino_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Destino = destino
+                                        };
+
+                                        context.Add(destino_);
                                     }
                                 }
                                 else
                                 {
                                     //Actualiza el campo activo del destino
 
-                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
+                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn && x.Id_Tad == 1)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)
@@ -344,10 +478,17 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                         else
                         {
-                            context.Add(cliente);
-                            await context.SaveChangesAsync(id, 11);
+                            // context.Add(cliente);
+                            Cliente_Tad cliente_ = new()
+                            {
+                                Cliente = cliente,
+                                Terminal = null,
+                                Id_Terminal = 1
+                            };
+                            context.Add(cliente_);
+                            await context.SaveChangesAsync();
                             //Obtención del código del cliente
-                            Cliente? cli = context.Cliente.Where(x => x.Den == cliente.Den && x.Codsyn == cliente.Codsyn)
+                            Cliente? cli = context.Cliente.Where(x => x.Codsyn == cliente.Codsyn && x.Id_Tad == 1)
                                 .DefaultIfEmpty()
                                 .FirstOrDefault();
                             foreach (var itemss in item.BusinessEntity.Destinations)
@@ -362,9 +503,11 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     Dir = itemss.Address.Address1,
                                     Ciu = itemss.Address.City,
                                     Est = itemss.Address.State != null ? itemss.Address.State : "N/A",
+                                    CodGamo = long.Parse(string.IsNullOrEmpty(itemss.DestinationCode) ? "0" : itemss.DestinationCode),
+                                    Id_Tad = 1
                                 };
                                 //Obtención del code del destino 
-                                Destino? d = context.Destino.Where(x => x.Den == destino.Den && x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte)
+                                Destino? d = context.Destino.Where(x => x.Codsyn == destino.Codsyn && x.Codcte == destino.Codcte && x.Id_Tad == 1)
                                    .DefaultIfEmpty()
                                    .FirstOrDefault();
                                 //Si el destino esta activo
@@ -373,7 +516,6 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                     //Si el destino no es nulo 
                                     if (d != null)
                                     {
-                                        Debug.WriteLine($"activo: {d.Cod}");
                                         //Activa el destino
                                         d.Den = destino.Den;
                                         d.Activo = destino.Activo;
@@ -382,19 +524,41 @@ namespace GComFuelManager.Server.Controllers.Cierres
                                         d.Ciu = string.IsNullOrEmpty(destino.Ciu) ? string.Empty : destino.Ciu;
                                         d.Dir = string.IsNullOrEmpty(destino.Dir) ? string.Empty : destino.Dir;
                                         d.Codcte = destino.Codcte;
+                                        d.CodGamo = destino.CodGamo == null ? 0 : destino.CodGamo;
                                         context.Update(d);
+
+                                        if (!context.Destino_Tad.Any(x => x.Id_Destino == d.Cod))
+                                        {
+                                            Destino_Tad destino_ = new()
+                                            {
+                                                Terminal = null,
+                                                Destino = null,
+                                                Id_Terminal = 1,
+                                                Id_Destino = d.Cod
+                                            };
+
+                                            context.Add(destino_);
+                                        }
                                     }
                                     else
                                     {
                                         //Agrega un nuevo destino 
-                                        context.Add(destino);
+                                        // context.Add(destino);
+
+                                        Destino_Tad destino_ = new()
+                                        {
+                                            Id_Terminal = 1,
+                                            Terminal = null,
+                                            Destino = destino
+                                        };
+
+                                        context.Add(destino_);
                                     }
                                 }
                                 else
                                 {
                                     //Actualiza el campo activo del destino
-                                    Debug.WriteLine($"inactivo: {destino.Cod}");
-                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn)
+                                    var cod = context.Destino.Where(x => x.Codsyn == destino.Codsyn && x.Id_Tad == 1)
                                         .DefaultIfEmpty()
                                         .FirstOrDefault();
                                     if (cod != null)
@@ -409,7 +573,7 @@ namespace GComFuelManager.Server.Controllers.Cierres
                         }
                     }
 
-                    await context.SaveChangesAsync(id, 11);
+                    await context.SaveChangesAsync();
                     return Ok(true);
                 }
                 catch (Exception e)
@@ -425,10 +589,135 @@ namespace GComFuelManager.Server.Controllers.Cierres
             }
             catch (Exception e)
             {
+                await SaveErrors(e);
                 return BadRequest(e.Message);
             }
 
         }
 
+        //[HttpGet("buscar")]
+        //public ActionResult GetClienteBusqueda([FromQuery] CodDenDTO cliente)
+        //{
+        //    try
+        //    {
+        //        var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+        //        if (id_terminal == 0)
+        //            return BadRequest();
+
+        //        var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
+
+        //        if (string.IsNullOrEmpty(cliente.Den))
+        //        {
+        //            clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(cliente.Den.ToLower()));
+        //        }
+
+        //        var newclientes = clientes.Select(x => x.Den);
+
+        //        return Ok(newclientes);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        //[HttpGet("buscarGrupo")]
+        //public ActionResult GetGrupoBusqueda([FromQuery] CodDenDTO grupo)
+        //{
+        //    try
+        //    {
+        //        var grupos = context.Grupo.AsQueryable();
+
+        //        if (string.IsNullOrEmpty(grupo.Den))
+        //        {
+        //            grupos = grupos.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(grupo.Den.ToLower()));
+        //        }
+
+        //        var newgrupos = grupos.Select(x => x.Den);
+
+        //        return Ok(newgrupos);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
+
+        [HttpGet("filtrar")]
+        public async Task<ActionResult> Filtrar_Clientes([FromQuery] CodDenDTO parametros)
+        {
+            try
+            {
+                var id_terminal = _terminal.Obtener_Terminal(context, HttpContext);
+                if (id_terminal == 0)
+                    return BadRequest();
+
+                var clientes = context.Cliente.IgnoreAutoIncludes().Where(x => x.Terminales.Any(x => x.Cod == id_terminal)).Include(x => x.Terminales).IgnoreAutoIncludes().AsQueryable();
+
+                if (!string.IsNullOrEmpty(parametros.Den))
+                {
+                    clientes = clientes.Where(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Contains(parametros.Den.ToLower()));
+                }
+
+                await HttpContext.InsertarParametrosPaginacion(clientes, parametros.tamanopagina, parametros.pagina);
+
+                if (HttpContext.Response.Headers.ContainsKey("pagina"))
+                {
+                    var pagina = HttpContext.Response.Headers["pagina"];
+                    if (pagina != parametros.pagina && !string.IsNullOrEmpty(pagina))
+                    {
+                        parametros.pagina = int.Parse(pagina);
+                    }
+                }
+
+                clientes = clientes.Skip((parametros.pagina - 1) * parametros.tamanopagina).Take(parametros.tamanopagina);
+
+                return Ok(clientes);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("ajustar")]
+        public async Task<ActionResult> Ajustar_Clientes_Destinos_Duplicados()
+        {
+            try
+            {
+                var destinos_en_precios = context.Precio.Select(x => x.CodDes).Distinct().ToList();
+                var destinos_en_precios_programados = context.PrecioProgramado.Select(x => x.CodDes).Distinct().ToList();
+                var destinos_en_precios_historial = context.PreciosHistorico.Select(x => x.CodDes).Distinct().ToList();
+
+                List<int?> destinos_encontrados = new();
+
+                destinos_encontrados.AddRange(destinos_en_precios);
+                destinos_encontrados.AddRange(destinos_en_precios_programados);
+                destinos_encontrados.AddRange(destinos_en_precios_historial);
+
+                var destinos_unicos = destinos_encontrados.Distinct();
+
+                var destinos_generales_activos = context.Destino.Where(x => x.Activo == true).ToList();
+
+                foreach (var item in destinos_generales_activos)
+                {
+                    if (!destinos_unicos.Any(x => item.Cod == x))
+                    {
+                        item.Activo = false;
+                        context.Update(item);
+                    }
+                }
+
+                await context.SaveChangesAsync();
+
+                await GetClienteService();
+
+                return Ok(destinos_unicos);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

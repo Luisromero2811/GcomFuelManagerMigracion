@@ -1,0 +1,77 @@
+﻿@typeparam T
+
+﻿<div class="selector-multiple">
+    <ul class="selectable-ui">
+        @if (CustomNoSeleccionado is null)
+        {
+            @foreach (var item in NoSeleccionado)
+            {
+                <li @onclick="@(()=>Seleccionar(item))">
+                    @if (ItemNoSeleccionado is not null)
+                    {
+                        @ItemNoSeleccionado(item)
+                    }
+                </li>
+            }   }
+        else
+        {
+            @CustomNoSeleccionado
+        }
+    </ul>
+    <div class="selector-multiple-botones">
+        <button @onclick="AgregarTodo" type="button">>>></button>
+        <button @onclick="RemoverTodo" type="button">@removeAll</button>
+    </div>
+    <ul class="selectable-ui">
+        @if (CustomSeleccionado is null)
+        {
+            @foreach (var item in Seleccionados)
+            {
+                <li @onclick="@(()=>Deseleccionar(item))">
+                    @if (ItemSeleccionado is not null)
+                    {
+                        @ItemSeleccionado(item)
+                    }
+                </li>
+            }   }
+        else
+        {
+            @CustomSeleccionado
+        }
+    </ul>
+</div>
+@code {
+    private string removeAll = "<<<";
+    [Parameter] public List<T> NoSeleccionado { get; set; } = new();
+    [Parameter] public List<T> Seleccionados { get; set; } = new();
+
+    [Parameter] public RenderFragment<T>? ItemNoSeleccionado { get; set; } = null!;
+    [Parameter] public RenderFragment<T>? ItemSeleccionado { get; set; } = null!;
+
+    [Parameter] public RenderFragment? CustomNoSeleccionado { get; set; } = null!;
+    [Parameter] public RenderFragment? CustomSeleccionado { get; set; } = null!;
+
+    private void Seleccionar(T item)
+    {
+        NoSeleccionado.Remove(item);
+        Seleccionados.Add(item);
+    }
+
+    private void Deseleccionar(T item)
+    {
+        Seleccionados.Remove(item);
+        NoSeleccionado.Add(item);
+    }
+
+    private void RemoverTodo()
+    {
+        NoSeleccionado.AddRange(Seleccionados);
+        Seleccionados.Clear();
+    }
+
+    private void AgregarTodo()
+    {
+        Seleccionados.AddRange(NoSeleccionado);
+        NoSeleccionado.Clear();
+    }
+}

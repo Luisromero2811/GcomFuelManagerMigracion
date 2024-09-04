@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -7,7 +7,7 @@ using GComFuelManager.Shared.DTOs;
 
 namespace GComFuelManager.Server
 {
-    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario>
+    public class ApplicationDbContext : IdentityDbContext<IdentityUsuario, IdentityRol, string>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
@@ -146,19 +146,20 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Estado)
                 .WithMany()
                 .HasForeignKey(x => x.Codest);
-            //Relaciones Tabla de OrdEmbDet
-            modelBuilder.Entity<OrdEmbDet>()
-                .HasOne(x => x.Orden)
-                .WithMany()
-                .HasPrincipalKey(x => x.BatchId)
-                .HasForeignKey(x => x.Bol);
-            //Relaciones Tabla orden
-            //Orden-OrdEmbDet
-            modelBuilder.Entity<Orden>()
-                .HasOne(x => x.OrdEmbDet)
-                .WithMany()
-                .HasPrincipalKey(x => x.Bol)
-                .HasForeignKey(x => x.BatchId);
+            ////Relaciones Tabla de OrdEmbDet
+            //modelBuilder.Entity<OrdEmbDet>()
+            //    .HasOne(x => x.Orden)
+            //    .WithMany()
+            //    .HasPrincipalKey(x => x.BatchId)
+            //    .HasForeignKey(x => x.Bol);
+            ////Relaciones Tabla orden
+            ////Orden-OrdEmbDet
+            //modelBuilder.Entity<Orden>()
+            //    .HasOne(x => x.OrdEmbDet)
+            //    .WithMany()
+            //    .HasPrincipalKey(x => x.Bol)
+            //    .HasForeignKey(x => x.BatchId)
+            //    .OnDelete(DeleteBehavior.Restrict);
             //Orden-Estado 
             modelBuilder.Entity<Orden>()
                 .HasOne(x => x.Estado)
@@ -222,43 +223,43 @@ namespace GComFuelManager.Server
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //Precio - cliente
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //Precio - Producto
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //Precio - Destino
             modelBuilder.Entity<Precio>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
 
             //PrecioHistorico - Zona
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //PrecioHistorico - cliente
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //PrecioHistorico - Producto
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //PrecioHistorico - Destino
             modelBuilder.Entity<PrecioHistorico>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
 
             modelBuilder.Entity<ZonaCliente>()
                 .HasOne(x => x.Zona)
@@ -272,15 +273,25 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Destino)
                 .WithMany()
                 .HasForeignKey(x => x.DesCod);
-            modelBuilder.Entity<OrdenPedido>()
-                .HasOne(x => x.OrdenEmbarque)
-                .WithMany()
-                .HasForeignKey(x => x.CodPed);
+
+            //modelBuilder.Entity<OrdenPedido>()
+            //    .HasOne(x => x.OrdenEmbarque)
+            //    .WithOne(x => x.OrdenPedido)
+            //    .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+            //    .HasForeignKey<OrdenPedido>(x => x.CodPed);
+            //OrdenEmbarque a Órdenes
+            //modelBuilder.Entity<OrdenEmbarque>()
+            //    .HasOne(x => x.Orden)
+            //    .WithOne(x => x.OrdenEmbarque)
+            //    .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
+            //    .HasPrincipalKey<Orden>("Folio", "CompartmentId");
+
+            //OrdenEmbarque a Órdenes
             modelBuilder.Entity<OrdenEmbarque>()
                 .HasOne(x => x.Orden)
                 .WithOne(x => x.OrdenEmbarque)
-                .HasForeignKey<OrdenEmbarque>(x => x.Bolguidid)
-                .HasPrincipalKey<Orden>(x => x.Bolguiid);
+                .HasForeignKey<OrdenEmbarque>(x => x.FolioSyn)
+                .HasPrincipalKey<Orden>(x => x.Ref);
 
             modelBuilder.Entity<AccionCorreo>()
                 .HasOne(x => x.Accion)
@@ -301,27 +312,419 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.OrdenCierre)
                 .WithOne(x => x.OrdenEmbarque)
                 .HasForeignKey<OrdenCierre>(x => x.CodPed);
-
             //Precio - Zona
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Zona)
                 .WithMany()
-                .HasForeignKey(x => x.codZona);
+                .HasForeignKey(x => x.CodZona);
             //Precio - cliente
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
-                .HasForeignKey(x => x.codCte);
+                .HasForeignKey(x => x.CodCte);
             //Precio - Producto
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Producto)
                 .WithMany()
-                .HasForeignKey(x => x.codPrd);
+                .HasForeignKey(x => x.CodPrd);
             //Precio - Destino
             modelBuilder.Entity<PrecioProgramado>()
                 .HasOne(x => x.Destino)
                 .WithMany()
-                .HasForeignKey(x => x.codDes);
+                .HasForeignKey(x => x.CodDes);
+            //Cierre - grupo
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.CodGru);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.OrdenPedido)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
+                .HasForeignKey<OrdenPedido>(x => x.CodPed);
+
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.OrdEmbDet)
+                .WithOne(x => x.Orden)
+                .HasPrincipalKey<OrdEmbDet>(x => x.Bol)
+                .HasForeignKey<Orden>(x => x.BatchId);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasMany(x => x.OrdenPedidos)
+                .WithOne(x => x.OrdenCierre)
+                .HasPrincipalKey(x => x.Cod)
+                .HasForeignKey(x => x.CodCierre);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Moneda)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Moneda);
+
+            modelBuilder.Entity<Pedimento>()
+                .HasOne(x => x.Producto)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Producto);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Usuario)
+                .WithMany()
+                .HasForeignKey(x => x.ID_Usuario);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Orden)
+                .WithOne(x => x.Redireccionamiento)
+                .HasForeignKey<Redireccionamiento>(x => x.Id_Orden)
+                .HasPrincipalKey<Orden>(x => x.Cod);
+            //.HasPrincipalKey<Orden>(x => x.Cod);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Grupo)
+                .WithMany()
+                .HasForeignKey(x => x.Grupo_Red);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.Cliente_Red);
+
+            modelBuilder.Entity<Redireccionamiento>()
+                .HasOne(x => x.Destino)
+                .WithMany()
+                .HasForeignKey(x => x.Destino_Red);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Vendedor);
+
+            modelBuilder.Entity<Cliente>()
+                .HasOne(x => x.Originador)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Originador);
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.Id_Vendedor)
+                .HasPrincipalKey(x => x.Id);
+
+            modelBuilder.Entity<Originador>()
+                .HasMany(x => x.Clientes)
+                .WithOne(x => x.Originador)
+                .HasForeignKey(x => x.Id_Originador)
+                .HasPrincipalKey(x => x.Id);
+
+            modelBuilder.Entity<Vendedor_Originador>().HasKey(vo => new { vo.VendedorId, vo.OriginadorId });
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Originadores)
+                .WithMany(x => x.Vendedores)
+                .UsingEntity<Vendedor_Originador>(
+                    l => l.HasOne(x => x.Originador).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict),
+                    r => r.HasOne(x => x.Vendedor).WithMany(x => x.Vendedor_Originador).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Vendedor>()
+                .HasMany(x => x.Metas_Vendedor)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<Cliente_Tad>().HasKey(ct => new { ct.Id_Cliente, ct.Id_Terminal });
+            modelBuilder.Entity<Destino_Tad>().HasKey(dt => new { dt.Id_Destino, dt.Id_Terminal });
+            modelBuilder.Entity<GrupoTransportista_Tad>().HasKey(gt => new { gt.Id_GrupoTransportista, gt.Id_Terminal });
+            modelBuilder.Entity<Transportista_Tad>().HasKey(tt => new { tt.Id_Transportista, tt.Id_Terminal });
+            modelBuilder.Entity<Usuario_Tad>().HasKey(ut => new { ut.Id_Usuario, ut.Id_Terminal });
+            modelBuilder.Entity<Chofer_Tad>().HasKey(ut => new { ut.Id_Chofer, ut.Id_Terminal });
+            modelBuilder.Entity<Unidad_Tad>().HasKey(ut => new { ut.Id_Unidad, ut.Id_Terminal });
+            modelBuilder.Entity<Autorizadores_Tad>().HasKey(at => new { at.Id_Autorizador, at.Id_Terminal });
+
+            modelBuilder.Entity<Cliente>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Clientes)
+                .UsingEntity<Cliente_Tad>(
+                    l => l.HasOne(x => x.Terminal).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                    r => r.HasOne(x => x.Cliente).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Cliente).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Destino>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Destinos)
+                .UsingEntity<Destino_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Destino_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Destino).WithMany(x => x.Destino_Tads).HasForeignKey(x => x.Id_Destino).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Transportista>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Transportistas)
+                .UsingEntity<Transportista_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Transportista_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Transportista).WithMany(x => x.Transportista_Tads).HasForeignKey(x => x.Id_Transportista).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<GrupoTransportista>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.GruposTransportes)
+                .UsingEntity<GrupoTransportista_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.GrupoTransportista_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.GrupoTransportista).WithMany(x => x.GrupoTransportista_Tads).HasForeignKey(x => x.Id_GrupoTransportista).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Chofer>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Choferes)
+                .UsingEntity<Chofer_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Chofer_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Chofer).WithMany(x => x.Chofer_Tads).HasForeignKey(x => x.Id_Chofer).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Tonel>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Unidades)
+                .UsingEntity<Unidad_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Unidad_Tads).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Tonel).WithMany(x => x.Unidad_Tads).HasForeignKey(x => x.Id_Unidad).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Autorizador>()
+                .HasMany(x => x.Terminales)
+                .WithMany(x => x.Autorizadores)
+                .UsingEntity<Autorizadores_Tad>(
+                l => l.HasOne(x => x.Terminal).WithMany(x => x.Autorizador_Tad).HasForeignKey(x => x.Id_Terminal).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Autorizador).WithMany(x => x.Autorizador_Tad).HasForeignKey(X => X.Id_Autorizador).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<Orden>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<OrdenCierre>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<Precio>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<PrecioHistorico>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<PrecioProgramado>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<TransportistaGrupo>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<Consecutivo>()
+                .HasOne(x => x.Terminal)
+                .WithOne()
+                .HasForeignKey<Consecutivo>(x => x.Id_Tad);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.TipoProducto)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tipo);
+
+            modelBuilder.Entity<Producto>()
+                .HasOne(x => x.Terminal)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Tad);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasOne(x => x.Estatus_Orden)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasMany(x => x.HistorialEstados)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey(x => x.Id_Orden)
+                .HasPrincipalKey(x => x.Cod);
+
+            modelBuilder.Entity<HistorialEstados>()
+                .HasOne(x => x.Estado)
+                .WithMany()
+                .HasForeignKey(x => x.Id_Estado);
+
+            modelBuilder.Entity<Autorizador>()
+                .HasOne(x => x.Terminal)
+                .WithOne()
+                .HasForeignKey<Autorizador>(x => x.Id_Tad);
+
+            modelBuilder.Entity<Datos_Facturas>()
+                .HasOne(x => x.OrdenEmbarque)
+                .WithOne(x => x.Datos_Facturas)
+                .HasForeignKey<Datos_Facturas>(x => x.Id_Orden);
+
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Conjunto).WithMany().HasForeignKey(x => x.Conjunto_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Tipo).WithMany().HasForeignKey(x => x.Tipo_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Unidad).WithMany().HasForeignKey(x => x.Unidad_Medida);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Condicion).WithMany().HasForeignKey(x => x.Condicion_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Origen).WithMany().HasForeignKey(x => x.Origen_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Etiqueta).WithMany().HasForeignKey(x => x.Etiquetado_Activo);
+            modelBuilder.Entity<Activo_Fijo>().HasOne(x => x.Departamento_Responsable).WithMany().HasForeignKey(x => x.Dto_Responsable);
+
+            modelBuilder.Entity<OrdenEmbarque>()
+                .HasMany(x => x.Archivos)
+                .WithOne(x => x.OrdenEmbarque)
+                .HasForeignKey(x => x.Id_Registro);
+
+            //Relaciones de tabla actividad
+
+            //Actividad a Asignado a Vendedor
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.Asignado);
+            //Actividad Relacionada Con CRMContacto
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.contacto)
+                .WithMany()
+                .HasForeignKey(x => x.Contacto_Rel);
+            //Actividad a Catalogo Fijo de Asunto
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.asuntos)
+                .WithMany()
+                .HasForeignKey(x => x.Asunto);
+            //Actividad a Catalogo Fijo de Estado
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.Estados)
+                .WithMany()
+                .HasForeignKey(x => x.Estatus);
+            //Actividad a Catalogo Fijo de prioridades
+            modelBuilder.Entity<CRMActividades>()
+                .HasOne(x => x.prioridades)
+                .WithMany()
+                .HasForeignKey(x => x.Prioridad);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Estatus)
+                .WithMany()
+                .HasForeignKey(x => x.EstatusId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Origen)
+                .WithMany()
+                .HasForeignKey(x => x.OrigenId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Cliente)
+                .WithMany()
+                .HasForeignKey(x => x.CuentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Origen)
+                .WithMany()
+                .HasForeignKey(x => x.OrigenId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Vendedor)
+                .WithMany()
+                .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.CRMCliente)
+                .WithMany()
+                .HasForeignKey(x => x.CuentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.EtapaVenta)
+                .WithMany()
+                .HasForeignKey(x => x.EtapaVentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Tipo)
+                .WithMany()
+                .HasForeignKey(x => x.TipoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.UnidadMedida)
+                .WithMany()
+                .HasForeignKey(x => x.UnidadMedidaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Contacto)
+                .WithMany()
+                .HasForeignKey(x => x.ContactoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Periodo)
+                .WithMany()
+                .HasForeignKey(x => x.PeriodoId);
+
+            modelBuilder.Entity<CRMContacto>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMOriginador>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
+            modelBuilder.Entity<CRMVendedorOriginador>().HasKey(x => new { x.VendedorId, x.OriginadorId });
+
+            modelBuilder.Entity<CRMVendedor>()
+                .HasMany(x => x.Originadores)
+                .WithMany(x => x.Vendedores)
+                .UsingEntity<CRMVendedorOriginador>(
+                l => l.HasOne(x => x.Originador).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.OriginadorId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Vendedor).WithMany(x => x.VendedorOriginadores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict)
+                );
+
+            modelBuilder.Entity<CRMRolPermiso>().HasKey(x => new { x.RolId, x.PermisoId });
+            modelBuilder.Entity<CRMRolUsuario>().HasKey(x => new { x.RolId, x.UserId });
+
+            modelBuilder.Entity<CRMRol>()
+                .HasOne(x => x.Division)
+                .WithMany()
+                .HasForeignKey(x => x.DivisionId);
+
         }
 
 
@@ -365,5 +768,43 @@ namespace GComFuelManager.Server
         public DbSet<Porcentaje> Porcentaje { get; set; }
         public DbSet<PrecioProgramado> PrecioProgramado { get; set; }
         public DbSet<ActividadRegistrada> ActividadRegistrada { get; set; }
+        public DbSet<CierrePrecioDespuesFecha> CierrePrecioDespuesFecha { get; set; }
+        public DbSet<Errors> Errors { get; set; }
+        public DbSet<Moneda> Moneda { get; set; }
+        public DbSet<Consecutivo> Consecutivo { get; set; }
+        public DbSet<Pedimento> Pedimentos { get; set; }
+        public DbSet<Redireccionamiento> Redireccionamientos { get; set; }
+        public DbSet<Vendedor> Vendedores { get; set; }
+        public DbSet<Originador> Originadores { get; set; }
+        public DbSet<Vendedor_Originador> Vendedor_Originador { get; set; }
+        public DbSet<Metas_Vendedor> Metas_Vendedor { get; set; }
+        public DbSet<Cliente_Tad> Cliente_Tad { get; set; }
+        public DbSet<Destino_Tad> Destino_Tad { get; set; }
+        public DbSet<Transportista_Tad> Transportista_Tad { get; set; }
+        public DbSet<Usuario_Tad> Usuario_Tad { get; set; }
+        public DbSet<GrupoTransportista> GrupoTransportista { get; set; }
+        public DbSet<GrupoTransportista_Tad> GrupoTransportista_Tad { get; set; }
+        public DbSet<Chofer_Tad> Chofer_Tad { get; set; }
+        public DbSet<Unidad_Tad> Unidad_Tad { get; set; }
+        public DbSet<TipoProducto> TipoProducto { get; set; }
+        public DbSet<Estado> Estado { get; set; }
+        public DbSet<HistorialEstados> HistorialEstados { get; set; }
+        public DbSet<Autorizador> Autorizador { get; set; }
+        public DbSet<Autorizadores_Tad> Autorizadores_Tad { get; set; }
+        public DbSet<Datos_Facturas> Datos_Facturas { get; set; }
+        public DbSet<Catalogo_Fijo> Catalogo_Fijo { get; set; }
+        public DbSet<Activo_Fijo> Activo_Fijo { get; set; }
+        public DbSet<Archivo> Archivos { get; set; }
+        public DbSet<CRMContacto> CRMContactos { get; set; }
+        public DbSet<CRMCliente> CRMClientes { get; set; }
+        public DbSet<CRMActividades> CRMActividades { get; set; }
+        public DbSet<CRMOportunidad> CRMOportunidades { get; set; }
+        public DbSet<CRMDivision> CRMDivisiones { get; set; }
+        public DbSet<CRMVendedor> CRMVendedores { get; set; }
+        public DbSet<CRMOriginador> CRMOriginadores { get; set; }
+        public DbSet<CRMVendedorOriginador> CRMVendedorOriginadores { get; set; }
+        public DbSet<CRMRol> CRMRoles { get; set; }
+        public DbSet<CRMRolPermiso> CRMRolPermisos { get; set; }
+        public DbSet<CRMRolUsuario> CRMRolUsuarios { get; set; }
     }
 }
