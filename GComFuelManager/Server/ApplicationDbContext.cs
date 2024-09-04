@@ -169,7 +169,7 @@ namespace GComFuelManager.Server
                     r => r.HasOne(x => x.Cliente).WithMany(x => x.Cliente_Tads).HasForeignKey(x => x.Id_Cliente).OnDelete(DeleteBehavior.Restrict)
                 );
 
-            //Actividad a Asignado a Vendedor
+            //Actividad a Asignado a CRMVendedor
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.vendedor)
                 .WithMany()

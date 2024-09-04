@@ -1,6 +1,58 @@
-﻿<h3>Component1</h3>
+﻿@page "/crm/gestion/usuarios"
+
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+<!--Formulario de registro-->
+<div class="card mt-2" style="height: 500px; overflow: scroll; ">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Creación de Usuarios</b>
+            </div>
+            <div>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/usuarios" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-12 row g-1">
+
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter] public int Id { get; set; }
+
+    bool loading_guardar = false;
+    bool isEdit = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    public async Task CreateUser()
+    {
+        try
+        {
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
 
 }
 

@@ -1,6 +1,149 @@
-﻿<h3>Component1</h3>
+﻿@page "/crm/usuarios"
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+@inject NotificationService ns
+<!--Tabla de muestreo de datos de los usuarios CRM-->
+<div class="card mt-2" style="height: 500px; overflow: scroll;">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Usuarios</b>
+            </div>
+            <div>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-12 row">
+            <div class="col-3 mb-2">
+                <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/usuarios">
+                    <i class="fa fa-solid fa-plus"></i> Crear Nuevo Usuario
+                </NavLink>
+            </div>
+        </div>
+        <div class="col-12">
+            <Tabla Datos="CRMUsuariosList">
+                <Cabeceras>
+                    <tr>
+                        <th>Nombre de Usuario</th>
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                    </tr>
+                </Columnas>
+            </Tabla>
+        </div>
+    </div>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="filtro_usuario.Pagina_ACtual" PaginasTotales="filtro_usuario.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @filtro_usuario.Total_registros</p>
+    </div>
+</div>
 
 @code {
+    CRMUsuarioDTO filtro_usuario = new();
+    List<CRMUsuarioDTO> CRMUsuariosList = new();
 
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        filtro_usuario.Registros_por_pagina = 15;
+        await Obtener_Usuarios();
+    }
+
+    private Dictionary<string, string> Filtro()
+    {
+        query[$"{nameof(filtro_usuario.Nombre)}"] = filtro_usuario.Nombre;
+        query[$"{nameof(filtro_usuario.Pagina)}"] = filtro_usuario.Pagina.ToString();
+        query[$"{nameof(filtro_usuario.Registros_por_pagina)}"] = filtro_usuario.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task Obtener_Usuarios()
+    {
+        try
+        {
+            var uri = Constructor_De_URL_Parametros.Generar_URL(Filtro());
+
+            var responseHttp = await repositorio.Get<List<CRMUsuarioDTO>>($"api/crmusuarios?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                CRMUsuariosList = responseHttp.Response;
+
+                filtro_usuario.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(responseHttp.HttpResponseMessage);
+                filtro_usuario.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
+                filtro_usuario.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro_usuario.Nombre = args.Value?.ToString() ?? string.Empty;
+        await Obtener_Usuarios();
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro_usuario.Pagina_ACtual = pagina;
+        filtro_usuario.Pagina = pagina;
+
+        await Obtener_Usuarios();
+    }
+
+    private void Message(NotificationMessage message)
+    {
+        ns.Notify(message);
+    }
+
+    private async Task ChangeStatus(CRMUsuarioDTO usuarios, ChangeEventArgs tp)
+    {
+        try
+        {
+            var status = (bool)tp.Value!;
+            var responseHttp = await repositorio.Put<bool>($"api/crmusuarios/changeStatus/{usuarios.Id}", status);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                if (status)
+                {
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Usuario habilitado", Detail = "El usuario ha sido habilitado." });
+                }
+                else
+                {
+                    Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Usuario deshabilitado", Detail = "El usuario ha sido deshabilitado." });
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
 }
 
