@@ -1,4 +1,4 @@
-﻿@page "/crm/roles"
+﻿@page "/crm/equipos"
 @inject IRepositorio http
 @inject SweetAlertService swal
 @attribute [Authorize]
@@ -8,7 +8,7 @@
         <Card>
             <Header>
                 <div class="d-flex justify-content-between">
-                    <b>Roles</b>
+                    <b>Equipos</b>
                     <NavLink class="g-1 btn gcom-bg-amarillo" Match="NavLinkMatch.All" href="../">
                         <i class="fa fa-solid fa-arrow-left" />
                         Volver
@@ -18,33 +18,36 @@
         </Card>
         <div class="col-12 my-2">
             <div class="col-md-2 col">
-                <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/roles/formulario" Match="NavLinkMatch.All">
+                <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/equipos/formulario" Match="NavLinkMatch.All">
                     <i class="fa fa-solid fa-plus" />Agregar
                 </NavLink>
             </div>
         </div>
         <div class="ancho-tabla">
-            <Tabla Datos="Roles" Cargando="loading_info">
+            <Tabla Datos="Equipos" Cargando="loading_info">
                 <Cabeceras>
                     <tr>
                         <th style="max-width:150px;"></th>
-                        <th>Rol</th>
+                        <th>Nombre</th>
+                        <th>Lider de equipo</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
                     <tr>
                         <td></td>
                         <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
+                        <td><input class="form-control" @bind-value="@filtro.Lider" @oninput="FiltrarLider" /></td>
+                        <td><input class="form-control" @bind-value="@filtro.Division" @oninput="FiltrarDivision" /></td>
                     </tr>
                 </Filtros>
                 <Columnas Context="item">
                     <tr>
                         <td>
                             <div class="btn-group">
-                                <a class="btn gcom-bg-amarillo" href="/crm/roles/formulario/@item.Id">
+                                <a class="btn gcom-bg-amarillo" href="/crm/equipos/formulario/@item.Id">
                                     <i class="fa fa-solid fa-edit" />
                                 </a>
-                                <a class="btn gcom-bg-amarillo" href="/crm/rol/@item.Id">
+                                <a class="btn gcom-bg-amarillo" href="/crm/equipo/@item.Id">
                                     <i class="fa fa-solid fa-eye" />
                                 </a>
                                 <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
@@ -53,6 +56,8 @@
                             </div>
                         </td>
                         <td>@item.Nombre</td>
+                        <td>@item.Lider</td>
+                        <td>@item.Division</td>
                     </tr>
                 </Columnas>
             </Tabla>
@@ -70,8 +75,8 @@
 </AuthorizeView>
 
 @code {
-    List<CRMRolDTO> Roles = new();
-    CRMRolDTO filtro = new();
+    List<CRMEquipoDTO> Equipos = new();
+    CRMEquipoDTO filtro = new();
     bool loading_info = false;
     Dictionary<string, string> query = new();
 
@@ -94,7 +99,7 @@
             loading_info = true;
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
 
-            var response = await http.Get<List<CRMRolDTO>>($"api/crmrol?{uri}");
+            var response = await http.Get<List<CRMEquipoDTO>>($"api/crmequipo?{uri}");
             if (response.Error)
             {
                 loading_info = false;
@@ -104,7 +109,7 @@
             else
             {
                 loading_info = false;
-                Roles = response.Response;
+                Equipos = response.Response;
 
                 filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
                 filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
@@ -122,7 +127,7 @@
     {
         try
         {
-            var response = await http.Delete($"api/crmrol/{id}");
+            var response = await http.Delete($"api/crmequipo/{id}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -151,6 +156,18 @@
     private async Task FiltrarNombre(ChangeEventArgs args)
     {
         filtro.Nombre = args.Value?.ToString() ?? string.Empty;
+        await Obtener();
+    }
+
+    private async Task FiltrarLider(ChangeEventArgs args)
+    {
+        filtro.Lider = args.Value?.ToString() ?? string.Empty;
+        await Obtener();
+    }
+
+    private async Task FiltrarDivision(ChangeEventArgs args)
+    {
+        filtro.Division = args.Value?.ToString() ?? string.Empty;
         await Obtener();
     }
 }

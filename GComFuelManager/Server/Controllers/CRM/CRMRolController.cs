@@ -4,10 +4,8 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -83,11 +81,22 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var rol = await context.CRMRoles
                     .AsNoTracking()
                     .Where(x => x.Id == Id)
-                    .Select(x => mapper.Map<CRMRol, CRMRolPostDTO>(x))
+                    .Select(x => mapper.Map<CRMRol, CRMRolDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (rol is null) { return NotFound(); }
 
-                //var vendedordto = mapper.Map<CRMVendedorDTO>(vendedor);
+                var permisosrol = await context.CRMRolPermisos.AsNoTracking().Where(x => x.RolId == rol.Id).ToListAsync();
+                var allpermisos = await context.Roles.Where(x => x.Show && !string.IsNullOrEmpty(x.Name)).AsNoTracking().ToListAsync();
+
+                var permisos = allpermisos.IntersectBy(permisosrol.Select(x => x.PermisoId), x => x.Id)
+                    .Select(x => new CRMPermisoDTO
+                    {
+                        Id = x.Id,
+                        Nombre = x.Name!
+                    })
+                    .ToList();
+
+                rol.Permisos = permisos;
 
                 return Ok(rol);
             }

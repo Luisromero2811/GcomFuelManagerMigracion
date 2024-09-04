@@ -3,110 +3,125 @@
 @inject SweetAlertService swal
 @attribute [Authorize]
 
-<div class="col-12">
-    <div class="card">
-        <div class="card-header">
-            <div class="d-flex justify-content-between">
-                <div>
-                    <b>Contactos</b>
-                </div>
-                <div>
-                    <div class="btn-group">
-                        <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
-                            <i class="fa fa-solid fa-arrow-left" /> Volver
-                        </NavLink>
-                        <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                            Actividades
-                        </NavLink>
+<AuthorizeView>
+    <Authorized>
+        <Card>
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Contactos</b>
+                    </div>
+                    <div>
+                        <div class="btn-group">
+                            <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
+                                <i class="fa fa-solid fa-arrow-left" /> Volver
+                            </NavLink>
+                            <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                                Actividades
+                            </NavLink>
+                        </div>
                     </div>
                 </div>
+            </Header>
+        </Card>
+        <div class="col-12 my-2 d-flex justify-content-between gx-1">
+            <div class="col-md-2 col">
+                <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/contactos/formulario" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-plus" />Agregar
+                </NavLink>
+            </div>
+            <div class="col-md-4 col d-md-block d-none">
+                <button class="btn btn-sm gcom-bg-amarillo g-1 col-12" type="button" @onclick="OpenModal">
+                    <i class="fa fa-solid fa-eye" />Ver todos los contactos
+                </button>
             </div>
         </div>
-    </div>
-</div>
-<div class="col-12 my-2">
-    <div class="col-md-2 col">
-        <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/contactos/formulario" Match="NavLinkMatch.All">
-            <i class="fa fa-solid fa-plus" />Agregar
-        </NavLink>
-    </div>
-</div>
-<div class="ancho-tabla">
-    <Tabla Datos="contactos" Cargando="loading_info">
-        <Cabeceras>
-            <tr>
-                <th style="width:150px;"></th>
-                <th>Nombre</th>
-                <th>Estado</th>
-                <th>Nombre de cuenta</th>
-                <th>Tel. movil</th>
-                <th>Correo</th>
-                <th>Encargado</th>
-                <th>Fecha creacion</th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td></td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Nombre" @oninput="FiltrarNombre" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Cuenta" @oninput="FiltrarCliente" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarTel" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Correo" @oninput="FiltrarCorreo" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Vendedor" @oninput="FiltrarVendedor" />
-                </td>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn gcom-bg-amarillo" href="crm/contactos/formulario/@item.Id">
-                            <i class="fa fa-solid fa-edit" />
-                        </a>
-                        <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
-                            <i class="fa fa-solid fa-eye" />
-                        </a>
-                        <button class="btn btn-danger" @onclick="@(()=>EliminarContacto(item.Id))">
-                            <i class="fa fa-solid fa-trash" />
-                        </button>
-                    </div>
-                </td>
-                <td>@item.FullName</td>
-                <td>@item.Estatus</td>
-                <td>@item.Cuenta</td>
-                <td>@item.Tel_Movil</td>
-                <td>@item.Correo</td>
-                <td>@item.Vendedor</td>
-                <td>@item.Fecha_Creacion.ToString()</td>
-            </tr>
-        </Columnas>
-    </Tabla>
-</div>
-<div class="col-12">
-    <PaginacionComponent PaginaActual="filtro_contacto.Pagina_ACtual" PaginasTotales="filtro_contacto.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-    <div class="col-12">
-        <p>Total de registros: @filtro_contacto.Total_registros</p>
-    </div>
-</div>
+        <div class="ancho-tabla">
+            <Tabla Datos="contactos" Cargando="loading_info">
+                <Cabeceras>
+                    <tr>
+                        <th class="d-md-table-cell d-none" style="max-width:150px;"></th>
+                        <th>Nombre</th>
+                        <th class="d-md-table-cell d-none">Estado</th>
+                        <th>Nombre de cuenta</th>
+                        <th>Tel. movil</th>
+                        <th>Correo</th>
+                        <th>Encargado</th>
+                        <th class="d-md-table-cell d-none">Fecha creacion</th>
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td class="d-md-table-cell d-none"></td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Nombre" @oninput="FiltrarNombre" />
+                        </td>
+                        <td class="d-md-table-cell d-none">
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Cuenta" @oninput="FiltrarCliente" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarTel" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Correo" @oninput="FiltrarCorreo" />
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm" @bind-value="filtro_contacto.Vendedor" @oninput="FiltrarVendedor" />
+                        </td>
+                        <td class="d-md-table-cell d-none"></td>
+                    </tr>
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                        <td class="d-md-table-cell d-none">
+                            <div class="btn-group" role="group">
+                                <a class="btn gcom-bg-amarillo" href="crm/contactos/formulario/@item.Id">
+                                    <i class="fa fa-solid fa-edit" />
+                                </a>
+                                <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
+                                    <i class="fa fa-solid fa-eye" />
+                                </a>
+                                <button class="btn btn-danger" @onclick="@(()=>EliminarContacto(item.Id))">
+                                    <i class="fa fa-solid fa-trash" />
+                                </button>
+                            </div>
+                        </td>
+                        <td>@item.FullName</td>
+                        <td class="d-md-table-cell d-none">@item.Estatus</td>
+                        <td>@item.Cuenta</td>
+                        <td>@item.Tel_Movil</td>
+                        <td>@item.Correo</td>
+                        <td>@item.Vendedor</td>
+                        <td class="d-md-table-cell d-none">@item.Fecha_Creacion.ToString()</td>
+                    </tr>
+                </Columnas>
+            </Tabla>
+        </div>
+        <div class="col-12">
+            <PaginacionComponent PaginaActual="filtro_contacto.Pagina_ACtual" PaginasTotales="filtro_contacto.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+            <div class="col-12">
+                <p>Total de registros: @filtro_contacto.Total_registros</p>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+<Modal_Custom @ref="_modal" />
+
 @code {
     CRMContactoDTO filtro_contacto = new();
     List<CRMContactoDTO> contactos = new();
     Dictionary<string, string> query = new();
 
     bool loading_info = false;
+
+    Modal_Custom _modal = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -223,5 +238,10 @@
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 
+    }
+
+    private void OpenModal()
+    {
+        _modal.OpenModal<IndexContactosOtrasDivisionesComponente>("Contactos");
     }
 }

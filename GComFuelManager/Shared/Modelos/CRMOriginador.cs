@@ -1,4 +1,6 @@
-﻿namespace GComFuelManager.Shared.Modelos
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GComFuelManager.Shared.Modelos
 {
     public class CRMOriginador
     {
@@ -12,8 +14,13 @@
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
         public bool Activo { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public CRMDivision Division { get; set; } = null!;
         public List<CRMVendedorOriginador> VendedorOriginadores { get; set; } = new();
         public List<CRMVendedor> Vendedores { get; set; } = new();
+        public List<CRMEquipo> Equipos { get; set; } = new();
+
+        [NotMapped]
+        public string FullName { get { return $"{Nombre} {Apellidos}"; } }
     }
 }

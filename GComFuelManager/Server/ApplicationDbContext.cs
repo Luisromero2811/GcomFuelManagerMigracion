@@ -725,6 +725,18 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.DivisionId);
 
+            modelBuilder.Entity<CRMEquipo>()
+                .HasOne(x => x.Originador)
+                .WithMany(x => x.Equipos)
+                .HasForeignKey(x => x.LiderId);
+
+            modelBuilder.Entity<CRMEquipoVendedor>().HasKey(x => new { x.EquipoId, x.VendedorId });
+            modelBuilder.Entity<CRMEquipo>()
+                .HasMany(x => x.Vendedores)
+                .WithMany(x => x.Equipos)
+                .UsingEntity<CRMEquipoVendedor>(
+                l => l.HasOne(x => x.Vendedor).WithMany(x => x.EquipoVendedores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Equipo).WithMany(x => x.EquipoVendedores).HasForeignKey(x => x.EquipoId).OnDelete(DeleteBehavior.Restrict));
         }
 
 
@@ -806,5 +818,7 @@ namespace GComFuelManager.Server
         public DbSet<CRMRol> CRMRoles { get; set; }
         public DbSet<CRMRolPermiso> CRMRolPermisos { get; set; }
         public DbSet<CRMRolUsuario> CRMRolUsuarios { get; set; }
+        public DbSet<CRMEquipo> CRMEquipos { get; set; }
+        public DbSet<CRMEquipoVendedor> CRMEquipoVendedores { get; set; }
     }
 }

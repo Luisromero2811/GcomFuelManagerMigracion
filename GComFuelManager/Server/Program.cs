@@ -57,6 +57,7 @@ builder.Services.AddScoped<IValidator<CRMActividadPostDTO>, CRMActividadPostVali
 builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValidator>();
 builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostValidator>();
 builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
+builder.Services.AddScoped<IValidator<CRMEquipoPostDTO>, CRMEquipoPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddScoped<IRegisterAccountService, RegisterAccountService>();

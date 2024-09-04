@@ -29,6 +29,7 @@
                         <ValidationMessage For="@(()=>Rol.Nombre)" />
                     </div>
                     <div class="col-12 d-md-inline d-none">
+                        <label>Permisos de rol</label>
                         <SelectorMultiple T="CRMPermisoDTO" NoSeleccionado="PermisosNoSeleccionados" Seleccionados="PermisosSeleccionados">
                             <ItemNoSeleccionado Context="item">
                                 @item.Nombre
