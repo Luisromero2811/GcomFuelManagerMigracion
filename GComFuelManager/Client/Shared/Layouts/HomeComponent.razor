@@ -15,7 +15,7 @@
                 @foreach (var menu in Menus)
                 {
                     <div class="col-md-3 col-6 p-2">
-                        <div class="col-12">
+                        <div class="col-12 h-100">
                             <NavLink class="text-dark" Match="NavLinkMatch.All" href="@menu.Url">
                                 <div class="card d-flex justify-content-center h-100">
                                     <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
@@ -42,13 +42,14 @@
 @code {
     List<Menu> Menus = new()
     {
-        new("crm/contactos","img/crm.png","Contactos"),
-        new("crm/oportunidades","img/salary.png","Oportunidades"),
-        new("crm/listado/actividades","img/clock.png","Actividades"),
-        new("crm/historial/actividades","img/clipbboard.png","Historial de Actividades"),
-        new("crm/vendedores","img/trader.png","Vendedores"),
-        new("crm/originadores","img/people.png","Originadores"),
-        new("crm/roles","img/management.png","Roles"),
+        new("crm/contactos","img/contactos.png","Contactos"),
+        new("crm/oportunidades","img/oportunidades.png","Oportunidades"),
+        new("crm/listado/actividades","img/actividades.png","Actividades"),
+        new("crm/historial/actividades","img/historialactividades.png","Historial de Actividades"),
+        new("crm/vendedores","img/vendedores.png","Vendedores"),
+        new("crm/originadores","img/comerciales.png","Originadores"),
+        new("crm/roles","img/roles.png","Roles"),
+        new("crm/equipos","img/equipos.png","Equipos"),
     };
 
     record Menu(string Url, string Img, string Titulo);

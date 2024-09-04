@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using GComFuelManager.Shared.Modelos;
-using Microsoft.EntityFrameworkCore;
-using GComFuelManager.Shared.DTOs.CRM;
+﻿using AutoMapper;
 using FluentValidation;
-using AutoMapper;
 using GComFuelManager.Server.Helpers;
+using GComFuelManager.Shared.DTOs.CRM;
+using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
-using iText.Commons.Utils;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -18,6 +15,8 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class ActividadesController : Controller
     {
         private readonly ApplicationDbContext context;

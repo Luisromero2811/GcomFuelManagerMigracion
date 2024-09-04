@@ -1,5 +1,279 @@
-﻿<h3>FormEquipoComponente</h3>
+﻿@page "/crm/equipos/formulario"
+@page "/crm/equipos/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMEquipoPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <b>Formulario de equipo</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/equipos" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <EditForm class="col-12 row gy-2 gx-3" Model="Equipo" Context="FormEquipo" OnValidSubmit="Guardar">
+                    <FluentValidationValidator Validator="validator" />
+                    <ValidationSummary />
+
+                    <div class="col-md-4 col-12">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="Equipo.Nombre" class="form-control" />
+                        <ValidationMessage For="@(()=>Equipo.Nombre)" />
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Lider de equipo</label>
+                        <DropDownFilter Listado="Comerciales" TListado="CRMOriginadorDTO" TValue="int" Default_Placeholder="Seleccione un comercial" FiltrarValor="ObtenerComerciales"
+                                        @bind-Valor="@Equipo.LiderId" Propiedad_Valor="Id">
+                            <RenderValue Context="item">
+                                @($"{item.Nombre} {item.Apellidos}")
+                            </RenderValue>
+                            <Render Context="item">
+                                @($"{item.Nombre} {item.Apellidos}")
+                            </Render>
+                        </DropDownFilter>
+
+                        <InputSelect class="d-none" @bind-Value="Equipo.LiderId" />
+                        <ValidationMessage For="@(()=>Equipo.LiderId)" />
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Division</label>
+                        <InputSelect @bind-Value="Equipo.DivisionId" class="form-select">
+                            <option>-- seleccione un división --</option>
+                            @foreach (var item in Divisiones)
+                            {
+                                <option value="@item.Id">@item.Nombre</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Color de equipo</label>
+                        <input type="color" @bind="Equipo.Color" class="form-control form-control-color" />
+                    </div>
+                    <div class="col-12">
+                        <label>Integrantes de equipo</label>
+                        <SelectorMultiple T="CRMVendedorDTO" NoSeleccionado="VendedoresNoSeleccionados" Seleccionados="VendedoresSeleccionados"
+                            Filtrar="true" 
+                            FiltrarNoSeleccionado="ObtenerVendedoresNoSeleccionados" PlaceholderFiltroNoSeleccionado="Filtrar vendedores no seleccionados"
+                            FiltrarSeleccionado="ObtenerVendedoresSeleccionados" PlaceholderFiltroSeleccionado="Filtrar vendedores seleccionados">
+                            <ItemNoSeleccionado Context="item">
+                                @($"{item.Nombre} {item.Apellidos}")
+                            </ItemNoSeleccionado>
+                            <ItemSeleccionado Context="item">
+                                @($"{item.Nombre} {item.Apellidos}")
+                            </ItemSeleccionado>
+                        </SelectorMultiple>
+                    </div>
+                    <div class="col-12">
+                        <div class="col-md-4 col-12 d-flex">
+                            <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                                @if (loading_save)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    [Parameter] public int Id { get; set; }
 
+    CRMEquipoPostDTO Equipo = new();
+    List<CRMVendedorDTO> VendedoresNoSeleccionados = new();
+    List<CRMVendedorDTO> VendedoresSeleccionados = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    Dictionary<string, string> FiltroNoSeleccionado = new();
+    Dictionary<string, string> FiltroSeleccionado = new();
+    Dictionary<string, string> query = new();
+
+    List<CRMOriginadorDTO> Comerciales = new();
+    List<CRMDivision> Divisiones = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+        ObtenerVendedoresNoSeleccionados(),
+        ObtenerVendedoresSeleccionados(),
+        ObtenerComerciales(),
+        ObtenerDivisiones()
+        );
+
+        if (Id != 0)
+            await Obtener();
+    }
+
+    private async Task ObtenerVendedoresNoSeleccionados(string value = "")
+    {
+        try
+        {
+            FiltroNoSeleccionado[nameof(CRMVendedor.Nombre)] = value;
+            var url = Constructor_De_URL_Parametros.Generar_URL(FiltroNoSeleccionado);
+            var response = await http.Get<List<CRMVendedorDTO>>($"api/crmequipo/vendedores/no/equipo/{Id}?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                VendedoresNoSeleccionados = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerVendedoresSeleccionados(string value = "")
+    {
+        try
+        {
+            FiltroSeleccionado[nameof(CRMVendedor.Nombre)] = value;
+            var url = Constructor_De_URL_Parametros.Generar_URL(FiltroSeleccionado);
+            var response = await http.Get<List<CRMVendedorDTO>>($"api/crmequipo/vendedores/equipo/{Id}?{url}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                VendedoresSeleccionados = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            Equipo.VendedoresDTO = VendedoresSeleccionados;
+
+            loading_save = true;
+            var response = await http.Post<CRMEquipoPostDTO>($"api/crmequipo", Equipo);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/equipos", false);
+                else
+                {
+                    Equipo = new();
+                    await ObtenerVendedoresNoSeleccionados();
+                    await ObtenerVendedoresSeleccionados();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMEquipoPostDTO>($"api/crmequipo/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Equipo = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerComerciales(string value = "")
+    {
+        try
+        {
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMOriginadorDTO>>($"api/crmoriginador?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Comerciales = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerDivisiones()
+    {
+        try
+        {
+            var response = await http.Get<List<CRMDivision>>($"api/crmdivision");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Divisiones = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
 }

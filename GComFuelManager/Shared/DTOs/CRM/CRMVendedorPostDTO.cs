@@ -1,6 +1,4 @@
-﻿using GComFuelManager.Shared.Modelos;
-
-namespace GComFuelManager.Shared.DTOs.CRM
+﻿namespace GComFuelManager.Shared.DTOs.CRM
 {
     public class CRMVendedorPostDTO
     {

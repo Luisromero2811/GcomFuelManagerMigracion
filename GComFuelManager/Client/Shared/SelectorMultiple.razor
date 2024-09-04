@@ -2,6 +2,13 @@
 
 ﻿<div class="selector-multiple">
     <ul class="selectable-ui">
+        @if (Filtrar)
+        {
+            <li style="position:sticky; top:0; background-color:white;width:100%;">
+                <input class="dropdown-input" type="search" @bind="ValorFiltradoNoSeleccionado"
+                       @oninput="@OnChangeFiltroValueNoSeleccionado" placeholder="@PlaceholderFiltroNoSeleccionado" />
+            </li>
+        }
         @if (CustomNoSeleccionado is null)
         {
             @foreach (var item in NoSeleccionado)
@@ -23,6 +30,13 @@
         <button @onclick="RemoverTodo" type="button">@removeAll</button>
     </div>
     <ul class="selectable-ui">
+        @if (Filtrar)
+        {
+            <li style="position:sticky; top:0; background-color:white;width:100%;">
+                <input class="dropdown-input" type="search" @bind="ValorFiltradoSeleccionado"
+                       @oninput="@OnChangeFiltroValueSeleccionado" placeholder="@PlaceholderFiltroSeleccionado" />
+            </li>
+        }
         @if (CustomSeleccionado is null)
         {
             @foreach (var item in Seleccionados)
@@ -42,6 +56,9 @@
 </div>
 @code {
     private string removeAll = "<<<";
+    private string ValorFiltradoNoSeleccionado = string.Empty;
+    private string ValorFiltradoSeleccionado = string.Empty;
+
     [Parameter] public List<T> NoSeleccionado { get; set; } = new();
     [Parameter] public List<T> Seleccionados { get; set; } = new();
 
@@ -50,6 +67,14 @@
 
     [Parameter] public RenderFragment? CustomNoSeleccionado { get; set; } = null!;
     [Parameter] public RenderFragment? CustomSeleccionado { get; set; } = null!;
+
+    [Parameter] public bool Filtrar { get; set; } = false;
+
+    [Parameter] public EventCallback<string> FiltrarSeleccionado { get; set; }
+    [Parameter] public EventCallback<string> FiltrarNoSeleccionado { get; set; }
+
+    [Parameter] public string PlaceholderFiltroNoSeleccionado { get; set; } = string.Empty;
+    [Parameter] public string PlaceholderFiltroSeleccionado { get; set; } = string.Empty;
 
     private void Seleccionar(T item)
     {
@@ -73,5 +98,17 @@
     {
         Seleccionados.AddRange(NoSeleccionado);
         NoSeleccionado.Clear();
+    }
+
+    private async Task OnChangeFiltroValueNoSeleccionado(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        await FiltrarNoSeleccionado.InvokeAsync(value);
+    }
+
+    private async Task OnChangeFiltroValueSeleccionado(ChangeEventArgs e)
+    {
+        var value = e.Value?.ToString() ?? string.Empty;
+        await FiltrarSeleccionado.InvokeAsync(value);
     }
 }

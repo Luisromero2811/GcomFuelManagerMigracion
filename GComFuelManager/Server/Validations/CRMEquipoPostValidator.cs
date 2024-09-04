@@ -22,9 +22,9 @@ namespace GComFuelManager.Server.Validations
                 .NotNull().WithMessage("La división es obligatoria")
                 .GreaterThan(0).WithMessage("Debe seleccionar una división");
 
-            RuleFor(x => x.Vendedores)
-                .NotNull().WithMessage("Los permisos son obligatorios")
-                .Must(x => x.Count <= 0).WithMessage("Debe seleccionar al menos un integrante");
+            //RuleFor(x => x.Vendedores)
+            //    .NotNull().WithMessage("Los permisos son obligatorios")
+            //    .Must(x => x.Count <= 0).WithMessage("Debe seleccionar al menos un integrante");
         }
     }
 }

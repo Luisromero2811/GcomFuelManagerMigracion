@@ -1,6 +1,4 @@
-﻿using GComFuelManager.Shared.Modelos;
-
-namespace GComFuelManager.Shared.DTOs.CRM
+﻿namespace GComFuelManager.Shared.DTOs.CRM
 {
     public class CRMEquipoPostDTO
     {
@@ -10,6 +8,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int LiderId { get; set; }
         public int DivisionId { get; set; }
         public bool Activo { get; set; } = true;
-        public List<CRMVendedorDTO> Vendedores { get; set; } = new();
+        public List<CRMVendedorDTO> VendedoresDTO { get; set; } = new();
     }
 }

@@ -8,9 +8,9 @@
         public int LiderId { get; set; }
         public int DivisionId { get; set; }
         public bool Activo { get; set; } = true;
-        public CRMOriginador Originador { get; set; } = new();
+        public CRMOriginador Originador { get; set; } = null!;
         public List<CRMEquipoVendedor> EquipoVendedores { get; set; } = new();
         public List<CRMVendedor> Vendedores { get; set; } = new();
-        public CRMDivision Division { get; set; } = new();
+        public CRMDivision Division { get; set; } = null!;
     }
 }

@@ -4,6 +4,7 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CRMVendedorController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -120,13 +121,18 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var validate = await validator.ValidateAsync(dTO);
                 if (!validate.IsValid) { return BadRequest(validate.Errors); }
 
-                var vendedor = mapper.Map<CRMVendedorPostDTO, CRMVendedor>(dTO);
+                var vendedordto = mapper.Map<CRMVendedorPostDTO, CRMVendedor>(dTO);
                 //var originadores = dTO.OriginadoresDTO.Select(x => mapper.Map<CRMOriginadorDTO, CRMOriginador>(x)).ToList();
 
                 //vendedor.Originadores = originadores;
 
-                if (vendedor.Id != 0)
+                if (vendedordto.Id != 0)
                 {
+                    var vendedordb = await context.CRMVendedores.FindAsync(dTO.Id);
+                    if (vendedordb is null) { return NotFound(); }
+
+                    var vendedor = mapper.Map(vendedordto, vendedordb);
+
                     var relations = dTO.OriginadoresDTO.Select(x => new CRMVendedorOriginador { VendedorId = vendedor.Id, OriginadorId = x.Id }).ToList();
                     var relations_actual = await context.CRMVendedorOriginadores.Where(x => x.VendedorId == vendedor.Id).ToListAsync();
 
@@ -136,10 +142,16 @@ namespace GComFuelManager.Server.Controllers.CRM
                         await context.AddRangeAsync(relations);
                     }
 
+
                     context.Update(vendedor);
                 }
                 else
-                    await context.AddAsync(vendedor);
+                {
+                    var integrantes = dTO.OriginadoresDTO.Select(x => new CRMVendedorOriginador { OriginadorId = x.Id, VendedorId = vendedordto.Id }).ToList();
+                    vendedordto.VendedorOriginadores = integrantes;
+
+                    await context.AddAsync(vendedordto);
+                }
 
                 await context.SaveChangesAsync();
 

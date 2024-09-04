@@ -3,6 +3,8 @@ using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +12,8 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     public class CRMEquipoController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -73,7 +77,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var vendedoresdto = equipo.Vendedores.Select(x => mapper.Map<CRMVendedor, CRMVendedorDTO>(x)).ToList();
 
                 var equipodto = mapper.Map<CRMEquipoPostDTO>(equipo);
-                equipodto.Vendedores = vendedoresdto;
+                equipodto.VendedoresDTO = vendedoresdto;
 
                 return Ok(equipodto);
             }
@@ -123,7 +127,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (equipo.Id != 0)
                 {
-                    var relations = dTO.Vendedores.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
+                    var relations = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     var relations_actual = await context.CRMEquipoVendedores.Where(x => x.EquipoId == equipo.Id).ToListAsync();
 
                     if (!relations_actual.SequenceEqual(relations))
@@ -135,8 +139,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                     context.Update(equipo);
                 }
                 else
-                    await context.AddAsync(equipo);
+                {
+                    var integrantes = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
+                    equipo.EquipoVendedores = integrantes;
 
+                    await context.AddAsync(equipo);
+                }
                 await context.SaveChangesAsync();
 
                 return Ok();
@@ -159,6 +167,66 @@ namespace GComFuelManager.Server.Controllers.CRM
                 await context.SaveChangesAsync();
 
                 return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("vendedores/equipo/{id:int}")]
+        public async Task<ActionResult> GetIntegrantesByEquipoId([FromRoute] int id, [FromQuery] CRMVendedorDTO vendedor)
+        {
+            try
+            {
+                List<CRMPermisoDTO> permisos = new();
+
+                var vendedoresDeEquipo = await context.CRMEquipoVendedores
+                    .Where(x => x.EquipoId == id)
+                    .ToListAsync();
+
+                var allVendedores = await context.CRMVendedores
+                    .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo)
+                    .OrderBy(x => x.Nombre)
+                    .ToListAsync();
+
+                var vendedoresEquipo = allVendedores.IntersectBy(vendedoresDeEquipo.Select(x => x.VendedorId), x => x.Id)
+                    .Select(x => mapper.Map<CRMVendedor, CRMVendedorDTO>(x)).AsQueryable();
+
+                if (!string.IsNullOrEmpty(vendedor.Nombre) && !string.IsNullOrWhiteSpace(vendedor.Nombre))
+                    vendedoresEquipo = vendedoresEquipo.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(vendedor.Nombre.ToLower()));
+
+                return Ok(vendedoresEquipo);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("vendedores/no/equipo/{id:int}")]
+        public async Task<ActionResult> GetNoIntegrantesByEquipoId([FromRoute] int id, [FromQuery] CRMVendedorDTO vendedor)
+        {
+            try
+            {
+
+                var allVendedores = await context.CRMVendedores
+                    .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo)
+                    .OrderBy(x => x.Nombre)
+                    .ToListAsync();
+
+                var vendedoresDeEquipo = await context.CRMEquipoVendedores
+                    .Where(x => x.EquipoId == id)
+                    .ToListAsync();
+
+                var vendedoresNoEquipo = allVendedores.ExceptBy(vendedoresDeEquipo.Select(x => x.VendedorId), x => x.Id)
+                    .Select(x => mapper.Map<CRMVendedor, CRMVendedorDTO>(x)).AsQueryable();
+
+                if (!string.IsNullOrEmpty(vendedor.Nombre) && !string.IsNullOrWhiteSpace(vendedor.Nombre))
+                    vendedoresNoEquipo = vendedoresNoEquipo.Where(x => x.Nombre.ToLower().Contains(vendedor.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(vendedor.Nombre.ToLower()));
+
+
+                return Ok(vendedoresNoEquipo);
             }
             catch (Exception e)
             {

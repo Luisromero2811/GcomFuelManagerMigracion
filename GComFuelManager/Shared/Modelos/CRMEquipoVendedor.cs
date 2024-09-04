@@ -5,8 +5,8 @@
         public int EquipoId { get; set; }
         public int VendedorId { get; set; }
 
-        public CRMVendedor Vendedor { get; set; } = new();
-        public CRMEquipo Equipo { get; set; } = new();
+        public CRMVendedor? Vendedor { get; set; } = null!;
+        public CRMEquipo? Equipo { get; set; } = null!;
 
         public bool Equals(CRMEquipoVendedor? other)
         {

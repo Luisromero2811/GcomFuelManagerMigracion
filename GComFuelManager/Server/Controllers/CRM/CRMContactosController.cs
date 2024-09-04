@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -36,18 +35,20 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                //if (HttpContext.User.Identity is null) { return NotFound(); }
-                //if (string.IsNullOrEmpty(HttpContext.User.Identity.Name) || string.IsNullOrWhiteSpace(HttpContext.User.Identity.Name)) { return NotFound(); }
+                if (HttpContext.User.Identity is null) { return NotFound(); }
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name) || string.IsNullOrWhiteSpace(HttpContext.User.Identity.Name)) { return NotFound(); }
 
-                //var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
-                //if (user is null) { return NotFound(); }
+                var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null) { return NotFound(); }
 
-                var contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo)
-                    .Include(x => x.Estatus)
-                    .Include(x => x.Origen)
-                    .Include(x => x.Cliente)
-                    .Include(x => x.Vendedor)
-                    .AsQueryable();
+                if (await context.CRMOriginadores.AnyAsync(x => x.UserId == user.Id))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if(comercial is not null)
+                    {
+
+                    }
+                }
 
                 //if ((!await manager.IsInRoleAsync(user, "Admin") ||
                 //     !await manager.IsInRoleAsync(user, "Administrador Sistema") ||
@@ -56,6 +57,15 @@ namespace GComFuelManager.Server.Controllers.CRM
                 //{
                 //    contactos = contactos.Where(x => x.VendedorId == 0);
                 //}
+
+                var divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).ToListAsync();
+
+                var contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo && divisiones.Any(y => y.DivisionId == x.DivisionId))
+                    .Include(x => x.Estatus)
+                    .Include(x => x.Origen)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Vendedor)
+                    .AsQueryable();
 
                 if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
                     contactos = contactos.Where(x => x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(contacto.Nombre.ToLower()));
