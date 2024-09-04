@@ -21,10 +21,6 @@ namespace GComFuelManager.Shared.DTOs
         [EpplusIgnore]
         public Cliente? cliente { get; set; }
         [EpplusIgnore]
-        public Destino? destino { get; set; }
-        [EpplusIgnore]
-        public Grupo? grupo { get; set; }
-        [EpplusIgnore]
         public int pagina { get; set; } = 1;
         [EpplusIgnore]
         public int tamanopagina { get; set; } = 10;

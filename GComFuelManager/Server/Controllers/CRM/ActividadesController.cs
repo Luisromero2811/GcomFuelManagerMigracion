@@ -178,7 +178,7 @@ namespace GComFuelManager.Server.Controllers
             try
             {
                 var activos = context.CRMActividades
-                    .Where(x => x.Activo && x.Estados.Valor != "Finalizada")
+                    .Where(x => x.Activo && x.Estados.Valor != "Completada")
                     .Include(x => x.vendedor)
                     .Include(x => x.contacto)
                     .Include(x => x.asuntos)
@@ -223,7 +223,7 @@ namespace GComFuelManager.Server.Controllers
             {
                 //Consulta a la entidad CRMActividades
                 var actividades = context.CRMActividades
-                    .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Finalizada"))
+                    .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Completada"))
                     .Include(x => x.asuntos)
                     .Include(x => x.Estados)
                     .Include(x => x.contacto)
@@ -231,6 +231,11 @@ namespace GComFuelManager.Server.Controllers
                 .AsQueryable();
 
                 //Filtros
+                if (!string.IsNullOrEmpty(actividadDTO.Asunto) && !string.IsNullOrWhiteSpace(actividadDTO.Asunto))
+                    actividades = actividades.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(actividadDTO.Asunto.ToLower()));
+
+                if (!string.IsNullOrEmpty(actividadDTO.Prioridad) && !string.IsNullOrWhiteSpace(actividadDTO.Prioridad))
+                    actividades = actividades.Where(x => x.prioridades != null && x.prioridades.Valor.ToLower().Contains(actividadDTO.Prioridad.ToLower()));
 
                 //Paginacion
                 await HttpContext.InsertarParametrosPaginacion(actividades, actividadDTO.Registros_por_pagina, actividadDTO.Pagina);

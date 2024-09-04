@@ -185,35 +185,35 @@ namespace GComFuelManager.Server.Controllers
             }
         }
 
-        [HttpPost("borrar/relacion")]
-        public async Task<ActionResult> Borrar_Relacion([FromBody] Cliente_Tad clienteterminal)
-        {
-            try
-            {
-                if (clienteterminal is null)
-                    return NotFound();
+        //[HttpPost("borrar/relacion")]
+        //public async Task<ActionResult> Borrar_Relacion([FromBody] Cliente_Tad clienteterminal)
+        //{
+        //    try
+        //    {
+        //        if (clienteterminal is null)
+        //            return NotFound();
 
-                if (context.OrdenEmbarque.Include(x => x.Destino).Any(x => x.Codtad == clienteterminal.Id_Terminal && x.Destino!.Cliente!.Cod == clienteterminal.Id_Cliente) ||
-                    context.OrdenCierre.Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.CodCte == clienteterminal.Id_Cliente) ||
-                    context.Orden.Include(x => x.Destino).Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.Destino!.Cliente!.Cod == clienteterminal.Id_Cliente))
-                {
-                    return BadRequest("Error, no puede eliminar la relación debido a pedidos u órdenes activas ligadas a este Cliente y Unidad de Negocio");
-                }
+        //        if (context.OrdenEmbarque.Include(x => x.Destino).Any(x => x.Codtad == clienteterminal.Id_Terminal && x.Destino!.Cliente!.Cod == clienteterminal.Id_Cliente) ||
+        //            context.OrdenCierre.Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.CodCte == clienteterminal.Id_Cliente) ||
+        //            context.Orden.Include(x => x.Destino).Any(x => x.Id_Tad == clienteterminal.Id_Terminal && x.Destino!.Cliente!.Cod == clienteterminal.Id_Cliente))
+        //        {
+        //            return BadRequest("Error, no puede eliminar la relación debido a pedidos u órdenes activas ligadas a este Cliente y Unidad de Negocio");
+        //        }
 
-                var id = await verifyUser.GetId(HttpContext, userManager);
-                if (string.IsNullOrEmpty(id))
-                    return BadRequest();
+        //        var id = await verifyUser.GetId(HttpContext, userManager);
+        //        if (string.IsNullOrEmpty(id))
+        //            return BadRequest();
 
-                context.Remove(clienteterminal);
-                await context.SaveChangesAsync();
+        //        context.Remove(clienteterminal);
+        //        await context.SaveChangesAsync();
 
-                return Ok(clienteterminal);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        return Ok(clienteterminal);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpPut("{cod:int}")]
         public async Task<ActionResult> ChangeStatus([FromRoute] int cod, [FromBody] bool status)

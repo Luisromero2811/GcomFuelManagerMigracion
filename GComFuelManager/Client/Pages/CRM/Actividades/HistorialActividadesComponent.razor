@@ -1,6 +1,7 @@
 ﻿@inject SweetAlertService Swal
 @inject IJSRuntime js
 @inject IRepositorio repositorio
+@inject DialogService ds
 @page "/crm/historial/actividades"
 
 <div class="card mt-2" style="height: 500px; overflow: scroll; ">
@@ -41,6 +42,7 @@
                             <th>Asunto</th>
                             <th>Prioridad</th>
                             <th>Estatus</th>
+                            <th>Descripción</th>
                             <th>Fecha de creación</th>
                             <th>Fecha de Inicio</th>
                             <th>Fecha de Vencimiento</th>
@@ -51,7 +53,12 @@
                     <Filtros>
                         <tr>
                             <td></td>
-                            <td></td>
+                            <td>
+                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Prioridad" @oninput="FiltrarPrioridad" />
+                            </td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -66,6 +73,13 @@
                             <td>@item.Asunto</td>
                             <td>@item.Prioridad</td>
                             <td>@item.Estatus</td>
+                            <td>
+                                <div class="col-12">
+                                    <button class="col-12 btn gcom-bg-amarillo" type="button" @onclick="@(()=>OpenModal(item.Desccripcion ?? string.Empty))">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
                             <td>@item.Fecha_Creacion</td>
                             <td>@item.Fecha_Inicio</td>
                             <td>@item.Fecha_Ven</td>
@@ -92,6 +106,8 @@
         keys = new();
         keys["Fecha_Creacion"] = Listado_Actividad.Fecha_Creacion.ToString("MM-dd-yyyy");
         keys["Fecha_Ven"] = Listado_Actividad.Fecha_Ven.ToString("MM-dd-yyyy");
+        keys["Asunto"] = Listado_Actividad.Asunto ?? string.Empty;
+        keys["Prioridad"] = Listado_Actividad.Prioridad ?? string.Empty;
         return keys;
     }
 
@@ -115,6 +131,32 @@
                 Listado_Actividad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(responseHttp.HttpResponseMessage);
                 Listado_Actividad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(responseHttp.HttpResponseMessage);
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarAsunto(ChangeEventArgs args)
+    {
+        Listado_Actividad.Asunto = args.Value?.ToString() ?? string.Empty;
+        await Get_Activities();
+    }
+
+    private async Task FiltrarPrioridad(ChangeEventArgs args)
+    {
+        Listado_Actividad.Prioridad = args.Value?.ToString() ?? string.Empty;
+        await Get_Activities();
+    }
+
+    private async Task OpenModal(string Desccripcion)
+    {
+        try
+        {
+            await ds.OpenAsync<ModalDescriptionComponent>($"Descripción:",
+            new Dictionary<string, object>() { { "Desccripcion", Desccripcion } },
+                   new DialogOptions() { Height = "70px", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
         }
         catch (Exception e)
         {

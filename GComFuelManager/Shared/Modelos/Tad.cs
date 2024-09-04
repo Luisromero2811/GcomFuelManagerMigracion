@@ -27,19 +27,6 @@ namespace GComFuelManager.Shared.Modelos
         //public List<OrdenEmbarque> OrdenEmbarque { get; set; } = null!;
         [NotMapped, JsonIgnore] public List<Cliente> Clientes { get; set; } = new();
         [NotMapped, JsonIgnore] public List<Cliente_Tad> Cliente_Tads { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Destino> Destinos { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Destino_Tad> Destino_Tads { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Transportista> Transportistas { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Transportista_Tad> Transportista_Tads { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Chofer> Choferes { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Chofer_Tad> Chofer_Tads { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Tonel> Unidades { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Unidad_Tad> Unidad_Tads { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Autorizador> Autorizadores { get; set; } = new();
-        [NotMapped, JsonIgnore] public List<Autorizadores_Tad> Autorizador_Tad { get; set; } = new();
-
-        [NotMapped] public List<GrupoTransportista> GruposTransportes { get; set; } = new();
-        [NotMapped] public List<GrupoTransportista_Tad> GrupoTransportista_Tads { get; set; } = new();
     }
 }
 
