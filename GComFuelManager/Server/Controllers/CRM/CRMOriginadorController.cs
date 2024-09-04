@@ -4,6 +4,7 @@ using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CRMOriginadorController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -40,7 +41,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var originadores = context.CRMOriginadores.AsNoTracking().AsQueryable();
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
-                    originadores = originadores.Where(v => v.Nombre.ToLower().Contains(dTO.Nombre.ToLower()) || v.Apellidos.ToLower().Contains(dTO.Nombre));
+                    originadores = originadores.Where(v => v.Nombre.ToLower().Contains(dTO.Nombre.ToLower()) || v.Apellidos.ToLower().Contains(dTO.Nombre.ToLower()));
 
                 if (!string.IsNullOrEmpty(dTO.Tel_Movil) || !string.IsNullOrWhiteSpace(dTO.Tel_Movil))
                     originadores = originadores.Where(v => !string.IsNullOrEmpty(v.Tel_Movil) && v.Tel_Movil.ToLower().Contains(dTO.Tel_Movil.ToLower()));
@@ -111,12 +112,18 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var validate = await validator.ValidateAsync(dTO);
                 if (!validate.IsValid) { return BadRequest(validate.Errors); }
 
-                var originador = mapper.Map<CRMOriginadorPostDTO, CRMOriginador>(dTO);
+                var originadordto = mapper.Map<CRMOriginadorPostDTO, CRMOriginador>(dTO);
 
-                if (originador.Id != 0)
+                if (originadordto.Id != 0)
+                {
+
+                    var originadordb = await context.CRMOriginadores.FindAsync(dTO.Id);
+                    if (originadordb is null) { return NotFound(); }
+                    var originador = mapper.Map(originadordto, originadordb);
                     context.Update(originador);
+                }
                 else
-                    await context.AddAsync(originador);
+                    await context.AddAsync(originadordto);
 
                 await context.SaveChangesAsync();
 

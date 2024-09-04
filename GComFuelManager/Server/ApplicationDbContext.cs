@@ -80,46 +80,10 @@ namespace GComFuelManager.Server
         {
             base.OnModelCreating(modelBuilder);
 
-            //Configuracion de la entidad a través de Modelbuilder.Entity
-            //Con esta entidad podemos aplicar la llave compartida para generar un campo de muchos a muchos
-            //OrdenCierre
-
-            //modelBuilder.Entity<OrdenEmbarque>()
-            //    .HasOne(x => x.OrdenCierre)
-            //    .WithOne(x => x.OrdenEmbarque)
-            //    .HasForeignKey<OrdenCierre>(x => x.CodPed);
-
-            ////Relaciones Tabla de OrdEmbDet
-            //modelBuilder.Entity<OrdEmbDet>()
-            //    .HasOne(x => x.Orden)
-            //    .WithMany()
-            //    .HasPrincipalKey(x => x.BatchId)
-            //    .HasForeignKey(x => x.Bol);
-            ////Relaciones Tabla orden
-            ////Orden-OrdEmbDet
-            //modelBuilder.Entity<Orden>()
-            //    .HasOne(x => x.OrdEmbDet)
-            //    .WithMany()
-            //    .HasPrincipalKey(x => x.Bol)
-            //    .HasForeignKey(x => x.BatchId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //Contacto - Cliente
             modelBuilder.Entity<Contacto>()
                 .HasOne(x => x.Cliente)
                 .WithMany()
                 .HasForeignKey(x => x.CodCte);
-            //modelBuilder.Entity<OrdenPedido>()
-            //    .HasOne(x => x.OrdenEmbarque)
-            //    .WithOne(x => x.OrdenPedido)
-            //    .HasPrincipalKey<OrdenEmbarque>(x => x.Cod)
-            //    .HasForeignKey<OrdenPedido>(x => x.CodPed);
-            //OrdenEmbarque a Órdenes
-            //modelBuilder.Entity<OrdenEmbarque>()
-            //    .HasOne(x => x.Orden)
-            //    .WithOne(x => x.OrdenEmbarque)
-            //    .HasForeignKey<OrdenEmbarque>("Folio", "CompartmentId")
-            //    .HasPrincipalKey<Orden>("Folio", "CompartmentId");
 
             modelBuilder.Entity<Cliente>()
                 .HasOne(x => x.Vendedor)
@@ -283,6 +247,21 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.DivisionId);
 
+            modelBuilder.Entity<CRMEquipo>()
+                .HasOne(x => x.Originador)
+                .WithMany(x => x.Equipos)
+                .HasForeignKey(x => x.LiderId);
+
+            modelBuilder.Entity<CRMEquipoVendedor>().HasKey(x => new { x.EquipoId, x.VendedorId });
+            modelBuilder.Entity<CRMEquipo>()
+                .HasMany(x => x.Vendedores)
+                .WithMany(x => x.Equipos)
+                .UsingEntity<CRMEquipoVendedor>(
+                l => l.HasOne(x => x.Vendedor).WithMany(x => x.EquipoVendedores).HasForeignKey(x => x.VendedorId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Equipo).WithMany(x => x.EquipoVendedores).HasForeignKey(x => x.EquipoId).OnDelete(DeleteBehavior.Restrict));
+
+            modelBuilder.Entity<CRMUsuarioDivision>().HasKey(x => new { x.UsuarioId, x.DivisionId });
+
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }
@@ -311,5 +290,8 @@ namespace GComFuelManager.Server
         public DbSet<CRMRol> CRMRoles { get; set; }
         public DbSet<CRMRolPermiso> CRMRolPermisos { get; set; }
         public DbSet<CRMRolUsuario> CRMRolUsuarios { get; set; }
+        public DbSet<CRMEquipo> CRMEquipos { get; set; }
+        public DbSet<CRMEquipoVendedor> CRMEquipoVendedores { get; set; }
+        public DbSet<CRMUsuarioDivision> CRMUsuarioDivisiones { get; set; }
     }
 }

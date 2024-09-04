@@ -1,5 +1,7 @@
 ﻿.selector-multiple {
     display: flex;
+    min-height: 10vh;
+    max-height: 50vh;
 }
 
 .selectable-ui {
@@ -17,6 +19,25 @@
         padding: 2px 10px;
     }
 
+/* typical phone screen resolution */
+@media only screen and (max-width : 667px) {
+    .selectable-ui {
+        width: 100%;
+    }
+}
+/* landscape orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : landscape) {
+    .selectable-ui {
+        width: 48%;
+    }
+}
+/* portrait orientation */
+@media only screen and (min-width : 375px) and (max-width : 667px) and (orientation : portrait) {
+    .selectable-ui {
+        width: 100%;
+    }
+}
+
 .selector-multiple-botones {
     display: flex;
     flex-direction: column;
@@ -25,5 +46,20 @@
 }
 
     .selector-multiple-botones button {
-        margin: 5px;
+        padding: .3rem .75rem;
+        border-radius: .25rem;
+        font-size: 1rem;
+        border: #bbb 1px solid;
+        margin: .3rem;
     }
+
+.filtro-input {
+    min-height: calc(1.5em + .5rem + 2px);
+    padding: .2rem .5rem;
+    /*font-size: .8rem;*/
+    border-radius: .2rem;
+    width: 100%;
+    color: black;
+    background-color: white;
+    border: 1px solid #b9bec3;
+}

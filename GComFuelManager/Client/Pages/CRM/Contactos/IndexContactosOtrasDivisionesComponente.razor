@@ -1,0 +1,160 @@
+﻿@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize]
+
+<div class="ancho-tabla">
+    <Tabla Datos="contactos" Cargando="loading_info">
+        <Cabeceras>
+            <tr>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Nombre de cuenta</th>
+                <th>Tel. movil</th>
+                <th>Correo</th>
+                <th>Encargado</th>
+                <th>Division</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Nombre" @oninput="FiltrarNombre" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Cuenta" @oninput="FiltrarCliente" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Tel_Movil" @oninput="FiltrarTel" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Correo" @oninput="FiltrarCorreo" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Vendedor" @oninput="FiltrarVendedor" />
+                </td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>@item.FullName</td>
+                <td>@item.Estatus</td>
+                <td>@item.Cuenta</td>
+                <td>@item.Tel_Movil</td>
+                <td>@item.Correo</td>
+                <td>@item.Vendedor</td>
+                <td>@item.Division</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+</div>
+<div class="col-12">
+    <PaginacionComponent PaginaActual="filtro_contacto.Pagina_ACtual" PaginasTotales="filtro_contacto.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+    <div class="col-12">
+        <p>Total de registros: @filtro_contacto.Total_registros</p>
+    </div>
+</div>
+@code {
+    CRMContactoDTO filtro_contacto = new();
+    List<CRMContactoDTO> contactos = new();
+    Dictionary<string, string> query = new();
+
+    bool loading_info = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerContactos();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtro_contacto.Nombre)}"] = filtro_contacto.Nombre;
+        query[$"{nameof(filtro_contacto.Cuenta)}"] = filtro_contacto.Cuenta;
+        query[$"{nameof(filtro_contacto.Tel_Movil)}"] = filtro_contacto.Tel_Movil;
+        query[$"{nameof(filtro_contacto.Correo)}"] = filtro_contacto.Correo;
+        query[$"{nameof(filtro_contacto.Vendedor)}"] = filtro_contacto.Vendedor;
+        query[$"{nameof(filtro_contacto.Estatus)}"] = filtro_contacto.Estatus;
+        query[$"{nameof(filtro_contacto.Pagina)}"] = filtro_contacto.Pagina.ToString();
+        query[$"{nameof(filtro_contacto.Registros_por_pagina)}"] = filtro_contacto.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task ObtenerContactos()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos/no/division?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                contactos = response.Response;
+
+                filtro_contacto.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro_contacto.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro_contacto.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro_contacto.Nombre = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarCorreo(ChangeEventArgs args)
+    {
+        filtro_contacto.Correo = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarTel(ChangeEventArgs args)
+    {
+        filtro_contacto.Tel_Movil = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarVendedor(ChangeEventArgs args)
+    {
+        filtro_contacto.Vendedor = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarEstado(ChangeEventArgs args)
+    {
+        filtro_contacto.Estatus = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarCliente(ChangeEventArgs args)
+    {
+        filtro_contacto.Cuenta = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro_contacto.Pagina_ACtual = pagina;
+        filtro_contacto.Pagina = pagina;
+
+        await ObtenerContactos();
+    }
+}

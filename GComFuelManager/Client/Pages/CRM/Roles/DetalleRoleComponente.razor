@@ -1,0 +1,87 @@
+﻿@page "/crm/rol/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NavigationManager navigation
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="col-12 d-flex justify-content-between">
+                    <b>Detalle de rol</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/roles" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <div class="col-12 row">
+                    <div class="col-md-4 col-12">
+                        <label><b>Rol</b></label>
+                        <p>@Rol.Nombre</p>
+                    </div>
+                    <div class="col-12">
+                        <Card HeaderText="´Permisos asignados">
+                            <Body>
+                                <Tabla Datos="Rol.Permisos">
+                                    <Cabeceras>
+                                        <tr>
+                                            <th>Nombre</th>
+                                        </tr>
+                                    </Cabeceras>
+                                    <Columnas Context="item">
+                                        <tr>
+                                            <td>@item.Nombre</td>
+                                        </tr>
+                                    </Columnas>
+                                </Tabla>
+                            </Body>
+                        </Card>
+                    </div>
+                </div>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; } = 0;
+    bool loading_info = false;
+    CRMRolDetalleDTO Rol = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await Obtener();
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMRolDetalleDTO>($"api/crmrol/{Id}/detalle");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Rol = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

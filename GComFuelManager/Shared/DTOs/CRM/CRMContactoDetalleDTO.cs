@@ -9,6 +9,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Apellidos { get; set; } = string.Empty;
         public string Titulo { get; set; } = string.Empty;
         public string Departamento { get; set; } = string.Empty;
+        public int? DivisionId { get; set; }
         public int? CuentaId { get; set; }
         public string Tel_Oficina { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
@@ -30,5 +31,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public Catalogo_Fijo? Origen { get; set; } = null!;
         public Vendedor? Vendedor { get; set; } = null!;
         public CRMCliente? Cliente { get; set; } = null!;
+        public CRMDivision? Division { get; set; } = null!;
     }
 }

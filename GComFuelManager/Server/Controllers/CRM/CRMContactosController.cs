@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Primitives;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -33,6 +32,78 @@ namespace GComFuelManager.Server.Controllers.CRM
 
         [HttpGet]
         public async Task<ActionResult> Get([FromQuery] CRMContactoDTO contacto)
+        {
+            try
+            {
+                if (HttpContext.User.Identity is null) { return NotFound(); }
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name) || string.IsNullOrWhiteSpace(HttpContext.User.Identity.Name)) { return NotFound(); }
+
+                var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null) { return NotFound(); }
+
+                if (await context.CRMOriginadores.AnyAsync(x => x.UserId == user.Id))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if(comercial is not null)
+                    {
+
+                    }
+                }
+
+                //if ((!await manager.IsInRoleAsync(user, "Admin") ||
+                //     !await manager.IsInRoleAsync(user, "Administrador Sistema") ||
+                //     !await manager.IsInRoleAsync(user, "CRM_LIDER")) && 
+                //      await manager.IsInRoleAsync(user, "CRM"))
+                //{
+                //    contactos = contactos.Where(x => x.VendedorId == 0);
+                //}
+
+                var divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).ToListAsync();
+
+                var contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo && divisiones.Any(y => y.DivisionId == x.DivisionId))
+                    .Include(x => x.Estatus)
+                    .Include(x => x.Origen)
+                    .Include(x => x.Cliente)
+                    .Include(x => x.Vendedor)
+                    .AsQueryable();
+
+                if (!string.IsNullOrEmpty(contacto.Nombre) && !string.IsNullOrWhiteSpace(contacto.Nombre))
+                    contactos = contactos.Where(x => x.Nombre.ToLower().Contains(contacto.Nombre.ToLower()) || x.Apellidos.ToLower().Contains(contacto.Nombre.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Cuenta) && !string.IsNullOrWhiteSpace(contacto.Cuenta))
+                    contactos = contactos.Where(x => x.Cliente != null && x.Cliente.Nombre.ToLower().Contains(contacto.Cuenta.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Vendedor) && !string.IsNullOrWhiteSpace(contacto.Vendedor))
+                    contactos = contactos.Where(x => x.Vendedor != null && x.Vendedor.Nombre.ToLower().Contains(contacto.Vendedor.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Correo) && !string.IsNullOrWhiteSpace(contacto.Correo))
+                    contactos = contactos.Where(x => x.Correo.ToLower().Contains(contacto.Correo.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Tel_Movil) && !string.IsNullOrWhiteSpace(contacto.Tel_Movil))
+                    contactos = contactos.Where(x => x.Tel_Movil.ToLower().Contains(contacto.Tel_Movil.ToLower()));
+
+                if (!string.IsNullOrEmpty(contacto.Estatus) && !string.IsNullOrWhiteSpace(contacto.Estatus))
+                    contactos = contactos.Where(x => x.Estatus != null && x.Estatus.Valor.ToLower().Contains(contacto.Estatus.ToLower()));
+
+                await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
+
+                contacto.Pagina = HttpContext.ObtenerPagina();
+
+                //var contactos_filtrados = await contactos.Select(x => mapper.Map<CRMContactoDTO>(x)).ToListAsync();
+                contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
+
+                var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
+
+                return Ok(contactosdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("no/division")]
+        public async Task<ActionResult> GetAnotherDivision([FromQuery] CRMContactoDTO contacto)
         {
             try
             {
@@ -91,6 +162,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 return BadRequest(e.Message);
             }
         }
+
 
         [HttpGet("{Id:int}")]
         public async Task<ActionResult> GetById([FromRoute] int Id)

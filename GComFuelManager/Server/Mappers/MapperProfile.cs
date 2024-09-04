@@ -37,6 +37,8 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Contacto_Rel, y => y.MapFrom(c => c.contacto.Nombre))
                 .ForMember(x => x.Asignado, y => y.MapFrom(c => c.vendedor.Nombre));
 
+            CreateMap<CRMVendedor, CRMVendedor>()
+                .ForMember(x => x.UserId, o => o.Ignore());
             CreateMap<CRMVendedor, CRMVendedorDTO>()
                 .ForMember(x => x.NombreDivision, y => y.MapFrom(c => c.Division.Nombre));
             CreateMap<CRMVendedorPostDTO, CRMVendedor>();
@@ -44,6 +46,8 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMVendedor, CRMVendedorDetalleDTO>();
             CreateMap<CRMVendedorDTO, CRMVendedor>();
 
+            CreateMap<CRMOriginador, CRMOriginador>()
+                .ForMember(x => x.UserId, o => o.Ignore());
             CreateMap<CRMOriginador, CRMOriginadorDTO>()
                 .ForMember(x => x.NombreDivision, y => y.MapFrom(c => c.Division.Nombre));
             CreateMap<CRMOriginadorPostDTO, CRMOriginador>();
@@ -55,6 +59,13 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMRol, CRMRolDetalleDTO>();
             CreateMap<CRMRol, CRMRolPostDTO>();
             CreateMap<CRMRolPostDTO, CRMRol>();
+
+            CreateMap<CRMEquipo, CRMEquipoDTO>()
+                .ForMember(x => x.Lider, y => y.MapFrom(e => e.Originador.FullName))
+                .ForMember(x => x.Division, y => y.MapFrom(e => e.Division.Nombre));
+            CreateMap<CRMEquipo, CRMEquipoDetalleDTO>();
+            CreateMap<CRMEquipo, CRMEquipoPostDTO>();
+            CreateMap<CRMEquipoPostDTO, CRMEquipo>();
         }
     }
 }

@@ -28,7 +28,8 @@
                         <InputText @bind-Value="Rol.Nombre" class="form-control" />
                         <ValidationMessage For="@(()=>Rol.Nombre)" />
                     </div>
-                    <div class="col-12 d-md-inline d-none">
+                    <div class="col-12">
+                        <label>Permisos de rol</label>
                         <SelectorMultiple T="CRMPermisoDTO" NoSeleccionado="PermisosNoSeleccionados" Seleccionados="PermisosSeleccionados">
                             <ItemNoSeleccionado Context="item">
                                 @item.Nombre

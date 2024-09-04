@@ -13,6 +13,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, CRM, CRM_Lider")]
 
     public class CRMOportunidadController : ControllerBase

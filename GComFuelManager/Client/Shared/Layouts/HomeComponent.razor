@@ -11,18 +11,20 @@
         </div>
         <div class="col-12 my-3">
             @* <img class="mx-auto d-block w-50" src="https://i.postimg.cc/Z57T1QGJ/Triptico-Energas-EDITABLE-03.png" alt="Card image cap"> *@
-            <div class="col-12 row g-2">
+            <div class="col-12 d-flex justify-content-center flex-wrap">
                 @foreach (var menu in Menus)
                 {
-                    <div class="col-md-3 col-6">
-                        <NavLink class="card text-dark" Match="NavLinkMatch.All" href="@menu.Url">
-                            <div class="card d-flex justify-content-center">
-                                <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
-                                <div class="card-body">
-                                    <h4 class="card-title text-center"><b>@menu.Titulo</b></h4>
+                    <div class="col-md-3 col-6 p-2">
+                        <div class="col-12 h-100">
+                            <NavLink class="text-dark" Match="NavLinkMatch.All" href="@menu.Url">
+                                <div class="card d-flex justify-content-center h-100">
+                                    <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
+                                    <div class="card-body">
+                                        <h4 class="card-title text-center text-wrap" style="font-size:1.2rem"><b>@menu.Titulo</b></h4>
+                                    </div>
                                 </div>
-                            </div>
-                        </NavLink>
+                            </NavLink>
+                        </div>
                     </div>
                 }
             </div>
@@ -32,7 +34,7 @@
 <style>
     .card-img-custom {
         width: 100%; /* Ajusta el ancho al 100% del contenedor de la tarjeta */
-        height: 200px; /* Fija la altura a 200px */
+        height: auto; /* Fija la altura a 200px */
         object-fit: cover; /* Recorta la imagen para llenar el contenedor */
     }
 </style>
@@ -48,6 +50,15 @@
         new("crm/originadores","img/people.png","Originadores"),
         new("crm/roles","img/management.png","Roles"),
         new("crm/usuarios","img/User.png","Usuarios"),
+    {
+        new("crm/contactos","img/contactos.png","Contactos"),
+        new("crm/oportunidades","img/oportunidades.png","Oportunidades"),
+        new("crm/listado/actividades","img/actividades.png","Actividades"),
+        new("crm/historial/actividades","img/historialactividades.png","Historial de Actividades"),
+        new("crm/vendedores","img/vendedores.png","Vendedores"),
+        new("crm/originadores","img/comerciales.png","Originadores"),
+        new("crm/roles","img/roles.png","Roles"),
+        new("crm/equipos","img/equipos.png","Equipos"),
     };
 
     record Menu(string Url, string Img, string Titulo);
