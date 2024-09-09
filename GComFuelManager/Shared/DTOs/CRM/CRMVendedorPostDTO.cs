@@ -12,6 +12,7 @@
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
 
-        public List<CRMOriginadorDTO> OriginadoresDTO { get; set; } = new();
+        //public List<CRMOriginadorDTO> OriginadoresDTO { get; set; } = new();
+        public List<CRMEquipoDTO> EquiposDTO { get; set; } = new();
     }
 }

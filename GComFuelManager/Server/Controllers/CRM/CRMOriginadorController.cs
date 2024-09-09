@@ -89,12 +89,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var originador = await context.CRMOriginadores
                     .AsNoTracking()
                     .Include(x => x.Division)
+                    .Include(x => x.Equipos)
+                    .ThenInclude(x => x.Division)
                     .Where(x => x.Id == Id)
                     .Select(x => mapper.Map<CRMOriginador, CRMOriginadorDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (originador is null) { return NotFound(); }
-
-                //var originadordto = mapper.Map<CRMoriginadorDTO>(originador);
 
                 return Ok(originador);
             }

@@ -5,203 +5,202 @@
 @inject SweetAlertService swal
 @inject CRMContactoPostValidator validator
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, CREAR_CONTACTO, EDITAR_CONTACTO")]
 
-<Card LoadingContent="loading_info">
-    <Header>
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Formulario de contacto</b>
-            </div>
-            <div>
-                <div class="btn-group">
-                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/contactos" Match="NavLinkMatch.All">
-                        <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
-                    <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                        Actividades
-                    </NavLink>
+<AuthorizeView Roles="Admin, CREAR_CONTACTO, EDITAR_CONTACTO">
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <b>Formulario de contacto</b>
+                    </div>
+                    <div>
+                        <div class="btn-group">
+                            <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/contactos" Match="NavLinkMatch.All">
+                                <i class="fa fa-solid fa-arrow-left" /> Volver
+                            </NavLink>
+                            <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                                Actividades
+                            </NavLink>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </Header>
-    <Body>
-        <EditForm Model="CRMContacto" class="col-12 g-3" OnValidSubmit="GuardarContacto">
-            <FluentValidationValidator Validator="validator" />
-            <ValidationSummary />
-            <Card HeaderText="Datos principales">
-                <Body>
-                    <div class="col-12 row">
+            </Header>
+            <Body>
+                <EditForm Model="CRMContacto" class="col-12 g-3" OnValidSubmit="GuardarContacto" Context="CONTACTOFORM">
+                    <FluentValidationValidator Validator="validator" />
+                    <ValidationSummary />
+                    <Card HeaderText="Datos principales">
+                        <Body>
+                            <div class="col-12 row">
 
-                        <div class="col-md-4 col-12">
-                            <label>Nombre/s</label>
-                            <InputText @bind-Value="CRMContacto.Nombre" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Nombre)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Apellido/s</label>
-                            <InputText @bind-Value="CRMContacto.Apellidos" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Apellidos)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Titulo</label>
-                            <InputText @bind-Value="CRMContacto.Titulo" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Titulo)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Departamento</label>
-                            <InputText @bind-Value="CRMContacto.Departamento" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Departamento)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Cuenta</label>
-                            <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
-                                            @bind-Valor="@CRMContacto.CuentaId" Propiedad_Valor="Id">
-                                <RenderValue Context="item">
-                                    @item.Nombre
-                                </RenderValue>
-                                <Render Context="item">
-                                    @item.Nombre
-                                </Render>
-                            </DropDownFilter>
-                            @* <InputSelect @bind-Value="CRMContacto.Cuenta" class="d-none" /> *@
-                            @* <ValidationMessage For="@(()=>CRMContacto.CuentaId)" /> *@
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Division</label>
-                            <InputSelect @bind-Value="CRMContacto.DivisionId" class="form-select">
-                                <option>-- seleccione un división --</option>
-                                @foreach (var item in Divisiones)
-                                {
-                                    <option value="@item.Id">@item.Nombre</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Tel. oficina</label>
-                            <InputText @bind-Value="CRMContacto.Tel_Oficina" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Tel_Oficina)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Tel. móvil</label>
-                            <InputText @bind-Value="CRMContacto.Tel_Movil" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Tel_Movil)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Sitio Web</label>
-                            <InputText @bind-Value="CRMContacto.SitioWeb" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.SitioWeb)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Correo electrónico</label>
-                            <InputText @bind-Value="CRMContacto.Correo" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Correo)" />
-                        </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Nombre/s</label>
+                                    <InputText @bind-Value="CRMContacto.Nombre" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Nombre)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Apellido/s</label>
+                                    <InputText @bind-Value="CRMContacto.Apellidos" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Apellidos)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Titulo</label>
+                                    <InputText @bind-Value="CRMContacto.Titulo" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Titulo)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Departamento</label>
+                                    <InputText @bind-Value="CRMContacto.Departamento" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Departamento)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Cuenta</label>
+                                    <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                                    @bind-Valor="@CRMContacto.CuentaId" Propiedad_Valor="Id">
+                                        <RenderValue Context="item">
+                                            @item.Nombre
+                                        </RenderValue>
+                                        <Render Context="item">
+                                            @item.Nombre
+                                        </Render>
+                                    </DropDownFilter>
+                                    @* <InputSelect @bind-Value="CRMContacto.Cuenta" class="d-none" /> *@
+                                    @* <ValidationMessage For="@(()=>CRMContacto.CuentaId)" /> *@
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Division</label>
+                                    <InputSelect @bind-Value="CRMContacto.DivisionId" class="form-select">
+                                        <option>-- seleccione un división --</option>
+                                        @foreach (var item in Divisiones)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Tel. oficina</label>
+                                    <InputText @bind-Value="CRMContacto.Tel_Oficina" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Tel_Oficina)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Tel. móvil</label>
+                                    <InputText @bind-Value="CRMContacto.Tel_Movil" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Tel_Movil)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Sitio Web</label>
+                                    <InputText @bind-Value="CRMContacto.SitioWeb" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.SitioWeb)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Correo electrónico</label>
+                                    <InputText @bind-Value="CRMContacto.Correo" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Correo)" />
+                                </div>
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Dirección principal">
+                        <Body>
+                            <div class="col-12 row">
+
+                                <div class="col-md-4 col-12">
+                                    <label>Calle</label>
+                                    <InputTextArea @bind-Value="CRMContacto.Calle" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Calle)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Colonia</label>
+                                    <InputText @bind-Value="CRMContacto.Colonia" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Colonia)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Ciudad</label>
+                                    <InputText @bind-Value="CRMContacto.Ciudad" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Ciudad)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>C.P.</label>
+                                    <InputText @bind-Value="CRMContacto.CP" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.CP)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>País</label>
+                                    <InputText @bind-Value="CRMContacto.Pais" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Pais)" />
+                                </div>
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Información adicional">
+                        <Body>
+                            <div class="col-12 row">
+
+                                <div class="col-md-4 col-12">
+                                    <label>Estatus</label>
+                                    <InputSelect @bind-Value="CRMContacto.EstatusId" class="form-select">
+                                        <option>-- seleccione un estado --</option>
+                                        @foreach (var item in Catalogo_Estados)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Descripción de estatus</label>
+                                    <InputTextArea @bind-Value="CRMContacto.Estatus_Desc" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Estatus_Desc)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Origen de contacto</label>
+                                    <InputSelect @bind-Value="CRMContacto.OrigenId" class="form-select">
+                                        <option>-- seleccione un origen --</option>
+                                        @foreach (var item in Catalogo_Origen)
+                                        {
+                                            <option value="@item.Id">@item.Valor</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Recomendación</label>
+                                    <InputText @bind-Value="CRMContacto.Recomen" class="form-control" />
+                                    <ValidationMessage For="@(()=>CRMContacto.Recomen)" />
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label>Asignado a</label>
+                                    <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                                    @bind-Valor="@CRMContacto.VendedorId" Propiedad_Valor="Id">
+                                        <RenderValue Context="item">
+                                            @item.Nombre
+                                        </RenderValue>
+                                        <Render Context="item">
+                                            @item.Nombre
+                                        </Render>
+                                    </DropDownFilter>
+                                    @* <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" /> *@
+                                    @* <ValidationMessage For="@(()=>CRMContacto.VendedorId)" /> *@
+                                </div>
+                            </div>
+                        </Body>
+                    </Card>
+
+                    <div class="col-md-4 col-12 d-flex mt-2">
+                        <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                            <i class="fa fa-solid fa-floppy-disk" />
+                            Guardar
+                            @if (loading_save)
+                            {
+                                <SpinnerLoading />
+                            }
+                        </button>
                     </div>
-                </Body>
-            </Card>
-            <Card HeaderText="Dirección principal">
-                <Body>
-                    <div class="col-12 row">
-
-                        <div class="col-md-4 col-12">
-                            <label>Calle</label>
-                            <InputTextArea @bind-Value="CRMContacto.Calle" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Calle)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Colonia</label>
-                            <InputText @bind-Value="CRMContacto.Colonia" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Colonia)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Ciudad</label>
-                            <InputText @bind-Value="CRMContacto.Ciudad" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Ciudad)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>C.P.</label>
-                            <InputText @bind-Value="CRMContacto.CP" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.CP)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>País</label>
-                            <InputText @bind-Value="CRMContacto.Pais" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Pais)" />
-                        </div>
-                    </div>
-                </Body>
-            </Card>
-            <Card HeaderText="Información adicional">
-                <Body>
-                    <div class="col-12 row">
-
-                        <div class="col-md-4 col-12">
-                            <label>Estatus</label>
-                            <InputSelect @bind-Value="CRMContacto.EstatusId" class="form-select">
-                                <option>-- seleccione un estado --</option>
-                                @foreach (var item in Catalogo_Estados)
-                                {
-                                    <option value="@item.Id">@item.Valor</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Descripción de estatus</label>
-                            <InputTextArea @bind-Value="CRMContacto.Estatus_Desc" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Estatus_Desc)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Importe de oportunidad</label>
-                            <InputNumber @bind-Value="CRMContacto.Importe_Oportunidad" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Importe_Oportunidad)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Origen de contacto</label>
-                            <InputSelect @bind-Value="CRMContacto.OrigenId" class="form-select">
-                                <option>-- seleccione un origen --</option>
-                                @foreach (var item in Catalogo_Origen)
-                                {
-                                    <option value="@item.Id">@item.Valor</option>
-                                }
-                            </InputSelect>
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Recomendación</label>
-                            <InputText @bind-Value="CRMContacto.Recomen" class="form-control" />
-                            <ValidationMessage For="@(()=>CRMContacto.Recomen)" />
-                        </div>
-                        <div class="col-md-4 col-12">
-                            <label>Asignado a</label>
-                            <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
-                                            @bind-Valor="@CRMContacto.VendedorId" Propiedad_Valor="Id">
-                                <RenderValue Context="item">
-                                    @item.Nombre
-                                </RenderValue>
-                                <Render Context="item">
-                                    @item.Nombre
-                                </Render>
-                            </DropDownFilter>
-                            @* <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" /> *@
-                            @* <ValidationMessage For="@(()=>CRMContacto.VendedorId)" /> *@
-                        </div>
-                    </div>
-                </Body>
-            </Card>
-
-            <div class="col-md-4 col-12 d-flex mt-2">
-                <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
-                    <i class="fa fa-solid fa-floppy-disk" />
-                    Guardar
-                    @if (loading_save)
-                    {
-                        <SpinnerLoading />
-                    }
-                </button>
-            </div>
-        </EditForm>
-    </Body>
-</Card>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+</AuthorizeView>
 
 @code {
     [Parameter] public int Id { get; set; }

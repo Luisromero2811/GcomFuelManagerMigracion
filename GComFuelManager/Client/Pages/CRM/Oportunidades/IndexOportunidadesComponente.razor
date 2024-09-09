@@ -1,85 +1,121 @@
 ﻿@page "/crm/oportunidades"
 @inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_MODULO_OPORTUNIDADES")]
 
-<div class="col-12">
-    <div class="card">
-        <div class="card-header d-flex justify-content-between">
-            <b>Oportunidades</b>
-            <NavLink Match="NavLinkMatch.All" href="../" class="g-1 btn gcom-bg-amarillo">
-                <i class="fa fa fa-arrow-left" /> Volver
-            </NavLink>
-        </div>
-    </div>
-</div>
-
-<div class="col-12 my-2">
-    <div class="col-md-2 col">
-        <NavLink Match="NavLinkMatch.All" href="crm/oportunidades/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
-            <i class="fa fa-solid fa-plus" /> Agregar
-        </NavLink>
-    </div>
-</div>
-
-<div class="ancho-tabla">
-    <Tabla Datos="Oportunidades" Cargando="loading_info">
-        <Cabeceras>
-            <tr>
-                <th></th>
-                <th>Oportunidad</th>
-                <th>Cuenta</th>
-                <th>Contacto</th>
-                <th>Etapa de venta</th>
-                <th>Valor</th>
-                <th>Vendedor</th>
-                <th>Probabilidad</th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" /></td>
-                <td><input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" /></td>
-                <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
-                <td></td>
-                <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a class="btn gcom-bg-amarillo" href="crm/oportunidades/formulario/@item.Id">
-                            <i class="fa fa-solid fa-edit" />
-                        </a>
-                        <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
-                            <i class="fa fa-solid fa-eye" />
-                        </a>
-                        <button class="btn btn-danger">
-                            <i class="fa fa-solid fa-trash" />
-                        </button>
+<AuthorizeView Roles="Admin, VER_MODULO_OPORTUNIDADES">
+    <Authorized>
+        <Card HeaderClass="d-flex justify-content-between">
+            <Header>
+                <b>Oportunidades</b>
+                <NavLink Match="NavLinkMatch.All" href="../" class="g-1 btn gcom-bg-amarillo">
+                    <i class="fa fa fa-arrow-left" /> Volver
+                </NavLink>
+            </Header>
+        </Card>
+        <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
+            <Authorized Context="CREAROPORTUNIDAD">
+                <div class="col-12 my-2">
+                    <div class="col-md-2 col">
+                        <NavLink Match="NavLinkMatch.All" href="crm/oportunidades/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
+                            <i class="fa fa-solid fa-plus" /> Agregar
+                        </NavLink>
                     </div>
-                </td>
-                <td>@item.Nombre_Opor</td>
-                <td>@item.Cuenta</td>
-                <td>@item.Contacto</td>
-                <td>@item.EtapaVenta</td>
-                <td>@item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture) @item.Medida</td>
-                <td>@item.Vendedor</td>
-                <td>@item.Probabilidad %</td>
-            </tr>
-        </Columnas>
-    </Tabla>
-</div>
-<div class="col-12">
-    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-    <div class="col-12">
-        <p>Total de registros: @filtro.Total_registros</p>
-    </div>
-</div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, VER_OPORTUNIDADES">
+            <Authorized Context="VEROPORTUNIDADES">
+                <div class="ancho-tabla">
+                    <Tabla Datos="Oportunidades" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                    <Authorized Context="ACCIONES">
+                                        <th></th>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <th>Oportunidad</th>
+                                <th>Cuenta</th>
+                                <th>Contacto</th>
+                                <th>Etapa de venta</th>
+                                <th>Valor</th>
+                                <th>Vendedor</th>
+                                <th>Probabilidad</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                    <Authorized Context="ACCIONES">
+                                        <td></td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.Nombre_Opor" @oninput="FiltrarNombre" /></td>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.Cuenta" @oninput="FiltrarCuenta" /></td>
+                                <td></td>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
+                                <td></td>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
+                                <td></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                    <Authorized Context="ACCIONES">
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <AuthorizeView Roles="Admin, EDITAR_OPORTUNIDAD">
+                                                    <Authorized Context="EDITAROPORTUNIDAD">
+                                                        <a class="btn gcom-bg-amarillo" href="crm/oportunidades/formulario/@item.Id">
+                                                            <i class="fa fa-solid fa-edit" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD">
+                                                    <Authorized Context="VERDETALLEOPORTUNIDAD">
+                                                        <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
+                                                            <i class="fa fa-solid fa-eye" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, ELIMINAR_OPORTUNIDAD">
+                                                    <Authorized Context="ELIMINAROPORTUNIDAD">
+                                                        <button class="btn btn-danger">
+                                                            <i class="fa fa-solid fa-trash" />
+                                                        </button>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td>@item.Nombre_Opor</td>
+                                <td>@item.Cuenta</td>
+                                <td>@item.Contacto</td>
+                                <td>@item.EtapaVenta</td>
+                                <td>@item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture) @item.Medida</td>
+                                <td>@item.Vendedor</td>
+                                <td>@item.Probabilidad %</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+                    <div class="col-12">
+                        <p>Total de registros: @filtro.Total_registros</p>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </Authorized>
+</AuthorizeView>
+
+
+
 
 @code {
     bool loading_info = false;

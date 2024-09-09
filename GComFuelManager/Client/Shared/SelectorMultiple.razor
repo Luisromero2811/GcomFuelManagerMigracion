@@ -4,8 +4,8 @@
     <ul class="selectable-ui">
         @if (Filtrar)
         {
-            <li style="position:sticky; top:0; background-color:white;width:100%;">
-                <input class="dropdown-input" type="search" @bind="ValorFiltradoNoSeleccionado"
+            <li style="position:sticky; top:0; background-color:white;width:100%;padding:0;">
+                <input class="filtro-input" type="search" @bind="ValorFiltradoNoSeleccionado"
                        @oninput="@OnChangeFiltroValueNoSeleccionado" placeholder="@PlaceholderFiltroNoSeleccionado" />
             </li>
         }
@@ -32,8 +32,8 @@
     <ul class="selectable-ui">
         @if (Filtrar)
         {
-            <li style="position:sticky; top:0; background-color:white;width:100%;">
-                <input class="dropdown-input" type="search" @bind="ValorFiltradoSeleccionado"
+            <li style="position:sticky; top:0; background-color:white;width:100%;padding:0;">
+                <input class="filtro-input" type="search" @bind="ValorFiltradoSeleccionado"
                        @oninput="@OnChangeFiltroValueSeleccionado" placeholder="@PlaceholderFiltroSeleccionado" />
             </li>
         }

@@ -4,54 +4,82 @@
 @inject SweetAlertService swal
 @inject CRMOriginadorPostValidator validator
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_COMERCIAL")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>
                 <div class="col-12 d-flex justify-content-between">
                     <b>Detalle de comercial</b>
-                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/originadores" Match="NavLinkMatch.All">
+                    <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
                         <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
+                    </button>
                 </div>
             </Header>
             <Body>
-                <div class="col-12 row">
-                    <div class="col-4">
-                        <label><b>Nombre</b></label>
-                        <p>@Originador.Nombre</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Apellidos</b></label>
-                        <p>@Originador.Apellidos</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>División</b></label>
-                        <p>@Originador.Division?.Nombre</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Titulo</b></label>
-                        <p>@Originador.Titulo</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Departamento</b></label>
-                        <p>@Originador.Departamento</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Teléfono de oficina</b></label>
-                        <p>@Originador.Tel_Oficina</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Teléfono de móvil</b></label>
-                        <p>@Originador.Tel_Movil</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Correo electrónico</b></label>
-                        <p>@Originador.Correo</p>
-                    </div>
-                </div>
+                <Card HeaderText="Datos principales">
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-4">
+                                <label><b>Nombre</b></label>
+                                <p>@Originador.Nombre</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Apellidos</b></label>
+                                <p>@Originador.Apellidos</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>División</b></label>
+                                <p>@Originador.Division?.Nombre</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Titulo</b></label>
+                                <p>@Originador.Titulo</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Departamento</b></label>
+                                <p>@Originador.Departamento</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Teléfono de oficina</b></label>
+                                <p>@Originador.Tel_Oficina</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Teléfono de móvil</b></label>
+                                <p>@Originador.Tel_Movil</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Correo electrónico</b></label>
+                                <p>@Originador.Correo</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Equipos" CardClass="my-2">
+                    <Body>
+                        <Tabla Datos="Originador.Equipos">
+                            <Cabeceras>
+                                <tr>
+                                    <th>Equipo</th>
+                                    <th>Division del equipo</th>
+                                    <th>Detalle de equipo</th>
+                                </tr>
+                            </Cabeceras>
+                            <Columnas Context="item">
+                                <tr>
+                                    <td>@item.Nombre</td>
+                                    <td>@item.Division</td>
+                                    <td>
+                                        <a class="btn gcom-bg-amarillo" href="crm/equipo/@item.Id">
+                                            <i class="fa fa-solid fa-eye" />
+                                        </a>
+                                    </td>
+                                </tr>
+                            </Columnas>
+                        </Tabla>
+                    </Body>
+                </Card>
             </Body>
         </Card>
     </Authorized>

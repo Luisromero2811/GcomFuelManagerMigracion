@@ -5,9 +5,9 @@
 @inject SweetAlertService swal
 @inject CRMEquipoPostValidator validator
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, CREAR_EQUIPO, EDITAR_EQUIPO")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, CREAR_EQUIPO, EDITAR_EQUIPO">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>
@@ -60,14 +60,14 @@
                     <div class="col-12">
                         <label>Integrantes de equipo</label>
                         <SelectorMultiple T="CRMVendedorDTO" NoSeleccionado="VendedoresNoSeleccionados" Seleccionados="VendedoresSeleccionados"
-                            Filtrar="true" 
-                            FiltrarNoSeleccionado="ObtenerVendedoresNoSeleccionados" PlaceholderFiltroNoSeleccionado="Filtrar vendedores no seleccionados"
-                            FiltrarSeleccionado="ObtenerVendedoresSeleccionados" PlaceholderFiltroSeleccionado="Filtrar vendedores seleccionados">
+                                          Filtrar="true"
+                                          FiltrarNoSeleccionado="ObtenerVendedoresNoSeleccionados" PlaceholderFiltroNoSeleccionado="Filtrar vendedores no seleccionados"
+                                          FiltrarSeleccionado="ObtenerVendedoresSeleccionados" PlaceholderFiltroSeleccionado="Filtrar vendedores seleccionados">
                             <ItemNoSeleccionado Context="item">
-                                @($"{item.Nombre} {item.Apellidos}")
+                                @($"{item.Nombre} {item.Apellidos} - {item.NombreDivision}")
                             </ItemNoSeleccionado>
                             <ItemSeleccionado Context="item">
-                                @($"{item.Nombre} {item.Apellidos}")
+                                @($"{item.Nombre} {item.Apellidos} - {item.NombreDivision}")
                             </ItemSeleccionado>
                         </SelectorMultiple>
                     </div>

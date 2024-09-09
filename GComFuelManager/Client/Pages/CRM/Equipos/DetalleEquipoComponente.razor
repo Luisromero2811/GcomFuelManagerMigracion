@@ -3,45 +3,93 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_EQUIPO")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>
                 <div class="col-12 d-flex justify-content-between">
                     <b>Detalle de equipo</b>
-                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/equipos" Match="NavLinkMatch.All">
+                    <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
                         <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
+                    </button>
                 </div>
             </Header>
             <Body>
                 <div class="col-12 row">
-                    <div class="col-md-4 col-12">
-                        <label><b>Equipo</b></label>
-                        <p>@Equipo.Nombre</p>
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label><b>Lider de equipo</b></label>
-                        <p>@Equipo.Lider</p>
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label><b>Division</b></label>
-                        <p>@Equipo.Division</p>
+                    <div class="col-12">
+                        <Card HeaderText="Datos principales" BodyClass="col-12 row">
+                            <Body>
+                                <div class="col-md-4 col-12">
+                                    <label><b>Equipo</b></label>
+                                    <p>@Equipo.Nombre</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label><b>Lider de equipo</b></label>
+                                    <p>@Equipo.Originador.Nombre @Equipo.Originador.Apellidos</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label><b>Telefono movil</b></label>
+                                    <p>@Equipo.Originador.Tel_Movil</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label><b>Correo electronico</b></label>
+                                    <p>@Equipo.Originador.Correo</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label><b>Division</b></label>
+                                    <p>@Equipo.Division.Nombre</p>
+                                </div>
+                            </Body>
+                        </Card>
                     </div>
                     <div class="col-12">
-                        <Card HeaderText="´Permisos asignados">
+                        <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
                             <Body>
-                                <Tabla Datos="Equipo.Permisos">
+                                <label><b>Lider de equipo</b></label>
+                                <Tabla Datos="Lider">
                                     <Cabeceras>
                                         <tr>
                                             <th>Nombre</th>
+                                            <th>Correo</th>
+                                            <th>Telefono movil</th>
+                                            <th>Ver detalle</th>
                                         </tr>
                                     </Cabeceras>
                                     <Columnas Context="item">
                                         <tr>
-                                            <td>@item.Nombre</td>
+                                            <td>@item.Nombre @item.Apellidos</td>
+                                            <td>@item.Correo</td>
+                                            <td>@item.Tel_Movil</td>
+                                            <td>
+                                                <a class="btn gcom-bg-amarillo" href="crm/originador/@item.Id">
+                                                    <i class="fa fa-solid fa-eye" />
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </Columnas>
+                                </Tabla>
+                                <label><b>Vendedores</b></label>
+                                <Tabla Datos="Equipo.Vendedores">
+                                    <Cabeceras>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Correo</th>
+                                            <th>Telefono movil</th>
+                                            <th>Ver detalle</th>
+                                        </tr>
+                                    </Cabeceras>
+                                    <Columnas Context="item">
+                                        <tr>
+                                            <td>@item.Nombre @item.Apellidos</td>
+                                            <td>@item.Correo</td>
+                                            <td>@item.Tel_Movil</td>
+                                            <td>
+                                                <a class="btn gcom-bg-amarillo" href="crm/vendedor/@item.Id">
+                                                    <i class="fa fa-solid fa-eye" />
+                                                </a>
+                                            </td>
                                         </tr>
                                     </Columnas>
                                 </Tabla>
@@ -61,6 +109,7 @@
     [Parameter] public int Id { get; set; } = 0;
     bool loading_info = false;
     CRMEquipoDetalleDTO Equipo = new();
+    List<CRMOriginadorDTO> Lider = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -83,6 +132,7 @@
             {
                 loading_info = false;
                 Equipo = response.Response;
+                Lider.Add(Equipo.Originador);
             }
         }
         catch (Exception e)
