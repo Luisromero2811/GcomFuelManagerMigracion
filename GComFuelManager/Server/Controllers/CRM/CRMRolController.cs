@@ -52,6 +52,22 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
+        [HttpGet("listroles")]
+        public async Task<ActionResult> GetAllRoles()
+        {
+            try
+            {
+                var rolesCRM = await context.CRMRoles
+                    .Where(x => x.Activo == true)
+                    .ToListAsync();
+                return Ok(rolesCRM);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("{Id:int}")]
         public async Task<ActionResult> GetById([FromRoute] int Id)
         {

@@ -63,6 +63,22 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
+        [HttpGet("listoriginadores")]
+        public async Task<ActionResult> GetAllOriginadores()
+        {
+            try
+            {
+                var originadoresCRM = await context.CRMOriginadores
+                    .Where(x => x.Activo == true)
+                    .ToListAsync();
+                return Ok(originadoresCRM);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
         [HttpGet("{Id:int}")]
         public async Task<ActionResult> GetById([FromRoute] int Id)
         {
