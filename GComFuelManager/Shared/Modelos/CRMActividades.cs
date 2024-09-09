@@ -8,7 +8,7 @@ namespace GComFuelManager.Shared.Modelos
         public int? Asunto { get; set; }
         public DateTime? Fecha_Creacion { get; set; } = DateTime.Now;
         public DateTime? Fecha_Mod { get; set; }
-        public DateTime? Fecha_Inicio { get; set; } = DateTime.Now;
+        public DateTime? Fch_Inicio { get; set; } = DateTime.Now;
         public DateTime? Fecha_Ven { get; set; } = DateTime.Now;
         public int? Prioridad { get; set; }
         public int? Asignado { get; set; }
@@ -21,7 +21,7 @@ namespace GComFuelManager.Shared.Modelos
         public Catalogo_Fijo? asuntos { get; set; } = null!;
         public Catalogo_Fijo? prioridades { get; set; } = null!;
         public Catalogo_Fijo? Estados { get; set; } = null!;
-        public Vendedor? vendedor { get; set; } = null!;
+        public CRMVendedor? vendedor { get; set; } = null!;
         public CRMContacto? contacto { get; set; } = null!;
     }
 }

@@ -8,6 +8,8 @@ namespace GComFuelManager.Server.Identity
     {
         public int UserCod { get; set; }
 
+        public bool Activo { get; set; } = true;
+
         [NotMapped]
         public Usuario Usuario { get; set; } = null!;
     }

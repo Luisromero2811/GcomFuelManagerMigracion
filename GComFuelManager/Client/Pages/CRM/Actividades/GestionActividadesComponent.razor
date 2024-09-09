@@ -161,13 +161,10 @@
     CRMActividades Actividad = new();
     CRMActividadPostDTO CRMActividad = new();
 
-    List<CRMActividadPostDTO> Activities = new();
-    List<CRMActividades> Actividades = new();
-
     List<Catalogo_Fijo> Cat_Asunto = new();
     List<Catalogo_Fijo> Cat_Prioridad = new();
     List<Catalogo_Fijo> Cat_Estatus = new();
-    List<Vendedor> Vendedores { get; set; } = new List<Vendedor>();
+    List<CRMVendedor> Vendedores { get; set; } = new List<CRMVendedor>();
     List<CRMContacto> Contactos { get; set; } = new List<CRMContacto>();
 
     protected override async Task OnInitializedAsync()
@@ -274,7 +271,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<Vendedor>>($"api/vendedor/list");
+            var responseHttp = await repositorio.Get<List<CRMVendedor>>($"api/vendedor/crmlist");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();

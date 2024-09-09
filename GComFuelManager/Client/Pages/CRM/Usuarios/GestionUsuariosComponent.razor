@@ -1,6 +1,431 @@
-﻿<h3>Component1</h3>
+﻿@page "/crm/gestion/usuarios"
+
+
+
+@inject SweetAlertService Swal
+@inject IRepositorio repositorio
+@inject CRMUsuarioValidation validation
+<!--Formulario de registro-->
+<div class="card mt-2" style="height: 500px; overflow: scroll; ">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <div>
+                <b>Creación de Usuarios</b>
+            </div>
+            <div>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/usuarios" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="col-12">
+            <EditForm Model="@info" class="form col-12" OnValidSubmit="@CreateUser">
+                <FluentValidationValidator Validator="validation" />
+                <ValidationSummary />
+                <div class="col-12 row g-1">
+                    <!--Nombre de Usuario, Password, Casilla de vendedor o comercial, rol, divisiones.-->
+                    <!--Nombre de Usuario-->
+                    <div class="col-4 my-1">
+                        <label>Nombre de Usuario:</label>
+                        <InputText @bind-Value="@info.UserName" class="form-control" MaxLenght="60" />
+                    </div>
+                    <!--Password-->
+                    <div class="col-4 my-1">
+                        <label>Contraseña:</label>
+                        <div class="input-group">
+                            <RadzenPassword @bind-Value="info.Password" Visible="@info.passwordView" class="form-control" />
+                            <RadzenTextBox @bind-Value="info.Password" Visible="@(info.passwordView == false)" class="form-control" />
+                            <div class="d-flex align-items-center ms-1 mt-1">
+                                <RadzenCheckBox @bind-Value="@info.passwordView" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-4 my-1">
+                        <!--Divisiones-->
+                        <label>Divisiones:</label>
+                        <InputSelect @bind-Value="@info.IDDivision" class="form-control">
+                            <option>-- Seleccione una Division --</option>
+                            @if (Divisiones == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else if (Divisiones.Count == 0)
+                            {
+                                <option>No hay Divisiones.</option>
+                            }
+                            else
+                            {
+                                @foreach (var item in Divisiones)
+                                {
+                                    <option value="@item.Id">@item.Nombre</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="row g-1 ms-3 align-items-center">
+                        <div class="col-auto my-1 d-flex align-items-center">
+                            <RadzenCheckBox @bind-Value="@info.IsComercial" Name="CheckBox1" class="mx-2" />
+                            <RadzenLabel Text="Es Comercial" Component="CheckBox1" class="ms-2" />
+                        </div>
+                        @if (info.IsComercial)
+                        {
+                            <div class="col-4 my-1">
+                                <InputSelect @bind-Value="@info.IDOriginador" class="form-control">
+                                    <option>-- Seleccione un Comercial--</option>
+                                    @if (Originadores == null)
+                                    {
+                                        <option>Cargando..</option>
+                                    }
+                                    else if (Originadores.Count == 0)
+                                    {
+                                        <option>No hay Comerciales</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Originadores)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        }
+                        <div class="col-auto my-1 d-flex align-items-center">
+                            <RadzenCheckBox @bind-Value="@info.IsVendedor" Name="CheckBox1" class="mx-2" />
+                            <RadzenLabel Text="Es Vendedor" Component="CheckBox1" class="ms-2" />
+                        </div>
+                        @if (info.IsVendedor)
+                        {
+                            <div class="col-4 my-1">
+                                <InputSelect @bind-Value="@info.IDVendedor" class="form-control">
+                                    <option>-- Seleccione un Vendedor--</option>
+                                    @if (Vendedores == null)
+                                    {
+                                        <option>Cargando..</option>
+                                    }
+                                    else if (Vendedores.Count == 0)
+                                    {
+                                        <option>No hay Vendedores</option>
+                                    }
+                                    else
+                                    {
+                                        @foreach (var item in Vendedores)
+                                        {
+                                            <option value="@item.Id">@item.Nombre</option>
+                                        }
+                                    }
+                                </InputSelect>
+                            </div>
+                        }
+                    </div>
+                    <div class="col-12 my-1">
+                        <label>Roles:</label>
+                        <div class="dropdown">
+                            <!-- Texto que simula el dropdown -->
+                            <div class="dropdown-toggle">
+                                Seleccionar Roles
+                            </div>
+
+                            <!-- Menú con checkboxes -->
+                            <div class="dropdown-content">
+                                @if (Roles == null)
+                                {
+                                    <label>Cargando..</label>
+                                }
+                                else if (Roles.Count == 0)
+                                {
+                                    <label>No hay Roles</label>
+                                }
+                                else
+                                {
+                                    @foreach (var item in Roles)
+                                    {
+                                        <label>
+                                            <input type="checkbox" value="@item.Id" @onchange="e => ToggleRole(item, e.Value)" />
+                                            @item.Nombre
+                                        </label>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mt-4 mb-4">
+                        <div class="col-12 mb-2">
+                            <!-- Fila centrada con justify-content-center -->
+                            <div class="row d-flex justify-content-center">
+                                <!-- Botón Agregar, ocupa col-4 -->
+                                <div class="col-4">
+                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                        <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
+                                    </button>
+                                </div>
+
+                                <!-- Botón Guardar Cambios, ocupa col-4 -->
+                                @*<div class="col-4">
+                                        <button class="btn gcom-bg-amarillo col-12" type="button">
+                                            <i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b>
+                                        </button>
+                                    </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Estilo para el dropdown */
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 100%;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        z-index: 1;
+        max-height: 200px; /* Limitar la altura */
+        overflow-y: auto; /* Habilitar scroll si es necesario */
+    }
+
+        .dropdown-content label {
+            display: block;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+    .dropdown:hover .dropdown-content {
+        display: block; /* Mostrar el dropdown al hacer hover */
+    }
+
+    .dropdown-toggle {
+        width: 100%;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        text-align: left;
+    }
+</style>
 
 @code {
+   // [Parameter] public string? Id { get; set; }
+
+    List<CRMDivision> Divisiones { get; set; } = new List<CRMDivision>();
+    List<CRMRol> Roles { get; set; } = new List<CRMRol>();
+    List<CRMVendedor> Vendedores { get; set; } = new List<CRMVendedor>();
+    List<CRMOriginador> Originadores { get; set; } = new List<CRMOriginador>();
+
+    CRMUsuarioDTO info { get; set; } = new CRMUsuarioDTO();
+    bool loading_guardar = false;
+    bool isEdit = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.WhenAll(
+            Obtener_Divisiones(),
+            Obtener_Roles(),
+            Obtener_Originadores(),
+            Obtener_Vendedores()
+            );
+
+        //if (!string.IsNullOrEmpty(Id))
+        //{
+        //    isEdit = true;
+        //    await ObtenerUsuario();
+        //}
+    }
+
+    public async Task CreateUser()
+    {
+        try
+        {
+            //Realizamos la petición hacía el controlador donde creamos el usuario
+            var responseHttp = await repositorio.Post<CRMUsuarioDTO, CRMUsuarioDTO>("api/crmvendedor/crear", info);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                // Verificamos si la respuesta tiene un contenido JSON válido
+                if (responseHttp.Response != null)
+                {
+                    // Aquí podrías manejar la respuesta, por ejemplo:
+                    await Swal.FireAsync("Éxito", "Usuario creado correctamente", SweetAlertIcon.Success);
+                }
+                else
+                {
+                    await Swal.FireAsync("Éxito", "Usuario creado correctamente, pero sin datos adicionales", SweetAlertIcon.Success);
+                }
+            }
+
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task EditUser()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Put<CRMUsuarioDTO>($"api/crmvendedor/editar", info);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Swal.FireAsync("Exito", "El usuario ha sido modificado", SweetAlertIcon.Success);
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Divisiones()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMDivision>>($"api/crmdivision");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Divisiones = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Roles()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMRol>>($"api/crmrol/listroles");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Roles = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private List<CRMRol> selectedRoles = new List<CRMRol>(); // Lista de roles seleccionados (como objetos CRMRol)
+
+    private void ToggleRole(CRMRol role, object checkedValue)
+    {
+        bool isChecked = (bool)checkedValue;
+
+        if (isChecked)
+        {
+            if (!selectedRoles.Contains(role))
+            {
+                selectedRoles.Add(role);
+            }
+        }
+        else
+        {
+            if (selectedRoles.Contains(role))
+            {
+                selectedRoles.Remove(role);
+            }
+        }
+
+        info.Roles = selectedRoles; // Asignamos solo los nombres de los roles seleccionados al modelo
+    }
+
+    private async Task Obtener_Vendedores()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMVendedor>>($"api/crmvendedor/listvendedores");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Vendedores = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener_Originadores()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<List<CRMOriginador>>($"api/crmoriginador/listoriginadores");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Originadores = responseHttp.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    //private async Task ObtenerUsuario()
+    //{
+    //    try
+    //    {
+    //        var responseHttp = await repositorio.Get<CRMUsuarioDTO>($"api/crmvendedor/{Id}");
+    //        if (responseHttp.Error)
+    //        {
+    //            var message = await responseHttp.ObtenerMensajeError();
+    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+    //        }
+    //        else
+    //        {
+    //            info = responseHttp.Response!;
+    //        }
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+    //    }
+    //}
 
 }
 
