@@ -5,9 +5,9 @@
 @inject SweetAlertService swal
 @inject CRMRolPostValidator validator
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, CREAR_ROL, EDITAR_ROL")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, CREAR_ROL, EDITAR_ROL">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>

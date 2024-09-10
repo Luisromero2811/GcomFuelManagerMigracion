@@ -19,7 +19,6 @@
         public string Pais { get; set; } = string.Empty;
         public int EstatusId { get; set; }
         public string Estatus_Desc { get; set; } = string.Empty;
-        public double Importe_Oportunidad { get; set; }
         public int OrigenId { get; set; }
         public string Recomen { get; set; } = string.Empty;
         public int? VendedorId { get; set; }

@@ -22,10 +22,10 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Pais { get; set; } = string.Empty;
         public int EstatusId { get; set; }
         public string Estatus_Desc { get; set; } = string.Empty;
-        public double Importe_Oportunidad { get; set; }
         public int OrigenId { get; set; }
         public string Recomen { get; set; } = string.Empty;
         public int? VendedorId { get; set; }
+        public DateTime Fecha_Creacion { get; set; } = DateTime.Now;
 
         public Catalogo_Fijo? Estatus { get; set; } = null!;
         public Catalogo_Fijo? Origen { get; set; } = null!;

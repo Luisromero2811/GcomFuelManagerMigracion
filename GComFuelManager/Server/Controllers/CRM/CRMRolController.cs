@@ -148,11 +148,18 @@ namespace GComFuelManager.Server.Controllers.CRM
                     }
 
                     context.Update(rol);
+                    await context.SaveChangesAsync();
                 }
                 else
+                {
                     await context.AddAsync(rol);
+                    await context.SaveChangesAsync();
 
-                await context.SaveChangesAsync();
+                    var relations = dTO.Permisos.Select(x => new CRMRolPermiso { RolId = rol.Id, PermisoId = x.Id }).ToList();
+                    await context.AddRangeAsync(relations);
+                    await context.SaveChangesAsync();
+                }
+
 
                 return Ok();
             }

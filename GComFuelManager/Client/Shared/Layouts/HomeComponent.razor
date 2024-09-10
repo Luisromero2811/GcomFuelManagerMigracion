@@ -14,18 +14,22 @@
             <div class="col-12 d-flex justify-content-center flex-wrap">
                 @foreach (var menu in Menus)
                 {
-                    <div class="col-md-3 col-6 p-2">
-                        <div class="col-12 h-100">
-                            <NavLink class="text-dark" Match="NavLinkMatch.All" href="@menu.Url">
-                                <div class="card d-flex justify-content-center h-100">
-                                    <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
-                                    <div class="card-body">
-                                        <h4 class="card-title text-center text-wrap" style="font-size:1.2rem"><b>@menu.Titulo</b></h4>
-                                    </div>
+                    <AuthorizeView Context="MenuAuthorize" Roles="@menu.roles">
+                        <Authorized>
+                            <div class="col-md-3 col-6 p-2">
+                                <div class="col-12 h-100">
+                                    <NavLink class="text-dark" Match="NavLinkMatch.All" href="@menu.Url">
+                                        <div class="card d-flex justify-content-center h-100">
+                                            <img class="card-img-top mx-auto mt-2" src="@menu.Img" alt="Card image" style="width:50%;">
+                                            <div class="card-body">
+                                                <h4 class="card-title text-center text-wrap" style="font-size:1.2rem"><b>@menu.Titulo</b></h4>
+                                            </div>
+                                        </div>
+                                    </NavLink>
                                 </div>
-                            </NavLink>
-                        </div>
-                    </div>
+                            </div>
+                        </Authorized>
+                    </AuthorizeView>
                 }
             </div>
         </div>
@@ -42,16 +46,16 @@
 @code {
     List<Menu> Menus = new()       
     {
-        new("crm/contactos","img/contactos.png","Contactos"),
-        new("crm/oportunidades","img/oportunidades.png","Oportunidades"),
-        new("crm/listado/actividades","img/actividades.png","Actividades"),
-        new("crm/historial/actividades","img/historialactividades.png","Historial de Actividades"),
-        new("crm/vendedores","img/vendedores.png","Vendedores"),
-        new("crm/originadores","img/comerciales.png","Originadores"),
-        new("crm/roles","img/roles.png","Roles"),
-         new("crm/usuarios","img/User.png","Usuarios"),
-        new("crm/equipos","img/equipos.png","Equipos"),
+        new("crm/roles","img/roles.png","Roles","Admin, VER_MODULO_ROLES"),
+        new("crm/vendedores","img/vendedores.png","Vendedores","Admin, VER_MODULO_VENDEDORES"),
+        new("crm/originadores","img/comerciales.png","Comerciales","Admin, VER_MODULO_ORIGINADORES"),
+        new("crm/equipos","img/equipos.png","Equipos","Admin, VER_MODULO_EQUIPOS"),
+        new("crm/usuarios","img/usuario.png","Usuarios", "Admin, VER_MODULO_USUARIOS"),
+        new("crm/contactos","img/contactos.png","Contactos","Admin, VER_MODULO_CONTACTOS"),
+        new("crm/listado/actividades","img/actividades.png","Actividades","Admin, VER_MODULO_ACTIVIDADES"),
+        new("crm/historial/actividades","img/historialactividades.png","Historial de Actividades","Admin, VER_MODULO_HISTORIAL_ACTIVIDADES"),
+        new("crm/oportunidades","img/oportunidades.png","Oportunidades","Admin, VER_MODULO_OPORTUNIDADES"),
     };
 
-    record Menu(string Url, string Img, string Titulo);
+    record Menu(string Url, string Img, string Titulo, string roles);
 }

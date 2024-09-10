@@ -93,16 +93,18 @@ namespace GComFuelManager.Server.Controllers.CRM
             try
             {
                 var vendedor = await context.CRMVendedores.Where(x => x.Id == Id)
-                    .Include(x => x.Originadores)
-                    .ThenInclude(x => x.Division)
+                    //.Include(x => x.Originadores)
+                    //.ThenInclude(x => x.Division)
                     .Include(x => x.Division)
+                    .Include(x => x.Equipos)
+                    .ThenInclude(x => x.Originador)
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }
 
-                var originadoresdto = vendedor.Originadores.Select(x => mapper.Map<CRMOriginador, CRMOriginadorDTO>(x)).ToList();
+                var equiposdto = vendedor.Equipos.Select(x => mapper.Map<CRMEquipo, CRMEquipoDTO>(x)).ToList();
 
                 var vendedordto = mapper.Map<CRMVendedorPostDTO>(vendedor);
-                vendedordto.OriginadoresDTO = originadoresdto;
+                vendedordto.EquiposDTO = equiposdto;
 
                 return Ok(vendedordto);
             }
@@ -119,9 +121,13 @@ namespace GComFuelManager.Server.Controllers.CRM
             {
                 var vendedor = await context.CRMVendedores
                     .AsNoTracking()
+                    .Where(x => x.Id == Id)
                     .Include(x => x.Division)
                     .Include(x => x.Originadores)
-                    .Where(x => x.Id == Id)
+                    .Include(x => x.Equipos)
+                    .ThenInclude(x => x.Originador)
+                    .Include(x => x.Equipos)
+                    .ThenInclude(x => x.Division)
                     .Select(x => mapper.Map<CRMVendedor, CRMVendedorDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }
@@ -156,8 +162,8 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                     var vendedor = mapper.Map(vendedordto, vendedordb);
 
-                    var relations = dTO.OriginadoresDTO.Select(x => new CRMVendedorOriginador { VendedorId = vendedor.Id, OriginadorId = x.Id }).ToList();
-                    var relations_actual = await context.CRMVendedorOriginadores.Where(x => x.VendedorId == vendedor.Id).ToListAsync();
+                    var relations = dTO.EquiposDTO.Select(x => new CRMEquipoVendedor { VendedorId = vendedor.Id, EquipoId = x.Id }).ToList();
+                    var relations_actual = await context.CRMEquipoVendedores.Where(x => x.VendedorId == vendedor.Id).ToListAsync();
 
                     if (!relations_actual.SequenceEqual(relations))
                     {
@@ -170,8 +176,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else
                 {
-                    var integrantes = dTO.OriginadoresDTO.Select(x => new CRMVendedorOriginador { OriginadorId = x.Id, VendedorId = vendedordto.Id }).ToList();
-                    vendedordto.VendedorOriginadores = integrantes;
+                    var integrantes = dTO.EquiposDTO.Select(x => new CRMEquipoVendedor { EquipoId = x.Id, VendedorId = vendedordto.Id }).ToList();
+                    vendedordto.EquipoVendedores = integrantes;
 
                     await context.AddAsync(vendedordto);
                 }

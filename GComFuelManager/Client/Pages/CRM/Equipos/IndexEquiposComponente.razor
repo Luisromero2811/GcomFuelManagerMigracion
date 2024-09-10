@@ -1,9 +1,9 @@
 ﻿@page "/crm/equipos"
 @inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_MODULO_EQUIPOS")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_MODULO_EQUIPOS">
     <Authorized>
         <Card>
             <Header>
@@ -17,58 +17,95 @@
             </Header>
         </Card>
         <div class="col-12 my-2">
-            <div class="col-md-2 col">
-                <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/equipos/formulario" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-plus" />Agregar
-                </NavLink>
-            </div>
+            <AuthorizeView Roles="Admin, CREAR_EQUIPO">
+                <Authorized Context="CREAREQUIPO">
+                    <div class="col-md-2 col">
+                        <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/equipos/formulario" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-plus" />Agregar
+                        </NavLink>
+                    </div>
+                </Authorized>
+            </AuthorizeView>
         </div>
-        <div class="ancho-tabla">
-            <Tabla Datos="Equipos" Cargando="loading_info">
-                <Cabeceras>
-                    <tr>
-                        <th style="max-width:150px;"></th>
-                        <th>Nombre</th>
-                        <th>Lider de equipo</th>
-                        <th>Division</th>
-                    </tr>
-                </Cabeceras>
-                <Filtros>
-                    <tr>
-                        <td></td>
-                        <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
-                        <td><input class="form-control" @bind-value="@filtro.Lider" @oninput="FiltrarLider" /></td>
-                        <td><input class="form-control" @bind-value="@filtro.Division" @oninput="FiltrarDivision" /></td>
-                    </tr>
-                </Filtros>
-                <Columnas Context="item">
-                    <tr>
-                        <td>
-                            <div class="btn-group">
-                                <a class="btn gcom-bg-amarillo" href="/crm/equipos/formulario/@item.Id">
-                                    <i class="fa fa-solid fa-edit" />
-                                </a>
-                                <a class="btn gcom-bg-amarillo" href="/crm/equipo/@item.Id">
-                                    <i class="fa fa-solid fa-eye" />
-                                </a>
-                                <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
-                                    <i class="fa fa-solid fa-trash" />
-                                </button>
-                            </div>
-                        </td>
-                        <td>@item.Nombre</td>
-                        <td>@item.Lider</td>
-                        <td>@item.Division</td>
-                    </tr>
-                </Columnas>
-            </Tabla>
-        </div>
-        <div class="col-12">
-            <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-            <div class="col-12">
-                <p>Total de registros: @filtro.Total_registros</p>
-            </div>
-        </div>
+        <AuthorizeView Roles="Admin, VER_EQUIPOS">
+            <Authorized Context="VEREQUIPOS">
+                <div class="ancho-tabla">
+                    <Tabla Datos="Equipos" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
+                                    <Authorized Context="ACCIONES">
+                                        <th class="d-md-table-cell d-none" style="max-width:150px;"></th>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <th>Nombre</th>
+                                <th>Lider de equipo</th>
+                                <th>Division</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
+                                    <Authorized Context="ACCIONES">
+                                        <td class="d-md-table-cell d-none"></td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
+                                <td><input class="form-control" @bind-value="@filtro.Lider" @oninput="FiltrarLider" /></td>
+                                <td><input class="form-control" @bind-value="@filtro.Division" @oninput="FiltrarDivision" /></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_EQUIPO, ELIMINAR_EQUIPO, VER_dETALLE_EQUIPO">
+                                    <Authorized Context="ACCIONES">
+                                        <td class="d-md-table-cell d-none">
+                                            <div class="btn-group">
+                                                <AuthorizeView Roles="Admin, EDITAR_EQUIPO">
+                                                    <Authorized Context="EDITAREQUIPO">
+                                                        <a class="btn gcom-bg-amarillo" href="/crm/equipos/formulario/@item.Id">
+                                                            <i class="fa fa-solid fa-edit" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                                    <Authorized Context="VERDETALLEEQUIPO">
+                                                        <a class="btn gcom-bg-amarillo" href="/crm/equipo/@item.Id">
+                                                            <i class="fa fa-solid fa-eye" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, ELIMINAR_EQUIPO">
+                                                    <Authorized Context="ELIMINAREQUIPO">
+                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
+                                                            <i class="fa fa-solid fa-trash" />
+                                                        </button>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td>
+                                    <div class="d-flex">
+                                        <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                        @item.Nombre
+                                    </div>
+                                </td>
+                                <td>@item.Lider</td>
+                                <td>@item.Division</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+                    <div class="col-12">
+                        <p>Total de registros: @filtro.Total_registros</p>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </Authorized>
     <NotAuthorized>
         <NoAutorizado />

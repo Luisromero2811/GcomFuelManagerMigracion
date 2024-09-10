@@ -2,120 +2,131 @@
 
 @inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_CONTACTOS")]
+<AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
+    <Authorized>
+        <Card HeaderClass="d-flex justify-content-between">
+            <Header>
+                <div>
+                    <b>Detalle contacto</b>
+                </div>
+                <div>
+                    <div class="btn-group">
+                        <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                            <i class="fa fa-solid fa-arrow-left" /> Volver
+                        </button>
+                        <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                            Actividades
+                        </NavLink>
+                    </div>
+                </div>
+            </Header>
+            <Body>
+                <Card HeaderText="Datos principales">
+                    <Body>
 
-<div class="card">
-    <div class="card-header">
-        <div class="d-flex justify-content-between">
-            <div>
-                <b>Detalle contacto</b>
-            </div>
-            <div>
-                <div class="btn-group">
-                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/contactos" Match="NavLinkMatch.All">
-                        <i class="fa fa-solid fa-arrow-left" /> Volver
-                    </NavLink>
-                    <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
-                        Actividades
-                    </NavLink>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="col-12 row">
-            <div class="col-4 row">
-                <label><b>Nombre/s: </b></label>
-                <p>@detalle.Nombre</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Apellidos: </b></label>
-                <p>@detalle.Apellidos</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Titulo: </b></label>
-                <p>@detalle.Titulo</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Departamento: </b></label>
-                <p>@detalle.Departamento</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Cuenta: </b></label>
-                <p>@detalle.Cliente?.Nombre</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Teléfono de oficina: </b></label>
-                <p>@detalle.Departamento</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Teléfono móvil: </b></label>
-                <p>@detalle.Departamento</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Sitio Web: </b></label>
-                <a href="@detalle.SitioWeb" target="_blank">@detalle.SitioWeb</a>
-            </div>
-            <div class="col-4 row">
-                <label><b>Correo: </b></label>
-                <p>@detalle.Correo</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Estatus: </b></label>
-                <p>@detalle.Estatus?.Valor</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Descripcion de estatus: </b></label>
-                <p>@detalle.Estatus_Desc</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Importe de la oportunidad: </b></label>
-                <p>@detalle.Importe_Oportunidad.ToString("N2", CultureInfo.InvariantCulture)</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Origen de contacto: </b></label>
-                <p>@detalle.Origen?.Valor</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Recomendado por: </b></label>
-                <p>@detalle.Recomen</p>
-            </div>
-            <div class="col-4 row">
-                <label><b>Asignado a: </b></label>
-                <p>@detalle.Vendedor?.Nombre</p>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-header">
-                Dirección
-            </div>
-            <div class="card-body">
-                <div class="col-12 row">
-                    <div class="col-4 row">
-                        <label><b>Calle: </b></label>
-                        <p>@detalle.Calle</p>
-                    </div>
-                    <div class="col-4 row">
-                        <label><b>Colonia: </b></label>
-                        <p>@detalle.Colonia</p>
-                    </div>
-                    <div class="col-4 row">
-                        <label><b>Ciudad: </b></label>
-                        <p>@detalle.Ciudad</p>
-                    </div>
-                    <div class="col-4 row">
-                        <label><b>C.P.: </b></label>
-                        <p>@detalle.CP</p>
-                    </div>
-                    <div class="col-4 row">
-                        <label><b>Pais: </b></label>
-                        <p>@detalle.Pais</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+                        <div class="col-12 row">
+                            <div class="col-4 row">
+                                <label><b>Nombre/s: </b></label>
+                                <p>@detalle.Nombre</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Apellidos: </b></label>
+                                <p>@detalle.Apellidos</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Titulo: </b></label>
+                                <p>@detalle.Titulo</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Departamento: </b></label>
+                                <p>@detalle.Departamento</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Cuenta: </b></label>
+                                <p>@detalle.Cliente?.Nombre</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Teléfono de oficina: </b></label>
+                                <p>@detalle.Departamento</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Teléfono móvil: </b></label>
+                                <p>@detalle.Departamento</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Sitio Web: </b></label>
+                                <a href="@detalle.SitioWeb" target="_blank">@detalle.SitioWeb</a>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Correo: </b></label>
+                                <p>@detalle.Correo</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Dirección principal">
+                    <Body>
+
+                        <div class="col-12 row">
+                            <div class="col-4 row">
+                                <label><b>Calle: </b></label>
+                                <p>@detalle.Calle</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Colonia: </b></label>
+                                <p>@detalle.Colonia</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Ciudad: </b></label>
+                                <p>@detalle.Ciudad</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>C.P.: </b></label>
+                                <p>@detalle.CP</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Pais: </b></label>
+                                <p>@detalle.Pais</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Información adicional">
+                    <Body>
+
+                        <div class="col-12 row">
+                            <div class="col-4 row">
+                                <label><b>Estatus: </b></label>
+                                <p>@detalle.Estatus?.Valor</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Descripcion de estatus: </b></label>
+                                <p>@detalle.Estatus_Desc</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Origen de contacto: </b></label>
+                                <p>@detalle.Origen?.Valor</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Recomendado por: </b></label>
+                                <p>@detalle.Recomen</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Asignado a: </b></label>
+                                <p>@detalle.Vendedor?.Nombre</p>
+                            </div>
+                            <div class="col-4 row">
+                                <label><b>Fecha de creacion: </b></label>
+                                <p>@detalle.Fecha_Creacion</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+            </Body>
+        </Card>
+    </Authorized>
+</AuthorizeView>
 @code {
     [Parameter] public int Id { get; set; }
     CRMContactoDetalleDTO detalle = new();

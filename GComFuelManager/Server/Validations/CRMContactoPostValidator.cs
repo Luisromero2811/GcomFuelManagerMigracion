@@ -42,8 +42,6 @@ namespace GComFuelManager.Server.Validations
                 .GreaterThan(0).WithMessage("Debe seleccionar un estado de contacto");
             RuleFor(x => x.Estatus_Desc)
                 .MaximumLength(250).WithMessage("La descripcion del estado no debe tener mas de 250 caracteres");
-            RuleFor(x => x.Importe_Oportunidad)
-                .GreaterThanOrEqualTo(0).WithMessage("El importe no debe ser menor a 0");
             RuleFor(x => x.OrigenId)
                 .NotEmpty().WithMessage("El origen del contacto es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un origen de contacto");

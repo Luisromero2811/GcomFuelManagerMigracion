@@ -3,9 +3,9 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_ROL")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_DETALLE_ROL">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>
@@ -18,17 +18,21 @@
             </Header>
             <Body>
                 <div class="col-12 row">
-                    <div class="col-md-4 col-12">
-                        <label><b>Rol</b></label>
-                        <p>@Rol.Nombre</p>
-                    </div>
+                    <Card HeaderText="Datos principales">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <label><b>Rol</b></label>
+                                <p>@Rol.Nombre</p>
+                            </div>
+                        </Body>
+                    </Card>
                     <div class="col-12">
-                        <Card HeaderText="´Permisos asignados">
+                        <Card HeaderText="Permisos asignados">
                             <Body>
                                 <Tabla Datos="Rol.Permisos">
                                     <Cabeceras>
                                         <tr>
-                                            <th>Nombre</th>
+                                            <th>Permiso</th>
                                         </tr>
                                     </Cabeceras>
                                     <Columnas Context="item">

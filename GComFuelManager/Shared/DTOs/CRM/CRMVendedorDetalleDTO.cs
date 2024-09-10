@@ -15,6 +15,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string? Correo { get; set; } = string.Empty;
         public bool Activo { get; set; } = true;
         public CRMDivision Division { get; set; } = null!;
-        public List<CRMOriginador> Originadores { get; set; } = new();
+        public List<CRMOriginadorDTO> Originadores { get; set; } = new();
+        public List<CRMEquipoDTO> Equipos { get; set; } = new();
     }
 }

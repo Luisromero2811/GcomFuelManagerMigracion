@@ -7,7 +7,7 @@ namespace GComFuelManager.Shared.Modelos
         public int Id { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public int DivisionId { get; set; }
-        public bool Activo { get; set; }
+        public bool Activo { get; set; } = true;
 
         [NotMapped]
         public bool Asignado { get; set; }

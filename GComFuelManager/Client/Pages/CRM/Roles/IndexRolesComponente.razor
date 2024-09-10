@@ -1,9 +1,9 @@
 ﻿@page "/crm/roles"
 @inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_MODULO_ROLES")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_MODULO_ROLES">
     <Authorized>
         <Card>
             <Header>
@@ -16,53 +16,85 @@
                 </div>
             </Header>
         </Card>
-        <div class="col-12 my-2">
-            <div class="col-md-2 col">
-                <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/roles/formulario" Match="NavLinkMatch.All">
-                    <i class="fa fa-solid fa-plus" />Agregar
-                </NavLink>
-            </div>
-        </div>
-        <div class="ancho-tabla">
-            <Tabla Datos="Roles" Cargando="loading_info">
-                <Cabeceras>
-                    <tr>
-                        <th style="max-width:150px;"></th>
-                        <th>Rol</th>
-                    </tr>
-                </Cabeceras>
-                <Filtros>
-                    <tr>
-                        <td></td>
-                        <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
-                    </tr>
-                </Filtros>
-                <Columnas Context="item">
-                    <tr>
-                        <td>
-                            <div class="btn-group">
-                                <a class="btn gcom-bg-amarillo" href="/crm/roles/formulario/@item.Id">
-                                    <i class="fa fa-solid fa-edit" />
-                                </a>
-                                <a class="btn gcom-bg-amarillo" href="/crm/rol/@item.Id">
-                                    <i class="fa fa-solid fa-eye" />
-                                </a>
-                                <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
-                                    <i class="fa fa-solid fa-trash" />
-                                </button>
-                            </div>
-                        </td>
-                        <td>@item.Nombre</td>
-                    </tr>
-                </Columnas>
-            </Tabla>
-        </div>
-        <div class="col-12">
-            <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-            <div class="col-12">
-                <p>Total de registros: @filtro.Total_registros</p>
-            </div>
-        </div>
+        <AuthorizeView Roles="Admin, CREAR_ROL">
+            <Authorized Context="CREARROL">
+                <div class="col-12 my-2">
+                    <div class="col-md-2 col">
+                        <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="crm/roles/formulario" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-plus" />Agregar
+                        </NavLink>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin, VER_ROLES">
+            <Authorized Context="VERROLES">
+                <div class="ancho-tabla">
+                    <Tabla Datos="Roles" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_ROL, VER_DETALLE_ROL, ELIMINAR_ROL">
+                                    <Authorized Context="ACCIONES">
+                                        <th style="max-width:150px;"></th>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <th>Rol</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_ROL, VER_DETALLE_ROL, ELIMINAR_ROL">
+                                    <Authorized Context="ACCIONES">
+                                        <td></td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_ROL, VER_DETALLE_ROL, ELIMINAR_ROL">
+                                    <Authorized Context="ACCIONES">
+                                        <td>
+                                            <div class="btn-group">
+                                                <AuthorizeView Roles="Admin, EDITAR_ROL">
+                                                    <Authorized Context="EDITARROL">
+                                                        <a class="btn gcom-bg-amarillo" href="/crm/roles/formulario/@item.Id">
+                                                            <i class="fa fa-solid fa-edit" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_ROL">
+                                                    <Authorized Context="VERDETALLEROL">
+                                                        <a class="btn gcom-bg-amarillo" href="/crm/rol/@item.Id">
+                                                            <i class="fa fa-solid fa-eye" />
+                                                        </a>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, ELIMINAR_ROL">
+                                                    <Authorized Context="ELIMINARROL">
+                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
+                                                            <i class="fa fa-solid fa-trash" />
+                                                        </button>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td>@item.Nombre</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+                    <div class="col-12">
+                        <p>Total de registros: @filtro.Total_registros</p>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
     </Authorized>
     <NotAuthorized>
         <NoAutorizado />

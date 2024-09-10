@@ -3,75 +3,81 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_VENDEDOR")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>
                 <div class="col-12 d-flex justify-content-between">
                     <b>Detalle de vendedor</b>
-                    <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/vendedores" Match="NavLinkMatch.All">
+                    <NavLink class="g-1 btn gcom-bg-amarillo" onclick="history.back();" Match="NavLinkMatch.All">
                         <i class="fa fa-solid fa-arrow-left" /> Volver
                     </NavLink>
                 </div>
             </Header>
             <Body>
-                <div class="col-12 row">
-                    <div class="col-4">
-                        <label><b>Nombre</b></label>
-                        <p>@Vendedor.Nombre</p>
+                <div class="g-2">
+
+                    <div class="col-12 row">
+                        <div class="col-md-4 col-12">
+                            <label><b>Nombre</b></label>
+                            <p>@Vendedor.Nombre</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Apellidos</b></label>
+                            <p>@Vendedor.Apellidos</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>División</b></label>
+                            <p>@Vendedor.Division?.Nombre</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Titulo</b></label>
+                            <p>@Vendedor.Titulo</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Departamento</b></label>
+                            <p>@Vendedor.Departamento</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Teléfono de oficina</b></label>
+                            <p>@Vendedor.Tel_Oficina</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Teléfono de móvil</b></label>
+                            <p>@Vendedor.Tel_Movil</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Correo electrónico</b></label>
+                            <p>@Vendedor.Correo</p>
+                        </div>
                     </div>
-                    <div class="col-4">
-                        <label><b>Apellidos</b></label>
-                        <p>@Vendedor.Apellidos</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>División</b></label>
-                        <p>@Vendedor.Division?.Nombre</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Titulo</b></label>
-                        <p>@Vendedor.Titulo</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Departamento</b></label>
-                        <p>@Vendedor.Departamento</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Teléfono de oficina</b></label>
-                        <p>@Vendedor.Tel_Oficina</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Teléfono de móvil</b></label>
-                        <p>@Vendedor.Tel_Movil</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Correo electrónico</b></label>
-                        <p>@Vendedor.Correo</p>
-                    </div>
-                    <Card HeaderText="Originadores">
+                    <Card HeaderText="Equipos" CardClass="my-2">
                         <Body>
-                            <Tabla Datos="Vendedor.Originadores">
+                            <Tabla Datos="Vendedor.Equipos">
                                 <Cabeceras>
                                     <tr>
-                                        <th>Nombre</th>
-                                        <th>Telefono oficina</th>
-                                        <th>Telefono movil</th>
-                                        <th>Correo</th>
+                                        <th>Equipo</th>
+                                        <th>Lider del equipo</th>
+                                        <th>Telfono movil del lider de equipo</th>
+                                        <th>Correo del lider de equipo</th>
+                                        <th>Division del equipo</th>
+                                        <th>Detalle de equipo</th>
                                     </tr>
                                 </Cabeceras>
                                 <Columnas Context="item">
                                     <tr>
-                                        <td>@item.Nombre @item.Apellidos</td>
-                                        <td>@item.Tel_Movil</td>
-                                        <td>@item.Tel_Oficina</td>
+                                        <td>@item.Nombre</td>
+                                        <td>@item.Lider</td>
+                                        <td>@item.TelMovil</td>
                                         <td>@item.Correo</td>
-                                        @* <td>
-                                            <button class="btn btn-danger" @onclick="@(()=>DeleteOriginador(item))">
-                                                <i class="fa fa-solid fa-trash" />
-                                            </button>
-                                        </td> *@
+                                        <td>@item.Division</td>
+                                        <td>
+                                            <a class="btn gcom-bg-amarillo" href="crm/equipo/@item.Id">
+                                                <i class="fa fa-solid fa-eye" />
+                                            </a>
+                                        </td>
                                     </tr>
                                 </Columnas>
                             </Tabla>

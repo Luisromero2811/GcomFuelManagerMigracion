@@ -5,9 +5,9 @@
 @inject SweetAlertService swal
 @inject CRMVendedorPostValidator validator
 @inject NavigationManager navigation
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, CREAR_VENDEDOR, EDITAR_VENDEDOR")]
 
-<AuthorizeView>
+<AuthorizeView Roles="Admin, CREAR_VENDEDOR, EDITAR_VENDEDOR">
     <Authorized>
         @if (loading_info)
         {
@@ -69,26 +69,27 @@
                         </InputSelect>
                     </div>
                     <div class="col-md-4 col-12">
-                        <label>Comerciales</label>
-                        <DropDownFilter Listado="Originadores" TListado="CRMOriginadorDTO" TValue="CRMOriginadorDTO" Default_Placeholder="Comerciales"
+                        <label>Equipo</label>
+                        <DropDownFilter Listado="Equipos" TListado="CRMEquipoDTO" TValue="CRMEquipoDTO" Default_Placeholder="Equipos"
                                         Puede_Filtrar="false" Seleccion_Multiple="true" On_Cancel_Method="CancelOriginadorSelector">
                             <RenderValue Context="itemValue">
-                                @if (OriginadoresSeleccionados.Count > 0)
+                                @if (EquiposSeleccionados.Count > 0)
                                 {
                                     <div>
-                                        @(OriginadoresSeleccionados.Count()) seleccionados
+                                        @(EquiposSeleccionados.Count()) seleccionados
                                     </div>
                                 }
                                 else
                                 {
-                                    <div>Comerciales</div>
+                                    <div>Equipos</div>
                                 }
                             </RenderValue>
                             <Render Context="item">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(OriginadoresSeleccionados.Any(x=>x.Id == item.Id))" @onchange="@((e)=>SelectOriginador(e,item))" />
+                                    <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@(EquiposSeleccionados.Any(x=>x.Id == item.Id))" @onchange="@((e)=>SelectEquipo(e,item))" />
                                     <label class="form-check-label" for="@item.Id">
-                                        @item.Nombre @item.Apellidos
+                                        <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                        @($"{item.Nombre} - {item.Lider}")
                                     </label>
                                 </div>
 
@@ -123,9 +124,9 @@
 
     List<CRMDivision> Divisiones = new();
 
-    List<CRMOriginadorDTO> Originadores = new();
-    List<CRMOriginadorDTO> OriginadoresSeleccionados = new();
-    CRMOriginadorDTO Originador = new();
+    List<CRMEquipoDTO> Equipos = new();
+    List<CRMEquipoDTO> EquiposSeleccionados = new();
+    CRMEquipoDTO Originador = new();
 
     bool loading_info = false;
     bool loading_save = false;
@@ -206,7 +207,7 @@
             {
                 loading_info = false;
                 Vendedor = response.Response;
-                OriginadoresSeleccionados = Vendedor.OriginadoresDTO;
+                EquiposSeleccionados = Vendedor.EquiposDTO;
             }
         }
         catch (Exception e)
@@ -225,7 +226,7 @@
 
             query["Nombre"] = value;
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
-            var response = await http.Get<List<CRMOriginadorDTO>>($"api/crmoriginador?{uri}");
+            var response = await http.Get<List<CRMEquipoDTO>>($"api/crmequipo?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -233,7 +234,7 @@
             }
             else
             {
-                Originadores = response.Response;
+                Equipos = response.Response;
             }
         }
         catch (Exception e)
@@ -250,7 +251,7 @@
         {
             if (Originador.Id != 0)
             {
-                Vendedor.OriginadoresDTO.Add(Originador);
+                Vendedor.EquiposDTO.Add(Originador);
             }
         }
     }
@@ -277,24 +278,24 @@
 
     void CancelOriginadorSelector()
     {
-        OriginadoresSeleccionados = new();
+        EquiposSeleccionados = new();
     }
 
-    void SelectOriginador(ChangeEventArgs args, CRMOriginadorDTO dTO)
+    void SelectEquipo(ChangeEventArgs args, CRMEquipoDTO dTO)
     {
         if (args.Value is null) { return; }
 
         if ((bool)args.Value)
         {
-            if (!OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
-                OriginadoresSeleccionados.Add(dTO);
+            if (!EquiposSeleccionados.Any(x => x.Id == dTO.Id))
+                EquiposSeleccionados.Add(dTO);
         }
         else
         {
-            if (OriginadoresSeleccionados.Any(x => x.Id == dTO.Id))
-                OriginadoresSeleccionados.RemoveAt(OriginadoresSeleccionados.IndexOf(OriginadoresSeleccionados.First(x => x.Id == dTO.Id)));
+            if (EquiposSeleccionados.Any(x => x.Id == dTO.Id))
+                EquiposSeleccionados.RemoveAt(EquiposSeleccionados.IndexOf(EquiposSeleccionados.First(x => x.Id == dTO.Id)));
         }
 
-        Vendedor.OriginadoresDTO = OriginadoresSeleccionados;
+        Vendedor.EquiposDTO = EquiposSeleccionados;
     }
 }

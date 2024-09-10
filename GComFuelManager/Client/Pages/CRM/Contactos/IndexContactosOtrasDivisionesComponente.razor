@@ -1,27 +1,24 @@
 ﻿@inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, VER_CONTACTOS")]
 
 <div class="ancho-tabla">
     <Tabla Datos="contactos" Cargando="loading_info">
         <Cabeceras>
             <tr>
-                <th>Nombre</th>
-                <th>Estado</th>
+                <th>Contacto</th>
                 <th>Nombre de cuenta</th>
                 <th>Tel. movil</th>
                 <th>Correo</th>
                 <th>Encargado</th>
                 <th>Division</th>
+                <th>Estado</th>
             </tr>
         </Cabeceras>
         <Filtros>
             <tr>
                 <td>
                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Nombre" @oninput="FiltrarNombre" />
-                </td>
-                <td>
-                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
                 </td>
                 <td>
                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Cuenta" @oninput="FiltrarCliente" />
@@ -35,18 +32,23 @@
                 <td>
                     <input class="form-control form-control-sm" @bind-value="filtro_contacto.Vendedor" @oninput="FiltrarVendedor" />
                 </td>
-                <td></td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Division" @oninput="FiltrarDivision" />
+                </td>
+                <td>
+                    <input class="form-control form-control-sm" @bind-value="filtro_contacto.Estatus" @oninput="FiltrarEstado" />
+                </td>
             </tr>
         </Filtros>
         <Columnas Context="item">
             <tr>
                 <td>@item.FullName</td>
-                <td>@item.Estatus</td>
                 <td>@item.Cuenta</td>
                 <td>@item.Tel_Movil</td>
                 <td>@item.Correo</td>
                 <td>@item.Vendedor</td>
                 <td>@item.Division</td>
+                <td>@item.Estatus</td>
             </tr>
         </Columnas>
     </Tabla>
@@ -77,6 +79,7 @@
         query[$"{nameof(filtro_contacto.Correo)}"] = filtro_contacto.Correo;
         query[$"{nameof(filtro_contacto.Vendedor)}"] = filtro_contacto.Vendedor;
         query[$"{nameof(filtro_contacto.Estatus)}"] = filtro_contacto.Estatus;
+        query[$"{nameof(filtro_contacto.Division)}"] = filtro_contacto.Division;
         query[$"{nameof(filtro_contacto.Pagina)}"] = filtro_contacto.Pagina.ToString();
         query[$"{nameof(filtro_contacto.Registros_por_pagina)}"] = filtro_contacto.Registros_por_pagina.ToString();
         return query;
@@ -135,6 +138,12 @@
     private async Task FiltrarVendedor(ChangeEventArgs args)
     {
         filtro_contacto.Vendedor = args.Value?.ToString() ?? string.Empty;
+        await ObtenerContactos();
+    }
+
+    private async Task FiltrarDivision(ChangeEventArgs args)
+    {
+        filtro_contacto.Division = args.Value?.ToString() ?? string.Empty;
         await ObtenerContactos();
     }
 
