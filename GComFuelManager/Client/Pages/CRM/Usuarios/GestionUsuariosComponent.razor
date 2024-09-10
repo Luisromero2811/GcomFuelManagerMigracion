@@ -1,5 +1,5 @@
 ﻿@page "/crm/gestion/usuarios"
-
+@page "/crm/gestion/usuarios/{Id}"
 
 
 @inject SweetAlertService Swal
@@ -143,8 +143,8 @@
                                 {
                                     @foreach (var item in Roles)
                                     {
-                                        <label>
-                                            <input type="checkbox" value="@item.Id" @onchange="e => ToggleRole(item, e.Value)" />
+                                        <label for="@item.Id">
+                                            <input class="form-check-input" type="checkbox" value="" id="@item.Id" checked="@item.Asignado" @onchange="e => ToggleRole(item, e.Value)" />
                                             @item.Nombre
                                         </label>
                                     }
@@ -218,7 +218,7 @@
 </style>
 
 @code {
-   // [Parameter] public string? Id { get; set; }
+    [Parameter] public string? Id { get; set; }
 
     List<CRMDivision> Divisiones { get; set; } = new List<CRMDivision>();
     List<CRMRol> Roles { get; set; } = new List<CRMRol>();
@@ -238,11 +238,11 @@
             Obtener_Vendedores()
             );
 
-        //if (!string.IsNullOrEmpty(Id))
-        //{
-        //    isEdit = true;
-        //    await ObtenerUsuario();
-        //}
+        if (!string.IsNullOrEmpty(Id))
+        {
+            isEdit = true;
+            await ObtenerUsuario();
+        }
     }
 
     public async Task CreateUser()
@@ -339,26 +339,26 @@
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
     }
-
+    private bool GetCheckedStatus(CRMRol item)
+    {
+        return item.Asignado;  // Esto te permite un control claro de si el checkbox debe estar marcado o no
+    }
     private List<CRMRol> selectedRoles = new List<CRMRol>(); // Lista de roles seleccionados (como objetos CRMRol)
 
     private void ToggleRole(CRMRol role, object checkedValue)
     {
+
         bool isChecked = (bool)checkedValue;
+
+        role.Asignado = isChecked;
 
         if (isChecked)
         {
-            if (!selectedRoles.Contains(role))
-            {
-                selectedRoles.Add(role);
-            }
+            selectedRoles.Add(role);
         }
         else
         {
-            if (selectedRoles.Contains(role))
-            {
-                selectedRoles.Remove(role);
-            }
+            selectedRoles.Remove(role);
         }
 
         info.Roles = selectedRoles; // Asignamos solo los nombres de los roles seleccionados al modelo
@@ -406,26 +406,88 @@
         }
     }
 
-    //private async Task ObtenerUsuario()
-    //{
-    //    try
-    //    {
-    //        var responseHttp = await repositorio.Get<CRMUsuarioDTO>($"api/crmvendedor/{Id}");
-    //        if (responseHttp.Error)
-    //        {
-    //            var message = await responseHttp.ObtenerMensajeError();
-    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            info = responseHttp.Response!;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
+    private async Task ObtenerUsuario()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<CRMUsuarioDTO>($"api/crmvendedor/{Id}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                info = responseHttp.Response!;
+
+                // Aquí puedes revisar si los roles tienen la propiedad Asignado correctamente
+                foreach (var rol in info.Roles)
+                {
+                    Console.WriteLine($"Rol: {rol.Nombre}, Asignado: {rol.Asignado}");
+                }
+
+                await SincronizarDatosUsuario();
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task SincronizarDatosUsuario()
+    {
+        try
+        {
+            // Sincronizar la división si es que tiene una seleccionada
+            if (info.IDDivision != null)
+            {
+                // Buscar la división en la lista y seleccionarla
+                var divisionSeleccionada = Divisiones.FirstOrDefault(d => d.Id == info.IDDivision);
+                if (divisionSeleccionada != null)
+                {
+                    info.IDDivision = divisionSeleccionada.Id;
+                }
+            }
+
+            // Sincronizar los roles seleccionados
+            if (info.Roles != null && info.Roles.Any())
+            {
+                foreach (var rol in info.Roles)
+                {
+                    var rolAsignado = info.Roles.Any(r => r.Id == rol.Id);
+                    rol.Asignado = rolAsignado;
+                }
+            }
+
+            // Sincronizar el vendedor si existe
+            if (info.IsVendedor)
+            {
+                var vendedorSeleccionado = Vendedores.FirstOrDefault(v => v.Id == info.IDVendedor);
+                if (vendedorSeleccionado != null)
+                {
+                    info.IDVendedor = vendedorSeleccionado.Id;
+                }
+            }
+
+            // Sincronizar el originador si existe
+            if (info.IsComercial)
+            {
+                var originadorSeleccionado = Originadores.FirstOrDefault(o => o.Id == info.IDOriginador);
+                if (originadorSeleccionado != null)
+                {
+                    info.IDOriginador = originadorSeleccionado.Id;
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 
 }
 

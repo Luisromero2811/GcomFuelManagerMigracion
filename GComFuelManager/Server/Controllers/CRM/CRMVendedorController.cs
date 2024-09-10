@@ -2,6 +2,7 @@
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using iText.Commons.Actions.Contexts;
@@ -454,68 +455,67 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
-        //[HttpGet("{Id}")]
-        //public async Task<ActionResult> ObtenerUsuarioStatus([FromRoute] string Id)
-        //{
-        //    try
-        //    {
-        //        var usuario = await context.Users
-        //            .Where(x => x.Id == Id)
-        //            .FirstOrDefaultAsync();
-        //        if (usuario == null)
-        //        {
-        //            return NotFound("Usuario no encontrado.");
-        //        }
+        [HttpGet("{Id}")]
+        public async Task<ActionResult> ObtenerUsuarioStatus([FromRoute] string Id)
+        {
+            try
+            {
+                var usuario = await context.Users
+                    .Where(x => x.Id == Id)
+                    .FirstOrDefaultAsync();
+                if (usuario == null)
+                {
+                    return NotFound("Usuario no encontrado.");
+                }
 
-        //        // Inicializar el DTO
-        //        var usuarioDto = new CRMUsuarioDTO
-        //        {
-        //            Id_Asp = usuario.Id,
-        //            UserName = usuario.UserName,
-        //            Password = usuario.PasswordHash,
-        //            Roles = new List<CRMRol>()
-        //        };
+                // Obtener si el usuario es vendedor
+                var vendedor = await context.CRMVendedores
+                    .Where(x => x.UserId == Id)
+                    .FirstOrDefaultAsync();
 
-        //        // Verificar si es vendedor
-        //        var vendedor = await context.CRMVendedores
-        //            .Where(x => x.UserId == Id)
-        //            .Include(x => x.Division) // Incluimos la división
-        //            .FirstOrDefaultAsync();
+                // Obtener si el usuario es originador
+                var originador = await context.CRMOriginadores
+                    .Where(x => x.UserId == Id)
+                    .FirstOrDefaultAsync();
 
-        //        if (vendedor != null)
-        //        {
-        //            usuarioDto.NombreUsuario = vendedor.Nombre;
-        //            usuarioDto.Division = vendedor.Division.Nombre; // Nombre de la división
-        //            usuarioDto.TipoUsuario = "Vendedor";
-        //        }
-        //        else
-        //        {
-        //            // Verificar si es originador
-        //            var originador = await context.CRMOriginadores
-        //                .Where(x => x.UserId == Id)
-        //                .Include(x => x.Division) // Incluimos la división
-        //                .FirstOrDefaultAsync();
+                var rolesAsignados = await context.CRMRolUsuarios
+                  .Where(x => x.UserId == Id)
+                  .Select(x => x.RolId)
+                  .ToListAsync();
 
-        //            if (originador != null)
-        //            {
-        //                usuarioDto.NombreUsuario = originador.Nombre;
-        //                usuarioDto.Division = originador.Division.Nombre; // Nombre de la división
-        //                usuarioDto.TipoUsuario = "Originador";
-        //            }
-        //            else
-        //            {
-        //                return NotFound("Usuario no está asociado ni a un vendedor ni a un originador.");
-        //            }
-        //        }
+                // Obtener roles
+                var roles = await context.CRMRoles.ToListAsync();
 
-              
+                // Filtrar la lista de roles del sistema y marcar los que están asignados al usuario
+                var rolesUsuario = roles
+                    .Select(r => new CRMRol
+                    {
+                        Id = r.Id,
+                        Nombre = r.Nombre,
+                        // Si el Id del rol existe en la lista de roles asignados al usuario, lo marcamos como asignado
+                        Asignado = rolesAsignados.Contains(r.Id)
+                    })
+                    .ToList();
 
-        //        return Ok(usuarioDto);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
+                // DTO para enviar la información al front
+                var usuarioDto = new CRMUsuarioDTO
+                {
+                    Id_Asp = usuario.Id,
+                    UserName = usuario.UserName,
+                    IsVendedor = vendedor != null,
+                    IsComercial = originador != null,
+                    IDVendedor = vendedor?.Id,
+                    IDOriginador = originador?.Id,
+                    IDDivision = vendedor?.DivisionId ?? originador?.DivisionId,  // Relacionar con división
+                    Roles = rolesUsuario // Asignar roles del usuario
+                };
+
+                return Ok(usuarioDto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
