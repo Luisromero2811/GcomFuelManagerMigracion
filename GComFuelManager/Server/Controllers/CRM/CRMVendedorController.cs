@@ -425,34 +425,54 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var updateUserAsp = await userManager.FindByIdAsync(info.Id_Asp);
+                var usuario = await context.Users
+                    .FirstOrDefaultAsync(x => x.Id == info.Id_Asp);
 
-                if (updateUserAsp != null)
+                if (usuario == null)
                 {
-                    ////Variable para asignacion de los roles
-                    //var roles = info.Roles;
-                    ////Nuevo dato a actualizar del usuario de Asp, solo mandamos el Nombre de usuario 
-                    //updateUserAsp.UserName = info.UserName;
-                    ////Nuevo dato para actualizar la contraseña
-                    //var changepassword = await userManager.ChangePasswordAsync(updateUserAsp, viejaPass, updateUserSistema.Cve);
-                    ////A través de estas acciones, vamos a obtener, remover y volver a agregar el listado de roles
-                    ////Method para obtención de los roles
-                    //var changeGetRoles = await userManager.GetRolesAsync(updateUserAsp);
-                    ////Method para eliminar los roles 
-                    //var resultDeleteRoles = await userManager.RemoveFromRolesAsync(updateUserAsp, changeGetRoles.ToList());
-                    ////Method para mandar el listado de roles
-                    //var resultAddRoles = await userManager.AddToRolesAsync(updateUserAsp, roles);
-                    ////Segundo parametros me pide un string de roles no un listado 
-
-                    //var resultado = await userManager.UpdateAsync(updateUserAsp);
-                    //if (!resultado.Succeeded)
-                    //{
-                    //    context.Update(oldUser);
-                    //    await context.SaveChangesAsync();
-                    //    return BadRequest();
-                    //}
+                    return BadRequest("El usuario no existe");
                 }
 
+                if (!string.IsNullOrEmpty(info.UserName) && usuario.UserName != info.UserName)
+                {
+                    usuario.UserName = info.UserName;
+                    usuario.NormalizedUserName = info.UserName.ToUpper();
+                }
+
+                if (!string.IsNullOrEmpty(info.Password))
+                {
+                    var passwordHasher = new PasswordHasher<IdentityUsuario>();
+                    usuario.PasswordHash = passwordHasher.HashPassword(usuario, info.Password);
+                }
+
+                context.Update(usuario);
+
+                var rolesActuales = await context.CRMRolUsuarios
+                    .Where(x => x.UserId == info.Id_Asp)
+                    .ToListAsync();
+
+                foreach (var rolActual in rolesActuales)
+                {
+                    if (!info.Roles.Any(x => x.Id == rolActual.RolId))
+                    {
+                        context.Remove(rolActual);
+                    }
+                }
+
+                //Aquí agrego nuevos roles seleccionados que no existan en relación
+                foreach (var rol in info.Roles)
+                {
+                    if (!rolesActuales.Any(x => x.RolId == rol.Id))
+                    {
+                        var nuevoRolUsuario = new CRMRolUsuario
+                        {
+                            UserId = info.Id_Asp,
+                            RolId = rol.Id
+                        };
+                        context.Add(nuevoRolUsuario);
+                    }
+                }
+                await context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)

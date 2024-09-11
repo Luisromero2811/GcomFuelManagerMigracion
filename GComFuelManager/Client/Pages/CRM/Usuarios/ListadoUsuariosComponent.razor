@@ -119,7 +119,7 @@
             else
             {
                 PaginasTotales = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("paginas").FirstOrDefault());
-                ConteoTotal = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
+                filtro_usuario.Total_registros = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("conteo").FirstOrDefault());
                 PaginaActual = int.Parse(responseHttp.HttpResponseMessage.Headers.GetValues("pagina").FirstOrDefault());
                 CRMUsuariosList = responseHttp.Response;
             }
