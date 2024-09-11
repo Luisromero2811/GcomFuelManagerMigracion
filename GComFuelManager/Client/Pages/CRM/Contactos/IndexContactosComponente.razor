@@ -66,7 +66,7 @@
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTO">
+                                <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTOS">
                                     <Authorized Context="ACCIONES">
                                         <td class="d-md-table-cell d-none"></td>
                                     </Authorized>
@@ -96,7 +96,7 @@
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTO">
+                                <AuthorizeView Roles="Admin, EDITAR_CONTACTO, ELIMINAR_CONTACTO, VER_DETALLE_CONTACTOS">
                                     <Authorized Context="ACCIONES">
                                         <td class="d-md-table-cell d-none">
                                             <div class="btn-group" role="group">
@@ -107,7 +107,7 @@
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTO">
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
                                                     <Authorized Context="VERDETALLECONTACTO">
                                                         <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
                                                             <i class="fa fa-solid fa-eye" />

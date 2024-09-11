@@ -30,7 +30,7 @@ namespace GComFuelManager.Client.Auth
         public static readonly string EXPIRATIONTOKENKEY = "EXPIRATIONTOKENKEY";
 
         private AuthenticationState anonimo =>
-            new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            new(new ClaimsPrincipal(new ClaimsIdentity()));
 
         public async override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
@@ -112,7 +112,7 @@ namespace GComFuelManager.Client.Auth
             query["t"] = token;
             var url = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/cuentas/renovarToken?{url}");
+            var nuevoTokenResponse = await repositorio.Get<UserTokenDTO>($"api/auth/renovarToken?{url}");
             var nuevoToken = nuevoTokenResponse.Response;
 
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrEmpty(token))

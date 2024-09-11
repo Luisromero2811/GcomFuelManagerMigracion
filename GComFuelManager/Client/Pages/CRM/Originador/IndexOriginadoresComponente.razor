@@ -31,7 +31,7 @@
                     <Tabla Datos="Originadores">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
                                     <Authorized Context="ACCIONES">
                                         <th></th>
                                     </Authorized>
@@ -44,7 +44,7 @@
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
@@ -57,26 +57,26 @@
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group">
 
-                                                <AuthorizeView Roles="EDITAR_COMERCIAL">
+                                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL">
                                                     <Authorized Context="EDITARCOMERCIAL">
                                                         <a class="btn gcom-bg-amarillo" href="/crm/originadores/formulario/@item.Id">
                                                             <i class="fa fa-solid fa-edit" />
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="VER_DETALLE_COMERCIAL">
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
                                                     <Authorized Context="VERDETALLECOMERCIAL">
                                                         <a class="btn gcom-bg-amarillo" href="/crm/originador/@item.Id">
                                                             <i class="fa fa-solid fa-eye" />
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="ELIMINAR_COMERCIAL">
+                                                <AuthorizeView Roles="Admin, ELIMINAR_COMERCIAL">
                                                     <Authorized Context="ELIMINARCOMERCIAL">
                                                         <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item.Id))">
                                                             <i class="fa fa-solid fa-trash" />

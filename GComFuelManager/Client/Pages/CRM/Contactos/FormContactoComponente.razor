@@ -170,13 +170,13 @@
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label>Asignado a</label>
-                                    <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                    <DropDownFilter Listado="Vendedores" TListado="CRMVendedorDTO" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
                                                     @bind-Valor="@CRMContacto.VendedorId" Propiedad_Valor="Id">
                                         <RenderValue Context="item">
-                                            @item.Nombre
+                                            @item.Nombre @item.Apellidos - @item.NombreDivision - @item.Tel_Movil @item.Correo
                                         </RenderValue>
                                         <Render Context="item">
-                                            @item.Nombre
+                                            @item.Nombre @item.Apellidos - @item.NombreDivision - @item.Tel_Movil @item.Correo
                                         </Render>
                                     </DropDownFilter>
                                     @* <InputSelect @bind-Value="CRMContacto.VendedorId" class="d-none" /> *@
@@ -210,7 +210,7 @@
     List<CRMCliente> Clientes = new();
     List<Catalogo_Fijo> Catalogo_Estados = new();
     List<Catalogo_Fijo> Catalogo_Origen = new();
-    List<Vendedor> Vendedores = new();
+    List<CRMVendedorDTO> Vendedores = new();
     List<CRMDivision> Divisiones = new();
 
     bool loading_info = false;
@@ -238,7 +238,7 @@
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            var response = await http.Get<List<CRMVendedorDTO>>($"api/crmvendedor?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();

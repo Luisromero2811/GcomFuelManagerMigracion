@@ -17,86 +17,100 @@
                 </div>
             </Header>
             <Body>
-                <div class="col-12 row">
-                    <div class="col-12">
-                        <Card HeaderText="Datos principales" BodyClass="col-12 row">
-                            <Body>
-                                <div class="col-md-4 col-12">
-                                    <label><b>Equipo</b></label>
-                                    <p>@Equipo.Nombre</p>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label><b>Lider de equipo</b></label>
-                                    <p>@Equipo.Originador.Nombre @Equipo.Originador.Apellidos</p>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label><b>Telefono movil</b></label>
-                                    <p>@Equipo.Originador.Tel_Movil</p>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label><b>Correo electronico</b></label>
-                                    <p>@Equipo.Originador.Correo</p>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label><b>Division</b></label>
-                                    <p>@Equipo.Division.Nombre</p>
-                                </div>
-                            </Body>
-                        </Card>
-                    </div>
-                    <div class="col-12">
-                        <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
-                            <Body>
-                                <label><b>Lider de equipo</b></label>
-                                <Tabla Datos="Lider">
-                                    <Cabeceras>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Correo</th>
-                                            <th>Telefono movil</th>
+                <Card HeaderText="Datos principales" BodyClass="col-12 row">
+                    <Body>
+                        <div class="col-md-4 col-12">
+                            <label><b>Equipo</b></label>
+                            <p>@Equipo.Nombre</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Lider de equipo</b></label>
+                            <p>@Equipo.Originador.Nombre @Equipo.Originador.Apellidos</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Telefono movil</b></label>
+                            <p>@Equipo.Originador.Tel_Movil</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Correo electronico</b></label>
+                            <p>@Equipo.Originador.Correo</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Division</b></label>
+                            <p>@Equipo.Division.Nombre</p>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Integrantes de equipo" BodyClass="g-1">
+                    <Body>
+                        <label><b>Lider de equipo</b></label>
+                        <Tabla Datos="Lider">
+                            <Cabeceras>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Division</th>
+                                    <th>Correo</th>
+                                    <th>Telefono movil</th>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
+                                        <Authorized Context="VERCOMERCIAL">
                                             <th>Ver detalle</th>
-                                        </tr>
-                                    </Cabeceras>
-                                    <Columnas Context="item">
-                                        <tr>
-                                            <td>@item.Nombre @item.Apellidos</td>
-                                            <td>@item.Correo</td>
-                                            <td>@item.Tel_Movil</td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Cabeceras>
+                            <Columnas Context="item">
+                                <tr>
+                                    <td>@item.Nombre @item.Apellidos</td>
+                                    <td>@item.NombreDivision</td>
+                                    <td>@item.Correo</td>
+                                    <td>@item.Tel_Movil</td>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
+                                        <Authorized Context="VERCOMERCIAL">
                                             <td>
                                                 <a class="btn gcom-bg-amarillo" href="crm/originador/@item.Id">
                                                     <i class="fa fa-solid fa-eye" />
                                                 </a>
                                             </td>
-                                        </tr>
-                                    </Columnas>
-                                </Tabla>
-                                <label><b>Vendedores</b></label>
-                                <Tabla Datos="Equipo.Vendedores">
-                                    <Cabeceras>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Correo</th>
-                                            <th>Telefono movil</th>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Columnas>
+                        </Tabla>
+                        <label><b>Vendedores</b></label>
+                        <Tabla Datos="Equipo.Vendedores">
+                            <Cabeceras>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Division</th>
+                                    <th>Correo</th>
+                                    <th>Telefono movil</th>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+                                        <Authorized Context="VERVENDEDOR">
                                             <th>Ver detalle</th>
-                                        </tr>
-                                    </Cabeceras>
-                                    <Columnas Context="item">
-                                        <tr>
-                                            <td>@item.Nombre @item.Apellidos</td>
-                                            <td>@item.Correo</td>
-                                            <td>@item.Tel_Movil</td>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Cabeceras>
+                            <Columnas Context="item">
+                                <tr>
+                                    <td>@item.Nombre @item.Apellidos</td>
+                                    <td>@item.NombreDivision</td>
+                                    <td>@item.Correo</td>
+                                    <td>@item.Tel_Movil</td>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+                                        <Authorized Context="VERVENDEDOR">
                                             <td>
                                                 <a class="btn gcom-bg-amarillo" href="crm/vendedor/@item.Id">
                                                     <i class="fa fa-solid fa-eye" />
                                                 </a>
                                             </td>
-                                        </tr>
-                                    </Columnas>
-                                </Tabla>
-                            </Body>
-                        </Card>
-                    </div>
-                </div>
+                                        </Authorized>
+                                    </AuthorizeView>
+                                </tr>
+                            </Columnas>
+                        </Tabla>
+                    </Body>
+                </Card>
             </Body>
         </Card>
     </Authorized>
