@@ -121,7 +121,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .AsNoTracking()
                     .Include(x => x.Division)
                     .Include(x => x.Originador)
+                    .ThenInclude(x => x.Division)
                     .Include(x => x.Vendedores)
+                    .ThenInclude(x => x.Division)
                     .Where(x => x.Id == Id)
                     .Select(x => mapper.Map<CRMEquipo, CRMEquipoDetalleDTO>(x))
                     .SingleOrDefaultAsync();

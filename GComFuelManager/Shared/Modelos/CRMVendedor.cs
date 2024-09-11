@@ -20,6 +20,7 @@ namespace GComFuelManager.Shared.Modelos
         public List<CRMOriginador> Originadores { get; set; } = new();
         public List<CRMEquipoVendedor> EquipoVendedores { get; set; } = new();
         public List<CRMEquipo> Equipos { get; set; } = new();
+        public List<CRMContacto> Contactos { get; set; } = new();
 
         [NotMapped]
         public string FullName { get { return $"{Nombre} {Apellidos}"; } }

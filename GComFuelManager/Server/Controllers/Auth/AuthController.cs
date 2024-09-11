@@ -13,7 +13,7 @@ using System.Text;
 namespace GComFuelManager.Server.Controllers.Auth
 {
     [ApiController]
-    [Route("api/cuentas")]
+    [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly UserManager<IdentityUsuario> userManager;
@@ -40,50 +40,21 @@ namespace GComFuelManager.Server.Controllers.Auth
         {
             try
             {
-
-                var usuario = await context.Usuario.FirstOrDefaultAsync(x => x.Usu == info.UserName);
-                if (usuario == null)
+                var usuario = await userManager.FindByNameAsync(info.UserName);
+                if (usuario is null)
                     return BadRequest("El usuario no tiene acceso al sistema");
 
                 if (usuario!.Activo == true)
                 {
-
-                    var user_asp = await userManager.FindByNameAsync(info.UserName);
-                    if (user_asp == null)
-                        return BadRequest("El usuario no tiene acceso al sistema");
-
-                    var terminal = context.Tad.FirstOrDefault(x => !string.IsNullOrEmpty(x.Den) && x.Den.Equals(info.Terminal));
-                    if (terminal is null)
+                    var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
+                    if (resultado.Succeeded)
                     {
-                        var user = await userManager.FindByNameAsync(info.UserName);
-                        if (user is not null)
-                        {
-                            if (await userManager.IsInRoleAsync(user, "Obtencion de Ordenes") || await userManager.IsInRoleAsync(user, "Consulta Precios"))
-                            {
-                                terminal = new() { Cod = 0 };
-                                info.Terminal = "Interno";
-                            }
-                            else
-                                return BadRequest("No tiene acceso a esta terminal");
-                        }
-                        else
-                            return BadRequest("No tiene acceso a esta terminal");
-                    }
-
-                    if (context.Usuario_Tad.Any(x => x.Id_Usuario == user_asp.Id && x.Id_Terminal == terminal!.Cod))
-                    {
-                        var resultado = await signInManager.PasswordSignInAsync(info.UserName, info.Password, isPersistent: false, lockoutOnFailure: false);
-                        if (resultado.Succeeded)
-                        {
-                            var token = await BuildToken(info);
-
-                            return Ok(token);
-                        }
-                        else
-                            return BadRequest("Nombre de usuario y/o contraseña no validos");
+                        var token = await BuildToken(info);
+                        if (token is null) { return StatusCode(StatusCodes.Status500InternalServerError, "Error interno del servidor al iniciar sesion"); }
+                        return Ok(token);
                     }
                     else
-                        return BadRequest("No tiene acceso a esta terminal");
+                        return BadRequest("Nombre de usuario y/o contraseña no validos");
                 }
                 else
                     return BadRequest("El usuario no tiene acceso al sistema");
@@ -103,32 +74,22 @@ namespace GComFuelManager.Server.Controllers.Auth
             var Claims = Validar_Token(t);
 
             if (Claims is not null)
-            {
                 userInfo.UserName = Claims.FindFirstValue(ClaimTypes.Name) ?? string.Empty;
-                userInfo.Terminal = Claims.FindFirstValue("Terminal") ?? string.Empty;
-            }
 
             return await BuildToken(userInfo);
         }
 
         private async Task<UserTokenDTO> BuildToken(UsuarioInfo info)
         {
-            if (!context.Tad.Any(x => !string.IsNullOrEmpty(x.Den) && x.Den.ToLower().Equals(info.Terminal) && x.Activo == true) && info.Terminal != "Interno")
-                return new UserTokenDTO();
-
             var claims = new List<Claim>()
             {
-                new Claim(ClaimTypes.Name, info.UserName),
-                new Claim(JwtRegisteredClaimNames.UniqueName, info.UserName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Terminal",info.Terminal)
+                new(ClaimTypes.Name, info.UserName),
+                new(JwtRegisteredClaimNames.UniqueName, info.UserName),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             if (string.IsNullOrEmpty(info.UserName))
                 throw new ArgumentNullException(nameof(info.UserName));
-
-            if (string.IsNullOrEmpty(info.Terminal))
-                throw new ArgumentNullException(nameof(info.Terminal));
 
             var usuario = await userManager.FindByNameAsync(info.UserName);
             if (usuario != null)

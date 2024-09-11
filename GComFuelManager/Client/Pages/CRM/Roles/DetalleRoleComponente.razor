@@ -17,7 +17,7 @@
                 </div>
             </Header>
             <Body>
-                <div class="col-12 row">
+                <div class="col-12">
                     <Card HeaderText="Datos principales">
                         <Body>
                             <div class="col-md-4 col-12">
@@ -26,24 +26,22 @@
                             </div>
                         </Body>
                     </Card>
-                    <div class="col-12">
-                        <Card HeaderText="Permisos asignados">
-                            <Body>
-                                <Tabla Datos="Rol.Permisos">
-                                    <Cabeceras>
-                                        <tr>
-                                            <th>Permiso</th>
-                                        </tr>
-                                    </Cabeceras>
-                                    <Columnas Context="item">
-                                        <tr>
-                                            <td>@item.Nombre</td>
-                                        </tr>
-                                    </Columnas>
-                                </Tabla>
-                            </Body>
-                        </Card>
-                    </div>
+                    <Card HeaderText="Permisos asignados">
+                        <Body>
+                            <Tabla Datos="Rol.Permisos">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Permiso</th>
+                                    </tr>
+                                </Cabeceras>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>@item.Nombre</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </Body>
+                    </Card>
                 </div>
             </Body>
         </Card>

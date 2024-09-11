@@ -29,7 +29,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
 
         public Catalogo_Fijo? Estatus { get; set; } = null!;
         public Catalogo_Fijo? Origen { get; set; } = null!;
-        public Vendedor? Vendedor { get; set; } = null!;
+        public CRMVendedorDTO? Vendedor { get; set; } = null!;
         public CRMCliente? Cliente { get; set; } = null!;
         public CRMDivision? Division { get; set; } = null!;
     }

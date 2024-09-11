@@ -174,6 +174,11 @@ namespace GComFuelManager.Server
                 .WithMany()
                 .HasForeignKey(x => x.OrigenId);
 
+            modelBuilder.Entity<CRMVendedor>()
+                .HasMany(x => x.Contactos)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.VendedorId);
+
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Cliente)
                 .WithMany()

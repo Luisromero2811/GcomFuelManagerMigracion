@@ -31,7 +31,7 @@
                     <Tabla Datos="Vendedores">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
                                     <Authorized Context="ACCIONES">
                                         <th></th>
                                     </Authorized>
@@ -44,7 +44,7 @@
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
@@ -57,25 +57,25 @@
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group">
-                                                <AuthorizeView Roles="EDITAR_VENDEDOR">
+                                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR">
                                                     <Authorized Context="EDITARVENDEDOR">
                                                         <a class="btn gcom-bg-amarillo" href="/crm/vendedores/formulario/@item.Id">
                                                             <i class="fa fa-solid fa-edit" />
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="VER_DETALLE_VENDEDOR">
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
                                                     <Authorized Context="VERDETALLEVENDEDOR">
                                                         <a class="btn gcom-bg-amarillo" href="/crm/vendedor/@item.Id">
                                                             <i class="fa fa-solid fa-eye" />
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="ELIMINAR_VENDEDOR">
+                                                <AuthorizeView Roles="Admin, ELIMINAR_VENDEDOR">
                                                     <Authorized Context="ELMINARVENDEDOR">
                                                         <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item.Id))">
                                                             <i class="fa fa-solid fa-trash" />

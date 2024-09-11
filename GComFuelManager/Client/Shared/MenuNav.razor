@@ -32,47 +32,7 @@
     </Authorized>
 </AuthorizeView>
 
-@* <script>
-        function openNav() {
-            document.getElementById("mySidepanel").style.width = "250px";
-        }
-
-        function closeNav() {
-            document.getElementById("mySidepanel").style.width = "0";
-        }
-    </script> *@
-
-
 @code {
-
-    protected override async Task OnInitializedAsync()
-    {
-        await Checar_Terminal();
-    }
-
-    bool Esta_En_Tuxpan = true;
-    private async Task Checar_Terminal()
-    {
-        try
-        {
-            var response = await repositorio.Get<Tad>($"api/terminal/check");
-            //var response = await repositorio.Post<List<OrdenEmbarque>>($"api/services/simulacion/synthesis", ordens);
-
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Esta_En_Tuxpan = response.Response.Cod == 1;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-    }
 
     private async void OpenMenuLateral()
     {

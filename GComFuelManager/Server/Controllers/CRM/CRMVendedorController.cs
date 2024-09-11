@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
@@ -128,6 +128,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .ThenInclude(x => x.Originador)
                     .Include(x => x.Equipos)
                     .ThenInclude(x => x.Division)
+                    .Include(x => x.Contactos)
+                    .ThenInclude(x => x.Division)
+                    .Include(x => x.Contactos)
+                    .ThenInclude(x => x.Cliente)
                     .Select(x => mapper.Map<CRMVendedor, CRMVendedorDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }
