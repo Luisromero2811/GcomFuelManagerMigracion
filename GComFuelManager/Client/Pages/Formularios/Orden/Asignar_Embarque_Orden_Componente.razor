@@ -119,9 +119,9 @@
                             <ValidationMessage For="@(()=>Datos_BOL.Factura)" />
                         </div>
                         @*<div class="col-2">
-                        <label>Importe Total:</label>
-                        <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
-                        </div>*@
+                            <label>Importe Total:</label>
+                            <InputText class="form-control form-control-sm" @bind-Value="@Datos_BOL.Importe"/>
+                            </div>*@
                     </div>
                     <div class="col-12 d-flex justify-content-center mt-2">
                         <div class="col-4">
@@ -179,9 +179,9 @@
                                         <label class="form-check-label" for="Ambas">Ambos modelos de venta</label>
                                     </div>
                                     @*<div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
-                                        <label class="form-check-label" for="Todos">Delivery y Rack</label>
-                                    </div>*@
+                                            <input class="form-check-input" type="radio" id="Todos" name="estatus" checked="@(fechas.Estado == 4)" @onchange="@(()=>fechas.Estado = 4)" />
+                                            <label class="form-check-label" for="Todos">Delivery y Rack</label>
+                                        </div>*@
                                 </div>
                             </div>
                         </div>
@@ -262,8 +262,8 @@
                                         Factura Proveedor
                                     </th>
                                     @*<th>
-                                    Importe Total
-                                    </th>*@
+                                        Importe Total
+                                        </th>*@
                                     <th></th>
                                 </tr>
                             </thead>
@@ -416,6 +416,7 @@
 
     Modal_Custom datos_eta { get; set; } = null!;
     List<Archivo> Archivos = new();
+    private List<EtaNTDTO> ordenesFiltradas;
 
     protected override async Task OnInitializedAsync()
     {
@@ -428,6 +429,7 @@
                 await Obtener_Orden();
             }
         }
+
     }
 
     private async Task Obtener_Orden()
@@ -539,7 +541,8 @@
             }
             else
             {
-                ordens = responseHttp.Response;
+                ordens = responseHttp.Response.Where(o => !string.IsNullOrEmpty(o.Producto) || !string.IsNullOrEmpty(o.MdVenta))
+                .ToList();
             }
         }
         catch (Exception e)
