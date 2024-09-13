@@ -168,70 +168,72 @@ namespace GComFuelManager.Shared.Modelos
         public Gestión_EstadosDTO Obtener_Orden_Gestion_Estado()
         {
             Gestión_EstadosDTO gestion_ = new();
-            gestion_.Referencia = FolioSyn;
-            gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
-
-            if (Tad is not null)
-                if (!string.IsNullOrEmpty(Tad.Den))
-                    gestion_.Unidad_Negocio = Tad.Den;
-
-            gestion_.EstatusOrden = Obtener_Estado_De_Orden;
-
-            gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
-            gestion_.Bol = Orden?.BatchId;
-            gestion_.MdVenta = Modelo_Venta_Orden.ToString();
-            //gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
-            gestion_.Cliente = Obtener_Cliente_De_Orden;
-            gestion_.Destino = Obtener_Destino_De_Orden;
-            gestion_.Producto = Obtener_Producto_De_Orden;
-            if (Tonel is not null)
-                gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
-                        Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
-                        Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
-                        Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
-            gestion_.VolCar = Orden?.Vol;
-            gestion_.Transportista = Tonel?.Transportista?.Den;
-            gestion_.Unidad = Obtener_Tonel_De_Orden;
-            gestion_.Operador = Chofer?.FullName;
-            gestion_.Numero_Factura = Datos_Facturas?.Numero_Orden;
-            gestion_.Factura_MGC = Datos_Facturas?.Factura_MGC;
-            gestion_.Factura_MexicoS = Datos_Facturas?.Factura_MexicoS;
-            gestion_.Factura_DCL = Datos_Facturas?.Factura_DCL;
-            gestion_.Factura_Energas = Datos_Facturas?.Factura_Energas;
-            if (HistorialEstados is not null)
+            if (Orden?.OrdEmbDet?.Id_Tad != 1)
             {
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "1. Asignado") is not null)
-                    gestion_.Asignado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "1. Asignado").Fecha_Actualizacion.ToString();
+                gestion_.Referencia = FolioSyn;
+                gestion_.FechaPrograma = Fchcar?.ToString("yyyy-MM-dd");
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "2. Cargado") is not null)
-                    gestion_.Cargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "2. Cargado").Fecha_Actualizacion.ToString();
+                if (Tad is not null)
+                    if (!string.IsNullOrEmpty(Tad.Den))
+                        gestion_.Unidad_Negocio = Tad.Den;
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino") is not null)
-                    gestion_.Transito_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino").Fecha_Actualizacion.ToString();
+                gestion_.EstatusOrden = Obtener_Estado_De_Orden;
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "4. Fuera de destino") is not null)
-                    gestion_.Fuera_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "4. Fuera de destino").Fecha_Actualizacion.ToString();
+                gestion_.FechaCarga = Obtener_Fecha_De_Carga_De_Orden.ToString("yyyy-MM-dd HH:mm:ss");
+                gestion_.Bol = Orden?.BatchId;
+                gestion_.MdVenta = Modelo_Venta_Orden.ToString();
+                //gestion_.DeliveryRack = Destino?.Cliente?.Tipven ?? string.Empty;
+                gestion_.Cliente = Obtener_Cliente_De_Orden;
+                gestion_.Destino = Obtener_Destino_De_Orden;
+                gestion_.Producto = Obtener_Producto_De_Orden;
+                if (Tonel is not null)
+                    gestion_.VolNat = Compartment == 1 ? Convert.ToDouble(Tonel.Capcom) :
+                            Compartment == 2 ? Convert.ToDouble(Tonel.Capcom2) :
+                            Compartment == 3 ? Convert.ToDouble(Tonel.Capcom3) :
+                            Compartment == 4 ? Convert.ToDouble(Tonel.Capcom4) : Vol;
+                gestion_.VolCar = Orden?.Vol;
+                gestion_.Transportista = Tonel?.Transportista?.Den;
+                gestion_.Unidad = Obtener_Tonel_De_Orden;
+                gestion_.Operador = Chofer?.FullName;
+                gestion_.Numero_Factura = Datos_Facturas?.Numero_Orden;
+                gestion_.Factura_MGC = Datos_Facturas?.Factura_MGC;
+                gestion_.Factura_MexicoS = Datos_Facturas?.Factura_MexicoS;
+                gestion_.Factura_DCL = Datos_Facturas?.Factura_DCL;
+                gestion_.Factura_Energas = Datos_Facturas?.Factura_Energas;
+                if (HistorialEstados is not null)
+                {
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "1. Asignado") is not null)
+                        gestion_.Asignado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "1. Asignado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "5. Dentro de destino") is not null)
-                    gestion_.Dentro_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "5. Dentro de destino").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "2. Cargado") is not null)
+                        gestion_.Cargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "2. Cargado").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga") is not null)
-                    gestion_.Proceso_Descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino") is not null)
+                        gestion_.Transito_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "3. En tránsito a destino").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "7. Descargado") is not null)
-                    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "7. Descargado").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "4. Fuera de destino") is not null)
+                        gestion_.Fuera_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "4. Fuera de destino").Fecha_Actualizacion.ToString();
 
-                if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada") is not null)
-                    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "5. Dentro de destino") is not null)
+                        gestion_.Dentro_Destino = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "5. Dentro de destino").Fecha_Actualizacion.ToString();
 
-                //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
-                //    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga") is not null)
+                        gestion_.Proceso_Descarga = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "6. En proceso de descarga").Fecha_Actualizacion.ToString();
 
-                //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
-                //    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "7. Descargado") is not null)
+                        gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "7. Descargado").Fecha_Actualizacion.ToString();
 
+                    if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada") is not null)
+                        gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "8. Orden Cancelada").Fecha_Actualizacion.ToString();
+
+                    //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "9_Descargado") is not null)
+                    //    gestion_.Descargado = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "9_Descargado").Fecha_Actualizacion.ToString();
+
+                    //if (HistorialEstados.FirstOrDefault(x => x.Estado != null && x.Estado.den == "10_Orden cancelada") is not null)
+                    //    gestion_.Orden_Cancelada = HistorialEstados.First(x => x.Estado != null && x.Estado.den == "10_Orden cancelada").Fecha_Actualizacion.ToString();
+
+                }
             }
-
             return gestion_;
         }
         public EtaNTDTO Obtener_OrdenesETA()
@@ -271,7 +273,7 @@ namespace GComFuelManager.Shared.Modelos
                 gestion_.Fecha_llegada = Orden?.OrdEmbDet?.Fchlleest?.ToString("dd-MM-yyyy hh:mm:ss");
                 gestion_.Precio = Pre;
             }
-           
+
 
             return gestion_;
         }

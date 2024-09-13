@@ -103,10 +103,11 @@ namespace GComFuelManager.Server.Controllers
                 {
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
                     //x.Destino!.Cliente!.Tipven!.Contains("terno") DELIVERY'S
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes().AsNoTracking()
                         .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin  && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Delivery && x.Codtad == id_terminal)
                         .Include(x => x.Datos_Facturas)
                           .Include(x => x.Orden)
+                           .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -133,10 +134,11 @@ namespace GComFuelManager.Server.Controllers
                 {
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
 
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes().AsNoTracking()
                         .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && x.Modelo_Venta_Orden == Shared.Enums.Tipo_Venta.Rack && x.Codtad == id_terminal)
                         .Include(x => x.Datos_Facturas)
                           .Include(x => x.Orden)
+                           .ThenInclude(x => x.OrdEmbDet)
                         .Include(x => x.Chofer)
                         .Include(x => x.Destino)
                         .ThenInclude(x => x.Cliente)
@@ -193,7 +195,7 @@ namespace GComFuelManager.Server.Controllers
                 {
                     List<Gestión_EstadosDTO> Ordenes = new List<Gestión_EstadosDTO>();
 
-                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes()
+                    var ordenesTotales = await context.OrdenEmbarque.IgnoreAutoIncludes().AsNoTracking()
                         .Where(x => x.Fchcar >= gestión_Estados.DateInicio && x.Fchcar <= gestión_Estados.DateFin && x.Codtad == id_terminal)
                         .Include(x => x.Orden)
                         .ThenInclude(x => x.OrdEmbDet)

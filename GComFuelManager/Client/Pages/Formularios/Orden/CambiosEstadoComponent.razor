@@ -364,7 +364,7 @@
             }
             else
             {
-                ordens = responseHttp.Response!;
+                ordens = responseHttp.Response.Where(o => !string.IsNullOrEmpty(o.MdVenta)).ToList();
             }
         }
         catch (Exception e)
