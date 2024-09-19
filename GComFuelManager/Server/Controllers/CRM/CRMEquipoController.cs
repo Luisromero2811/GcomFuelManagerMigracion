@@ -241,6 +241,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 var allVendedores = await context.CRMVendedores
                     .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo)
+                    .Include(x => x.Division)
                     .OrderBy(x => x.Nombre)
                     .ToListAsync();
 

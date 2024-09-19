@@ -17,61 +17,126 @@
                 </div>
             </Header>
             <Body>
-                <div class="col-12 row">
-                    <div class="col-4">
-                        <label><b>Nombre de oportunidad:</b></label>
-                        <p>@detalle.Nombre_Opor</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Unidad de medida:</b></label>
-                        <p>@detalle.UnidadMedida</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Importe:</b></label>
-                        <p>@detalle.ValorOportunidad.ToString("N2", CultureInfo.InvariantCulture)</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Periodo:</b></label>
-                        <p>@detalle.Periodo?.Valor</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Cuenta:</b></label>
-                        <p>@detalle.CRMCliente?.Nombre</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Vendedor:</b></label>
-                        <p>@detalle.Vendedor?.Nombre</p>
-                    </div>
-                    <div class="col-4">
-                        <label><b>Próximo paso:</b></label>
-                        <p>@detalle.Prox_Paso</p>
-                    </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <b>Datos de contacto</b>
-                        </div>
-                        <div class="card-body">
-                            <div class="col-12 row">
-                                <div class="col-4">
-                                    <label><b>Nombre</b></label>
-                                    <p>@detalle.Contacto?.Nombre @detalle.Contacto?.Apellidos</p>
-                                </div>
-                                <div class="col-4">
-                                    <label><b>Correo</b></label>
-                                    <p>@detalle.Contacto?.Correo</p>
-                                </div>
-                                <div class="col-4">
-                                    <label><b>Teléfono móvil</b></label>
-                                    <p>@detalle.Contacto?.Tel_Movil</p>
-                                </div>
-                                <div class="col-4">
-                                    <label><b>Teléfono oficina</b></label>
-                                    <p>@detalle.Contacto?.Tel_Oficina</p>
-                                </div>
+                <Card HeaderText="Datos principales">
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-md-4 col-12">
+                                <label><b>Nombre de oportunidad:</b></label>
+                                <p>@detalle.Nombre_Opor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Origen de oportunidad:</b></label>
+                                <p>@detalle.OrigenProducto?.Valor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Tipo de producto:</b></label>
+                                <p>@detalle.TipoProducto?.Valor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Cuenta:</b></label>
+                                <p>@detalle.CRMCliente?.Nombre</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Vendedor:</b></label>
+                                <p>@detalle.Vendedor?.Fullname</p>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Datos de contacto">
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-md-4 col-12">
+                                <label><b>Nombre</b></label>
+                                <p>@detalle.Contacto?.Nombre @detalle.Contacto?.Apellidos</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Correo</b></label>
+                                <p>@detalle.Contacto?.Correo</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Teléfono móvil</b></label>
+                                <p>@detalle.Contacto?.Tel_Movil</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Teléfono oficina</b></label>
+                                <p>@detalle.Contacto?.Tel_Oficina</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Datos de importe">
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-md-4 col-12">
+                                <label><b>Unidad de medida:</b></label>
+                                <p>@detalle.UnidadMedida?.Valor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Cantidad de la oportunidad:</b></label>
+                                <p>@detalle.CantidadLts.ToString("N", CultureInfo.InvariantCulture)</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Precio:</b></label>
+                                <p>$@detalle.PrecioLts.ToString("N", CultureInfo.InvariantCulture)</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Total de litros:</b></label>
+                                <p>@detalle.TotalLts.ToString("N", CultureInfo.InvariantCulture)</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Periodo:</b></label>
+                                <p>@detalle.Periodo?.Valor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Importe total:</b></label>
+                                <p>$@detalle.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture)</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Datos adicionales">
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-md-4 col-12">
+                                <label><b>Cantidad de estaciones:</b></label>
+                                <p>@detalle.CantidadEstaciones</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Forma de pago:</b></label>
+                                <p>@detalle.FormaPago?.Valor</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Dias de pago:</b></label>
+                                <p>@detalle.DiasCredito?.Valor</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Modelo de venta:</b></label>
+                                <p>@detalle.ModeloVenta?.Valor</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Volumen:</b></label>
+                                <p>@detalle.Volumen?.Valor</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Etapa de venta:</b></label>
+                                <p>@detalle.EtapaVenta?.Valor</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Probabilidad:</b></label>
+                                <p>@detalle.Probabilidad %</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Fecha de cierre:</b></label>
+                                <p>@detalle.FechaCierre</p>
+                            </div>
+                            <div class="col-4">
+                                <label><b>Tipo:</b></label>
+                                <p>@detalle.Tipo?.Valor</p>
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
             </Body>
         </Card>
     </Authorized>
@@ -93,7 +158,7 @@
         try
         {
             loading_info = true;
-            var response = await http.Get<CRMOportunidadDetalleDTO>($"api/crmoportunidad/{Id}");
+            var response = await http.Get<CRMOportunidadDetalleDTO>($"api/crmoportunidad/{Id}/detalle");
             if (response.Error)
             {
                 loading_info = false;
