@@ -11,7 +11,6 @@
         public string Tel_Oficina { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
-        public bool Activo { get; set; }
 
     }
 }

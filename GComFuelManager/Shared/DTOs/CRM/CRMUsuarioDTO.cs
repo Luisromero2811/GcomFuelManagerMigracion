@@ -18,6 +18,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         //Roles
         public int? IDRolCRM { get; set; }
         public List<CRMRol> Roles { get; set; } = new List<CRMRol>();
+        public List<int> RolesAsignados { get; set; } = new List<int>();
         //Vendedor
         public int? IDVendedor { get; set; }
         //Originador
