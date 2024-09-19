@@ -17,132 +17,219 @@
                 </NavLink>
             </Header>
             <Body>
-                <EditForm Model="Oportunidad" class="col-12 row gy-2 gx-3" OnValidSubmit="GuardarOportunidad" Context="OPORTUNIDADFORM">
+                <EditForm Model="Oportunidad" class="col-12 g-2" OnValidSubmit="GuardarOportunidad" Context="OPORTUNIDADFORM">
                     <FluentValidationValidator Validator="validator" />
                     <ValidationSummary />
-                    <div class="col-md-4 col-12">
-                        <label>Nombre de oportunidad</label>
-                        <InputText @bind-Value="Oportunidad.Nombre_Opor" class="form-control" />
-                        <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Unidad de medida</label>
-                        <InputSelect @bind-Value="Oportunidad.UnidadMedidaId" class="form-select">
-                            <option>-- seleccione una medida --</option>
-                            @foreach (var item in Medida)
-                            {
-                                <option value="@item.Id">@item.Abreviacion</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Importe</label>
-                        <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" />
-                        <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Periodo</label>
-                        <InputSelect @bind-Value="Oportunidad.PeriodoId" class="form-select">
-                            <option>-- seleccione un periodo --</option>
-                            @foreach (var item in Periodos)
-                            {
-                                <option value="@item.Id">@item.Valor</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Cuenta</label>
-                        <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
-                                        @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id" On_Change_Method="ObtenerContacto">
-                            <RenderValue Context="item">
-                                @item.Nombre
-                            </RenderValue>
-                            <Render Context="item">
-                                @item.Nombre
-                            </Render>
-                        </DropDownFilter>
-                        <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
-                        <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Contacto</label>
-                        <InputSelect @bind-Value="Oportunidad.ContactoId" class="form-select">
-                            <option>-- seleccione un contacto --</option>
-                            @foreach (var item in Contactos)
-                            {
-                                <option value="@item.Id">
-                                    @item.Nombre @item.Apellidos
-                                    @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
-                                    @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
-                                </option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Proximo paso</label>
-                        <InputTextArea class="form-control" @bind-Value="Oportunidad.Prox_Paso" />
-                        <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Origen de contacto</label>
-                        <InputSelect @bind-Value="Oportunidad.OrigenId" class="form-select">
-                            <option>-- seleccione un origen --</option>
-                            @foreach (var item in Origen)
-                            {
-                                <option value="@item.Id">@item.Valor</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.OrigenId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Asignado a</label>
-                        <DropDownFilter Listado="Vendedores" TListado="Vendedor" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
-                                        @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
-                            <RenderValue Context="item">
-                                @item.Nombre
-                            </RenderValue>
-                            <Render Context="item">
-                                @item.Nombre
-                            </Render>
-                        </DropDownFilter>
-                        <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
-                        <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Tipo</label>
-                        <InputSelect @bind-Value="Oportunidad.TipoId" class="form-select">
-                            <option>-- seleccione un tipo --</option>
-                            @foreach (var item in Tipos)
-                            {
-                                <option value="@item.Id">@item.Valor</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.TipoId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Fecha de cierre</label>
-                        <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCierre" class="form-control" />
-                        <ValidationMessage For="@(()=>Oportunidad.FechaCierre)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Etapa de venta</label>
-                        <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select">
-                            <option>-- seleccione una etapa de venta--</option>
-                            @foreach (var item in Etapas)
-                            {
-                                <option value="@item.Id">@item.Valor</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(()=>Oportunidad.EtapaVentaId)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Probabilidad</label>
-                        <InputNumber @bind-Value="Oportunidad.Probabilidad" class="form-control" />
-                        <ValidationMessage For="@(()=>Oportunidad.Probabilidad)" />
-                    </div>
+                    <Card HeaderText="Datos pricipales" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <label>Nombre de oportunidad</label>
+                                <InputText @bind-Value="Oportunidad.Nombre_Opor" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.Nombre_Opor)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Origen de producto</label>
+                                <InputSelect @bind-Value="Oportunidad.OrigenPrductoId" class="form-select">
+                                    <option>-- seleccione un origen de producto --</option>
+                                    @foreach (var item in OrigenProductos)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.OrigenPrductoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Tipo de producto</label>
+                                <InputSelect @bind-Value="Oportunidad.TipoProductoId" class="form-select">
+                                    <option>-- seleccione un tipo de producto --</option>
+                                    @foreach (var item in TipoProductos)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.TipoProductoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Cuenta</label>
+                                <DropDownFilter Listado="Clientes" TListado="CRMCliente" TValue="int" Default_Placeholder="Seleccione una cuenta" FiltrarValor="ObtenerClientes"
+                                                @bind-Valor="@Oportunidad.CuentaId" Propiedad_Valor="Id" On_Change_Method="ObtenerContacto">
+                                    <RenderValue Context="item">
+                                        @item.Nombre
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @item.Nombre
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
+                                <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Contacto</label>
+                                <InputSelect @bind-Value="Oportunidad.ContactoId" class="form-select">
+                                    <option>-- seleccione un contacto --</option>
+                                    @foreach (var item in Contactos)
+                                    {
+                                        <option value="@item.Id">
+                                            @item.Nombre @item.Apellidos
+                                            @(!string.IsNullOrEmpty(item.Correo) ? $"/{item.Correo}" : string.Empty)
+                                            @(!string.IsNullOrEmpty(item.Tel_Movil) ? $"/{item.Tel_Movil}" : string.Empty)
+                                        </option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Asignado a</label>
+                                <DropDownFilter Listado="Vendedores" TListado="CRMVendedorDTO" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                                @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
+                                    <RenderValue Context="item">
+                                        @item.Fullname
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @item.Fullname
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
+                                <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Importe" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <label>Periodo</label>
+                                <InputSelect @bind-Value="Oportunidad.PeriodoId" class="form-select">
+                                    <option>-- seleccione un periodo --</option>
+                                    @foreach (var item in Periodos)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.PeriodoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Unidad de medida</label>
+                                <InputSelect @bind-Value="Oportunidad.UnidadMedidaId" class="form-select" onchange="@CalcularImporte()">
+                                    <option>-- seleccione una medida --</option>
+                                    @foreach (var item in Medida)
+                                    {
+                                        <option value="@item.Id">@item.Abreviacion</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.UnidadMedidaId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Cantidad de la oportunidad</label>
+                                <InputNumber @bind-Value="Oportunidad.CantidadLts" class="form-control" oninput="@CalcularImporte()" />
+                                <ValidationMessage For="@(()=>Oportunidad.CantidadLts)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Precio del producto</label>
+                                <InputNumber @bind-Value="Oportunidad.PrecioLts" class="form-control" oninput="@CalcularImporte()" />
+                                <ValidationMessage For="@(()=>Oportunidad.PrecioLts)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Total litros de la oportunidad</label>
+                                <InputNumber @bind-Value="Oportunidad.TotalLts" class="form-control" disabled />
+                                <ValidationMessage For="@(()=>Oportunidad.TotalLts)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Importe mensual</label>
+                                <InputNumber @bind-Value="Oportunidad.ValorOportunidad" class="form-control" disabled />
+                                <ValidationMessage For="@(()=>Oportunidad.ValorOportunidad)" />
+                            </div>
+                        </Body>
+                    </Card>
+                    <Card HeaderText="Informacion adicional" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <label>Cantidad de estaciones</label>
+                                <InputNumber @bind-Value="Oportunidad.CantidadEstaciones" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.CantidadEstaciones)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Modelo de venta</label>
+                                <InputSelect @bind-Value="Oportunidad.ModeloVentaId" class="form-select">
+                                    <option>-- seleccione un modelo de venta --</option>
+                                    @foreach (var item in ModeloVenta)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.ModeloVentaId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Equipo de transporte</label>
+                                <InputSelect @bind-Value="Oportunidad.VolumenId" class="form-select">
+                                    <option>-- seleccione un tipo de transporte --</option>
+                                    @foreach (var item in Volumen)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.VolumenId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Forma de pago</label>
+                                <InputSelect @bind-Value="Oportunidad.FormaPagoId" class="form-select">
+                                    <option>-- seleccione una forma de pago --</option>
+                                    @foreach (var item in FormaPago)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.FormaPagoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Condiciones de días</label>
+                                <InputSelect @bind-Value="Oportunidad.DiasPagoId" class="form-select">
+                                    <option>-- seleccione un dia de pago --</option>
+                                    @foreach (var item in DiasCredito)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.DiasPagoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Proximo paso</label>
+                                <InputTextArea class="form-control" @bind-Value="Oportunidad.Prox_Paso" />
+                                <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Tipo</label>
+                                <InputSelect @bind-Value="Oportunidad.TipoId" class="form-select">
+                                    <option>-- seleccione un tipo --</option>
+                                    @foreach (var item in Tipos)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.TipoId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Fecha de cierre</label>
+                                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCierre" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.FechaCierre)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Etapa de venta</label>
+                                <InputSelect @bind-Value="Oportunidad.EtapaVentaId" class="form-select">
+                                    <option>-- seleccione una etapa de venta--</option>
+                                    @foreach (var item in Etapas)
+                                    {
+                                        <option value="@item.Id">@item.Valor</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(()=>Oportunidad.EtapaVentaId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Probabilidad</label>
+                                <InputNumber @bind-Value="Oportunidad.Probabilidad" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.Probabilidad)" />
+                            </div>
+                        </Body>
+                    </Card>
                     <div class="col-12">
                         <div class="col-3">
                             <button type="submit" class="btn gcom-bg-amarillo col-12">
@@ -165,19 +252,18 @@
     [Parameter] public int Id { get; set; }
 
     CRMOportunidadPostDTO Oportunidad = new();
-
-    List<Catalogo_Fijo> Origen = new();
-    List<Catalogo_Fijo> Productos = new();
+    List<Catalogo_Fijo> OrigenProductos = new();
+    List<Catalogo_Fijo> TipoProductos = new();
     List<Catalogo_Fijo> Medida = new();
     List<Catalogo_Fijo> Periodos = new();
-    List<Catalogo_Fijo> Modelo = new();
+    List<Catalogo_Fijo> ModeloVenta = new();
     List<Catalogo_Fijo> Volumen = new();
-    List<Catalogo_Fijo> Pago = new();
-    List<Catalogo_Fijo> Condiciones = new();
+    List<Catalogo_Fijo> FormaPago = new();
+    List<Catalogo_Fijo> DiasCredito = new();
     List<Catalogo_Fijo> Tipos = new();
     List<Catalogo_Fijo> Etapas = new();
 
-    List<Vendedor> Vendedores = new();
+    List<CRMVendedorDTO> Vendedores = new();
     List<CRMCliente> Clientes = new();
     List<CRMContactoDTO> Contactos = new();
 
@@ -186,18 +272,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != 0)
-            await ObtenerOportunidad();
-
         await Task.WhenAll(
         ObtenerCatalogoEtapa(),
         ObtenerCatalogoMedida(),
-        ObtenerCatalogoOrigen(),
         ObtenerCatalogoTipo(),
         ObtenerVendedores(),
         ObtenerClientes(),
         ObtenerCatalogoPeriodo(),
+        ObtenerCatalogoProductoOrigen(),
+        ObtenerCatalogoProductoTipo(),
+        ObtenerCatalogoModeloVenta(),
+        ObtenerCatalogoVolumen(),
+        ObtenerCatalogoFormaPago(),
+        ObtenerCatalogoDiasCredito(),
         ObtenerContacto());
+
+        if (Id != 0)
+            await ObtenerOportunidad();
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -209,7 +300,7 @@
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await http.Get<List<Vendedor>>($"api/vendedor/filtrar?{uri}");
+            var response = await http.Get<List<CRMVendedorDTO>>($"api/crmvendedor?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -293,28 +384,6 @@
 
     }
 
-    private async Task ObtenerCatalogoOrigen()
-    {
-        try
-        {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/origen");
-            if (response.Error)
-            {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                Origen = response.Response;
-            }
-        }
-        catch (Exception e)
-        {
-            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-        }
-
-    }
-
     private async Task ObtenerCatalogoPeriodo()
     {
         try
@@ -337,6 +406,138 @@
 
     }
 
+    private async Task ObtenerCatalogoProductoOrigen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/origen/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                OrigenProductos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoProductoTipo()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/tipo/producto");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                TipoProductos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoModeloVenta()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/modelo/venta");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                ModeloVenta = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoVolumen()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/volumen");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Volumen = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoFormaPago()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/forma/pago");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                FormaPago = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerCatalogoDiasCredito()
+    {
+        try
+        {
+            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmoportunidad/catalogo/dias/credito");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                DiasCredito = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
     private async Task ObtenerClientes(string value = "")
     {
         try
@@ -346,7 +547,7 @@
 
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
-            var response = await http.Get<List<CRMCliente>>($"api/crmcliente?{uri}");
+            var response = await http.Get<List<CRMCliente>>($"api/crmcliente/contactos?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -435,6 +636,65 @@
         catch (Exception e)
         {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task CalcularImporte()
+    {
+        var medida = Medida.FirstOrDefault(x => x.Id == Oportunidad.UnidadMedidaId);
+        if (medida is null) return;
+
+        var periodo = Periodos.FirstOrDefault(x => x.Id == Oportunidad.PeriodoId);
+        if (periodo is null) return;
+
+        if (periodo.Valor.ToLower().Equals("semanal"))
+        {
+            if (!string.IsNullOrEmpty(medida.Abreviacion))
+            {
+                if (medida.Abreviacion.ToLower().Equals("lts"))
+                {
+                    Oportunidad.ValorOportunidad = (Oportunidad.CantidadLts * Oportunidad.PrecioLts) * 4;
+                    Oportunidad.TotalLts = Oportunidad.CantidadLts;
+                }
+
+                if (medida.Abreviacion.ToLower().Equals("mxn"))
+                {
+                    Oportunidad.ValorOportunidad = Oportunidad.CantidadLts * 4;
+                    if (!Oportunidad.CantidadLts.IsZero() && !Oportunidad.PrecioLts.IsZero())
+                        Oportunidad.TotalLts = (Oportunidad.CantidadLts / Oportunidad.PrecioLts);
+                }
+
+                if (medida.Abreviacion.ToLower().Equals("m3"))
+                {
+                    Oportunidad.ValorOportunidad = ((Oportunidad.CantidadLts * 1000) * Oportunidad.PrecioLts) * 4;
+                    Oportunidad.TotalLts = (Oportunidad.CantidadLts * 1000);
+                }
+            }
+        }
+
+        if (periodo.Valor.ToLower().Equals("mensual"))
+        {
+            if (!string.IsNullOrEmpty(medida.Abreviacion))
+            {
+                if (medida.Abreviacion.ToLower().Equals("lts"))
+                {
+                    Oportunidad.ValorOportunidad = (Oportunidad.CantidadLts * Oportunidad.PrecioLts);
+                    Oportunidad.TotalLts = Oportunidad.CantidadLts;
+                }
+
+                if (medida.Abreviacion.ToLower().Equals("mxn"))
+                {
+                    Oportunidad.ValorOportunidad = Oportunidad.CantidadLts;
+                    if (!Oportunidad.CantidadLts.IsZero() && !Oportunidad.PrecioLts.IsZero())
+                        Oportunidad.TotalLts = (Oportunidad.CantidadLts / Oportunidad.PrecioLts);
+                }
+
+                if (medida.Abreviacion.ToLower().Equals("m3"))
+                {
+                    Oportunidad.ValorOportunidad = ((Oportunidad.CantidadLts * 1000) * Oportunidad.PrecioLts);
+                    Oportunidad.TotalLts = (Oportunidad.CantidadLts * 1000);
+                }
+            }
         }
     }
 }

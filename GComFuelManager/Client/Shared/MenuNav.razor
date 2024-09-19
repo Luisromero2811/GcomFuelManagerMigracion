@@ -7,14 +7,13 @@
 <AuthorizeView Context="MenuGeneral">
     <Authorized>
 
-        <div class="col-12 gcom-bg-rojo text-white row m-0 justify-content-between">
-
+        <div class="col-12 gcom-bg-naranja text-black row m-0 justify-content-between">
             <div class="col-md-1 col-2 d-flex">
-                <button class="btn gcom-bg-rojo my-auto text-white" @onclick="OpenMenuLateral" id="buttonSidepanel">
+                <button class="btn gcom-bg-naranja my-auto" @onclick="OpenMenuLateral" id="buttonSidepanel">
                     <i class="fa fa-solid fa-bars"></i>
                 </button>
             </div>
-            <div class="col-md-4 col-10 d-flex gcom-bg-rojo-dark">
+            <div class="col-md-4 col-10 d-flex gcom-bg-naranja-dark text-white">
                 <div class="col d-flex justify-content-start" style="text-overflow:ellipsis; flex-wrap:nowrap;">
                     @if (MenuGeneral.User.Identity is not null)
                     {

@@ -10,5 +10,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string? NombreDivision { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
+        public string Fullname { get => $"{Nombre} {Apellidos}"; }
     }
 }

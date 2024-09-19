@@ -185,13 +185,8 @@ namespace GComFuelManager.Server
                 .HasForeignKey(x => x.CuentaId);
 
             modelBuilder.Entity<CRMOportunidad>()
-                .HasOne(x => x.Origen)
-                .WithMany()
-                .HasForeignKey(x => x.OrigenId);
-
-            modelBuilder.Entity<CRMOportunidad>()
                 .HasOne(x => x.Vendedor)
-                .WithMany()
+                .WithMany(x => x.Oportunidades)
                 .HasForeignKey(x => x.VendedorId);
 
             modelBuilder.Entity<CRMOportunidad>()
@@ -223,6 +218,36 @@ namespace GComFuelManager.Server
                 .HasOne(x => x.Periodo)
                 .WithMany()
                 .HasForeignKey(x => x.PeriodoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.OrigenProducto)
+                .WithMany()
+                .HasForeignKey(x => x.OrigenPrductoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.TipoProducto)
+                .WithMany()
+                .HasForeignKey(x => x.TipoProductoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.ModeloVenta)
+                .WithMany()
+                .HasForeignKey(x => x.ModeloVentaId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Volumen)
+                .WithMany()
+                .HasForeignKey(x => x.VolumenId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.FormaPago)
+                .WithMany()
+                .HasForeignKey(x => x.FormaPagoId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.DiasCredito)
+                .WithMany()
+                .HasForeignKey(x => x.DiasPagoId);
 
             modelBuilder.Entity<CRMContacto>()
                 .HasOne(x => x.Division)
@@ -267,6 +292,10 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<CRMUsuarioDivision>().HasKey(x => new { x.UsuarioId, x.DivisionId });
 
+            modelBuilder.Entity<CRMVendedor>()
+                .HasMany(x => x.Oportunidades)
+                .WithOne(x => x.Vendedor)
+                .HasForeignKey(x => x.VendedorId);
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }

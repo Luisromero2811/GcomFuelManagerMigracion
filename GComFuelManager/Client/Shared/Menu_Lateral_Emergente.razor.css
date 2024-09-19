@@ -6,7 +6,6 @@
     height: 100%;
     top: 0;
     left: 0;
-    background-color: #BA1C15;
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 60px;
@@ -42,6 +41,7 @@
 }
 
 .sidepanel .closebtn {
+    color: black;
     position: absolute;
     top: 0;
     right: 25px;
@@ -62,7 +62,7 @@
     }
 
 .dropdown-menu-side {
-    color: white;
+    color: black;
     padding: 5px;
     width: 100%;
     display: block;
@@ -74,7 +74,7 @@
     width: 100%;
     text-align: left;
     text-decoration: none;
-    color: white;
+    color: black;
     display: block;
     transition: 0.3s;
     font-size: 16px;
@@ -84,13 +84,12 @@
     width: 100%;
     display: block;
     padding: 0px 0px 0px 5px;
-    background-color: #A90B04;
     border-top: 2px white solid;
     border-bottom: 2px white solid;
 }
 
 .dropdown-menu-side:hover, .dropdown-menu-side-item:hover, .sidepanel:hover, .sidepanel-item:hover {
-    color: #EBBF1A;
+    color: #1F1F1F;
 }
 
 ::-webkit-scrollbar {

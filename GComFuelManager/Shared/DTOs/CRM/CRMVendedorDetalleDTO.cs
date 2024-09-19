@@ -18,5 +18,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public List<CRMOriginadorDTO> Originadores { get; set; } = new();
         public List<CRMEquipoDTO> Equipos { get; set; } = new();
         public List<CRMContactoDTO> Contactos { get; set; } = new();
+        public List<CRMOportunidadDTO> Oportunidades { get; set; } = new();
     }
 }

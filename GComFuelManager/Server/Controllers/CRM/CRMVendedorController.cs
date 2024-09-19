@@ -44,7 +44,26 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var vendedores = context.CRMVendedores.AsNoTracking().AsQueryable();
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
+                if (user is null) return NotFound();
+                var vendedores = new List<CRMVendedor>().AsQueryable();
+                if (await userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    vendedores = context.CRMVendedores.Where(x => x.Activo).AsNoTracking().AsQueryable();
+                }
+                else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null) return NotFound();
+                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                    var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId)).Select(x => x.VendedorId).ToListAsync();
+                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.Activo && relaciones.Contains(x.Id)).AsQueryable();
+                }
+                else
+                {
+                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.UserId == user.Id).AsQueryable();
+                }
+
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
                     vendedores = vendedores.Where(v => v.Nombre.ToLower().Contains(dTO.Nombre.ToLower()) || v.Apellidos.ToLower().Contains(dTO.Nombre.ToLower()));
@@ -131,6 +150,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .ThenInclude(x => x.Division)
                     .Include(x => x.Contactos)
                     .ThenInclude(x => x.Cliente)
+                    .Include(x => x.Oportunidades)
+                    .ThenInclude(x => x.CRMCliente)
+                    .Include(x => x.Oportunidades)
+                    .ThenInclude(x => x.Contacto)
+                    .Include(x => x.Oportunidades)
+                    .ThenInclude(x => x.EtapaVenta)
                     .Select(x => mapper.Map<CRMVendedor, CRMVendedorDetalleDTO>(x))
                     .SingleOrDefaultAsync();
                 if (vendedor is null) { return NotFound(); }
