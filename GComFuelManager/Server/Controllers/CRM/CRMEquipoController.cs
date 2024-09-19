@@ -46,22 +46,33 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (await manager.IsInRoleAsync(user, "Admin"))
                 {
-                    equipos = context.CRMEquipos
+                    equipos = context.CRMEquipos.Where(x => x.Activo)
+                    .AsNoTracking()
                     .Include(x => x.Originador)
                     .Include(x => x.Division)
-                    .AsNoTracking()
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "VER_EQUIPOS"))
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
                 {
-                    List<int> divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).Select(x => x.DivisionId).ToListAsync();
-                    equipos = context.CRMEquipos.Where(x => x.Activo && divisiones.Any(y => y == x.DivisionId))
+                    var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null) return NotFound();
+
+                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id)
                     .Include(x => x.Originador)
                     .Include(x => x.Division)
-                    .AsNoTracking()
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
+                }
+                else
+                {
+                    var vendedor = await context.CRMVendedores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (vendedor is null) return NotFound();
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                        .Where(x => x.Equipo != null && x.Equipo.Activo && x.VendedorId == vendedor.Id)
+                        .Include(x => x.Equipo)
+                        .Select(x => x.EquipoId).ToListAsync();
+                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.Id)).IgnoreAutoIncludes().AsQueryable();
                 }
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))
@@ -274,7 +285,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (await manager.IsInRoleAsync(user, "Admin"))
                 {
-                    allVendedores = await context.CRMVendedores
+                    allVendedores = await context.CRMVendedores.AsNoTracking()
                         .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo)
                         .Include(x => x.Division)
                         .OrderBy(x => x.Nombre)
@@ -282,10 +293,17 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
                 {
-                    List<int> divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).Select(x => x.DivisionId).ToListAsync();
+                    //List<int> divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).Select(x => x.DivisionId).ToListAsync();
 
-                    allVendedores = await context.CRMVendedores
-                        .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo && divisiones.Any(y => y == x.DivisionId))
+                    //allVendedores = await context.CRMVendedores
+                    //    .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo && divisiones.Any(y => y == x.DivisionId))
+                    //    .Include(x => x.Division)
+                    //    .OrderBy(x => x.Nombre)
+                    //    .ToListAsync();
+
+                    allVendedores = await context.CRMVendedores.AsNoTracking()
+                        .Where(x => !string.IsNullOrEmpty(x.Nombre) && !string.IsNullOrEmpty(x.Apellidos) && x.Activo)
+                        .Include(x => x.Division)
                         .OrderBy(x => x.Nombre)
                         .ToListAsync();
                 }

@@ -84,7 +84,7 @@
                                     <th>Division</th>
                                     <th>Correo</th>
                                     <th>Telefono movil</th>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
                                         <Authorized Context="VERVENDEDOR">
                                             <th>Ver detalle</th>
                                         </Authorized>
@@ -97,7 +97,7 @@
                                     <td>@item.NombreDivision</td>
                                     <td>@item.Correo</td>
                                     <td>@item.Tel_Movil</td>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
                                         <Authorized Context="VERVENDEDOR">
                                             <td>
                                                 <a class="btn gcom-bg-amarillo" href="crm/vendedor/@item.Id">

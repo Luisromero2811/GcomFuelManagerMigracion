@@ -114,7 +114,14 @@
                             </div>
                             <div class="col-4 row">
                                 <label><b>Asignado a: </b></label>
-                                <p>@detalle.Vendedor?.Nombre @detalle.Vendedor?.Apellidos</p>
+                                <AuthorizeView>
+                                    <Authorized Context="VERDETALLEVENDEDOR">
+                                        <p><a href="crm/vendedor/@detalle.VendedorId">@detalle.Vendedor?.Fullname</a></p>
+                                    </Authorized>
+                                    <NotAuthorized Context="VERDETALLEVENDEDOR">
+                                        <p>@detalle.Vendedor?.Fullname</p>
+                                    </NotAuthorized>
+                                </AuthorizeView>
                             </div>
                             <div class="col-4 row">
                                 <label><b>Fecha de creacion: </b></label>

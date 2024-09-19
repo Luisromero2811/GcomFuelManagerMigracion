@@ -30,6 +30,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public double CantidadLts { get; set; }
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
+        public int EquipoId { get; set; }
         public Catalogo_Fijo? UnidadMedida { get; set; } = null!;
         public CRMVendedorDTO? Vendedor { get; set; } = null!;
         public CRMCliente? CRMCliente { get; set; } = null!;
@@ -43,5 +44,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public Catalogo_Fijo? Volumen { get; set; } = null!;
         public Catalogo_Fijo? FormaPago { get; set; } = null!;
         public Catalogo_Fijo? DiasCredito { get; set; } = null!;
+        public CRMEquipoDTO? Equipo { get; set; } = null!;
     }
 }

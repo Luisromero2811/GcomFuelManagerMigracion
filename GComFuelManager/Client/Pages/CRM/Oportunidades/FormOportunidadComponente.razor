@@ -92,6 +92,23 @@
                                 <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
                                 <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
                             </div>
+                            <div class="col-md-4 col-12">
+                                <label>Equipo</label>
+                                <DropDownFilter Listado="Equipos" TListado="CRMEquipoDTO" TValue="int" Default_Placeholder="Seleccione un equipo" FiltrarValor="ObtenerEquipos"
+                                                @bind-Valor="@Oportunidad.EquipoId" Propiedad_Valor="Id">
+                                    <RenderValue Context="item">
+                                        @item.Nombre
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        <div class="d-flex">
+                                            <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                            <p class="my-auto">@($"{item.Nombre} - {item.Lider}")</p>
+                                        </div>
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
+                                <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
+                            </div>
                         </Body>
                     </Card>
                     <Card HeaderText="Importe" BodyClass="col-12 row">
@@ -266,12 +283,16 @@
     List<CRMVendedorDTO> Vendedores = new();
     List<CRMCliente> Clientes = new();
     List<CRMContactoDTO> Contactos = new();
+    List<CRMEquipoDTO> Equipos = new();
 
     bool loading_info = false;
     bool loading_save = false;
 
     protected override async Task OnInitializedAsync()
     {
+        if (Id != 0)
+            await ObtenerOportunidad();
+
         await Task.WhenAll(
         ObtenerCatalogoEtapa(),
         ObtenerCatalogoMedida(),
@@ -285,10 +306,9 @@
         ObtenerCatalogoVolumen(),
         ObtenerCatalogoFormaPago(),
         ObtenerCatalogoDiasCredito(),
-        ObtenerContacto());
+        ObtenerContacto(),
+        ObtenerEquipos());
 
-        if (Id != 0)
-            await ObtenerOportunidad();
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -556,6 +576,32 @@
             else
             {
                 Clientes = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerEquipos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMEquipoDTO>>($"api/crmequipo?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Equipos = response.Response;
             }
         }
         catch (Exception e)

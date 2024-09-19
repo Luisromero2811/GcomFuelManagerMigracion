@@ -55,35 +55,33 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
                 {
-                    if (await context.CRMOriginadores.AnyAsync(x => x.UserId == user.Id))
+                    var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is not null)
                     {
-                        var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
-                        if (comercial is not null)
-                        {
-                            List<int> equipos = await context.CRMEquipos
-                                .AsNoTracking()
-                                .Where(x => x.LiderId == comercial.Id)
-                                .Select(x => x.Id)
-                                .ToListAsync();
+                        List<int> equipos = await context.CRMEquipos
+                            .AsNoTracking()
+                            .Where(x => x.Activo && x.LiderId == comercial.Id)
+                            .Select(x => x.Id)
+                            .ToListAsync();
 
-                            List<int> vendedoresequipo = await context.CRMEquipoVendedores
-                                .AsNoTracking()
-                                .Where(x => equipos.Contains(x.EquipoId))
-                                .Select(x => x.VendedorId)
-                                .ToListAsync();
+                        List<int?> vendedoresequipo = await context.CRMEquipoVendedores
+                            .AsNoTracking()
+                            .Where(x => equipos.Contains(x.EquipoId))
+                            .GroupBy(x => x.VendedorId)
+                            .Select(x => (int?)x.Key)
+                            .ToListAsync();
 
-                            contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo
-                            && vendedoresequipo.Contains(x.Id))
-                                .Include(x => x.Estatus)
-                                .Include(x => x.Origen)
-                                .Include(x => x.Cliente)
-                                .Include(x => x.Vendedor)
-                                .Include(x => x.Division)
-                                .AsQueryable();
-                        }
+                        contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo
+                        && vendedoresequipo.Contains(x.VendedorId))
+                            .Include(x => x.Estatus)
+                            .Include(x => x.Origen)
+                            .Include(x => x.Cliente)
+                            .Include(x => x.Vendedor)
+                            .Include(x => x.Division)
+                            .AsQueryable();
                     }
                 }
-                else if (await manager.IsInRoleAsync(user, "VER_CONTACTOS"))
+                else
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (vendedor is null) { return NotFound(); }
@@ -165,7 +163,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     {
                         var equipos = await context.CRMEquipos
                             .AsNoTracking()
-                            .Where(x => x.LiderId == originador.Id)
+                            .Where(x => x.Activo && x.LiderId == originador.Id)
                             .Include(x => x.Vendedores)
                             .Select(x => x.Id)
                             .ToListAsync();
@@ -173,11 +171,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                         var equipovendedores = await context.CRMEquipoVendedores
                             .AsNoTracking()
                             .Where(x => equipos.Contains(x.EquipoId))
-                            .Select(x => x.VendedorId)
+                            .GroupBy(x => x.VendedorId)
+                            .Select(x => (int?)x.Key)
                             .ToListAsync();
 
                         contactos = context.CRMContactos.AsNoTracking().Where(x => x.Activo
-                        && equipovendedores.Contains(x.Id))
+                        && equipovendedores.Contains(x.VendedorId))
                                     .Include(x => x.Estatus)
                                     .Include(x => x.Origen)
                                     .Include(x => x.Cliente)
@@ -362,7 +361,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Status"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para estatus"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -380,7 +379,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Origen"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para origenes"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }

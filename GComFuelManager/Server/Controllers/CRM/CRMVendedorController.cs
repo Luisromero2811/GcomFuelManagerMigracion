@@ -57,7 +57,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
                     var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
-                    var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId)).Select(x => x.VendedorId).ToListAsync();
+                    var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
+                        .GroupBy(x => x.VendedorId)
+                        .Select(x => x.Key).ToListAsync();
                     vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.Activo && relaciones.Contains(x.Id)).AsQueryable();
                 }
                 else
@@ -507,7 +509,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                                     var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name);
                                     if (!identityRoleResult.Succeeded)
                                     {
-                                        return BadRequest(new { errors = identityRoleResult.Errors});
+                                        return BadRequest(new { errors = identityRoleResult.Errors });
                                     }
                                 }
                             }
@@ -544,13 +546,13 @@ namespace GComFuelManager.Server.Controllers.CRM
                                     var identityRoleResult = await userManager.AddToRoleAsync(usuario, identityRole.Name);
                                     if (!identityRoleResult.Succeeded)
                                     {
-                                        return BadRequest(new { error = identityRoleResult.Errors});
+                                        return BadRequest(new { error = identityRoleResult.Errors });
                                     }
                                 }
                             }
                             else
                             {
-                                return BadRequest(new { message = $"El permiso con ID {permisoId} no existe en AspNetRoles"});
+                                return BadRequest(new { message = $"El permiso con ID {permisoId} no existe en AspNetRoles" });
                             }
                         }
 
