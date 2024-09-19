@@ -60,12 +60,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                     if (comercial is null) return NotFound();
 
                     var equipos = await context.CRMEquipos.AsNoTracking()
-                        .Where(x => x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
 
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking()
                         .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
 
-                    oportunidades = context.CRMOportunidades.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.VendedorId))
+                    oportunidades = context.CRMOportunidades.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.VendedorId) && equipos.Contains(x.EquipoId))
                         .Include(x => x.UnidadMedida)
                         .Include(x => x.Tipo)
                         .Include(x => x.CRMCliente)
@@ -161,6 +161,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .Include(x => x.Volumen)
                     .Include(x => x.FormaPago)
                     .Include(x => x.DiasCredito)
+                    .Include(x => x.Equipo)
                     .Select(x => mapper.Map<CRMOportunidadDetalleDTO>(x))
                     .FirstOrDefaultAsync();
 
@@ -190,6 +191,27 @@ namespace GComFuelManager.Server.Controllers.CRM
                     oportunidad.DiasPagoId = na.Id;
                 }
 
+                var estatus = await context.Catalogo_Fijo.FirstOrDefaultAsync(x => x.Valor.ToUpper().Equals("GANADO"));
+                if (estatus is not null)
+                {
+                    if (estatus.Id == oportunidad.EtapaVentaId)
+                    {
+
+                        if (!await context.CRMOportunidades.AnyAsync(x => x.ContactoId == oportunidad.ContactoId && x.EtapaVentaId == estatus.Id))
+                        {
+                            var contacto = await context.CRMContactos.FirstOrDefaultAsync(x => x.Id == oportunidad.ContactoId);
+                            if (contacto is not null)
+                            {
+                                var estatuscontacto = await context.Catalogo_Fijo.FirstOrDefaultAsync(x => x.Valor.ToUpper().Equals("CONVERTIDO"));
+                                if (estatuscontacto is not null)
+                                {
+                                    contacto.EstatusId = estatuscontacto.Id;
+                                    context.Update(contacto);
+                                }
+                            }
+                        }
+                    }
+                }
                 if (oportunidad.Id != 0)
                 {
                     context.Update(oportunidad);
@@ -236,7 +258,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Medida"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para unidades de medida"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -254,7 +276,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Tipo"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para tipo"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -272,7 +294,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Etapa"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para etapa de venta"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -290,7 +312,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Periodo"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para el periodo"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -308,7 +330,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Origen_Producto"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para el origen del producto"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -326,7 +348,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Productos"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para los productos"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -344,7 +366,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Modelo_Venta"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para los productos"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -362,7 +384,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Volumen"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para los productos"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -380,7 +402,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Forma_Pago"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para los productos"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }
@@ -398,7 +420,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Oportunidad_Dias_Credito"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para los productos"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
+                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
 
                 return Ok(catalogo_fijo);
             }

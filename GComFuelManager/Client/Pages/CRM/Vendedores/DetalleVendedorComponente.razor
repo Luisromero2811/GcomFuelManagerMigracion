@@ -3,9 +3,9 @@
 @inject IRepositorio http
 @inject SweetAlertService swal
 @inject NavigationManager navigation
-@attribute [Authorize(Roles = "Admin, VER_DETALLE_VENDEDOR")]
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_VENDEDORES")]
 
-<AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+<AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
     <Authorized>
         <Card LoadingContent="loading_info">
             <Header>

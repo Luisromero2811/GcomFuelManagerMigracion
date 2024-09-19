@@ -296,6 +296,11 @@ namespace GComFuelManager.Server
                 .HasMany(x => x.Oportunidades)
                 .WithOne(x => x.Vendedor)
                 .HasForeignKey(x => x.VendedorId);
+
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasOne(x => x.Equipo)
+                .WithMany(x => x.Oportunidades)
+                .HasForeignKey(x => x.EquipoId);
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }

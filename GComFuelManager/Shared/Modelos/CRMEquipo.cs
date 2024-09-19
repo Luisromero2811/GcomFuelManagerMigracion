@@ -12,5 +12,6 @@
         public List<CRMEquipoVendedor> EquipoVendedores { get; set; } = new();
         public List<CRMVendedor> Vendedores { get; set; } = new();
         public CRMDivision Division { get; set; } = null!;
+        public List<CRMOportunidad> Oportunidades { get; set; } = new();
     }
 }

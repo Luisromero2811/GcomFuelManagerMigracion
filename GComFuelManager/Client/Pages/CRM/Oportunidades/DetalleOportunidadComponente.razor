@@ -38,7 +38,35 @@
                             </div>
                             <div class="col-md-4 col-12">
                                 <label><b>Vendedor:</b></label>
-                                <p>@detalle.Vendedor?.Fullname</p>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
+                                    <Authorized Context="VERDETALLEVENDEDOR">
+                                        <p>
+                                            <a href="crm/vendedor/@detalle.VendedorId">@detalle.Vendedor?.Fullname</a>
+                                        </p>
+                                    </Authorized>
+                                    <NotAuthorized Context="VERDETALLEVENDEDOR">
+                                        <p>@detalle.Vendedor?.Fullname</p>
+                                    </NotAuthorized>
+                                </AuthorizeView>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Equipo:</b></label>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                    <Authorized Context="VERDETALLEQEUIPO">
+                                        <div class="d-flex">
+                                            <div class="my-auto" style="background-color:@detalle.Equipo?.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                            <a href="crm/equipo/@detalle.EquipoId">
+                                                <p class="my-auto">@detalle.Equipo?.Nombre</p>
+                                            </a>
+                                        </div>
+                                    </Authorized>
+                                    <NotAuthorized Context="VERDETALLEQEUIPO">
+                                        <div class="d-flex">
+                                            <div class="my-auto" style="background-color:@detalle.Equipo?.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                            <p class="my-auto">@detalle.Equipo?.Nombre</p>
+                                        </div>
+                                    </NotAuthorized>
+                                </AuthorizeView>
                             </div>
                         </div>
                     </Body>

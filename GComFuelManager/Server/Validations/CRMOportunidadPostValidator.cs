@@ -60,6 +60,10 @@ namespace GComFuelManager.Server.Validations
                 .GreaterThan(0)
                 .When(x=>x.FormaPagoId == 95)
                 .WithMessage("Debe seleccionar un dia de pago");
+            RuleFor(x => x.EquipoId)
+                .NotEmpty().WithMessage("El equipo es obligatorio")
+                .GreaterThan(0)
+                .WithMessage("Debe seleccionar un equipo");
             //RuleFor(x => x.FechaCierre)
             //    .GreaterThanOrEqualTo(x => x.FechaCierre).WithMessage($"La fecha de cierre no puede ser menor a {DateTime.Today.ToShortDateString()}");
             RuleFor(x => x.EtapaVentaId)

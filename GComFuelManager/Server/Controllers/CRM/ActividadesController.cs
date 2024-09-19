@@ -106,7 +106,7 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest("No existe el catalogo para asunto");
                 }
 
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToList();
+                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
                 return Ok(catalogo_fijo);
 
             }
@@ -127,7 +127,7 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest("No existe el catalogo para la prioridad");
                 }
 
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToList();
+                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
                 return Ok(catalogo_fijo);
 
             }
@@ -148,7 +148,7 @@ namespace GComFuelManager.Server.Controllers
                     return BadRequest("No existe el catalogo para los estatus");
                 }
 
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Catalogo.Equals(catalogo.Cod)).ToList();
+                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
                 return Ok(catalogo_fijo);
 
             }

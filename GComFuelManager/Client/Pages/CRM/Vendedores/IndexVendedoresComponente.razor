@@ -31,7 +31,7 @@
                     <Tabla Datos="Vendedores">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDORES">
                                     <Authorized Context="ACCIONES">
                                         <th></th>
                                     </Authorized>
@@ -44,7 +44,7 @@
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDORES">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
@@ -57,7 +57,7 @@
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDOR">
+                                <AuthorizeView Roles="Admin, EDITAR_VENDEDOR, ELIMINAR_VENDEDOR, VER_DETALLE_VENDEDORES">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group">
@@ -68,7 +68,7 @@
                                                         </a>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDOR">
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
                                                     <Authorized Context="VERDETALLEVENDEDOR">
                                                         <a class="btn gcom-bg-amarillo" href="/crm/vendedor/@item.Id">
                                                             <i class="fa fa-solid fa-eye" />

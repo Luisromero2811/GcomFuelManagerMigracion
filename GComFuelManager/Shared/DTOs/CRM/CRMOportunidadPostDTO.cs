@@ -26,6 +26,6 @@
         public double CantidadLts { get; set; }
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
-
+        public int EquipoId { get; set; }
     }
 }
