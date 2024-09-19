@@ -1,7 +1,8 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using iText.Commons.Actions.Contexts;
@@ -453,34 +454,157 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var updateUserAsp = await userManager.FindByIdAsync(info.Id_Asp);
+                var usuario = await context.Users
+                    .FirstOrDefaultAsync(x => x.Id == info.Id_Asp);
 
-                if (updateUserAsp != null)
+                if (usuario == null)
                 {
-                    ////Variable para asignacion de los roles
-                    //var roles = info.Roles;
-                    ////Nuevo dato a actualizar del usuario de Asp, solo mandamos el Nombre de usuario 
-                    //updateUserAsp.UserName = info.UserName;
-                    ////Nuevo dato para actualizar la contraseña
-                    //var changepassword = await userManager.ChangePasswordAsync(updateUserAsp, viejaPass, updateUserSistema.Cve);
-                    ////A través de estas acciones, vamos a obtener, remover y volver a agregar el listado de roles
-                    ////Method para obtención de los roles
-                    //var changeGetRoles = await userManager.GetRolesAsync(updateUserAsp);
-                    ////Method para eliminar los roles 
-                    //var resultDeleteRoles = await userManager.RemoveFromRolesAsync(updateUserAsp, changeGetRoles.ToList());
-                    ////Method para mandar el listado de roles
-                    //var resultAddRoles = await userManager.AddToRolesAsync(updateUserAsp, roles);
-                    ////Segundo parametros me pide un string de roles no un listado 
+                    return BadRequest("El usuario no existe");
+                }
+                //Buscamos si el usuario ya esta asignado a un vendedor u originador
+                var vendedorAsignado = await context.CRMVendedores
+                    .FirstOrDefaultAsync(x => x.UserId == info.Id_Asp);
+                var originadorAsignado = await context.CRMOriginadores
+                    .FirstOrDefaultAsync(x => x.UserId == info.Id_Asp);
 
-                    //var resultado = await userManager.UpdateAsync(updateUserAsp);
-                    //if (!resultado.Succeeded)
-                    //{
-                    //    context.Update(oldUser);
-                    //    await context.SaveChangesAsync();
-                    //    return BadRequest();
-                    //}
+                if (!string.IsNullOrEmpty(info.UserName) && usuario.UserName != info.UserName)
+                {
+                    usuario.UserName = info.UserName;
+                    usuario.NormalizedUserName = info.UserName.ToUpper();
                 }
 
+                if (!string.IsNullOrEmpty(info.Password))
+                {
+                    var passwordHasher = new PasswordHasher<IdentityUsuario>();
+                    usuario.PasswordHash = passwordHasher.HashPassword(usuario, info.Password);
+                }
+
+                context.Update(usuario);
+
+                //Obtener los roles actuales del usuario en CRMRolUsuarios
+                var rolesActuales = await context.CRMRolUsuarios
+                    .Where(x => x.UserId == info.Id_Asp)
+                    .ToListAsync();
+
+                //Eliminar roles antiguos que ya no esten en la lista de roles nuevos 
+                foreach (var rolActual in rolesActuales)
+                {
+                    if (!info.Roles.Any(x => x.Id == rolActual.RolId))
+                    {
+                        //Eliminar también los permisos relacionados de Identity
+                        var permisosEliminar = context.CRMRolPermisos
+                            .Where(x => x.RolId == rolActual.RolId)
+                            .Select(x => x.PermisoId)
+                            .ToList();
+                        foreach (var permisoId in permisosEliminar)
+                        {
+                            var identityRole = await roleManager.FindByIdAsync(permisoId.ToString());
+                            if (identityRole != null)
+                            {
+                                var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name);
+                                if (alreadyInRole)
+                                {
+                                    var identityRoleResult = await userManager.RemoveFromRoleAsync(usuario, identityRole.Name);
+                                    if (!identityRoleResult.Succeeded)
+                                    {
+                                        return BadRequest(new { errors = identityRoleResult.Errors});
+                                    }
+                                }
+                            }
+                        }
+
+                        context.Remove(rolActual);
+                    }
+                }
+
+                //Aquí agrego nuevos roles seleccionados que no existan en relación
+                foreach (var rol in info.Roles)
+                {
+                    if (!rolesActuales.Any(x => x.RolId == rol.Id))
+                    {
+                        var nuevoRolUsuario = new CRMRolUsuario
+                        {
+                            UserId = info.Id_Asp,
+                            RolId = rol.Id
+                        };
+                        context.Add(nuevoRolUsuario);
+                        //Asignar los permisos relacionados con el rol en AspNetRoles
+                        var permisos = context.CRMRolPermisos
+                            .Where(x => x.RolId == rol.Id)
+                            .Select(x => x.PermisoId)
+                            .ToList();
+                        foreach (var permisoId in permisos)
+                        {
+                            var identityRole = await roleManager.FindByIdAsync(permisoId.ToString());
+                            if (identityRole != null)
+                            {
+                                var alreadyInRole = await userManager.IsInRoleAsync(usuario, identityRole.Name);
+                                if (!alreadyInRole)
+                                {
+                                    var identityRoleResult = await userManager.AddToRoleAsync(usuario, identityRole.Name);
+                                    if (!identityRoleResult.Succeeded)
+                                    {
+                                        return BadRequest(new { error = identityRoleResult.Errors});
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                return BadRequest(new { message = $"El permiso con ID {permisoId} no existe en AspNetRoles"});
+                            }
+                        }
+
+                    }
+                }
+
+                // Si el usuario ya tiene un vendedor asignado, mostrar un error si intentan cambiarlo
+                if (vendedorAsignado != null && info.IDVendedor != null && vendedorAsignado.Id != info.IDVendedor)
+                {
+                    return BadRequest("El usuario ya está asignado a un vendedor y no puede ser reasignado.");
+                }
+
+                // Si el usuario ya tiene un originador asignado, mostrar un error si intentan cambiarlo
+                if (originadorAsignado != null && info.IDOriginador != null && originadorAsignado.Id != info.IDOriginador)
+                {
+                    return BadRequest("El usuario ya está asignado a un originador y no puede ser reasignado.");
+                }
+
+                // Si el usuario ya tiene asignado un vendedor, ignorar cualquier cambio en vendedor
+                if (vendedorAsignado == null && info.IDVendedor != null)
+                {
+                    var vendedor = await context.CRMVendedores
+                        .FirstOrDefaultAsync(x => x.Id == info.IDVendedor);
+
+                    if (vendedor != null)
+                    {
+                        vendedor.UserId = info.Id_Asp;
+                        context.Update(vendedor);
+                    }
+                    else
+                    {
+                        return BadRequest("El vendedor especificado no existe");
+                    }
+                }
+
+                // Si el usuario ya tiene asignado un originador, ignorar cualquier cambio en originador
+                if (originadorAsignado == null && info.IDOriginador != null)
+                {
+                    var originador = await context.CRMOriginadores
+                        .FirstOrDefaultAsync(x => x.Id == info.IDOriginador);
+
+                    if (originador != null)
+                    {
+                        originador.UserId = info.Id_Asp;
+                        context.Update(originador);
+                    }
+                    else
+                    {
+                        return BadRequest("El originador especificado no existe");
+                    }
+                }
+
+
+                await context.SaveChangesAsync();
                 return Ok();
             }
             catch (Exception e)
@@ -489,68 +613,53 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
-        //[HttpGet("{Id}")]
-        //public async Task<ActionResult> ObtenerUsuarioStatus([FromRoute] string Id)
-        //{
-        //    try
-        //    {
-        //        var usuario = await context.Users
-        //            .Where(x => x.Id == Id)
-        //            .FirstOrDefaultAsync();
-        //        if (usuario == null)
-        //        {
-        //            return NotFound("Usuario no encontrado.");
-        //        }
+        [HttpGet("{Id}")]
+        public async Task<ActionResult> ObtenerUsuarioStatus([FromRoute] string Id)
+        {
+            try
+            {
+                var usuario = await context.Users
+                    .Where(x => x.Id == Id)
+                    .FirstOrDefaultAsync();
+                if (usuario == null)
+                {
+                    return NotFound("Usuario no encontrado.");
+                }
 
-        //        // Inicializar el DTO
-        //        var usuarioDto = new CRMUsuarioDTO
-        //        {
-        //            Id_Asp = usuario.Id,
-        //            UserName = usuario.UserName,
-        //            Password = usuario.PasswordHash,
-        //            Roles = new List<CRMRol>()
-        //        };
+                // Obtener si el usuario es vendedor
+                var vendedor = await context.CRMVendedores
+                    .Where(x => x.UserId == Id)
+                    .FirstOrDefaultAsync();
 
-        //        // Verificar si es vendedor
-        //        var vendedor = await context.CRMVendedores
-        //            .Where(x => x.UserId == Id)
-        //            .Include(x => x.Division) // Incluimos la división
-        //            .FirstOrDefaultAsync();
+                // Obtener si el usuario es originador
+                var originador = await context.CRMOriginadores
+                    .Where(x => x.UserId == Id)
+                    .FirstOrDefaultAsync();
 
-        //        if (vendedor != null)
-        //        {
-        //            usuarioDto.NombreUsuario = vendedor.Nombre;
-        //            usuarioDto.Division = vendedor.Division.Nombre; // Nombre de la división
-        //            usuarioDto.TipoUsuario = "Vendedor";
-        //        }
-        //        else
-        //        {
-        //            // Verificar si es originador
-        //            var originador = await context.CRMOriginadores
-        //                .Where(x => x.UserId == Id)
-        //                .Include(x => x.Division) // Incluimos la división
-        //                .FirstOrDefaultAsync();
+                //Obtener los roles asignados al usuario desde la tabla de relación
+                var rolesAsignados = await context.CRMRolUsuarios
+                    .Where(x => x.UserId == Id)
+                    .Select(x => x.RolId)
+                    .ToListAsync();
+                // DTO para enviar la información al front
+                var usuarioDto = new CRMUsuarioDTO
+                {
+                    Id_Asp = usuario.Id,
+                    UserName = usuario.UserName,
+                    IsVendedor = vendedor != null,
+                    IsComercial = originador != null,
+                    IDVendedor = vendedor?.Id,
+                    IDOriginador = originador?.Id,
+                    IDDivision = vendedor?.DivisionId ?? originador?.DivisionId,  // Relacionar con división
+                    RolesAsignados = rolesAsignados
+                };
 
-        //            if (originador != null)
-        //            {
-        //                usuarioDto.NombreUsuario = originador.Nombre;
-        //                usuarioDto.Division = originador.Division.Nombre; // Nombre de la división
-        //                usuarioDto.TipoUsuario = "Originador";
-        //            }
-        //            else
-        //            {
-        //                return NotFound("Usuario no está asociado ni a un vendedor ni a un originador.");
-        //            }
-        //        }
-
-
-
-        //        return Ok(usuarioDto);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        return BadRequest(e.Message);
-        //    }
-        //}
+                return Ok(usuarioDto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

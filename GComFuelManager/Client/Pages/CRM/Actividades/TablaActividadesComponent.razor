@@ -70,7 +70,7 @@
                         <td>@item.Prioridad</td>
                         <td>@item.Estatus</td>
                         <td>@item.Fch_Inicio.ToString()</td>
-                        <td>@item.Fecha_Mod.ToString()</td>
+                        <td>@(item.Fecha_Mod == null || item.Fecha_Mod == DateTime.MinValue ? "" : item.Fecha_Mod.Value.ToString())</td>
                         <td>@item.Fecha_Ven.ToString()</td>
                         <td>@item.Asignado</td>
                         <td>

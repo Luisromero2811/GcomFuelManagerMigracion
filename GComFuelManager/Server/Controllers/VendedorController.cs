@@ -15,7 +15,7 @@ namespace GComFuelManager.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador, Reportes De Venta, Direccion, Gerencia, Ejecutivo de Cuenta Comercial")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class VendedorController : ControllerBase
     {
         private readonly ApplicationDbContext context;
@@ -74,9 +74,37 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var vendedores = context.CRMVendedores
-                    .Where(x => x.Activo == true)
-                    .ToList();
+                var userName = HttpContext.User?.Identity?.Name;
+
+                if (string.IsNullOrEmpty(userName))
+                {
+                    return NotFound();
+                }
+
+                var user = await userManager.FindByNameAsync(userName);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                var vendedores = new List<CRMVendedor>();
+
+                if (await userManager.IsInRoleAsync(user, "Admin"))
+                {
+                    vendedores = await context.CRMVendedores
+                   .Where(x => x.Activo == true)
+                   .ToListAsync();
+                }
+                else if (await userManager.IsInRoleAsync(user, "CREAR_ACTIVIDAD"))
+                {
+                    var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (vendedor is null)
+                    {
+                        return NotFound();
+                    }
+                    vendedores.Add(vendedor);
+                }
+               
                 return Ok(vendedores);
             }
             catch (Exception e)

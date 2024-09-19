@@ -1,5 +1,5 @@
 ﻿@page "/crm/gestion/usuarios"
-
+@page "/crm/gestion/usuarios/{Id}"
 
 
 @inject SweetAlertService Swal
@@ -46,7 +46,7 @@
                     <div class="col-4 my-1">
                         <!--Divisiones-->
                         <label>Divisiones:</label>
-                        <InputSelect @bind-Value="@info.IDDivision" class="form-control">
+                        <InputSelect @bind-Value="@info.IDDivision" class="form-control" disabled="@isDivisionDisabled">
                             <option>-- Seleccione una Division --</option>
                             @if (Divisiones == null)
                             {
@@ -67,13 +67,16 @@
                     </div>
                     <div class="row g-1 ms-3 align-items-center">
                         <div class="col-auto my-1 d-flex align-items-center">
-                            <RadzenCheckBox @bind-Value="@info.IsComercial" Name="CheckBox1" class="mx-2" />
-                            <RadzenLabel Text="Es Comercial" Component="CheckBox1" class="ms-2" />
+                            @if (isVendedorDisabled == false)
+                            {
+                                <RadzenCheckBox @bind-Value="@info.IsComercial" Name="CheckBox1" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isOriginadorDisabled || isVendedorDisabled))" />
+                                <RadzenLabel Text="Es Comercial" Component="CheckBox1" class="ms-2" />
+                            }
                         </div>
                         @if (info.IsComercial)
                         {
                             <div class="col-4 my-1">
-                                <InputSelect @bind-Value="@info.IDOriginador" class="form-control">
+                                <InputSelect @bind-Value="@info.IDOriginador" class="form-control" disabled="@isOriginadorDisabled">
                                     <option>-- Seleccione un Comercial--</option>
                                     @if (Originadores == null)
                                     {
@@ -87,20 +90,23 @@
                                     {
                                         @foreach (var item in Originadores)
                                         {
-                                            <option value="@item.Id">@item.Nombre</option>
+                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
                                         }
                                     }
                                 </InputSelect>
                             </div>
                         }
                         <div class="col-auto my-1 d-flex align-items-center">
-                            <RadzenCheckBox @bind-Value="@info.IsVendedor" Name="CheckBox1" class="mx-2" />
-                            <RadzenLabel Text="Es Vendedor" Component="CheckBox1" class="ms-2" />
+                            @if (isOriginadorDisabled == false)
+                            {
+                                <RadzenCheckBox @bind-Value="@info.IsVendedor" Name="CheckBox1" class="mx-2" @onchange="@(e => BlockIfDisabled(e, isVendedorDisabled || isOriginadorDisabled))" />
+                                <RadzenLabel Text="Es Vendedor" Component="CheckBox1" class="ms-2" />
+                            }
                         </div>
                         @if (info.IsVendedor)
                         {
                             <div class="col-4 my-1">
-                                <InputSelect @bind-Value="@info.IDVendedor" class="form-control">
+                                <InputSelect @bind-Value="@info.IDVendedor" class="form-control" disabled="@isVendedorDisabled">
                                     <option>-- Seleccione un Vendedor--</option>
                                     @if (Vendedores == null)
                                     {
@@ -114,7 +120,7 @@
                                     {
                                         @foreach (var item in Vendedores)
                                         {
-                                            <option value="@item.Id">@item.Nombre</option>
+                                            <option value="@item.Id">@item.Nombre @item.Apellidos</option>
                                         }
                                     }
                                 </InputSelect>
@@ -124,12 +130,11 @@
                     <div class="col-12 my-1">
                         <label>Roles:</label>
                         <div class="dropdown">
-                            <!-- Texto que simula el dropdown -->
+                            @*//Texto que simula el dropdown*@
                             <div class="dropdown-toggle">
                                 Seleccionar Roles
                             </div>
-
-                            <!-- Menú con checkboxes -->
+                            @*//Menú con checkboxes*@
                             <div class="dropdown-content">
                                 @if (Roles == null)
                                 {
@@ -143,8 +148,12 @@
                                 {
                                     @foreach (var item in Roles)
                                     {
-                                        <label>
-                                            <input type="checkbox" value="@item.Id" @onchange="e => ToggleRole(item, e.Value)" />
+                                        <label for="@item.Id">
+                                            @*<input class="form-check-input" type="checkbox" id="@item.Id" checked="@item.Asignado" @onchange="e => ToggleRole(item, e.Value)" />
+                                                @item.Nombre*@
+                                            <input class="form-check-input" type="checkbox" value="@item.Id"
+                                                   checked="@item.Asignado"
+                                                   @onchange="(e) => ToggleRole(item, e)" />
                                             @item.Nombre
                                         </label>
                                     }
@@ -157,18 +166,23 @@
                             <!-- Fila centrada con justify-content-center -->
                             <div class="row d-flex justify-content-center">
                                 <!-- Botón Agregar, ocupa col-4 -->
-                                <div class="col-4">
-                                    <button class="btn gcom-bg-amarillo col-12" type="submit">
-                                        <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
-                                    </button>
-                                </div>
-
-                                <!-- Botón Guardar Cambios, ocupa col-4 -->
-                                @*<div class="col-4">
-                                        <button class="btn gcom-bg-amarillo col-12" type="button">
+                                @if (isEdit == false)
+                                {
+                                    <div class="col-4">
+                                        <button class="btn gcom-bg-amarillo col-12" type="submit">
+                                            <i class="fa-solid fa-user-plus"></i> <b>Agregar</b>
+                                        </button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <!-- Botón Guardar Cambios, ocupa col-4 -->
+                                    <div class="col-4">
+                                        <button class="btn gcom-bg-amarillo col-12" type="button" @onclick="@EditUser">
                                             <i class="fa-solid fa-floppy-disk"></i> <b>Guardar Cambios</b>
                                         </button>
-                                    </div>*@
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -218,7 +232,11 @@
 </style>
 
 @code {
-   // [Parameter] public string? Id { get; set; }
+    bool isDivisionDisabled = false;
+    bool isVendedorDisabled = false;
+    bool isOriginadorDisabled = false;
+
+    [Parameter] public string? Id { get; set; }
 
     List<CRMDivision> Divisiones { get; set; } = new List<CRMDivision>();
     List<CRMRol> Roles { get; set; } = new List<CRMRol>();
@@ -238,12 +256,23 @@
             Obtener_Vendedores()
             );
 
-        //if (!string.IsNullOrEmpty(Id))
-        //{
-        //    isEdit = true;
-        //    await ObtenerUsuario();
-        //}
+        if (!string.IsNullOrEmpty(Id))
+        {
+            isEdit = true;
+            await ObtenerUsuario();
+            //selectedRoles = info.Roles.Where(x => x.Asignado).ToList();
+        }
     }
+
+    public void BlockIfDisabled(ChangeEventArgs e, bool isDisabled)
+    {
+        if (isDisabled)
+        {
+            // Si está deshabilitado, se evita cambiar el valor
+            e.Value = false;
+        }
+    }
+
 
     public async Task CreateUser()
     {
@@ -281,6 +310,9 @@
     {
         try
         {
+            //Sincronizamos los roles seleccionados con info.Roles
+            info.Roles = selectedRoles.ToList();
+
             var responseHttp = await repositorio.Put<CRMUsuarioDTO>($"api/crmvendedor/editar", info);
             if (responseHttp.Error)
             {
@@ -341,28 +373,30 @@
     }
 
     private List<CRMRol> selectedRoles = new List<CRMRol>(); // Lista de roles seleccionados (como objetos CRMRol)
-
-    private void ToggleRole(CRMRol role, object checkedValue)
+    private void ToggleRole(CRMRol role, ChangeEventArgs e)
     {
-        bool isChecked = (bool)checkedValue;
-
+        bool isChecked = (bool)e.Value;  // Convertir el valor del evento a booleano
+        // Si está seleccionado, añadirlo a la lista de roles seleccionados
         if (isChecked)
         {
-            if (!selectedRoles.Contains(role))
+            if (!selectedRoles.Any(r => r.Id == role.Id))
             {
                 selectedRoles.Add(role);
             }
         }
-        else
+        else // Si no está seleccionado, removerlo de la lista de roles seleccionados
         {
-            if (selectedRoles.Contains(role))
+            var roleToRemove = selectedRoles.FirstOrDefault(r => r.Id == role.Id);
+            if (roleToRemove != null)
             {
-                selectedRoles.Remove(role);
+                selectedRoles.Remove(roleToRemove);
             }
         }
 
-        info.Roles = selectedRoles; // Asignamos solo los nombres de los roles seleccionados al modelo
+        // Actualizar la lista completa de roles en info.Roles
+        info.Roles = selectedRoles.ToList();
     }
+
 
     private async Task Obtener_Vendedores()
     {
@@ -406,26 +440,99 @@
         }
     }
 
-    //private async Task ObtenerUsuario()
-    //{
-    //    try
-    //    {
-    //        var responseHttp = await repositorio.Get<CRMUsuarioDTO>($"api/crmvendedor/{Id}");
-    //        if (responseHttp.Error)
-    //        {
-    //            var message = await responseHttp.ObtenerMensajeError();
-    //            await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
-    //        }
-    //        else
-    //        {
-    //            info = responseHttp.Response!;
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
-    //    }
-    //}
+    private async Task ObtenerUsuario()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Get<CRMUsuarioDTO>($"api/crmvendedor/{Id}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                info = responseHttp.Response!;
+
+                isDivisionDisabled = info.IDDivision != null;
+                isVendedorDisabled = info.IDVendedor != null;
+                isOriginadorDisabled = info.IDOriginador != null;
+
+                //Inicializa la lista de roles seleccionados
+                selectedRoles = Roles.Where(x => info.RolesAsignados.Contains(x.Id)).ToList();
+
+                // Marcamos los checkboxes de roles ya asignados
+                MarcarRolesAsignados(info.RolesAsignados);
+
+                StateHasChanged();
+
+                await SincronizarDatosUsuario();
+
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void MarcarRolesAsignados(List<int> rolesAsignados)
+    {
+        // Itera sobre la lista de roles y marca los checkboxes de roles asignados
+        foreach (var rol in Roles)
+        {
+            rol.Asignado = rolesAsignados.Contains(rol.Id);
+            if (rol.Asignado && !selectedRoles.Any(r => r.Id == rol.Id))
+            {
+                // Asegurarse de que los roles asignados se agreguen a la lista de selectedRoles
+                selectedRoles.Add(rol);
+            }
+        }
+    }
+
+    private async Task SincronizarDatosUsuario()
+    {
+        try
+        {
+            // Sincronizar la división si es que tiene una seleccionada
+            if (info.IDDivision != null)
+            {
+                // Buscar la división en la lista y seleccionarla
+                var divisionSeleccionada = Divisiones.FirstOrDefault(d => d.Id == info.IDDivision);
+                if (divisionSeleccionada != null)
+                {
+                    info.IDDivision = divisionSeleccionada.Id;
+                }
+            }
+
+            // Sincronizar el vendedor si existe
+            if (info.IsVendedor)
+            {
+                var vendedorSeleccionado = Vendedores.FirstOrDefault(v => v.Id == info.IDVendedor);
+                if (vendedorSeleccionado != null)
+                {
+                    info.IDVendedor = vendedorSeleccionado.Id;
+                }
+            }
+
+            // Sincronizar el originador si existe
+            if (info.IsComercial)
+            {
+                var originadorSeleccionado = Originadores.FirstOrDefault(o => o.Id == info.IDOriginador);
+                if (originadorSeleccionado != null)
+                {
+                    info.IDOriginador = originadorSeleccionado.Id;
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
 
 }
 

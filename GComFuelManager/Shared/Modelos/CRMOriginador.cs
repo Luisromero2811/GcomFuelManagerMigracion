@@ -13,7 +13,7 @@ namespace GComFuelManager.Shared.Modelos
         public string Tel_Oficina { get; set; } = string.Empty;
         public string Tel_Movil { get; set; } = string.Empty;
         public string Correo { get; set; } = string.Empty;
-        public bool Activo { get; set; }
+        public bool Activo { get; set; } = true;
         public string? UserId { get; set; } = string.Empty;
         public CRMDivision Division { get; set; } = null!;
         public List<CRMVendedorOriginador> VendedorOriginadores { get; set; } = new();
