@@ -261,6 +261,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
+                //Verificamos que el usuario ya exista
                 var userAsp = await userManager.FindByNameAsync(info.UserName);
                 if (userAsp != null)
                 {
@@ -362,6 +363,29 @@ namespace GComFuelManager.Server.Controllers.CRM
                     }
                     vendedor.UserId = newuserAsp.Id;
                 }
+
+                //Lógica para la relación con la división
+                if (info.IDDivision != null)
+                {
+                    //Checamos si existe la division
+                    var division = await context.CRMDivisiones.FindAsync(info.IDDivision);
+                    if (division == null)
+                    {
+                        return BadRequest(new { message = "La division seleccionada no existe."});
+                    }
+                    //creamos la relación
+                    var usuarioDivision = new CRMUsuarioDivision
+                    {
+                        UsuarioId = newuserAsp.Id,
+                        DivisionId = (int)info.IDDivision
+                    };
+                    context.CRMUsuarioDivisiones.Add(usuarioDivision);
+                }
+                else
+                {
+                    return BadRequest(new { message = "No se ha proporcionado una División valida"});
+                }
+
                 await context.SaveChangesAsync();
                 return Ok(new { success = true, user = newuserAsp });
 
@@ -636,6 +660,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .Where(x => x.UserId == Id)
                     .FirstOrDefaultAsync();
 
+                //Obtener la división del usuario desde CRMUsuarioDivision
+                var usuarioDivision = await context.CRMUsuarioDivisiones
+                    .Where(x => x.UsuarioId == Id)
+                    .Select(x => x.DivisionId)
+                    .FirstOrDefaultAsync();
+
                 //Obtener los roles asignados al usuario desde la tabla de relación
                 var rolesAsignados = await context.CRMRolUsuarios
                     .Where(x => x.UserId == Id)
@@ -650,7 +680,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     IsComercial = originador != null,
                     IDVendedor = vendedor?.Id,
                     IDOriginador = originador?.Id,
-                    IDDivision = vendedor?.DivisionId ?? originador?.DivisionId,  // Relacionar con división
+                    IDDivision = usuarioDivision,
                     RolesAsignados = rolesAsignados
                 };
 

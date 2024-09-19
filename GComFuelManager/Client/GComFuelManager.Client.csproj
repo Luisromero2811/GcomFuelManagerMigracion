@@ -55,6 +55,7 @@
     <None Remove="Pages\CRM\Actividades\" />
     <None Remove="Pages\CRM\Historiales\" />
     <None Remove="Pages\CRM\Usuarios\" />
+    <None Remove="Pages\CRM\Documentos\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Auth\" />
@@ -63,6 +64,7 @@
     <Folder Include="Pages\CRM\Actividades\" />
     <Folder Include="Pages\CRM\Historiales\" />
     <Folder Include="Pages\CRM\Usuarios\" />
+    <Folder Include="Pages\CRM\Documentos\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Formularios\Pedidos\ViewComentariosComponent.razor" />

@@ -252,6 +252,30 @@ namespace GComFuelManager.Server.Controllers
                         .Include(x => x.prioridades)
                         .AsQueryable();
                 }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+
+                    activos = context.CRMActividades
+                        .AsNoTracking()
+                        .Where(x => x.Activo && x.Estados.Valor != "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains(x.Id))
+                         .Include(x => x.vendedor)
+                        .Include(x => x.contacto)
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.prioridades)
+                        .AsQueryable();
+                }
 
                 if (!string.IsNullOrEmpty(activo.Asunto) && !string.IsNullOrWhiteSpace(activo.Asunto))
                     activos = activos.Where(x => x.asuntos != null && x.asuntos.Valor.ToLower().Contains(activo.Asunto.ToLower()));
@@ -331,7 +355,30 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.prioridades)
                    .AsQueryable();
                 }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
 
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+
+                    actividades = context.CRMActividades
+                        .AsNoTracking()
+                        .Where(x => x.Activo && x.Estados.Valor != "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains(x.Id))
+                         .Include(x => x.vendedor)
+                        .Include(x => x.contacto)
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.prioridades)
+                        .AsQueryable();
+                }
 
                 //Filtros
                 if (!string.IsNullOrEmpty(actividadDTO.Asunto) && !string.IsNullOrWhiteSpace(actividadDTO.Asunto))

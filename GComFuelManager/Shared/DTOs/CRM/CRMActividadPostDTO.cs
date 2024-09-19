@@ -7,7 +7,7 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int Asunto { get; set; }
         public DateTime Fecha_Creacion { get; set; } = DateTime.Now;
         public DateTime Fecha_Mod { get; set; }
-        public DateTime Fecha_Inicio { get; set; } = DateTime.Now;
+        public DateTime Fch_Inicio { get; set; } = DateTime.Now;
         public DateTime Fecha_Fin { get; set; }
         public DateTime Fecha_Ven { get; set; } = DateTime.Now;
         public int Prioridad { get; set; }

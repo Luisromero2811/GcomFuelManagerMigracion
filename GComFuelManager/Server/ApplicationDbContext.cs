@@ -136,7 +136,7 @@ namespace GComFuelManager.Server
             //Actividad a Asignado a CRMVendedor
             modelBuilder.Entity<CRMActividades>()
                 .HasOne(x => x.vendedor)
-                .WithMany()
+                .WithMany(x => x.Actividades)
                 .HasForeignKey(x => x.Asignado);
             //Actividad Relacionada Con CRMContacto
             modelBuilder.Entity<CRMActividades>()
