@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ClockSkew = TimeSpan.Zero
     });
 
-builder.Services.AddAutoMapper(typeof(MapperProfile));
+builder.Services.AddAutoMapper(typeof(MapperProfile), typeof(MapperProfileReporte));
 
 builder.Services.AddScoped<IValidator<CRMContactoPostDTO>, CRMContactoPostValidator>();
 builder.Services.AddScoped<IValidator<CRMOportunidadPostDTO>, CRMOportunidadPostValidator>();
@@ -58,6 +58,7 @@ builder.Services.AddScoped<IValidator<CRMVendedorPostDTO>, CRMVendedorPostValida
 builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostValidator>();
 builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
 builder.Services.AddScoped<IValidator<CRMEquipoPostDTO>, CRMEquipoPostValidator>();
+builder.Services.AddScoped<IValidator<CRMClientePostDTO>, CRMClientePostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddSingleton<RequestToFile>();

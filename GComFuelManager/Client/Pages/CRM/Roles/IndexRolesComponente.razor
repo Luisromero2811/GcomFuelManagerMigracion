@@ -59,16 +59,16 @@
                                             <div class="btn-group">
                                                 <AuthorizeView Roles="Admin, EDITAR_ROL">
                                                     <Authorized Context="EDITARROL">
-                                                        <a class="btn gcom-bg-amarillo" href="/crm/roles/formulario/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/roles/formulario/{item.Id}")>
                                                             <i class="fa fa-solid fa-edit" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, VER_DETALLE_ROL">
                                                     <Authorized Context="VERDETALLEROL">
-                                                        <a class="btn gcom-bg-amarillo" href="/crm/rol/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/rol/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_ROL">

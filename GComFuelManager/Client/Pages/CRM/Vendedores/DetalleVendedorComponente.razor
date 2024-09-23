@@ -65,7 +65,7 @@
                                     <th>Telfono movil</th>
                                     <th>Correo electronico</th>
                                     <th>Division</th>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTO">
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
                                         <Authorized Context="VERCONTACTO">
                                             <th>Detalle de contacto</th>
                                         </Authorized>
@@ -79,12 +79,12 @@
                                     <td>@item.Tel_Movil</td>
                                     <td>@item.Correo</td>
                                     <td>@item.Division</td>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTO">
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
                                         <Authorized Context="VERCONTACTO">
                                             <td>
-                                                <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
+                                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/contacto/{item.Id}")>
                                                     <i class="fa fa-solid fa-eye" />
-                                                </a>
+                                                </NavLink>
                                             </td>
                                         </Authorized>
                                     </AuthorizeView>
@@ -103,11 +103,11 @@
                                     <th>Telfono movil del lider de equipo</th>
                                     <th>Correo del lider de equipo</th>
                                     <th>Division del equipo</th>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
-                                        <Authorized Context="VEREQUIPO">
-                                            <th>Detalle de equipo</th>
-                                        </Authorized>
-                                    </AuthorizeView>
+                                    @* <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                    <Authorized Context="VEREQUIPO">
+                                    <th>Detalle de equipo</th>
+                                    </Authorized>
+                                    </AuthorizeView> *@
                                 </tr>
                             </Cabeceras>
                             <Columnas Context="item">
@@ -117,15 +117,15 @@
                                     <td>@item.TelMovil</td>
                                     <td>@item.Correo</td>
                                     <td>@item.Division</td>
-                                    <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
-                                        <Authorized Context="VEREQUIPO">
-                                            <td>
-                                                <a class="btn gcom-bg-amarillo" href="crm/equipo/@item.Id">
-                                                    <i class="fa fa-solid fa-eye" />
-                                                </a>
-                                            </td>
-                                        </Authorized>
-                                    </AuthorizeView>
+                                    @* <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                    <Authorized Context="VEREQUIPO">
+                                    <td>
+                                    <a class="btn gcom-bg-amarillo" href="crm/equipo/@item.Id">
+                                    <i class="fa fa-solid fa-eye" />
+                                    </a>
+                                    </td>
+                                    </Authorized>
+                                    </AuthorizeView> *@
                                 </tr>
                             </Columnas>
                         </Tabla>
@@ -158,9 +158,9 @@
                                     <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD">
                                         <Authorized Context="VEROPORTUNIDAD">
                                             <td>
-                                                <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
+                                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/oportunidad/{item.Id}")>
                                                     <i class="fa fa-solid fa-eye" />
-                                                </a>
+                                                </NavLink>
                                             </td>
                                         </Authorized>
                                     </AuthorizeView>

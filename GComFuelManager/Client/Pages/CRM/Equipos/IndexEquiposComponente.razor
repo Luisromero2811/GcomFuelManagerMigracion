@@ -63,16 +63,16 @@
                                             <div class="btn-group">
                                                 <AuthorizeView Roles="Admin, EDITAR_EQUIPO">
                                                     <Authorized Context="EDITAREQUIPO">
-                                                        <a class="btn gcom-bg-amarillo" href="/crm/equipos/formulario/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/equipos/formulario/{item.Id}")>
                                                             <i class="fa fa-solid fa-edit" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
                                                     <Authorized Context="VERDETALLEEQUIPO">
-                                                        <a class="btn gcom-bg-amarillo" href="/crm/equipo/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/equipo/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_EQUIPO">

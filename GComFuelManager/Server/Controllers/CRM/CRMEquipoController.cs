@@ -72,7 +72,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Where(x => x.Equipo != null && x.Equipo.Activo && x.VendedorId == vendedor.Id)
                         .Include(x => x.Equipo)
                         .Select(x => x.EquipoId).ToListAsync();
-                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.Id)).IgnoreAutoIncludes().AsQueryable();
+                    equipos = context.CRMEquipos.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.Id))
+                        .IgnoreAutoIncludes()
+                        .Include(x => x.Originador)
+                        .Include(x => x.Division)
+                        .OrderBy(x => x.Nombre)
+                        .AsQueryable();
                 }
 
                 if (!string.IsNullOrEmpty(dTO.Nombre) || !string.IsNullOrWhiteSpace(dTO.Nombre))

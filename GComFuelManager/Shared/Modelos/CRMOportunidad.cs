@@ -28,19 +28,19 @@
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
         public int EquipoId { get; set; }
-        public Catalogo_Fijo? UnidadMedida { get; set; } = null!;
-        public CRMVendedor? Vendedor { get; set; } = null!;
-        public CRMCliente? CRMCliente { get; set; } = null!;
-        public Catalogo_Fijo? Tipo { get; set; } = null!;
-        public Catalogo_Fijo? EtapaVenta { get; set; } = null!;
-        public CRMContacto? Contacto { get; set; } = null!;
-        public Catalogo_Fijo? Periodo { get; set; } = null!;
-        public Catalogo_Fijo? OrigenProducto { get; set; } = null!;
-        public Catalogo_Fijo? TipoProducto { get; set; } = null!;
-        public Catalogo_Fijo? ModeloVenta { get; set; } = null!;
-        public Catalogo_Fijo? Volumen { get; set; } = null!;
-        public Catalogo_Fijo? FormaPago { get; set; } = null!;
+        public Catalogo_Fijo UnidadMedida { get; set; } = null!;
+        public CRMVendedor Vendedor { get; set; } = null!;
+        public CRMCliente CRMCliente { get; set; } = null!;
+        public Catalogo_Fijo Tipo { get; set; } = null!;
+        public Catalogo_Fijo EtapaVenta { get; set; } = null!;
+        public CRMContacto Contacto { get; set; } = null!;
+        public Catalogo_Fijo Periodo { get; set; } = null!;
+        public Catalogo_Fijo OrigenProducto { get; set; } = null!;
+        public Catalogo_Fijo TipoProducto { get; set; } = null!;
+        public Catalogo_Fijo ModeloVenta { get; set; } = null!;
+        public Catalogo_Fijo Volumen { get; set; } = null!;
+        public Catalogo_Fijo FormaPago { get; set; } = null!;
         public Catalogo_Fijo? DiasCredito { get; set; } = null!;
-        public CRMEquipo? Equipo { get; set; } = null!;
+        public CRMEquipo Equipo { get; set; } = null!;
     }
 }

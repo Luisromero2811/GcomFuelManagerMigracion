@@ -102,16 +102,16 @@
                                             <div class="btn-group" role="group">
                                                 <AuthorizeView Roles="Admin, EDITAR_CONTACTO">
                                                     <Authorized Context="EDITARCONTACTO">
-                                                        <a class="btn gcom-bg-amarillo" href="crm/contactos/formulario/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/contactos/formulario/{item.Id}")>
                                                             <i class="fa fa-solid fa-edit" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
                                                     <Authorized Context="VERDETALLECONTACTO">
-                                                        <a class="btn gcom-bg-amarillo" href="crm/contacto/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/contacto/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_CONTACTO">

@@ -1,6 +1,7 @@
 ﻿@page "/crm/oportunidades"
 @inject IRepositorio http
 @inject SweetAlertService swal
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Admin, VER_MODULO_OPORTUNIDADES")]
 
 <AuthorizeView Roles="Admin, VER_MODULO_OPORTUNIDADES">
@@ -15,11 +16,18 @@
         </Card>
         <AuthorizeView Roles="Admin, CREAR_OPORTUNIDAD">
             <Authorized Context="CREAROPORTUNIDAD">
-                <div class="col-12 my-2">
+                <div class="col-12 my-2 d-flex justify-content-between">
                     <div class="col-md-2 col">
                         <NavLink Match="NavLinkMatch.All" href="crm/oportunidades/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
                             <i class="fa fa-solid fa-plus" /> Agregar
                         </NavLink>
+                    </div>
+
+                    <div class="col-md-2 col">
+                        <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarOportunidades">
+                            <i class="fa fa-solid fa-file-excel"></i>
+                            Exportar
+                        </button>
                     </div>
                 </div>
             </Authorized>
@@ -41,6 +49,8 @@
                                 <th>Contacto</th>
                                 <th>Etapa de venta</th>
                                 <th>Valor</th>
+                                <th>Division</th>
+                                <th>Equipo</th>
                                 <th>Vendedor</th>
                                 <th>Probabilidad</th>
                             </tr>
@@ -57,6 +67,8 @@
                                 <td></td>
                                 <td><input class="form-control form-control-sm" @bind-value="filtro.EtapaVenta" @oninput="FiltrarEtapa" /></td>
                                 <td></td>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.Division" @oninput="FiltrarDivision" /></td>
+                                <td><input class="form-control form-control-sm" @bind-value="filtro.Equipo" @oninput="FiltrarEquipo" /></td>
                                 <td><input class="form-control form-control-sm" @bind-value="filtro.Vendedor" @oninput="FiltrarVendedor" /></td>
                                 <td></td>
                             </tr>
@@ -69,16 +81,16 @@
                                             <div class="btn-group" role="group">
                                                 <AuthorizeView Roles="Admin, EDITAR_OPORTUNIDAD">
                                                     <Authorized Context="EDITAROPORTUNIDAD">
-                                                        <a class="btn gcom-bg-amarillo" href="crm/oportunidades/formulario/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/oportunidades/formulario/{item.Id}")>
                                                             <i class="fa fa-solid fa-edit" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD">
                                                     <Authorized Context="VERDETALLEOPORTUNIDAD">
-                                                        <a class="btn gcom-bg-amarillo" href="crm/oportunidad/@item.Id">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"crm/oportunidad/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
-                                                        </a>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_OPORTUNIDAD">
@@ -94,10 +106,45 @@
                                 </AuthorizeView>
                                 <td>@item.Nombre_Opor</td>
                                 <td>@item.Cuenta</td>
-                                <td>@item.Contacto</td>
+                                <td>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
+                                        <Authorized Context="VERDETALLECONTACTO">
+                                            <NavLink Match="NavLinkMatch.All" href=@($"crm/contacto/{item.ContactoId}")>
+                                                @item.Contacto
+                                            </NavLink>
+                                        </Authorized>
+                                        <NotAuthorized Context="VERDETALLECONTACTO">
+                                            @item.Contacto
+                                        </NotAuthorized>
+                                    </AuthorizeView>
+                                </td>
                                 <td>@item.EtapaVenta</td>
                                 <td>$ @item.ValorOportunidad.ToString("N", CultureInfo.InvariantCulture)</td>
-                                <td>@item.Vendedor</td>
+                                <td>@item.Division</td>
+                                <td>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                        <Authorized Context="VERDETALLEEQUIPO">
+                                            <NavLink Match="NavLinkMatch.All" href=@($"crm/equipo/{item.EquipoId}")>
+                                                @item.Equipo
+                                            </NavLink>
+                                        </Authorized>
+                                        <NotAuthorized Context="VERDETALLEEQUIPO">
+                                            @item.Equipo
+                                        </NotAuthorized>
+                                    </AuthorizeView>
+                                </td>
+                                <td>
+                                    <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
+                                        <Authorized Context="VERDETALLEVENDEDOR">
+                                            <NavLink Match="NavLinkMatch.All" href=@($"crm/vendedor/{item.VendedorId}")>
+                                                @item.Vendedor
+                                            </NavLink>
+                                        </Authorized>
+                                        <NotAuthorized Context="VERDETALLEVENDEDOR">
+                                            @item.Vendedor
+                                        </NotAuthorized>
+                                    </AuthorizeView>
+                                </td>
                                 <td>@item.Probabilidad %</td>
                             </tr>
                         </Columnas>
@@ -133,6 +180,7 @@
         try
         {
             loading_info = true;
+            query[nameof(filtro.Excel)] = false.ToString();
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetParameter());
 
             var response = await http.Get<List<CRMOportunidadDTO>>($"api/crmoportunidad?{uri}");
@@ -180,6 +228,18 @@
         await ObtenerOportunidades();
     }
 
+    private async Task FiltrarDivision(ChangeEventArgs args)
+    {
+        filtro.Division = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
+    private async Task FiltrarEquipo(ChangeEventArgs args)
+    {
+        filtro.Equipo = args.Value?.ToString() ?? string.Empty;
+        await ObtenerOportunidades();
+    }
+
     private async Task FiltrarEtapa(ChangeEventArgs args)
     {
         filtro.EtapaVenta = args.Value?.ToString() ?? string.Empty;
@@ -199,5 +259,36 @@
         query[$"{nameof(filtro.EtapaVenta)}"] = filtro.EtapaVenta;
         query[$"{nameof(filtro.Cuenta)}"] = filtro.Cuenta;
         return query;
+    }
+
+    private async Task ExportarOportunidades()
+    {
+        try
+        {
+            loading_info = true;
+            query[nameof(filtro.Excel)] = true.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParameter());
+
+            var response = await http.Get<byte[]>($"api/crmoportunidad?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+
+                await js.GuardarComo($"Oportunidades_{DateTime.Today:g}.xlsx", response.Response);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
     }
 }

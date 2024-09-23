@@ -116,6 +116,9 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(contacto.Division) && !string.IsNullOrWhiteSpace(contacto.Division))
                     contactos = contactos.Where(x => x.Division != null && x.Division.Nombre.ToLower().Contains(contacto.Division.ToLower()));
 
+                if (contacto.CuentaId != 0)
+                    contactos = contactos.Where(x => x.CuentaId == contacto.CuentaId);
+
                 await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
 
                 contacto.Pagina = HttpContext.ObtenerPagina();
@@ -266,23 +269,23 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
-        [HttpGet("cuenta/{Id:int}")]
-        public async Task<ActionResult> GetByCuenta([FromRoute] int Id)
-        {
-            try
-            {
-                var contacto = await context.CRMContactos.AsNoTracking()
-                    .Where(x => x.CuentaId == Id)
-                    .Select(x => mapper.Map<CRMContactoDTO>(x))
-                    .ToListAsync();
+        //[HttpGet("cuenta/{Id:int}")]
+        //public async Task<ActionResult> GetByCuenta([FromRoute] int Id)
+        //{
+        //    try
+        //    {
+        //        var contacto = await context.CRMContactos.AsNoTracking()
+        //            .Where(x => x.CuentaId == Id)
+        //            .Select(x => mapper.Map<CRMContactoDTO>(x))
+        //            .ToListAsync();
 
-                return Ok(contacto);
-            }
-            catch (Exception e)
-            {
-                return BadRequest(e.Message);
-            }
-        }
+        //        return Ok(contacto);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        return BadRequest(e.Message);
+        //    }
+        //}
 
         [HttpGet("{Id:int}/detalle")]
         public async Task<ActionResult> GetByIdDetail([FromRoute] int Id)

@@ -15,7 +15,7 @@
                         <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
                             <i class="fa fa-solid fa-arrow-left" /> Volver
                         </button>
-                        <NavLink class="btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                        <NavLink class="btn gcom-bg-rojo" href="crm/gestion/actividades" Match="NavLinkMatch.All">
                             Actividades
                         </NavLink>
                     </div>
@@ -114,9 +114,9 @@
                             </div>
                             <div class="col-4 row">
                                 <label><b>Asignado a: </b></label>
-                                <AuthorizeView>
+                                <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
                                     <Authorized Context="VERDETALLEVENDEDOR">
-                                        <p><a href="crm/vendedor/@detalle.VendedorId">@detalle.Vendedor?.Fullname</a></p>
+                                        <p><NavLink href=@($"crm/vendedor/{detalle.VendedorId}")>@detalle.Vendedor?.Fullname</NavLink></p>
                                     </Authorized>
                                     <NotAuthorized Context="VERDETALLEVENDEDOR">
                                         <p>@detalle.Vendedor?.Fullname</p>
