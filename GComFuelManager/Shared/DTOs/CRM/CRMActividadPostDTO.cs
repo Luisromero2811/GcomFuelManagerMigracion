@@ -17,6 +17,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public int Contacto_Rel { get; set; }
         public int Recordatorio { get; set; }
         public bool Activo { get; set; } = true;
+        public int EquipoId { get; set; }
+        public int CuentaId { get; set; }
     }
 }
 

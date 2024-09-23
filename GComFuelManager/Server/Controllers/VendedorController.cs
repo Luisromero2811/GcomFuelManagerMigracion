@@ -95,6 +95,24 @@ namespace GComFuelManager.Server.Controllers
                    .Where(x => x.Activo == true)
                    .ToListAsync();
                 }
+                else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+                    vendedores = await context.CRMVendedores
+                        .Where(x => x.Activo == true && relacion.Contains(x.Id))
+                        .ToListAsync();
+
+                }
                 else if (await userManager.IsInRoleAsync(user, "CREAR_ACTIVIDAD"))
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);

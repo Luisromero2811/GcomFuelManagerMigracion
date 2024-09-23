@@ -17,11 +17,13 @@ namespace GComFuelManager.Shared.Modelos
         public int? Contacto_Rel { get; set; }
         public int? Recordatorio { get; set; }
         public bool Activo { get; set; } = true;
+        public int? EquipoId { get; set; }
 
         public Catalogo_Fijo? asuntos { get; set; } = null!;
         public Catalogo_Fijo? prioridades { get; set; } = null!;
         public Catalogo_Fijo? Estados { get; set; } = null!;
         public CRMVendedor? vendedor { get; set; } = null!;
         public CRMContacto? contacto { get; set; } = null!;
+        public CRMEquipo? Equipo { get; set; } = null!;
     }
 }
