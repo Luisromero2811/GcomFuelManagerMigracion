@@ -93,7 +93,7 @@
                         </div>
                     </Body>
                 </Card>
-                <Card HeaderText="Datos de importe">
+                <Card HeaderText="Detalle economico">
                     <Body>
                         <div class="col-12 row">
                             <div class="col-md-4 col-12">
@@ -105,7 +105,7 @@
                                 <p>@detalle.CantidadLts.ToString("N", CultureInfo.InvariantCulture)</p>
                             </div>
                             <div class="col-md-4 col-12">
-                                <label><b>Precio:</b></label>
+                                <label><b>Precio producto MXN por Lts:</b></label>
                                 <p>$@detalle.PrecioLts.ToString("N", CultureInfo.InvariantCulture)</p>
                             </div>
                             <div class="col-md-4 col-12">
@@ -151,7 +151,7 @@
                                 <p>@detalle.EtapaVenta?.Valor</p>
                             </div>
                             <div class="col-4">
-                                <label><b>Probabilidad:</b></label>
+                                <label><b>Probabilidad de cierre %:</b></label>
                                 <p>@detalle.Probabilidad %</p>
                             </div>
                             <div class="col-4">
@@ -159,7 +159,7 @@
                                 <p>@detalle.FechaCierre</p>
                             </div>
                             <div class="col-4">
-                                <label><b>Tipo:</b></label>
+                                <label><b>Relacion comercial:</b></label>
                                 <p>@detalle.Tipo?.Valor</p>
                             </div>
                         </div>

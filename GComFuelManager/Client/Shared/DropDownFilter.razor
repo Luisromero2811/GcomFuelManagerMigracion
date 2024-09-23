@@ -97,6 +97,7 @@
         ShowDropDown = false;
 
         Valor_Seleleccionado = item;
+        Console.WriteLine(JsonConvert.SerializeObject(Listado.Where(x => x.GetType().GetProperty(Propiedad_Valor).GetValue(x).Equals(Valor))));
 
         if (!string.IsNullOrEmpty(Propiedad_Valor) || !string.IsNullOrWhiteSpace(Propiedad_Valor))
         {
@@ -142,5 +143,11 @@
         var value = e.Value?.ToString() ?? string.Empty;
 
         await FiltrarValor.InvokeAsync(value);
+    }
+
+    protected override void OnParametersSet()
+    {
+        Console.WriteLine(Valor);
+        Valor_Seleleccionado = Listado.FirstOrDefault(x => x.GetType().GetProperty(Propiedad_Valor).GetValue(x).Equals(Valor));
     }
 }
