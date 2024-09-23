@@ -1,4 +1,8 @@
-﻿using GComFuelManager.Server.Identity;
+﻿using AutoMapper;
+using FluentValidation;
+using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
+using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -16,24 +20,58 @@ namespace GComFuelManager.Server.Controllers.CRM
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
+        private readonly IMapper mapper;
+        private readonly IValidator<CRMClientePostDTO> validator;
 
-        public CRMClienteController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager)
+        public CRMClienteController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, IMapper mapper, IValidator<CRMClientePostDTO> validator)
         {
             this.context = context;
             this.userManager = userManager;
+            this.mapper = mapper;
+            this.validator = validator;
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get([FromQuery] CRMCliente cliente)
+        public async Task<ActionResult> Get([FromQuery] CRMClienteDTO cliente)
         {
             try
             {
                 var clientes = context.CRMClientes.AsNoTracking().Where(x => x.Activo).AsQueryable();
 
                 if (!string.IsNullOrEmpty(cliente.Nombre))
-                    clientes = clientes.Where(x => x.Nombre.Equals(cliente.Nombre));
+                    clientes = clientes.Where(x => x.Nombre.ToLower().Contains(cliente.Nombre.ToLower()));
 
-                return Ok(clientes);
+                await HttpContext.InsertarParametrosPaginacion(clientes, cliente.Registros_por_pagina, cliente.Pagina);
+
+                cliente.Pagina_ACtual = HttpContext.ObtenerPagina();
+                clientes = clientes.Skip((cliente.Pagina - 1) * cliente.Registros_por_pagina).Take(cliente.Registros_por_pagina);
+                var clientesdto = clientes.Select(x => mapper.Map<CRMCliente, CRMClienteDTO>(x));
+                return Ok(clientesdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] CRMClientePostDTO dto)
+        {
+            try
+            {
+                var validate = validator.Validate(dto);
+                if (!validate.IsValid) return BadRequest(validate.Errors);
+
+                var cliente = mapper.Map<CRMClientePostDTO, CRMCliente>(dto);
+
+                if (cliente.Id != 0)
+                {
+                    context.Update(cliente);
+                }
+                else
+                    await context.AddAsync(cliente);
+
+                return NoContent();
             }
             catch (Exception e)
             {
@@ -63,7 +101,7 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                     var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
                     var relacion = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
-                        .GroupBy(x=>x.VendedorId)
+                        .GroupBy(x => x.VendedorId)
                         .Select(x => (int?)x.Key).ToListAsync();
                     var contactos = await context.CRMContactos.AsNoTracking().Where(x => x.Activo && relacion.Contains(x.VendedorId)).Select(x => x.CuentaId).ToListAsync();
                     clientes = context.CRMClientes.AsNoTracking().Where(x => contactos.Contains(x.Id));

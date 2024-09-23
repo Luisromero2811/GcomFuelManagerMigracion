@@ -4,6 +4,7 @@ using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
+using GComFuelManager.Shared.DTOs.Reportes.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using OfficeOpenXml;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
@@ -52,6 +54,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.EtapaVenta)
                         .Include(x => x.Vendedor)
                         .Include(x => x.Contacto)
+                        .Include(x => x.Equipo)
+                        .ThenInclude(x => x.Division)
                         .AsQueryable();
                 }
                 else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
@@ -72,6 +76,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.EtapaVenta)
                         .Include(x => x.Vendedor)
                         .Include(x => x.Contacto)
+                        .Include(x => x.Equipo)
+                        .ThenInclude(x => x.Division)
                         .AsQueryable();
                 }
                 else
@@ -86,6 +92,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .Include(x => x.EtapaVenta)
                         .Include(x => x.Vendedor)
                         .Include(x => x.Contacto)
+                        .Include(x => x.Equipo)
+                        .ThenInclude(x => x.Division)
                         .AsQueryable();
                 }
 
@@ -100,6 +108,44 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!string.IsNullOrEmpty(dTO.EtapaVenta) || !string.IsNullOrWhiteSpace(dTO.EtapaVenta))
                     oportunidades = oportunidades.Where(x => x.EtapaVenta != null && x.EtapaVenta.Valor.ToLower().Contains(dTO.EtapaVenta.ToLower()));
+
+                if (!string.IsNullOrEmpty(dTO.Equipo) || !string.IsNullOrWhiteSpace(dTO.Equipo))
+                    oportunidades = oportunidades.Where(x => x.Equipo != null && x.Equipo.Nombre.ToLower().Contains(dTO.Equipo.ToLower()));
+
+                if (!string.IsNullOrEmpty(dTO.Division) || !string.IsNullOrWhiteSpace(dTO.Division))
+                    oportunidades = oportunidades.Where(x => x.Equipo.Division != null && x.Equipo.Division.Nombre.ToLower().Contains(dTO.Division.ToLower()));
+
+                if (dTO.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excelPackage = new();
+                    ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Oportunidades");
+                    var oportunidadesexcel = oportunidades
+                        .Include(x => x.Periodo)
+                        .Include(x => x.CRMCliente)
+                        .Include(x => x.Tipo)
+                        .Include(x => x.OrigenProducto)
+                        .Include(x => x.TipoProducto)
+                        .Include(x => x.ModeloVenta)
+                        .Include(x => x.Volumen)
+                        .Include(x => x.FormaPago)
+                        .Include(x => x.DiasCredito)
+                        .Include(x => x.Equipo)
+                        .ThenInclude(x => x.Division)
+                        .Select(x => mapper.Map<CRMOportunidad, CRMOportunidadExcelDTO>(x)).ToList();
+                    ws.Cells["A1"].LoadFromCollection(oportunidadesexcel, opt =>
+                    {
+                        opt.PrintHeaders = true;
+                        opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                    });
+
+                    ws.Cells[1, 4, ws.Dimension.End.Row, 4].Style.Numberformat.Format = "$#,##0.00";
+                    ws.Cells[1, 14, ws.Dimension.End.Row, 16].Style.Numberformat.Format = "#,##0.00";
+
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excelPackage.GetAsByteArray());
+                }
 
                 await HttpContext.InsertarParametrosPaginacion(oportunidades, dTO.Registros_por_pagina, dTO.Pagina);
 
@@ -153,15 +199,14 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .Include(x => x.Periodo)
                     .Include(x => x.CRMCliente)
                     .Include(x => x.Tipo)
-                    .Include(x => x.EtapaVenta)
                     .Include(x => x.OrigenProducto)
                     .Include(x => x.TipoProducto)
-                    .Include(x => x.OrigenProducto)
                     .Include(x => x.ModeloVenta)
                     .Include(x => x.Volumen)
                     .Include(x => x.FormaPago)
                     .Include(x => x.DiasCredito)
                     .Include(x => x.Equipo)
+                    .ThenInclude(x => x.Division)
                     .Select(x => mapper.Map<CRMOportunidadDetalleDTO>(x))
                     .FirstOrDefaultAsync();
 

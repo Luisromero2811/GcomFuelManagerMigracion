@@ -63,18 +63,23 @@
                                 <tr>
                                     <th>Equipo</th>
                                     <th>Division del equipo</th>
-                                    <th>Detalle de equipo</th>
                                 </tr>
                             </Cabeceras>
                             <Columnas Context="item">
                                 <tr>
-                                    <td>@item.Nombre</td>
-                                    <td>@item.Division</td>
                                     <td>
-                                        <a class="btn gcom-bg-amarillo" href="crm/equipo/@item.Id">
-                                            <i class="fa fa-solid fa-eye" />
-                                        </a>
+                                        <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                            <Authorized Context="VERDETALLEEQUIPO">
+                                                <NavLink href=@($"crm/equipo/{item.Id}")>
+                                                    @item.Nombre
+                                                </NavLink>
+                                            </Authorized>
+                                            <NotAuthorized Context="VERDETALLEEQUIPO">
+                                                @item.Nombre
+                                            </NotAuthorized>
+                                        </AuthorizeView>
                                     </td>
+                                    <td>@item.Division</td>
                                 </tr>
                             </Columnas>
                         </Tabla>

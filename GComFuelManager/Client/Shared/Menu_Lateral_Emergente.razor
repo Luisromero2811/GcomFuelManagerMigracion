@@ -98,61 +98,61 @@
     protected override void OnInitialized()
     {
 
-        Menus.Add(new Menu()
-            {
-                name = "CRM",
-                icon = "address-book",
-                roles = "Admin, Administrador Sistema, CRM, CRM_Lider",
-                isMenu = true,
-                Menus = new()
+        Menus.AddRange(new List<Menu>(){
+            new()
                 {
-                    new()
-                    {
-                        name = "Roles", path = "crm/roles",
-                        roles = "Admin, VER_MODULO_ROLES"
-                    },
-                    new()
-                    {
-                        name = "Vendedores", path = "crm/vendedores",
-                        roles = "Admin, VER_MODULO_VENDEDORES"
-                    },
-                    new()
-                    {
-                        name = "Comerciales", path = "crm/originadores",
-                        roles = "Admin, VER_MODULO_ORIGINADORES"
-                    },
-                    new()
-                    {
-                        name = "Usuarios", path = "crm/usuarios",
-                        roles = "Admin, VER_MODULO_USUARIOS"
-                    },
-                    new()
-                    {
-                        name = "Equipos", path = "crm/equipos",
-                        roles = "Admin, VER_MODULO_EQUIPOS"
-                    },
-                    new()
-                    {
-                        name = "Contactos", path = "crm/contactos",
-                        roles = "Admin, VER_MODULO_CONTACTOS"
-                    },
-                    new()
-                    {
-                        name = "Actividades", path = "crm/listado/actividades",
-                        roles = "Admin, VER_MODULO_ACTIVIDADES"
-                    },
-                    new()
-                    {
-                        name = "Historial actividades", path = "crm/historial/actividades",
-                        roles = "Admin, VER_MODULO_HISTORIAL_ACTIVIDADES"
-                    },
-                    new()
-                    {
-                        name = "Oportunidades",path = "crm/oportunidades",
-                        roles = "Admin, VER_MODULO_OPORTUNIDADES"
-                    },
-                }
-            });
+                    name = "Roles",
+                    path = "crm/roles",
+                    roles = "Admin, VER_MODULO_ROLES"
+                },
+            new()
+                {
+                    name = "Vendedores",
+                    path = "crm/vendedores",
+                    roles = "Admin, VER_MODULO_VENDEDORES"
+                },
+            new()
+                {
+                    name = "Comerciales",
+                    path = "crm/originadores",
+                    roles = "Admin, VER_MODULO_ORIGINADORES"
+                },
+            new()
+                {
+                    name = "Usuarios",
+                    path = "crm/usuarios",
+                    roles = "Admin, VER_MODULO_USUARIOS"
+                },
+            new()
+                {
+                    name = "Equipos",
+                    path = "crm/equipos",
+                    roles = "Admin, VER_MODULO_EQUIPOS"
+                },
+            new()
+                {
+                    name = "Contactos",
+                    path = "crm/contactos",
+                    roles = "Admin, VER_MODULO_CONTACTOS"
+                },
+            new()
+                {
+                    name = "Actividades",
+                    path = "crm/listado/actividades",
+                    roles = "Admin, VER_MODULO_ACTIVIDADES"
+                },
+            new()
+                {
+                    name = "Historial actividades",
+                    path = "crm/historial/actividades",
+                    roles = "Admin, VER_MODULO_HISTORIAL_ACTIVIDADES"
+                },
+            new()
+                {
+                    name = "Oportunidades",
+                    path = "crm/oportunidades",
+                    roles = "Admin, VER_MODULO_OPORTUNIDADES"
+                } });
     }
 
     private async void CloseMenuLateral()

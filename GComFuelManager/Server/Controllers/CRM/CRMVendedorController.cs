@@ -50,7 +50,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var vendedores = new List<CRMVendedor>().AsQueryable();
                 if (await userManager.IsInRoleAsync(user, "Admin"))
                 {
-                    vendedores = context.CRMVendedores.Where(x => x.Activo).AsNoTracking().AsQueryable();
+                    vendedores = context.CRMVendedores.Where(x => x.Activo).AsNoTracking().Include(x => x.Equipos).AsQueryable();
                 }
                 else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
                 {
@@ -60,11 +60,11 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
                         .GroupBy(x => x.VendedorId)
                         .Select(x => x.Key).ToListAsync();
-                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.Activo && relaciones.Contains(x.Id)).AsQueryable();
+                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.Activo && relaciones.Contains(x.Id)).Include(x => x.Equipos).AsQueryable();
                 }
                 else
                 {
-                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.UserId == user.Id).AsQueryable();
+                    vendedores = context.CRMVendedores.AsNoTracking().Where(x => x.UserId == user.Id).Include(x => x.Equipos).AsQueryable();
                 }
 
 
@@ -76,6 +76,9 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (!string.IsNullOrEmpty(dTO.Correo) || !string.IsNullOrWhiteSpace(dTO.Correo))
                     vendedores = vendedores.Where(v => !string.IsNullOrEmpty(v.Correo) && v.Correo.ToLower().Contains(dTO.Correo.ToLower()));
+
+                if (dTO.EquipoId != 0)
+                    vendedores = vendedores.Where(x => x.Equipos.Any(x => x.Id == dTO.EquipoId));
 
                 await HttpContext.InsertarParametrosPaginacion(vendedores, dTO.Registros_por_pagina, dTO.Pagina);
 

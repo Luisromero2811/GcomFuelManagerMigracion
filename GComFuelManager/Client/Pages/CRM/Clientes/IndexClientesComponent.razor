@@ -1,83 +1,76 @@
-﻿@page "/crm/originadores"
+﻿@page "/crm/cuentas"
 @inject IRepositorio http
 @inject SweetAlertService swal
-@attribute [Authorize(Roles = "Admin, VER_MODULO_COMERCIALES")]
+@attribute [Authorize(Roles = "Admin, VER_MODULO_CUENTAS")]
 
-<AuthorizeView Roles="Admin, VER_MODULO_COMERCIALES">
+<AuthorizeView Roles="Admin, VER_MODULO_CUENTAS">
     <Authorized>
         <div class="card">
             <div class="card-header d-flex justify-content-between">
-                <b>Comerciales</b>
+                <b>Cuentas</b>
                 <NavLink class="g-1 btn gcom-bg-amarillo" Match="NavLinkMatch.All" href="../">
                     <i class="fa fa-solid fa-arrow-left" />
                     Volver
                 </NavLink>
             </div>
         </div>
-        <AuthorizeView Roles="Admin, CREAR_COMERCIAL">
-            <Authorized Context="CREARCOMERCIAL">
+        <AuthorizeView Roles="Admin, CREAR_CUENTA">
+            <Authorized Context="CREARCUENTA">
                 <div class="col-12 my-2">
                     <div class="col-md-2 col">
-                        <NavLink Match="NavLinkMatch.All" href="crm/originadores/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
+                        <NavLink Match="NavLinkMatch.All" href="crm/cuentas/formulario" class="btn btn-sm gcom-bg-amarillo col-12 g-1">
                             <i class="fa fa-solid fa-plus" /> Agregar
                         </NavLink>
                     </div>
                 </div>
             </Authorized>
         </AuthorizeView>
-        <AuthorizeView Roles="Admin, VER_COMERCIALES">
-            <Authorized Context="VERCOMERCIALES">
+        <AuthorizeView Roles="Admin, VER_CUENTAS">
+            <Authorized Context="VERCUENTAS">
                 <div class="ancho-tabla">
-                    <Tabla Datos="Originadores">
+                    <Tabla Datos="Cuentas">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_CUENTA, ELIMINAR_CUENTA, VER_DETALLE_CUENTA">
                                     <Authorized Context="ACCIONES">
                                         <th></th>
                                     </Authorized>
                                 </AuthorizeView>
-                                <th>Nombre de comercial</th>
-                                <th>Teléfono móvil</th>
-                                <th>Correo electrónico</th>
-                                <th>Division</th>
+                                <th>Cuenta</th>
                             </tr>
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_CUENTA, ELIMINAR_CUENTA, VER_DETALLE_CUENTA">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
                                 </AuthorizeView>
                                 <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
-                                <td><input class="form-control" @bind-value="@filtro.Tel_Movil" @oninput="FiltrarTelefono" /></td>
-                                <td><input class="form-control" @bind-value="@filtro.Correo" @oninput="FiltrarCorreo" /></td>
-                                <td></td>
                             </tr>
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL, ELIMINAR_COMERCIAL, VER_DETALLE_COMERCIAL">
+                                <AuthorizeView Roles="Admin, EDITAR_CUENTA, ELIMINAR_CUENTA, VER_DETALLE_CUENTA">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group">
-
-                                                <AuthorizeView Roles="Admin, EDITAR_COMERCIAL">
-                                                    <Authorized Context="EDITARCOMERCIAL">
-                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/originadores/formulario/{item.Id}")>
+                                                <AuthorizeView Roles="Admin, EDITAR_CUENTA">
+                                                    <Authorized Context="EDITARVENDEDOR">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/cuentas/formulario/{item.Id}")>
                                                             <i class="fa fa-solid fa-edit" />
                                                         </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="Admin, VER_DETALLE_COMERCIAL">
-                                                    <Authorized Context="VERDETALLECOMERCIAL">
-                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/originador/{item.Id}")>
+                                                <AuthorizeView Roles="Admin, VER_DETALLE_CUENTA">
+                                                    <Authorized Context="VERDETALLEVENDEDOR">
+                                                        <NavLink class="btn gcom-bg-amarillo" href=@($"/crm/cuenta/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
                                                         </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
-                                                <AuthorizeView Roles="Admin, ELIMINAR_COMERCIAL">
-                                                    <Authorized Context="ELIMINARCOMERCIAL">
+                                                <AuthorizeView Roles="Admin, ELIMINAR_CUENTA">
+                                                    <Authorized Context="ELMINARVENDEDOR">
                                                         <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item.Id))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
@@ -87,10 +80,7 @@
                                         </td>
                                     </Authorized>
                                 </AuthorizeView>
-                                <td>@item.Nombre @item.Apellidos</td>
-                                <td>@item.Tel_Movil </td>
-                                <td>@item.Correo</td>
-                                <td>@item.NombreDivision</td>
+                                <td>@item.Nombre</td>
                             </tr>
                         </Columnas>
                     </Tabla>
@@ -110,35 +100,33 @@
 </AuthorizeView>
 
 @code {
-    List<CRMOriginadorDTO> Originadores = new();
-    CRMVendedorDTO filtro = new();
+    List<CRMClienteDTO> Cuentas = new();
+    CRMClienteDTO filtro = new();
     Dictionary<string, string> query = new();
 
     bool loading_info = false;
 
     protected override async Task OnInitializedAsync()
     {
-        await ObtenerVendedor();
+        await ObtenerCuenta();
     }
 
     private Dictionary<string, string> SetFiltro()
     {
         query[$"{nameof(filtro.Nombre)}"] = filtro.Nombre;
-        query[$"{nameof(filtro.Tel_Movil)}"] = filtro.Tel_Movil;
-        query[$"{nameof(filtro.Correo)}"] = filtro.Correo;
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
         query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
         return query;
     }
 
-    private async Task ObtenerVendedor()
+    private async Task ObtenerCuenta()
     {
         try
         {
             loading_info = true;
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
 
-            var response = await http.Get<List<CRMOriginadorDTO>>($"api/crmoriginador?{uri}");
+            var response = await http.Get<List<CRMClienteDTO>>($"api/crmcliente?{uri}");
             if (response.Error)
             {
                 loading_info = false;
@@ -148,7 +136,7 @@
             else
             {
                 loading_info = false;
-                Originadores = response.Response;
+                Cuentas = response.Response;
 
                 filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
                 filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
@@ -165,17 +153,7 @@
     private async Task FiltrarNombre(ChangeEventArgs args)
     {
         filtro.Nombre = args.Value?.ToString() ?? string.Empty;
-        await ObtenerVendedor();
-    }
-    private async Task FiltrarCorreo(ChangeEventArgs args)
-    {
-        filtro.Correo = args.Value?.ToString() ?? string.Empty;
-        await ObtenerVendedor();
-    }
-    private async Task FiltrarTelefono(ChangeEventArgs args)
-    {
-        filtro.Tel_Movil = args.Value?.ToString() ?? string.Empty;
-        await ObtenerVendedor();
+        await ObtenerCuenta();
     }
 
     private async Task Pagina_Seleccionada(int pagina)
@@ -183,14 +161,14 @@
         filtro.Pagina_ACtual = pagina;
         filtro.Pagina = pagina;
 
-        await ObtenerVendedor();
+        await ObtenerCuenta();
     }
 
     private async Task EliminarVendedor(int id)
     {
         try
         {
-            var response = await http.Delete($"api/crmoriginador/{id}");
+            var response = await http.Delete($"api/crmcliente/{id}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -198,7 +176,7 @@
             }
             else
             {
-                await ObtenerVendedor();
+                await ObtenerCuenta();
             }
         }
         catch (Exception e)

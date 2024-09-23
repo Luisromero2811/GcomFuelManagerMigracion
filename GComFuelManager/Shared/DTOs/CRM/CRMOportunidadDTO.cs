@@ -16,5 +16,10 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public bool Activo { get; set; } = true;
         public string Contacto { get; set; } = string.Empty;
         public string Medida { get; set; } = string.Empty;
+        public int ContactoId { get; set; }
+        public int VendedorId { get; set; }
+        public string Equipo { get; set; } = string.Empty;
+        public int EquipoId { get; set; }
+        public string Division { get; set; } = string.Empty; 
     }
 }

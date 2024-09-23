@@ -1,0 +1,166 @@
+﻿@page "/crm/cuentas/formulario"
+@page "/crm/cuentas/formulario/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMClientePostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize(Roles = "Admin, CREAR_CUENTA, EDITAR_CUENTA")]
+
+<AuthorizeView Roles="Admin, CREAR_CUENTA, EDITAR_CUENTA">
+    <Authorized>
+        <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between">
+            <Header>
+                <b>Formulario de cuenta</b>
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/cuentas" Match="NavLinkMatch.All">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </NavLink>
+            </Header>
+            <Body>
+                <EditForm class="col-12 row" Model="Cuenta" OnValidSubmit="GuardarCuenta" Context="FORMCUENTA">
+
+                    <ValidationSummary />
+                    <FluentValidationValidator Validator="validator" />
+
+                    <div class="col-md-4 col-12">
+                        <label>Nombre</label>
+                        <InputText @bind-Value="Cuenta.Nombre" class="form-control" />
+                        <ValidationMessage For="@(()=> Cuenta.Nombre)" />
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Contacto principal</label>
+                        <DropDownFilter Listado="Contactos" TListado="CRMContactoDTO" TValue="CRMContactoDTO" Default_Placeholder="Contactos"
+                            Propiedad_Valor="Id" Default_Placeholder_Filter="Nombre de contacto" FiltrarValor="ObtenerContactos">
+                            <RenderValue Context="item">
+                                @($"{item.Nombre} {item.Apellidos}")
+                            </RenderValue>
+                            <Render Context="item">
+                                @($"{item.Nombre} {item.Apellidos} - {item.Tel_Movil} - {item.Correo}")
+                            </Render>
+                        </DropDownFilter>
+                    </div>
+                    <div class="col-12">
+
+                        <div class="col-md-4 col-12 d-flex">
+                            <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                                @if (loading_save)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    CRMClientePostDTO Cuenta = new();
+
+    List<CRMContactoDTO> Contactos = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    CRMVendedorOriginador vendedorOriginador = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerContactos();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+            await ObtenerCuenta();
+    }
+
+    private async Task GuardarCuenta()
+    {
+        try
+        {
+            loading_save = true;
+            var response = await http.Post<CRMClientePostDTO>($"api/crmcliente", Cuenta);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo("crm/cuentas", false);
+                else
+                    Cuenta = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerCuenta()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMClientePostDTO>($"api/crmcliente/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Cuenta = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task ObtenerContactos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+
+            query["Nombre"] = value;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Contactos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+
+        }
+
+    }
+}

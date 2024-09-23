@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using GComFuelManager.Server.Helpers;
+using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,12 +21,16 @@ namespace GComFuelManager.Server.Controllers.CRM
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IValidator<CRMRolPostDTO> validator;
+        private readonly UserManager<IdentityUsuario> userManager;
+        private readonly RoleManager<IdentityRol> roleManager;
 
-        public CRMRolController(ApplicationDbContext context, IMapper mapper, IValidator<CRMRolPostDTO> validator)
+        public CRMRolController(ApplicationDbContext context, IMapper mapper, IValidator<CRMRolPostDTO> validator, UserManager<IdentityUsuario> userManager, RoleManager<IdentityRol> roleManager)
         {
             this.context = context;
             this.mapper = mapper;
             this.validator = validator;
+            this.userManager = userManager;
+            this.roleManager = roleManager;
         }
 
         [HttpGet]
@@ -146,6 +152,27 @@ namespace GComFuelManager.Server.Controllers.CRM
                     {
                         context.RemoveRange(relations_actual);
                         await context.AddRangeAsync(relations);
+
+                        var nombrePermisos = await context.Roles.AsNoTracking()
+                            .Where(x => relations_actual.Select(x => x.PermisoId).Contains(x.Id) && !string.IsNullOrEmpty(x.Name) && !string.IsNullOrWhiteSpace(x.Name))
+                            .Select(x => (string)x.Name!)
+                            .ToListAsync();
+                        var nombrePermisosNuevos = await context.Roles.AsNoTracking()
+                            .Where(x => relations.Select(x => x.PermisoId).Contains(x.Id) && !string.IsNullOrEmpty(x.Name) && !string.IsNullOrWhiteSpace(x.Name))
+                            .Select(x => (string)x.Name!)
+                            .ToListAsync();
+
+                        var userEnRoles = await context.CRMRolUsuarios.AsNoTracking().Where(x => x.RolId == rol.Id).Select(x => x.UserId).ToListAsync();
+                        foreach (var userEnRol in userEnRoles)
+                        {
+
+                            var identityUser = await userManager.FindByIdAsync(userEnRol);
+                            if (identityUser is not null)
+                            {
+                                await userManager.RemoveFromRolesAsync(identityUser, nombrePermisos);
+                                await userManager.AddToRolesAsync(identityUser, nombrePermisosNuevos);
+                            }
+                        }
                     }
 
                     context.Update(rol);

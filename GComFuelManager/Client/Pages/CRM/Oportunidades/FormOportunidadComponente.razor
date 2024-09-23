@@ -79,23 +79,9 @@
                                 <ValidationMessage For="@(()=>Oportunidad.ContactoId)" />
                             </div>
                             <div class="col-md-4 col-12">
-                                <label>Asignado a</label>
-                                <DropDownFilter Listado="Vendedores" TListado="CRMVendedorDTO" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
-                                                @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
-                                    <RenderValue Context="item">
-                                        @item.Fullname
-                                    </RenderValue>
-                                    <Render Context="item">
-                                        @item.Fullname
-                                    </Render>
-                                </DropDownFilter>
-                                <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
-                                <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
-                            </div>
-                            <div class="col-md-4 col-12">
                                 <label>Equipo</label>
                                 <DropDownFilter Listado="Equipos" TListado="CRMEquipoDTO" TValue="int" Default_Placeholder="Seleccione un equipo" FiltrarValor="ObtenerEquipos"
-                                                @bind-Valor="@Oportunidad.EquipoId" Propiedad_Valor="Id">
+                                                @bind-Valor="@Oportunidad.EquipoId" Propiedad_Valor="Id" On_Change_Method="@(()=>ObtenerVendedores())">
                                     <RenderValue Context="item">
                                         @item.Nombre
                                     </RenderValue>
@@ -108,6 +94,20 @@
                                 </DropDownFilter>
                                 <InputSelect @bind-Value="Oportunidad.CuentaId" class="d-none" />
                                 <ValidationMessage For="@(()=>Oportunidad.CuentaId)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Asignado a</label>
+                                <DropDownFilter Listado="Vendedores" TListado="CRMVendedorDTO" TValue="int" Default_Placeholder="Seleccione un vendedor" FiltrarValor="ObtenerVendedores"
+                                                @bind-Valor="@Oportunidad.VendedorId" Propiedad_Valor="Id">
+                                    <RenderValue Context="item">
+                                        @item.Fullname
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @item.Fullname
+                                    </Render>
+                                </DropDownFilter>
+                                <InputSelect @bind-Value="Oportunidad.VendedorId" class="d-none" @bind-Value:event="onchange" />
+                                <ValidationMessage For="@(()=>Oportunidad.VendedorId)" />
                             </div>
                         </Body>
                     </Card>
@@ -316,8 +316,8 @@
         try
         {
             Dictionary<string, string> query = new();
-            query["Nombre"] = value;
-
+            query[nameof(CRMVendedorDTO.Nombre)] = value;
+            query[nameof(CRMVendedorDTO.EquipoId)] = Oportunidad.EquipoId.ToString();
             var uri = Constructor_De_URL_Parametros.Generar_URL(query);
 
             var response = await http.Get<List<CRMVendedorDTO>>($"api/crmvendedor?{uri}");
@@ -668,7 +668,11 @@
     {
         try
         {
-            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos/cuenta/{Oportunidad.CuentaId}");
+            Dictionary<string, string> query = new();
+            query[nameof(CRMContactoDTO.CuentaId)] = Oportunidad.CuentaId.ToString();
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos?{uri}");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
