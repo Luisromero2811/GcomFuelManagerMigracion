@@ -77,7 +77,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_VENDEDOR">
                                                     <Authorized Context="ELMINARVENDEDOR">
-                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item.Id))">
+                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -127,6 +127,7 @@
         query[$"{nameof(filtro.Correo)}"] = filtro.Correo;
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
         query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        query[nameof(filtro.Paginacion)] = true.ToString();
         return query;
     }
 
@@ -185,19 +186,32 @@
         await ObtenerVendedor();
     }
 
-    private async Task EliminarVendedor(int id)
+    private async Task EliminarVendedor(CRMVendedorDTO crm)
     {
         try
         {
-            var response = await http.Delete($"api/crmvendedor/{id}");
-            if (response.Error)
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el vendedor {crm.Fullname}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await ObtenerVendedor();
+
+                var response = await http.Delete($"api/crmvendedor/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await ObtenerVendedor();
+                }
             }
         }
         catch (Exception e)

@@ -8,6 +8,7 @@ using GComFuelManager.Client.Repositorios;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.AspNetCore.Http.Features;
 using Radzen;
 using System.Globalization;
 
@@ -61,6 +62,11 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<CRMClientePostValidator>();
 
     services.AddScoped<Constructor_De_URL_Parametros>();
+
+    services.Configure<FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = 10485760;//10mb
+    });
 
     services.AddAuthorizationCore(config =>
     {

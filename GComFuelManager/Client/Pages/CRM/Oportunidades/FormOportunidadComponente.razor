@@ -247,6 +247,14 @@
                             </div>
                         </Body>
                     </Card>
+                    <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <Subir_Archivo TResponse="List<CRMDocumentoDTO>" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls" Texto_Label="Documentos (5 max.)"
+                                    MaxSize="2" MaxAllowedFiles="1" />
+                            </div>
+                        </Body>
+                    </Card>
                     <div class="col-12">
                         <div class="col-3">
                             <button type="submit" class="btn gcom-bg-amarillo col-12">
@@ -290,9 +298,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id != 0)
-            await ObtenerOportunidad();
-
         await Task.WhenAll(
         ObtenerCatalogoEtapa(),
         ObtenerCatalogoMedida(),
@@ -309,6 +314,11 @@
         ObtenerContacto(),
         ObtenerEquipos());
 
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerOportunidad();
     }
 
     private async Task ObtenerVendedores(string value = "")

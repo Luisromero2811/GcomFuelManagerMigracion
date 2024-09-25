@@ -1,6 +1,7 @@
 ﻿@page "/crm/cuentas"
 @inject IRepositorio http
 @inject SweetAlertService swal
+@inject NavigationManager navigate
 @attribute [Authorize(Roles = "Admin, VER_MODULO_CUENTAS")]
 
 <AuthorizeView Roles="Admin, VER_MODULO_CUENTAS">
@@ -33,7 +34,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, EDITAR_CUENTA, ELIMINAR_CUENTA, VER_DETALLE_CUENTA">
                                     <Authorized Context="ACCIONES">
-                                        <th></th>
+                                        <th style="max-width:180px;"></th>
                                     </Authorized>
                                 </AuthorizeView>
                                 <th>Cuenta</th>
@@ -71,7 +72,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_CUENTA">
                                                     <Authorized Context="ELMINARVENDEDOR">
-                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarVendedor(item.Id))">
+                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarCuenta(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -108,6 +109,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        query = navigate.ObtenerQueryString(navigate.Uri);
         await ObtenerCuenta();
     }
 
@@ -116,6 +118,8 @@
         query[$"{nameof(filtro.Nombre)}"] = filtro.Nombre;
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
         query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        query[nameof(Parametros_Busqueda_Gen.Paginacion)] = true.ToString();
+
         return query;
     }
 
@@ -125,6 +129,7 @@
         {
             loading_info = true;
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+            navigate.NavigateTo($"crm/cuentas?{uri}");
 
             var response = await http.Get<List<CRMClienteDTO>>($"api/crmcliente?{uri}");
             if (response.Error)
@@ -164,19 +169,32 @@
         await ObtenerCuenta();
     }
 
-    private async Task EliminarVendedor(int id)
+    private async Task EliminarCuenta(CRMClienteDTO cRM)
     {
         try
         {
-            var response = await http.Delete($"api/crmcliente/{id}");
-            if (response.Error)
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar la cuenta {cRM.Nombre}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await ObtenerCuenta();
+
+                var response = await http.Delete($"api/crmcliente/{cRM.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await ObtenerCuenta();
+                }
             }
         }
         catch (Exception e)

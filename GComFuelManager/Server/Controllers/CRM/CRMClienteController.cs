@@ -41,10 +41,13 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(cliente.Nombre))
                     clientes = clientes.Where(x => x.Nombre.ToLower().Contains(cliente.Nombre.ToLower()));
 
-                await HttpContext.InsertarParametrosPaginacion(clientes, cliente.Registros_por_pagina, cliente.Pagina);
+                if (cliente.Paginacion)
+                {
+                    await HttpContext.InsertarParametrosPaginacion(clientes, cliente.Registros_por_pagina, cliente.Pagina);
+                    cliente.Pagina_ACtual = HttpContext.ObtenerPagina();
+                    clientes = clientes.Skip((cliente.Pagina - 1) * cliente.Registros_por_pagina).Take(cliente.Registros_por_pagina);
+                }
 
-                cliente.Pagina_ACtual = HttpContext.ObtenerPagina();
-                clientes = clientes.Skip((cliente.Pagina - 1) * cliente.Registros_por_pagina).Take(cliente.Registros_por_pagina);
                 var clientesdto = clientes.Select(x => mapper.Map<CRMCliente, CRMClienteDTO>(x));
                 return Ok(clientesdto);
             }
@@ -70,6 +73,63 @@ namespace GComFuelManager.Server.Controllers.CRM
                 }
                 else
                     await context.AddAsync(cliente);
+
+                await context.SaveChangesAsync();
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{Id:int}")]
+        public async Task<ActionResult> GetById([FromRoute] int Id)
+        {
+            try
+            {
+                var cliente = await context.CRMClientes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == Id);
+                if (cliente is null) return NotFound();
+
+                var clientedto = mapper.Map<CRMCliente, CRMClientePostDTO>(cliente);
+                return Ok(clientedto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("{Id:int}/detalle")]
+        public async Task<ActionResult> GetDetalle([FromRoute] int Id)
+        {
+            try
+            {
+                var cliente = await context.CRMClientes.AsNoTracking().Include(x => x.Contacto).FirstOrDefaultAsync(x => x.Id == Id);
+                if (cliente is null) return NotFound();
+
+                var clientedto = mapper.Map<CRMCliente, CRMClienteDetalleDTO>(cliente);
+                return Ok(clientedto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<ActionResult> Delete([FromRoute] int Id)
+        {
+            try
+            {
+                var cliente = await context.CRMClientes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == Id);
+                if (cliente is null) return NotFound();
+
+                cliente.Activo = false;
+
+                context.Update(cliente);
+                await context.SaveChangesAsync();
 
                 return NoContent();
             }

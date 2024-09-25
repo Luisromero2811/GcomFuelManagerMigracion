@@ -15,6 +15,7 @@ namespace GComFuelManager.Shared.Filtro
         [NotMapped, EpplusIgnore, JsonIgnore] public DateTime Fecha_Inicio { get; set; } = DateTime.Today;
         [NotMapped, EpplusIgnore, JsonIgnore] public DateTime Fecha_Fin { get; set; } = DateTime.Today;
         [NotMapped, EpplusIgnore, JsonIgnore] public bool Excel { get; set; } = false;
+        [NotMapped, EpplusIgnore, JsonIgnore] public bool Paginacion { get; set; } = false;
         //public T? Objeto { get; set; }
     }
 }

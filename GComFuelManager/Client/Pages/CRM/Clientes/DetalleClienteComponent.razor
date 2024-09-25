@@ -1,5 +1,462 @@
-﻿<h3>DetalleClienteComponent</h3>
+﻿@page "/crm/cuenta/{Id:int}"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject NavigationManager navigation
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_CUENTA")]
+
+<AuthorizeView Roles="Admin, VER_DETALLE_CUENTA">
+    <Authorized>
+        <Card HeaderClass="d-flex justify-content-between" LoadingContent="loading_info">
+            <Header>
+                <b>Detalle de cuenta</b>
+                <div class="btn-group">
+                    <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </button>
+                    <AuthorizeView Roles="Admin, EDITAR_CUENTA">
+                        <Authorized Context="EDITARCUENTA">
+                            <NavLink class="g-1 btn gcom-bg-amarillo" href="@($"crm/cuentas/formulario/{Id}")">
+                                <i class="fa fa-solid fa-edit" /> Editar
+                            </NavLink>
+                        </Authorized>
+                    </AuthorizeView>
+                    <AuthorizeView Roles="Admin, EDITAR_CUENTA">
+                        <Authorized Context="EDITARCUENTA">
+                            <button class="btn btn-danger" @onclick="EliminarCuenta">
+                                <i class="fa fa-solid fa-trash" /> Eliminar
+                            </button>
+                        </Authorized>
+                    </AuthorizeView>
+                </div>
+            </Header>
+            <Body>
+                <Card HeaderText="Datos principales" BodyClass="col-12 row">
+                    <Body>
+                        <div class="col-md-4 col-12">
+                            <label><b>Cuenta</b></label>
+                            <p>@Cuenta.Nombre</p>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Datos de contacto principal" BodyClass="col-12 row">
+                    <Body>
+                        <div class="col-md-4 col-12">
+                            <label><b>Nombre de contacto</b></label>
+                            <p>@Cuenta.Contacto?.FullName</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Telefono movil</b></label>
+                            <p>@Cuenta.Contacto?.Tel_Movil</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Telefono de oficina</b></label>
+                            <p>@Cuenta.Contacto?.Tel_Oficina</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Correo electronico</b></label>
+                            <p>@Cuenta.Contacto?.Correo</p>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Contactos">
+                    <Body>
+                        <div class="ancho-tabla" style="max-height:450px;">
+                            <Tabla Datos="Contactos">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Contacto</th>
+                                        <th>Telefono movil</th>
+                                        <th>Correo electronico</th>
+                                    </tr>
+                                </Cabeceras>
+                                <Filtros>
+                                    <tr>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroContacto.Nombre" placeholder="Filtrar contacto"
+                                                   @oninput="@((args) => FiltrarParametros(args, nameof(filtroContacto.Nombre)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroContacto.Tel_Movil" placeholder="Filtrar telefono movil"
+                                                   @oninput="@((args) => FiltrarParametros(args, nameof(filtroContacto.Tel_Movil)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroContacto.Correo" placeholder="Filtrar correo electronico"
+                                                   @oninput="@((args) => FiltrarParametros(args, nameof(filtroContacto.Correo)))" />
+                                        </td>
+                                    </tr>
+                                </Filtros>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
+                                                <Authorized Context="VERDETALLECONTACTO">
+                                                    <NavLink href="@($"crm/contacto/{item.Id}")">
+                                                        @item.FullName
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLECONTACTO">
+                                                    @item.FullName
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>@item.Tel_Movil</td>
+                                        <td>@item.Correo</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
+                    </Body>
+                </Card>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtroContacto.Pagina_ACtual" PaginasTotales="filtroContacto.Total_paginas" Radio="5" PaginaSeleccionada="PaginaSeleccionadaContacto" />
+                </div>
+                <Card HeaderText="Oportunidades">
+                    <Body>
+                        <div class="ancho-tabla" style="max-height:450px;">
+                            <Tabla Datos="Oportunidades">
+                                <Cabeceras>
+                                    <tr>
+                                        <th>Oportunidad</th>
+                                        <th>Importe total</th>
+                                        <th>Equipo</th>
+                                        <th>Division</th>
+                                        <th>Vendedor</th>
+                                        <th>Contacto</th>
+                                        <th>Estapa de venta</th>
+                                    </tr>
+                                </Cabeceras>
+                                <Filtros>
+                                    <tr>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.Nombre_Opor" placeholder="Filtrar contacto"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.Nombre_Opor)))" />
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.Equipo" placeholder="Filtrar telefono movil"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.Equipo)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.Division" placeholder="Filtrar correo electronico"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.Division)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.Vendedor" placeholder="Filtrar correo electronico"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.Vendedor)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.Contacto" placeholder="Filtrar correo electronico"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.Contacto)))" />
+                                        </td>
+                                        <td>
+                                            <input class="form-control" @bind-value="filtroOpoertunidad.EtapaVenta" placeholder="Filtrar correo electronico"
+                                                   @oninput="@((args) => FiltrarParametrosOportunidades(args, nameof(filtroOpoertunidad.EtapaVenta)))" />
+                                        </td>
+                                    </tr>
+                                </Filtros>
+                                <Columnas Context="item">
+                                    <tr>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTOS">
+                                                <Authorized Context="VERDETALLECONTACTO">
+                                                    <NavLink href="@($"crm/oportunidad/{item.Id}")">
+                                                        @item.Nombre_Opor
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLECONTACTO">
+                                                    @item.Nombre_Opor
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>$@item.ValorOportunidad.ToString("N2", CultureInfo.InvariantCulture)</td>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_EQUIPO">
+                                                <Authorized Context="VERDETALLEEQUIPO">
+                                                    <NavLink href="@($"crm/equipo/{item.EquipoId}")">
+                                                        @item.Equipo
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLEEQUIPO">
+                                                    @item.Equipo
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>@item.Division</td>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_VENDEDORES">
+                                                <Authorized Context="VERDETALLEVENDEDOR">
+                                                    <NavLink href="@($"crm/vendedor/{item.VendedorId}")">
+                                                        @item.Vendedor
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLEVENDEDOR">
+                                                    @item.Vendedor
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>
+                                            <AuthorizeView Roles="Admin, VER_DETALLE_CONTACTO">
+                                                <Authorized Context="VERDETALLECONTACTO">
+                                                    <NavLink href="@($"crm/contacto/{item.ContactoId}")">
+                                                        @item.Contacto
+                                                    </NavLink>
+                                                </Authorized>
+                                                <NotAuthorized Context="VERDETALLECONTACTO">
+                                                    @item.Contacto
+                                                </NotAuthorized>
+                                            </AuthorizeView>
+                                        </td>
+                                        <td>@item.EtapaVenta</td>
+                                    </tr>
+                                </Columnas>
+                            </Tabla>
+                        </div>
+                    </Body>
+                </Card>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtroOpoertunidad.Pagina_ACtual" PaginasTotales="filtroOpoertunidad.Total_paginas"
+                                         Radio="5" PaginaSeleccionada="PaginaSeleccionadaOportunidades" />
+                </div>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    [Parameter] public int Id { get; set; }
 
+    CRMClienteDetalleDTO Cuenta = new();
+
+    CRMContactoDTO filtroContacto = new();
+    List<CRMContactoDTO> Contactos = new();
+
+    CRMOportunidadDTO filtroOpoertunidad = new();
+    List<CRMOportunidadDTO> Oportunidades = new();
+
+    public bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id.IsZero()) return;
+
+        await ObtenerCliente();
+        await ObtenerContactos();
+        await ObtenerOportunidades();
+    }
+
+    private async Task ObtenerCliente()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMClienteDetalleDTO>($"api/crmcliente/{Id}/detalle");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Cuenta = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private Dictionary<string, string> SetParametrosContacto()
+    {
+        var param = new Dictionary<string, string>();
+
+        param[nameof(filtroContacto.Nombre)] = filtroContacto.Nombre;
+        param[nameof(filtroContacto.Tel_Movil)] = filtroContacto.Tel_Movil;
+        param[nameof(filtroContacto.Correo)] = filtroContacto.Correo;
+        param[nameof(filtroContacto.Paginacion)] = true.ToString();
+        param[nameof(filtroContacto.Registros_por_pagina)] = filtroContacto.Registros_por_pagina.ToString();
+        param[nameof(filtroContacto.Pagina)] = filtroContacto.Pagina.ToString();
+        param[nameof(filtroContacto.CuentaId)] = Id.ToString();
+
+        return param;
+    }
+
+    private async Task ObtenerContactos()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParametrosContacto());
+            var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Contactos = response.Response;
+
+                filtroContacto.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtroContacto.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtroContacto.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarParametros(ChangeEventArgs args, string campo)
+    {
+        switch (campo)
+        {
+            case nameof(filtroContacto.Nombre):
+                filtroContacto.Nombre = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroContacto.Tel_Movil):
+                filtroContacto.Tel_Movil = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroContacto.Correo):
+                filtroContacto.Correo = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await ObtenerContactos();
+    }
+
+    private async Task PaginaSeleccionadaContacto(int pagina)
+    {
+        filtroContacto.Pagina = pagina;
+        filtroContacto.Pagina_ACtual = pagina;
+        await ObtenerContactos();
+    }
+
+    private Dictionary<string, string> SetParametrosOportunidades()
+    {
+        var param = new Dictionary<string, string>();
+
+        param[nameof(filtroOpoertunidad.Nombre_Opor)] = filtroOpoertunidad.Nombre_Opor;
+        param[nameof(filtroOpoertunidad.Equipo)] = filtroOpoertunidad.Equipo;
+        param[nameof(filtroOpoertunidad.Division)] = filtroOpoertunidad.Division;
+        param[nameof(filtroOpoertunidad.Vendedor)] = filtroOpoertunidad.Vendedor;
+        param[nameof(filtroOpoertunidad.Contacto)] = filtroOpoertunidad.Contacto;
+        param[nameof(filtroOpoertunidad.EtapaVenta)] = filtroOpoertunidad.EtapaVenta;
+        param[nameof(filtroOpoertunidad.Paginacion)] = true.ToString();
+        param[nameof(filtroOpoertunidad.Registros_por_pagina)] = filtroOpoertunidad.Registros_por_pagina.ToString();
+        param[nameof(filtroOpoertunidad.Pagina)] = filtroOpoertunidad.Pagina.ToString();
+        param[nameof(filtroOpoertunidad.CuentaId)] = Id.ToString();
+
+        return param;
+    }
+
+    private async Task ObtenerOportunidades()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParametrosOportunidades());
+            var response = await http.Get<List<CRMOportunidadDTO>>($"api/crmoportunidad?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Oportunidades = response.Response;
+
+                filtroOpoertunidad.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtroOpoertunidad.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtroOpoertunidad.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task FiltrarParametrosOportunidades(ChangeEventArgs args, string campo)
+    {
+        switch (campo)
+        {
+            case nameof(filtroOpoertunidad.Nombre_Opor):
+                filtroOpoertunidad.Nombre_Opor = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroOpoertunidad.Equipo):
+                filtroOpoertunidad.Equipo = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroOpoertunidad.Division):
+                filtroOpoertunidad.Division = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroOpoertunidad.Vendedor):
+                filtroOpoertunidad.Vendedor = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroOpoertunidad.Contacto):
+                filtroOpoertunidad.Contacto = args.Value?.ToString() ?? string.Empty;
+                break;
+            case nameof(filtroOpoertunidad.EtapaVenta):
+                filtroOpoertunidad.EtapaVenta = args.Value?.ToString() ?? string.Empty;
+                break;
+            default:
+                break;
+        }
+        await ObtenerOportunidades();
+    }
+
+    private async Task PaginaSeleccionadaOportunidades(int pagina)
+    {
+        filtroOpoertunidad.Pagina = pagina;
+        filtroOpoertunidad.Pagina_ACtual = pagina;
+        await ObtenerOportunidades();
+    }
+
+    private async Task EliminarCuenta()
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar la cuenta {Cuenta.Nombre}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var response = await http.Delete($"api/crmcliente/{Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    navigation.NavigateTo("crm/cuentas");
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
 }

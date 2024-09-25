@@ -77,7 +77,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_EQUIPO">
                                                     <Authorized Context="ELIMINAREQUIPO">
-                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
+                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -135,6 +135,8 @@
         try
         {
             loading_info = true;
+
+            query[nameof(Parametros_Busqueda_Gen.Paginacion)] = true.ToString();
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
 
             var response = await http.Get<List<CRMEquipoDTO>>($"api/crmequipo?{uri}");
@@ -161,19 +163,32 @@
         }
     }
 
-    private async Task Eliminar(int id)
+    private async Task Eliminar(CRMEquipoDTO crm)
     {
         try
         {
-            var response = await http.Delete($"api/crmequipo/{id}");
-            if (response.Error)
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el equipo {crm.Nombre}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await Obtener();
+
+                var response = await http.Delete($"api/crmequipo/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Obtener();
+                }
             }
         }
         catch (Exception e)

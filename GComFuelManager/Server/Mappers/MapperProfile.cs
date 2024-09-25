@@ -83,7 +83,7 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMCliente, CRMClientePostDTO>();
             CreateMap<CRMClientePostDTO, CRMCliente>()
                 .ForMember(x => x.Activo, op => op.Ignore());
-            CreateMap<CRMCliente, CRMClienteDetalle>();
+            CreateMap<CRMCliente, CRMClienteDetalleDTO>();
         }
     }
 }

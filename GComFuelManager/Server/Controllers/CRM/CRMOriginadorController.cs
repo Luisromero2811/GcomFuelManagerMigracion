@@ -49,11 +49,13 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(dTO.Correo) || !string.IsNullOrWhiteSpace(dTO.Correo))
                     originadores = originadores.Where(v => !string.IsNullOrEmpty(v.Correo) && v.Correo.ToLower().Contains(dTO.Correo.ToLower()));
 
-                await HttpContext.InsertarParametrosPaginacion(originadores, dTO.Registros_por_pagina, dTO.Pagina);
+                if (dTO.Paginacion)
+                {
+                    await HttpContext.InsertarParametrosPaginacion(originadores, dTO.Registros_por_pagina, dTO.Pagina);
+                    dTO.Pagina = HttpContext.ObtenerPagina();
+                    originadores = originadores.Include(x => x.Division).Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+                }
 
-                dTO.Pagina = HttpContext.ObtenerPagina();
-
-                originadores = originadores.Include(x => x.Division).Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
                 var originadoresdto = originadores.Select(x => mapper.Map<CRMOriginadorDTO>(x));
                 return Ok(originadoresdto);
             }

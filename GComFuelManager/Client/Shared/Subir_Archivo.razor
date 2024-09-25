@@ -7,12 +7,12 @@
 <div class="col-12">
     <label>@Texto_Label</label>
 
-    @if(Deshabilitar)
+    @if (Deshabilitar)
     {
-        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" disabled="@true"/>
+        <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" disabled="@true" />
     }
     else
-    {    
+    {
         <InputFile class="form-control form-control-sm" accept="@Accept" multiple OnChange="UploadFile" />
     }
 
@@ -29,7 +29,9 @@
     [Parameter] public string Texto_Label { get; set; } = "Importar:";
     [Parameter] public bool Mostrar_Mensaje_Exito { get; set; } = false;
     [Parameter] public bool Deshabilitar { get; set; } = false;
-
+    [Parameter] public Dictionary<string, string>? ExtraData { get; set; } = null!;
+    [Parameter] public int MaxAllowedFiles { get; set; } = 1;
+    [Parameter] public int MaxSize { get; set; } = 1;
     List<UploadResult> UploadResults = new();
 
     List<File> files = new();
@@ -38,9 +40,9 @@
 
     private async Task UploadFile(InputFileChangeEventArgs args)
     {
-        long MaxAllowedSize = 1024 * 15 * 1024;
+        long MaxAllowedSize = 1024 * 1024 * MaxSize;
         bool upload = false;
-        int MaxAllowedFiles = 10;
+        // int MaxAllowedFiles = 5;
 
         files = new();
 
@@ -52,6 +54,14 @@
                 files.Add(new() { Name = file.Name });
                 var filecontent = new StreamContent(file.OpenReadStream(MaxAllowedSize));
                 filecontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+                if (ExtraData is not null)
+                {
+                    foreach (var item in ExtraData)
+                    {
+                        content.Add(filecontent, item.Key, item.Value);
+                    }
+                }
 
                 content.Add(content: filecontent, name: "\"files\"", fileName: file.Name);
                 upload = true;
