@@ -119,19 +119,29 @@
                     </div>
                     <div class="col-4 my-1">
                         <label>Equipo</label>
-                        <DropDownFilter Listado="Equipos" TListado="CRMEquipoDTO" TValue="int" Default_Placeholder="Seleccione un equipo" FiltrarValor="ObtenerEquipos"
-                                        @bind-Valor="@CRMActividad.EquipoId" Propiedad_Valor="Id">
-                            <RenderValue Context="item">
-                                @item.Nombre
-                            </RenderValue>
-                            <Render Context="item">
-                                <div class="d-flex">
+                        <InputSelect @bind-Value="@CRMActividad.EquipoId" class="form-select form-select-sm">
+                            <option>-- Seleccione un Equipo --</option>
+                            @if (Equipos == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else if (Equipos.Count == 0)
+                            {
+                                <option>No hay Equipos.</option>
+                            }
+                            else
+                            {
+                                @foreach (var item in Equipos)
+                                {
                                     <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
-                                    <p class="my-auto">@($"{item.Nombre} - {item.Lider}")</p>
-                                </div>
-                            </Render>
-                        </DropDownFilter>
-                        <InputSelect @bind-Value="CRMActividad.CuentaId" class="d-none" />
+                                    <option value="@item.Id">@item.Nombre @item.Lider</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="col-6 my-1">
+                        <label>Documento:</label>
+                        <InputFile/>
                     </div>
                 </div>
                 <!--Boton de creación y edición-->

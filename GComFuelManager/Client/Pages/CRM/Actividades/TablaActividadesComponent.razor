@@ -2,6 +2,7 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 @inject NotificationService ns
+@inject IJSRuntime Js 
 <!--Tabla de muestreo de datos de actividades-->
 <div class="card mt-2" style="height: 500px; overflow: scroll;">
     <div class="card-header">
@@ -13,16 +14,25 @@
                 <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
                     <i class="fa fa-solid fa-arrow-left"></i> Volver
                 </NavLink>
+                <NavLink class="g-1 btn gcom-bg-rojo ms-1" href="crm/historial/actividades" Match="NavLinkMatch.All">
+                    Ir a Historial
+                </NavLink>
             </div>
         </div>
 
     </div>
     <div class="card-body">
-        <div class="col-12 row">
-            <div class="col-3 mb-2">
+        <div class="col-12 my-2 d-flex justify-content-between">
+            <div class="col-md-2 col">
                 <NavLink class="btn btn-sm g-1 col-12 gcom-bg-amarillo" href="crm/gestion/actividades">
                     <i class="fa fa-solid fa-plus" /> Crear Nueva Actividad
                 </NavLink>
+            </div>
+            <div class="col-md-2 col">
+                <button class="btn col-12 gcom-bg-amarillo btn-sm g-1" @onclick="ExportarActividades">
+                    <i class="fa fa-solid fa-file-excel"></i>
+                    Exportar
+                </button>
             </div>
         </div>
         <div class="col-12">
@@ -209,6 +219,32 @@
                     Message(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Actividad deshabilitado", Detail = "La actividad ha sido deshabilitada." });
                 }
             }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ExportarActividades()
+    {
+        try
+        {
+            query[nameof(filtro_actividad.Excel)] = true.ToString();
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var responseHttp = await repositorio.Get<byte[]>($"api/actividades?{uri}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await Js.GuardarComo($"Actividades_{DateTime.Today:g}.xlsx", responseHttp.Response);
+            }
+
         }
         catch (Exception e)
         {

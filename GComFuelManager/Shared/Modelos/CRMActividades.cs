@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using GComFuelManager.Shared.DTOs.CRM;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -25,5 +26,21 @@ namespace GComFuelManager.Shared.Modelos
         public CRMVendedor? vendedor { get; set; } = null!;
         public CRMContacto? contacto { get; set; } = null!;
         public CRMEquipo? Equipo { get; set; } = null!;
+
+        public CRMActividadExcelDTO Asignacion_Datos()
+        {
+            CRMActividadExcelDTO gestion_ = new();
+
+            gestion_.Contacto_Rel = (contacto?.Nombre ?? "") + " " + (contacto?.Apellidos ?? "");
+            gestion_.Asunto = asuntos?.Valor;
+            gestion_.Prioridad = prioridades?.Valor;
+            gestion_.Fch_Inicio = Fch_Inicio;
+            gestion_.Fecha_Ven = Fecha_Ven;
+            gestion_.Estatus = Estados?.Valor;
+            gestion_.Asignado = (vendedor?.Nombre ?? "") + " " + (vendedor?.Apellidos ?? "");
+            gestion_.Desccripcion = Desccripcion;
+
+            return gestion_;
+        }
     }
 }

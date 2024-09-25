@@ -11,14 +11,17 @@
                 <b>Historial de Actividades</b>
             </div>
             <div>
-                <NavLink class="g-1" href="../" Match="NavLinkMatch.All">
+                <NavLink class="g-1 btn gcom-bg-amarillo" href="../" Match="NavLinkMatch.All">
                     <i class="fa fa-solid fa-arrow-left"></i> Volver
+                </NavLink>
+                <NavLink class="g1 btn gcom-bg-rojo" href="crm/listado/actividades" Match="NavLinkMatch.All">
+                    Ir a Actividades
                 </NavLink>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <div class="col-12 row">
+        <div class="col-12 row d-fle">
             <!--Calendarios y boton para filtrar-->
             <div class="col-3">
                 <label>De:</label>
@@ -28,8 +31,11 @@
                 <label>A:</label>
                 <input type="date" class="form-control form-control-sm" @bind-value="Listado_Actividad.Fecha_Ven" />
             </div>
-            <div class="col-3 d-flex">
+            <div class="col-3 mt-auto">
                 <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Get_Activities"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+            </div>
+            <div class="col-3 mt-auto">
+                <button class="btn btn-sm gcom-bg-amarillo mt-auto" @onclick="Export_Activities"><i class="fa fa-solid fa-file-excel"></i>Exportar</button>
             </div>
         </div>
         <!--Tabla de muestreo de datos para mostrar el historial de actividades-->
@@ -100,6 +106,7 @@
     List<CRMActividadDTO> ListadoActividad { get; set; } = new();
 
     Dictionary<string, string> keys = new();
+    Dictionary<string, string> query = new();
 
     private Dictionary<string, string> SetFiltro()
     {
@@ -109,6 +116,11 @@
         keys["Asunto"] = Listado_Actividad.Asunto ?? string.Empty;
         keys["Prioridad"] = Listado_Actividad.Prioridad ?? string.Empty;
         return keys;
+    }
+
+    private Dictionary<string, string> SetParameter()
+    {
+        return query;
     }
 
     public async Task Get_Activities()
@@ -157,6 +169,27 @@
             await ds.OpenAsync<ModalDescriptionComponent>($"Descripción:",
             new Dictionary<string, object>() { { "Desccripcion", Desccripcion } },
                    new DialogOptions() { Height = "70px", Width = "85%", Resizable = true, Draggable = false, CloseDialogOnOverlayClick = true });
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Export_Activities()
+    {
+        try
+        {
+            var responseHttp = await repositorio.Post<CRMActividadDTO, byte[]>($"api/actividades/historialExcel", Listado_Actividad);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                await js.GuardarComo($"Historial_Actividades_{DateTime.Today:g}.xlsx", responseHttp.Response);
+            }
         }
         catch (Exception e)
         {
