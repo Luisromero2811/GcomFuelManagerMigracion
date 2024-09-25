@@ -116,7 +116,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_CONTACTO">
                                                     <Authorized Context="ELIMINARCONTACTO">
-                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarContacto(item.Id))">
+                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarContacto(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -186,6 +186,7 @@
         try
         {
             loading_info = true;
+            query[nameof(Parametros_Busqueda_Gen.Paginacion)] = true.ToString();
             var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
 
             var response = await http.Get<List<CRMContactoDTO>>($"api/crmcontactos?{uri}");
@@ -263,19 +264,31 @@
         await ObtenerContactos();
     }
 
-    private async Task EliminarContacto(int id)
+    private async Task EliminarContacto(CRMContactoDTO crm)
     {
         try
         {
-            var response = await http.Delete($"api/crmcontactos/{id}");
-            if (response.Error)
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el contacto {crm.FullName}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await ObtenerContactos();
+                var response = await http.Delete($"api/crmcontactos/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await ObtenerContactos();
+                }
             }
         }
         catch (Exception e)

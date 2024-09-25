@@ -95,7 +95,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_OPORTUNIDAD">
                                                     <Authorized Context="ELIMINAROPORTUNIDAD">
-                                                        <button class="btn btn-danger">
+                                                        <button class="btn btn-danger" @onclick="@(()=>EliminarOportunidad(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -281,12 +281,47 @@
             {
                 loading_info = false;
 
-                await js.GuardarComo($"Oportunidades_{DateTime.Today:g}.xlsx", response.Response);
+                await js.GuardarComo($"Oportunidades_{DateTime.Now:g}.xlsx", response.Response);
             }
         }
         catch (Exception e)
         {
             loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task EliminarOportunidad(CRMOportunidadDTO crm)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar la oportunidad {crm.Nombre_Opor}?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+
+                var response = await http.Delete($"api/crmoportunidad/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await ObtenerOportunidades();
+                }
+            }
+        }
+        catch (Exception e)
+        {
             await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
         }
 

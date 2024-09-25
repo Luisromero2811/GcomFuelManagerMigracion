@@ -115,6 +115,12 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(dTO.Division) || !string.IsNullOrWhiteSpace(dTO.Division))
                     oportunidades = oportunidades.Where(x => x.Equipo.Division != null && x.Equipo.Division.Nombre.ToLower().Contains(dTO.Division.ToLower()));
 
+                if (!dTO.EquipoId.IsZero())
+                    oportunidades = oportunidades.Where(x => x.EquipoId.Equals(dTO.EquipoId));
+
+                if (!dTO.CuentaId.IsZero())
+                    oportunidades = oportunidades.Where(x => x.CuentaId.Equals(dTO.CuentaId));
+
                 if (dTO.Excel)
                 {
                     ExcelPackage.LicenseContext = LicenseContext.Commercial;

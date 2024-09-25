@@ -118,14 +118,14 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (contacto.CuentaId != 0)
                     contactos = contactos.Where(x => x.CuentaId == contacto.CuentaId);
-
-                await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
-
-                contacto.Pagina = HttpContext.ObtenerPagina();
-
-                //var contactos_filtrados = await contactos.Select(x => mapper.Map<CRMContactoDTO>(x)).ToListAsync();
-                contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
-
+                
+                if (contacto.Paginacion)
+                {
+                    await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
+                    contacto.Pagina = HttpContext.ObtenerPagina();
+                    contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
+                }
+                
                 var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
 
                 return Ok(contactosdto);

@@ -12,35 +12,38 @@
         <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between">
             <Header>
                 <b>Formulario de cuenta</b>
-                <NavLink class="g-1 btn gcom-bg-amarillo" href="crm/cuentas" Match="NavLinkMatch.All">
+                <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
                     <i class="fa fa-solid fa-arrow-left" /> Volver
-                </NavLink>
+                </button>
             </Header>
             <Body>
-                <EditForm class="col-12 row" Model="Cuenta" OnValidSubmit="GuardarCuenta" Context="FORMCUENTA">
+                <EditForm class="col-12" Model="Cuenta" OnValidSubmit="GuardarCuenta" Context="FORMCUENTA">
 
                     <ValidationSummary />
                     <FluentValidationValidator Validator="validator" />
 
-                    <div class="col-md-4 col-12">
-                        <label>Nombre</label>
-                        <InputText @bind-Value="Cuenta.Nombre" class="form-control" />
-                        <ValidationMessage For="@(()=> Cuenta.Nombre)" />
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label>Contacto principal</label>
-                        <DropDownFilter Listado="Contactos" TListado="CRMContactoDTO" TValue="CRMContactoDTO" Default_Placeholder="Contactos"
-                            Propiedad_Valor="Id" Default_Placeholder_Filter="Nombre de contacto" FiltrarValor="ObtenerContactos">
-                            <RenderValue Context="item">
-                                @($"{item.Nombre} {item.Apellidos}")
-                            </RenderValue>
-                            <Render Context="item">
-                                @($"{item.Nombre} {item.Apellidos} - {item.Tel_Movil} - {item.Correo}")
-                            </Render>
-                        </DropDownFilter>
-                    </div>
+                    <Card HeaderText="Datos principales" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-md-4 col-12">
+                                <label>Nombre</label>
+                                <InputText @bind-Value="Cuenta.Nombre" class="form-control" />
+                                <ValidationMessage For="@(()=> Cuenta.Nombre)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Contacto principal</label>
+                                <DropDownFilter Listado="Contactos" TListado="CRMContactoDTO" TValue="int" Default_Placeholder="Contactos" @bind-Valor="Cuenta.ContactoPrincipalId"
+                                                Propiedad_Valor="Id" Default_Placeholder_Filter="Nombre de contacto" FiltrarValor="ObtenerContactos">
+                                    <RenderValue Context="item">
+                                        @($"{item.Nombre} {item.Apellidos}")
+                                    </RenderValue>
+                                    <Render Context="item">
+                                        @($"{item.Nombre} {item.Apellidos} - {item.Tel_Movil} - {item.Correo}")
+                                    </Render>
+                                </DropDownFilter>
+                            </div>
+                        </Body>
+                    </Card>
                     <div class="col-12">
-
                         <div class="col-md-4 col-12 d-flex">
                             <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
                                 <i class="fa fa-solid fa-floppy-disk" />

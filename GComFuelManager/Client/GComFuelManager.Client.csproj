@@ -60,6 +60,7 @@
   <ItemGroup>
     <Folder Include="Auth\" />
     <Folder Include="Pages\Auth\" />
+    <Folder Include="Pages\CRM\Documentos\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\CRM\Actividades\" />
     <Folder Include="Pages\CRM\Historiales\" />

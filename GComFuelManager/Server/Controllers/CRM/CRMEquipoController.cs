@@ -89,11 +89,13 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!string.IsNullOrEmpty(dTO.Division) || !string.IsNullOrWhiteSpace(dTO.Division))
                     equipos = equipos.Where(v => v.Division.Nombre.ToLower().Contains(dTO.Division.ToLower()));
 
-                await HttpContext.InsertarParametrosPaginacion(equipos, dTO.Registros_por_pagina, dTO.Pagina);
+                if (dTO.Paginacion)
+                {
+                    await HttpContext.InsertarParametrosPaginacion(equipos, dTO.Registros_por_pagina, dTO.Pagina);
+                    dTO.Pagina = HttpContext.ObtenerPagina();
+                    equipos = equipos.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+                }
 
-                dTO.Pagina = HttpContext.ObtenerPagina();
-
-                equipos = equipos.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
                 var equiposdto = equipos.Select(x => mapper.Map<CRMEquipoDTO>(x));
 
                 return Ok(equiposdto);

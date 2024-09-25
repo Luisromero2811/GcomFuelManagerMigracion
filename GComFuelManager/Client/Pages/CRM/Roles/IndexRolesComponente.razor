@@ -73,7 +73,7 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_ROL">
                                                     <Authorized Context="ELIMINARROL">
-                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item.Id))">
+                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item))">
                                                             <i class="fa fa-solid fa-trash" />
                                                         </button>
                                                     </Authorized>
@@ -150,19 +150,31 @@
         }
     }
 
-    private async Task Eliminar(int id)
+    private async Task Eliminar(CRMRolDTO crm)
     {
         try
         {
-            var response = await http.Delete($"api/crmrol/{id}");
-            if (response.Error)
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el rol {crm.Nombre}?\n(Al eliminar el rol, los usuarios con este rol asignado perderan el rol y sus permisos asociados a este)",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
             {
-                var message = await response.ObtenerMensajeError();
-                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
-            }
-            else
-            {
-                await Obtener();
+                var response = await http.Delete($"api/crmrol/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Obtener();
+                }
             }
         }
         catch (Exception e)

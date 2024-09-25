@@ -202,10 +202,18 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var vendedor = await context.CRMRoles.FindAsync(Id);
-                if (vendedor is null) { return NotFound(); }
-                vendedor.Activo = false;
-                context.Update(vendedor);
+                var rol = await context.CRMRoles.FindAsync(Id);
+                if (rol is null) { return NotFound(); }
+                rol.Activo = false;
+                context.Update(rol);
+
+                var relacion_permisos = await context.CRMRolPermisos.Where(x => x.RolId.Equals(rol.Id)).Select(x => x.PermisoId).ToListAsync();
+                var roles = await context.Roles.Where(x => relacion_permisos.Contains(x.Id)).ToListAsync();
+
+                var relacion_usuario = await context.CRMRolUsuarios.Where(x => x.RolId.Equals(rol.Id)).Select(x => x.UserId).ToListAsync();
+
+
+
                 await context.SaveChangesAsync();
 
                 return NoContent();
