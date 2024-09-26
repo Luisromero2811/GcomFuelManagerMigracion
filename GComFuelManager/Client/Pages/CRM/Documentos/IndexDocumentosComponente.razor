@@ -1,0 +1,124 @@
+﻿@inject IRepositorio http
+@inject HttpClient httpclient
+@inject SweetAlertService swal
+@inject IJSRuntime js
+
+<div class="ancho-tabla">
+    <Tabla Datos="Documentos" Cargando="loading_info">
+        <Cabeceras>
+            <tr>
+                <th style="max-width:80px;"></th>
+                <th>Documento</th>
+                <th>Versión</th>
+            </tr>
+        </Cabeceras>
+        <Filtros>
+            <tr>
+                <td></td>
+                <td><input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="FiltrarNombre" /></td>
+                <td></td>
+            </tr>
+        </Filtros>
+        <Columnas Context="item">
+            <tr>
+                <td>
+                    <div class="btn-group">
+                        <button class="btn gcom-bg-amarillo">
+                            <i class="fa fa-solid fa-eye" />
+                        </button>
+                        <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(item))">
+                            <i class="fa fa-solid fa-download" />
+                        </button>
+                    </div>
+                </td>
+                <td>@item.NombreDocumento</td>
+                <td>@item.Version</td>
+            </tr>
+        </Columnas>
+    </Tabla>
+    <div class="col-12">
+        <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+        <div class="col-12">
+            <p>Total de registros: @filtro.Total_registros</p>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int OportunidadId { get; set; }
+    [Parameter] public int ActividadId { get; set; }
+
+    CRMDocumentoDTO filtro = new();
+    List<CRMDocumentoDTO> Documentos = new();
+
+    Dictionary<string, string> query = new();
+
+    private bool loading_info = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await ObtenerDocumentos();
+    }
+
+    private async Task ObtenerDocumentos()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetParameter());
+
+            var response = await http.Get<List<CRMDocumentoDTO>>($"api/crmfile?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Documentos = response.Response;
+
+                filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro.Pagina_ACtual = pagina;
+        filtro.Pagina = pagina;
+
+        await ObtenerDocumentos();
+    }
+
+    private Dictionary<string, string> SetParameter()
+    {
+        query[$"{nameof(filtro.NombreDocumento)}"] = filtro.NombreDocumento;
+        query[$"{nameof(filtro.OportunidadId)}"] = OportunidadId.ToString();
+        query[$"{nameof(filtro.ActividadId)}"] = ActividadId.ToString();
+        query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
+        query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro.NombreDocumento = args.Value?.ToString() ?? string.Empty;
+        await ObtenerDocumentos();
+    }
+
+    private async Task DescargarDocumento(CRMDocumentoDTO crm)
+    {
+        var bytes = await httpclient.GetByteArrayAsync(crm.Url);
+        await js.GuardarComo(crm.NombreDocumento, bytes);
+    }
+}

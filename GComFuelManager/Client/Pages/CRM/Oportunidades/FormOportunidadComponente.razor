@@ -20,7 +20,7 @@
                 <EditForm Model="Oportunidad" class="col-12 g-2" OnValidSubmit="GuardarOportunidad" Context="OPORTUNIDADFORM">
                     <FluentValidationValidator Validator="validator" />
                     <ValidationSummary />
-                    <Card HeaderText="Datos pricipales" BodyClass="col-12 row">
+                    <Card HeaderText="Datos principales" BodyClass="col-12 row">
                         <Body>
                             <div class="col-md-4 col-12">
                                 <label>Nombre de oportunidad</label>
@@ -111,7 +111,7 @@
                             </div>
                         </Body>
                     </Card>
-                    <Card HeaderText="Detalle economico" BodyClass="col-12 row">
+                    <Card HeaderText="Detalle económico" BodyClass="col-12 row">
                         <Body>
                             <div class="col-md-4 col-12">
                                 <label>Periodo</label>
@@ -157,7 +157,7 @@
                             </div>
                         </Body>
                     </Card>
-                    <Card HeaderText="Informacion adicional" BodyClass="col-12 row">
+                    <Card HeaderText="Información adicional" BodyClass="col-12 row">
                         <Body>
                             <div class="col-md-4 col-12">
                                 <label>Cantidad de estaciones</label>
@@ -209,12 +209,12 @@
                                 <ValidationMessage For="@(()=>Oportunidad.DiasPagoId)" />
                             </div>
                             <div class="col-md-4 col-12">
-                                <label>Proximo paso</label>
+                                <label>Próximo paso</label>
                                 <InputTextArea class="form-control" @bind-Value="Oportunidad.Prox_Paso" />
                                 <ValidationMessage For="@(()=>Oportunidad.Prox_Paso)" />
                             </div>
                             <div class="col-md-4 col-12">
-                                <label>Relacion comercial</label>
+                                <label>Relación comercial</label>
                                 <InputSelect @bind-Value="Oportunidad.TipoId" class="form-select">
                                     <option>-- seleccione un tipo --</option>
                                     @foreach (var item in Tipos)
@@ -250,8 +250,28 @@
                     <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
                         <Body>
                             <div class="col-md-4 col-12">
-                                <Subir_Archivo TResponse="List<CRMDocumentoDTO>" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls" Texto_Label="Documentos (5 max.)"
-                                    MaxSize="2" MaxAllowedFiles="1" />
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documentos"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Nombre del documento</label>
+                                <InputText @bind-Value="Oportunidad.NombreDocumento" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.NombreDocumento)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Fecha de caducidad</label>
+                                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
+                                <ValidationMessage For="@(()=>Oportunidad.FechaCaducidad)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Versión de documento</label>
+                                <InputText @bind-Value="Oportunidad.Version" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.Version)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label>Nombre del documento</label>
+                                <InputTextArea @bind-Value="Oportunidad.Descripcion" class="form-control" />
+                                <ValidationMessage For="@(()=>Oportunidad.Descripcion)" />
                             </div>
                         </Body>
                     </Card>
@@ -755,6 +775,15 @@
                     Oportunidad.TotalLts = (Oportunidad.CantidadLts * 1000);
                 }
             }
+        }
+    }
+
+    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            Oportunidad.DocumentoId = doc.Id;
+            Oportunidad.NombreDocumento = doc.NombreDocumento;
         }
     }
 }

@@ -312,6 +312,18 @@ namespace GComFuelManager.Server
                 .WithMany(x => x.Actividades)
                 .HasForeignKey(x => x.EquipoId);
 
+
+            modelBuilder.Entity<CRMOportunidadDocumento>().HasKey(x => new { x.OportunidadId, x.DocumentoId });
+            modelBuilder.Entity<CRMOportunidad>()
+                .HasMany(x => x.Documentos)
+                .WithMany(x => x.Oportunidades)
+                .UsingEntity<CRMOportunidadDocumento>(
+                l => l.HasOne(x => x.Documento).WithMany(x => x.OportunidadDocumentos).HasForeignKey(x => x.DocumentoId).OnDelete(DeleteBehavior.Restrict),
+                r => r.HasOne(x => x.Oportunidad).WithMany(x => x.OportunidadDocumentos).HasForeignKey(x => x.OportunidadId).OnDelete(DeleteBehavior.Restrict));
+
+            modelBuilder.Entity<CRMDocumentoRelacionado>().HasKey(x => new { x.DocumentoId, x.DocumentoRelacionadoId });
+            modelBuilder.Entity<CRMDocumentoRevision>().HasKey(x => new { x.DocumentoId, x.RevisionId });
+            
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }
@@ -343,5 +355,9 @@ namespace GComFuelManager.Server
         public DbSet<CRMEquipo> CRMEquipos { get; set; }
         public DbSet<CRMEquipoVendedor> CRMEquipoVendedores { get; set; }
         public DbSet<CRMUsuarioDivision> CRMUsuarioDivisiones { get; set; }
+        public DbSet<CRMDocumento> CRMDocumentos { get; set; }
+        public DbSet<CRMOportunidadDocumento> CRMOportunidadDocumentos { get; set; }
+        public DbSet<CRMDocumentoRelacionado> CRMDocumentoRelacionados { get; set; }
+        public DbSet<CRMDocumentoRevision> CRMDocumentoRevisiones { get; set; }
     }
 }

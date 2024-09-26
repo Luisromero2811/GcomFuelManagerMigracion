@@ -84,6 +84,19 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMClientePostDTO, CRMCliente>()
                 .ForMember(x => x.Activo, op => op.Ignore());
             CreateMap<CRMCliente, CRMClienteDetalleDTO>();
+
+            CreateMap<CRMDocumento, CRMDocumento>()
+                .ForMember(x => x.Activo, y => y.Ignore())
+                .ForMember(x => x.NombreArchivo, y => y.Ignore())
+                .ForMember(x => x.FechaCreacion, y => y.Ignore())
+                .ForMember(x => x.VersionCreadaPor, y => y.Ignore())
+                .ForMember(x => x.TipoDocumento, y => y.Ignore())
+                .ForMember(x => x.Url, y => y.Ignore())
+                .ForMember(x => x.Directorio, y => y.Ignore());
+            CreateMap<CRMOportunidadPostDTO, CRMDocumento>()
+                .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
+            CreateMap<CRMDocumento, CRMDocumentoDTO>();
+            CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>();
         }
     }
 }

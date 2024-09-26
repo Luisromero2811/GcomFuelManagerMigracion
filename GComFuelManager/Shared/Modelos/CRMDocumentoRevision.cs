@@ -1,11 +1,11 @@
 ﻿namespace GComFuelManager.Shared.Modelos
 {
-    public class CRMOportunidadDocumento
+    public class CRMDocumentoRevision
     {
-        public int OportunidadId { get; set; }
         public int DocumentoId { get; set; }
+        public int RevisionId { get; set; }
 
-        public CRMOportunidad? Oportunidad { get; set; } = null!;
         public CRMDocumento? Documento { get; set; } = null!;
+        public CRMDocumento? Revision { get; set; } = null!;
     }
 }

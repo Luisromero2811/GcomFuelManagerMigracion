@@ -60,7 +60,6 @@
   <ItemGroup>
     <Folder Include="Auth\" />
     <Folder Include="Pages\Auth\" />
-    <Folder Include="Pages\CRM\Documentos\" />
     <Folder Include="Repositorios\" />
     <Folder Include="Pages\CRM\Actividades\" />
     <Folder Include="Pages\CRM\Historiales\" />
@@ -73,6 +72,7 @@
     <Content Remove="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Pages\CRM\Documentos\IndexDocumentosComponente.razor" />
     <None Include="wwwroot\img\Triptico_EnergasEDITABLE-03.png" />
     <None Include="wwwroot\js\Grafico.js" />
   </ItemGroup>
