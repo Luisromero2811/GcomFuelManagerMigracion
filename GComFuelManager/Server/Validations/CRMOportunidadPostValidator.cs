@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Shared.DTOs.CRM;
 
 namespace GComFuelManager.Server.Validations
@@ -8,7 +9,7 @@ namespace GComFuelManager.Server.Validations
         public CRMOportunidadPostValidator()
         {
             RuleFor(x => x.Nombre_Opor)
-                .NotEmpty().WithMessage("El nombre de la oportunidad no puede estar vacio")
+                .NotEmpty().WithMessage("El nombre de la oportunidad no puede estar vacío")
                 .MaximumLength(200).WithMessage("El nombre de la oportunidad no puede ser mayor a 200 caracteres");
             RuleFor(x => x.ValorOportunidad)
                 .NotEmpty().WithMessage("El valor de la oportunidad es obligatoria")
@@ -30,7 +31,7 @@ namespace GComFuelManager.Server.Validations
                 .GreaterThanOrEqualTo(0).WithMessage("El valor de la oportunidad no puede ser menor a 0");
             RuleFor(x => x.Prox_Paso)
                 //.NotEmpty().WithMessage("La descripcion del proximo paso no puede estar vacia")
-                .MaximumLength(200).WithMessage("La descripcion del proximo paso no puede ser mayor a 200 caracteres");
+                .MaximumLength(200).WithMessage("La descripción del próximo paso no puede ser mayor a 200 caracteres");
             RuleFor(x => x.OrigenPrductoId)
                 .NotEmpty().WithMessage("El origen del producto es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un origen de producto");
@@ -47,7 +48,7 @@ namespace GComFuelManager.Server.Validations
                 .NotEmpty().WithMessage("El tipo es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un tipo");
             RuleFor(x => x.ModeloVentaId)
-                .NotEmpty().WithMessage("El modleo de venta es obligatorio")
+                .NotEmpty().WithMessage("El modelo de venta es obligatorio")
                 .GreaterThan(0).WithMessage("Debe seleccionar un modelo de venta");
             RuleFor(x => x.VolumenId)
                 .NotEmpty().WithMessage("El volumen es obligatorio")
@@ -58,7 +59,7 @@ namespace GComFuelManager.Server.Validations
             RuleFor(x => x.FormaPagoId)
                 .NotEmpty().WithMessage("La forma de pago es obligatoria")
                 .GreaterThan(0)
-                .When(x=>x.FormaPagoId == 95)
+                .When(x => x.FormaPagoId == 95)
                 .WithMessage("Debe seleccionar un dia de pago");
             RuleFor(x => x.EquipoId)
                 .NotEmpty().WithMessage("El equipo es obligatorio")
@@ -72,6 +73,21 @@ namespace GComFuelManager.Server.Validations
             RuleFor(x => x.Probabilidad)
                 .GreaterThanOrEqualTo(0).WithMessage("La probabilidad no puede ser menor a 0")
                 .LessThanOrEqualTo(100).WithMessage("La probabilidad no puede ser mayor a 100");
+
+            RuleFor(x => x.NombreDocumento)
+                .NotEmpty().WithMessage("El nombre del documento no puede estar vacío")
+                .When(x => !x.DocumentoId.IsZero())
+                .MaximumLength(100).WithMessage("El nombre del documento no puede ser mayor a 100 caracteres");
+            RuleFor(x => x.Descripcion)
+                .MaximumLength(250).WithMessage("La descripción del documento no puede ser mayor a 250 caracteres")
+                .When(x => !x.DocumentoId.IsZero());
+            RuleFor(x => x.Version)
+                .NotEmpty().WithMessage("La versión del documento no puede estar vacía")
+                .When(x => !x.DocumentoId.IsZero())
+                .MaximumLength(10).WithMessage("La versión del documento no puede ser mayor a 10 caracteres");
+            RuleFor(x => x.FechaCaducidad)
+                .NotEmpty().WithMessage("La caducidad del documento no puede estar vacía")
+                .When(x => !x.DocumentoId.IsZero());
         }
     }
 }

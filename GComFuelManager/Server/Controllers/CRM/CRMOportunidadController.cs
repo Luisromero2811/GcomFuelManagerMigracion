@@ -263,6 +263,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                         }
                     }
                 }
+
+
                 if (oportunidad.Id != 0)
                 {
                     context.Update(oportunidad);
@@ -271,6 +273,26 @@ namespace GComFuelManager.Server.Controllers.CRM
                 {
                     await context.AddAsync(oportunidad);
                 }
+
+                if (!dto.DocumentoId.IsZero())
+                {
+                    var doc = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == dto.DocumentoId);
+                    if (doc is not null)
+                    {
+                        var documento = mapper.Map<CRMOportunidadPostDTO, CRMDocumento>(dto);
+                        if (documento is not null)
+                        {
+                            var docupdate = mapper.Map(documento, doc);
+                            context.Update(docupdate);
+                            if (!await context.CRMOportunidadDocumentos.AnyAsync(x => x.DocumentoId == documento.Id))
+                            {
+                                var docopo = new CRMOportunidadDocumento() { DocumentoId = documento.Id, OportunidadId = oportunidad.Id };
+                                await context.AddAsync(docopo);
+                            }
+                        }
+                    }
+                }
+
                 await context.SaveChangesAsync();
                 return NoContent();
             }

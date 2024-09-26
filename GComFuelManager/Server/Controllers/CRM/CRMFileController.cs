@@ -1,38 +1,36 @@
 ﻿using AutoMapper;
-using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs;
 using GComFuelManager.Shared.DTOs.CRM;
-using Microsoft.AspNetCore.Http;
+using GComFuelManager.Shared.Modelos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-using System;
-using GComFuelManager.Shared.Modelos;
 
 namespace GComFuelManager.Server.Controllers.CRM
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class CRMFileController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<IdentityUsuario> userManager;
         private readonly IMapper mapper;
-        private readonly IValidator<CRMDocumentoPostDTO> validator;
         private readonly IWebHostEnvironment environment;
-        private readonly HttpContextAccessor httpContextAccessor;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public CRMFileController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager, 
-            IMapper mapper, IValidator<CRMDocumentoPostDTO> validator,
-            IWebHostEnvironment environment, HttpContextAccessor httpContextAccessor)
+        public CRMFileController(ApplicationDbContext context, UserManager<IdentityUsuario> userManager,
+            IMapper mapper, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
             this.context = context;
             this.userManager = userManager;
             this.mapper = mapper;
-            this.validator = validator;
             this.environment = environment;
             this.httpContextAccessor = httpContextAccessor;
         }
@@ -42,8 +40,27 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
+                var documentos = context.CRMDocumentos
+                    .AsNoTracking()
+                    .AsQueryable();
 
-                return Ok();
+                if (!string.IsNullOrEmpty(dTO.NombreDocumento) && !string.IsNullOrWhiteSpace(dTO.NombreDocumento))
+                    documentos = documentos.Where(x => x.NombreDocumento.ToLower().Contains(dTO.NombreDocumento.ToLower()));
+
+                if (!dTO.OportunidadId.IsZero())
+                    documentos = documentos.Where(x => x.Oportunidades.Select(x => x.Id).Contains(dTO.OportunidadId));
+
+                //actividades
+
+                await HttpContext.InsertarParametrosPaginacion(documentos, dTO.Registros_por_pagina, dTO.Pagina);
+
+                dTO.Pagina = HttpContext.ObtenerPagina();
+
+                documentos = documentos.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+                
+                var documentosdto = documentos.Select(x => mapper.Map<CRMDocumento, CRMDocumentoDTO>(x));
+
+                return Ok(documentosdto);
             }
             catch (Exception e)
             {
@@ -90,7 +107,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                             try
                             {
                                 string trustFileNameForSave = Path.GetRandomFileName();
-                                string extension = Path.GetExtension(file.Name);
+                                string extension = Path.GetExtension(file.FileName);
                                 string FileName = Path.ChangeExtension(trustFileNameForSave, extension);
                                 var carpeta = "Files";
                                 //var path = Path.Combine(environment.WebRootPath, environment.EnvironmentName, "PDF", FileName);
@@ -104,10 +121,19 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                                 CRMDocumento documento = new()
                                 {
-                                    NombreArchivo = trustFileNameForSave,
-                                    TipoDocumento = extension.Split('.')[0]
+                                    NombreArchivo = FileName,
+                                    NombreDocumento = file.FileName,
+                                    TipoDocumento = extension.Split('.')[1],
+                                    VersionCreadaPor = user.Id,
+                                    Directorio = path,
+                                    Url = URL_BD,
                                 };
 
+                                await context.AddAsync(documento);
+                                await context.SaveChangesAsync();
+
+                                var documentodto = mapper.Map<CRMDocumento, CRMDocumentoDTO>(documento);
+                                return Ok(documentodto);
                             }
                             catch (IOException ex)
                             {

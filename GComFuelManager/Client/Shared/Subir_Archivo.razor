@@ -55,13 +55,13 @@
                 var filecontent = new StreamContent(file.OpenReadStream(MaxAllowedSize));
                 filecontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-                if (ExtraData is not null)
-                {
-                    foreach (var item in ExtraData)
-                    {
-                        content.Add(filecontent, item.Key, item.Value);
-                    }
-                }
+                // if (ExtraData is not null)
+                // {
+                //     foreach (var item in ExtraData)
+                //     {
+                //         content.Add(filecontent, item.Key, item.Value);
+                //     }
+                // }
 
                 content.Add(content: filecontent, name: "\"files\"", fileName: file.Name);
                 upload = true;

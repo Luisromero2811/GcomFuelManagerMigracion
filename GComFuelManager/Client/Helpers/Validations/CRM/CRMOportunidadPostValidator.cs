@@ -72,6 +72,21 @@ namespace GComFuelManager.Client.Helpers.Validations.CRM
             RuleFor(x => x.Probabilidad)
                 .GreaterThanOrEqualTo(0).WithMessage("La probabilidad no puede ser menor a 0")
                 .LessThanOrEqualTo(100).WithMessage("La probabilidad no puede ser mayor a 100");
+
+            RuleFor(x => x.NombreDocumento)
+                .NotEmpty().WithMessage("El nombre del documento no puede estar vacío")
+                .When(x => !x.DocumentoId.IsZero())
+                .MaximumLength(100).WithMessage("El nombre del documento no puede ser mayor a 100 caracteres");
+            RuleFor(x => x.Descripcion)
+                .MaximumLength(250).WithMessage("La descripción del documento no puede ser mayor a 250 caracteres")
+                .When(x => !x.DocumentoId.IsZero());
+            RuleFor(x => x.Version)
+                .NotEmpty().WithMessage("La versión del documento no puede estar vacía")
+                .When(x => !x.DocumentoId.IsZero())
+                .MaximumLength(10).WithMessage("La versión del documento no puede ser mayor a 10 caracteres");
+            RuleFor(x => x.FechaCaducidad)
+                .NotEmpty().WithMessage("La caducidad del documento no puede estar vacía")
+                .When(x => !x.DocumentoId.IsZero());
         }
     }
 }

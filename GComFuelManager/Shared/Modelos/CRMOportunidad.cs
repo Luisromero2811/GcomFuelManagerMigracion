@@ -42,5 +42,7 @@
         public Catalogo_Fijo FormaPago { get; set; } = null!;
         public Catalogo_Fijo? DiasCredito { get; set; } = null!;
         public CRMEquipo Equipo { get; set; } = null!;
+        public List<CRMDocumento> Documentos { get; set; } = new();
+        public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
     }
 }

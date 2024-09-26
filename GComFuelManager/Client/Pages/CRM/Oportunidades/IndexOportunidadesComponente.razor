@@ -39,7 +39,7 @@
                     <Tabla Datos="Oportunidades" Cargando="loading_info">
                         <Cabeceras>
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
                                     <Authorized Context="ACCIONES">
                                         <th></th>
                                     </Authorized>
@@ -57,7 +57,7 @@
                         </Cabeceras>
                         <Filtros>
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
                                     <Authorized Context="ACCIONES">
                                         <td></td>
                                     </Authorized>
@@ -75,7 +75,7 @@
                         </Filtros>
                         <Columnas Context="item">
                             <tr>
-                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD">
+                                <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
                                     <Authorized Context="ACCIONES">
                                         <td>
                                             <div class="btn-group" role="group">
@@ -91,6 +91,13 @@
                                                         <NavLink class="btn gcom-bg-amarillo" href=@($"crm/oportunidad/{item.Id}")>
                                                             <i class="fa fa-solid fa-eye" />
                                                         </NavLink>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, VER_DOCUMENTOS">
+                                                    <Authorized Context="VERDOCUMENTOS">
+                                                        <button class="btn gcom-bg-amarillo" @onclick="@(()=>AbrirModalDocumentos(item))">
+                                                            <i class="fa fa-solid fa-folder-open" />
+                                                        </button>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_OPORTUNIDAD">
@@ -158,6 +165,18 @@
                 </div>
             </Authorized>
         </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, VER_DOCUMENTOS">
+            <Authorized Context="MODALDOCUMENTOS">
+                <Modal_Custom @ref="modal" />
+            </Authorized>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO">
+            <Authorized Context="VERDETALLEDOCUMENTO">
+                <Modal_Custom @ref="modalDetalle" />
+            </Authorized>
+        </AuthorizeView>
     </Authorized>
 </AuthorizeView>
 
@@ -169,6 +188,8 @@
     List<CRMOportunidadDTO> Oportunidades = new();
     CRMOportunidadDTO filtro = new();
     Dictionary<string, string> query = new();
+    Modal_Custom modal = null!;
+    Modal_Custom modalDetalle = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -258,6 +279,9 @@
         query[$"{nameof(filtro.Vendedor)}"] = filtro.Vendedor;
         query[$"{nameof(filtro.EtapaVenta)}"] = filtro.EtapaVenta;
         query[$"{nameof(filtro.Cuenta)}"] = filtro.Cuenta;
+        query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
+        query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        query[nameof(filtro.Paginacion)] = true.ToString();
         return query;
     }
 
@@ -326,4 +350,8 @@
         }
 
     }
+
+    private async Task AbrirModalDocumentos(CRMOportunidadDTO crm) =>
+    modal.OpenModal<IndexDocumentosComponente>("Documentos asociados", new() { { nameof(CRMDocumentoDTO.OportunidadId), crm.Id } });
+
 }

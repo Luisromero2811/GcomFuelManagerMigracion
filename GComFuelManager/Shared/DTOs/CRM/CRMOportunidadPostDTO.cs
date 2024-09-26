@@ -27,5 +27,13 @@
         public double PrecioLts { get; set; }
         public double TotalLts { get; set; }
         public int EquipoId { get; set; }
+
+        //Documento
+        public int DocumentoId { get; set; }
+        public string NombreDocumento { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
+        public DateTime FechaCaducidad { get; set; } = DateTime.Today;
+        public string Descripcion { get; set; } = string.Empty;
+
     }
 }

@@ -64,6 +64,7 @@
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\UsuarioController\" />
     <Folder Include="Files\" />
+    <Folder Include="wwwroot\Files\" />
     <Folder Include="wwwroot\PDF-BOL\" />
     <Folder Include="wwwroot\XML\" />
     <Folder Include="wwwroot\PDF\" />

@@ -14,7 +14,7 @@
                 }
             </div>
             <div class="modal-custom-body">
-                @if(Contenido is null)
+                @if (Contenido is null)
                 {
                     @if (metaData is not null)
                     {
@@ -67,6 +67,7 @@
                 Parameters = Parameters
             };
 
+        Titulo = Name;
         StateHasChanged();
     }
 
