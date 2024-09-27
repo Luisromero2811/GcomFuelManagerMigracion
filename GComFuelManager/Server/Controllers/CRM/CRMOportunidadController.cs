@@ -178,6 +178,7 @@ namespace GComFuelManager.Server.Controllers.CRM
             {
                 var oportunidad = await context.CRMOportunidades.AsNoTracking()
                     .Where(x => x.Id == id)
+                    .Include(x => x.Documentos.OrderByDescending(y => y.FechaCreacion))
                     .Select(x => mapper.Map<CRMOportunidadPostDTO>(x))
                     .FirstOrDefaultAsync();
                 if (oportunidad is null) { return NotFound(); }
@@ -213,6 +214,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .Include(x => x.DiasCredito)
                     .Include(x => x.Equipo)
                     .ThenInclude(x => x.Division)
+                    .Include(x => x.Documentos.OrderByDescending(x => x.FechaCaducidad))
                     .Select(x => mapper.Map<CRMOportunidadDetalleDTO>(x))
                     .FirstOrDefaultAsync();
 
@@ -283,10 +285,31 @@ namespace GComFuelManager.Server.Controllers.CRM
                         if (documento is not null)
                         {
                             var docupdate = mapper.Map(documento, doc);
+
+                            if (!dto.DocumentoRelacionado.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == dto.DocumentoRelacionado);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRelacionado() { DocumentoId = documento.Id, DocumentoRelacionadoId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
+                            if (!dto.DocumentoRevision.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == dto.DocumentoRevision);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRevision() { DocumentoId = documento.Id, RevisionId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
                             context.Update(docupdate);
                             if (!await context.CRMOportunidadDocumentos.AnyAsync(x => x.DocumentoId == documento.Id))
                             {
-                                var docopo = new CRMOportunidadDocumento() { DocumentoId = documento.Id, OportunidadId = oportunidad.Id };
+                                var docopo = new CRMOportunidadDocumento() { DocumentoId = documento.Id, Oportunidad = oportunidad, Documento = null! };
                                 await context.AddAsync(docopo);
                             }
                         }

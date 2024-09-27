@@ -40,7 +40,7 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var documentos = context.CRMDocumentos
+                var documentos = context.CRMDocumentos.Where(x => x.Activo)
                     .AsNoTracking()
                     .AsQueryable();
 
@@ -56,8 +56,8 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 dTO.Pagina = HttpContext.ObtenerPagina();
 
-                documentos = documentos.Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
-                
+                documentos = documentos.OrderByDescending(x => x.FechaCreacion).Skip((dTO.Pagina - 1) * dTO.Registros_por_pagina).Take(dTO.Registros_por_pagina);
+
                 var documentosdto = documentos.Select(x => mapper.Map<CRMDocumento, CRMDocumentoDTO>(x));
 
                 return Ok(documentosdto);
@@ -68,8 +68,117 @@ namespace GComFuelManager.Server.Controllers.CRM
             }
         }
 
+        [HttpGet("detalle")]
+        public async Task<ActionResult> GetDetalle([FromQuery] CRMDocumentoDTO dTO)
+        {
+            try
+            {
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
+                if (user is null) return NotFound();
+                CRMDocumento documento = new();
+
+                if (!dTO.OportunidadId.IsZero())
+                {
+
+                    var oportunidad = await context.CRMOportunidades
+                        .AsNoTracking()
+                        .Include(x => x.Documentos.OrderByDescending(x => x.FechaCreacion))
+                        .FirstOrDefaultAsync(x => x.Id == dTO.OportunidadId);
+                    if (oportunidad is null) return NotFound();
+                    if (oportunidad.Documentos.Count > 0)
+                        documento = oportunidad.Documentos.First();
+                }
+
+                if (!dTO.ActividadId.IsZero())
+                {
+                    //actividades
+                }
+
+                if (!dTO.Id.IsZero())
+                {
+                    if (await context.CRMDocumentos.AnyAsync(x => x.Id == dTO.Id))
+                        documento = await context.CRMDocumentos.FirstAsync(x => x.Id == dTO.Id);
+                }
+
+                if (documento is null) return Ok(new CRMDocumentoDetalleDTO());
+
+                var documentodto = mapper.Map<CRMDocumento, CRMDocumentoDetalleDTO>(documento);
+
+                if (await context.CRMOriginadores.AnyAsync(x => x.UserId == documento.VersionCreadaPor))
+                {
+                    var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == documento.VersionCreadaPor);
+                    if (comercial is not null)
+                    {
+                        documentodto.VersionCreadaPor = comercial.FullName;
+                    }
+                }
+                else if (await context.CRMVendedores.AnyAsync(x => x.UserId == documento.VersionCreadaPor))
+                {
+                    var vendedor = await context.CRMVendedores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == documento.VersionCreadaPor);
+                    if (vendedor is not null)
+                    {
+                        documentodto.VersionCreadaPor = vendedor.FullName;
+                    }
+                }
+
+                var documentosrelacionados = await context.CRMDocumentoRelacionados.AsNoTracking()
+                    .Where(x => x.DocumentoId == documentodto.Id)
+                    .Select(x => x.DocumentoRelacionadoId)
+                    .ToListAsync();
+                var ultimodocumentorelacionado = await context.CRMDocumentos
+                    .Where(x => documentosrelacionados.Contains(x.Id))
+                    .OrderByDescending(x => x.FechaCreacion)
+                    .Select(x => mapper.Map<CRMDocumento, CRMDocumentoDTO>(x))
+                    .FirstOrDefaultAsync();
+                documentodto.DocumentoRelacionado = ultimodocumentorelacionado;
+
+                var documentosrevision = await context.CRMDocumentoRevisiones.AsNoTracking()
+                    .Where(x => x.DocumentoId == documentodto.Id)
+                    .Select(x => x.RevisionId)
+                    .ToListAsync();
+                var ultimarevisionrelacionada = await context.CRMDocumentos.Where(x => documentosrevision.Contains(x.Id))
+                    .OrderByDescending(x => x.FechaCreacion)
+                    .Select(x => mapper.Map<CRMDocumento, CRMDocumentoDTO>(x))
+                    .FirstOrDefaultAsync();
+                documentodto.DocumentoRevision = ultimarevisionrelacionada;
+
+                return Ok(documentodto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("download/{Id:int}")]
+        public async Task<ActionResult> GetDownloadFile(int Id)
+        {
+            try
+            {
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity?.Name ?? string.Empty);
+                if (user is null) return NotFound();
+                CRMDocumentoDTO documentoDTO = new();
+                var documento = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == Id);
+                if (documento is null) return NotFound();
+                //var fs = new FileStream(documento.Directorio, FileMode.Open, FileAccess.Read);
+                //fs.Close();
+                var bytes = System.IO.File.ReadAllBytes(documento.Directorio);
+                var nombredoc = documento.NombreDocumento.Contains($".{documento.TipoDocumento}") ? documento.NombreDocumento : $"{documento.NombreDocumento}.{documento.TipoDocumento}";
+
+                documentoDTO.InfoBytes = bytes;
+                documentoDTO.NombreDocumento = nombredoc;
+
+                return Ok(documentoDTO);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+
         [HttpPost]
-        public async Task<ActionResult> Subir_Archivo_PDF([FromForm] IEnumerable<IFormFile> files, [FromRoute] int id)
+        public async Task<ActionResult> Subir_Archivo_PDF([FromForm] IEnumerable<IFormFile> files)
         {
             try
             {
@@ -79,7 +188,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 var MaxAllowedFile = 5;
                 long MaxAllowedSize = 1024 * 1024 * 10;
                 var FilesProcessed = 0;
-
+                var extensionesPermitidas = new List<string>() { ".pdf", ".jpg", ".png", ".xlsx", ".xls", ".doc", ".docx" };
                 foreach (var file in files)
                 {
                     var uploadResult = new UploadResult();
@@ -108,6 +217,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                             {
                                 string trustFileNameForSave = Path.GetRandomFileName();
                                 string extension = Path.GetExtension(file.FileName);
+                                if (!extensionesPermitidas.Contains(extension)) return BadRequest("Formato de archivo no permitido");
                                 string FileName = Path.ChangeExtension(trustFileNameForSave, extension);
                                 var carpeta = "Files";
                                 //var path = Path.Combine(environment.WebRootPath, environment.EnvironmentName, "PDF", FileName);

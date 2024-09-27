@@ -22,8 +22,15 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Activo, op => op.Ignore());
             CreateMap<CRMOportunidadPostDTO, CRMOportunidad>()
                 .ForMember(x => x.Activo, op => op.Ignore());
-            CreateMap<CRMOportunidad, CRMOportunidadPostDTO>();
-            CreateMap<CRMOportunidad, CRMOportunidadDetalleDTO>();
+            CreateMap<CRMOportunidad, CRMOportunidadPostDTO>()
+                .ForMember(x => x.DocumentoId, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Id : 0))
+                .ForMember(x => x.NombreDocumento, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().NombreDocumento : string.Empty))
+                .ForMember(x => x.Version, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Version : string.Empty))
+                .ForMember(x => x.FechaCaducidad, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().FechaCaducidad : DateTime.MinValue))
+                .ForMember(x => x.Descripcion, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Descripcion : string.Empty));
+
+            CreateMap<CRMOportunidad, CRMOportunidadDetalleDTO>()
+                .ForMember(x => x.Documento, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First() : new()));
             CreateMap<CRMOportunidad, CRMOportunidadDTO>()
                 .ForMember(x => x.EtapaVenta, y => y.MapFrom(o => o.EtapaVenta.Valor))
                 .ForMember(x => x.Vendedor, y => y.MapFrom(o => o.Vendedor.FullName))
@@ -96,7 +103,8 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMOportunidadPostDTO, CRMDocumento>()
                 .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
             CreateMap<CRMDocumento, CRMDocumentoDTO>();
-            CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>();
+            CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>()
+                .ForMember(x => x.VersionCreadaPor, y => y.Ignore());
         }
     }
 }
