@@ -1,5 +1,247 @@
-﻿<h3>DetalleDocumentoComponente</h3>
+﻿@page "/crm/documento"
+@inject IRepositorio http
+@inject HttpClient httpclient
+@inject SweetAlertService swal
+@inject IJSRuntime js
+@inject NavigationManager navigate
+@attribute [Authorize(Roles = "Admin, VER_DETALLE_DOCUMENTO")]
+
+
+<AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO">
+    <Authorized>
+        <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between"
+              BodyClass="col-12">
+            <Header>
+                <b>Detalle de documento</b>
+                <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </button>
+            </Header>
+            <Body>
+                <Card HeaderText="Datos principales" BodyClass="col-12 row" HeaderClass="d-flex justify-content-between">
+                    <Header>
+                        <b>Datos principales</b>
+                        <div class="col-md-2 col-6">
+                            <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(Documento.Id, Documento.NombreDocumento, Documento.TipoDocumento))">
+                                <i class="fa fa-solid fa-download" /> Descargar
+                            </button>
+                        </div>
+                    </Header>
+                    <Body>
+                        <div class="col-12 row">
+                            <div class="col-md-4 col-12">
+                                <label><b>Nombre de documento</b></label>
+                                <p>@Documento.NombreDocumento</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Tipo de documento</b></label>
+                                <p>@Documento.TipoDocumento</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Version</b></label>
+                                <p>@Documento.Version</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Fecha de creación</b></label>
+                                <p>@Documento.FechaCreacion.ToString("f")</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Fecha de caducidad</b></label>
+                                <p class="@(Documento.FechaCaducidad < DateTime.Today ? "text-danger":"text-success")">@Documento.FechaCaducidad.ToString("f")</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Version creada por</b></label>
+                                <p>@Documento.VersionCreadaPor</p>
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label><b>Descripcion</b></label>
+                                <p>@Documento.Descripcion</p>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label><b>Documento</b></label>
+                            <div class="ratio ratio-16x9">
+                                @if (extensionesPermitidas.Contains(Documento.TipoDocumento.ToLower()))
+                                {
+                                    <iframe src="@Documento.Url" title="Documento principal" loading="lazy" frameborder="0"></iframe>
+                                }
+                                else
+                                {
+                                    <p>No es posible mostrar este tipo de documento.</p>
+                                }
+                            </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card HeaderText="Documentos relacionados" BodyClass="col-12 row">
+                    <Body>
+                        @if (Documento.DocumentoRelacionado is not null)
+                        {
+                            <div class="col-md-6 col-12">
+                                <label><b>Documento relacionado</b></label>
+                                <div class="col-12 row g-1">
+                                    <p>@Documento.DocumentoRelacionado?.NombreDocumento</p>
+                                    <div class="btn-group">
+                                        <button class="btn gcom-bg-amarillo mt-auto" @onclick="@(()=>DescargarDocumento(Documento.DocumentoRelacionado?.Id,
+                                                                                                                    Documento.DocumentoRelacionado?.NombreDocumento,
+                                                                                                                    Documento.DocumentoRelacionado?.TipoDocumento))">
+                                            <i class="fa fa-solid fa-download" /> Descargar
+                                        </button>
+                                        <button class="btn gcom-bg-amarillo mt-auto" @onclick=@(()=>AbrirModal("Documento relacionado",Documento.DocumentoRelacionado?.Url))>
+                                            <i class="fa fa-solid fa-eye"></i> Ver documento
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        @if (Documento.DocumentoRevision is not null)
+                        {
+                            <div class="col-md-6 col-12">
+                                <label><b>Documento de revisión</b></label>
+                                <div class="col-12 row g-1">
+                                    <p>@Documento.DocumentoRevision?.NombreDocumento</p>
+                                    <div class="btn-group">
+                                        <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(Documento.DocumentoRevision?.Id,
+                                                                                                            Documento.DocumentoRevision?.NombreDocumento,
+                                                                                                            Documento.DocumentoRevision?.TipoDocumento))">
+                                            <i class="fa fa-solid fa-download" /> Descargar
+                                        </button>
+                                        <button class="btn gcom-bg-amarillo" @onclick=@(()=>AbrirModal("Documento de revision",Documento.DocumentoRevision?.Url))>
+                                            <i class="fa fa-solid fa-eye"></i> Ver documento
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </Body>
+                </Card>
+                <Card HeaderText="Versiones anteriores">
+                    <Body>
+                        <NavLink href="@(VerTodasVersiones())">
+                            Ver todas las versiones del documento
+                        </NavLink>
+                    </Body>
+                </Card>
+            </Body>
+        </Card>
+        <Modal_Custom @ref="modal" Titulo="@TituloModal">
+            <Contenido>
+                <div class="ratio ratio-16x9">
+                    @if (extensionesPermitidas.Contains(Documento.TipoDocumento.ToLower()))
+                    {
+                        <iframe src="@URL_FILE" title="@TituloModal" frameborder="0"></iframe>
+                    }
+                    else
+                    {
+                        <p>No es posible mostrar este tipo de documento.</p>
+                    }
+                </div>
+            </Contenido>
+        </Modal_Custom>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    [Parameter] public int OportunidadId { get; set; }
+    [Parameter] public int ActividadId { get; set; }
 
+    CRMDocumentoDetalleDTO Documento = new();
+    bool loading_info = false;
+
+    Modal_Custom modal = null!;
+    string URL_FILE = string.Empty;
+    string TituloModal = string.Empty;
+
+    List<string> extensionesPermitidas = new() { "pdf", "jpg", "png" };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ObtenerDocumentos();
+    }
+
+    private async Task ObtenerDocumentos()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(navigate.ObtenerQueryString(navigate.Uri));
+
+            var response = await http.Get<CRMDocumentoDetalleDTO>($"api/crmfile/detalle?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Documento = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerDocumentosRelacionados()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(navigate.ObtenerQueryString(navigate.Uri));
+
+            var response = await http.Get<CRMDocumentoDetalleDTO>($"api/crmfile/detalle?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Documento = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task AbrirModal(string titulo, string? url)
+    {
+        TituloModal = titulo;
+        URL_FILE = url ?? string.Empty;
+        modal.Open();
+    }
+
+    private async Task DescargarDocumento(int? id, string? Nombre, string? extension)
+    {
+        var response = await http.Get<CRMDocumentoDTO>($"api/crmfile/download/{id}");
+        if (response.Error)
+        {
+
+            var message = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await js.GuardarComo(response.Response.NombreDocumento, response.Response.InfoBytes);
+        }
+    }
+
+    private string VerTodasVersiones()
+    {
+        var url = Constructor_De_URL_Parametros.Generar_URL(navigate.ObtenerQueryString(navigate.Uri));
+        // navigate.NavigateTo($"crm/documentos?{url}");
+        return $"crm/documentos?{url}";
+    }
 }

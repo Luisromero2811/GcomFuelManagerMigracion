@@ -1,52 +1,70 @@
-﻿@inject IRepositorio http
+﻿@page "/crm/documentos"
+@inject IRepositorio http
 @inject HttpClient httpclient
 @inject SweetAlertService swal
 @inject IJSRuntime js
+@inject NavigationManager navigate
+@attribute [Authorize(Roles = "Admin, VER_DOCUMENTOS")]
 
-<div class="ancho-tabla">
-    <Tabla Datos="Documentos" Cargando="loading_info">
-        <Cabeceras>
-            <tr>
-                <th style="max-width:80px;"></th>
-                <th>Documento</th>
-                <th>Versión</th>
-            </tr>
-        </Cabeceras>
-        <Filtros>
-            <tr>
-                <td></td>
-                <td><input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="FiltrarNombre" /></td>
-                <td></td>
-            </tr>
-        </Filtros>
-        <Columnas Context="item">
-            <tr>
-                <td>
-                    <div class="btn-group">
-                        <button class="btn gcom-bg-amarillo">
-                            <i class="fa fa-solid fa-eye" />
-                        </button>
-                        <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(item))">
-                            <i class="fa fa-solid fa-download" />
-                        </button>
-                    </div>
-                </td>
-                <td>@item.NombreDocumento</td>
-                <td>@item.Version</td>
-            </tr>
-        </Columnas>
-    </Tabla>
-    <div class="col-12">
-        <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
-        <div class="col-12">
-            <p>Total de registros: @filtro.Total_registros</p>
+<AuthorizeView Roles="Admin, VER_DOCUMENTOS">
+    <Authorized>
+        <Card LoadingContent="loading_info" HeaderClass="d-flex justify-content-between">
+            <Header>
+                <b>Documentos</b>
+                <button class="g-1 btn gcom-bg-amarillo" onclick="history.back();">
+                    <i class="fa fa-solid fa-arrow-left" /> Volver
+                </button>
+            </Header>
+        </Card>
+        <div class="ancho-tabla">
+            <Tabla Datos="Documentos" Cargando="loading_info">
+                <Cabeceras>
+                    <tr>
+                        <th style="max-width:80px;"></th>
+                        <th>Documento</th>
+                        <th>Versión</th>
+                        <th>Fecha de caducidad</th>
+                    </tr>
+                </Cabeceras>
+                <Filtros>
+                    <tr>
+                        <td></td>
+                        <td><input class="form-control" @bind-value="filtro.NombreDocumento" @oninput="FiltrarNombre" /></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </Filtros>
+                <Columnas Context="item">
+                    <tr>
+                        <td>
+                            <div class="btn-group">
+                                <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento?{nameof(item.Id)}={item.Id}")">
+                                    <i class="fa fa-solid fa-eye" />
+                                </NavLink>
+                                <button class="btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(item))">
+                                    <i class="fa fa-solid fa-download" />
+                                </button>
+                            </div>
+                        </td>
+                        <td>@item.NombreDocumento</td>
+                        <td>@item.Version</td>
+                        <td>@item.FechaCaducidad.ToShortDateString()</td>
+                    </tr>
+                </Columnas>
+            </Tabla>
         </div>
-    </div>
-</div>
-
+        <div class="col-12">
+            <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+            <div class="col-12">
+                <p>Total de registros: @filtro.Total_registros</p>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 @code {
-    [Parameter] public int OportunidadId { get; set; }
-    [Parameter] public int ActividadId { get; set; }
 
     CRMDocumentoDTO filtro = new();
     List<CRMDocumentoDTO> Documentos = new();
@@ -57,6 +75,13 @@
 
     protected override async Task OnParametersSetAsync()
     {
+        query = navigate.ObtenerQueryString(navigate.Uri);
+
+        if (query.ContainsKey(nameof(filtro.OportunidadId)))
+            filtro.OportunidadId = int.Parse(query[nameof(filtro.OportunidadId)]);
+        if (query.ContainsKey(nameof(filtro.ActividadId)))
+            filtro.ActividadId = int.Parse(query[nameof(filtro.ActividadId)]);
+
         await ObtenerDocumentos();
     }
 
@@ -103,8 +128,8 @@
     private Dictionary<string, string> SetParameter()
     {
         query[$"{nameof(filtro.NombreDocumento)}"] = filtro.NombreDocumento;
-        query[$"{nameof(filtro.OportunidadId)}"] = OportunidadId.ToString();
-        query[$"{nameof(filtro.ActividadId)}"] = ActividadId.ToString();
+        query[$"{nameof(filtro.OportunidadId)}"] = filtro.OportunidadId.ToString();
+        query[$"{nameof(filtro.ActividadId)}"] = filtro.ActividadId.ToString();
         query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
         query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
         return query;

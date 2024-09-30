@@ -41,7 +41,7 @@
                             <tr>
                                 <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD, EDITAR_OPORTUNIDAD, ELIMINAR_OPORTUNIDAD, VER_DOCUMENTOS">
                                     <Authorized Context="ACCIONES">
-                                        <th></th>
+                                        <th style="max-width:185px;"></th>
                                     </Authorized>
                                 </AuthorizeView>
                                 <th>Oportunidad</th>
@@ -95,9 +95,10 @@
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, VER_DOCUMENTOS">
                                                     <Authorized Context="VERDOCUMENTOS">
-                                                        <button class="btn gcom-bg-amarillo" @onclick="@(()=>AbrirModalDocumentos(item))">
+                                                        <NavLink class="btn gcom-bg-amarillo"
+                                                                 href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.OportunidadId)}={item.Id}")">
                                                             <i class="fa fa-solid fa-folder-open" />
-                                                        </button>
+                                                        </NavLink>
                                                     </Authorized>
                                                 </AuthorizeView>
                                                 <AuthorizeView Roles="Admin, ELIMINAR_OPORTUNIDAD">
@@ -350,8 +351,5 @@
         }
 
     }
-
-    private async Task AbrirModalDocumentos(CRMOportunidadDTO crm) =>
-    modal.OpenModal<IndexDocumentosComponente>("Documentos asociados", new() { { nameof(CRMDocumentoDTO.OportunidadId), crm.Id } });
 
 }

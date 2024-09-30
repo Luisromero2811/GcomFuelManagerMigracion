@@ -331,7 +331,6 @@ namespace GComFuelManager.Server
 
             modelBuilder.Entity<CRMDocumentoRelacionado>().HasKey(x => new { x.DocumentoId, x.DocumentoRelacionadoId });
             modelBuilder.Entity<CRMDocumentoRevision>().HasKey(x => new { x.DocumentoId, x.RevisionId });
-            
         }
         public DbSet<Accion> Accion { get; set; }
         public DbSet<Cliente> Cliente { get; set; }

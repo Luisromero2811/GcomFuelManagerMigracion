@@ -1,4 +1,6 @@
-﻿namespace GComFuelManager.Shared.Modelos
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace GComFuelManager.Shared.Modelos
 {
     public class CRMDocumento
     {

@@ -45,5 +45,6 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public Catalogo_Fijo? FormaPago { get; set; } = null!;
         public Catalogo_Fijo? DiasCredito { get; set; } = null!;
         public CRMEquipoDTO? Equipo { get; set; } = null!;
+        public CRMDocumentoDTO? Documento { get; set; } = null!;
     }
 }

@@ -250,8 +250,8 @@
                     <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
                         <Body>
                             <div class="col-md-4 col-12">
-                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documentos"
-                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubido" />
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Nombre del documento</label>
@@ -260,7 +260,7 @@
                             </div>
                             <div class="col-md-4 col-12">
                                 <label>Fecha de caducidad</label>
-                                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
+                                <InputDate Type="InputDateType.Date" @bind-Value="Oportunidad.FechaCaducidad" class="form-control" />
                                 <ValidationMessage For="@(()=>Oportunidad.FechaCaducidad)" />
                             </div>
                             <div class="col-md-4 col-12">
@@ -269,9 +269,17 @@
                                 <ValidationMessage For="@(()=>Oportunidad.Version)" />
                             </div>
                             <div class="col-md-4 col-12">
-                                <label>Nombre del documento</label>
+                                <label>Descripcion del documento</label>
                                 <InputTextArea @bind-Value="Oportunidad.Descripcion" class="form-control" />
                                 <ValidationMessage For="@(()=>Oportunidad.Descripcion)" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento relacionado"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revision"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
                             </div>
                         </Body>
                     </Card>
@@ -338,7 +346,8 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        await ObtenerOportunidad();
+        if (!Id.IsZero())
+            await ObtenerOportunidad();
     }
 
     private async Task ObtenerVendedores(string value = "")
@@ -734,20 +743,20 @@
                 if (medida.Abreviacion.ToLower().Equals("lts"))
                 {
                     Oportunidad.ValorOportunidad = (Oportunidad.CantidadLts * Oportunidad.PrecioLts) * 4;
-                    Oportunidad.TotalLts = Oportunidad.CantidadLts;
+                    Oportunidad.TotalLts = Oportunidad.CantidadLts * 4;
                 }
 
                 if (medida.Abreviacion.ToLower().Equals("mxn"))
                 {
                     Oportunidad.ValorOportunidad = Oportunidad.CantidadLts * 4;
                     if (!Oportunidad.CantidadLts.IsZero() && !Oportunidad.PrecioLts.IsZero())
-                        Oportunidad.TotalLts = (Oportunidad.CantidadLts / Oportunidad.PrecioLts);
+                        Oportunidad.TotalLts = (Oportunidad.CantidadLts / Oportunidad.PrecioLts) * 4;
                 }
 
                 if (medida.Abreviacion.ToLower().Equals("m3"))
                 {
                     Oportunidad.ValorOportunidad = ((Oportunidad.CantidadLts * 1000) * Oportunidad.PrecioLts) * 4;
-                    Oportunidad.TotalLts = (Oportunidad.CantidadLts * 1000);
+                    Oportunidad.TotalLts = (Oportunidad.CantidadLts * 1000) * 4;
                 }
             }
         }
@@ -778,7 +787,7 @@
         }
     }
 
-    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    private void DocumentoSubido(CRMDocumentoDTO doc)
     {
         if (!doc.Id.IsZero())
         {
@@ -786,4 +795,21 @@
             Oportunidad.NombreDocumento = doc.NombreDocumento;
         }
     }
+
+    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            Oportunidad.DocumentoRelacionado = doc.Id;
+        }
+    }
+
+    private void DocumentoRevisionSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            Oportunidad.DocumentoRevision = doc.Id;
+        }
+    }
+
 }

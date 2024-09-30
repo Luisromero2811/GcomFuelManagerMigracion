@@ -1,6 +1,7 @@
 ﻿@page "/crm/oportunidad/{Id:int}"
 @inject IRepositorio http
 @inject SweetAlertService swal
+@inject IJSRuntime js
 @attribute [Authorize(Roles = "Admin, VER_DETALLE_OPORTUNIDAD")]
 
 <AuthorizeView Roles="Admin, VER_DETALLE_OPORTUNIDAD">
@@ -93,7 +94,7 @@
                         </div>
                     </Body>
                 </Card>
-                <Card HeaderText="Detalle economico">
+                <Card HeaderText="Detalle económico">
                     <Body>
                         <div class="col-12 row">
                             <div class="col-md-4 col-12">
@@ -135,7 +136,7 @@
                                 <p>@detalle.FormaPago?.Valor</p>
                             </div>
                             <div class="col-4">
-                                <label><b>Dias de pago:</b></label>
+                                <label><b>Días de pago:</b></label>
                                 <p>@detalle.DiasCredito?.Valor</p>
                             </div>
                             <div class="col-4">
@@ -159,9 +160,48 @@
                                 <p>@detalle.FechaCierre</p>
                             </div>
                             <div class="col-4">
-                                <label><b>Relacion comercial:</b></label>
+                                <label><b>Relación comercial:</b></label>
                                 <p>@detalle.Tipo?.Valor</p>
                             </div>
+                        </div>
+                    </Body>
+                </Card>
+                <Card BodyClass="col-12 row" HeaderClass="d-flex justify-content-between">
+                    <Header>
+                        <b>Documento relacionado</b>
+                        <AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO">
+                            <Authorized Context="VERDETALLEDOC">
+                                <div class="col-md-2 col-6">
+                                    <button class="col-12 btn gcom-bg-amarillo" @onclick="@(()=>DescargarDocumento(detalle.Documento?.Id,
+                                                                                                                   detalle.Documento?.NombreDocumento,
+                                                                                                                   detalle.Documento?.TipoDocumento))">
+                                        <i class="fa fa-solid fa-download" /> Descargar
+                                    </button>
+                                </div>
+                            </Authorized>
+                        </AuthorizeView>
+                    </Header>
+                    <Body>
+                        <div class="col-md-4 col-12">
+                            <label><b>Documento</b></label>
+                            <AuthorizeView Roles="Admin, VER_DETALLE_DOCUMENTO">
+                                <Authorized Context="VERDETALLEDOC">
+                                    <NavLink href="@($"crm/documento?{nameof(CRMDocumentoDTO.Id)}={detalle.Documento?.Id}")">
+                                        <p>@detalle.Documento?.NombreDocumento</p>
+                                    </NavLink>
+                                </Authorized>
+                                <NotAuthorized Context="VERDETALLEDOC">
+                                    <p>@detalle.Documento?.NombreDocumento</p>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Descripción</b></label>
+                            <p>@detalle.Documento?.Descripcion</p>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label><b>Versión</b></label>
+                            <p>@detalle.Documento?.Version</p>
                         </div>
                     </Body>
                 </Card>
@@ -207,4 +247,18 @@
 
     }
 
+    private async Task DescargarDocumento(int? id, string? Nombre, string? extension)
+    {
+        var response = await http.Get<CRMDocumentoDTO>($"api/crmfile/download/{id}");
+        if (response.Error)
+        {
+
+            var message = await response.ObtenerMensajeError();
+            await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+        }
+        else
+        {
+            await js.GuardarComo(response.Response.NombreDocumento, response.Response.InfoBytes);
+        }
+    }
 }
