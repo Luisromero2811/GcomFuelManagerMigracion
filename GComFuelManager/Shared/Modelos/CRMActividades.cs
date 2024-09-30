@@ -27,6 +27,10 @@ namespace GComFuelManager.Shared.Modelos
         public CRMContacto? contacto { get; set; } = null!;
         public CRMEquipo? Equipo { get; set; } = null!;
 
+        //Documentos
+        public List<CRMDocumento> Documentos { get; set; } = new();
+        public List<CRMActividadDocumento> ActividadDocumentos { get; set; } = new();
+
         public CRMActividadExcelDTO Asignacion_Datos()
         {
             CRMActividadExcelDTO gestion_ = new();

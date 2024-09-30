@@ -4,7 +4,7 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 <!--Formulario de registro-->
-<div class="card mt-2" style="height: 580px; overflow: scroll; ">
+<div class="card mt-2" style="height: 680px; overflow: scroll; ">
     <div class="card-header">
         <div class="d-flex justify-content-between">
             <div>
@@ -81,7 +81,7 @@
                     <!--Descripción-->
                     <div class="col-4 my-1">
                         <label>Descripción:</label>
-                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 180px;" placeholder="Descripción de la Actividad" />
                         <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
                     </div>
                     <!--Estatus-->
@@ -139,10 +139,30 @@
                             }
                         </InputSelect>
                     </div>
-                    <div class="col-6 my-1">
-                        <label>Documento:</label>
-                        <InputFile/>
-                    </div>
+                    <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label="Documentos"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Nombre del Documento:</label>
+                                <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control"/>
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Fecha de Caducidad:</label>
+                                <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today"/>
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Versión del Documento:</label>
+                                <InputText @bind-Value="CRMActividad.Version" class="form-control"/>
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Descripción del Documento:</label>
+                                <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control"/>
+                            </div>
+                        </Body>
+                    </Card>
                 </div>
                 <!--Boton de creación y edición-->
                 <div class="col-12 d-flex mt-3 justify-content-center">
@@ -400,6 +420,15 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoId = doc.Id;
+            CRMActividad.NombreDocumento = doc.NombreDocumento;
         }
     }
 

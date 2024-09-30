@@ -97,6 +97,9 @@ namespace GComFuelManager.Server.Mappers
                 .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
             CreateMap<CRMDocumento, CRMDocumentoDTO>();
             CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>();
+
+            CreateMap<CRMActividadPostDTO, CRMDocumento>()
+                .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
         }
     }
 }

@@ -21,12 +21,7 @@
         public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
 
 
-        public List<CRMDocumentoRelacionado> DocumentosRelacionados { get; set; } = new();
-        public List<CRMDocumento> Relacionados { get; set; } = new();
-
-        public List<CRMDocumentoRevision> DocumentoRevisiones { get; set; } = new();
-        public List<CRMDocumento> Revisiones { get; set; } = new();
-
-        public List<CRMDocumento> Documentos { get; set; } = new();
+        public List<CRMActividades> Actividades { get; set; } = new();
+        public List<CRMActividadDocumento> ActividadDocumentos { get; set; } = new();
     }
 }

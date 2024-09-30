@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
@@ -47,19 +48,39 @@ namespace GComFuelManager.Server.Controllers
                 var actividad = mapper.Map<CRMActividadPostDTO, CRMActividades>(cRMActividades);
 
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
-                if (actividad.Id == 0)
+                if (actividad.Id != 0)
                 {
-                    await context.AddAsync(actividad);
+                    actividad.Fecha_Mod = DateTime.Now;
+                    context.Update(actividad);
                 }
                 else
                 {
-                    actividad.Fecha_Mod = DateTime.Now;
-
-                    context.Update(actividad);
+                    await context.AddAsync(actividad);
                 }
+
+                if (!cRMActividades.DocumentoId.IsZero())
+                {
+                    var doc = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoId);
+                    if (doc is not null)
+                    {
+                        var documento = mapper.Map<CRMActividadPostDTO, CRMDocumento>(cRMActividades);
+                        if (documento is not null)
+                        {
+                            var docupdate = mapper.Map(documento, doc);
+                            context.Update(docupdate);
+                            if (!await context.CRMActividadDocumentos.AnyAsync(x => x.DocumentoId == documento.Id))
+                            {
+                                var docop = new CRMActividadDocumento() { DocumentoId = documento.Id, Actividad = actividad, Documento = null! };
+                                await context.AddAsync(docop);
+                            }
+                        }
+                    }
+
+                }
+
                 await context.SaveChangesAsync();
 
-                return Ok();
+                return NoContent();
 
             }
             catch (Exception e)
