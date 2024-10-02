@@ -218,8 +218,8 @@
     List<CRMCatalogoValor> Cat_Asunto = new();
     List<CRMCatalogoValor> Cat_Prioridad = new();
     List<CRMCatalogoValor> Cat_Estatus = new();
-    List<CRMVendedor> Vendedores { get; set; } = new List<CRMVendedor>();
-    List<CRMContacto> Contactos { get; set; } = new List<CRMContacto>();
+    List<CRMVendedorDTO> Vendedores { get; set; } = new List<CRMVendedorDTO>();
+    List<CRMContactoDTO> Contactos { get; set; } = new List<CRMContactoDTO>();
     List<CRMEquipoDTO> Equipos = new();
 
     protected override async Task OnInitializedAsync()
@@ -235,19 +235,7 @@
         {
             await ObtenerActividad();
         }
-        if (Vendedores != null && Vendedores.Count == 1)
-        {
-            // Si solo hay un vendedor, lo seleccionamos automáticamente
-            CRMActividad.Asignado = Vendedores.FirstOrDefault().Id;
-        }
-        if (Equipos != null && Equipos.Count == 1)
-        {
-            CRMActividad.EquipoId = Equipos.FirstOrDefault().Id;
-        }
-        if (Equipos != null && Equipos.Count == 1)
-        {
-            CRMActividad.CuentaId = Equipos.FirstOrDefault().Id;
-        }
+
     }
 
     public async Task CreateActividad()
@@ -340,7 +328,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<CRMVendedor>>($"api/vendedor/crmlist");
+            var responseHttp = await repositorio.Get<List<CRMVendedorDTO>>($"api/crmvendedor");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -361,7 +349,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<CRMContacto>>($"api/actividades/contactlist");
+            var responseHttp = await repositorio.Get<List<CRMContactoDTO>>($"api/crmcontactos");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
