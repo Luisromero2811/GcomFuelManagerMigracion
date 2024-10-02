@@ -118,14 +118,14 @@ namespace GComFuelManager.Server.Controllers.CRM
 
                 if (contacto.CuentaId != 0)
                     contactos = contactos.Where(x => x.CuentaId == contacto.CuentaId);
-                
+
                 if (contacto.Paginacion)
                 {
                     await HttpContext.InsertarParametrosPaginacion(contactos, contacto.Registros_por_pagina, contacto.Pagina);
                     contacto.Pagina = HttpContext.ObtenerPagina();
                     contactos = contactos.Skip((contacto.Pagina - 1) * contacto.Registros_por_pagina).Take(contacto.Registros_por_pagina);
                 }
-                
+
                 var contactosdto = contactos.Select(x => mapper.Map<CRMContactoDTO>(x));
 
                 return Ok(contactosdto);
@@ -361,12 +361,9 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Status"));
+                var catalogo = await context.CRMCatalogos.AsNoTracking().Include(x => x.Valores).FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Status"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para estatus"); }
-
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
-
-                return Ok(catalogo_fijo);
+                return Ok(catalogo.Valores);
             }
             catch (Exception e)
             {
@@ -379,12 +376,10 @@ namespace GComFuelManager.Server.Controllers.CRM
         {
             try
             {
-                var catalogo = await context.Accion.FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Origen"));
+                var catalogo = await context.CRMCatalogos.AsNoTracking().Include(x => x.Valores).FirstOrDefaultAsync(x => x.Nombre.Equals("Catalogo_Contacto_Origen"));
                 if (catalogo is null) { return BadRequest("No existe el catalogo para origenes"); }
 
-                var catalogo_fijo = await context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToListAsync();
-
-                return Ok(catalogo_fijo);
+                return Ok(catalogo.Valores);
             }
             catch (Exception e)
             {

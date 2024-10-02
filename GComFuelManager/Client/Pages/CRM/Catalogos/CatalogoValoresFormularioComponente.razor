@@ -1,0 +1,126 @@
+﻿@page "/crm/catalogo/valores/formulario/{CatalogoId:int}"
+@page "/crm/catalogo/valores/formulario/{CatalogoId:int}/{Id:int}"
+
+@inject IRepositorio http
+@inject SweetAlertService swal
+@inject CRMCatalgoValorPostValidator validator
+@inject NavigationManager navigation
+@attribute [Authorize(Roles = "Admin, EDITAR_VALOR_CATALOGO, CREAR_VALOR_CATALOGO")]
+
+<AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO, CREAR_VALOR_CATALOGO">
+    <Authorized>
+        <Card LoadingContent="loading_info">
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <b>Formulario de valores</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" href="@($"crm/catalogo/valores/{CatalogoId}")" Match="NavLinkMatch.All">
+                        <i class="fa fa-solid fa-arrow-left" /> Volver
+                    </NavLink>
+                </div>
+            </Header>
+            <Body>
+                <EditForm class="col-12 row gy-2 gx-3" Model="Valor" Context="FormValor" OnValidSubmit="Guardar">
+                    <FluentValidationValidator Validator="validator" />
+                    <ValidationSummary />
+
+                    <div class="col-md-4 col-12">
+                        <label>Valor</label>
+                        <InputText @bind-Value="Valor.Valor" class="form-control" />
+                        <ValidationMessage For="@(()=>Valor.Valor)" />
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label>Abreviacion</label>
+                        <InputText @bind-Value="Valor.Abreviacion" class="form-control" />
+                        <ValidationMessage For="@(()=>Valor.Abreviacion)" />
+                    </div>
+                    <div class="col-12">
+                        <div class="col-md-4 col-12 d-flex">
+                            <button type="submit" class="btn gcom-bg-amarillo col-12 mt-auto">
+                                <i class="fa fa-solid fa-floppy-disk" />
+                                Guardar
+                                @if (loading_save)
+                                {
+                                    <SpinnerLoading />
+                                }
+                            </button>
+                        </div>
+                    </div>
+                </EditForm>
+            </Body>
+        </Card>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    [Parameter] public int CatalogoId { get; set; }
+
+    CRMCatalogoValorPostDTO Valor = new();
+
+    bool loading_info = false;
+    bool loading_save = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Id.IsZero())
+            await Obtener();
+    }
+
+    private async Task Guardar()
+    {
+        try
+        {
+            Valor.CatalogoId = CatalogoId;
+            loading_save = true;
+            var response = await http.Post<CRMCatalogoValorPostDTO>($"api/crmcatalogo", Valor);
+            if (response.Error)
+            {
+                loading_save = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_save = false;
+                if (Id != 0)
+                    navigation.NavigateTo($"crm/catalogo/valor/{CatalogoId}", false);
+                else
+                    Valor = new();
+            }
+        }
+        catch (Exception e)
+        {
+            loading_save = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var response = await http.Get<CRMCatalogoValorPostDTO>($"api/crmcatalogo/valor/{Id}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Valor = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+}

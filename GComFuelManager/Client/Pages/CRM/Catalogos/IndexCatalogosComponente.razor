@@ -1,5 +1,138 @@
-﻿<h3>IndexCatalogosComponente</h3>
+﻿@page "/crm/catalogos"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize(Roles = "Admin, VER_MODULO_CATALOGOS")]
+
+<AuthorizeView Roles="Admin, VER_MODULO_CATALOGOS">
+    <Authorized>
+        <Card>
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <b>Catalogos</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" Match="NavLinkMatch.All" href="../">
+                        <i class="fa fa-solid fa-arrow-left" />
+                        Volver
+                    </NavLink>
+                </div>
+            </Header>
+        </Card>
+        <AuthorizeView Roles="Admin, VER_MODULO_CATALOGOS">
+            <Authorized Context="VERCATALOGOS">
+                <div class="ancho-tabla">
+                    <Tabla Datos="Catalogos" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_VALORES_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <th style="max-width:150px;"> Ver valores de catalogo</th>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <th>Catalogo</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_VALORES_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <td></td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td><input class="form-control" @bind-value="@filtro.Nombre" @oninput="FiltrarNombre" /></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <AuthorizeView Roles="Admin, VER_VALORES_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <td>
+                                            <div class="d-flex justify-content-start">
+                                                <NavLink class="btn gcom-bg-amarillo" href="@($"crm/catalogo/valores/{item.Id}")">
+                                                    <i class="fa fa-solid fa-rectangle-list"></i>
+                                                </NavLink>
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td>@item.Clave</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+                    <div class="col-12">
+                        <p>Total de registros: @filtro.Total_registros</p>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    List<CRMCatalogoDTO> Catalogos = new();
+    CRMCatalogoDTO filtro = new();
+    bool loading_info = false;
+    Dictionary<string, string> query = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtro.Nombre)}"] = filtro.Nombre;
+        query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
+        query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var response = await http.Get<List<CRMCatalogoDTO>>($"api/crmcatalogo?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Catalogos = response.Response;
+
+                filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro.Pagina_ACtual = pagina;
+        filtro.Pagina = pagina;
+
+        await Obtener();
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro.Nombre = args.Value?.ToString() ?? string.Empty;
+        await Obtener();
+    }
 }

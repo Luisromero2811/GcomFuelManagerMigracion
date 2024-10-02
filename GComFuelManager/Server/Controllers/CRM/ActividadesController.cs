@@ -100,14 +100,9 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var catalogo = context.Accion.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Asunto"));
-                if (catalogo is null)
-                {
-                    return BadRequest("No existe el catalogo para asunto");
-                }
-
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
-                return Ok(catalogo_fijo);
+                var catalogo = context.CRMCatalogos.AsNoTracking().Include(x => x.Valores).FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Asunto"));
+                if (catalogo is null) return BadRequest("No existe el catalogo para asunto");
+                return Ok(catalogo.Valores);
 
             }
             catch (Exception e)
@@ -121,14 +116,9 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var catalogo = context.Accion.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Prioridad"));
-                if (catalogo is null)
-                {
-                    return BadRequest("No existe el catalogo para la prioridad");
-                }
-
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
-                return Ok(catalogo_fijo);
+                var catalogo = context.CRMCatalogos.AsNoTracking().Include(x => x.Valores).FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Prioridad"));
+                if (catalogo is null) return BadRequest("No existe el catalogo para la prioridad");
+                return Ok(catalogo.Valores);
 
             }
             catch (Exception e)
@@ -142,14 +132,9 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var catalogo = context.Accion.FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Estatus"));
-                if (catalogo is null)
-                {
-                    return BadRequest("No existe el catalogo para los estatus");
-                }
-
-                var catalogo_fijo = context.Catalogo_Fijo.Where(x => x.Activo && x.Catalogo.Equals(catalogo.Cod)).ToList();
-                return Ok(catalogo_fijo);
+                var catalogo = context.CRMCatalogos.AsNoTracking().Include(x=>x.Valores).FirstOrDefault(x => x.Nombre.Equals("Catalogo_Actividad_Estatus"));
+                if (catalogo is null) return BadRequest("No existe el catalogo para los estatus");
+                return Ok(catalogo.Valores);
 
             }
             catch (Exception e)

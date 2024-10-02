@@ -161,9 +161,9 @@
     CRMActividades Actividad = new();
     CRMActividadPostDTO CRMActividad = new();
 
-    List<Catalogo_Fijo> Cat_Asunto = new();
-    List<Catalogo_Fijo> Cat_Prioridad = new();
-    List<Catalogo_Fijo> Cat_Estatus = new();
+    List<CRMCatalogoValor> Cat_Asunto = new();
+    List<CRMCatalogoValor> Cat_Prioridad = new();
+    List<CRMCatalogoValor> Cat_Estatus = new();
     List<CRMVendedor> Vendedores { get; set; } = new List<CRMVendedor>();
     List<CRMContacto> Contactos { get; set; } = new List<CRMContacto>();
 
@@ -208,7 +208,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/asunto");
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/actividades/catalogo/asunto");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -229,7 +229,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/prioridad");
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/actividades/catalogo/prioridad");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();
@@ -250,7 +250,7 @@
     {
         try
         {
-            var responseHttp = await repositorio.Get<List<Catalogo_Fijo>>($"api/actividades/catalogo/estatus");
+            var responseHttp = await repositorio.Get<List<CRMCatalogoValor>>($"api/actividades/catalogo/estatus");
             if (responseHttp.Error)
             {
                 var message = await responseHttp.ObtenerMensajeError();

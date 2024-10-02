@@ -59,6 +59,7 @@ builder.Services.AddScoped<IValidator<CRMOriginadorPostDTO>, CRMOriginadorPostVa
 builder.Services.AddScoped<IValidator<CRMRolPostDTO>, CRMRolPostValidator>();
 builder.Services.AddScoped<IValidator<CRMEquipoPostDTO>, CRMEquipoPostValidator>();
 builder.Services.AddScoped<IValidator<CRMClientePostDTO>, CRMClientePostValidator>();
+builder.Services.AddScoped<IValidator<CRMCatalogoValorPostDTO>, CRMCatalgoValorPostValidator>();
 
 builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRender>();
 builder.Services.AddSingleton<RequestToFile>();

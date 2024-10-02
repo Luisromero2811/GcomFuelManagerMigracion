@@ -105,6 +105,12 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMDocumento, CRMDocumentoDTO>();
             CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>()
                 .ForMember(x => x.VersionCreadaPor, y => y.Ignore());
+
+            CreateMap<CRMCatalogo, CRMCatalogoDTO>();
+            CreateMap<CRMCatalogoValor, CRMCatalogoValorDTO>();
+            CreateMap<CRMCatalogoValor, CRMCatalogoValorPostDTO>();
+            CreateMap<CRMCatalogoValorPostDTO, CRMCatalogoValor>();
+
         }
     }
 }

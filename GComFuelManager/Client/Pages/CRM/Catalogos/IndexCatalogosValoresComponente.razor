@@ -1,5 +1,200 @@
-﻿<h3>IndexCatalogoValoresComponent</h3>
+﻿@page "/crm/catalogo/valores/{Id:int}"
+@inject IRepositorio http
+@inject SweetAlertService swal
+@attribute [Authorize(Roles = "Admin, VER_MODULO_VALORES_CATALOGO")]
+
+<AuthorizeView Roles="Admin, VER_MODULO_VALORES_CATALOGO">
+    <Authorized>
+        <Card>
+            <Header>
+                <div class="d-flex justify-content-between">
+                    <b>Valores de catalogo</b>
+                    <NavLink class="g-1 btn gcom-bg-amarillo" Match="NavLinkMatch.All" href="crm/catalogos">
+                        <i class="fa fa-solid fa-arrow-left" />
+                        Volver
+                    </NavLink>
+                </div>
+            </Header>
+        </Card>
+        <AuthorizeView Roles="Admin, CREAR_ROL">
+            <Authorized Context="CREARROL">
+                <div class="col-12 my-2">
+                    <div class="col-md-2 col">
+                        <NavLink class="btn btn-sm gcom-bg-amarillo g-1 col-12" href="@($"crm/catalogo/valores/formulario/{Id}")" Match="NavLinkMatch.All">
+                            <i class="fa fa-solid fa-plus" />Agregar
+                        </NavLink>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+        <AuthorizeView Roles="Admin, VER_VALORES_CATALOGO">
+            <Authorized Context="VERROLES">
+                <div class="ancho-tabla">
+                    <Tabla Datos="Valores" Cargando="loading_info">
+                        <Cabeceras>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO, ELIMINAR_VALOR_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <th style="max-width:150px;"></th>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <th>Valor</th>
+                                <th>Abreviacion</th>
+                            </tr>
+                        </Cabeceras>
+                        <Filtros>
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO, ELIMINAR_VALOR_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <td></td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td><input class="form-control" @bind-value="@filtro.Valor" @oninput="FiltrarNombre" /></td>
+                                <td></td>
+                            </tr>
+                        </Filtros>
+                        <Columnas Context="item">
+                            <tr>
+                                <AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO, ELIMINAR_VALOR_CATALOGO">
+                                    <Authorized Context="ACCIONES">
+                                        <td>
+                                            <div class="btn-group">
+                                                <AuthorizeView Roles="Admin, EDITAR_VALOR_CATALOGO">
+                                                    <Authorized Context="EDITARVALORCATALOGO">
+                                                        <NavLink class="btn gcom-bg-amarillo g-1 col-12" href="@($"crm/catalogo/valores/formulario/{item.Id}")" Match="NavLinkMatch.All">
+                                                            <i class="fa fa-solid fa-edit" />
+                                                        </NavLink>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                                <AuthorizeView Roles="Admin, ELIMINAR_VALOR_CATALOGO">
+                                                    <Authorized Context="ELIMINARVALORCATALOGO">
+                                                        <button class="btn btn-danger" @onclick="@(()=>Eliminar(item))">
+                                                            <i class="fa fa-solid fa-trash" />
+                                                        </button>
+                                                    </Authorized>
+                                                </AuthorizeView>
+                                            </div>
+                                        </td>
+                                    </Authorized>
+                                </AuthorizeView>
+                                <td>@item.Valor</td>
+                                <td>@item.Abreviacion</td>
+                            </tr>
+                        </Columnas>
+                    </Tabla>
+                </div>
+                <div class="col-12">
+                    <PaginacionComponent PaginaActual="filtro.Pagina_ACtual" PaginasTotales="filtro.Total_paginas" PaginaSeleccionada="Pagina_Seleccionada" Radio="5" />
+                    <div class="col-12">
+                        <p>Total de registros: @filtro.Total_registros</p>
+                    </div>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </Authorized>
+    <NotAuthorized>
+        <NoAutorizado />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
+    [Parameter] public int Id { get; set; }
 
+    List<CRMCatalogoValorDTO> Valores = new();
+    CRMCatalogoValorDTO filtro = new();
+    bool loading_info = false;
+    Dictionary<string, string> query = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Obtener();
+    }
+
+    private Dictionary<string, string> SetFiltro()
+    {
+        query[$"{nameof(filtro.Valor)}"] = filtro.Valor;
+        query[$"{nameof(filtro.CatalogoId)}"] = Id.ToString();
+        query[$"{nameof(filtro.Pagina)}"] = filtro.Pagina.ToString();
+        query[$"{nameof(filtro.Registros_por_pagina)}"] = filtro.Registros_por_pagina.ToString();
+        return query;
+    }
+
+    private async Task Obtener()
+    {
+        try
+        {
+            loading_info = true;
+            var uri = Constructor_De_URL_Parametros.Generar_URL(SetFiltro());
+
+            var response = await http.Get<List<CRMCatalogoValorDTO>>($"api/crmcatalogo/valor?{uri}");
+            if (response.Error)
+            {
+                loading_info = false;
+                var message = await response.ObtenerMensajeError();
+                await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                loading_info = false;
+                Valores = response.Response;
+
+                filtro.Total_paginas = Constructor_De_URL_Parametros.Obt_Total_Paginas(response.HttpResponseMessage);
+                filtro.Total_registros = Constructor_De_URL_Parametros.Obt_Total_Registros(response.HttpResponseMessage);
+                filtro.Pagina_ACtual = Constructor_De_URL_Parametros.Obt_Pagina_Actual(response.HttpResponseMessage);
+            }
+        }
+        catch (Exception e)
+        {
+            loading_info = false;
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task Eliminar(CRMCatalogoValorDTO crm)
+    {
+        try
+        {
+            var confirm = await swal.FireAsync(new SweetAlertOptions
+                {
+                    Title = "Eliminacion",
+                    Text = $"¿Desea eliminar el valor {crm.Valor} de este catalogo?",
+                    Icon = SweetAlertIcon.Warning,
+                    ShowCancelButton = true,
+                    ConfirmButtonText = "Aceptar",
+                    CancelButtonText = "Cancelar"
+                });
+            if (!string.IsNullOrEmpty(confirm.Value))
+            {
+                var response = await http.Delete($"api/crmrol/{crm.Id}");
+                if (response.Error)
+                {
+                    var message = await response.ObtenerMensajeError();
+                    await swal.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                else
+                {
+                    await Obtener();
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            await swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+
+    }
+
+    private async Task Pagina_Seleccionada(int pagina)
+    {
+        filtro.Pagina_ACtual = pagina;
+        filtro.Pagina = pagina;
+
+        await Obtener();
+    }
+
+    private async Task FiltrarNombre(ChangeEventArgs args)
+    {
+        filtro.Valor = args.Value?.ToString() ?? string.Empty;
+        await Obtener();
+    }
 }

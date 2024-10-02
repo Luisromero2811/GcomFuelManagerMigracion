@@ -208,8 +208,8 @@
     CRMContactoPostDTO CRMContacto = new();
 
     List<CRMCliente> Clientes = new();
-    List<Catalogo_Fijo> Catalogo_Estados = new();
-    List<Catalogo_Fijo> Catalogo_Origen = new();
+    List<CRMCatalogoValor> Catalogo_Estados = new();
+    List<CRMCatalogoValor> Catalogo_Origen = new();
     List<CRMVendedorDTO> Vendedores = new();
     List<CRMDivision> Divisiones = new();
 
@@ -260,7 +260,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/status");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmcontactos/catalogo/status");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
@@ -282,7 +282,7 @@
     {
         try
         {
-            var response = await http.Get<List<Catalogo_Fijo>>($"api/crmcontactos/catalogo/origen");
+            var response = await http.Get<List<CRMCatalogoValor>>($"api/crmcontactos/catalogo/origen");
             if (response.Error)
             {
                 var message = await response.ObtenerMensajeError();
