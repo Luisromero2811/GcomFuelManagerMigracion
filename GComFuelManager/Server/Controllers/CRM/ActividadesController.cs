@@ -275,9 +275,11 @@ namespace GComFuelManager.Server.Controllers
                        .Where(x => x.Activo && x.Estados.Valor != "Completada")
                        .Include(x => x.vendedor)
                        .Include(x => x.contacto)
+                       .ThenInclude(x => x.Cliente)
                        .Include(x => x.asuntos)
                        .Include(x => x.Estados)
                        .Include(x => x.prioridades)
+                       .OrderByDescending(x => x.Fecha_Creacion)
                        .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
@@ -299,9 +301,11 @@ namespace GComFuelManager.Server.Controllers
                         .Where(x => x.Activo && x.Estados.Valor != "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
                          .Include(x => x.vendedor)
                         .Include(x => x.contacto)
+                         .ThenInclude(x => x.Cliente)
                         .Include(x => x.asuntos)
                         .Include(x => x.Estados)
                         .Include(x => x.prioridades)
+                        .OrderByDescending(x => x.Fecha_Creacion)
                         .AsQueryable();
                 }
                 else if (await manager.IsInRoleAsync(user, "VER_DETALLE_ACTIVIDAD"))
@@ -314,9 +318,11 @@ namespace GComFuelManager.Server.Controllers
                         .Where(x => x.Activo && x.Estados.Valor != "Completada" && x.Asignado == vendedor.Id)
                         .Include(x => x.vendedor)
                         .Include(x => x.contacto)
+                         .ThenInclude(x => x.Cliente)
                         .Include(x => x.asuntos)
                         .Include(x => x.Estados)
                         .Include(x => x.prioridades)
+                        .OrderByDescending(x => x.Fecha_Creacion)
                         .AsQueryable();
                 }
 
@@ -343,6 +349,7 @@ namespace GComFuelManager.Server.Controllers
                      .Include(x => x.asuntos)
                      .Include(x => x.Estados)
                      .Include(x => x.prioridades)
+                     .OrderByDescending(x => x.Fecha_Creacion)
                      .Select(x => mapper.Map<CRMActividades, CRMActividadesExcelDTO>(x)).ToList();
                     ws.Cells["A1"].LoadFromCollection(actividadesexcel, opt =>
                     {
@@ -527,14 +534,14 @@ namespace GComFuelManager.Server.Controllers
 
                     worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
                     // Formato de fecha para la columna E (Columna 5)
-                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
 
                     // Formato de fecha para la columna F (Columna 6)
                     worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 7].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 8].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     return Ok(excel.GetAsByteArray());
 
                 }
@@ -576,14 +583,14 @@ namespace GComFuelManager.Server.Controllers
 
                     worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
                     // Formato de fecha para la columna E (Columna 5)
-                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
 
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 7].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 8].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
 
                     return Ok(excel.GetAsByteArray());
                 }
@@ -616,14 +623,14 @@ namespace GComFuelManager.Server.Controllers
 
                     worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
                     // Formato de fecha para la columna E (Columna 5)
-                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
 
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 7].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 8].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
                     // Formato de fecha para la columna F (Columna 6)
-                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 9].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
 
                     return Ok(excel.GetAsByteArray());
                 }
@@ -643,7 +650,17 @@ namespace GComFuelManager.Server.Controllers
         {
             try
             {
-                var actividad = await context.CRMActividades.Where(x => x.Id == Id).Select(x => mapper.Map<CRMActividadPostDTO>(x)).FirstOrDefaultAsync();
+                var actividad = await context.CRMActividades.AsNoTracking()
+                    .Where(x => x.Id == Id)
+                    .Include(x => x.Documentos.OrderByDescending(y => y.FechaCreacion))
+                    .Select(x => mapper.Map<CRMActividadPostDTO>(x))
+                    .FirstOrDefaultAsync();
+
+                if (actividad is null)
+                {
+                    return NotFound();
+                }
+
                 return Ok(actividad);
             }
             catch (Exception e)

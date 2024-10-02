@@ -41,6 +41,7 @@
                     <tr>
                         <th style="width:100px;"></th>
                         <th>Contacto</th>
+                        <th>Cuenta</th>
                         <th>Asunto</th>
                         <th>Prioridad</th>
                         <th>Estado</th>
@@ -53,6 +54,8 @@
                 </Cabeceras>
                 <Filtros>
                     <tr>
+                        <td></td>
+                        <td></td>
                         <td></td>
                         <td>
                             <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asunto" @oninput="FiltrarAsunto" />
@@ -70,7 +73,6 @@
                             <input class="form-control form-control-sm" @bind-value="filtro_actividad.Asignado" @oninput="FiltrarVendedor" />
                         </td>
                         <td></td>
-                        <td></td>
                     </tr>
                 </Filtros>
                 <Columnas Context="item">
@@ -86,6 +88,7 @@
                             </div>
                         </td>
                         <td>@item.Contacto_Rel</td>
+                        <td>@item.Cuenta_Rel</td>
                         <td>@item.Asunto</td>
                         <td>@item.Prioridad</td>
                         <td>@item.Estatus</td>

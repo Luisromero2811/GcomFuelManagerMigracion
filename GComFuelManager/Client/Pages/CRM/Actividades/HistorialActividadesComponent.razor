@@ -44,6 +44,7 @@
                 <Tabla Datos="ListadoActividad">
                     <Cabeceras>
                         <tr>
+                            <th></th>
                             <th>Contacto</th>
                             <th>Asunto</th>
                             <th>Prioridad</th>
@@ -58,6 +59,7 @@
                     </Cabeceras>
                     <Filtros>
                         <tr>
+                            <td></td>
                             <td></td>
                             <td>
                                 <input class="form-control form-control-sm" @bind-value="Listado_Actividad.Asunto" @oninput="FiltrarAsunto" />
@@ -75,6 +77,13 @@
                     </Filtros>
                     <Columnas Context="item">
                         <tr>
+                            <td>
+                                <div class="col-12">
+                                    <NavLink class="col-12 btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                        <i class="fa fa-solid fa-folder-open" />
+                                    </NavLink>
+                                </div>
+                            </td>
                             <td>@item.Contacto_Rel</td>
                             <td>@item.Asunto</td>
                             <td>@item.Prioridad</td>
