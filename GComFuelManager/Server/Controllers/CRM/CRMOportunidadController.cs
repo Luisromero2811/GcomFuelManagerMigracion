@@ -19,7 +19,7 @@ namespace GComFuelManager.Server.Controllers.CRM
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, CRM, CRM_Lider")]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "Admin, Administrador Sistema, CRM, LIDER_DE_EQUIPO")]
 
     public class CRMOportunidadController : ControllerBase
     {
@@ -58,7 +58,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .ThenInclude(x => x.Division)
                         .AsQueryable();
                 }
-                else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();

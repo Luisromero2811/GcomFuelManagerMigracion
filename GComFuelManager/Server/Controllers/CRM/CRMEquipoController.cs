@@ -53,7 +53,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                     .OrderBy(x => x.Nombre)
                     .AsQueryable();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
@@ -198,10 +198,10 @@ namespace GComFuelManager.Server.Controllers.CRM
                         if (nusercomercial is null) { return BadRequest("El comercial no cuenta con un usuario relacionado"); }
 
                         if (!await context.CRMEquipos.AnyAsync(x => x.LiderId == lider.Id && x.Id != equipo.Id))
-                            await manager.RemoveFromRoleAsync(usercomercial, "CRM_LIDER");
+                            await manager.RemoveFromRoleAsync(usercomercial, "LIDER_DE_EQUIPO");
 
-                        if (!await manager.IsInRoleAsync(nusercomercial, "CRM_LIDER"))
-                            await manager.AddToRoleAsync(nusercomercial, "CRM_LIDER");
+                        if (!await manager.IsInRoleAsync(nusercomercial, "LIDER_DE_EQUIPO"))
+                            await manager.AddToRoleAsync(nusercomercial, "LIDER_DE_EQUIPO");
                     }
 
                     var e = mapper.Map(equipo, equipodb);
@@ -212,8 +212,8 @@ namespace GComFuelManager.Server.Controllers.CRM
                     var integrantes = dTO.VendedoresDTO.Select(x => new CRMEquipoVendedor { EquipoId = equipo.Id, VendedorId = x.Id }).ToList();
                     equipo.EquipoVendedores = integrantes;
 
-                    if (!await manager.IsInRoleAsync(usercomercial, "CRM_LIDER"))
-                        await manager.AddToRoleAsync(usercomercial, "CRM_LIDER");
+                    if (!await manager.IsInRoleAsync(usercomercial, "LIDER_DE_EQUIPO"))
+                        await manager.AddToRoleAsync(usercomercial, "LIDER_DE_EQUIPO");
 
                     await context.AddAsync(equipo);
                 }
@@ -298,7 +298,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                         .OrderBy(x => x.Nombre)
                         .ToListAsync();
                 }
-                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await manager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     //List<int> divisiones = await context.CRMUsuarioDivisiones.Where(x => x.UsuarioId == user.Id).Select(x => x.DivisionId).ToListAsync();
 

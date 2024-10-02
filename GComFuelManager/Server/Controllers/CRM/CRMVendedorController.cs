@@ -52,7 +52,7 @@ namespace GComFuelManager.Server.Controllers.CRM
                 {
                     vendedores = context.CRMVendedores.Where(x => x.Activo).AsNoTracking().Include(x => x.Equipos).AsQueryable();
                 }
-                else if (await userManager.IsInRoleAsync(user, "CRM_LIDER"))
+                else if (await userManager.IsInRoleAsync(user, "LIDER_DE_EQUIPO"))
                 {
                     var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
                     if (comercial is null) return NotFound();
