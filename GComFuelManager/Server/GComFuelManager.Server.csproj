@@ -10,6 +10,7 @@
   <PropertyGroup Condition=" '$(RunConfiguration)' == 'http' " />
   <ItemGroup>
     <Content Remove="wwwroot\img\ENERGAS_Icon.png" />
+    <Content Remove="wwwroot\Files\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
@@ -64,10 +65,10 @@
     <Folder Include="Controllers\PedidoController\" />
     <Folder Include="Controllers\UsuarioController\" />
     <Folder Include="Files\" />
-    <Folder Include="wwwroot\Files\" />
     <Folder Include="wwwroot\PDF-BOL\" />
     <Folder Include="wwwroot\XML\" />
     <Folder Include="wwwroot\PDF\" />
+    <Folder Include="wwwroot\Files\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\img\ENERGAS_Icon.png" />

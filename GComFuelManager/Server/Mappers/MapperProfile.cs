@@ -103,8 +103,21 @@ namespace GComFuelManager.Server.Mappers
             CreateMap<CRMOportunidadPostDTO, CRMDocumento>()
                 .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
             CreateMap<CRMDocumento, CRMDocumentoDTO>();
+            CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>();
+
+            CreateMap<CRMActividadPostDTO, CRMDocumento>()
+                .ForMember(x => x.Id, y => y.MapFrom(doc => doc.DocumentoId));
             CreateMap<CRMDocumento, CRMDocumentoDetalleDTO>()
                 .ForMember(x => x.VersionCreadaPor, y => y.Ignore());
+
+            //Actividades
+            CreateMap<CRMActividades, CRMActividadPostDTO>()
+                .ForMember(x => x.DocumentoId, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Id : 0))
+                .ForMember(x => x.NombreDocumento, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().NombreDocumento : string.Empty))
+                .ForMember(x => x.Version, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Version : string.Empty))
+                .ForMember(x => x.FechaCaducidad, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().FechaCaducidad : DateTime.MinValue))
+                .ForMember(x => x.Descripcion, y => y.MapFrom(c => c.Documentos.Count > 0 ? c.Documentos.First().Descripcion : string.Empty));
+
 
             CreateMap<CRMCatalogo, CRMCatalogoDTO>();
             CreateMap<CRMCatalogoValor, CRMCatalogoValorDTO>();

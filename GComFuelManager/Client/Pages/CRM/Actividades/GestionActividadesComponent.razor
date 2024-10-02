@@ -4,7 +4,7 @@
 @inject SweetAlertService Swal
 @inject IRepositorio repositorio
 <!--Formulario de registro-->
-<div class="card mt-2" style="height: 500px; overflow: scroll; ">
+<div class="card mt-2" style="height: 680px; overflow: scroll; ">
     <div class="card-header">
         <div class="d-flex justify-content-between">
             <div>
@@ -38,7 +38,7 @@
                     <!--Fecha de Inicio-->
                     <div class="col-4 my-1">
                         <label>Fecha de Inicio:</label>
-                        <InputDate @bind-Value="@CRMActividad.Fecha_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
+                        <InputDate @bind-Value="@CRMActividad.Fch_Inicio" class="form-control form-control-sm col-12" Type="InputDateType.DateTimeLocal" />
                     </div>
                     <!--Fecha de Vencimiento-->
                     <div class="col-4 my-1">
@@ -81,7 +81,7 @@
                     <!--Descripción-->
                     <div class="col-4 my-1">
                         <label>Descripción:</label>
-                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 220px;" placeholder="Descripción de la Actividad" />
+                        <InputTextArea @bind-Value="@CRMActividad.Desccripcion" class="form-control" style=" height: 180px;" placeholder="Descripción de la Actividad" />
                         <ValidationMessage For="@(()=>CRMActividad.Desccripcion)" />
                     </div>
                     <!--Estatus-->
@@ -117,6 +117,60 @@
                             }
                         </InputSelect>
                     </div>
+                    <div class="col-4 my-1">
+                        <label>Equipo</label>
+                        <InputSelect @bind-Value="@CRMActividad.EquipoId" class="form-select form-select-sm">
+                            <option>-- Seleccione un Equipo --</option>
+                            @if (Equipos == null)
+                            {
+                                <option>Cargando...</option>
+                            }
+                            else if (Equipos.Count == 0)
+                            {
+                                <option>No hay Equipos.</option>
+                            }
+                            else
+                            {
+                                @foreach (var item in Equipos)
+                                {
+                                    <div class="my-auto" style="background-color:@item.Color;width:1rem;height:1rem;border-radius:1rem;margin-right:.2rem;"></div>
+                                    <option value="@item.Id">@item.Nombre @item.Lider</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+                    <Card HeaderText="Documentos asociados" BodyClass="col-12 row">
+                        <Body>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label="Documentos"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubido" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Nombre del Documento:</label>
+                                <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Fecha de Caducidad:</label>
+                                <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Versión del Documento:</label>
+                                <InputText @bind-Value="CRMActividad.Version" class="form-control" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <label>Descripción del Documento:</label>
+                                <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento relacionado"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revisión"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
+                            </div>
+                        </Body>
+                    </Card>
                 </div>
                 <!--Boton de creación y edición-->
                 <div class="col-12 d-flex mt-3 justify-content-center">
@@ -166,6 +220,7 @@
     List<CRMCatalogoValor> Cat_Estatus = new();
     List<CRMVendedor> Vendedores { get; set; } = new List<CRMVendedor>();
     List<CRMContacto> Contactos { get; set; } = new List<CRMContacto>();
+    List<CRMEquipoDTO> Equipos = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,10 +229,24 @@
                 Obtener_Catalogo_Prioridad(),
                 Obtener_Catalogo_Estatus(),
                 Obtener_Vendedores(),
+                ObtenerEquipos(),
                 Obtener_ContactosCRM());
         if (Id != 0)
         {
             await ObtenerActividad();
+        }
+        if (Vendedores != null && Vendedores.Count == 1)
+        {
+            // Si solo hay un vendedor, lo seleccionamos automáticamente
+            CRMActividad.Asignado = Vendedores.FirstOrDefault().Id;
+        }
+        if (Equipos != null && Equipos.Count == 1)
+        {
+            CRMActividad.EquipoId = Equipos.FirstOrDefault().Id;
+        }
+        if (Equipos != null && Equipos.Count == 1)
+        {
+            CRMActividad.CuentaId = Equipos.FirstOrDefault().Id;
         }
     }
 
@@ -333,6 +402,57 @@
         catch (Exception e)
         {
             await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private async Task ObtenerEquipos(string value = "")
+    {
+        try
+        {
+            Dictionary<string, string> query = new();
+            query["Nombre"] = value;
+
+            var uri = Constructor_De_URL_Parametros.Generar_URL(query);
+
+            var response = await repositorio.Get<List<CRMEquipoDTO>>($"api/crmequipo?{uri}");
+            if (response.Error)
+            {
+                var message = await response.ObtenerMensajeError();
+                await Swal.FireAsync("Error", message, SweetAlertIcon.Error);
+            }
+            else
+            {
+                Equipos = response.Response;
+            }
+        }
+        catch (Exception e)
+        {
+            await Swal.FireAsync("Error", e.Message, SweetAlertIcon.Error);
+        }
+    }
+
+    private void DocumentoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoId = doc.Id;
+            CRMActividad.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoRelacionado = doc.Id;
+        }
+    }
+
+    private void DocumentoRevisionSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoRevision = doc.Id;
         }
     }
 

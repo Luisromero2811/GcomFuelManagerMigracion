@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GComFuelManager.Shared.Modelos
 {
@@ -21,5 +21,9 @@ namespace GComFuelManager.Shared.Modelos
 
         public List<CRMOportunidad> Oportunidades { get; set; } = new();
         public List<CRMOportunidadDocumento> OportunidadDocumentos { get; set; } = new();
+
+
+        public List<CRMActividades> Actividades { get; set; } = new();
+        public List<CRMActividadDocumento> ActividadDocumentos { get; set; } = new();
     }
 }

@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using GComFuelManager.Client.Helpers;
 using GComFuelManager.Server.Helpers;
 using GComFuelManager.Server.Identity;
 using GComFuelManager.Shared.DTOs.CRM;
+using GComFuelManager.Shared.DTOs.Reportes.CRM;
 using GComFuelManager.Shared.Modelos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,6 +12,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using OfficeOpenXml;
+using OfficeOpenXml.Table;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -44,19 +48,60 @@ namespace GComFuelManager.Server.Controllers
                 var actividad = mapper.Map<CRMActividadPostDTO, CRMActividades>(cRMActividades);
 
                 //Si el ID de la actividad viene en 0 se agrega un nuevo registro de lo contrario se edita el registro
-                if (actividad.Id == 0)
+                if (actividad.Id != 0)
                 {
-                    await context.AddAsync(actividad);
+                    actividad.Fecha_Mod = DateTime.Now;
+                    context.Update(actividad);
                 }
                 else
                 {
-                    actividad.Fecha_Mod = DateTime.Now;
-
-                    context.Update(actividad);
+                    await context.AddAsync(actividad);
                 }
+
+                if (!cRMActividades.DocumentoId.IsZero())
+                {
+                    var doc = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoId);
+                    if (doc is not null)
+                    {
+                        var documento = mapper.Map<CRMActividadPostDTO, CRMDocumento>(cRMActividades);
+                        if (documento is not null)
+                        {
+                            var docupdate = mapper.Map(documento, doc);
+
+                            if (!cRMActividades.DocumentoRelacionado.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoRelacionado);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRelacionado() { DocumentoId = documento.Id, DocumentoRelacionadoId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
+                            if (!cRMActividades.DocumentoRevision.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoRevision);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRevision() { DocumentoId = documento.Id, RevisionId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
+                            context.Update(docupdate);
+                            if (!await context.CRMActividadDocumentos.AnyAsync(x => x.DocumentoId == documento.Id))
+                            {
+                                var docop = new CRMActividadDocumento() { DocumentoId = documento.Id, Actividad = actividad, Documento = null! };
+                                await context.AddAsync(docop);
+                            }
+                        }
+                    }
+
+                }
+
                 await context.SaveChangesAsync();
 
-                return Ok();
+                return NoContent();
 
             }
             catch (Exception e)
@@ -169,6 +214,19 @@ namespace GComFuelManager.Server.Controllers
                                      .Include(x => x.Vendedor)
                                      .ToList();
                 }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null) return NotFound();
+                    var equipos = await context.CRMEquipos.AsNoTracking().Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+                    var relaciones = await context.CRMEquipoVendedores.AsNoTracking().Where(x => equipos.Contains(x.EquipoId))
+                        .GroupBy(x => x.VendedorId)
+                        .Select(x => x.Key).ToListAsync();
+                    contactocrm = context.CRMContactos
+                        .Where(x => x.Activo == true && relaciones.Contains(x.Id))
+                        .Include(x => x.Vendedor)
+                                     .ToList();
+                }
                 else if (await manager.IsInRoleAsync(user, "CREAR_ACTIVIDAD"))
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
@@ -222,6 +280,30 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.prioridades)
                        .AsQueryable();
                 }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+
+                    activos = context.CRMActividades
+                        .AsNoTracking()
+                        .Where(x => x.Activo && x.Estados.Valor != "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
+                         .Include(x => x.vendedor)
+                        .Include(x => x.contacto)
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.prioridades)
+                        .AsQueryable();
+                }
                 else if (await manager.IsInRoleAsync(user, "VER_DETALLE_ACTIVIDAD"))
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
@@ -249,6 +331,37 @@ namespace GComFuelManager.Server.Controllers
 
                 if (!string.IsNullOrEmpty(activo.Asignado) && !string.IsNullOrWhiteSpace(activo.Asignado))
                     activos = activos.Where(x => x.vendedor != null && x.vendedor.Nombre.ToLower().Contains(activo.Asignado.ToLower()));
+
+                if (activo.Excel)
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                    ExcelPackage excelPackage = new();
+                    ExcelWorksheet ws = excelPackage.Workbook.Worksheets.Add("Actividades");
+                    var actividadesexcel = activos
+                     .Include(x => x.vendedor)
+                     .Include(x => x.contacto)
+                     .Include(x => x.asuntos)
+                     .Include(x => x.Estados)
+                     .Include(x => x.prioridades)
+                     .Select(x => mapper.Map<CRMActividades, CRMActividadesExcelDTO>(x)).ToList();
+                    ws.Cells["A1"].LoadFromCollection(actividadesexcel, opt =>
+                    {
+                        opt.PrintHeaders = true;
+                        opt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium12;
+                    });
+
+                    // Formato de fecha para la columna E (Columna 5)
+                    ws.Cells[1, 5, ws.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy";
+
+                    // Formato de fecha para la columna F (Columna 6)
+                    ws.Cells[1, 6, ws.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy";
+
+
+                    ws.Cells[1, 1, ws.Dimension.End.Row, ws.Dimension.End.Column].AutoFitColumns();
+
+                    return Ok(excelPackage.GetAsByteArray());
+                }
+
 
                 await HttpContext.InsertarParametrosPaginacion(activos, activo.Registros_por_pagina, activo.Pagina);
 
@@ -302,6 +415,29 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.prioridades)
                    .AsQueryable();
                 }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+
+                    actividades = context.CRMActividades
+                        .AsNoTracking()
+                        .Where(x => x.Activo && x.Estados.Valor == "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.contacto)
+                        .Include(x => x.prioridades)
+                        .AsQueryable();
+                }
                 else if (await manager.IsInRoleAsync(user, "VER_MODULO_HISTORIAL_ACTIVIDADES"))
                 {
                     var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
@@ -315,8 +451,8 @@ namespace GComFuelManager.Server.Controllers
                        .Include(x => x.contacto)
                        .Include(x => x.prioridades)
                    .AsQueryable();
-                }
 
+                }
 
                 //Filtros
                 if (!string.IsNullOrEmpty(actividadDTO.Asunto) && !string.IsNullOrWhiteSpace(actividadDTO.Asunto))
@@ -335,6 +471,166 @@ namespace GComFuelManager.Server.Controllers
                 var actividadesdto = actividades.Select(x => mapper.Map<CRMActividadDTO>(x));
 
                 return Ok(actividadesdto);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("historialExcel")]
+        public async Task<ActionResult> Historial_ActividadesExcel([FromBody] CRMActividadDTO actividadDTO)
+        {
+            try
+            {
+                if (HttpContext.User.Identity is null)
+                {
+                    return NotFound();
+                }
+
+                if (string.IsNullOrEmpty(HttpContext.User.Identity.Name) || string.IsNullOrWhiteSpace(HttpContext.User.Identity.Name))
+                {
+                    return NotFound();
+                }
+
+                var user = await manager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user is null)
+                {
+                    return NotFound();
+                }
+
+
+                if (await manager.IsInRoleAsync(user, "Admin"))
+                {
+                    //Consulta a la entidad CRMActividades
+                    var actividades = context.CRMActividades
+                       .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Estados.Valor.Equals("Completada"))
+                       .Include(x => x.asuntos)
+                       .Include(x => x.Estados)
+                       .Include(x => x.contacto)
+                       .Include(x => x.prioridades)
+                       .Include(x => x.vendedor)
+                       .Select(x => x.Asignacion_Datos())
+                   .ToList();
+
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("Historial_Actividades");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        actividades, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+                    // Formato de fecha para la columna E (Columna 5)
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    return Ok(excel.GetAsByteArray());
+
+                }
+                else if (await manager.IsInRoleAsync(user, "CRM_LIDER"))
+                {
+                    var comercial = await context.CRMOriginadores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (comercial is null)
+                    {
+                        return NotFound();
+                    }
+
+                    var equipos = await context.CRMEquipos.AsNoTracking()
+                        .Where(x => x.Activo && x.LiderId == comercial.Id).Select(x => x.Id).ToListAsync();
+
+                    var relacion = await context.CRMEquipoVendedores.AsNoTracking()
+                       .Where(x => equipos.Contains(x.EquipoId)).GroupBy(x => x.VendedorId).Select(x => x.Key).ToListAsync();
+
+                    var actividades = context.CRMActividades
+                        .AsNoTracking()
+                        .Where(x => x.Activo && x.Estados.Valor == "Completada" && relacion.Contains((int)x.Asignado) && equipos.Contains((int)x.EquipoId))
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.contacto)
+                        .Include(x => x.prioridades)
+                        .Select(x => x.Asignacion_Datos())
+                        .ToList();
+
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("Historial_Actividades");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        actividades, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+                    // Formato de fecha para la columna E (Columna 5)
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+
+                    return Ok(excel.GetAsByteArray());
+                }
+                else if (await manager.IsInRoleAsync(user, "VER_MODULO_HISTORIAL_ACTIVIDADES"))
+                {
+                    var vendedor = await context.CRMVendedores.FirstOrDefaultAsync(x => x.UserId == user.Id);
+                    if (vendedor is null) { return NotFound(); }
+
+                    //Consulta a la entidad CRMActividades
+                    var actividades = context.CRMActividades
+                        .Where(x => x.Fecha_Creacion >= actividadDTO.Fecha_Creacion && x.Fecha_Creacion <= actividadDTO.Fecha_Ven && x.Asignado == vendedor.Id && x.Estados.Valor.Equals("Completada"))
+                        .Include(x => x.asuntos)
+                        .Include(x => x.Estados)
+                        .Include(x => x.contacto)
+                        .Include(x => x.prioridades)
+                        .Select(x => x.Asignacion_Datos())
+                    .ToList();
+
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    //Generacion de Excel
+                    var excel = new ExcelPackage();
+                    var worksheet = excel.Workbook.Worksheets.Add("Historial_Actividades");
+                    //Formación de Excel
+                    var tablebody = worksheet.Cells["A1"].LoadFromCollection(
+                        actividades, c =>
+                        {
+                            c.PrintHeaders = true;
+                            c.TableStyle = TableStyles.Medium2;
+                        });
+
+                    worksheet.Cells[1, 1, worksheet.Dimension.End.Row, worksheet.Dimension.End.Column].AutoFitColumns();
+                    // Formato de fecha para la columna E (Columna 5)
+                    worksheet.Cells[1, 5, worksheet.Dimension.End.Row, 5].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 2, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 3, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+                    // Formato de fecha para la columna F (Columna 6)
+                    worksheet.Cells[1, 4, worksheet.Dimension.End.Row, 6].Style.Numberformat.Format = "dd/MM/yyyy HH:mm";
+
+                    return Ok(excel.GetAsByteArray());
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             catch (Exception e)
             {
