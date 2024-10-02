@@ -35,10 +35,11 @@
                 </button>
             </div>
         </div>
-        <div class="col-12">
+        <div class="ancho-tabla">
             <Tabla Datos="CRMActividades">
                 <Cabeceras>
                     <tr>
+                        <th style="width:100px;"></th>
                         <th>Contacto</th>
                         <th>Asunto</th>
                         <th>Prioridad</th>
@@ -48,7 +49,6 @@
                         <th>Fecha de Vencimiento</th>
                         <th>Asignado A:</th>
                         <th>Habilitar / Deshabilitar</th>
-                        <th>Editar</th>
                     </tr>
                 </Cabeceras>
                 <Filtros>
@@ -75,6 +75,16 @@
                 </Filtros>
                 <Columnas Context="item">
                     <tr>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
+                                    <i class="fa fa-solid fa-edit" />
+                                </NavLink>
+                                <NavLink class="btn gcom-bg-amarillo" href="@($"crm/documento/?{nameof(DetalleDocumentoComponente.ActividadId)}={item.Id}")">
+                                    <i class="fa fa-solid fa-folder-open"/>
+                                </NavLink>
+                            </div>
+                        </td>
                         <td>@item.Contacto_Rel</td>
                         <td>@item.Asunto</td>
                         <td>@item.Prioridad</td>
@@ -87,13 +97,6 @@
                             <div class="form-check form-switch m-2">
                                 <input class="form-check-input" type="checkbox" role="switch" id="@item?.Id" checked="@item?.Activo"
                                        @onchange="@((ChangeEventArgs e) => ChangeStatus(item, e))" />
-                            </div>
-                        </td>
-                        <td>
-                            <div class="col-12">
-                                <NavLink class="btn gcom-bg-amarillo" href=@($"crm/gestion/actividades/{item?.Id}")>
-                                    <i class="fa fa-solid fa-edit" />
-                                </NavLink>
                             </div>
                         </td>
                     </tr>

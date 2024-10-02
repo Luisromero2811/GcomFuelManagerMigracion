@@ -143,23 +143,31 @@
                         <Body>
                             <div class="col-4 my-1">
                                 <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .doc, .docx" Texto_Label="Documentos"
-                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoSubido" />
                             </div>
                             <div class="col-4 my-1">
                                 <label>Nombre del Documento:</label>
-                                <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control"/>
+                                <InputText @bind-Value="CRMActividad.NombreDocumento" class="form-control" />
                             </div>
                             <div class="col-4 my-1">
                                 <label>Fecha de Caducidad:</label>
-                                <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today"/>
+                                <InputDate Type="InputDateType.Date" @bind-Value="CRMActividad.FechaCaducidad" class="form-control" min="@DateTime.Today" />
                             </div>
                             <div class="col-4 my-1">
                                 <label>Versión del Documento:</label>
-                                <InputText @bind-Value="CRMActividad.Version" class="form-control"/>
+                                <InputText @bind-Value="CRMActividad.Version" class="form-control" />
                             </div>
                             <div class="col-4 my-1">
                                 <label>Descripción del Documento:</label>
-                                <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control"/>
+                                <InputTextArea @bind-Value="CRMActividad.Descripcion" class="form-control" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento relacionado"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRelacionadoSubido" />
+                            </div>
+                            <div class="col-4 my-1">
+                                <Subir_Archivo TResponse="CRMDocumentoDTO" URL="api/crmfile" Accept=".pdf, .png, .jpg, .xlsx, .xls, .doc, .docx" Texto_Label="Documento de revisión"
+                                               MaxSize="2" MaxAllowedFiles="1" Subida_Completa="DocumentoRevisionSubido" />
                             </div>
                         </Body>
                     </Card>
@@ -423,12 +431,28 @@
         }
     }
 
-    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    private void DocumentoSubido(CRMDocumentoDTO doc)
     {
         if (!doc.Id.IsZero())
         {
             CRMActividad.DocumentoId = doc.Id;
             CRMActividad.NombreDocumento = doc.NombreDocumento;
+        }
+    }
+
+    private void DocumentoRelacionadoSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoRelacionado = doc.Id;
+        }
+    }
+
+    private void DocumentoRevisionSubido(CRMDocumentoDTO doc)
+    {
+        if (!doc.Id.IsZero())
+        {
+            CRMActividad.DocumentoRevision = doc.Id;
         }
     }
 

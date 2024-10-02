@@ -50,6 +50,11 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!dTO.OportunidadId.IsZero())
                     documentos = documentos.Where(x => x.Oportunidades.Select(x => x.Id).Contains(dTO.OportunidadId));
 
+                if (!dTO.ActividadId.IsZero())
+                {
+                    documentos = documentos.Where(x => x.Actividades.Select(x => x.Id).Contains(dTO.ActividadId));
+                }
+
                 //actividades
 
                 await HttpContext.InsertarParametrosPaginacion(documentos, dTO.Registros_por_pagina, dTO.Pagina);
@@ -92,6 +97,18 @@ namespace GComFuelManager.Server.Controllers.CRM
                 if (!dTO.ActividadId.IsZero())
                 {
                     //actividades
+                    var actividad = await context.CRMActividades
+                        .AsNoTracking()
+                        .Include(x => x.Documentos.OrderByDescending(x => x.FechaCreacion))
+                        .FirstOrDefaultAsync(x => x.Id == dTO.ActividadId);
+                    if (actividad is null)
+                    {
+                        return NotFound();
+                    }
+                    if (actividad.Documentos.Count > 0)
+                    {
+                        documento = actividad.Documentos.First();
+                    }
                 }
 
                 if (!dTO.Id.IsZero())

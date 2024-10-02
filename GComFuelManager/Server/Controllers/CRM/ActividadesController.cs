@@ -67,6 +67,27 @@ namespace GComFuelManager.Server.Controllers
                         if (documento is not null)
                         {
                             var docupdate = mapper.Map(documento, doc);
+
+                            if (!cRMActividades.DocumentoRelacionado.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoRelacionado);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRelacionado() { DocumentoId = documento.Id, DocumentoRelacionadoId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
+                            if (!cRMActividades.DocumentoRevision.IsZero())
+                            {
+                                var docrelacionad = await context.CRMDocumentos.AsNoTracking().FirstOrDefaultAsync(x => x.Id == cRMActividades.DocumentoRevision);
+                                if (docrelacionad is not null)
+                                {
+                                    var docrelacionadorelacion = new CRMDocumentoRevision() { DocumentoId = documento.Id, RevisionId = docrelacionad.Id };
+                                    await context.AddAsync(docrelacionadorelacion);
+                                }
+                            }
+
                             context.Update(docupdate);
                             if (!await context.CRMActividadDocumentos.AnyAsync(x => x.DocumentoId == documento.Id))
                             {

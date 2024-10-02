@@ -26,6 +26,8 @@ namespace GComFuelManager.Shared.DTOs.CRM
         public string Version { get; set; } = string.Empty;
         public DateTime FechaCaducidad { get; set; } = DateTime.Today;
         public string Descripcion { get; set; } = string.Empty;
+        public int DocumentoRelacionado { get; set; }
+        public int DocumentoRevision { get; set; }
     }
 }
 
